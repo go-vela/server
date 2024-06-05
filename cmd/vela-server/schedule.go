@@ -122,6 +122,11 @@ func processSchedules(ctx context.Context, start time.Time, settings *settings.P
 			continue
 		}
 
+		logrus.WithFields(logrus.Fields{
+			"schedule":    schedule.GetName(),
+			"schedule_id": schedule.GetID(),
+		}).Info("schedule updated - scheduled at set")
+
 		// process the schedule and trigger a new build
 		err = processSchedule(ctx, schedule, settings, compiler, database, metadata, queue, scm)
 		if err != nil {
@@ -141,6 +146,11 @@ func processSchedules(ctx context.Context, start time.Time, settings *settings.P
 
 				continue
 			}
+
+			logrus.WithFields(logrus.Fields{
+				"schedule":    schedule.GetName(),
+				"schedule_id": schedule.GetID(),
+			}).Info("schedule updated - error message cleared")
 		}
 	}
 
@@ -232,4 +242,9 @@ func handleError(ctx context.Context, database database.Interface, err error, sc
 	if err != nil {
 		logrus.WithError(err).Warnf("%s %s: %s", scheduleErr, schedule.GetName(), err.Error())
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"schedule":    schedule.GetName(),
+		"schedule_id": schedule.GetID(),
+	}).Info("schedule updated - error message set")
 }

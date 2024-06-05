@@ -12,10 +12,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
+	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/pipeline"
 )
@@ -23,6 +25,15 @@ import (
 // AutoCancel is a helper function that checks to see if any pending or running
 // builds for the repo can be replaced by the current build.
 func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pipeline.CancelOptions) (bool, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"ip":       util.EscapeValue(c.ClientIP()),
+		"path":     util.EscapeValue(c.Request.URL.Path),
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	})
+
+	logger.Debug("checking if builds should be auto canceled")
+
 	// if build is the current build, continue
 	if rB.GetID() == b.GetID() {
 		return false, nil
@@ -43,6 +54,11 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 			if err != nil {
 				return false, err
 			}
+
+			logger.WithFields(logrus.Fields{
+				"build":    rB.GetNumber(),
+				"build_id": rB.GetID(),
+			}).Info("build updated - build canceled")
 
 			// remove executable from table
 			_, err = database.FromContext(c).PopBuildExecutable(c, rB.GetID())
@@ -67,6 +83,11 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 			// if this call fails, we still canceled the build, so return true
 			return true, err
 		}
+
+		logger.WithFields(logrus.Fields{
+			"build":    rB.GetNumber(),
+			"build_id": rB.GetID(),
+		}).Info("build updated - build canceled")
 	}
 
 	return true, nil

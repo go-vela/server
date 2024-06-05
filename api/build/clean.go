@@ -20,6 +20,14 @@ import (
 // like steps and services, for the build in the
 // configured backend.
 func CleanBuild(ctx context.Context, database database.Interface, b *types.Build, services []*library.Service, steps []*library.Step, e error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+		"repo":     b.GetRepo().GetFullName(),
+	})
+
+	logger.Debug("cleaning build")
+
 	// update fields in build object
 	b.SetError(fmt.Sprintf("unable to publish to queue: %s", e.Error()))
 	b.SetStatus(constants.StatusError)
@@ -31,6 +39,8 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 		logrus.Errorf("unable to kill build %d: %v", b.GetNumber(), err)
 	}
 
+	logger.Info("build updated - build cleaned")
+
 	for _, s := range services {
 		// update fields in service object
 		s.SetStatus(constants.StatusKilled)
@@ -41,6 +51,11 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 		if err != nil {
 			logrus.Errorf("unable to kill service %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
+
+		logger.WithFields(logrus.Fields{
+			"service":    s.GetName(),
+			"service_id": s.GetID(),
+		}).Info("service updated - service cleaned")
 	}
 
 	for _, s := range steps {
@@ -53,5 +68,10 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 		if err != nil {
 			logrus.Errorf("unable to kill step %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
+
+		logger.WithFields(logrus.Fields{
+			"step":    s.GetName(),
+			"step_id": s.GetID(),
+		}).Info("step updated - step cleaned")
 	}
 }

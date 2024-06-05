@@ -287,6 +287,8 @@ func CreateRepo(c *gin.Context) {
 		dbRepo.SetActive(true)
 
 		// send API call to update the repo
+		// NOTE: not logging modification out separately
+		// although we are CREATING a repo in this path
 		r, err = database.FromContext(c).UpdateRepo(ctx, dbRepo)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", dbRepo.GetFullName(), err)

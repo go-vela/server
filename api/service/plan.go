@@ -12,6 +12,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
+	"github.com/sirupsen/logrus"
 )
 
 // PlanServices is a helper function to plan all services
@@ -39,6 +40,12 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 			return services, fmt.Errorf("unable to create service %s: %w", s.GetName(), err)
 		}
 
+		logrus.WithFields(logrus.Fields{
+			"service":    s.GetName(),
+			"service_id": s.GetID(),
+			"repo":       b.GetRepo().GetFullName(),
+		}).Info("service created")
+
 		// populate environment variables from service library
 		//
 		// https://pkg.go.dev/github.com/go-vela/types/library#Service.Environment
@@ -59,6 +66,13 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 		if err != nil {
 			return services, fmt.Errorf("unable to create service logs for service %s: %w", s.GetName(), err)
 		}
+
+		logrus.WithFields(logrus.Fields{
+			"service":    s.GetName(),
+			"service_id": s.GetID(),
+			"log_id":     l.GetID(),
+			"repo":       b.GetRepo().GetFullName(),
+		}).Info("log for service created")
 	}
 
 	return services, nil

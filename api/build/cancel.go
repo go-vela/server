@@ -85,10 +85,13 @@ func CancelBuild(c *gin.Context) {
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logger := logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  user.GetName(),
+		"ip":       util.EscapeValue(c.ClientIP()),
+		"path":     util.EscapeValue(c.Request.URL.Path),
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+		"org":      o,
+		"repo":     r.GetName(),
+		"user":     user.GetName(),
 	})
 
 	logger.Debugf("canceling build %s", entry)
@@ -180,6 +183,11 @@ func CancelBuild(c *gin.Context) {
 					return
 				}
 
+				logger.WithFields(logrus.Fields{
+					"build":    b.GetNumber(),
+					"build_id": b.GetID(),
+				}).Info("build updated - build canceled")
+
 				c.JSON(resp.StatusCode, b)
 
 				return
@@ -208,6 +216,11 @@ func CancelBuild(c *gin.Context) {
 
 		return
 	}
+
+	logger.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	}).Info("build updated - build canceled")
 
 	// remove build executable for clean up
 	_, err = database.FromContext(c).PopBuildExecutable(ctx, b.GetID())

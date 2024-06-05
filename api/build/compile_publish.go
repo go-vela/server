@@ -49,7 +49,13 @@ func CompileAndPublish(
 	compiler compiler.Engine,
 	queue queue.Service,
 ) (*pipeline.Build, *models.Item, int, error) {
-	logrus.Debugf("generating queue items for build %s/%d", cfg.Build.GetRepo().GetFullName(), cfg.Build.GetNumber())
+	logger := logrus.WithFields(logrus.Fields{
+		"repo":     cfg.Build.GetRepo().GetFullName(),
+		"build":    cfg.Build.GetNumber(),
+		"build_id": cfg.Build.GetID(),
+	})
+
+	logger.Debug("generating queue items")
 
 	// assign variables from form for readibility
 	r := cfg.Build.GetRepo()
@@ -322,6 +328,11 @@ func CompileAndPublish(
 
 				return nil, nil, http.StatusInternalServerError, retErr
 			}
+
+			logrus.WithFields(logrus.Fields{
+				"pipeline": pipeline.GetID(),
+				"repo":     repo.GetFullName(),
+			}).Info("pipeline created")
 		}
 
 		b.SetPipelineID(pipeline.GetID())
@@ -364,6 +375,11 @@ func CompileAndPublish(
 
 		return nil, nil, http.StatusInternalServerError, retErr
 	}
+
+	logger.WithFields(logrus.Fields{
+		"repo":    repo.GetFullName(),
+		"repo_id": repo.GetID(),
+	}).Info("repo updated - counter incremented")
 
 	// return error if pipeline didn't get populated
 	if p == nil {

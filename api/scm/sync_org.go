@@ -137,7 +137,7 @@ func SyncReposForOrg(c *gin.Context) {
 					return
 				}
 
-				logger.Infof("repo %#q has been updated (set to inactive)", repo.GetFullName())
+				logger.Infof("repo %s has been updated - set to inactive", repo.GetFullName())
 
 				results = append(results, repo)
 			} else {
@@ -179,7 +179,7 @@ func SyncReposForOrg(c *gin.Context) {
 						return
 					}
 
-					logger.Infof("repo %#q has been updated (set to inactive)", repo.GetFullName())
+					logger.Infof("repo %s has been updated - set to inactive", repo.GetFullName())
 
 					results = append(results, repo)
 

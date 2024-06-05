@@ -140,6 +140,8 @@ func server(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
+
+		logrus.Info("initial platform settings created")
 	}
 
 	// update any internal settings, this occurs in middleware

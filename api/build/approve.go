@@ -83,10 +83,12 @@ func ApproveBuild(c *gin.Context) {
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logger := logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
+		"ip":       util.EscapeValue(c.ClientIP()),
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+		"org":      o,
+		"repo":     r.GetName(),
+		"user":     u.GetName(),
 	})
 
 	logger.Debugf("approving build %d", b.GetID())
@@ -115,10 +117,14 @@ func ApproveBuild(c *gin.Context) {
 	// update the build in the db
 	_, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
-		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
+		logger.Errorf("failed to update build during publish to queue: %v", err)
 	}
 
-	logger.Debugf("user %s approved build %s/%d for execution", u.GetName(), r.GetFullName(), b.GetNumber())
+	logger.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+		"repo":     r.GetFullName(),
+	}).Info("build updated - user approved build execution")
 
 	// publish the build to the queue
 	go Enqueue(

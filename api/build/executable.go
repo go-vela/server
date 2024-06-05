@@ -104,7 +104,7 @@ func PublishBuildExecutable(ctx context.Context, db database.Interface, p *pipel
 	// marshal pipeline build into byte data to add to the build executable object
 	byteExecutable, err := json.Marshal(p)
 	if err != nil {
-		logrus.Errorf("Failed to marshal build executable: %v", err)
+		logrus.Errorf("failed to marshal build executable: %v", err)
 
 		// error out the build
 		CleanBuild(ctx, db, b, nil, nil, err)
@@ -120,13 +120,17 @@ func PublishBuildExecutable(ctx context.Context, db database.Interface, p *pipel
 	// send database call to create a build executable
 	err = db.CreateBuildExecutable(ctx, bExecutable)
 	if err != nil {
-		logrus.Errorf("Failed to publish build executable to database: %v", err)
+		logrus.Errorf("failed to publish build executable to database: %v", err)
 
 		// error out the build
 		CleanBuild(ctx, db, b, nil, nil, err)
 
 		return err
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"build_executable_id": bExecutable.GetBuildID(),
+	}).Info("created build executable in the database")
 
 	return nil
 }

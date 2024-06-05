@@ -63,11 +63,17 @@ func RepairRepo(c *gin.Context) {
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Debugf("repairing repo %s", r.GetFullName())
+	logger := logrus.WithFields(logrus.Fields{
+		"ip":      util.EscapeValue(c.ClientIP()),
+		"path":    util.EscapeValue(c.Request.URL.Path),
+		"org":     o,
+		"repo":    r.GetName(),
+		"repo_id": r.GetID(),
+		"user":    u.GetName(),
+		"user_id": u.GetID(),
+	})
+
+	logger.Debugf("repairing repo %s", r.GetFullName())
 
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
@@ -119,6 +125,10 @@ func RepairRepo(c *gin.Context) {
 
 			return
 		}
+
+		logger.WithFields(logrus.Fields{
+			"hook": hook.GetID(),
+		}).Info("new webhook created")
 	}
 
 	// get repo information from the source

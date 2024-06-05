@@ -50,6 +50,8 @@ func Logout(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logger := logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
+		"ip":   util.EscapeValue(c.ClientIP()),
+		"path": util.EscapeValue(c.Request.URL.Path),
 	})
 
 	logger.Debugf("logging out user %s", u.GetName())
@@ -73,7 +75,7 @@ func Logout(c *gin.Context) {
 	u.SetRefreshToken("")
 
 	// send API call to update the user in the database
-	_, err = database.FromContext(c).UpdateUser(ctx, u)
+	ur, err := database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 
@@ -82,7 +84,10 @@ func Logout(c *gin.Context) {
 		return
 	}
 
-	logger.Infof("updated user %#q", u.GetName())
+	logger.WithFields(logrus.Fields{
+		"user":    ur.GetName(),
+		"user_id": ur.GetID(),
+	}).Info("updated user")
 
 	// return 200 for successful logout
 	c.JSON(http.StatusOK, "ok")

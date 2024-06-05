@@ -93,7 +93,7 @@ func Refresh(c *gin.Context) {
 		return
 	}
 
-	logger.Info("worker updated (check-in time)")
+	logger.Info("worker updated - check-in time updated")
 
 	logger.Debugf("refreshing worker %s authentication", w.GetHostname())
 

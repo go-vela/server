@@ -101,7 +101,7 @@ func SyncRepo(c *gin.Context) {
 				return
 			}
 
-			logger.Infof("repo %#q has been updated (set to inactive)", r.GetFullName())
+			logger.Infof("repo %s has been updated - set to inactive", r.GetFullName())
 
 			// exit with success as hook sync will be unnecessary
 			c.JSON(http.StatusOK, r)
@@ -161,7 +161,7 @@ func SyncRepo(c *gin.Context) {
 					return
 				}
 
-				logger.Infof("repo %#q has been updated (set to inactive)", r.GetFullName())
+				logger.Infof("repo %s has been updated - set to inactive", r.GetFullName())
 
 				c.JSON(http.StatusOK, r)
 

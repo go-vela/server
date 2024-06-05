@@ -129,7 +129,7 @@ func GetAuthToken(c *gin.Context) {
 		u.SetRefreshToken(rt)
 
 		// send API call to create the user in the database
-		_, err = database.FromContext(c).CreateUser(ctx, u)
+		ur, err := database.FromContext(c).CreateUser(ctx, u)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create user %s: %w", u.GetName(), err)
 
@@ -138,7 +138,10 @@ func GetAuthToken(c *gin.Context) {
 			return
 		}
 
-		logger.Infof("new user %#q created", u.GetName())
+		logger.WithFields(logrus.Fields{
+			"user":    ur.GetName(),
+			"user_id": ur.GetID(),
+		}).Info("new user created")
 
 		// return the jwt access token
 		c.JSON(http.StatusOK, library.Token{Token: &at})
@@ -164,7 +167,7 @@ func GetAuthToken(c *gin.Context) {
 	u.SetRefreshToken(rt)
 
 	// send API call to update the user in the database
-	_, err = database.FromContext(c).UpdateUser(ctx, u)
+	ur, err := database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 
@@ -173,7 +176,10 @@ func GetAuthToken(c *gin.Context) {
 		return
 	}
 
-	logger.Infof("user %#q updated", u.GetName())
+	logger.WithFields(logrus.Fields{
+		"user":    ur.GetName(),
+		"user_id": ur.GetID(),
+	}).Info("user updated")
 
 	// return the user with their jwt access token
 	c.JSON(http.StatusOK, library.Token{Token: &at})

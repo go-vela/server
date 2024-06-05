@@ -13,6 +13,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/types/pipeline"
+	"github.com/sirupsen/logrus"
 )
 
 // PlanBuild is a helper function to plan the build for
@@ -39,6 +40,11 @@ func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service
 
 		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	}).Info("build created")
 
 	// plan all services for the build
 	services, err := service.PlanServices(ctx, database, p, b)

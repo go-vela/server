@@ -32,7 +32,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		logrus.Debugf("Reading worker %s", wParam)
+		logrus.Debugf("reading worker %s", wParam)
 
 		w, err := database.FromContext(c).GetWorkerForHostname(ctx, wParam)
 		if err != nil {

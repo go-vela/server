@@ -17,8 +17,9 @@ import (
 // Enqueue is a helper function that pushes a queue item (build, repo, user) to the queue.
 func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, item *models.Item, route string) {
 	logger := logrus.WithFields(logrus.Fields{
-		"build": item.Build.GetNumber(),
-		"repo":  item.Build.GetRepo().GetFullName(),
+		"build":    item.Build.GetNumber(),
+		"build_id": item.Build.GetID(),
+		"repo":     item.Build.GetRepo().GetFullName(),
 	})
 
 	logger.Debug("converting queue item to json")
