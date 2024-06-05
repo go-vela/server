@@ -226,5 +226,9 @@ func NewTest() (Interface, error) {
 		WithDriver("sqlite3"),
 		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithSkipCreation(false),
+		WithLogLevel("warn"),
+		WithLogShowSQL(false),
+		WithLogSkipNotFound(true),
+		WithLogSlowThreshold(200*time.Millisecond),
 	)
 }
