@@ -72,7 +72,6 @@ var Flags = []cli.Flag{
 		FilePath: "/vela/database/log_show_sql",
 		Name:     "database.log.show_sql",
 		Usage:    "show the SQL query in the logs",
-		Value:    false,
 	},
 	&cli.BoolFlag{
 		EnvVars:  []string{"VELA_DATABASE_LOG_SKIP_NOTFOUND", "DATABASE_LOG_SKIP_NOTFOUND"},
