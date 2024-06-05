@@ -64,7 +64,7 @@ var Flags = []cli.Flag{
 		EnvVars:  []string{"VELA_DATABASE_LOG_LEVEL", "DATABASE_LOG_LEVEL"},
 		FilePath: "/vela/database/log_level",
 		Name:     "database.log.level",
-		Usage:    "set log level - options: (trace|info|warn|error)",
+		Usage:    "set log level - options: (trace|debug|info|warn|error|fatal|panic)",
 		Value:    "warn",
 	},
 	&cli.BoolFlag{
