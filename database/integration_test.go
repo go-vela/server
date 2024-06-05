@@ -12,7 +12,7 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"

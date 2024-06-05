@@ -5,7 +5,7 @@ package jwk
 import (
 	"context"
 
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
