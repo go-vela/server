@@ -83,7 +83,7 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 
 			pipeline := pipeline.Retrieve(c)
 			if pipeline != nil {
-				fields["pipeline"] = pipeline.ID
+				fields["pipeline_id"] = pipeline.ID
 			}
 
 			repo := repo.Retrieve(c)

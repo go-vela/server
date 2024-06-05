@@ -60,8 +60,6 @@ import (
 // CleanResources represents the API handler to
 // update any user stored in the database.
 func CleanResources(c *gin.Context) {
-	logrus.Debug("platform admin: cleaning resources")
-
 	// capture middleware values
 	ctx := c.Request.Context()
 	u := user.Retrieve(c)
@@ -72,6 +70,8 @@ func CleanResources(c *gin.Context) {
 		"user":    u.GetName(),
 		"user_id": u.GetID(),
 	})
+
+	logger.Debug("platform admin: cleaning resources")
 
 	// default error message
 	msg := "build cleaned by platform admin"

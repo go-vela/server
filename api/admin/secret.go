@@ -52,8 +52,6 @@ import (
 // UpdateSecret represents the API handler to
 // update any secret stored in the database.
 func UpdateSecret(c *gin.Context) {
-	logrus.Debug("platform admin: updating secret")
-
 	// capture middleware values
 	ctx := c.Request.Context()
 	u := user.Retrieve(c)
@@ -64,6 +62,8 @@ func UpdateSecret(c *gin.Context) {
 		"user":    u.GetName(),
 		"user_id": u.GetID(),
 	})
+
+	logrus.Debug("platform admin: updating secret")
 
 	// capture body from API request
 	input := new(library.Secret)
@@ -84,7 +84,7 @@ func UpdateSecret(c *gin.Context) {
 		"type":      util.EscapeValue(input.GetType()),
 		"name":      util.EscapeValue(input.GetName()),
 		"team":      util.EscapeValue(input.GetTeam()),
-	}).Info("attempting to update secret")
+	}).Debug("attempting to update secret")
 
 	// send API call to update the secret
 	s, err := database.FromContext(c).UpdateSecret(ctx, input)

@@ -120,7 +120,7 @@ func UpdateBuild(c *gin.Context) {
 		"user_id": u.GetID(),
 	})
 
-	logger.Debug("updating build")
+	logger.Debug("platform admin: updating build")
 
 	// capture body from API request
 	input := new(types.Build)
@@ -140,7 +140,7 @@ func UpdateBuild(c *gin.Context) {
 		"repo":     util.EscapeValue(input.GetRepo().GetName()),
 		"repo_id":  input.GetRepo().GetID(),
 		"org":      util.EscapeValue(input.GetRepo().GetOrg()),
-	}).Info("attempting to update build")
+	}).Debug("attempting to update build")
 
 	// send API call to update the build
 	b, err := database.FromContext(c).UpdateBuild(ctx, input)

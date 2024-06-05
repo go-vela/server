@@ -52,8 +52,6 @@ import (
 // UpdateHook represents the API handler to
 // update any hook stored in the database.
 func UpdateHook(c *gin.Context) {
-	logrus.Debug("platform admin: updating hook")
-
 	// capture middleware values
 	ctx := c.Request.Context()
 	u := user.Retrieve(c)
@@ -64,6 +62,8 @@ func UpdateHook(c *gin.Context) {
 		"user":    u.GetName(),
 		"user_id": u.GetID(),
 	})
+
+	logrus.Debug("platform admin: updating hook")
 
 	// capture body from API request
 	input := new(library.Hook)
@@ -79,7 +79,7 @@ func UpdateHook(c *gin.Context) {
 
 	logger.WithFields(logrus.Fields{
 		"hook_id": input.GetID(),
-	}).Info("attempting to update hook")
+	}).Debug("attempting to update hook")
 
 	// send API call to update the hook
 	h, err := database.FromContext(c).UpdateHook(ctx, input)

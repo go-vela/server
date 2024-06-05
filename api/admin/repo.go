@@ -53,8 +53,6 @@ import (
 // UpdateRepo represents the API handler to
 // update any repo stored in the database.
 func UpdateRepo(c *gin.Context) {
-	logrus.Debug("platform admin: updating repo")
-
 	// capture middleware values
 	ctx := c.Request.Context()
 	u := user.Retrieve(c)
@@ -65,6 +63,8 @@ func UpdateRepo(c *gin.Context) {
 		"user":    u.GetName(),
 		"user_id": u.GetID(),
 	})
+
+	logrus.Debug("platform admin: updating repo")
 
 	// capture body from API request
 	input := new(types.Repo)
@@ -81,7 +81,7 @@ func UpdateRepo(c *gin.Context) {
 	logger.WithFields(logrus.Fields{
 		"repo_id": input.GetID(),
 		"repo":    util.EscapeValue(input.GetFullName()),
-	}).Info("attempting to update repo")
+	}).Debug("attempting to update repo")
 
 	// send API call to update the repo
 	r, err := database.FromContext(c).UpdateRepo(ctx, input)

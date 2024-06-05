@@ -43,8 +43,6 @@ import (
 // RegisterToken represents the API handler to
 // generate a registration token for onboarding a worker.
 func RegisterToken(c *gin.Context) {
-	logrus.Debug("platform admin: generating worker registration token")
-
 	// capture middleware values
 	host := util.PathParameter(c, "worker")
 
@@ -54,6 +52,8 @@ func RegisterToken(c *gin.Context) {
 		TokenType:     constants.WorkerRegisterTokenType,
 		TokenDuration: tm.WorkerRegisterTokenDuration,
 	}
+
+	logrus.Debug("platform admin: generating worker registration token")
 
 	rt, err := tm.MintToken(rmto)
 	if err != nil {

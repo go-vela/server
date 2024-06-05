@@ -54,8 +54,6 @@ import (
 // UpdateService represents the API handler to
 // update any service stored in the database.
 func UpdateService(c *gin.Context) {
-	logrus.Debug("platform admin: updating service")
-
 	// capture middleware values
 	ctx := c.Request.Context()
 	u := user.Retrieve(c)
@@ -66,6 +64,8 @@ func UpdateService(c *gin.Context) {
 		"user":    u.GetName(),
 		"user_id": u.GetID(),
 	})
+
+	logrus.Debug("platform admin: updating service")
 
 	// capture body from API request
 	input := new(library.Service)
@@ -82,7 +82,7 @@ func UpdateService(c *gin.Context) {
 	logger.WithFields(logrus.Fields{
 		"service_id": input.GetID(),
 		"service":    util.EscapeValue(input.GetName()),
-	}).Info("attempting to update service")
+	}).Debug("attempting to update service")
 
 	// send API call to update the service
 	s, err := database.FromContext(c).UpdateService(ctx, input)

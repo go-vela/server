@@ -74,7 +74,7 @@ func PostAuthToken(c *gin.Context) {
 		return
 	}
 
-	logrus.Infof("user %#q successfully authenticated via SCM PAT", u.GetName())
+	logrus.Infof("user %s successfully authenticated via SCM PAT", u.GetName())
 
 	// We don't need refresh token for this scenario
 	// We only need access token and are configured based on the config defined
@@ -94,7 +94,7 @@ func PostAuthToken(c *gin.Context) {
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
 	}
 
-	logrus.Debugf("new access token created for user %#q via SCM PAT", u.GetName())
+	logrus.Debugf("new access token created for user %s via SCM PAT", u.GetName())
 
 	// return the user with their jwt access token
 	c.JSON(http.StatusOK, library.Token{Token: &at})
