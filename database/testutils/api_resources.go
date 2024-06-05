@@ -7,7 +7,7 @@ import (
 	"crypto/rsa"
 
 	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
@@ -288,10 +288,19 @@ func JWK() jwk.RSAPublicKey {
 		return nil
 	}
 
-	j := jwk.NewRSAPublicKey()
-	_ = j.FromRaw(&privateRSAKey.PublicKey)
+	pubKey, err := jwk.PublicRawKeyOf(&privateRSAKey.PublicKey)
 
-	_ = j.Set(jwk.KeyIDKey, kid.String())
+	if err != nil {
+		return nil
+	}
 
-	return j
+	jk, ok := pubKey.(jwk.RSAPublicKey)
+
+	if !ok {
+		return nil
+	}
+
+	jk.Set(jwk.KeyIDKey, kid.String())
+
+	return jk
 }

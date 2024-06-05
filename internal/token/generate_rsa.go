@@ -8,7 +8,7 @@ import (
 	"crypto/rsa"
 
 	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	"github.com/go-vela/server/database"
 )
@@ -27,20 +27,22 @@ func (tm *Manager) GenerateRSA(ctx context.Context, db database.Interface) error
 		return err
 	}
 
-	j := jwk.NewRSAPublicKey()
+	pubKey, err := jwk.PublicRawKeyOf(&privateRSAKey.PublicKey)
 
-	err = j.FromRaw(&privateRSAKey.PublicKey)
 	if err != nil {
-		return err
+		return nil
 	}
 
-	err = j.Set(jwk.KeyIDKey, kid.String())
-	if err != nil {
-		return err
+	jk, ok := pubKey.(jwk.RSAPublicKey)
+
+	if !ok {
+		return nil
 	}
+
+	jk.Set(jwk.KeyIDKey, kid.String())
 
 	// create the JWK in the database
-	err = db.CreateJWK(context.TODO(), j)
+	err = db.CreateJWK(context.TODO(), jk)
 	if err != nil {
 		return err
 	}

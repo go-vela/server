@@ -5,7 +5,7 @@ package jwk
 import (
 	"context"
 
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
@@ -33,7 +33,7 @@ func (e *engine) ListJWKs(_ context.Context) (jwk.Set, error) {
 		tmp := key
 
 		// convert query result to API type
-		keySet.Add(tmp.ToAPI())
+		keySet.AddKey(tmp.ToAPI())
 	}
 
 	return keySet, nil
