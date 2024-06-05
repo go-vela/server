@@ -10,6 +10,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -91,6 +92,17 @@ func (e *engine) NewResources(ctx context.Context) error {
 		hook.WithClient(e.client),
 		hook.WithLogger(e.logger),
 		hook.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for JWKs
+	e.JWKInterface, err = jwk.New(
+		jwk.WithContext(e.ctx),
+		jwk.WithClient(e.client),
+		jwk.WithLogger(e.logger),
+		jwk.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
@@ -17,7 +18,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // MustPlatformAdmin ensures the user has admin access to the platform.
@@ -169,6 +169,48 @@ func MustBuildAccess() gin.HandlerFunc {
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 
 			return
+		}
+	}
+}
+
+// MustIDRequestToken ensures the token is a valid ID request token for the appropriate build.
+func MustIDRequestToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		cl := claims.Retrieve(c)
+		b := build.Retrieve(c)
+
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logrus.WithFields(logrus.Fields{
+			"repo": cl.Subject,
+		}).Debugf("verifying worker %s has a valid build token", cl.Subject)
+
+		// verify expected type
+		if !strings.EqualFold(cl.TokenType, constants.IDRequestTokenType) {
+			retErr := fmt.Errorf("invalid token: must provide a valid request ID token")
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+
+		// if build is not in a running state, then an ID token should not be needed
+		if !strings.EqualFold(b.GetStatus(), constants.StatusRunning) {
+			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("invalid request"))
+
+			return
+		}
+
+		// verify expected build id
+		if b.GetID() != cl.BuildID {
+			logrus.WithFields(logrus.Fields{
+				"user":  cl.Subject,
+				"repo":  cl.Repo,
+				"build": cl.BuildID,
+			}).Warnf("request ID token for build %d attempted to be used for %s build %d by %s", cl.BuildID, b.GetStatus(), b.GetID(), cl.Subject)
+
+			retErr := fmt.Errorf("invalid token")
+			util.HandleError(c, http.StatusUnauthorized, retErr)
 		}
 	}
 }

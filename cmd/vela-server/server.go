@@ -103,6 +103,11 @@ func server(c *cli.Context) error {
 		return err
 	}
 
+	tm, err := setupTokenManager(c, database)
+	if err != nil {
+		return err
+	}
+
 	jitter := wait.Jitter(5*time.Second, 2.0)
 
 	logrus.Infof("retrieving initial platform settings after %v delay", jitter)
@@ -154,7 +159,7 @@ func server(c *cli.Context) error {
 		middleware.Database(database),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
 		middleware.Metadata(metadata),
-		middleware.TokenManager(setupTokenManager(c)),
+		middleware.TokenManager(tm),
 		middleware.Queue(queue),
 		middleware.RequestVersion,
 		middleware.Secret(c.String("vela-secret")),

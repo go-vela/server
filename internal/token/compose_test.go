@@ -24,8 +24,7 @@ func TestToken_Compose(t *testing.T) {
 	u.SetToken("bar")
 
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -47,7 +46,7 @@ func TestToken_Compose(t *testing.T) {
 
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	want, err := tkn.SignedString([]byte(tm.PrivateKey))
+	want, err := tkn.SignedString([]byte(tm.PrivateKeyHMAC))
 	if err != nil {
 		t.Errorf("Unable to create test token: %v", err)
 	}

@@ -12,6 +12,7 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
+	"github.com/lestrrat-go/jwx/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
@@ -20,6 +21,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	dbJWK "github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -43,6 +45,7 @@ type Resources struct {
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
 	Hooks       []*library.Hook
+	JWKs        jwk.Set
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
 	Repos       []*api.Repo
@@ -135,6 +138,8 @@ func TestDatabase_Integration(t *testing.T) {
 			t.Run("test_executables", func(t *testing.T) { testExecutables(t, db, resources) })
 
 			t.Run("test_hooks", func(t *testing.T) { testHooks(t, db, resources) })
+
+			t.Run("test_jwks", func(t *testing.T) { testJWKs(t, db, resources) })
 
 			t.Run("test_logs", func(t *testing.T) { testLogs(t, db, resources) })
 
@@ -851,6 +856,89 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	for method, called := range methods {
 		if !called {
 			t.Errorf("method %s was not called for hooks", method)
+		}
+	}
+}
+
+func testJWKs(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for jwks
+	methods := make(map[string]bool)
+	// capture the element type of the jwk interface
+	element := reflect.TypeOf(new(dbJWK.JWKInterface)).Elem()
+	// iterate through all methods found in the jwk interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for jwks
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	for i := 0; i < resources.JWKs.Len(); i++ {
+		jk, _ := resources.JWKs.Get(i)
+
+		jkPub, _ := jk.(jwk.RSAPublicKey)
+
+		err := db.CreateJWK(context.TODO(), jkPub)
+		if err != nil {
+			t.Errorf("unable to create jwk %s: %v", jkPub.KeyID(), err)
+		}
+	}
+	methods["CreateJWK"] = true
+
+	list, err := db.ListJWKs(context.TODO())
+	if err != nil {
+		t.Errorf("unable to list jwks: %v", err)
+	}
+
+	if !reflect.DeepEqual(resources.JWKs, list) {
+		t.Errorf("ListJWKs() mismatch, want %v, got %v", resources.JWKs, list)
+	}
+
+	methods["ListJWKs"] = true
+
+	for i := 0; i < resources.JWKs.Len(); i++ {
+		jk, _ := resources.JWKs.Get(i)
+
+		jkPub, _ := jk.(jwk.RSAPublicKey)
+
+		got, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		if err != nil {
+			t.Errorf("unable to get jwk %s: %v", jkPub.KeyID(), err)
+		}
+
+		if !cmp.Equal(jkPub, got, testutils.JwkKeyOpts) {
+			t.Errorf("GetJWK() is %v, want %v", got, jkPub)
+		}
+	}
+
+	methods["GetActiveJWK"] = true
+
+	err = db.RotateKeys(context.TODO())
+	if err != nil {
+		t.Errorf("unable to rotate keys: %v", err)
+	}
+
+	for i := 0; i < resources.JWKs.Len(); i++ {
+		jk, _ := resources.JWKs.Get(i)
+
+		jkPub, _ := jk.(jwk.RSAPublicKey)
+
+		_, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		if err == nil {
+			t.Errorf("GetActiveJWK() should return err after rotation")
+		}
+	}
+
+	methods["RotateKeys"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for jwks", method)
 		}
 	}
 }
@@ -2484,6 +2572,13 @@ func newResources() *Resources {
 	hookThree.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookThree.SetWebhookID(78910)
 
+	jwkOne := testutils.JWK()
+	jwkTwo := testutils.JWK()
+
+	jwkSet := jwk.NewSet()
+	jwkSet.Add(jwkOne)
+	jwkSet.Add(jwkTwo)
+
 	logServiceOne := new(library.Log)
 	logServiceOne.SetID(1)
 	logServiceOne.SetBuildID(1)
@@ -2749,6 +2844,7 @@ func newResources() *Resources {
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
+		JWKs:        jwkSet,
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},
