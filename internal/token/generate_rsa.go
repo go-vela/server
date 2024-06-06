@@ -24,7 +24,7 @@ func (tm *Manager) GenerateRSA(ctx context.Context, db database.Interface) error
 
 	pubJwk, err := jwk.FromRaw(privateRSAKey.PublicKey)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	switch j := pubJwk.(type) {
@@ -32,12 +32,12 @@ func (tm *Manager) GenerateRSA(ctx context.Context, db database.Interface) error
 		// assign KID to key pair
 		kid, err := uuid.NewV7()
 		if err != nil {
-			return nil
+			return err
 		}
 
 		err = pubJwk.Set(jwk.KeyIDKey, kid.String())
 		if err != nil {
-			return nil
+			return err
 		}
 
 		// create the JWK in the database

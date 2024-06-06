@@ -33,7 +33,10 @@ func (e *engine) ListJWKs(_ context.Context) (jwk.Set, error) {
 		tmp := key
 
 		// convert query result to API type
-		keySet.AddKey(tmp.ToAPI())
+		err = keySet.AddKey(tmp.ToAPI())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return keySet, nil

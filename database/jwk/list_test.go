@@ -54,8 +54,16 @@ func TestJWK_Engine_ListJWKs(t *testing.T) {
 	}
 
 	wantSet := jwk.NewSet()
-	wantSet.AddKey(_jwkOne)
-	wantSet.AddKey(_jwkTwo)
+
+	err = wantSet.AddKey(_jwkOne)
+	if err != nil {
+		t.Errorf("unable to add jwk to set: %v", err)
+	}
+
+	err = wantSet.AddKey(_jwkTwo)
+	if err != nil {
+		t.Errorf("unable to add jwk to set: %v", err)
+	}
 
 	// setup tests
 	tests := []struct {

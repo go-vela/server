@@ -2576,8 +2576,10 @@ func newResources() *Resources {
 	jwkTwo := testutils.JWK()
 
 	jwkSet := jwk.NewSet()
-	jwkSet.AddKey(jwkOne)
-	jwkSet.AddKey(jwkTwo)
+
+	_ = jwkSet.AddKey(jwkOne)
+
+	_ = jwkSet.AddKey(jwkTwo)
 
 	logServiceOne := new(library.Log)
 	logServiceOne.SetID(1)
