@@ -4,7 +4,7 @@ package types
 
 import (
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 )
 
 // OpenIDConfig is a struct that represents the OpenID Connect configuration.
