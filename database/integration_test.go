@@ -12,7 +12,7 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
@@ -878,7 +878,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 	}
 
 	for i := 0; i < resources.JWKs.Len(); i++ {
-		jk, _ := resources.JWKs.Get(i)
+		jk, _ := resources.JWKs.Key(i)
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
@@ -901,7 +901,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 	methods["ListJWKs"] = true
 
 	for i := 0; i < resources.JWKs.Len(); i++ {
-		jk, _ := resources.JWKs.Get(i)
+		jk, _ := resources.JWKs.Key(i)
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
@@ -923,7 +923,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 	}
 
 	for i := 0; i < resources.JWKs.Len(); i++ {
-		jk, _ := resources.JWKs.Get(i)
+		jk, _ := resources.JWKs.Key(i)
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
@@ -2576,8 +2576,10 @@ func newResources() *Resources {
 	jwkTwo := testutils.JWK()
 
 	jwkSet := jwk.NewSet()
-	jwkSet.Add(jwkOne)
-	jwkSet.Add(jwkTwo)
+
+	_ = jwkSet.AddKey(jwkOne)
+
+	_ = jwkSet.AddKey(jwkTwo)
 
 	logServiceOne := new(library.Log)
 	logServiceOne.SetID(1)

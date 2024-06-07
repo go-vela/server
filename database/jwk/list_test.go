@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	"github.com/go-vela/server/database/testutils"
 )
@@ -54,8 +54,16 @@ func TestJWK_Engine_ListJWKs(t *testing.T) {
 	}
 
 	wantSet := jwk.NewSet()
-	wantSet.Add(_jwkOne)
-	wantSet.Add(_jwkTwo)
+
+	err = wantSet.AddKey(_jwkOne)
+	if err != nil {
+		t.Errorf("unable to add jwk to set: %v", err)
+	}
+
+	err = wantSet.AddKey(_jwkTwo)
+	if err != nil {
+		t.Errorf("unable to add jwk to set: %v", err)
+	}
 
 	// setup tests
 	tests := []struct {

@@ -6,9 +6,10 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
+	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	"github.com/go-vela/server/database"
 )
@@ -21,37 +22,40 @@ func (tm *Manager) GenerateRSA(ctx context.Context, db database.Interface) error
 		return err
 	}
 
-	// assign KID to key pair
-	kid, err := uuid.NewV7()
+	pubJwk, err := jwk.FromRaw(privateRSAKey.PublicKey)
 	if err != nil {
 		return err
 	}
 
-	j := jwk.NewRSAPublicKey()
+	switch j := pubJwk.(type) {
+	case jwk.RSAPublicKey:
+		// assign KID to key pair
+		kid, err := uuid.NewV7()
+		if err != nil {
+			return err
+		}
 
-	err = j.FromRaw(&privateRSAKey.PublicKey)
-	if err != nil {
-		return err
+		err = pubJwk.Set(jwk.KeyIDKey, kid.String())
+		if err != nil {
+			return err
+		}
+
+		// create the JWK in the database
+		err = db.CreateJWK(context.TODO(), j)
+		if err != nil {
+			return err
+		}
+
+		// create the RSA key set for token manager
+		keySet := RSAKeySet{
+			PrivateKey: privateRSAKey,
+			KID:        kid.String(),
+		}
+
+		tm.RSAKeySet = keySet
+
+		return nil
+	default:
+		return fmt.Errorf("invalid JWK type parsed from generation")
 	}
-
-	err = j.Set(jwk.KeyIDKey, kid.String())
-	if err != nil {
-		return err
-	}
-
-	// create the JWK in the database
-	err = db.CreateJWK(context.TODO(), j)
-	if err != nil {
-		return err
-	}
-
-	// create the RSA key set for token manager
-	keySet := RSAKeySet{
-		PrivateKey: privateRSAKey,
-		KID:        kid.String(),
-	}
-
-	tm.RSAKeySet = keySet
-
-	return nil
 }
