@@ -16,6 +16,9 @@ import (
 func setupTokenManager(c *cli.Context, db database.Interface) (*token.Manager, error) {
 	logrus.Debug("Creating token manager from CLI configuration")
 
+	addr := c.String("server-addr")
+	addr = "http://host.docker.internal:8080"
+
 	tm := &token.Manager{
 		PrivateKeyHMAC:              c.String("vela-server-private-key"),
 		UserAccessTokenDuration:     c.Duration("user-access-token-duration"),
@@ -24,7 +27,7 @@ func setupTokenManager(c *cli.Context, db database.Interface) (*token.Manager, e
 		WorkerAuthTokenDuration:     c.Duration("worker-auth-token-duration"),
 		WorkerRegisterTokenDuration: c.Duration("worker-register-token-duration"),
 		IDTokenDuration:             c.Duration("id-token-duration"),
-		Issuer:                      fmt.Sprintf("%s/_services/token", c.String("server-addr")),
+		Issuer:                      fmt.Sprintf("%s/_services/token", addr),
 	}
 
 	// generate a new RSA key pair
