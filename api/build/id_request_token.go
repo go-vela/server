@@ -114,6 +114,7 @@ func GetIDRequestToken(c *gin.Context) {
 	}
 
 	commands := false
+
 	var err error
 
 	if len(c.Query("commands")) > 0 {
