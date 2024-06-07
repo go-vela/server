@@ -36,7 +36,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Token"
 //   '401':
-//     description: Unable to authenticate
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '503':
@@ -44,9 +44,8 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// PostAuthToken represents the API handler to
-// process a user logging in using PAT to Vela from
-// the API.
+// PostAuthToken represents the API handler to process
+// a user logging in using PAT to Vela from the API.
 func PostAuthToken(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()

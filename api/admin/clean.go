@@ -20,7 +20,7 @@ import (
 
 // swagger:operation PUT /api/v1/admin/clean admin AdminCleanResources
 //
-// Update pending build resources to error status before a given time
+// Update stale build resources to error status
 //
 // ---
 // produces:
@@ -28,7 +28,7 @@ import (
 // parameters:
 // - in: query
 //   name: before
-//   description: filter pending resources created before a certain time
+//   description: Filter stale resources created before a certain time
 //   required: true
 //   type: integer
 // - in: body
@@ -43,22 +43,21 @@ import (
 //   '200':
 //     description: Successfully updated pending resources with error message
 //     schema:
-//     type: string
+//       type: string
 //   '400':
-//     description: Unable to update resources — bad request
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unable to update resources — unauthorized
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update resources
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CleanResources represents the API handler to
-// update any user stored in the database.
+// CleanResources represents the API handler to update stale resources.
 func CleanResources(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

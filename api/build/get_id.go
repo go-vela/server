@@ -18,7 +18,7 @@ import (
 
 // swagger:operation GET /api/v1/search/builds/{id} builds GetBuildByID
 //
-// Get a single build by its id in the configured backend
+// Get a build by id
 //
 // ---
 // produces:
@@ -26,7 +26,7 @@ import (
 // parameters:
 // - in: path
 //   name: id
-//   description: build id
+//   description: Build ID
 //   required: true
 //   type: number
 // security:
@@ -37,16 +37,20 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Unable to retrieve the build
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetBuildByID represents the API handler to capture a
-// build by its id from the configured backend.
+// GetBuildByID represents the API handler to get a
+// build by its id.
 func GetBuildByID(c *gin.Context) {
 	// Capture user from middleware
 	u := user.Retrieve(c)
@@ -54,7 +58,6 @@ func GetBuildByID(c *gin.Context) {
 
 	// Parse build ID from path
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse build id: %w", err)
 

@@ -91,7 +91,7 @@ const (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
 //
-// Get directed a-cyclical graph for a build in the configured backend
+// Get directed a-cyclical graph for a build
 //
 // ---
 // produces:
@@ -99,12 +99,12 @@ const (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -120,21 +120,25 @@ const (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Graph"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unable to retrieve graph for the build — unauthorized
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve graph for the build — not found
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve graph for the build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetBuildGraph represents the API handler to capture a
-// directed a-cyclical graph for a build from the configured backend.
+// GetBuildGraph represents the API handler to get a
+// directed a-cyclical graph for a build.
 //
 //nolint:funlen,goconst,gocyclo // ignore function length and constants
 func GetBuildGraph(c *gin.Context) {

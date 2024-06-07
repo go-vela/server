@@ -20,7 +20,7 @@ import (
 
 // swagger:operation GET /api/v1/deployments/{org}/{repo}/{deployment} deployments GetDeployment
 //
-// Get a deployment from the configured backend
+// Get a deployment
 //
 // ---
 // produces:
@@ -28,12 +28,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -49,16 +49,23 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Deployment"
 //   '400':
-//     description: Unable to retrieve the deployment
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the deployment
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetDeployment represents the API handler to
-// capture a deployment from the configured backend.
+// GetDeployment represents the API handler to get a deployment.
 func GetDeployment(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

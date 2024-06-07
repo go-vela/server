@@ -101,7 +101,7 @@ var (
 
 // swagger:operation GET /metrics base BaseMetrics
 //
-// Retrieve metrics from the Vela api
+// Get Vela API metrics
 //
 // ---
 // produces:
@@ -114,7 +114,7 @@ var (
 //   default: false
 // - in: query
 //   name: repo_count
-//   description: Indicates a request for repo count
+//   description: Indicates a request for repository count
 //   type: boolean
 //   default: false
 // - in: query

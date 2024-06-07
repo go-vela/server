@@ -20,7 +20,7 @@ import (
 
 // swagger:operation PATCH /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
 //
-// Sync up scm service and database in the context of a specific repo
+// Sync a repository with the scm service
 //
 // ---
 // produces:
@@ -28,12 +28,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // security:
@@ -46,15 +46,23 @@ import (
 //   '204':
 //     description: Successful request resulting in no change
 //   '301':
-//     description: Repo has moved permanently
+//     description: Repo has moved permanently (from SCM)
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '403':
-//     description: User has been forbidden access to repository
+//     description: User has been forbidden access to repository (from SCM)
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to synchronize repo
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -83,7 +91,6 @@ func SyncRepo(c *gin.Context) {
 
 	// retrieve repo from source code manager service
 	_, respCode, err := scm.FromContext(c).GetRepo(ctx, u, r)
-
 	// if there is an error retrieving repo, we know it is deleted: set to inactive
 	if err != nil {
 		if respCode == http.StatusNotFound {

@@ -22,7 +22,7 @@ import (
 
 // swagger:operation POST /api/v1/workers/{worker}/refresh workers RefreshWorkerAuth
 //
-// Refresh authorization token for worker
+// Refresh authorization token for a worker
 //
 // ---
 // produces:
@@ -41,15 +41,19 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Token"
 //   '400':
-//     description: Unable to refresh worker auth
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to refresh worker auth
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to refresh worker auth
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

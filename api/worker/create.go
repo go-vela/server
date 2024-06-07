@@ -23,7 +23,7 @@ import (
 
 // swagger:operation POST /api/v1/workers workers CreateWorker
 //
-// Create a worker for the configured backend
+// Create a worker
 //
 // ---
 // produces:
@@ -31,7 +31,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing the worker to create
+//   description: Worker object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Worker"
@@ -43,16 +43,20 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Token"
 //   '400':
-//     description: Unable to create the worker
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the worker
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateWorker represents the API handler to
-// create a worker in the configured backend.
+// create a worker.
 func CreateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

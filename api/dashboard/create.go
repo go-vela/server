@@ -20,7 +20,7 @@ import (
 
 // swagger:operation POST /api/v1/dashboards dashboards CreateDashboard
 //
-// Create a dashboard in the configured backend
+// Create a dashboard
 //
 // ---
 // produces:
@@ -28,7 +28,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing the dashboard to create
+//   description: Dashboard object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Dashboard"
@@ -40,20 +40,20 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Dashboard"
 //   '400':
-//     description: Bad request when creating dashboard
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unauthorized to create dashboard
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Server error when creating dashboard
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateDashboard represents the API handler to
-// create a dashboard in the configured backend.
+// create a dashboard.
 func CreateDashboard(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

@@ -22,7 +22,7 @@ import (
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services UpdateServiceLog
 //
-// Update the logs for a service
+// Update service logs for a build
 //
 // ---
 // deprecated: true
@@ -31,12 +31,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -51,7 +51,7 @@ import (
 //   type: integer
 // - in: body
 //   name: body
-//   description: Payload containing the log to update
+//   description: The log object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Log"
@@ -60,19 +60,25 @@ import (
 // responses:
 //   '200':
 //     description: Successfully updated the service logs
-//     schema:
-//       "$ref": "#/definitions/Log"
 //   '400':
-//     description: Unable to updated the service logs
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to updates the service logs
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // UpdateServiceLog represents the API handler to update
-// the logs for a service in the configured backend.
+// the logs for a service.
 func UpdateServiceLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

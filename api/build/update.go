@@ -23,7 +23,7 @@ import (
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build} builds UpdateBuild
 //
-// Updates a build in the configured backend
+// Update a build
 //
 // ---
 // produces:
@@ -31,22 +31,22 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to update
+//   description: Build number
 //   required: true
 //   type: integer
 // - in: body
 //   name: body
-//   description: Payload containing the build to update
+//   description: The build object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Build"
@@ -57,17 +57,25 @@ import (
 //     description: Successfully updated the build
 //     schema:
 //       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to update the build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // UpdateBuild represents the API handler to update
-// a build for a repo in the configured backend.
+// a build for a repo.
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
 	cl := claims.Retrieve(c)

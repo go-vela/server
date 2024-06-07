@@ -30,13 +30,13 @@ import (
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -52,7 +52,11 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Token"
 //   '400':
-//     description: Bad request
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '409':
@@ -60,7 +64,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to generate build token
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

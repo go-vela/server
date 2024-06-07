@@ -23,7 +23,7 @@ import (
 
 // swagger:operation GET /api/v1/admin/settings admin GetSettings
 //
-// Get the currently configured settings.
+// Get platform settings
 //
 // ---
 // produces:
@@ -41,12 +41,11 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve settings
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetSettings represents the API handler to
-// captures settings stored in the database.
+// GetSettings represents the API handler to get platform settings.
 func GetSettings(c *gin.Context) {
 	// capture middleware values
 	s := sMiddleware.FromContext(c)
@@ -68,7 +67,7 @@ func GetSettings(c *gin.Context) {
 
 // swagger:operation PUT /api/v1/admin/settings admin UpdateSettings
 //
-// Update the platform settings singleton in the database.
+// Update platform settings
 //
 // ---
 // produces:
@@ -76,7 +75,7 @@ func GetSettings(c *gin.Context) {
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing settings to update
+//   description: The settings object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Platform"
@@ -84,12 +83,12 @@ func GetSettings(c *gin.Context) {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated platform settings in the database
+//     description: Successfully updated platform settings
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Platform"
 //   '400':
-//     description: Unable to update settings — bad request
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
@@ -97,16 +96,16 @@ func GetSettings(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve platform settings to update
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update platform settings in the database
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateSettings represents the API handler to
-// update the settings singleton stored in the database.
+// UpdateSettings represents the API handler to update the
+// platform settings singleton.
 func UpdateSettings(c *gin.Context) {
 	// capture middleware values
 	s := sMiddleware.FromContext(c)
@@ -201,7 +200,7 @@ func UpdateSettings(c *gin.Context) {
 
 // swagger:operation DELETE /api/v1/admin/settings admin RestoreSettings
 //
-// Restore the currently configured settings to the environment defaults.
+// Restore platform settings to the environment defaults
 //
 // ---
 // produces:
@@ -210,7 +209,7 @@ func UpdateSettings(c *gin.Context) {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully restored default settings in the database
+//     description: Successfully restored default platform settings
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Platform"
@@ -219,16 +218,16 @@ func UpdateSettings(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve settings to restore
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to restore settings in the database
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // RestoreSettings represents the API handler to
-// restore settings stored in the database to the environment defaults.
+// restore platform settings to the environment defaults.
 func RestoreSettings(c *gin.Context) {
 	// capture middleware values
 	s := sMiddleware.FromContext(c)

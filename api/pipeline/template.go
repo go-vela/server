@@ -25,21 +25,21 @@ import (
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/{pipeline}/templates pipelines GetTemplates
 //
-// Get a map of templates utilized by a pipeline from the configured backend
+// Get pipeline templates
 //
 // ---
 // produces:
-// - application/x-yaml
+// - application/yaml
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -61,13 +61,23 @@ import (
 //   '200':
 //     description: Successfully retrieved the map of pipeline templates
 //     schema:
-//       "$ref": "#/definitions/Template"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Template"
 //   '400':
-//     description: Unable to retrieve the pipeline configuration templates
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve the pipeline configuration templates
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

@@ -28,13 +28,17 @@ import (
 //     description: Successfully rotated OIDC provider keys
 //     schema:
 //       type: string
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Error unable to rotate OIDC provider keys
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // RotateOIDCKeys represents the API handler to
-// rotate RSA keys in OIDC provider service.
+// rotate RSA keys in the OIDC provider service.
 func RotateOIDCKeys(c *gin.Context) {
 	logrus.Info("Admin: rotating keys for OIDC provider")
 

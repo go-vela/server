@@ -25,7 +25,7 @@ import (
 
 // swagger:operation POST /api/v1/repos repos CreateRepo
 //
-// Create a repo in the configured backend
+// Create a repository
 //
 // ---
 // produces:
@@ -33,7 +33,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing the repo to create
+//   description: Repo object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Repo"
@@ -45,7 +45,11 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Repo"
 //   '400':
-//     description: Unable to create the repo
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '403':
@@ -57,7 +61,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the repo
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '503':
@@ -65,8 +69,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CreateRepo represents the API handler to
-// create a repo in the configured backend.
+// CreateRepo represents the API handler to create a repository.
 //
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateRepo(c *gin.Context) {

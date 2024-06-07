@@ -14,7 +14,7 @@ import (
 
 // swagger:operation GET /validate-oauth authenticate ValidateOAuthToken
 //
-// Validate that a user oauth token was created by Vela
+// Validate that a user OAuth token was created by Vela
 //
 // ---
 // produces:
@@ -32,12 +32,12 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Token"
 //   '401':
-//     description: Unable to validate
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // ValidateOAuthToken represents the API handler to
-// validate that a user oauth token was created by Vela.
+// validate that a user OAuth token was created by Vela.
 func ValidateOAuthToken(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()
