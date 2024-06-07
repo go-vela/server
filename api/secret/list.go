@@ -23,7 +23,7 @@ import (
 //
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name} secrets ListSecrets
 //
-// Retrieve a list of secrets from the configured backend
+// Get all organization or shared secrets
 //
 // ---
 // produces:
@@ -45,12 +45,12 @@ import (
 //   type: string
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: name
-//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   description: Name of the repository if a repository secret, team name if a shared secret, or '*' if an organization secret
 //   required: true
 //   type: string
 // - in: query
@@ -78,19 +78,22 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the list of secrets
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the list of secrets
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListSecrets represents the API handler to capture
-// a list of secrets from the configured backend.
+// ListSecrets represents the API handler to get a list of secrets.
 func ListSecrets(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

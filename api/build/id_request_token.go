@@ -22,20 +22,20 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/id_request_token builds GetIDRequestToken
 //
-// Get a Vela OIDC request token associated with a build
+// Get a Vela OIDC request token for a build
 //
 // ---
 // produces:
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -63,19 +63,19 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Token"
 //   '400':
-//     description: Bad request
+//     description: Invalid request payload or path
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unauthorized request
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to find build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to generate ID request token
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

@@ -16,7 +16,7 @@ import (
 
 // swagger:operation DELETE /api/v1/users/{user} users DeleteUser
 //
-// Delete a user for the configured backend
+// Delete a user
 //
 // ---
 // produces:
@@ -31,20 +31,23 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully deleted of user
+//     description: Successfully deleted user
 //     schema:
 //       type: string
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to delete user
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to delete user
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeleteUser represents the API handler to remove
-// a user from the configured backend.
+// DeleteUser represents the API handler to remove a user.
 func DeleteUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

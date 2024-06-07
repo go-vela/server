@@ -19,7 +19,7 @@ import (
 
 // swagger:operation DELETE /api/v1/repos/{org}/{repo} repos DeleteRepo
 //
-// Delete a repo in the configured backend
+// Delete a repository
 //
 // ---
 // produces:
@@ -27,12 +27,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // security:
@@ -42,17 +42,24 @@ import (
 //     description: Successfully deleted the repo
 //     schema:
 //       type: string
-//   '500':
-//     description: Unable to  deleted the repo
+//   '400':
+//     description: Invalid request payload or path
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '510':
-//     description: Unable to  deleted the repo
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeleteRepo represents the API handler to remove
-// a repo from the configured backend.
+// DeleteRepo represents the API handler to remove a repository.
 func DeleteRepo(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

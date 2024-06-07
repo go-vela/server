@@ -17,8 +17,7 @@ import (
 
 // cleanBuild is a helper function to kill the build
 // without execution. This will kill all resources,
-// like steps and services, for the build in the
-// configured backend.
+// like steps and services, for the build.
 func CleanBuild(ctx context.Context, database database.Interface, b *types.Build, services []*library.Service, steps []*library.Step, e error) {
 	// update fields in build object
 	b.SetError(fmt.Sprintf("unable to publish to queue: %s", e.Error()))

@@ -10,7 +10,7 @@ import (
 
 // swagger:operation GET /health base Health
 //
-// Check if the Vela API is available
+// Check the Vela API health
 //
 // ---
 // produces:

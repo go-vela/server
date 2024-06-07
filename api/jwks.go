@@ -28,7 +28,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/JWKSet"
 //   '500':
-//     description: Unable to get the Vela JWKS
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

@@ -20,7 +20,7 @@ import (
 
 // swagger:operation POST /api/v1/hooks/{org}/{repo}/{hook}/redeliver webhook RedeliverHook
 //
-// Redeliver a webhook from the SCM
+// Redeliver a hook
 //
 // ---
 // produces:
@@ -28,12 +28,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -47,17 +47,21 @@ import (
 //   '200':
 //     description: Successfully redelivered the webhook
 //     schema:
-//       "$ref": "#/definitions/Webhook"
+//       type: string
 //   '400':
-//     description: The webhook was unable to be redelivered
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: The webhook was unable to be redelivered
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: The webhook was unable to be redelivered
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

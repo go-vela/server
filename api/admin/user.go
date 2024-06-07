@@ -17,7 +17,7 @@ import (
 
 // swagger:operation PUT /api/v1/admin/user admin AdminUpdateUser
 //
-// Update a user in the database
+// Update a user
 //
 // ---
 // produces:
@@ -25,7 +25,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing user to update
+//   description: The user object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/User"
@@ -33,20 +33,23 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the user in the database
+//     description: Successfully updated the user
 //     schema:
 //       "$ref": "#/definitions/User"
-//   '404':
-//     description: Unable to update the user in the database
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '400':
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the user in the database
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateUser represents the API handler to
-// update any user stored in the database.
+// UpdateUser represents the API handler to update a user.
 func UpdateUser(c *gin.Context) {
 	logrus.Info("Admin: updating user in database")
 
@@ -60,7 +63,7 @@ func UpdateUser(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for user %d: %w", input.GetID(), err)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}

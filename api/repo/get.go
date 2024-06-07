@@ -15,7 +15,7 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo} repos GetRepo
 //
-// Get a repo in the configured backend
+// Get a repository
 //
 // ---
 // produces:
@@ -23,12 +23,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // security:
@@ -38,9 +38,20 @@ import (
 //     description: Successfully retrieved the repo
 //     schema:
 //       "$ref": "#/definitions/Repo"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Repo"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Repo"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Repo"
 
-// GetRepo represents the API handler to
-// capture a repo from the configured backend.
+// GetRepo represents the API handler to get a repository.
 func GetRepo(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

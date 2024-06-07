@@ -21,7 +21,7 @@ import (
 
 // swagger:operation POST /api/v1/schedules/{org}/{repo} schedules CreateSchedule
 //
-// Create a schedule in the configured backend
+// Create a schedule
 //
 // ---
 // produces:
@@ -29,17 +29,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the schedule to create
+//   description: Schedule object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Schedule"
@@ -51,11 +51,19 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Schedule"
 //   '400':
-//     description: Unable to create the schedule
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '403':
 //     description: Unable to create the schedule
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '409':
@@ -63,7 +71,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the schedule
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '503':
@@ -72,7 +80,7 @@ import (
 //       "$ref": "#/definitions/Error"
 
 // CreateSchedule represents the API handler to
-// create a schedule in the configured backend.
+// create a schedule.
 func CreateSchedule(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

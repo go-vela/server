@@ -22,7 +22,7 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/builds builds ListBuildsForOrg
 //
-// Get a list of builds by org in the configured backend
+// Get all builds for an organization
 //
 // ---
 // produces:
@@ -30,7 +30,7 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: query
@@ -85,19 +85,23 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the list of builds
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the list of builds
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListBuildsForOrg represents the API handler to capture a
-// list of builds associated with an org from the configured backend.
+// ListBuildsForOrg represents the API handler to get a
+// list of builds associated with an organization.
 func ListBuildsForOrg(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
@@ -201,7 +205,6 @@ func ListBuildsForOrg(c *gin.Context) {
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
 	b, t, err = database.FromContext(c).ListBuildsForOrg(ctx, o, filters, page, perPage)
-
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for org %s: %w", o, err)
 

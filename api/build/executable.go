@@ -24,7 +24,7 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/executable builds GetBuildExecutable
 //
-// Get a build executable in the configured backend
+// Get a build executable
 //
 // ---
 // produces:
@@ -32,17 +32,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to retrieve
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -52,22 +52,26 @@ import (
 //     description: Successfully retrieved the build executable
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Build"
+//       "$ref": "#/definitions/BuildExecutable"
 //   '400':
-//     description: Bad request
+//     description: Invalid request payload or path
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
 //     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Could not retrieve build executable
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetBuildExecutable represents the API handler to capture
-// a build executable for a repo from the configured backend.
+// GetBuildExecutable represents the API handler to get
+// a build executable for a repository.
 func GetBuildExecutable(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

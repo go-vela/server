@@ -18,7 +18,7 @@ import (
 
 // swagger:operation DELETE /api/v1/dashboards/{dashboard} dashboards DeleteDashboard
 //
-// Delete a dashboard in the configured backend
+// Delete a dashboard
 //
 // ---
 // produces:
@@ -26,7 +26,7 @@ import (
 // parameters:
 // - in: path
 //   name: dashboard
-//   description: id of the dashboard
+//   description: Dashboard ID
 //   required: true
 //   type: string
 // security:
@@ -36,21 +36,24 @@ import (
 //     description: Successfully deleted dashboard
 //     schema:
 //       type: string
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unauthorized to delete dashboard
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to find dashboard
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Server error when deleting dashboard
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeleteDashboard represents the API handler to remove
-// a dashboard from the configured backend.
+// DeleteDashboard represents the API handler to remove a dashboard.
 func DeleteDashboard(c *gin.Context) {
 	// capture middleware values
 	d := dashboard.Retrieve(c)

@@ -21,21 +21,21 @@ import (
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/{pipeline}/expand pipelines ExpandPipeline
 //
-// Get and expand a pipeline from the configured backend
+// Expand a pipeline
 //
 // ---
 // produces:
-// - application/x-yaml
+// - application/yaml
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -60,11 +60,19 @@ import (
 //     schema:
 //       "$ref": "#/definitions/PipelineBuild"
 //   '400':
-//     description: Unable to expand the pipeline configuration
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve the pipeline configuration
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

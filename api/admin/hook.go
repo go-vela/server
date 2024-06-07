@@ -17,7 +17,7 @@ import (
 
 // swagger:operation PUT /api/v1/admin/hook admin AdminUpdateHook
 //
-// Update a hook in the database
+// Update a hook
 //
 // ---
 // produces:
@@ -25,7 +25,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing hook to update
+//   description: The hook object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Webhook"
@@ -33,20 +33,23 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the hook in the database
+//     description: Successfully updated the hook
 //     schema:
 //       "$ref": "#/definitions/Webhook"
-//   '404':
-//     description: Unable to update the hook in the database
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '501':
-//     description: Unable to update the hook in the database
+//   '400':
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateHook represents the API handler to
-// update any hook stored in the database.
+// UpdateHook represents the API handler to update a hook.
 func UpdateHook(c *gin.Context) {
 	logrus.Info("Admin: updating hook in database")
 
@@ -60,7 +63,7 @@ func UpdateHook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for hook %d: %w", input.GetID(), err)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}

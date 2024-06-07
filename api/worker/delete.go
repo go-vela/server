@@ -17,7 +17,7 @@ import (
 
 // swagger:operation DELETE /api/v1/workers/{worker} workers DeleteWorker
 //
-// Delete a worker for the configured backend
+// Delete a worker
 //
 // ---
 // produces:
@@ -32,16 +32,27 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully deleted of worker
+//     description: Successfully deleted worker
 //     schema:
 //       type: string
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to delete worker
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeleteWorker represents the API handler to remove
-// a worker from the configured backend.
+// DeleteWorker represents the API handler to remove a worker.
 func DeleteWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

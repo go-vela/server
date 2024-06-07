@@ -18,7 +18,7 @@ import (
 
 // swagger:operation GET /api/v1/workers/{worker} workers GetWorker
 //
-// Retrieve a worker for the configured backend
+// Get a worker
 //
 // ---
 // produces:
@@ -36,13 +36,24 @@ import (
 //     description: Successfully retrieved the worker
 //     schema:
 //       "$ref": "#/definitions/Worker"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve the worker
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetWorker represents the API handler to capture a
-// worker from the configured backend.
+// GetWorker represents the API handler to get a worker.
 func GetWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

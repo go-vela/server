@@ -26,15 +26,15 @@ import (
 // parameters:
 // - in: query
 //   name: code
-//   description: the code received after identity confirmation
+//   description: The code received after identity confirmation
 //   type: string
 // - in: query
 //   name: state
-//   description: a random string
+//   description: A random string
 //   type: string
 // - in: query
 //   name: redirect_uri
-//   description: the url where the user will be sent after authorization
+//   description: The URL where the user will be sent after authorization
 //   type: string
 // responses:
 //   '200':
@@ -47,7 +47,7 @@ import (
 //   '307':
 //     description: Redirected for authentication
 //   '401':
-//     description: Unable to authenticate
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '503':

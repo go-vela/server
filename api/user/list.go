@@ -18,7 +18,7 @@ import (
 
 // swagger:operation GET /api/v1/users users ListUsers
 //
-// Retrieve a list of users for the configured backend
+// Get all users
 //
 // ---
 // produces:
@@ -49,19 +49,22 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the list of users
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the list of users
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListUsers represents the API handler to capture a list
-// of users from the configured backend.
+// ListUsers represents the API handler to get a list of users.
 func ListUsers(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

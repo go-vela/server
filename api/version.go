@@ -12,7 +12,7 @@ import (
 
 // swagger:operation GET /version base Version
 //
-// Get the version of the Vela API
+// Get the Vela API version
 //
 // ---
 // produces:

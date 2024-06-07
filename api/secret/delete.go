@@ -19,7 +19,7 @@ import (
 //
 // swagger:operation DELETE /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets DeleteSecret
 //
-// Delete a secret from the configured backend
+// Delete a secret
 //
 // ---
 // produces:
@@ -41,12 +41,12 @@ import (
 //   type: string
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: name
-//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   description: Name of the repository if a repository secret, team name if a shared secret, or '*' if an organzation secret
 //   required: true
 //   type: string
 // - in: path
@@ -61,8 +61,12 @@ import (
 //     description: Successfully deleted the secret
 //     schema:
 //       type: string
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to delete the secret
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

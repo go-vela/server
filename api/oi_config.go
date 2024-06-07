@@ -15,7 +15,7 @@ import (
 
 // swagger:operation GET /_services/token/.well-known/openid-configuration token GetOpenIDConfig
 //
-// Get the OpenID configuration for the Vela OIDC service
+// Get the Vela OIDC service configuration
 //
 // ---
 // produces:

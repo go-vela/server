@@ -13,7 +13,7 @@ import (
 
 // swagger:operation GET /api/v1/user users GetCurrentUser
 //
-// Retrieve the current authenticated user from the configured backend
+// Get the current authenticated user
 //
 // ---
 // produces:
@@ -25,9 +25,13 @@ import (
 //     description: Successfully retrieved the current user
 //     schema:
 //       "$ref": "#/definitions/User"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // GetCurrentUser represents the API handler to capture the
-// currently authenticated user from the configured backend.
+// currently authenticated user.
 func GetCurrentUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

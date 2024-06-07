@@ -19,7 +19,7 @@ import (
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo} pipelines CreatePipeline
 //
-// Create a pipeline in the configured backend
+// Create a pipeline
 //
 // ---
 // produces:
@@ -27,17 +27,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the pipeline to create
+//   description: Pipeline object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Pipeline"
@@ -50,20 +50,24 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Pipeline"
 //   '400':
-//     description: Unable to create the pipeline
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to create the pipeline
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the pipeline
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreatePipeline represents the API handler to
-// create a pipeline in the configured backend.
+// create a pipeline.
 func CreatePipeline(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

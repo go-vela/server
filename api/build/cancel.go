@@ -26,25 +26,25 @@ import (
 
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/cancel builds CancelBuild
 //
-// Cancel a running build
+// Cancel a build
 //
 // ---
 // produces:
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to cancel
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -53,21 +53,25 @@ import (
 //   '200':
 //     description: Successfully canceled the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Unable to cancel build
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to cancel build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to cancel build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CancelBuild represents the API handler to cancel a running build.
+// CancelBuild represents the API handler to cancel a build.
 //
 //nolint:funlen // ignore statement count
 func CancelBuild(c *gin.Context) {

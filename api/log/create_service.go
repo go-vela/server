@@ -31,12 +31,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -61,16 +61,24 @@ import (
 //   '201':
 //     description: Successfully created the service logs
 //   '400':
-//     description: Unable to create the service logs
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the service logs
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateServiceLog represents the API handler to create
-// the logs for a service in the configured backend.
+// the logs for a service.
 func CreateServiceLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

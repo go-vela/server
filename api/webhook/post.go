@@ -33,7 +33,7 @@ var baseErr = "unable to process webhook"
 
 // swagger:operation POST /webhook base PostWebhook
 //
-// Deliver a webhook to the vela api
+// Deliver a webhook to the Vela API
 //
 // ---
 // produces:
@@ -56,15 +56,15 @@ var baseErr = "unable to process webhook"
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Malformed webhook payload or improper pipeline configuration
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Repository owner does not have proper access
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to receive the webhook
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '429':
@@ -72,7 +72,7 @@ var baseErr = "unable to process webhook"
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to receive the webhook or internal error while processing
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

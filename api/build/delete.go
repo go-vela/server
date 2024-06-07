@@ -19,7 +19,7 @@ import (
 
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build} builds DeleteBuild
 //
-// Delete a build in the configured backend
+// Delete a build
 //
 // ---
 // produces:
@@ -27,17 +27,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to delete
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -48,16 +48,24 @@ import (
 //     schema:
 //       type: string
 //   '400':
-//     description: Unable to delete the build
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to delete the build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // DeleteBuild represents the API handler to remove
-// a build for a repo from the configured backend.
+// a build for a repo.
 func DeleteBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

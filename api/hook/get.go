@@ -19,7 +19,7 @@ import (
 
 // swagger:operation GET /api/v1/hooks/{org}/{repo}/{hook} webhook GetHook
 //
-// Retrieve a webhook for the configured backend
+// Get a hook
 //
 // ---
 // produces:
@@ -27,12 +27,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -48,16 +48,23 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Webhook"
 //   '400':
-//     description: Unable to retrieve the webhook
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the webhook
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetHook represents the API handler to capture a
-// webhook from the configured backend.
+// GetHook represents the API handler to get a hook.
 func GetHook(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
