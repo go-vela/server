@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"gopkg.in/square/go-jose.v2/json"
+	"github.com/go-jose/go-jose/v4/json"
 
 	"github.com/go-vela/server/queue/models"
 )
@@ -59,7 +59,6 @@ func TestRedis_Length(t *testing.T) {
 			}
 		}
 		got, err := _redis.Length(context.Background())
-
 		if err != nil {
 			t.Errorf("Length returned err: %v", err)
 		}
