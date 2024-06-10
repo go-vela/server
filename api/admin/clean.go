@@ -51,7 +51,7 @@ import (
 //   '401':
 //     description: Unauthorized
 //     schema:
-//       "$ref": "#/definitions/Error
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unexpected server error
 //     schema:
