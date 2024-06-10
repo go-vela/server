@@ -45,17 +45,17 @@ import (
 //   type: string
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: name
-//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   description: Name of the repository if a repository secret, team name if a shared secret, or '*' if an organization secret
 //   required: true
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the secret to create
+//   description: Secret object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Secret"
@@ -67,16 +67,20 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Secret"
 //   '400':
-//     description: Unable to create the secret
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the secret
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateSecret represents the API handler to
-// create a secret in the configured backend.
+// create a secret.
 //
 //nolint:funlen // suppress long function error
 func CreateSecret(c *gin.Context) {

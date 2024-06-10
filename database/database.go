@@ -17,6 +17,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -76,6 +77,7 @@ type (
 		executable.BuildExecutableInterface
 		deployment.DeploymentInterface
 		hook.HookInterface
+		jwk.JWKInterface
 		log.LogInterface
 		pipeline.PipelineInterface
 		repo.RepoInterface
@@ -224,5 +226,9 @@ func NewTest() (Interface, error) {
 		WithDriver("sqlite3"),
 		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithSkipCreation(false),
+		WithLogLevel("warn"),
+		WithLogShowSQL(false),
+		WithLogSkipNotFound(true),
+		WithLogSlowThreshold(200*time.Millisecond),
 	)
 }

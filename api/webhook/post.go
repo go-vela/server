@@ -33,7 +33,7 @@ var baseErr = "unable to process webhook"
 
 // swagger:operation POST /webhook base PostWebhook
 //
-// Deliver a webhook to the vela api
+// Deliver a webhook to the Vela API
 //
 // ---
 // produces:
@@ -56,15 +56,15 @@ var baseErr = "unable to process webhook"
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Malformed webhook payload or improper pipeline configuration
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Repository owner does not have proper access
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to receive the webhook
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '429':
@@ -72,7 +72,7 @@ var baseErr = "unable to process webhook"
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to receive the webhook or internal error while processing
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -215,6 +215,25 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		return
+	}
+
+	// attach a sender SCM id if the webhook payload from the SCM has no sender id
+	// the code in ProcessWebhook implies that the sender may not always be present
+	// fallbacks like pusher/commit_author do not have an id
+	if len(b.GetSenderSCMID()) == 0 || b.GetSenderSCMID() == "0" {
+		// fetch scm user id for pusher
+		senderID, err := scm.FromContext(c).GetUserID(ctx, b.GetSender(), repo.GetOwner().GetToken())
+		if err != nil {
+			retErr := fmt.Errorf("unable to assign sender SCM id: %w", err)
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		b.SetSenderSCMID(senderID)
 	}
 
 	// set the RepoID fields

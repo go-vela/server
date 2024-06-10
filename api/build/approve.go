@@ -24,7 +24,7 @@ import (
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/approve builds ApproveBuild
 //
-// Sign off on a build to run from an outside contributor
+// Approve a build to run
 //
 // ---
 // produces:
@@ -32,17 +32,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to retrieve
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -52,25 +52,24 @@ import (
 //     description: Request processed but build was skipped
 //     schema:
 //       type: string
-//   '201':
-//     description: Successfully created the build
-//     type: json
-//     schema:
-//       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Unable to create the build
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to create the build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ApproveBuild represents the API handler to approve a build to run in the configured backend.
+// ApproveBuild represents the API handler to approve a build to run.
 func ApproveBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

@@ -20,7 +20,7 @@ import (
 
 // swagger:operation PUT /api/v1/hooks/{org}/{repo}/{hook} webhook UpdateHook
 //
-// Update a webhook for the configured backend
+// Update a hook
 //
 // ---
 // produces:
@@ -28,12 +28,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -55,20 +55,23 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Webhook"
 //   '400':
-//     description: The webhook was unable to be updated
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: The webhook was unable to be updated
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: The webhook was unable to be updated
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateHook represents the API handler to update
-// a webhook in the configured backend.
+// UpdateHook represents the API handler to update a hook.
 func UpdateHook(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

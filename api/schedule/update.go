@@ -20,7 +20,7 @@ import (
 
 // swagger:operation PUT /api/v1/schedules/{org}/{repo}/{schedule} schedules UpdateSchedule
 //
-// Update a schedule for the configured backend
+// Update a schedule
 //
 // ---
 // produces:
@@ -28,12 +28,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -43,7 +43,7 @@ import (
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the schedule to update
+//   description: The schedule object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Schedule"
@@ -55,20 +55,23 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Schedule"
 //   '400':
-//     description: Unable to update the schedule
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to update the schedule
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the schedule
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateSchedule represents the API handler to update
-// a schedule in the configured backend.
+// UpdateSchedule represents the API handler to update a schedule.
 func UpdateSchedule(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)

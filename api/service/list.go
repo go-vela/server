@@ -21,7 +21,7 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/services services ListServices
 //
-// Get a list of all services for a build in the configured backend
+// Get all services for a build
 //
 // ---
 // produces:
@@ -29,12 +29,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -67,19 +67,26 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the list of services
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the list of services
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListServices represents the API handler to capture a list
-// of services for a build from the configured backend.
+// ListServices represents the API handler to get a list of services for a build.
 func ListServices(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

@@ -42,7 +42,7 @@ func (tm *Manager) ParseToken(token string) (*Claims, error) {
 			return nil, errors.New("token has no expiration")
 		}
 
-		return []byte(tm.PrivateKey), err
+		return []byte(tm.PrivateKeyHMAC), err
 	})
 
 	if err != nil {

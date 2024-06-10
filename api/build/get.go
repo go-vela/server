@@ -16,7 +16,7 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild
 //
-// Get a build in the configured backend
+// Get a build
 //
 // ---
 // produces:
@@ -24,17 +24,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to retrieve
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -45,9 +45,21 @@ import (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 
-// GetBuild represents the API handler to capture
-// a build for a repo from the configured backend.
+// GetBuild represents the API handler to get
+// a build for a repository.
 func GetBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

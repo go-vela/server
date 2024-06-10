@@ -16,20 +16,20 @@ import (
 
 // swagger:operation GET /login authenticate GetLogin
 //
-// Log into the Vela api
+// Log into the Vela API
 //
 // ---
 // parameters:
 // - in: query
 //   name: type
-//   description: the login type ("cli" or "web")
+//   description: The login type ("cli" or "web")
 //   type: string
 //   enum:
 //     - web
 //     - cli
 // - in: query
 //   name: port
-//   description: the port number when type=cli
+//   description: The port number when type=cli
 //   type: integer
 // responses:
 //   '307':

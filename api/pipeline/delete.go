@@ -19,7 +19,7 @@ import (
 
 // swagger:operation DELETE /api/v1/pipelines/{org}/{repo}/{pipeline} pipelines DeletePipeline
 //
-// Delete a pipeline from the configured backend
+// Delete a pipeline
 //
 // ---
 // produces:
@@ -27,12 +27,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -48,16 +48,23 @@ import (
 //     schema:
 //       type: string
 //   '400':
-//     description: Unable to delete the pipeline
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to delete the pipeline
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeletePipeline represents the API handler to remove
-// a pipeline for a repo from the configured backend.
+// DeletePipeline represents the API handler to remove a pipeline for a repository.
 func DeletePipeline(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

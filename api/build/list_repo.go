@@ -23,7 +23,7 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds builds ListBuildsForRepo
 //
-// Get builds from the configured backend
+// Get all builds for a repository
 //
 // ---
 // produces:
@@ -31,12 +31,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: query
@@ -83,12 +83,12 @@ import (
 //   default: 10
 // - in: query
 //   name: before
-//   description: filter builds created before a certain time
+//   description: Filter builds created before a certain time
 //   type: integer
 //   default: 1
 // - in: query
 //   name: after
-//   description: filter builds created after a certain time
+//   description: Filter builds created after a certain time
 //   type: integer
 //   default: 0
 // security:
@@ -105,19 +105,27 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the list of builds
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the list of builds
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListBuildsForRepo represents the API handler to capture a
-// list of builds for a repo from the configured backend.
+// ListBuildsForRepo represents the API handler to get a
+// list of builds for a repository.
 func ListBuildsForRepo(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (

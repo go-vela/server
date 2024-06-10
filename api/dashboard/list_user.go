@@ -19,7 +19,7 @@ import (
 
 // swagger:operation GET /api/v1/user/dashboards dashboards ListUserDashboards
 //
-// Get all dashboards for the current user in the configured backend
+// Get all dashboards for the current user
 //
 // ---
 // produces:
@@ -33,20 +33,20 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Dashboard"
 //   '400':
-//     description: Bad request to retrieve user dashboards
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unauthorized to retrieve user dashboards
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Server error when retrieving user dashboards
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // ListUserDashboards represents the API handler to capture a list
-// of dashboards for a user from the configured backend.
+// of dashboards for a user.
 func ListUserDashboards(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

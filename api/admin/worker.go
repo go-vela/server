@@ -39,6 +39,10 @@ import (
 //     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // RegisterToken represents the API handler to
 // generate a registration token for onboarding a worker.

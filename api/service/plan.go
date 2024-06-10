@@ -17,7 +17,7 @@ import (
 
 // PlanServices is a helper function to plan all services
 // in the build for execution. This creates the services
-// for the build in the configured backend.
+// for the build.
 func PlanServices(ctx context.Context, database database.Interface, p *pipeline.Build, b *types.Build) ([]*library.Service, error) {
 	// variable to store planned services
 	services := []*library.Service{}

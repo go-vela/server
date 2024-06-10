@@ -17,7 +17,7 @@ import (
 
 // swagger:operation PUT /api/v1/admin/hook admin AdminUpdateHook
 //
-// Update a hook in the database
+// Update a hook
 //
 // ---
 // produces:
@@ -25,7 +25,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing hook to update
+//   description: The hook object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Webhook"
@@ -33,24 +33,23 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the hook in the database
+//     description: Successfully updated the hook
 //     schema:
 //       "$ref": "#/definitions/Webhook"
 //   '401':
-//     description: Unauthorized to update the hook in the database
+//     description: Unauthorized
 //     schema:
-//       "$ref": "#/definitions/Error
+//       "$ref": "#/definitions/Error"
 //   '400':
-//     description: Unable to update the hook in the database - bad request
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the hook in the database
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateHook represents the API handler to
-// update any hook stored in the database.
+// UpdateHook represents the API handler to update a hook.
 func UpdateHook(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()

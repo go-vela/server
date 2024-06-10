@@ -22,7 +22,7 @@ import (
 //
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services UpdateService
 //
-// Update a service for a build in the configured backend
+// Update a service for a build
 //
 // ---
 // produces:
@@ -30,12 +30,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -50,7 +50,7 @@ import (
 //   type: integer
 // - in: body
 //   name: body
-//   description: Payload containing the service to update
+//   description: The service object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Service"
@@ -62,16 +62,24 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Service"
 //   '400':
-//     description: Unable to update the service
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the service
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // UpdateService represents the API handler to update
-// a service for a build in the configured backend.
+// a service for a build.
 func UpdateService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

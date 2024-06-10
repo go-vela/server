@@ -20,28 +20,28 @@ import (
 
 // swagger:operation POST /api/v1/hooks/{org}/{repo} webhook CreateHook
 //
-// Create a webhook for the configured backend
+// Create a hook
 //
 // ---
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Webhook payload that we expect from the user or VCS
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Webhook"
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
+// - in: body
+//   name: body
+//   description: Hook object from the user or VCS to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Webhook"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -50,16 +50,23 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Webhook"
 //   '400':
-//     description: The webhook was unable to be created
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: The webhook was unable to be created
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CreateHook represents the API handler to create
-// a webhook in the configured backend.
+// CreateHook represents the API handler to create a webhook.
 func CreateHook(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

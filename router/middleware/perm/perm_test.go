@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
@@ -23,7 +23,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
-	"github.com/go-vela/types/constants"
 )
 
 func TestPerm_MustPlatformAdmin(t *testing.T) {
@@ -31,8 +30,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -112,8 +110,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -191,8 +188,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 func TestPerm_MustWorkerRegisterToken(t *testing.T) {
 	// setup types
 	tm := &token.Manager{
-		PrivateKey:                  "123abc",
-		SignMethod:                  jwt.SigningMethodHS256,
+		PrivateKeyHMAC:              "123abc",
 		UserAccessTokenDuration:     time.Minute * 5,
 		UserRefreshTokenDuration:    time.Minute * 30,
 		WorkerRegisterTokenDuration: time.Minute * 1,
@@ -238,8 +234,7 @@ func TestPerm_MustWorkerRegisterToken(t *testing.T) {
 
 func TestPerm_MustWorkerRegisterToken_PlatAdmin(t *testing.T) {
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -304,8 +299,7 @@ func TestPerm_MustWorkerRegisterToken_PlatAdmin(t *testing.T) {
 func TestPerm_MustWorkerAuthToken(t *testing.T) {
 	// setup types
 	tm := &token.Manager{
-		PrivateKey:                  "123abc",
-		SignMethod:                  jwt.SigningMethodHS256,
+		PrivateKeyHMAC:              "123abc",
 		UserAccessTokenDuration:     time.Minute * 5,
 		UserRefreshTokenDuration:    time.Minute * 30,
 		WorkerRegisterTokenDuration: time.Minute * 1,
@@ -353,8 +347,7 @@ func TestPerm_MustWorkerAuth_ServerWorkerToken(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 	tm := &token.Manager{
-		PrivateKey:                  "123abc",
-		SignMethod:                  jwt.SigningMethodHS256,
+		PrivateKeyHMAC:              "123abc",
 		UserAccessTokenDuration:     time.Minute * 5,
 		UserRefreshTokenDuration:    time.Minute * 30,
 		WorkerRegisterTokenDuration: time.Minute * 1,
@@ -413,15 +406,14 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 	b.SetNumber(1)
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -508,8 +500,7 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	u.SetAdmin(true)
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -596,16 +587,18 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	b.SetRepo(r)
 	b.SetNumber(1)
 
+	wB := new(api.Build)
+	wB.SetID(2)
+
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       2,
+		Build:         wB,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -664,6 +657,288 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	}
 }
 
+func TestPerm_MustIDRequestToken(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
+	r.SetID(1)
+	r.SetOwner(owner)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	b := new(api.Build)
+	b.SetID(1)
+	b.SetRepo(r)
+	b.SetNumber(1)
+	b.SetStatus(constants.StatusRunning)
+	b.SetCommit("456def")
+
+	tm := &token.Manager{
+		PrivateKeyHMAC:           "123abc",
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "foo/bar/456def",
+		Build:         b,
+		Repo:          r.GetFullName(),
+		TokenDuration: time.Minute * 30,
+		TokenType:     constants.IDRequestTokenType,
+	}
+
+	tok, err := tm.MintToken(mto)
+	if err != nil {
+		t.Errorf("unable to mint token: %v", err)
+	}
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+
+	ctx := _context.TODO()
+
+	defer func() {
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		db.Close()
+	}()
+
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateBuild(ctx, b)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(build.Establish())
+	engine.Use(MustIDRequestToken())
+	engine.GET("/test/:org/:repo/builds/:build", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustIDRequestToken returned %v, want %v: %v", resp.Code, http.StatusOK, resp.Body.String())
+	}
+}
+
+func TestPerm_MustIDRequestToken_NotRunning(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
+	r.SetID(1)
+	r.SetOwner(owner)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	b := new(api.Build)
+	b.SetID(1)
+	b.SetRepo(r)
+	b.SetNumber(1)
+	b.SetStatus(constants.StatusSuccess)
+	b.SetCommit("456def")
+
+	u := new(api.User)
+	u.SetID(1)
+	u.SetName("admin")
+	u.SetToken("bar")
+	u.SetAdmin(true)
+
+	tm := &token.Manager{
+		PrivateKeyHMAC:           "123abc",
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "foo/bar/456def",
+		Build:         b,
+		Repo:          "foo/bar",
+		TokenDuration: time.Minute * 30,
+		TokenType:     constants.IDRequestTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	ctx := _context.TODO()
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+
+	defer func() {
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
+		db.Close()
+	}()
+
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateBuild(ctx, b)
+	_, _ = db.CreateUser(_context.TODO(), u)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(build.Establish())
+	engine.Use(MustIDRequestToken())
+	engine.GET("/test/:org/:repo/builds/:build", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusBadRequest {
+		t.Errorf("MustIDRequestToken returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustIDRequestToken_WrongBuild(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
+	r.SetID(1)
+	r.SetOwner(owner)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	b := new(api.Build)
+	b.SetID(1)
+	b.SetRepo(r)
+	b.SetNumber(1)
+
+	wB := new(api.Build)
+	wB.SetID(2)
+
+	tm := &token.Manager{
+		PrivateKeyHMAC:           "123abc",
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "foo/bar/456def",
+		Build:         wB,
+		Repo:          "foo/bar",
+		TokenDuration: time.Minute * 30,
+		TokenType:     constants.IDRequestTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	ctx := _context.TODO()
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+
+	defer func() {
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		db.Close()
+	}()
+
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateBuild(ctx, b)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(build.Establish())
+	engine.Use(MustIDRequestToken())
+	engine.GET("/test/:org/:repo/builds/:build", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusBadRequest {
+		t.Errorf("MustBuildAccess returned %v, want %v", resp.Code, http.StatusBadRequest)
+	}
+}
+
 func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	// setup types
 	secret := "superSecret"
@@ -686,15 +961,14 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	b.SetNumber(1)
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -772,15 +1046,14 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	b.SetNumber(1)
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -858,15 +1131,14 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	b.SetNumber(1)
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -927,8 +1199,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1027,8 +1298,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1127,8 +1397,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1227,8 +1496,7 @@ func TestPerm_MustWrite(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1327,8 +1595,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1427,8 +1694,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1527,8 +1793,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1627,8 +1892,7 @@ func TestPerm_MustRead(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1727,8 +1991,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1827,8 +2090,7 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -1854,7 +2116,7 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 		Hostname:      "worker",
 		TokenDuration: time.Minute * 35,
 		TokenType:     constants.WorkerBuildTokenType,
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 	}
 
@@ -1916,8 +2178,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -2016,8 +2277,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -2116,8 +2376,7 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -2216,8 +2475,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}

@@ -18,7 +18,7 @@ import (
 
 // swagger:operation GET /api/v1/user/source/repos users GetSourceRepos
 //
-// Retrieve a list of repos for the current authenticated user
+// Get all repos for the current authenticated user
 //
 // ---
 // produces:
@@ -30,13 +30,16 @@ import (
 //     description: Successfully retrieved a list of repos for the current user
 //     schema:
 //       "$ref": "#/definitions/Repo"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve a list of repos for the current user
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetSourceRepos represents the API handler to capture
-// the list of repos for a user from the configured backend.
+// GetSourceRepos represents the API handler to get a list of repos for a user.
 func GetSourceRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

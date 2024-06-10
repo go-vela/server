@@ -19,7 +19,7 @@ import (
 
 // PlanSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
-// for the build in the configured backend.
+// for the build.
 func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}

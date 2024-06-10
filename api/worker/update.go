@@ -18,7 +18,7 @@ import (
 
 // swagger:operation PUT /api/v1/workers/{worker} workers UpdateWorker
 //
-// Update a worker for the configured backend
+// Update a worker
 //
 // ---
 // produces:
@@ -26,7 +26,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing the worker to update
+//   description: The worker object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Worker"
@@ -43,20 +43,24 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Worker"
 //   '400':
-//     description: Unable to update the worker
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to update the worker
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the worker
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // UpdateWorker represents the API handler to
-// update a worker in the configured backend.
+// update a worker.
 func UpdateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

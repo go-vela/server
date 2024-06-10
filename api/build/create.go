@@ -23,7 +23,7 @@ import (
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds builds CreateBuild
 //
-// Create a build in the configured backend
+// Create a build
 //
 // ---
 // produces:
@@ -31,17 +31,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the build to create
+//   description: Build object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Build"
@@ -58,15 +58,15 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Malformed request payload or improper pipeline configuration
+//     description: Invalid request payload or path
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Repository owner does not have proper access
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to find resources for build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '429':
@@ -74,11 +74,11 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to receive the request or internal error while processing
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CreateBuild represents the API handler to create a build in the configured backend.
+// CreateBuild represents the API handler to create a build.
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)

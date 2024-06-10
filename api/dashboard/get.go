@@ -19,7 +19,7 @@ import (
 
 // swagger:operation GET /api/v1/dashboards/{dashboard} dashboards GetDashboard
 //
-// Get a dashboard in the configured backend
+// Get a dashboard
 //
 // ---
 // produces:
@@ -38,21 +38,25 @@ import (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Dashboard"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unauthorized to retrieve dashboard
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to find dashboard
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Server error when retrieving dashboard
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetDashboard represents the API handler to capture
-// a dashboard for a repo from the configured backend.
+// GetDashboard represents the API handler to get
+// a dashboard for a repository.
 func GetDashboard(c *gin.Context) {
 	// capture middleware values
 	d := dashboard.Retrieve(c)
@@ -83,9 +87,9 @@ func GetDashboard(c *gin.Context) {
 	c.JSON(http.StatusOK, dashboard)
 }
 
-// buildRepoPartials is a helper function which takes the dashboard repo list and builds
-// a list of RepoPartials with information about the associated repository and its latest
-// five builds.
+// buildRepoPartials is a helper function which takes the dashboard repo list
+// and builds a list of RepoPartials with information about the associated
+// repository and its latest five builds.
 func buildRepoPartials(c context.Context, repos []*types.DashboardRepo) ([]types.RepoPartial, error) {
 	var result []types.RepoPartial
 

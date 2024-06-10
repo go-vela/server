@@ -31,13 +31,17 @@ import (
 //     description: Successfully created a token for the current user
 //     schema:
 //       "$ref": "#/definitions/Token"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '503':
 //     description: Unable to create a token for the current user
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateToken represents the API handler to create
-// a user token in the configured backend.
+// a user token.
 func CreateToken(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

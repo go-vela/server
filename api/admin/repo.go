@@ -18,7 +18,7 @@ import (
 
 // swagger:operation PUT /api/v1/admin/repo admin AdminUpdateRepo
 //
-// Update a repo in the database
+// Update a repository
 //
 // ---
 // produces:
@@ -26,7 +26,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing repo to update
+//   description: The repository object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Repo"
@@ -34,24 +34,23 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the repo in the database
+//     description: Successfully updated the repo
 //     schema:
 //       "$ref": "#/definitions/Repo"
 //   '401':
-//     description: Unauthorized to update the repo in the database
-//     schema:
-//       "$ref": "#/definitions/Error
-//   '400':
-//     description: Unable to update the repo in the database - bad request
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '501':
-//     description: Unable to update the repo in the database
+//   '400':
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateRepo represents the API handler to
-// update any repo stored in the database.
+// UpdateRepo represents the API handler to update a repo.
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()

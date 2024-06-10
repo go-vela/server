@@ -18,7 +18,7 @@ import (
 //
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services GetService
 //
-// Get a service for a build in the configured backend
+// Get a service for a build
 //
 // ---
 // produces:
@@ -26,12 +26,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -52,16 +52,23 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Service"
 //   '400':
-//     description: Unable to retrieve the service
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the service
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetService represents the API handler to capture a
-// service for a build from the configured backend.
+// GetService represents the API handler to get a service for a build.
 func GetService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

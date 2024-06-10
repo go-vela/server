@@ -25,11 +25,11 @@ import (
 // parameters:
 // - in: query
 //   name: code
-//   description: the code received after identity confirmation
+//   description: The code received after identity confirmation
 //   type: string
 // - in: query
 //   name: state
-//   description: a random string
+//   description: A random string
 //   type: string
 // responses:
 //   '307':
@@ -48,15 +48,15 @@ import (
 // - in: path
 //   name: port
 //   required: true
-//   description: the port number
+//   description: The port number
 //   type: integer
 // - in: query
 //   name: code
-//   description: the code received after identity confirmation
+//   description: The code received after identity confirmation
 //   type: string
 // - in: query
 //   name: state
-//   description: a random string
+//   description: A random string
 //   type: string
 // responses:
 //   '307':

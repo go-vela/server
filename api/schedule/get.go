@@ -16,7 +16,7 @@ import (
 
 // swagger:operation GET /api/v1/schedules/{org}/{repo}/{schedule} schedules GetSchedule
 //
-// Get a schedule in the configured backend
+// Get a schedule
 //
 // ---
 // produces:
@@ -24,12 +24,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -44,9 +44,20 @@ import (
 //     description: Successfully retrieved the schedule
 //     schema:
 //       "$ref": "#/definitions/Schedule"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 
-// GetSchedule represents the API handler to
-// capture a schedule from the configured backend.
+// GetSchedule represents the API handler to get a schedule.
 func GetSchedule(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

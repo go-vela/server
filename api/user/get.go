@@ -16,7 +16,7 @@ import (
 
 // swagger:operation GET /api/v1/users/{user} users GetUser
 //
-// Retrieve a user for the configured backend
+// Get a user
 //
 // ---
 // produces:
@@ -34,13 +34,16 @@ import (
 //     description: Successfully retrieved the user
 //     schema:
 //       "$ref": "#/definitions/User"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve the user
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetUser represents the API handler to capture a
-// user from the configured backend.
+// GetUser represents the API handler to get a user.
 func GetUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

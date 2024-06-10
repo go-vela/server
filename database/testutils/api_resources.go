@@ -3,6 +3,12 @@
 package testutils
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+
+	"github.com/google/uuid"
+	"github.com/lestrrat-go/jwx/v2/jwk"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/types/library"
@@ -36,6 +42,7 @@ func APIBuild() *api.Build {
 		Message:      new(string),
 		Commit:       new(string),
 		Sender:       new(string),
+		SenderSCMID:  new(string),
 		Author:       new(string),
 		Email:        new(string),
 		Link:         new(string),
@@ -266,5 +273,35 @@ func APIDashboardRepo() *api.DashboardRepo {
 		ID:       new(int64),
 		Branches: new([]string),
 		Events:   new([]string),
+	}
+}
+
+func JWK() jwk.RSAPublicKey {
+	privateRSAKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil
+	}
+
+	pubJwk, err := jwk.FromRaw(privateRSAKey.PublicKey)
+	if err != nil {
+		return nil
+	}
+
+	switch j := pubJwk.(type) {
+	case jwk.RSAPublicKey:
+		// assign KID to key pair
+		kid, err := uuid.NewV7()
+		if err != nil {
+			return nil
+		}
+
+		err = pubJwk.Set(jwk.KeyIDKey, kid.String())
+		if err != nil {
+			return nil
+		}
+
+		return j
+	default:
+		return nil
 	}
 }

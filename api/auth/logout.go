@@ -19,7 +19,7 @@ import (
 
 // swagger:operation GET /logout authenticate GetLogout
 //
-// Log out of the Vela api
+// Log out of the Vela API
 //
 // ---
 // produces:
@@ -29,6 +29,10 @@ import (
 //     description: Successfully logged out
 //     schema:
 //       type: string
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '503':
 //     description: Logout did not succeed
 //     schema:

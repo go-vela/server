@@ -49,6 +49,9 @@ func AdminHandlers(base *gin.RouterGroup) {
 		// Admin repo endpoint
 		_admin.PUT("/repo", admin.UpdateRepo)
 
+		// Admin rotate keys endpoint
+		_admin.POST("/rotate_oidc_keys", admin.RotateOIDCKeys)
+
 		// Admin secret endpoint
 		_admin.PUT("/secret", admin.UpdateSecret)
 

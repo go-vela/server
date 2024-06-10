@@ -21,7 +21,7 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/logs builds ListLogsForBuild
 //
-// List logs for a build in the configured backend
+// Get all logs for a build
 //
 // ---
 // produces:
@@ -29,12 +29,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -62,13 +62,24 @@ import (
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Log"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve logs for the build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListLogsForBuild represents the API handler to capture a
-// list of logs for a build from the configured backend.
+// ListLogsForBuild represents the API handler to get a list of logs for a build.
 func ListLogsForBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

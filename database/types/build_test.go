@@ -133,6 +133,7 @@ func TestTypes_Build_ToAPI(t *testing.T) {
 	want.SetMessage("First commit...")
 	want.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	want.SetSender("OctoKitty")
+	want.SetSenderSCMID("123")
 	want.SetAuthor("OctoKitty")
 	want.SetEmail("OctoKitty@github.com")
 	want.SetLink("https://example.company.com/github/octocat/1")
@@ -228,6 +229,7 @@ func TestTypes_Build_BuildFromAPI(t *testing.T) {
 	b.SetMessage("First commit...")
 	b.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	b.SetSender("OctoKitty")
+	b.SetSenderSCMID("123")
 	b.SetAuthor("OctoKitty")
 	b.SetEmail("OctoKitty@github.com")
 	b.SetLink("https://example.company.com/github/octocat/1")
@@ -291,6 +293,7 @@ func testBuild() *Build {
 		Message:       sql.NullString{String: "First commit...", Valid: true},
 		Commit:        sql.NullString{String: "48afb5bdc41ad69bf22588491333f7cf71135163", Valid: true},
 		Sender:        sql.NullString{String: "OctoKitty", Valid: true},
+		SenderSCMID:   sql.NullString{String: "123", Valid: true},
 		Author:        sql.NullString{String: "OctoKitty", Valid: true},
 		Email:         sql.NullString{String: "OctoKitty@github.com", Valid: true},
 		Link:          sql.NullString{String: "https://example.company.com/github/octocat/1", Valid: true},

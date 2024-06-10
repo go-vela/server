@@ -26,7 +26,7 @@ import (
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build} builds RestartBuild
 //
-// Restart a build in the configured backend
+// Restart a build
 //
 // ---
 // produces:
@@ -34,17 +34,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to restart
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -60,15 +60,15 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Malformed request payload or improper pipeline configuration
+//     description: Invalid request payload or path
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Repository owner does not have proper access
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to find resources for build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '429':
@@ -76,11 +76,11 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to receive the request or internal error while processing
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// RestartBuild represents the API handler to restart an existing build in the configured backend.
+// RestartBuild represents the API handler to restart an existing build.
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
@@ -89,6 +89,7 @@ func RestartBuild(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	scm := scm.FromContext(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
@@ -114,8 +115,22 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
-	// set sender to the user who initiated the restart and parent to the previous build
+	// set sender to the user who initiated the restart
 	b.SetSender(cl.Subject)
+
+	// fetch scm user id
+	senderID, err := scm.GetUserID(ctx, u.GetName(), r.GetOwner().GetToken())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get SCM user id for %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	b.SetSenderSCMID(senderID)
+
+	// parent to the previous build
 	b.SetParent(b.GetNumber())
 
 	logger.Debugf("Generating queue items for build %s", entry)
@@ -134,7 +149,7 @@ func RestartBuild(c *gin.Context) {
 		c,
 		config,
 		database.FromContext(c),
-		scm.FromContext(c),
+		scm,
 		compiler.FromContext(c),
 		queue.FromContext(c),
 	)

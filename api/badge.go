@@ -17,7 +17,7 @@ import (
 
 // swagger:operation GET /badge/{org}/{repo}/status.svg base GetBadge
 //
-// Get a badge for the repo
+// Get a build status badge for a repository
 //
 // ---
 // produces:
@@ -25,19 +25,27 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org the repo belongs to
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo to get the badge for
+//   description: Name of the repository
 //   required: true
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully retrieved a status Badge
+//     description: Successfully retrieved the build status badge
 //     schema:
 //       type: string
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // GetBadge represents the API handler to
 // return a build status badge.

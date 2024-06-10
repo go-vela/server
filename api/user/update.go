@@ -17,7 +17,7 @@ import (
 
 // swagger:operation PUT /api/v1/users/{user} users UpdateUser
 //
-// Update a user for the configured backend
+// Update a user
 //
 // ---
 // produces:
@@ -30,7 +30,7 @@ import (
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the user to update
+//   description: The user object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/User"
@@ -42,20 +42,23 @@ import (
 //     schema:
 //       "$ref": "#/definitions/User"
 //   '400':
-//     description: Unable to update the user
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to update the user
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the user
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateUser represents the API handler to update
-// a user in the configured backend.
+// UpdateUser represents the API handler to update a user.
 func UpdateUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

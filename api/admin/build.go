@@ -19,7 +19,7 @@ import (
 
 // swagger:operation GET /api/v1/admin/builds/queue admin AllBuildsQueue
 //
-// Get all of the running and pending builds in the database
+// Get running and pending builds
 //
 // ---
 // produces:
@@ -38,18 +38,17 @@ import (
 //     schema:
 //       type: array
 //       items:
-//         "$ref": "#/definitions/BuildQueue"
+//         "$ref": "#/definitions/QueueBuild"
 //   '401':
-//     description: Unauthorized to retrieve running and pending builds
+//     description: Unauthorized
 //     schema:
-//       "$ref": "#/definitions/Error
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve all running and pending builds from the database
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// AllBuildsQueue represents the API handler to
-// capture all running and pending builds stored in the database.
+// AllBuildsQueue represents the API handler to get running and pending builds.
 func AllBuildsQueue(c *gin.Context) {
 	logrus.Debug("platform admin: reading running and pending builds")
 
@@ -74,7 +73,7 @@ func AllBuildsQueue(c *gin.Context) {
 
 // swagger:operation PUT /api/v1/admin/build admin AdminUpdateBuild
 //
-// Update a build in the database
+// Update a build
 //
 // ---
 // produces:
@@ -82,7 +81,7 @@ func AllBuildsQueue(c *gin.Context) {
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing build to update
+//   description: The build object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Build"
@@ -90,24 +89,19 @@ func AllBuildsQueue(c *gin.Context) {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the build in the database
+//     description: Successfully updated the build
 //     schema:
 //       "$ref": "#/definitions/Build"
-//   '401':
-//     description: Unauthorized to update the build in the database
-//     schema:
-//       "$ref": "#/definitions/Error
 //   '400':
-//     description: Unable to update the build in the database - bad request
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the build in the database
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateBuild represents the API handler to
-// update any build stored in the database.
+// UpdateBuild represents the API handler to update a build.
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()

@@ -21,7 +21,7 @@ import (
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo
 //
-// Remove and recreate the webhook for a repo
+// Repair a hook for a repository in Vela and the configured SCM
 //
 // ---
 // produces:
@@ -29,12 +29,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // security:
@@ -44,8 +44,20 @@ import (
 //     description: Successfully repaired the repo
 //     schema:
 //       type: string
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to repair the repo
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

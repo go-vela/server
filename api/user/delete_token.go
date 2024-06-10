@@ -31,13 +31,17 @@ import (
 //     description: Successfully delete a token for the current user
 //     schema:
 //       type: string
-//   '500':
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '503':
 //     description: Unable to delete a token for the current user
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // DeleteToken represents the API handler to revoke
-// and recreate a user token in the configured backend.
+// and recreate a user token.
 func DeleteToken(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

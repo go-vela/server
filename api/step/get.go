@@ -17,7 +17,7 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step} steps GetStep
 //
-// Retrieve a step for a build
+// Get a step for a build
 //
 // ---
 // produces:
@@ -25,12 +25,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -50,9 +50,20 @@ import (
 //     description: Successfully retrieved the step
 //     schema:
 //       "$ref": "#/definitions/Step"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 
-// GetStep represents the API handler to capture a
-// step for a build from the configured backend.
+// GetStep represents the API handler to get a step for a build.
 func GetStep(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

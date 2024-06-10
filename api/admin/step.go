@@ -18,7 +18,7 @@ import (
 
 // swagger:operation PUT /api/v1/admin/step admin AdminUpdateStep
 //
-// Update a step in the database
+// Update a step
 //
 // ---
 // produces:
@@ -26,7 +26,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing step to update
+//   description: The step object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Step"
@@ -34,24 +34,23 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the step in the database
+//     description: Successfully updated the step
 //     schema:
 //       "$ref": "#/definitions/Step"
 //   '401':
-//     description: Unauthorized to update the step in the database
+//     description: Unauthorized
 //     schema:
-//       "$ref": "#/definitions/Error
+//       "$ref": "#/definitions/Error"
 //   '400':
-//     description: Unable to update the step in the database - bad request
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the step in the database
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateStep represents the API handler to
-// update any step stored in the database.
+// UpdateStep represents the API handler to update a step.
 func UpdateStep(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()

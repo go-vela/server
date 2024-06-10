@@ -21,7 +21,7 @@ func TestMiddleware_TokenManager(t *testing.T) {
 	var got *token.Manager
 
 	want := new(token.Manager)
-	want.PrivateKey = "123abc"
+	want.PrivateKeyHMAC = "123abc"
 
 	// setup context
 	gin.SetMode(gin.TestMode)

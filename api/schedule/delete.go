@@ -19,7 +19,7 @@ import (
 
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/{schedule} schedules DeleteSchedule
 //
-// Delete a schedule in the configured backend
+// Delete a schedule
 //
 // ---
 // produces:
@@ -27,12 +27,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -47,17 +47,24 @@ import (
 //     description: Successfully deleted the schedule
 //     schema:
 //       type: string
-//   '500':
-//     description: Unable to delete the schedule
+//   '400':
+//     description: Invalid request payload or path
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '510':
-//     description: Unable to delete the schedule
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeleteSchedule represents the API handler to remove
-// a schedule from the configured backend.
+// DeleteSchedule represents the API handler to remove a schedule.
 func DeleteSchedule(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

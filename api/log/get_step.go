@@ -21,7 +21,7 @@ import (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps GetStepLog
 //
-// Retrieve the logs for a step
+// Get the logs for a step
 //
 // ---
 // produces:
@@ -29,12 +29,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -55,13 +55,24 @@ import (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Log"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the logs for a step
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetStepLog represents the API handler to capture
-// the logs for a step from the configured backend.
+// GetStepLog represents the API handler to get the logs for a step.
 func GetStepLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

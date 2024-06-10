@@ -19,7 +19,7 @@ import (
 
 // swagger:operation PATCH /api/v1/scm/orgs/{org}/sync scm SyncReposForOrg
 //
-// Sync up repos from scm service and database in a specified org
+// Sync repositories from scm service and database in a specified organization
 //
 // ---
 // produces:
@@ -27,7 +27,7 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // security:
@@ -42,15 +42,23 @@ import (
 //   '204':
 //     description: Successful request resulting in no change
 //   '301':
-//     description: One repo in the org has moved permanently
+//     description: One repository in the organiation has moved permanently (from SCM)
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '403':
-//     description: User has been forbidden access to at least one repository in org
+//     description: User has been forbidden access to at least one repository in organiation (from SCM)
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to synchronize org repositories
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

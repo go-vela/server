@@ -18,7 +18,7 @@ import (
 
 // swagger:operation PUT /api/v1/dashboards/{dashboard} dashboards UpdateDashboard
 //
-// Update a dashboard for the configured backend
+// Update a dashboard
 //
 // ---
 // produces:
@@ -31,7 +31,7 @@ import (
 //   type: string
 // - name: body
 //   in: body
-//   description: Payload containing the dashboard to update
+//   description: The dashboard object with the fields to be updated
 //   required: true
 //   schema:
 //     $ref: '#/definitions/Dashboard'
@@ -43,24 +43,23 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Dashboard"
 //   '400':
-//     description: Bad request when updating dashboard
+//     description: Invalid request payload or path
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unauthorized to update dashboard
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to find dashboard
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Error while updating dashboard
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateDashboard represents the API handler to update
-// a dashboard in the configured backend.
+// UpdateDashboard represents the API handler to update a dashboard.
 func UpdateDashboard(c *gin.Context) {
 	// capture middleware values
 	d := dashboard.Retrieve(c)

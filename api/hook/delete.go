@@ -19,7 +19,7 @@ import (
 
 // swagger:operation DELETE /api/v1/hooks/{org}/{repo}/{hook} webhook DeleteHook
 //
-// Delete a webhook for the configured backend
+// Delete a hook
 //
 // ---
 // produces:
@@ -27,12 +27,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -48,20 +48,23 @@ import (
 //     schema:
 //       type: string
 //   '400':
-//     description: The webhook was unable to be deleted
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: The webhook was unable to be deleted
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: The webhook was unable to be deleted
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeleteHook represents the API handler to remove
-// a webhook from the configured backend.
+// DeleteHook represents the API handler to remove a webhook.
 func DeleteHook(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

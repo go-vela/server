@@ -22,7 +22,7 @@ import (
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/services services CreateService
 //
-// Create a service for a build in the configured backend
+// Create a service for a build
 //
 // ---
 // produces:
@@ -30,12 +30,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -45,7 +45,7 @@ import (
 //   type: integer
 // - in: body
 //   name: body
-//   description: Payload containing the service to create
+//   description: Service object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Service"
@@ -57,16 +57,24 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Service"
 //   '400':
-//     description: Unable to create the service
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the service
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateService represents the API handler to create
-// a service for a build in the configured backend.
+// a service for a build.
 func CreateService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

@@ -17,7 +17,7 @@ import (
 
 // swagger:operation POST /api/v1/users users CreateUser
 //
-// Create a user for the configured backend
+// Create a user
 //
 // ---
 // produces:
@@ -25,7 +25,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing the user to create
+//   description: User object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/User"
@@ -37,16 +37,19 @@ import (
 //     schema:
 //       "$ref": "#/definitions/User"
 //   '400':
-//     description: Unable to create the user
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the user
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CreateUser represents the API handler to create
-// a user in the configured backend.
+// CreateUser represents the API handler to create a user.
 func CreateUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

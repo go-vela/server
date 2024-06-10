@@ -29,12 +29,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -54,13 +54,25 @@ import (
 //     description: Successfully deleted the service logs
 //     schema:
 //       type: string
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to delete the service logs
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // DeleteServiceLog represents the API handler to remove
-// the logs for a service from the configured backend.
+// the logs for a service.
 func DeleteServiceLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

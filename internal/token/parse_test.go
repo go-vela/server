@@ -21,9 +21,13 @@ func TestTokenManager_ParseToken(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	b := new(api.Build)
+	b.SetID(1)
+	b.SetNumber(1)
+	b.SetSender("octocat")
+
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -74,7 +78,7 @@ func TestTokenManager_ParseToken(t *testing.T) {
 		{
 			TokenType: constants.WorkerBuildTokenType,
 			Mto: &MintTokenOpts{
-				BuildID:       1,
+				Build:         b,
 				Repo:          "foo/bar",
 				Hostname:      "worker",
 				TokenType:     constants.WorkerBuildTokenType,
@@ -122,8 +126,7 @@ func TestTokenManager_ParseToken_Error_NoParse(t *testing.T) {
 	u.SetToken("bar")
 
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -147,8 +150,7 @@ func TestTokenManager_ParseToken_Expired(t *testing.T) {
 	u.SetToken("bar")
 
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -179,8 +181,7 @@ func TestTokenManager_ParseToken_NoSubject(t *testing.T) {
 	u.SetToken("bar")
 
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -195,7 +196,7 @@ func TestTokenManager_ParseToken_NoSubject(t *testing.T) {
 	}
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	token, err := tkn.SignedString([]byte(tm.PrivateKey))
+	token, err := tkn.SignedString([]byte(tm.PrivateKeyHMAC))
 	if err != nil {
 		t.Errorf("Unable to create test token: %v", err)
 	}
@@ -219,8 +220,7 @@ func TestTokenManager_ParseToken_Error_InvalidSignature(t *testing.T) {
 	u.SetToken("bar")
 
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -236,7 +236,7 @@ func TestTokenManager_ParseToken_Error_InvalidSignature(t *testing.T) {
 	}
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 
-	token, err := tkn.SignedString([]byte(tm.PrivateKey))
+	token, err := tkn.SignedString([]byte(tm.PrivateKeyHMAC))
 	if err != nil {
 		t.Errorf("Unable to create test token: %v", err)
 	}
@@ -260,8 +260,7 @@ func TestToken_Parse_AccessToken_NoExpiration(t *testing.T) {
 	u.SetToken("bar")
 
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}

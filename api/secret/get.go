@@ -20,7 +20,7 @@ import (
 //
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets GetSecret
 //
-// Retrieve a secret from the configured backend
+// Get a secret
 //
 // ---
 // produces:
@@ -42,12 +42,12 @@ import (
 //   type: string
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: name
-//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   description: Name of the repository if a repository secret, team name if a shared secret, or '*' if an organization secret
 //   required: true
 //   type: string
 // - in: path
@@ -62,8 +62,12 @@ import (
 //     description: Successfully retrieved the secret
 //     schema:
 //       "$ref": "#/definitions/Secret"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the secret
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 

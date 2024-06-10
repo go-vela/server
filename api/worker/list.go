@@ -19,7 +19,7 @@ import (
 
 // swagger:operation GET /api/v1/workers workers ListWorkers
 //
-// Retrieve a list of workers for the configured backend
+// Get all workers
 //
 // ---
 // produces:
@@ -31,11 +31,11 @@ import (
 //   type: boolean
 // - in: query
 //   name: checked_in_before
-//   description: filter workers that have checked in before a certain time
+//   description: Filter workers that have checked in before a certain time
 //   type: integer
 // - in: query
 //   name: checked_in_after
-//   description: filter workers that have checked in after a certain time
+//   description: Filter workers that have checked in after a certain time
 //   type: integer
 //   default: 0
 // security:
@@ -47,13 +47,20 @@ import (
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Worker"
+//   '400':
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the list of workers
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListWorkers represents the API handler to capture a
-// list of workers from the configured backend.
+// ListWorkers represents the API handler to get a list of workers.
 func ListWorkers(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

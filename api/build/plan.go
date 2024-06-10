@@ -18,7 +18,7 @@ import (
 
 // PlanBuild is a helper function to plan the build for
 // execution. This creates all resources, like steps
-// and services, for the build in the configured backend.
+// and services, for the build.
 // TODO:
 // - return build and error.
 func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build, r *types.Repo) error {
