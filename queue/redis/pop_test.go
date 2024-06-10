@@ -4,12 +4,12 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"golang.org/x/crypto/nacl/sign"
-	"gopkg.in/square/go-jose.v2/json"
 
 	"github.com/go-vela/server/queue/models"
 )
