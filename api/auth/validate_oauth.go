@@ -30,7 +30,7 @@ import (
 //   '200':
 //     description: Successfully validated
 //     schema:
-//       "$ref": "#/definitions/Token"
+//       type: string
 //   '401':
 //     description: Unauthorized
 //     schema:
