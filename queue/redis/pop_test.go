@@ -4,10 +4,10 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
-	"github.com/go-jose/go-jose/v4/json"
 	"github.com/google/go-cmp/cmp"
 	"golang.org/x/crypto/nacl/sign"
 

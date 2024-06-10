@@ -4,10 +4,9 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"reflect"
 	"testing"
-
-	"github.com/go-jose/go-jose/v4/json"
 
 	"github.com/go-vela/server/queue/models"
 )
