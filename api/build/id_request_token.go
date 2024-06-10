@@ -113,13 +113,19 @@ func GetIDRequestToken(c *gin.Context) {
 		return
 	}
 
-	commands, err := strconv.ParseBool(c.Query("commands"))
-	if err != nil {
-		retErr := fmt.Errorf("unable to parse 'commands' query parameter as boolean %s: %w", c.Query("commands"), err)
+	commands := false
 
-		util.HandleError(c, http.StatusBadRequest, retErr)
+	var err error
 
-		return
+	if len(c.Query("commands")) > 0 {
+		commands, err = strconv.ParseBool(c.Query("commands"))
+		if err != nil {
+			retErr := fmt.Errorf("unable to parse 'commands' query parameter as boolean %s: %w", c.Query("commands"), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
 	}
 
 	// retrieve token manager from context
