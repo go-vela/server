@@ -5,19 +5,19 @@ package hook
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // ListHooks gets a list of all hooks from the database.
-func (e *engine) ListHooks(ctx context.Context) ([]*library.Hook, error) {
+func (e *engine) ListHooks(ctx context.Context) ([]*api.Hook, error) {
 	e.logger.Trace("listing all hooks from the database")
 
 	// variables to store query results and return value
 	count := int64(0)
-	h := new([]database.Hook)
-	hooks := []*library.Hook{}
+	h := new([]types.Hook)
+	hooks := []*api.Hook{}
 
 	// count the results
 	count, err := e.CountHooks(ctx)
@@ -44,10 +44,7 @@ func (e *engine) ListHooks(ctx context.Context) ([]*library.Hook, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := hook
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Hook.ToLibrary
-		hooks = append(hooks, tmp.ToLibrary())
+		hooks = append(hooks, tmp.ToAPI())
 	}
 
 	return hooks, nil

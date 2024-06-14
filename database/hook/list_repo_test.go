@@ -9,34 +9,38 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	// setup types
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+
+	_build := testutils.APIBuild()
+	_build.SetID(1)
+	_build.SetRepo(_repo)
+
 	_hookOne := testutils.APIHook()
 	_hookOne.SetID(1)
-	_hookOne.SetRepoID(1)
-	_hookOne.SetBuildID(1)
+	_hookOne.SetRepo(_repo)
+	_hookOne.SetBuild(_build)
 	_hookOne.SetNumber(1)
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookOne.SetWebhookID(1)
 
 	_hookTwo := testutils.APIHook()
 	_hookTwo.SetID(2)
-	_hookTwo.SetRepoID(1)
-	_hookTwo.SetBuildID(2)
+	_hookTwo.SetRepo(_repo)
 	_hookTwo.SetNumber(2)
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookTwo.SetWebhookID(1)
-
-	_repo := testutils.APIRepo()
-	_repo.SetID(1)
-	_repo.GetOwner().SetID(1)
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -69,24 +73,44 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
 
+	err = _sqlite.client.AutoMigrate(&types.Repo{})
+	if err != nil {
+		t.Errorf("unable to create repo table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
+	if err != nil {
+		t.Errorf("unable to create test repo for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.AutoMigrate(&types.Build{})
+	if err != nil {
+		t.Errorf("unable to create build table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_build)).Error
+	if err != nil {
+		t.Errorf("unable to create test build for sqlite: %v", err)
+	}
+
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Hook
+		want     []*api.Hook
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Hook{_hookTwo, _hookOne},
+			want:     []*api.Hook{_hookTwo, _hookOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Hook{_hookTwo, _hookOne},
+			want:     []*api.Hook{_hookTwo, _hookOne},
 		},
 	}
 

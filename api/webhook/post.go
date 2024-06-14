@@ -504,7 +504,7 @@ func PostWebhook(c *gin.Context) {
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
 // the database resources with any relevant changes resulting from the event, such as name changes, transfers, etc.
-func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *library.Hook, r *types.Repo) (*types.Repo, error) {
+func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *types.Hook, r *types.Repo) (*types.Repo, error) {
 	logrus.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
 
 	defer func() {
@@ -559,7 +559,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 			)
 		}
 
-		h.SetRepoID(dbRepo.GetID())
+		h.SetRepo(dbRepo)
 
 		// the only edits to a repo that impact Vela are to these three fields
 		if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
@@ -596,7 +596,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo as well as build links for the UI.
-func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
+func RenameRepository(ctx context.Context, h *types.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
 	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 
 	// get any matching hook with the repo's unique webhook ID in the SCM
@@ -612,7 +612,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 	}
 
 	// update hook object which will be added to DB upon reaching deferred function in PostWebhook
-	h.SetRepoID(r.GetID())
+	h.SetRepo(r)
 
 	// send API call to capture the last hook for the repo
 	lastHook, err := database.FromContext(c).LastHookForRepo(ctx, dbR)

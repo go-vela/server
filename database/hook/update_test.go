@@ -13,10 +13,16 @@ import (
 
 func TestHook_Engine_UpdateHook(t *testing.T) {
 	// setup types
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+
+	_build := testutils.APIBuild()
+	_build.SetID(1)
+
 	_hook := testutils.APIHook()
 	_hook.SetID(1)
-	_hook.SetRepoID(1)
-	_hook.SetBuildID(1)
+	_hook.SetRepo(_repo)
+	_hook.SetBuild(_build)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hook.SetWebhookID(1)

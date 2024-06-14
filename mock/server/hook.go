@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
@@ -71,7 +70,7 @@ const (
 func getHooks(c *gin.Context) {
 	data := []byte(HooksResp)
 
-	var body []library.Hook
+	var body []api.Hook
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -93,7 +92,7 @@ func getHook(c *gin.Context) {
 
 	data := []byte(HookResp)
 
-	var body library.Hook
+	var body api.Hook
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -103,7 +102,7 @@ func getHook(c *gin.Context) {
 func addHook(c *gin.Context) {
 	data := []byte(HookResp)
 
-	var body library.Hook
+	var body api.Hook
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -127,7 +126,7 @@ func updateHook(c *gin.Context) {
 
 	data := []byte(HookResp)
 
-	var body library.Hook
+	var body api.Hook
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

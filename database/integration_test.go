@@ -44,7 +44,7 @@ type Resources struct {
 	Dashboards  []*api.Dashboard
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
-	Hooks       []*library.Hook
+	Hooks       []*api.Hook
 	JWKs        jwk.Set
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
@@ -785,7 +785,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Hooks)-1 {
 		t.Errorf("ListHooksForRepo() is %v, want %v", count, len(resources.Hooks))
 	}
-	if diff := cmp.Diff([]*library.Hook{resources.Hooks[1], resources.Hooks[0]}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Hook{resources.Hooks[1], resources.Hooks[0]}, list); diff != "" {
 		t.Errorf("ListHooksForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListHooksForRepo"] = true
@@ -2524,7 +2524,7 @@ func newResources() *Resources {
 	deploymentTwo.SetCreatedBy("octocat")
 	deploymentTwo.SetBuilds(builds)
 
-	hookOne := new(library.Hook)
+	hookOne := new(api.Hook)
 	hookOne.SetID(1)
 	hookOne.SetRepoID(1)
 	hookOne.SetBuildID(1)
@@ -2540,7 +2540,7 @@ func newResources() *Resources {
 	hookOne.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookOne.SetWebhookID(123456)
 
-	hookTwo := new(library.Hook)
+	hookTwo := new(api.Hook)
 	hookTwo.SetID(2)
 	hookTwo.SetRepoID(1)
 	hookTwo.SetBuildID(1)
@@ -2556,7 +2556,7 @@ func newResources() *Resources {
 	hookTwo.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookTwo.SetWebhookID(123456)
 
-	hookThree := new(library.Hook)
+	hookThree := new(api.Hook)
 	hookThree.SetID(3)
 	hookThree.SetRepoID(2)
 	hookThree.SetBuildID(5)
@@ -2845,7 +2845,7 @@ func newResources() *Resources {
 		Dashboards:  []*api.Dashboard{dashboardOne, dashboardTwo},
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
-		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
+		Hooks:       []*api.Hook{hookOne, hookTwo, hookThree},
 		JWKs:        jwkSet,
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},

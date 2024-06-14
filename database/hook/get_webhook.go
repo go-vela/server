@@ -5,21 +5,23 @@ package hook
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // GetHookByWebhookID gets a single hook with a matching webhook id in the database.
-func (e *engine) GetHookByWebhookID(ctx context.Context, webhookID int64) (*library.Hook, error) {
+func (e *engine) GetHookByWebhookID(ctx context.Context, webhookID int64) (*api.Hook, error) {
 	e.logger.Tracef("getting a hook with webhook id %d from the database", webhookID)
 
 	// variable to store query results
-	h := new(database.Hook)
+	h := new(types.Hook)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableHook).
+		Preload("Repo").
+		Preload("Build").
 		Where("webhook_id = ?", webhookID).
 		Take(h).
 		Error
@@ -27,8 +29,5 @@ func (e *engine) GetHookByWebhookID(ctx context.Context, webhookID int64) (*libr
 		return nil, err
 	}
 
-	// return the hook
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Hook.ToLibrary
-	return h.ToLibrary(), nil
+	return h.ToAPI(), nil
 }

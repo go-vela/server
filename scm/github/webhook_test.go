@@ -46,7 +46,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -125,7 +125,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -202,7 +202,7 @@ func TestGithub_ProcessWebhook_Push_Branch_Delete(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -280,7 +280,7 @@ func TestGithub_ProcessWebhook_Push_Tag_Delete(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -340,7 +340,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	defer s.Close()
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -574,7 +574,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
 
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -626,7 +626,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 
 	type args struct {
 		file              string
-		hook              *library.Hook
+		hook              *api.Hook
 		repo              *api.Repo
 		build             *api.Build
 		deploymentPayload raw.StringSliceMap
@@ -710,7 +710,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -805,7 +805,7 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -858,7 +858,7 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -984,7 +984,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -1064,7 +1064,7 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -1115,7 +1115,7 @@ func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -1164,7 +1164,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -1227,7 +1227,7 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -1290,7 +1290,7 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -1353,7 +1353,7 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -1416,7 +1416,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	wantHook := new(library.Hook)
+	wantHook := new(api.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
@@ -1482,7 +1482,7 @@ func TestGithub_Redeliver_Webhook(t *testing.T) {
 	u.SetName("octocat")
 	u.SetToken("foo")
 
-	_hook := new(library.Hook)
+	_hook := new(api.Hook)
 	_hook.SetSourceID("b595f0e0-aee1-11ec-86cf-9418381395c4")
 	_hook.SetID(1)
 	_hook.SetRepoID(1)
@@ -1526,7 +1526,7 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 	u.SetName("octocat")
 	u.SetToken("foo")
 
-	_hook := new(library.Hook)
+	_hook := new(api.Hook)
 	_hook.SetSourceID("b595f0e0-aee1-11ec-86cf-9418381395c4")
 	_hook.SetID(1)
 	_hook.SetRepoID(1)

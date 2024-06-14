@@ -9,16 +9,28 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestHook_Engine_GetHook(t *testing.T) {
 	// setup types
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+
+	_build := testutils.APIBuild()
+	_build.SetID(1)
+	_build.SetRepo(_repo)
+
 	_hook := testutils.APIHook()
 	_hook.SetID(1)
-	_hook.SetRepoID(1)
-	_hook.SetBuildID(1)
+	_hook.SetRepo(_repo)
+	_hook.SetBuild(_build)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hook.SetWebhookID(1)
@@ -42,12 +54,32 @@ func TestHook_Engine_GetHook(t *testing.T) {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
 
+	err = _sqlite.client.AutoMigrate(&types.Repo{})
+	if err != nil {
+		t.Errorf("unable to create repo table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
+	if err != nil {
+		t.Errorf("unable to create test repo for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.AutoMigrate(&types.Build{})
+	if err != nil {
+		t.Errorf("unable to create build table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_build)).Error
+	if err != nil {
+		t.Errorf("unable to create test build for sqlite: %v", err)
+	}
+
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Hook
+		want     *api.Hook
 	}{
 		{
 			failure:  false,

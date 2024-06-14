@@ -6,12 +6,10 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
-
-	"github.com/go-vela/types/library"
 )
 
 func TestHook_ActiveHookResp(t *testing.T) {
-	testHook := library.Hook{}
+	testHook := api.Hook{}
 
 	err := json.Unmarshal([]byte(HookResp), &testHook)
 	if err != nil {

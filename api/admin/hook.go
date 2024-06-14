@@ -10,9 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation PUT /api/v1/admin/hook admin AdminUpdateHook
@@ -57,7 +57,7 @@ func UpdateHook(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	// capture body from API request
-	input := new(library.Hook)
+	input := new(types.Hook)
 
 	err := c.Bind(input)
 	if err != nil {

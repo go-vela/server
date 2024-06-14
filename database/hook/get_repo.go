@@ -8,13 +8,12 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // GetHookForRepo gets a hook by repo ID and number from the database.
-func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int) (*library.Hook, error) {
+func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int) (*api.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"hook": number,
 		"org":  r.GetOrg(),
@@ -22,11 +21,14 @@ func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int) (*
 	}).Tracef("getting hook %s/%d from the database", r.GetFullName(), number)
 
 	// variable to store query results
-	h := new(database.Hook)
+	h := new(types.Hook)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableHook).
+		Preload("Repo").
+		Preload("Repo.Owner").
+		Preload("Build").
 		Where("repo_id = ?", r.GetID()).
 		Where("number = ?", number).
 		Take(h).
@@ -35,8 +37,5 @@ func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int) (*
 		return nil, err
 	}
 
-	// return the hook
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Hook.ToLibrary
-	return h.ToLibrary(), nil
+	return h.ToAPI(), nil
 }

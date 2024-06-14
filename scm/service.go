@@ -110,7 +110,7 @@ type Service interface {
 	Disable(context.Context, *api.User, string, string) error
 	// Enable defines a function that activates
 	// a repo by creating the webhook.
-	Enable(context.Context, *api.User, *api.Repo, *library.Hook) (*library.Hook, string, error)
+	Enable(context.Context, *api.User, *api.Repo, *api.Hook) (*api.Hook, string, error)
 	// Update defines a function that updates
 	// a webhook for a specified repo.
 	Update(context.Context, *api.User, *api.Repo, int64) (bool, error)
@@ -152,7 +152,7 @@ type Service interface {
 	VerifyWebhook(context.Context, *http.Request, *api.Repo) error
 	// RedeliverWebhook defines a function that
 	// redelivers the webhook from the SCM.
-	RedeliverWebhook(context.Context, *api.User, *api.Repo, *library.Hook) error
+	RedeliverWebhook(context.Context, *api.User, *api.Repo, *api.Hook) error
 
 	// TODO: Add convert functions to interface?
 }
