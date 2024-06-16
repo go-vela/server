@@ -73,7 +73,9 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	logrus.WithFields(logrus.Fields{
 		"step":    s.GetName(),
 		"step_id": s.GetID(),
-		"repo":    b.GetRepo().GetFullName(),
+		"org":     b.GetRepo().GetOrg(),
+		"repo":    b.GetRepo().GetName(),
+		"repo_id": b.GetRepo().GetID(),
 	}).Info("step created")
 
 	// populate environment variables from step library
@@ -100,8 +102,10 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	logrus.WithFields(logrus.Fields{
 		"step":    s.GetName(),
 		"step_id": s.GetID(),
-		"log_id":  l.GetID(),
-		"repo":    b.GetRepo().GetFullName(),
+		"log_id":  l.GetID(), // it won't have an ID here
+		"org":     b.GetRepo().GetOrg(),
+		"repo":    b.GetRepo().GetName(),
+		"repo_id": b.GetRepo().GetID(),
 	}).Info("log for step created")
 
 	if len(s.GetReportAs()) > 0 {

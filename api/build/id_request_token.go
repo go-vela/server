@@ -15,7 +15,6 @@ import (
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -82,18 +81,10 @@ import (
 // GetIDRequestToken represents the API handler to generate and return an ID request token.
 func GetIDRequestToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	cl := claims.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   b.GetRepo().GetOrg(),
-		"repo":  b.GetRepo().GetName(),
-		"user":  cl.Subject,
-	}).Infof("generating ID request token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
+	l.Infof("generating ID request token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
 
 	image := c.Query("image")
 	if len(image) == 0 {

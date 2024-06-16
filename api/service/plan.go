@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
-	"github.com/sirupsen/logrus"
 )
 
 // PlanServices is a helper function to plan all services
@@ -43,7 +44,9 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 		logrus.WithFields(logrus.Fields{
 			"service":    s.GetName(),
 			"service_id": s.GetID(),
-			"repo":       b.GetRepo().GetFullName(),
+			"org":        b.GetRepo().GetOrg(),
+			"repo":       b.GetRepo().GetName(),
+			"repo_id":    b.GetRepo().GetID(),
 		}).Info("service created")
 
 		// populate environment variables from service library
@@ -70,8 +73,10 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 		logrus.WithFields(logrus.Fields{
 			"service":    s.GetName(),
 			"service_id": s.GetID(),
-			"log_id":     l.GetID(),
-			"repo":       b.GetRepo().GetFullName(),
+			"log_id":     l.GetID(), // it won't have an ID here, because CreateLog doesn't return the created log
+			"org":        b.GetRepo().GetOrg(),
+			"repo":       b.GetRepo().GetName(),
+			"repo_id":    b.GetRepo().GetID(),
 		}).Info("log for service created")
 	}
 

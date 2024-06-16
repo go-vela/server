@@ -47,7 +47,9 @@ import (
 
 // GetSettings represents the API handler to get platform settings.
 func GetSettings(c *gin.Context) {
-	logrus.Debug("platform admin: reading platform settings")
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Debug("platform admin: reading platform settings")
 
 	// capture middleware values
 	s := sMiddleware.FromContext(c)
@@ -107,12 +109,13 @@ func GetSettings(c *gin.Context) {
 // UpdateSettings represents the API handler to update the
 // platform settings singleton.
 func UpdateSettings(c *gin.Context) {
-	logrus.Debug("platform admin: updating platform settings")
-
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	s := sMiddleware.FromContext(c)
 	u := uMiddleware.FromContext(c)
 	ctx := c.Request.Context()
+
+	l.Debug("platform admin: updating platform settings")
 
 	// check captured value because we aren't retrieving settings from the database
 	// instead we are retrieving the auto-refreshed middleware value
@@ -158,14 +161,20 @@ func UpdateSettings(c *gin.Context) {
 			}
 
 			_s.SetCloneImage(cloneImage)
+
+			l.Infof("platform admin: updating clone image to %s", cloneImage)
 		}
 
 		if input.TemplateDepth != nil {
 			_s.SetTemplateDepth(*input.TemplateDepth)
+
+			l.Infof("platform admin: updating template depth to %d", *input.TemplateDepth)
 		}
 
 		if input.StarlarkExecLimit != nil {
 			_s.SetStarlarkExecLimit(*input.StarlarkExecLimit)
+
+			l.Infof("platform admin: updating starlark exec limit to %d", *input.StarlarkExecLimit)
 		}
 	}
 
@@ -173,14 +182,20 @@ func UpdateSettings(c *gin.Context) {
 		if input.Queue.Routes != nil {
 			_s.SetRoutes(input.GetRoutes())
 		}
+
+		l.Infof("platform admin: updating queue routes to: %s", input.GetRoutes())
 	}
 
 	if input.RepoAllowlist != nil {
 		_s.SetRepoAllowlist(input.GetRepoAllowlist())
+
+		l.Infof("platform admin: updating repo allowlist to: %s", input.GetRepoAllowlist())
 	}
 
 	if input.ScheduleAllowlist != nil {
 		_s.SetScheduleAllowlist(input.GetScheduleAllowlist())
+
+		l.Infof("platform admin: updating schedule allowlist to: %s", input.GetScheduleAllowlist())
 	}
 
 	_s.SetUpdatedBy(u.GetName())
@@ -229,7 +244,9 @@ func UpdateSettings(c *gin.Context) {
 // RestoreSettings represents the API handler to
 // restore platform settings to the environment defaults.
 func RestoreSettings(c *gin.Context) {
-	logrus.Debug("platform admin: restoring platform settings")
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Debug("platform admin: restoring platform settings")
 
 	// capture middleware values
 	ctx := c.Request.Context()

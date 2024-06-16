@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -61,16 +60,11 @@ import (
 // UpdateUser represents the API handler to update a user.
 func UpdateUser(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	user := util.PathParameter(c, "user")
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Debugf("updating user %s", user)
+	l.Debugf("updating user %s", user)
 
 	// capture body from API request
 	input := new(types.User)
@@ -85,7 +79,7 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// send API call to capture the user
-	u, err = database.FromContext(c).GetUserForName(ctx, user)
+	u, err := database.FromContext(c).GetUserForName(ctx, user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
 

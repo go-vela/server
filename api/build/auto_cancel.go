@@ -17,7 +17,6 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
-	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/pipeline"
 )
@@ -25,14 +24,16 @@ import (
 // AutoCancel is a helper function that checks to see if any pending or running
 // builds for the repo can be replaced by the current build.
 func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pipeline.CancelOptions) (bool, error) {
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":       util.EscapeValue(c.ClientIP()),
-		"path":     util.EscapeValue(c.Request.URL.Path),
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	// in this path, the middleware doesn't inject build,
+	// so we need to set it manually
+	l = l.WithFields(logrus.Fields{
 		"build":    b.GetNumber(),
 		"build_id": b.GetID(),
 	})
 
-	logger.Debug("checking if builds should be auto canceled")
+	l.Debug("checking if builds should be auto canceled")
 
 	// if build is the current build, continue
 	if rB.GetID() == b.GetID() {
@@ -55,7 +56,7 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 				return false, err
 			}
 
-			logger.WithFields(logrus.Fields{
+			l.WithFields(logrus.Fields{
 				"build":    rB.GetNumber(),
 				"build_id": rB.GetID(),
 			}).Info("build updated - build canceled")
@@ -84,7 +85,7 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 			return true, err
 		}
 
-		logger.WithFields(logrus.Fields{
+		l.WithFields(logrus.Fields{
 			"build":    rB.GetNumber(),
 			"build_id": rB.GetID(),
 		}).Info("build updated - build canceled")
@@ -96,6 +97,8 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 // cancelRunning is a helper function that determines the executor currently running a build and sends an API call
 // to that executor's worker to cancel the build.
 func cancelRunning(c *gin.Context, b *types.Build) error {
+	l := c.MustGet("logger").(*logrus.Entry)
+
 	e := new([]types.Executor)
 	// retrieve the worker
 	w, err := database.FromContext(c).GetWorkerForHostname(c, b.GetHost())
@@ -190,6 +193,8 @@ func cancelRunning(c *gin.Context, b *types.Build) error {
 				return err
 			}
 			defer resp.Body.Close()
+
+			l.Debugf("sent cancel request to worker %s (executor %d) for build %d", w.GetHostname(), executor.GetID(), b.GetID())
 
 			// Read Response Body
 			respBody, err := io.ReadAll(resp.Body)

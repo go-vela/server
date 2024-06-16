@@ -14,8 +14,6 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
@@ -74,21 +72,12 @@ import (
 // a build executable for a repository.
 func GetBuildExecutable(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	cl := claims.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build":   b.GetNumber(),
-		"org":     o,
-		"repo":    r.GetName(),
-		"subject": cl.Subject,
-	}).Debugf("reading build executable %s/%d", r.GetFullName(), b.GetNumber())
+	l.Debugf("reading build executable %s/%d", r.GetFullName(), b.GetNumber())
 
 	// send database call to pop the requested build executable from the table
 	bExecutable, err := database.FromContext(c).PopBuildExecutable(ctx, b.GetID())

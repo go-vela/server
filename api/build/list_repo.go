@@ -14,9 +14,7 @@ import (
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 )
@@ -135,19 +133,11 @@ func ListBuildsForRepo(c *gin.Context) {
 	)
 
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Debugf("listing builds for repo %s", r.GetFullName())
+	l.Debugf("listing builds for repo %s", r.GetFullName())
 
 	// capture the branch name parameter
 	branch := c.Query("branch")

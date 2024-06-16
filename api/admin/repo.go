@@ -12,7 +12,6 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -53,17 +52,10 @@ import (
 // UpdateRepo represents the API handler to update a repo.
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logrus.Debug("platform admin: updating repo")
+	l.Debug("platform admin: updating repo")
 
 	// capture body from API request
 	input := new(types.Repo)
@@ -77,10 +69,11 @@ func UpdateRepo(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
+		"org":     util.EscapeValue(input.GetOrg()),
+		"repo":    util.EscapeValue(input.GetName()),
 		"repo_id": input.GetID(),
-		"repo":    util.EscapeValue(input.GetFullName()),
-	}).Debug("attempting to update repo")
+	}).Debug("platform admin: attempting to update repo")
 
 	// send API call to update the repo
 	r, err := database.FromContext(c).UpdateRepo(ctx, input)
@@ -92,10 +85,11 @@ func UpdateRepo(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
+		"org":     r.GetOrg(),
+		"repo":    r.GetName(),
 		"repo_id": r.GetID(),
-		"repo":    r.GetFullName(),
-	}).Info("repo updated")
+	}).Info("platform admin: repo updated")
 
 	c.JSON(http.StatusOK, r)
 }

@@ -13,9 +13,7 @@ import (
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -89,23 +87,14 @@ import (
 // ListSteps represents the API handler to get a list of steps for a build.
 func ListSteps(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Debugf("listing steps for build %s", entry)
+	l.Debugf("listing steps for build %s", entry)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

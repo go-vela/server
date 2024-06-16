@@ -62,13 +62,9 @@ import (
 func GetAuthToken(c *gin.Context) {
 	var err error
 
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":   util.EscapeValue(c.ClientIP()),
-		"path": util.EscapeValue(c.Request.URL.Path),
-	})
-
-	tm := c.MustGet("token-manager").(*token.Manager)
 	// capture middleware values
+	tm := c.MustGet("token-manager").(*token.Manager)
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
 	// capture the OAuth state if present
@@ -138,7 +134,7 @@ func GetAuthToken(c *gin.Context) {
 			return
 		}
 
-		logger.WithFields(logrus.Fields{
+		l.WithFields(logrus.Fields{
 			"user":    ur.GetName(),
 			"user_id": ur.GetID(),
 		}).Info("new user created")
@@ -176,10 +172,10 @@ func GetAuthToken(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"user":    ur.GetName(),
 		"user_id": ur.GetID(),
-	}).Info("user updated")
+	}).Info("user updated - new token")
 
 	// return the user with their jwt access token
 	c.JSON(http.StatusOK, library.Token{Token: &at})

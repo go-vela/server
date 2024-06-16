@@ -10,7 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -52,17 +51,10 @@ import (
 // UpdateHook represents the API handler to update a hook.
 func UpdateHook(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logrus.Debug("platform admin: updating hook")
+	l.Debug("platform admin: updating hook")
 
 	// capture body from API request
 	input := new(library.Hook)
@@ -76,9 +68,9 @@ func UpdateHook(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"hook_id": input.GetID(),
-	}).Debug("attempting to update hook")
+	}).Debug("platform admin: attempting to update hook")
 
 	// send API call to update the hook
 	h, err := database.FromContext(c).UpdateHook(ctx, input)
@@ -90,9 +82,9 @@ func UpdateHook(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"hook_id": h.GetID(),
-	}).Info("hook updated")
+	}).Info("platform admin: hook updated")
 
 	c.JSON(http.StatusOK, h)
 }

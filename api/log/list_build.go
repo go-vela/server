@@ -13,9 +13,7 @@ import (
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -82,23 +80,14 @@ import (
 // ListLogsForBuild represents the API handler to get a list of logs for a build.
 func ListLogsForBuild(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Debugf("listing logs for build %s", entry)
+	l.Debugf("listing logs for build %s", entry)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -123,7 +112,7 @@ func ListLogsForBuild(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of logs for the build
-	l, t, err := database.FromContext(c).ListLogsForBuild(ctx, b, page, perPage)
+	bl, t, err := database.FromContext(c).ListLogsForBuild(ctx, b, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list logs for build %s: %w", entry, err)
 
@@ -141,5 +130,5 @@ func ListLogsForBuild(c *gin.Context) {
 	// set pagination headers
 	pagination.SetHeaderLink(c)
 
-	c.JSON(http.StatusOK, l)
+	c.JSON(http.StatusOK, bl)
 }

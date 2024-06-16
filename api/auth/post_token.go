@@ -49,6 +49,7 @@ import (
 // a user logging in using PAT to Vela from the API.
 func PostAuthToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
 	// attempt to get user from source
@@ -61,19 +62,22 @@ func PostAuthToken(c *gin.Context) {
 		return
 	}
 
-	logrus.Debug("user authenticated via SCM using PAT")
+	l.Debugf("SCM user %s authenticated using PAT", u.GetName())
 
 	// check if the user exists
 	u, err = database.FromContext(c).GetUserForName(ctx, u.GetName())
 	if err != nil {
-		retErr := fmt.Errorf("user %s not found", u.GetName())
+		retErr := fmt.Errorf("unable to authenticate: user %s not found", u.GetName())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
 
 		return
 	}
 
-	logrus.Infof("user %s successfully authenticated via SCM PAT", u.GetName())
+	l.WithFields(logrus.Fields{
+		"user":    u.GetName(),
+		"user_id": u.GetID(),
+	}).Info("user successfully authenticated via SCM PAT")
 
 	// We don't need refresh token for this scenario
 	// We only need access token and are configured based on the config defined
@@ -93,8 +97,6 @@ func PostAuthToken(c *gin.Context) {
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
 	}
 
-	logrus.Debugf("new access token created for user %s via SCM PAT", u.GetName())
-
-	// return the user with their jwt access token
+	// return jwt access token
 	c.JSON(http.StatusOK, library.Token{Token: &at})
 }

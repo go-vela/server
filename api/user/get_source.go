@@ -42,15 +42,11 @@ import (
 // GetSourceRepos represents the API handler to get a list of repos for a user.
 func GetSourceRepos(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Debugf("reading available SCM repos for user %s", u.GetName())
+	l.Debugf("reading available SCM repos for user %s", u.GetName())
 
 	// variables to capture requested data
 	dbRepos := []*types.Repo{}

@@ -53,6 +53,7 @@ import (
 // build by its id.
 func GetBuildByID(c *gin.Context) {
 	// Capture user from middleware
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
@@ -66,13 +67,7 @@ func GetBuildByID(c *gin.Context) {
 		return
 	}
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": id,
-		"user":  u.GetName(),
-	}).Debugf("reading build %d", id)
+	l.Debugf("reading build %d", id)
 
 	// Get build from database
 	b, err := database.FromContext(c).GetBuild(ctx, id)
@@ -88,7 +83,7 @@ func GetBuildByID(c *gin.Context) {
 	// just retrieving any build using a random id number.
 	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), b.GetRepo().GetOrg(), b.GetRepo().GetName())
 	if err != nil {
-		logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), b.GetRepo().GetFullName())
+		l.Errorf("unable to get user %s access level for repo %s", u.GetName(), b.GetRepo().GetFullName())
 	}
 
 	// Ensure that user has at least read access to repo to return the build

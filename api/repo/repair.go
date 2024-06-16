@@ -12,7 +12,6 @@ import (
 	wh "github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -65,27 +64,13 @@ import (
 // and then create a webhook for a repo.
 func RepairRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
-	// capture middleware values
-	m := c.MustGet("metadata").(*internal.Metadata)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"org":     o,
-		"repo":    r.GetName(),
-		"repo_id": r.GetID(),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logger.Debugf("repairing repo %s", r.GetFullName())
+	l.Debugf("repairing repo %s", r.GetFullName())
 
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
@@ -138,7 +123,7 @@ func RepairRepo(c *gin.Context) {
 			return
 		}
 
-		logger.WithFields(logrus.Fields{
+		l.WithFields(logrus.Fields{
 			"hook": hook.GetID(),
 		}).Info("new webhook created")
 	}
@@ -191,6 +176,8 @@ func RepairRepo(c *gin.Context) {
 
 			return
 		}
+
+		l.Infof("repo %s updated - set to active", r.GetFullName())
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("repo %s repaired", r.GetFullName()))

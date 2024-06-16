@@ -89,17 +89,12 @@ import (
 // of repositories for an organization.
 func ListReposForOrg(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	o := org.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"user": u.GetName(),
-	}).Debugf("listing repos for org %s", o)
+	l.Debugf("listing repos for org %s", o)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -142,7 +137,7 @@ func ListReposForOrg(c *gin.Context) {
 	// See if the user is an org admin to bypass individual permission checks
 	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
 	if err != nil {
-		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
+		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
 	if perm != "admin" {

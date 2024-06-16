@@ -73,23 +73,13 @@ import (
 // subscribed events with allowed events.
 func SyncRepo(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":   util.EscapeValue(c.ClientIP()),
-		"path": util.EscapeValue(c.Request.URL.Path),
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	})
-
-	logger.Debugf("syncing repo %s", r.GetFullName())
+	l.Debugf("syncing repo %s", r.GetFullName())
 
 	// retrieve repo from source code manager service
 	_, respCode, err := scm.FromContext(c).GetRepo(ctx, u, r)
@@ -109,7 +99,7 @@ func SyncRepo(c *gin.Context) {
 				return
 			}
 
-			logger.Infof("repo %s has been updated - set to inactive", r.GetFullName())
+			l.Infof("repo %s has been updated - set to inactive", r.GetFullName())
 
 			// exit with success as hook sync will be unnecessary
 			c.JSON(http.StatusOK, r)
@@ -128,7 +118,7 @@ func SyncRepo(c *gin.Context) {
 	// we cannot use our normal permissions check due to the possibility the repo was deleted
 	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, r.GetName())
 	if err != nil {
-		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
+		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
 	if !strings.EqualFold(perm, "admin") {
@@ -169,7 +159,7 @@ func SyncRepo(c *gin.Context) {
 					return
 				}
 
-				logger.Infof("repo %s has been updated - set to inactive", r.GetFullName())
+				l.Infof("repo %s has been updated - set to inactive", r.GetFullName())
 
 				c.JSON(http.StatusOK, r)
 

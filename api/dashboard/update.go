@@ -62,8 +62,11 @@ import (
 // UpdateDashboard represents the API handler to update a dashboard.
 func UpdateDashboard(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	d := dashboard.Retrieve(c)
 	u := user.Retrieve(c)
+
+	l.Debugf("updating dashboard %s", d.GetID())
 
 	if !isAdmin(d, u) {
 		retErr := fmt.Errorf("unable to update dashboard %s: user is not an admin", d.GetID())
@@ -72,13 +75,6 @@ func UpdateDashboard(c *gin.Context) {
 
 		return
 	}
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"dashboard": d.GetID(),
-	}).Debugf("updating dashboard %s", d.GetID())
 
 	// capture body from API request
 	input := new(types.Dashboard)

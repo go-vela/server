@@ -81,16 +81,11 @@ import (
 // ListSchedules represents the API handler to get a list of schedules for a repository.
 func ListSchedules(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"repo": r.GetName(),
-		"org":  r.GetOrg(),
-	}).Debugf("listing schedules for repo %s", r.GetFullName())
+	l.Debugf("listing schedules for repo %s", r.GetFullName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

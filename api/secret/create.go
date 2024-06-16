@@ -20,7 +20,6 @@ import (
 	"github.com/go-vela/types/library/actions"
 )
 
-//
 // swagger:operation POST /api/v1/secrets/{engine}/{type}/{org}/{name} secrets CreateSecret
 //
 // Create a secret
@@ -85,6 +84,7 @@ import (
 //nolint:funlen // suppress long function error
 func CreateSecret(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	e := util.PathParameter(c, "engine")
 	t := util.PathParameter(c, "type")
@@ -96,24 +96,23 @@ func CreateSecret(c *gin.Context) {
 
 	// create log fields from API metadata
 	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"type":   t,
-		"user":   u.GetName(),
+		"secret_engine": e,
+		"secret_org":    o,
+		"secret_repo":   n,
+		"secret_type":   t,
 	}
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
+		delete(fields, "secret_repo")
+		fields["secret_team"] = n
 	}
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logger := l.WithFields(fields)
 
 	if strings.EqualFold(t, constants.SecretOrg) {
 		// retrieve org name from SCM
@@ -173,10 +172,7 @@ func CreateSecret(c *gin.Context) {
 		}
 	}
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Debugf("creating new secret %s for %s service", entry, e)
+	logger.Debugf("creating new secret %s for %s service", entry, e)
 
 	// capture body from API request
 	input := new(library.Secret)
@@ -258,6 +254,15 @@ func CreateSecret(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"secret_id":   s.GetID(),
+		"secret_name": s.GetName(),
+		"secret_org":  s.GetOrg(),
+		"secret_repo": s.GetRepo(),
+		"secret_type": s.GetType(),
+		"secret_team": s.GetTeam(),
+	}).Infof("created secret %s for %s service", entry, e)
 
 	c.JSON(http.StatusOK, s.Sanitize())
 }

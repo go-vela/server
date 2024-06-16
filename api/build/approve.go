@@ -15,7 +15,6 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
@@ -72,30 +71,18 @@ import (
 // ApproveBuild represents the API handler to approve a build to run.
 func ApproveBuild(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":       util.EscapeValue(c.ClientIP()),
-		"build":    b.GetNumber(),
-		"build_id": b.GetID(),
-		"org":      o,
-		"repo":     r.GetName(),
-		"user":     u.GetName(),
-	})
-
-	logger.Debugf("approving build %d", b.GetID())
+	l.Debugf("approving build %d", b.GetID())
 
 	// verify build is in correct status
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
 		retErr := fmt.Errorf("unable to approve build %s/%d: build not in pending approval state", r.GetFullName(), b.GetNumber())
-		util.HandleError(c, http.StatusBadRequest, retErr)
+		util.HandleError(c, http.StatusNotModified, retErr)
 
 		return
 	}
@@ -116,14 +103,10 @@ func ApproveBuild(c *gin.Context) {
 	// update the build in the db
 	_, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
-		logger.Errorf("failed to update build during publish to queue: %v", err)
+		l.Errorf("failed to update build during publish to queue: %v", err)
 	}
 
-	logger.WithFields(logrus.Fields{
-		"build":    b.GetNumber(),
-		"build_id": b.GetID(),
-		"repo":     r.GetFullName(),
-	}).Info("build updated - user approved build execution")
+	l.Info("build updated - user approved build execution")
 
 	// publish the build to the queue
 	go Enqueue(

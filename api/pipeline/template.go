@@ -86,6 +86,7 @@ import (
 func GetTemplates(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	o := org.Retrieve(c)
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
@@ -94,15 +95,7 @@ func GetTemplates(c *gin.Context) {
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":      o,
-		"pipeline": p.GetCommit(),
-		"repo":     r.GetName(),
-		"user":     u.GetName(),
-	}).Debugf("reading templates from pipeline %s", entry)
+	l.Debugf("reading templates from pipeline %s", entry)
 
 	// create the compiler object
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)

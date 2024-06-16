@@ -50,7 +50,9 @@ func CompileAndPublish(
 	queue queue.Service,
 ) (*pipeline.Build, *models.Item, int, error) {
 	logger := logrus.WithFields(logrus.Fields{
-		"repo":     cfg.Build.GetRepo().GetFullName(),
+		"org":      cfg.Build.GetRepo().GetOrg(),
+		"repo":     cfg.Build.GetRepo().GetName(),
+		"repo_id":  cfg.Build.GetRepo().GetID(),
 		"build":    cfg.Build.GetNumber(),
 		"build_id": cfg.Build.GetID(),
 	})
@@ -124,7 +126,7 @@ func CompileAndPublish(
 		return nil, nil, http.StatusInternalServerError, retErr
 	}
 
-	logrus.Debugf("currently %d builds running on repo %s", builds, r.GetFullName())
+	logger.Debugf("currently %d builds running on repo %s", builds, r.GetFullName())
 
 	// check if the number of pending and running builds exceeds the limit for the repo
 	if builds >= r.GetBuildLimit() {
@@ -192,7 +194,7 @@ func CompileAndPublish(
 	// failing to successfully process the request. This logic ensures we attempt our
 	// best efforts to handle these cases gracefully.
 	for i := 0; i < cfg.Retries; i++ {
-		logrus.Debugf("compilation loop - attempt %d", i+1)
+		logger.Debugf("compilation loop - attempt %d", i+1)
 		// check if we're on the first iteration of the loop
 		if i > 0 {
 			// incrementally sleep in between retries
@@ -220,7 +222,7 @@ func CompileAndPublish(
 
 			// check if the retry limit has been exceeded
 			if i < cfg.Retries-1 {
-				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
+				logger.WithError(retErr).Warningf("retrying #%d", i+1)
 
 				// continue to the next iteration of the loop
 				continue
@@ -273,7 +275,7 @@ func CompileAndPublish(
 			err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", repo.GetFullName(), err)
 
 			// log the error for traceability
-			logrus.Error(err.Error())
+			logger.Error(err.Error())
 
 			return nil, nil, http.StatusInternalServerError, fmt.Errorf("%s: %w", baseErr, err)
 		}
@@ -295,7 +297,7 @@ func CompileAndPublish(
 			// send API call to set the status on the commit
 			err = scm.Status(c, u, b, repo.GetOrg(), repo.GetName())
 			if err != nil {
-				logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
+				logger.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 			}
 
 			return nil,
@@ -320,7 +322,7 @@ func CompileAndPublish(
 
 				// check if the retry limit has been exceeded
 				if i < cfg.Retries-1 {
-					logrus.WithError(retErr).Warningf("retrying #%d", i+1)
+					logger.WithError(retErr).Warningf("retrying #%d", i+1)
 
 					// continue to the next iteration of the loop
 					continue
@@ -329,9 +331,11 @@ func CompileAndPublish(
 				return nil, nil, http.StatusInternalServerError, retErr
 			}
 
-			logrus.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"pipeline": pipeline.GetID(),
-				"repo":     repo.GetFullName(),
+				"org":      repo.GetOrg(),
+				"repo":     repo.GetName(),
+				"repo_id":  repo.GetID(),
 			}).Info("pipeline created")
 		}
 
@@ -350,7 +354,7 @@ func CompileAndPublish(
 
 			// check if the retry limit has been exceeded
 			if i < cfg.Retries-1 {
-				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
+				logger.WithError(retErr).Warningf("retrying #%d", i+1)
 
 				// reset fields set by cleanBuild for retry
 				b.SetError("")
@@ -377,7 +381,8 @@ func CompileAndPublish(
 	}
 
 	logger.WithFields(logrus.Fields{
-		"repo":    repo.GetFullName(),
+		"org":     repo.GetOrg(),
+		"repo":    repo.GetName(),
 		"repo_id": repo.GetID(),
 	}).Info("repo updated - counter incremented")
 

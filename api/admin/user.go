@@ -12,7 +12,6 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -53,17 +52,10 @@ import (
 // UpdateUser represents the API handler to update a user.
 func UpdateUser(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logrus.Debug("platform admin: updating user")
+	l.Debug("platform admin: updating user")
 
 	// capture body from API request
 	input := new(types.User)
@@ -77,10 +69,10 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"target_user_id": input.GetID(),
 		"target_user":    util.EscapeValue(input.GetName()),
-	}).Debug("attempting to update user")
+	}).Debug("platform admin: attempting to update user")
 
 	// send API call to update the user
 	tu, err := database.FromContext(c).UpdateUser(ctx, input)
@@ -92,10 +84,10 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"target_user_id": tu.GetID(),
 		"target_user":    tu.GetName(),
-	}).Info("updated user")
+	}).Info("platform admin: updated user")
 
 	c.JSON(http.StatusOK, tu)
 }

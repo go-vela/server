@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -40,7 +41,10 @@ import (
 // validate that a user OAuth token was created by Vela.
 func ValidateOAuthToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
+
+	l.Debug("validating oauth token")
 
 	token := c.Request.Header.Get("Token")
 	if len(token) == 0 {

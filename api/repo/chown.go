@@ -10,7 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
@@ -62,25 +61,12 @@ import (
 // the owner of a repo.
 func ChownRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"org":     o,
-		"repo":    r.GetName(),
-		"repo_id": r.GetID(),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logger.Debugf("changing owner of repo %s to %s", r.GetFullName(), u.GetName())
+	l.Debugf("changing owner of repo %s to %s", r.GetFullName(), u.GetName())
 
 	// update repo owner
 	r.SetOwner(u)
@@ -95,7 +81,7 @@ func ChownRepo(c *gin.Context) {
 		return
 	}
 
-	logger.Infof("updated repo - changed owner to %s", u.GetName())
+	l.Infof("updated repo - changed owner to %s", u.GetName())
 
 	c.JSON(http.StatusOK, fmt.Sprintf("repo %s changed owner to %s", r.GetFullName(), u.GetName()))
 }

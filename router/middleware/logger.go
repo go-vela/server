@@ -10,9 +10,12 @@ import (
 
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
+	"github.com/go-vela/server/router/middleware/dashboard"
+	"github.com/go-vela/server/router/middleware/hook"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/schedule"
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
@@ -47,6 +50,17 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 		start := time.Now()
 		// some evil middlewares modify this values
 		path := util.EscapeValue(c.Request.URL.Path)
+
+		fields := logrus.Fields{
+			"ip":   util.EscapeValue(c.ClientIP()),
+			"path": path,
+		}
+
+		entry := logger.WithFields(fields)
+
+		// set the logger in the context so
+		// downstream handlers can use it
+		c.Set("logger", entry)
 
 		c.Next()
 
@@ -98,10 +112,28 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 				fields["service_id"] = service.ID
 			}
 
+			hook := hook.Retrieve(c)
+			if hook != nil {
+				fields["hook"] = hook.Number
+				fields["hook_id"] = hook.ID
+			}
+
 			step := step.Retrieve(c)
 			if step != nil {
 				fields["step"] = step.Number
 				fields["step_id"] = step.ID
+			}
+
+			schedule := schedule.Retrieve(c)
+			if schedule != nil {
+				fields["schedule"] = schedule.Name
+				fields["schedule_id"] = schedule.ID
+			}
+
+			dashboard := dashboard.Retrieve(c)
+			if dashboard != nil {
+				fields["dashboard"] = dashboard.Name
+				fields["dashboard_id"] = dashboard.ID
 			}
 
 			user := user.Retrieve(c)
@@ -215,7 +247,7 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	}
 
 	jf := logrus.JSONFormatter{
-		TimestampFormat: "2006-01-02T15:04:05.000Z0700",
+		TimestampFormat: time.RFC3339, // same as default in logrus
 		FieldMap:        ecsFieldMap,
 	}
 

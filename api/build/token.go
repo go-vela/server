@@ -14,7 +14,6 @@ import (
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
@@ -71,20 +70,12 @@ import (
 // GetBuildToken represents the API handler to generate a build token.
 func GetBuildToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	cl := claims.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  cl.Subject,
-	}).Debugf("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
+	l.Debugf("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
 
 	// if build is not in a pending state, then a build token should not be needed - conflict
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPending) {

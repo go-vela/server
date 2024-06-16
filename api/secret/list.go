@@ -20,7 +20,6 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-//
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name} secrets ListSecrets
 //
 // Get all organization or shared secrets
@@ -96,6 +95,7 @@ import (
 // ListSecrets represents the API handler to get a list of secrets.
 func ListSecrets(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	e := util.PathParameter(c, "engine")
 	t := util.PathParameter(c, "type")
@@ -122,29 +122,25 @@ func ListSecrets(c *gin.Context) {
 
 	// create log fields from API metadata
 	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"type":   t,
-		"user":   u.GetName(),
+		"secret_engine": e,
+		"secret_org":    o,
+		"secret_repo":   n,
+		"secret_type":   t,
 	}
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
+		delete(fields, "secret_repo")
+		fields["secret_team"] = n
 	}
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Debugf("listing secrets %s from %s service", entry, e)
+	logger := l.WithFields(fields)
+
+	logger.Debugf("listing secrets %s from %s service", entry, e)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -208,6 +204,8 @@ func ListSecrets(c *gin.Context) {
 		// sanitize secret to ensure no value is provided
 		secrets = append(secrets, tmp.Sanitize())
 	}
+
+	logger.Infof("successfully listed secrets %s from %s service", entry, e)
 
 	c.JSON(http.StatusOK, secrets)
 }

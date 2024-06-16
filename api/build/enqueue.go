@@ -19,7 +19,9 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 	logger := logrus.WithFields(logrus.Fields{
 		"build":    item.Build.GetNumber(),
 		"build_id": item.Build.GetID(),
-		"repo":     item.Build.GetRepo().GetFullName(),
+		"org":      item.Build.GetRepo().GetOrg(),
+		"repo":     item.Build.GetRepo().GetName(),
+		"repo_id":  item.Build.GetRepo().GetID(),
 	})
 
 	logger.Debug("converting queue item to json")

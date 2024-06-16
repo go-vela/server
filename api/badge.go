@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
@@ -51,19 +50,13 @@ import (
 // return a build status badge.
 func GetBadge(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
 
 	branch := util.QueryParameter(c, "branch", r.GetBranch())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-	}).Debugf("creating latest build badge for repo %s on branch %s", r.GetFullName(), branch)
+	l.Debugf("creating latest build badge for repo %s on branch %s", r.GetFullName(), branch)
 
 	// send API call to capture the last build for the repo and branch
 	b, err := database.FromContext(c).LastBuildForRepo(ctx, r, branch)

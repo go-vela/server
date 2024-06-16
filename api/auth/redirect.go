@@ -70,8 +70,9 @@ import (
 func GetAuthRedirect(c *gin.Context) {
 	// load the metadata
 	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 
-	logrus.Debug("redirecting for final auth flow destination")
+	l.Debug("redirecting for final auth flow destination")
 
 	// capture the path elements
 	t := util.PathParameter(c, "type")

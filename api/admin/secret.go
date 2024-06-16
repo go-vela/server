@@ -10,7 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -52,17 +51,10 @@ import (
 // UpdateSecret represents the API handler to update a secret.
 func UpdateSecret(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logrus.Debug("platform admin: updating secret")
+	l.Debug("platform admin: updating secret")
 
 	// capture body from API request
 	input := new(library.Secret)
@@ -76,14 +68,14 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
-		"secret_id": input.GetID(),
-		"org":       util.EscapeValue(input.GetOrg()),
-		"repo":      util.EscapeValue(input.GetRepo()),
-		"type":      util.EscapeValue(input.GetType()),
-		"name":      util.EscapeValue(input.GetName()),
-		"team":      util.EscapeValue(input.GetTeam()),
-	}).Debug("attempting to update secret")
+	l.WithFields(logrus.Fields{
+		"secret_id":   input.GetID(),
+		"secret_org":  util.EscapeValue(input.GetOrg()),
+		"secret_repo": util.EscapeValue(input.GetRepo()),
+		"secret_type": util.EscapeValue(input.GetType()),
+		"secret_name": util.EscapeValue(input.GetName()),
+		"secret_team": util.EscapeValue(input.GetTeam()),
+	}).Debug("platform admin: attempting to update secret")
 
 	// send API call to update the secret
 	s, err := database.FromContext(c).UpdateSecret(ctx, input)
@@ -95,14 +87,14 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
-		"secret_id": s.GetID(),
-		"org":       s.GetOrg(),
-		"repo":      s.GetRepo(),
-		"type":      s.GetType(),
-		"name":      s.GetName(),
-		"team":      s.GetTeam(),
-	}).Info("secret updated")
+	l.WithFields(logrus.Fields{
+		"secret_id":   s.GetID(),
+		"secret_org":  s.GetOrg(),
+		"secret_repo": s.GetRepo(),
+		"secret_type": s.GetType(),
+		"secret_name": s.GetName(),
+		"secret_team": s.GetTeam(),
+	}).Info("platform admin: secret updated")
 
 	c.JSON(http.StatusOK, s)
 }

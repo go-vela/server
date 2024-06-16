@@ -11,7 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -53,17 +52,10 @@ import (
 // UpdateStep represents the API handler to update a step.
 func UpdateStep(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logrus.Debug("platform admin: updating step")
+	l.Debug("platform admin: updating step")
 
 	// capture body from API request
 	input := new(library.Step)
@@ -77,10 +69,10 @@ func UpdateStep(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"step_id": input.GetID(),
 		"step":    util.EscapeValue(input.GetName()),
-	}).Debug("attempting to update step")
+	}).Debug("platform admin: attempting to update step")
 
 	// send API call to update the step
 	s, err := database.FromContext(c).UpdateStep(ctx, input)
@@ -92,10 +84,10 @@ func UpdateStep(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"step_id": s.GetID(),
 		"step":    s.GetName(),
-	}).Info("updated step")
+	}).Info("platform admin: updated step")
 
 	c.JSON(http.StatusOK, s)
 }

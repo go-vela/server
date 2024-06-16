@@ -22,7 +22,9 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 	logger := logrus.WithFields(logrus.Fields{
 		"build":    b.GetNumber(),
 		"build_id": b.GetID(),
-		"repo":     b.GetRepo().GetFullName(),
+		"org":      b.GetRepo().GetOrg(),
+		"repo":     b.GetRepo().GetName(),
+		"repo_id":  b.GetRepo().GetID(),
 	})
 
 	logger.Debug("cleaning build")
@@ -35,7 +37,7 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 	// send API call to update the build
 	b, err := database.UpdateBuild(ctx, b)
 	if err != nil {
-		logrus.Errorf("unable to kill build %d: %v", b.GetNumber(), err)
+		logger.Errorf("unable to kill build %d: %v", b.GetNumber(), err)
 	}
 
 	logger.Info("build updated - build cleaned")
@@ -48,7 +50,7 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 		// send API call to update the service
 		_, err := database.UpdateService(ctx, s)
 		if err != nil {
-			logrus.Errorf("unable to kill service %s for build %d: %v", s.GetName(), b.GetNumber(), err)
+			logger.Errorf("unable to kill service %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
 
 		logger.WithFields(logrus.Fields{
@@ -65,7 +67,7 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 		// send API call to update the step
 		_, err := database.UpdateStep(ctx, s)
 		if err != nil {
-			logrus.Errorf("unable to kill step %s for build %d: %v", s.GetName(), b.GetNumber(), err)
+			logger.Errorf("unable to kill step %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
 
 		logger.WithFields(logrus.Fields{

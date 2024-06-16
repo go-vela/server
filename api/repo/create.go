@@ -74,6 +74,7 @@ import (
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	s := settings.FromContext(c)
 
@@ -98,14 +99,7 @@ func CreateRepo(c *gin.Context) {
 		return
 	}
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  input.GetOrg(),
-		"repo": input.GetName(),
-		"user": u.GetName(),
-	}).Debugf("creating new repo %s", input.GetFullName())
+	l.Debugf("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
 	r, _, err := scm.FromContext(c).GetRepo(ctx, u, input)
@@ -300,6 +294,12 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"org":     r.GetOrg(),
+			"repo":    r.GetName(),
+			"repo_id": r.GetID(),
+		}).Infof("repo %s activated", r.GetFullName())
 	} else {
 		// send API call to create the repo
 		r, err = database.FromContext(c).CreateRepo(ctx, r)
@@ -310,6 +310,12 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"org":     r.GetOrg(),
+			"repo":    r.GetName(),
+			"repo_id": r.GetID(),
+		}).Infof("repo %s created", r.GetFullName())
 	}
 
 	// create init hook in the DB after repo has been added in order to capture its ID
@@ -325,6 +331,10 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"hook": h.GetID(),
+		}).Infof("hook %d created for repo %s", h.GetID(), r.GetFullName())
 	}
 
 	c.JSON(http.StatusCreated, r)

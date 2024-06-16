@@ -61,23 +61,16 @@ import (
 // refresh the auth token for a worker.
 func Refresh(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	w := worker.Retrieve(c)
 	cl := claims.Retrieve(c)
 	ctx := c.Request.Context()
-
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":             util.EscapeValue(c.ClientIP()),
-		"path":           util.EscapeValue(c.Request.URL.Path),
-		"claims_subject": cl.Subject,
-		"worker":         w.GetHostname(),
-		"worker_id":      w.GetID(),
-	})
 
 	// if we are not using a symmetric token, and the subject does not match the input, request should be denied
 	if !strings.EqualFold(cl.TokenType, constants.ServerWorkerTokenType) && !strings.EqualFold(cl.Subject, w.GetHostname()) {
 		retErr := fmt.Errorf("unable to refresh worker auth: claims subject %s does not match worker hostname %s", cl.Subject, w.GetHostname())
 
-		logger.Warnf("attempted refresh of worker %s using token from worker %s", w.GetHostname(), cl.Subject)
+		l.Warnf("attempted refresh of worker %s using token from worker %s", w.GetHostname(), cl.Subject)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -97,9 +90,9 @@ func Refresh(c *gin.Context) {
 		return
 	}
 
-	logger.Info("worker updated - check-in time updated")
+	l.Info("worker updated - check-in time updated")
 
-	logger.Debugf("refreshing worker %s authentication", w.GetHostname())
+	l.Debugf("refreshing worker %s authentication", w.GetHostname())
 
 	switch cl.TokenType {
 	// if symmetric token configured, send back symmetric token
@@ -107,6 +100,7 @@ func Refresh(c *gin.Context) {
 		if secret, ok := c.Value("secret").(string); ok {
 			tkn := new(library.Token)
 			tkn.SetToken(secret)
+
 			c.JSON(http.StatusOK, tkn)
 
 			return

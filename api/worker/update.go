@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
 )
@@ -63,17 +62,11 @@ import (
 // update a worker.
 func UpdateWorker(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	w := worker.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user":   u.GetName(),
-		"worker": w.GetHostname(),
-	}).Debugf("updating worker %s", w.GetHostname())
+	l.Debugf("updating worker %s", w.GetHostname())
 
 	// capture body from API request
 	input := new(types.Worker)

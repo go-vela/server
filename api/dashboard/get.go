@@ -13,7 +13,6 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/dashboard"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -59,18 +58,12 @@ import (
 // a dashboard for a repository.
 func GetDashboard(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	d := dashboard.Retrieve(c)
-	u := user.Retrieve(c)
 
 	var err error
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"dashboard": d.GetID(),
-		"user":      u.GetName(),
-	}).Debugf("reading dashboard %s", d.GetID())
+	l.Debugf("reading dashboard %s", d.GetID())
 
 	// initialize DashCard and set dashboard to the dashboard info pulled from database
 	dashboard := new(types.DashCard)

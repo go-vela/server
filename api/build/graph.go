@@ -15,7 +15,6 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -143,27 +142,18 @@ const (
 //nolint:funlen,goconst,gocyclo // ignore function length and constants
 func GetBuildGraph(c *gin.Context) {
 	// capture middleware values
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	m := c.MustGet("metadata").(*internal.Metadata)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
-	logger := logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	})
 
 	baseErr := "unable to retrieve graph"
 
-	logger.Debugf("constructing graph for build %s and retrieving pipeline configuration", entry)
+	l.Debugf("constructing graph for build %s and retrieving pipeline configuration", entry)
 
 	var config []byte
 
@@ -208,7 +198,7 @@ func GetBuildGraph(c *gin.Context) {
 		}
 	}
 
-	logger.Debug("compiling pipeline configuration")
+	l.Debug("compiling pipeline configuration")
 
 	// parse and compile the pipeline configuration file
 	p, _, err := compiler.FromContext(c).
@@ -224,7 +214,7 @@ func GetBuildGraph(c *gin.Context) {
 		// format the error message with extra information
 		err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
 
-		logger.Error(err.Error())
+		l.Error(err.Error())
 
 		retErr := fmt.Errorf("%s: %w", baseErr, err)
 
@@ -236,7 +226,7 @@ func GetBuildGraph(c *gin.Context) {
 	if p == nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: pipeline is nil", r.GetFullName())
 
-		logger.Error(retErr)
+		l.Error(retErr)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -329,7 +319,7 @@ func GetBuildGraph(c *gin.Context) {
 		return
 	}
 
-	logger.Debug("generating build graph")
+	l.Debug("generating build graph")
 
 	// create nodes from pipeline stages
 	nodes := make(map[int]*node)

@@ -83,6 +83,7 @@ import (
 // create a schedule.
 func CreateSchedule(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
@@ -119,14 +120,7 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  r.GetOrg(),
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Debugf("creating new schedule %s", input.GetName())
+	l.Debugf("creating new schedule %s", input.GetName())
 
 	// ensure repo is allowed to create new schedules
 	if !util.CheckAllowlist(r, s.GetScheduleAllowlist()) {
@@ -196,6 +190,11 @@ func CreateSchedule(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"schedule":    schedule.GetName(),
+			"schedule_id": schedule.GetID(),
+		}).Infof("schedule %s updated - activated", schedule.GetName())
 	} else {
 		// send API call to create the schedule
 		schedule, err = database.FromContext(c).CreateSchedule(ctx, schedule)
@@ -206,6 +205,11 @@ func CreateSchedule(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"schedule":    schedule.GetName(),
+			"schedule_id": schedule.GetID(),
+		}).Infof("schedule %s created", schedule.GetName())
 	}
 
 	c.JSON(http.StatusCreated, schedule)

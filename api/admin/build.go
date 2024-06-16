@@ -13,7 +13,6 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -50,7 +49,9 @@ import (
 
 // AllBuildsQueue represents the API handler to get running and pending builds.
 func AllBuildsQueue(c *gin.Context) {
-	logrus.Debug("platform admin: reading running and pending builds")
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Debug("platform admin: reading running and pending builds")
 
 	// capture middleware values
 	ctx := c.Request.Context()
@@ -105,16 +106,9 @@ func AllBuildsQueue(c *gin.Context) {
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logger.Debug("platform admin: updating build")
+	l.Debug("platform admin: updating build")
 
 	// capture body from API request
 	input := new(types.Build)
@@ -128,13 +122,13 @@ func UpdateBuild(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"build":    input.GetNumber(),
 		"build_id": input.GetID(),
 		"repo":     util.EscapeValue(input.GetRepo().GetName()),
 		"repo_id":  input.GetRepo().GetID(),
 		"org":      util.EscapeValue(input.GetRepo().GetOrg()),
-	}).Debug("attempting to update build")
+	}).Debug("platform admin: attempting to update build")
 
 	// send API call to update the build
 	b, err := database.FromContext(c).UpdateBuild(ctx, input)
@@ -146,13 +140,13 @@ func UpdateBuild(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"build":    b.GetNumber(),
 		"build_id": b.GetID(),
 		"repo":     b.GetRepo().GetName(),
 		"repo_id":  b.GetRepo().GetID(),
 		"org":      b.GetRepo().GetOrg(),
-	}).Info("updated build")
+	}).Info("platform admin: updated build")
 
 	c.JSON(http.StatusOK, b)
 }

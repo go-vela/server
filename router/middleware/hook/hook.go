@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package service
+package hook
 
 import (
 	"fmt"
@@ -11,24 +11,21 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
 
-// Retrieve gets the service in the given context.
-func Retrieve(c *gin.Context) *library.Service {
+// Retrieve gets the hook in the given context.
+func Retrieve(c *gin.Context) *library.Hook {
 	return FromContext(c)
 }
 
-// Establish sets the service in the given context.
+// Establish sets the hook in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// capture middleware values
 		l := c.MustGet("logger").(*logrus.Entry)
-		b := build.Retrieve(c)
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		ctx := c.Request.Context()
@@ -40,48 +37,40 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		if b == nil {
-			retErr := fmt.Errorf("build %s not found for repo %s", util.PathParameter(c, "build"), r.GetFullName())
-			util.HandleError(c, http.StatusNotFound, retErr)
-
-			return
-		}
-
-		sParam := util.PathParameter(c, "service")
-		if len(sParam) == 0 {
-			retErr := fmt.Errorf("no service parameter provided")
+		hParam := util.PathParameter(c, "hook")
+		if len(hParam) == 0 {
+			retErr := fmt.Errorf("no hook parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
 			return
 		}
 
-		number, err := strconv.Atoi(sParam)
+		number, err := strconv.Atoi(hParam)
 		if err != nil {
-			retErr := fmt.Errorf("malformed service parameter provided: %s", sParam)
+			retErr := fmt.Errorf("malformed hook parameter provided: %s", hParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
 			return
 		}
 
-		l.Debugf("reading service %d", number)
+		l.Debugf("reading hook %s/%d", r.GetFullName(), number)
 
-		s, err := database.FromContext(c).GetServiceForBuild(ctx, b, number)
+		h, err := database.FromContext(c).GetHookForRepo(ctx, r, number)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), number, err)
+			retErr := fmt.Errorf("unable to read hook %s/%d: %w", r.GetFullName(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
 		l = l.WithFields(logrus.Fields{
-			"service":    s.GetName(),
-			"service_id": s.GetID(),
+			"hook": h.GetID(),
 		})
 
 		// update the logger with the new fields
 		c.Set("logger", l)
 
-		ToContext(c, s)
+		ToContext(c, h)
 		c.Next()
 	}
 }

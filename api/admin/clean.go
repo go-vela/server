@@ -12,7 +12,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
@@ -60,17 +59,10 @@ import (
 // CleanResources represents the API handler to update stale resources.
 func CleanResources(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logger.Debug("platform admin: cleaning resources")
+	l.Debug("platform admin: cleaning resources")
 
 	// default error message
 	msg := "build cleaned by platform admin"
@@ -112,7 +104,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logger.Debugf("cleaned %d builds in database", builds)
+	l.Debugf("platform admin: cleaned %d builds in database", builds)
 
 	// clean executables
 	executables, err := database.FromContext(c).CleanBuildExecutables(ctx)
@@ -124,7 +116,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logger.Debugf("cleaned %d executables in database", executables)
+	l.Debugf("platform admin: cleaned %d executables in database", executables)
 
 	// clean services
 	services, err := database.FromContext(c).CleanServices(ctx, msg, before)
@@ -136,7 +128,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logger.Debugf("cleaned %d services in database", services)
+	l.Debugf("platform admin: cleaned %d services in database", services)
 
 	// clean steps
 	steps, err := database.FromContext(c).CleanSteps(ctx, msg, before)
@@ -148,7 +140,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logger.Debugf("cleaned %d steps in database", steps)
+	l.Debugf("platform admin: cleaned %d steps in database", steps)
 
 	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d executables cleaned. %d services cleaned. %d steps cleaned.", builds, executables, services, steps))
 }

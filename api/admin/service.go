@@ -11,7 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -54,17 +53,10 @@ import (
 // UpdateService represents the API handler to update a service.
 func UpdateService(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
-	logger := logrus.WithFields(logrus.Fields{
-		"ip":      util.EscapeValue(c.ClientIP()),
-		"path":    util.EscapeValue(c.Request.URL.Path),
-		"user":    u.GetName(),
-		"user_id": u.GetID(),
-	})
-
-	logrus.Debug("platform admin: updating service")
+	l.Debug("platform admin: updating service")
 
 	// capture body from API request
 	input := new(library.Service)
@@ -78,10 +70,10 @@ func UpdateService(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"service_id": input.GetID(),
 		"service":    util.EscapeValue(input.GetName()),
-	}).Debug("attempting to update service")
+	}).Debug("platform admin: attempting to update service")
 
 	// send API call to update the service
 	s, err := database.FromContext(c).UpdateService(ctx, input)
@@ -93,10 +85,10 @@ func UpdateService(c *gin.Context) {
 		return
 	}
 
-	logger.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"service_id": s.GetID(),
 		"service":    s.GetName(),
-	}).Info("updated service")
+	}).Info("platform admin: updated service")
 
 	c.JSON(http.StatusOK, s)
 }
