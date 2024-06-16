@@ -13,7 +13,6 @@ import (
 // with the API handlers for admin functionality.
 //
 // GET    	 /api/v1/admin/builds/queue
-// GET    	 /api/v1/admin/build/:id
 // PUT    	 /api/v1/admin/build
 // PUT    	 /api/v1/admin/clean
 // PUT    	 /api/v1/admin/deployment

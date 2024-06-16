@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/go-vela/server/api/hook"
+	hmiddleware "github.com/go-vela/server/router/middleware/hook"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/perm"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -26,9 +27,13 @@ func HookHandlers(base *gin.RouterGroup) {
 	{
 		_hooks.POST("", perm.MustPlatformAdmin(), hook.CreateHook)
 		_hooks.GET("", perm.MustRead(), hook.ListHooks)
-		_hooks.GET("/:hook", perm.MustRead(), hook.GetHook)
-		_hooks.PUT("/:hook", perm.MustPlatformAdmin(), hook.UpdateHook)
-		_hooks.DELETE("/:hook", perm.MustPlatformAdmin(), hook.DeleteHook)
-		_hooks.POST("/:hook/redeliver", perm.MustWrite(), hook.RedeliverHook)
+
+		_hook := _hooks.Group("/:hook", hmiddleware.Establish())
+		{
+			_hook.GET("", perm.MustRead(), hook.GetHook)
+			_hook.PUT("", perm.MustPlatformAdmin(), hook.UpdateHook)
+			_hook.DELETE("", perm.MustPlatformAdmin(), hook.DeleteHook)
+			_hook.POST("/redeliver", perm.MustWrite(), hook.RedeliverHook)
+		}
 	} // end of hooks endpoints
 }
