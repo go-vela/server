@@ -82,7 +82,7 @@ func ApproveBuild(c *gin.Context) {
 	// verify build is in correct status
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
 		retErr := fmt.Errorf("unable to approve build %s/%d: build not in pending approval state", r.GetFullName(), b.GetNumber())
-		util.HandleError(c, http.StatusNotModified, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
