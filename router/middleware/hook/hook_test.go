@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
@@ -93,6 +94,7 @@ func TestHook_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -131,6 +133,7 @@ func TestHook_Establish_NoRepo(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/hooks/:org/:repo/:hook", func(c *gin.Context) {
@@ -180,6 +183,7 @@ func TestHook_Establish_NoHookParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -231,6 +235,7 @@ func TestHook_Establish_InvalidHookParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar/foo", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -279,6 +284,7 @@ func TestHook_Establish_NoHook(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())

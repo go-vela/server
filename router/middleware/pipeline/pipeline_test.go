@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
 	api "github.com/go-vela/server/api/types"
@@ -121,6 +122,7 @@ func TestPipeline_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/48afb5bdc41ad69bf22588491333f7cf71135163", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -159,6 +161,7 @@ func TestPipeline_Establish_NoRepo(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/48afb5bdc41ad69bf22588491333f7cf71135163", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 
@@ -205,6 +208,7 @@ func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -325,6 +329,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("metadata", m) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
