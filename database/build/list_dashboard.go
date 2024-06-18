@@ -17,7 +17,7 @@ func (e *engine) ListBuildsForDashboardRepo(ctx context.Context, r *api.Repo, br
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("listing builds for repo %s from the database", r.GetFullName())
+	}).Tracef("listing builds for repo %s", r.GetFullName())
 
 	// variables to store query results and return values
 	b := new([]types.Build)

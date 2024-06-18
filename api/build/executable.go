@@ -123,7 +123,7 @@ func PublishBuildExecutable(ctx context.Context, db database.Interface, p *pipel
 
 	logrus.WithFields(logrus.Fields{
 		"build_executable_id": bExecutable.GetBuildID(),
-	}).Info("created build executable in the database")
+	}).Info("created build executable")
 
 	return nil
 }

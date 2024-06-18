@@ -20,7 +20,7 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 		"deployment": number,
 		"org":        r.GetOrg(),
 		"repo":       r.GetName(),
-	}).Tracef("getting deployment %s/%d from the database", r.GetFullName(), number)
+	}).Tracef("getting deployment %s/%d", r.GetFullName(), number)
 
 	// variable to store query results
 	d := new(database.Deployment)

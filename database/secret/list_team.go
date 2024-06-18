@@ -21,7 +21,7 @@ func (e *engine) ListSecretsForTeam(ctx context.Context, org, team string, filte
 		"org":  org,
 		"team": team,
 		"type": constants.SecretShared,
-	}).Tracef("listing secrets for team %s/%s from the database", org, team)
+	}).Tracef("listing secrets for team %s/%s", org, team)
 
 	// variables to store query results and return values
 	count := int64(0)
@@ -97,7 +97,7 @@ func (e *engine) ListSecretsForTeams(ctx context.Context, org string, teams []st
 		"org":   org,
 		"teams": teams,
 		"type":  constants.SecretShared,
-	}).Tracef("listing secrets for teams %s in org %s from the database", teams, org)
+	}).Tracef("listing secrets for teams %s in org %s", teams, org)
 
 	// variables to store query results and return values
 	count := int64(0)

@@ -104,7 +104,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	l.Debugf("platform admin: cleaned %d builds in database", builds)
+	l.Debugf("platform admin: cleaned %d builds", builds)
 
 	// clean executables
 	executables, err := database.FromContext(c).CleanBuildExecutables(ctx)
@@ -116,7 +116,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	l.Debugf("platform admin: cleaned %d executables in database", executables)
+	l.Debugf("platform admin: cleaned %d executables", executables)
 
 	// clean services
 	services, err := database.FromContext(c).CleanServices(ctx, msg, before)
@@ -128,7 +128,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	l.Debugf("platform admin: cleaned %d services in database", services)
+	l.Debugf("platform admin: cleaned %d services", services)
 
 	// clean steps
 	steps, err := database.FromContext(c).CleanSteps(ctx, msg, before)
@@ -140,7 +140,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	l.Debugf("platform admin: cleaned %d steps in database", steps)
+	l.Debugf("platform admin: cleaned %d steps", steps)
 
 	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d executables cleaned. %d services cleaned. %d steps cleaned.", builds, executables, services, steps))
 }

@@ -16,7 +16,7 @@ import (
 func (e *engine) UpdateHook(ctx context.Context, h *library.Hook) (*library.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
-	}).Tracef("updating hook %d in the database", h.GetNumber())
+	}).Tracef("updating hook %d", h.GetNumber())
 
 	// cast the library type to database type
 	//

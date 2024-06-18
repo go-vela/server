@@ -13,7 +13,7 @@ import (
 
 // ListDeployments gets a list of all deployments from the database.
 func (e *engine) ListDeployments(ctx context.Context) ([]*library.Deployment, error) {
-	e.logger.Trace("listing all deployments from the database")
+	e.logger.Trace("listing all deployments")
 
 	// variables to store query results and return value
 	d := new([]database.Deployment)

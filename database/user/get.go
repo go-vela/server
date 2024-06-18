@@ -12,7 +12,7 @@ import (
 
 // GetUser gets a user by ID from the database.
 func (e *engine) GetUser(ctx context.Context, id int64) (*api.User, error) {
-	e.logger.Tracef("getting user %d from the database", id)
+	e.logger.Tracef("getting user %d", id)
 
 	// variable to store query results
 	u := new(types.User)

@@ -19,7 +19,7 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("listing builds for repo %s from the database", r.GetFullName())
+	}).Tracef("listing builds for repo %s", r.GetFullName())
 
 	// variables to store query results and return values
 	count := int64(0)

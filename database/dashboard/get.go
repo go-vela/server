@@ -12,7 +12,7 @@ import (
 
 // GetDashboard gets a dashboard by UUID from the database.
 func (e *engine) GetDashboard(ctx context.Context, id string) (*api.Dashboard, error) {
-	e.logger.Tracef("getting dashboard %s from the database", id)
+	e.logger.Tracef("getting dashboard %s", id)
 
 	// variable to store query results
 	d := new(types.Dashboard)

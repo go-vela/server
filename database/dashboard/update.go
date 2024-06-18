@@ -16,7 +16,7 @@ import (
 func (e *engine) UpdateDashboard(ctx context.Context, d *api.Dashboard) (*api.Dashboard, error) {
 	e.logger.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
-	}).Tracef("creating dashboard %s in the database", d.GetID())
+	}).Tracef("creating dashboard %s", d.GetID())
 
 	dashboard := types.DashboardFromAPI(d)
 

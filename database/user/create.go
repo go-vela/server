@@ -18,7 +18,7 @@ import (
 func (e *engine) CreateUser(ctx context.Context, u *api.User) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Tracef("creating user %s in the database", u.GetName())
+	}).Tracef("creating user %s", u.GetName())
 
 	// cast the API type to database type
 	user := types.UserFromAPI(u)

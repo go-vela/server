@@ -19,7 +19,7 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("listing deployments for repo %s from the database", r.GetFullName())
+	}).Tracef("listing deployments for repo %s", r.GetFullName())
 
 	// variables to store query results and return value
 	d := new([]database.Deployment)

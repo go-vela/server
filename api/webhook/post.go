@@ -201,7 +201,7 @@ func PostWebhook(c *gin.Context) {
 			"org":     r.GetOrg(),
 			"repo":    r.GetName(),
 			"repo_id": r.GetID(),
-		}).Info("hook updated in database")
+		}).Info("hook updated")
 	}()
 
 	// send API call to capture parsed repo from webhook
@@ -404,7 +404,7 @@ func PostWebhook(c *gin.Context) {
 					"org":           repo.GetOrg(),
 					"repo":          repo.GetName(),
 					"repo_id":       repo.GetID(),
-				}).Info("deployment created in database")
+				}).Info("deployment created")
 			} else {
 				retErr := fmt.Errorf("%s: failed to get deployment %s/%d: %w", baseErr, repo.GetFullName(), webhook.Deployment.GetNumber(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -436,7 +436,7 @@ func PostWebhook(c *gin.Context) {
 				"org":           repo.GetOrg(),
 				"repo":          repo.GetName(),
 				"repo_id":       repo.GetID(),
-			}).Info("deployment updated in database")
+			}).Info("deployment updated")
 		}
 	}
 
@@ -574,7 +574,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 			"org":     r.GetOrg(),
 			"repo":    r.GetName(),
 			"repo_id": r.GetID(),
-		}).Info("hook created in database")
+		}).Info("hook created")
 	}()
 
 	switch h.GetEventAction() {
@@ -651,7 +651,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 			"org":     dbRepo.GetOrg(),
 			"repo":    dbRepo.GetName(),
 			"repo_id": dbRepo.GetID(),
-		}).Info("repo updated in database")
+		}).Info("repo updated")
 
 		return dbRepo, nil
 	// all other repo event actions are skippable
@@ -741,7 +741,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 			"secret_id": secret.GetID(),
 			"repo":      secret.GetRepo(),
 			"org":       secret.GetOrg(),
-		}).Info("secret updated in database")
+		}).Info("secret updated")
 	}
 
 	// get total number of builds associated with repository
@@ -781,7 +781,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 			"org":      dbR.GetOrg(),
 			"repo":     dbR.GetName(),
 			"repo_id":  dbR.GetID(),
-		}).Info("build updated in database")
+		}).Info("build updated")
 	}
 
 	// update the repo name information
@@ -795,7 +795,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 	// update the repo in the database
 	dbR, err = database.FromContext(c).UpdateRepo(ctx, dbR)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, dbR.GetOrg(), dbR.GetName())
+		retErr := fmt.Errorf("%s: failed to update repo %s/%s", baseErr, dbR.GetOrg(), dbR.GetName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -835,7 +835,7 @@ func gatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo) error {
 		return fmt.Errorf("unable to update build for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
-	l.Info("build updated in database")
+	l.Info("build updated")
 
 	// update the build components to pending approval status
 	err = build.UpdateComponentStatuses(c, b, constants.StatusPendingApproval)

@@ -24,14 +24,14 @@ func (e *engine) UpdateSecret(ctx context.Context, s *library.Secret) (*library.
 			"team":   s.GetTeam(),
 			"secret": s.GetName(),
 			"type":   s.GetType(),
-		}).Tracef("updating secret %s/%s/%s/%s in the database", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName())
+		}).Tracef("updating secret %s/%s/%s/%s", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName())
 	default:
 		e.logger.WithFields(logrus.Fields{
 			"org":    s.GetOrg(),
 			"repo":   s.GetRepo(),
 			"secret": s.GetName(),
 			"type":   s.GetType(),
-		}).Tracef("updating secret %s/%s/%s/%s in the database", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName())
+		}).Tracef("updating secret %s/%s/%s/%s", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName())
 	}
 
 	// cast the library type to database type

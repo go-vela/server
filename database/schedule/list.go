@@ -12,7 +12,7 @@ import (
 
 // ListSchedules gets a list of all schedules from the database.
 func (e *engine) ListSchedules(ctx context.Context) ([]*api.Schedule, error) {
-	e.logger.Trace("listing all schedules from the database")
+	e.logger.Trace("listing all schedules")
 
 	// variables to store query results and return value
 	count := int64(0)

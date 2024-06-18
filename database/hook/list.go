@@ -12,7 +12,7 @@ import (
 
 // ListHooks gets a list of all hooks from the database.
 func (e *engine) ListHooks(ctx context.Context) ([]*library.Hook, error) {
-	e.logger.Trace("listing all hooks from the database")
+	e.logger.Trace("listing all hooks")
 
 	// variables to store query results and return value
 	count := int64(0)

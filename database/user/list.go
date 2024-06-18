@@ -12,7 +12,7 @@ import (
 
 // ListUsers gets a list of all users from the database.
 func (e *engine) ListUsers(ctx context.Context) ([]*api.User, error) {
-	e.logger.Trace("listing all users from the database")
+	e.logger.Trace("listing all users")
 
 	// variables to store query results and return value
 	count := int64(0)

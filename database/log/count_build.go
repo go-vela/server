@@ -11,7 +11,7 @@ import (
 
 // CountLogsForBuild gets the count of logs by build ID from the database.
 func (e *engine) CountLogsForBuild(ctx context.Context, b *api.Build) (int64, error) {
-	e.logger.Tracef("getting count of logs for build %d from the database", b.GetID())
+	e.logger.Tracef("getting count of logs for build %d", b.GetID())
 
 	// variable to store query results
 	var l int64

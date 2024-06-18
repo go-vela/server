@@ -10,7 +10,7 @@ import (
 
 // CountSecrets gets the count of all secrets from the database.
 func (e *engine) CountSecrets(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all secrets from the database")
+	e.logger.Tracef("getting count of all secrets")
 
 	// variable to store query results
 	var s int64

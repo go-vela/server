@@ -19,7 +19,7 @@ func (e *engine) ListSecretsForOrg(ctx context.Context, org string, filters map[
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"type": constants.SecretOrg,
-	}).Tracef("listing secrets for org %s from the database", org)
+	}).Tracef("listing secrets for org %s", org)
 
 	// variables to store query results and return values
 	count := int64(0)

@@ -13,7 +13,7 @@ import (
 
 // GetLogForService gets a log by service ID from the database.
 func (e *engine) GetLogForService(ctx context.Context, s *library.Service) (*library.Log, error) {
-	e.logger.Tracef("getting log for service %d for build %d from the database", s.GetID(), s.GetBuildID())
+	e.logger.Tracef("getting log for service %d for build %d", s.GetID(), s.GetBuildID())
 
 	// variable to store query results
 	l := new(database.Log)

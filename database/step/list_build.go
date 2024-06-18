@@ -17,7 +17,7 @@ import (
 func (e *engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Step, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-	}).Tracef("listing steps for build %d from the database", b.GetNumber())
+	}).Tracef("listing steps for build %d", b.GetNumber())
 
 	// variables to store query results and return value
 	count := int64(0)

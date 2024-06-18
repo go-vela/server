@@ -16,7 +16,7 @@ import (
 func (e *engine) CreateWorker(ctx context.Context, w *api.Worker) (*api.Worker, error) {
 	e.logger.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
-	}).Tracef("creating worker %s in the database", w.GetHostname())
+	}).Tracef("creating worker %s", w.GetHostname())
 
 	// cast the library type to database type
 	//

@@ -11,7 +11,7 @@ import (
 
 // GetSettings gets platform settings from the database.
 func (e *engine) GetSettings(ctx context.Context) (*settings.Platform, error) {
-	e.logger.Trace("getting platform settings from the database")
+	e.logger.Trace("getting platform settings")
 
 	// variable to store query results
 	s := new(types.Platform)

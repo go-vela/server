@@ -12,7 +12,7 @@ import (
 
 // RotateKeys removes all inactive keys and sets active keys to inactive.
 func (e *engine) RotateKeys(_ context.Context) error {
-	e.logger.Trace("rotating jwks in the database")
+	e.logger.Trace("rotating jwks")
 
 	k := types.JWK{}
 

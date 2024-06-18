@@ -14,7 +14,7 @@ import (
 
 // ListWorkers gets a list of all workers from the database.
 func (e *engine) ListWorkers(ctx context.Context, active string, before, after int64) ([]*api.Worker, error) {
-	e.logger.Trace("listing all workers from the database")
+	e.logger.Trace("listing all workers")
 
 	// variables to store query results and return value
 	results := new([]types.Worker)

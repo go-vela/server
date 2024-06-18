@@ -46,7 +46,7 @@ users (
 
 // CreateUserTable creates the users table in the database.
 func (e *engine) CreateUserTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating users table in the database")
+	e.logger.Tracef("creating users table")
 
 	// handle the driver provided to create the table
 	switch driver {

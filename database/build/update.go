@@ -17,7 +17,7 @@ import (
 func (e *engine) UpdateBuild(ctx context.Context, b *api.Build) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-	}).Tracef("updating build %d in the database", b.GetNumber())
+	}).Tracef("updating build %d", b.GetNumber())
 
 	build := types.BuildFromAPI(b)
 
