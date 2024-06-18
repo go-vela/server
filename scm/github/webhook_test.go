@@ -1482,23 +1482,23 @@ func TestGithub_Redeliver_Webhook(t *testing.T) {
 	u.SetName("octocat")
 	u.SetToken("foo")
 
+	_repo := new(api.Repo)
+	_repo.SetID(1)
+	_repo.SetOwner(u)
+	_repo.SetName("bar")
+	_repo.SetOrg("foo")
+
 	_hook := new(api.Hook)
 	_hook.SetSourceID("b595f0e0-aee1-11ec-86cf-9418381395c4")
 	_hook.SetID(1)
-	_hook.SetRepoID(1)
-	_hook.SetBuildID(1)
+	_hook.SetRepo(_repo)
 	_hook.SetNumber(1)
 	_hook.SetWebhookID(1234)
-
-	_repo := new(api.Repo)
-	_repo.SetID(1)
-	_repo.SetName("bar")
-	_repo.SetOrg("foo")
 
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.RedeliverWebhook(context.TODO(), u, _repo, _hook)
+	err := client.RedeliverWebhook(context.TODO(), u, _hook)
 
 	if err != nil {
 		t.Errorf("RedeliverWebhook returned err: %v", err)
@@ -1526,18 +1526,18 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 	u.SetName("octocat")
 	u.SetToken("foo")
 
+	_repo := new(api.Repo)
+	_repo.SetID(1)
+	_repo.SetOwner(u)
+	_repo.SetName("bar")
+	_repo.SetOrg("foo")
+
 	_hook := new(api.Hook)
 	_hook.SetSourceID("b595f0e0-aee1-11ec-86cf-9418381395c4")
 	_hook.SetID(1)
-	_hook.SetRepoID(1)
-	_hook.SetBuildID(1)
+	_hook.SetRepo(_repo)
 	_hook.SetNumber(1)
 	_hook.SetWebhookID(1234)
-
-	_repo := new(api.Repo)
-	_repo.SetID(1)
-	_repo.SetName("bar")
-	_repo.SetOrg("foo")
 
 	want := int64(22948188373)
 
@@ -1546,7 +1546,7 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 	ghClient := client.newClientToken(*u.Token)
 
 	// run test
-	got, err := client.getDeliveryID(context.TODO(), ghClient, _repo, _hook)
+	got, err := client.getDeliveryID(context.TODO(), ghClient, _hook)
 
 	if err != nil {
 		t.Errorf("RedeliverWebhook returned err: %v", err)

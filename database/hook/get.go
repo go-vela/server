@@ -21,12 +21,18 @@ func (e *engine) GetHook(ctx context.Context, id int64) (*api.Hook, error) {
 	err := e.client.
 		Table(constants.TableHook).
 		Preload("Repo").
+		Preload("Repo.Owner").
 		Preload("Build").
 		Where("id = ?", id).
 		Take(h).
 		Error
 	if err != nil {
 		return nil, err
+	}
+
+	err = h.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo for hook %d: %v", h.ID.Int64, err)
 	}
 
 	return h.ToAPI(), nil

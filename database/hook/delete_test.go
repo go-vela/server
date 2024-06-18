@@ -8,6 +8,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 )
 
@@ -38,10 +39,7 @@ func TestHook_Engine_DeleteHook(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateHook(context.TODO(), _hook)
-	if err != nil {
-		t.Errorf("unable to create test hook for sqlite: %v", err)
-	}
+	sqlitePopulateTables(t, _sqlite, []*api.Hook{_hook}, nil, nil, nil)
 
 	// setup tests
 	tests := []struct {
@@ -64,7 +62,7 @@ func TestHook_Engine_DeleteHook(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteHook(context.TODO(), _hook)
+			err := test.database.DeleteHook(context.TODO(), _hook)
 
 			if test.failure {
 				if err == nil {

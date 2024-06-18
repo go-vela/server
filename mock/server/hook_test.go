@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestHook_ActiveHookResp(t *testing.T) {

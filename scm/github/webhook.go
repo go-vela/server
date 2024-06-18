@@ -99,19 +99,24 @@ func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *ap
 }
 
 // RedeliverWebhook redelivers webhooks from GitHub.
-func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) error {
+func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, h *api.Hook) error {
 	// create GitHub OAuth client with user's token
 	//nolint:contextcheck // do not need to pass context in this instance
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(u.GetToken())
 
 	// capture the delivery ID of the hook using GitHub API
-	deliveryID, err := c.getDeliveryID(ctx, client, r, h)
+	deliveryID, err := c.getDeliveryID(ctx, client, h)
 	if err != nil {
 		return err
 	}
 
 	// redeliver the webhook
-	_, _, err = client.Repositories.RedeliverHookDelivery(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), deliveryID)
+	_, _, err = client.Repositories.RedeliverHookDelivery(
+		ctx,
+		h.GetRepo().GetOrg(),
+		h.GetRepo().GetName(),
+		h.GetWebhookID(), deliveryID,
+	)
 
 	if err != nil {
 		var acceptedError *github.AcceptedError
@@ -540,17 +545,23 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 
 // getDeliveryID gets the last 100 webhook deliveries for a repo and
 // finds the matching delivery id with the source id in the hook.
-func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, r *api.Repo, h *api.Hook) (int64, error) {
+func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, h *api.Hook) (int64, error) {
 	c.Logger.WithFields(logrus.Fields{
-		"org":  r.GetOrg(),
-		"repo": r.GetName(),
+		"org":  h.GetRepo().GetOrg(),
+		"repo": h.GetRepo().GetName(),
 	}).Tracef("searching for delivery id for hook: %s", h.GetSourceID())
 
 	// set per page to 100 to retrieve last 100 hook summaries
 	opt := &github.ListCursorOptions{PerPage: 100}
 
 	// send API call to capture delivery summaries that contain Delivery ID value
-	deliveries, resp, err := ghClient.Repositories.ListHookDeliveries(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), opt)
+	deliveries, resp, err := ghClient.Repositories.ListHookDeliveries(
+		ctx,
+		h.GetRepo().GetOrg(),
+		h.GetRepo().GetName(),
+		h.GetWebhookID(),
+		opt,
+	)
 
 	// version check: if GitHub API is older than version 3.2, this call will not work
 	if resp.StatusCode == 415 {

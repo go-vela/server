@@ -106,7 +106,7 @@ func RedeliverHook(c *gin.Context) {
 		return
 	}
 
-	err = scm.FromContext(c).RedeliverWebhook(c, u, r, h)
+	err = scm.FromContext(c).RedeliverWebhook(c, u, h)
 	if err != nil {
 		retErr := fmt.Errorf("unable to redeliver hook %s: %w", entry, err)
 

@@ -28,6 +28,7 @@ func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*api.Hook, e
 	err := e.client.
 		Table(constants.TableHook).
 		Preload("Repo").
+		Preload("Repo.Owner").
 		Preload("Build").
 		Where("repo_id = ?", r.GetID()).
 		Order("number DESC").
@@ -41,6 +42,11 @@ func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*api.Hook, e
 		}
 
 		return nil, err
+	}
+
+	err = h.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo for hook %d: %v", h.ID.Int64, err)
 	}
 
 	// return the hook

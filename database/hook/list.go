@@ -33,6 +33,9 @@ func (e *engine) ListHooks(ctx context.Context) ([]*api.Hook, error) {
 	// send query to the database and store result in variable
 	err = e.client.
 		Table(constants.TableHook).
+		Preload("Repo").
+		Preload("Repo.Owner").
+		Preload("Build").
 		Find(&h).
 		Error
 	if err != nil {
@@ -43,6 +46,11 @@ func (e *engine) ListHooks(ctx context.Context) ([]*api.Hook, error) {
 	for _, hook := range *h {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := hook
+
+		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo for hook %d: %v", tmp.ID.Int64, err)
+		}
 
 		hooks = append(hooks, tmp.ToAPI())
 	}

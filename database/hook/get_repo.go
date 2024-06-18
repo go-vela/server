@@ -37,5 +37,10 @@ func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int) (*
 		return nil, err
 	}
 
+	err = h.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
+	}
+
 	return h.ToAPI(), nil
 }

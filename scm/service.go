@@ -152,7 +152,7 @@ type Service interface {
 	VerifyWebhook(context.Context, *http.Request, *api.Repo) error
 	// RedeliverWebhook defines a function that
 	// redelivers the webhook from the SCM.
-	RedeliverWebhook(context.Context, *api.User, *api.Repo, *api.Hook) error
+	RedeliverWebhook(context.Context, *api.User, *api.Hook) error
 
 	// TODO: Add convert functions to interface?
 }
