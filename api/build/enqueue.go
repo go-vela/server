@@ -36,7 +36,7 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 		return
 	}
 
-	logger.Debugf("pushing item for build to queue route %#q", route)
+	logger.Debugf("pushing item for build to queue route %s", route)
 
 	// push item on to the queue
 	err = queue.Push(context.Background(), route, byteItem)
