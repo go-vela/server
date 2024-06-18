@@ -8,8 +8,9 @@ import (
 	"testing"
 	"time"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/google/go-cmp/cmp"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestTypes_Hook_Nullify(t *testing.T) {
