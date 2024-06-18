@@ -119,7 +119,7 @@ func ListHooks(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+	perPage = max(1, min(100, perPage))
 
 	// send API call to capture the list of steps for the build
 	h, t, err := database.FromContext(c).ListHooksForRepo(ctx, r, page, perPage)

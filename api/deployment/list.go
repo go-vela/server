@@ -117,7 +117,7 @@ func ListDeployments(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+	perPage = max(1, min(100, perPage))
 
 	// send API call to capture the total number of deployments for the repo
 	t, err := database.FromContext(c).CountDeploymentsForRepo(c, r)

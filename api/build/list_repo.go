@@ -225,7 +225,7 @@ func ListBuildsForRepo(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+	perPage = max(1, min(100, perPage))
 
 	// capture before query parameter if present, default to now
 	before, err := strconv.ParseInt(c.DefaultQuery("before", strconv.FormatInt(time.Now().UTC().Unix(), 10)), 10, 64)

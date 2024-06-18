@@ -99,7 +99,7 @@ func ListRepos(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+	perPage = max(1, min(100, perPage))
 
 	// capture the sort_by query parameter if present
 	sortBy := util.QueryParameter(c, "sort_by", "name")
