@@ -515,14 +515,14 @@ func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 	f := []*api.Repo{}
 
 	// set the max per page for the options to capture the list of repos
-	opts := &github.RepositoryListOptions{
+	opts := &github.RepositoryListByAuthenticatedUserOptions{
 		ListOptions: github.ListOptions{PerPage: 100}, // 100 is max
 	}
 
 	// loop to capture *ALL* the repos
 	for {
 		// send API call to capture the user's repos
-		repos, resp, err := client.Repositories.List(ctx, "", opts)
+		repos, resp, err := client.Repositories.ListByAuthenticatedUser(ctx, opts)
 		if err != nil {
 			return nil, fmt.Errorf("unable to list user repos: %w", err)
 		}
