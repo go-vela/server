@@ -24,7 +24,7 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 		"repo_id":  item.Build.GetRepo().GetID(),
 	})
 
-	l.Debug("converting queue item to json")
+	l.Debug("adding item to queue")
 
 	byteItem, err := json.Marshal(item)
 	if err != nil {
