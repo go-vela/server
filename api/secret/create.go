@@ -104,7 +104,7 @@ func CreateSecret(c *gin.Context) {
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
-		// update log fields from API metadata
+		// update log fields for shared secret
 		delete(fields, "secret_repo")
 		fields["secret_team"] = n
 	}
@@ -255,14 +255,23 @@ func CreateSecret(c *gin.Context) {
 		return
 	}
 
-	l.WithFields(logrus.Fields{
+	// update log fields from create response
+	fields = logrus.Fields{
 		"secret_id":   s.GetID(),
 		"secret_name": s.GetName(),
 		"secret_org":  s.GetOrg(),
 		"secret_repo": s.GetRepo(),
 		"secret_type": s.GetType(),
-		"secret_team": s.GetTeam(),
-	}).Infof("created secret %s for %s service", entry, e)
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(t, constants.SecretShared) {
+		// update log fields for shared secret
+		delete(fields, "secret_repo")
+		fields["secret_team"] = s.GetTeam()
+	}
+
+	l.WithFields(fields).Infof("created secret %s for %s service", entry, e)
 
 	c.JSON(http.StatusOK, s.Sanitize())
 }
