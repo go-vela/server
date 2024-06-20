@@ -19,7 +19,7 @@ import (
 // without execution. This will kill all resources,
 // like steps and services, for the build.
 func CleanBuild(ctx context.Context, database database.Interface, b *types.Build, services []*library.Service, steps []*library.Step, e error) {
-	logger := logrus.WithFields(logrus.Fields{
+	l := logrus.WithFields(logrus.Fields{
 		"build":    b.GetNumber(),
 		"build_id": b.GetID(),
 		"org":      b.GetRepo().GetOrg(),
@@ -27,7 +27,7 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 		"repo_id":  b.GetRepo().GetID(),
 	})
 
-	logger.Debug("cleaning build")
+	l.Debug("cleaning build")
 
 	// update fields in build object
 	b.SetError(fmt.Sprintf("unable to publish to queue: %s", e.Error()))
@@ -37,10 +37,10 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 	// send API call to update the build
 	b, err := database.UpdateBuild(ctx, b)
 	if err != nil {
-		logger.Errorf("unable to kill build %d: %v", b.GetNumber(), err)
+		l.Errorf("unable to kill build %d: %v", b.GetNumber(), err)
 	}
 
-	logger.Info("build updated - build cleaned")
+	l.Info("build updated - build cleaned")
 
 	for _, s := range services {
 		// update fields in service object
@@ -50,10 +50,10 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 		// send API call to update the service
 		_, err := database.UpdateService(ctx, s)
 		if err != nil {
-			logger.Errorf("unable to kill service %s for build %d: %v", s.GetName(), b.GetNumber(), err)
+			l.Errorf("unable to kill service %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
 
-		logger.WithFields(logrus.Fields{
+		l.WithFields(logrus.Fields{
 			"service":    s.GetName(),
 			"service_id": s.GetID(),
 		}).Info("service updated - service cleaned")
@@ -67,10 +67,10 @@ func CleanBuild(ctx context.Context, database database.Interface, b *types.Build
 		// send API call to update the step
 		_, err := database.UpdateStep(ctx, s)
 		if err != nil {
-			logger.Errorf("unable to kill step %s for build %d: %v", s.GetName(), b.GetNumber(), err)
+			l.Errorf("unable to kill step %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
 
-		logger.WithFields(logrus.Fields{
+		l.WithFields(logrus.Fields{
 			"step":    s.GetName(),
 			"step_id": s.GetID(),
 		}).Info("step updated - step cleaned")

@@ -16,7 +16,7 @@ import (
 
 // Enqueue is a helper function that pushes a queue item (build, repo, user) to the queue.
 func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, item *models.Item, route string) {
-	logger := logrus.WithFields(logrus.Fields{
+	l := logrus.WithFields(logrus.Fields{
 		"build":    item.Build.GetNumber(),
 		"build_id": item.Build.GetID(),
 		"org":      item.Build.GetRepo().GetOrg(),
@@ -24,11 +24,11 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 		"repo_id":  item.Build.GetRepo().GetID(),
 	})
 
-	logger.Debug("converting queue item to json")
+	l.Debug("converting queue item to json")
 
 	byteItem, err := json.Marshal(item)
 	if err != nil {
-		logger.Errorf("failed to convert item to json: %v", err)
+		l.Errorf("failed to convert item to json: %v", err)
 
 		// error out the build
 		CleanBuild(ctx, db, item.Build, nil, nil, err)
@@ -36,16 +36,16 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 		return
 	}
 
-	logger.Debugf("pushing item for build to queue route %s", route)
+	l.Debugf("pushing item for build to queue route %s", route)
 
 	// push item on to the queue
 	err = queue.Push(context.Background(), route, byteItem)
 	if err != nil {
-		logger.Errorf("retrying; failed to publish build: %v", err)
+		l.Errorf("retrying; failed to publish build: %v", err)
 
 		err = queue.Push(context.Background(), route, byteItem)
 		if err != nil {
-			logger.Errorf("failed to publish build: %v", err)
+			l.Errorf("failed to publish build: %v", err)
 
 			// error out the build
 			CleanBuild(ctx, db, item.Build, nil, nil, err)
@@ -60,8 +60,8 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 	// update the build in the db to reflect the time it was enqueued
 	_, err = db.UpdateBuild(ctx, item.Build)
 	if err != nil {
-		logger.Errorf("failed to update build during publish to queue: %v", err)
+		l.Errorf("failed to update build during publish to queue: %v", err)
 	}
 
-	logger.Info("updated build as enqueued")
+	l.Info("updated build as enqueued")
 }
