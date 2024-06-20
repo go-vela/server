@@ -76,7 +76,7 @@ import (
 // a build for a repo.
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
-	l := c.MustGet("logger").(*logrus.Logger)
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
