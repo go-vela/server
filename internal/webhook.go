@@ -27,7 +27,7 @@ type PullRequest struct {
 // the required data when processing webhook event
 // a for a source provider event.
 type Webhook struct {
-	Hook        *library.Hook
+	Hook        *api.Hook
 	Repo        *api.Repo
 	Build       *api.Build
 	PullRequest PullRequest

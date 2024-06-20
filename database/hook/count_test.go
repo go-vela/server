@@ -14,18 +14,36 @@ import (
 
 func TestHook_Engine_CountHooks(t *testing.T) {
 	// setup types
+	_repoOne := testutils.APIRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+
+	_repoTwo := testutils.APIRepo()
+	_repoTwo.SetID(2)
+	_repoTwo.SetOrg("foo")
+	_repoTwo.SetName("baz")
+	_repoTwo.SetFullName("foo/baz")
+
+	_buildOne := testutils.APIBuild()
+	_buildOne.SetID(1)
+
+	_buildTwo := testutils.APIBuild()
+	_buildTwo.SetID(2)
+
 	_hookOne := testutils.APIHook()
 	_hookOne.SetID(1)
-	_hookOne.SetRepoID(1)
-	_hookOne.SetBuildID(1)
+	_hookOne.SetRepo(_repoOne)
+	_hookOne.SetBuild(_buildOne)
 	_hookOne.SetNumber(1)
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookOne.SetWebhookID(1)
 
 	_hookTwo := testutils.APIHook()
 	_hookTwo.SetID(2)
-	_hookTwo.SetRepoID(1)
-	_hookTwo.SetBuildID(2)
+	_hookTwo.SetRepo(_repoTwo)
+	_hookTwo.SetBuild(_buildTwo)
 	_hookTwo.SetNumber(2)
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookTwo.SetWebhookID(1)

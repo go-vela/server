@@ -91,6 +91,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 		hook.WithContext(e.ctx),
 		hook.WithClient(e.client),
 		hook.WithLogger(e.logger),
+		hook.WithEncryptionKey(e.config.EncryptionKey),
 		hook.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {

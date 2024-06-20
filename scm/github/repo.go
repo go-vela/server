@@ -150,7 +150,7 @@ func (c *client) Disable(ctx context.Context, u *api.User, org, name string) err
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *library.Hook) (*library.Hook, string, error) {
+func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -202,7 +202,7 @@ func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *librar
 	hookInfo, resp, err := client.Repositories.CreateHook(ctx, r.GetOrg(), r.GetName(), hook)
 
 	// create the first hook for the repo and record its ID from GitHub
-	webhook := new(library.Hook)
+	webhook := new(api.Hook)
 	webhook.SetWebhookID(hookInfo.GetID())
 	webhook.SetSourceID(r.GetName() + "-" + eventInitialize)
 	webhook.SetCreated(hookInfo.GetCreatedAt().Unix())

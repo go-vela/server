@@ -8,15 +8,22 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 )
 
 func TestHook_Engine_UpdateHook(t *testing.T) {
 	// setup types
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+
+	_build := testutils.APIBuild()
+	_build.SetID(1)
+
 	_hook := testutils.APIHook()
 	_hook.SetID(1)
-	_hook.SetRepoID(1)
-	_hook.SetBuildID(1)
+	_hook.SetRepo(_repo)
+	_hook.SetBuild(_build)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hook.SetWebhookID(1)
@@ -34,10 +41,7 @@ WHERE "id" = $14`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateHook(context.TODO(), _hook)
-	if err != nil {
-		t.Errorf("unable to create test hook for sqlite: %v", err)
-	}
+	sqlitePopulateTables(t, _sqlite, []*api.Hook{_hook}, nil, nil, nil)
 
 	// setup tests
 	tests := []struct {
@@ -60,7 +64,7 @@ WHERE "id" = $14`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err = test.database.UpdateHook(context.TODO(), _hook)
+			_, err := test.database.UpdateHook(context.TODO(), _hook)
 
 			if test.failure {
 				if err == nil {

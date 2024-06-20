@@ -20,7 +20,6 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/repos repos CreateRepo
@@ -247,7 +246,7 @@ func CreateRepo(c *gin.Context) {
 		r.SetHash(dbRepo.GetHash())
 	}
 
-	h := new(library.Hook)
+	h := new(types.Hook)
 
 	// err being nil means we have a record of this repo (dbRepo)
 	if err == nil {
@@ -313,7 +312,7 @@ func CreateRepo(c *gin.Context) {
 	// create init hook in the DB after repo has been added in order to capture its ID
 	if c.Value("webhookvalidation").(bool) {
 		// update initialization hook
-		h.SetRepoID(r.GetID())
+		h.SetRepo(r)
 		// create first hook for repo in the database
 		_, err = database.FromContext(c).CreateHook(ctx, h)
 		if err != nil {
