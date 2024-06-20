@@ -39,7 +39,7 @@ import (
 func RefreshAccessToken(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
-	l.Debug("refreshing access token")
+	l.Info("refreshing access token")
 
 	// capture the refresh token
 	// TODO: move this into token package and do it internally

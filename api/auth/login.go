@@ -52,20 +52,20 @@ func Login(c *gin.Context) {
 	// default path (headless mode)
 	path := "/authenticate"
 
-	l.Debug("logging in user")
+	l.Info("logging in user")
 
 	// handle web and cli logins
 	switch t {
 	case "web":
 		r = fmt.Sprintf("%s/authenticate/%s", m.Vela.Address, t)
 
-		l.Debugf("web login request, setting redirect to: %s", r)
+		l.Infof("web login request, setting redirect to: %s", r)
 	case "cli":
 		// port must be supplied
 		if len(p) > 0 {
 			r = fmt.Sprintf("%s/authenticate/%s/%s", m.Vela.Address, t, p)
 
-			l.Debugf("cli login request, setting redirect to: %s", r)
+			l.Infof("cli login request, setting redirect to: %s", r)
 		}
 	}
 

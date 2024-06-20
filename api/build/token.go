@@ -75,7 +75,7 @@ func GetBuildToken(c *gin.Context) {
 	r := repo.Retrieve(c)
 	cl := claims.Retrieve(c)
 
-	l.Debugf("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
+	l.Infof("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
 
 	// if build is not in a pending state, then a build token should not be needed - conflict
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPending) {

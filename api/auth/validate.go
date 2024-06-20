@@ -39,7 +39,7 @@ func ValidateServerToken(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 	cl := claims.Retrieve(c)
 
-	l.Debug("validating server token")
+	l.Info("validating server token")
 
 	if !strings.EqualFold(cl.Subject, "vela-server") {
 		retErr := fmt.Errorf("token is not a valid server token")

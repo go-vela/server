@@ -44,7 +44,7 @@ func ValidateOAuthToken(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
-	l.Debug("validating oauth token")
+	l.Info("validating oauth token")
 
 	token := c.Request.Header.Get("Token")
 	if len(token) == 0 {

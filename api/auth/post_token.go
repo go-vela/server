@@ -62,7 +62,7 @@ func PostAuthToken(c *gin.Context) {
 		return
 	}
 
-	l.Debugf("SCM user %s authenticated using PAT", u.GetName())
+	l.Infof("SCM user %s authenticated using PAT", u.GetName())
 
 	// check if the user exists
 	u, err = database.FromContext(c).GetUserForName(ctx, u.GetName())
