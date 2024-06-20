@@ -347,10 +347,10 @@ func MustSecretAdmin() gin.HandlerFunc {
 // MustAdmin ensures the user has admin access to the repo.
 func MustAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		l := c.MustGet("logger").(*logrus.Entry)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
-		l := c.MustGet("logger").(*logrus.Entry)
 
 		l.Debugf("verifying user %s has 'admin' permissions for repo %s", u.GetName(), r.GetFullName())
 

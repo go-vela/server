@@ -105,8 +105,8 @@ func AllBuildsQueue(c *gin.Context) {
 // UpdateBuild represents the API handler to update a build.
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
-	ctx := c.Request.Context()
 	l := c.MustGet("logger").(*logrus.Entry)
+	ctx := c.Request.Context()
 
 	l.Debug("platform admin: updating build")
 
