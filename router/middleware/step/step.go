@@ -14,7 +14,6 @@ import (
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -28,10 +27,10 @@ func Retrieve(c *gin.Context) *library.Step {
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// capture middleware values
+		l := c.MustGet("logger").(*logrus.Entry)
 		b := build.Retrieve(c)
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
-		u := user.Retrieve(c)
 		ctx := c.Request.Context()
 
 		if r == nil {
@@ -64,16 +63,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		// update engine logger with API metadata
-		//
-		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-		logrus.WithFields(logrus.Fields{
-			"build": b.GetNumber(),
-			"org":   o,
-			"step":  number,
-			"repo":  r.GetName(),
-			"user":  u.GetName(),
-		}).Debugf("reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
+		l.Debugf("reading step %d", number)
 
 		s, err := database.FromContext(c).GetStepForBuild(ctx, b, number)
 		if err != nil {
@@ -82,6 +72,14 @@ func Establish() gin.HandlerFunc {
 
 			return
 		}
+
+		l = l.WithFields(logrus.Fields{
+			"step":    s.GetNumber(),
+			"step_id": s.GetID(),
+		})
+
+		// update the logger with the new fields
+		c.Set("logger", l)
 
 		ToContext(c, s)
 		c.Next()

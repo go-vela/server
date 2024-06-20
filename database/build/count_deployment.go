@@ -15,7 +15,7 @@ import (
 func (e *engine) CountBuildsForDeployment(ctx context.Context, d *library.Deployment, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetURL(),
-	}).Tracef("getting count of builds for deployment %s from the database", d.GetURL())
+	}).Tracef("getting count of builds for deployment %s", d.GetURL())
 
 	// variable to store query results
 	var b int64

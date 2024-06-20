@@ -19,7 +19,7 @@ func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *api.R
 		"org":      r.GetOrg(),
 		"pipeline": commit,
 		"repo":     r.GetName(),
-	}).Tracef("getting pipeline %s/%s from the database", r.GetFullName(), commit)
+	}).Tracef("getting pipeline %s/%s", r.GetFullName(), commit)
 
 	// variable to store query results
 	p := new(database.Pipeline)

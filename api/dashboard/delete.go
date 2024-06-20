@@ -56,16 +56,11 @@ import (
 // DeleteDashboard represents the API handler to remove a dashboard.
 func DeleteDashboard(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	d := dashboard.Retrieve(c)
 	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"dashboard": d.GetID(),
-		"user":      u.GetName(),
-	}).Infof("deleting dashboard %s", d.GetID())
+	l.Debugf("deleting dashboard %s", d.GetID())
 
 	if !isAdmin(d, u) {
 		retErr := fmt.Errorf("unable to delete dashboard %s: user is not an admin", d.GetID())

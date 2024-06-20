@@ -19,7 +19,7 @@ func (e *engine) CreateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error)
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("creating repo %s in the database", r.GetFullName())
+	}).Tracef("creating repo %s", r.GetFullName())
 
 	// cast the library type to database type
 	repo := types.RepoFromAPI(r)

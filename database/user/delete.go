@@ -16,7 +16,7 @@ import (
 func (e *engine) DeleteUser(ctx context.Context, u *api.User) error {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Tracef("deleting user %s from the database", u.GetName())
+	}).Tracef("deleting user %s", u.GetName())
 
 	// cast the API type to database type
 	user := types.UserFromAPI(u)

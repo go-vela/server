@@ -12,7 +12,7 @@ import (
 
 // GetService gets a service by ID from the database.
 func (e *engine) GetService(ctx context.Context, id int64) (*library.Service, error) {
-	e.logger.Tracef("getting service %d from the database", id)
+	e.logger.Tracef("getting service %d", id)
 
 	// variable to store query results
 	s := new(database.Service)

@@ -16,7 +16,7 @@ import (
 func (e *engine) UpdateService(ctx context.Context, s *library.Service) (*library.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
-	}).Tracef("updating service %s in the database", s.GetName())
+	}).Tracef("updating service %s", s.GetName())
 
 	// cast the library type to database type
 	//

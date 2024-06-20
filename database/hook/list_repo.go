@@ -18,7 +18,7 @@ func (e *engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPag
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("listing hooks for repo %s from the database", r.GetFullName())
+	}).Tracef("listing hooks for repo %s", r.GetFullName())
 
 	// variables to store query results and return value
 	count := int64(0)

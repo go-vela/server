@@ -19,7 +19,7 @@ func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch strin
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("getting last build for repo %s from the database", r.GetFullName())
+	}).Tracef("getting last build for repo %s", r.GetFullName())
 
 	// variable to store query results
 	b := new(types.Build)

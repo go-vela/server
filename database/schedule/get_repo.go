@@ -18,7 +18,7 @@ func (e *engine) GetScheduleForRepo(ctx context.Context, r *api.Repo, name strin
 		"org":      r.GetOrg(),
 		"repo":     r.GetName(),
 		"schedule": name,
-	}).Tracef("getting schedule %s/%s from the database", r.GetFullName(), name)
+	}).Tracef("getting schedule %s/%s", r.GetFullName(), name)
 
 	// variable to store query results
 	s := new(types.Schedule)

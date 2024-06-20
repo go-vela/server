@@ -44,15 +44,11 @@ import (
 // a user token.
 func CreateToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("composing token for user %s", u.GetName())
+	l.Debugf("composing token for user %s", u.GetName())
 
 	tm := c.MustGet("token-manager").(*token.Manager)
 
@@ -77,6 +73,8 @@ func CreateToken(c *gin.Context) {
 
 		return
 	}
+
+	l.Info("user updated - token created")
 
 	c.JSON(http.StatusOK, library.Token{Token: &at})
 }

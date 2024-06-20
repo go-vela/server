@@ -12,7 +12,7 @@ import (
 
 // GetRepo gets a repo by ID from the database.
 func (e *engine) GetRepo(ctx context.Context, id int64) (*api.Repo, error) {
-	e.logger.Tracef("getting repo %d from the database", id)
+	e.logger.Tracef("getting repo %d", id)
 
 	// variable to store query results
 	r := new(types.Repo)

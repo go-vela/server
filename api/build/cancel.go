@@ -17,7 +17,6 @@ import (
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/executors"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
@@ -76,24 +75,16 @@ import (
 //nolint:funlen // ignore statement count
 func CancelBuild(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
 	e := executors.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	user := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  user.GetName(),
-	}).Infof("canceling build %s", entry)
+	l.Debugf("canceling build %s", entry)
 
 	switch b.GetStatus() {
 	case constants.StatusRunning:
@@ -182,6 +173,11 @@ func CancelBuild(c *gin.Context) {
 					return
 				}
 
+				l.WithFields(logrus.Fields{
+					"build":    b.GetNumber(),
+					"build_id": b.GetID(),
+				}).Info("build updated - build canceled")
+
 				c.JSON(resp.StatusCode, b)
 
 				return
@@ -210,6 +206,11 @@ func CancelBuild(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	}).Info("build updated - build canceled")
 
 	// remove build executable for clean up
 	_, err = database.FromContext(c).PopBuildExecutable(ctx, b.GetID())

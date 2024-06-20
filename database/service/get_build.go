@@ -18,7 +18,7 @@ func (e *engine) GetServiceForBuild(ctx context.Context, b *api.Build, number in
 	e.logger.WithFields(logrus.Fields{
 		"build":   b.GetNumber(),
 		"service": number,
-	}).Tracef("getting service %d from the database", number)
+	}).Tracef("getting service %d", number)
 
 	// variable to store query results
 	s := new(database.Service)

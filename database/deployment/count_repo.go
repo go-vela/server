@@ -16,7 +16,7 @@ func (e *engine) CountDeploymentsForRepo(ctx context.Context, r *api.Repo) (int6
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("getting count of deployments for repo %s from the database", r.GetFullName())
+	}).Tracef("getting count of deployments for repo %s", r.GetFullName())
 
 	// variable to store query results
 	var d int64

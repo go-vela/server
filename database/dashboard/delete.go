@@ -16,7 +16,7 @@ import (
 func (e *engine) DeleteDashboard(ctx context.Context, d *api.Dashboard) error {
 	e.logger.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
-	}).Tracef("deleting dashboard %s from the database", d.GetID())
+	}).Tracef("deleting dashboard %s", d.GetID())
 
 	dashboard := types.DashboardFromAPI(d)
 

@@ -49,7 +49,7 @@ type client struct {
 //
 //nolint:revive // ignore returning unexported client
 func FromCLIContext(ctx *cli.Context) (*client, error) {
-	logrus.Debug("Creating registry clients from CLI configuration")
+	logrus.Debug("creating registry clients from CLI configuration")
 
 	c := new(client)
 
@@ -107,14 +107,14 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 // setupGithub is a helper function to setup the
 // Github registry service from the CLI arguments.
 func setupGithub() (registry.Service, error) {
-	logrus.Tracef("Creating %s registry client from CLI configuration", "github")
+	logrus.Tracef("creating %s registry client from CLI configuration", "github")
 	return github.New("", "")
 }
 
 // setupPrivateGithub is a helper function to setup the
 // Github registry service from the CLI arguments.
 func setupPrivateGithub(addr, token string) (registry.Service, error) {
-	logrus.Tracef("Creating private %s registry client from CLI configuration", "github")
+	logrus.Tracef("creating private %s registry client from CLI configuration", "github")
 	return github.New(addr, token)
 }
 

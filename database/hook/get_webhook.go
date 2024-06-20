@@ -12,7 +12,7 @@ import (
 
 // GetHookByWebhookID gets a single hook with a matching webhook id in the database.
 func (e *engine) GetHookByWebhookID(ctx context.Context, webhookID int64) (*library.Hook, error) {
-	e.logger.Tracef("getting a hook with webhook id %d from the database", webhookID)
+	e.logger.Tracef("getting a hook with webhook id %d", webhookID)
 
 	// variable to store query results
 	h := new(database.Hook)

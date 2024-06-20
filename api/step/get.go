@@ -9,10 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/step"
-	"github.com/go-vela/server/router/middleware/user"
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step} steps GetStep
@@ -66,22 +64,12 @@ import (
 // GetStep represents the API handler to get a step for a build.
 func GetStep(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"step":  s.GetNumber(),
-		"user":  u.GetName(),
-	}).Infof("reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
+	l.Debugf("reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
 	c.JSON(http.StatusOK, s)
 }

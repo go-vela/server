@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
@@ -111,6 +112,7 @@ func TestUser_Establish(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -161,6 +163,7 @@ func TestUser_Establish_NoToken(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
@@ -198,6 +201,7 @@ func TestUser_Establish_DiffTokenType(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(claims.Establish())
@@ -251,6 +255,7 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 	client, _ := github.NewTest("")
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
@@ -313,6 +318,7 @@ func TestUser_Establish_NoUser(t *testing.T) {
 	client, _ := github.NewTest("")
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })

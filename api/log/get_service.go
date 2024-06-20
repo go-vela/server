@@ -12,10 +12,8 @@ import (
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -74,28 +72,18 @@ import (
 // GetServiceLog represents the API handler to get the logs for a service.
 func GetServiceLog(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build":   b.GetNumber(),
-		"org":     o,
-		"repo":    r.GetName(),
-		"service": s.GetNumber(),
-		"user":    u.GetName(),
-	}).Infof("reading logs for service %s", entry)
+	l.Debugf("reading logs for service %s", entry)
 
 	// send API call to capture the service logs
-	l, err := database.FromContext(c).GetLogForService(ctx, s)
+	sl, err := database.FromContext(c).GetLogForService(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
 
@@ -104,5 +92,5 @@ func GetServiceLog(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, l)
+	c.JSON(http.StatusOK, sl)
 }

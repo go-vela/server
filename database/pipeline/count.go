@@ -10,7 +10,7 @@ import (
 
 // CountPipelines gets the count of all pipelines from the database.
 func (e *engine) CountPipelines(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all pipelines from the database")
+	e.logger.Tracef("getting count of all pipelines")
 
 	// variable to store query results
 	var p int64

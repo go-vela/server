@@ -44,7 +44,7 @@ dashboards (
 
 // CreateDashboardTable creates the dashboards table in the database.
 func (e *engine) CreateDashboardTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating dashboards table in the database")
+	e.logger.Tracef("creating dashboards table")
 
 	// handle the driver provided to create the table
 	switch driver {

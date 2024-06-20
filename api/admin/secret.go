@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -51,10 +50,11 @@ import (
 
 // UpdateSecret represents the API handler to update a secret.
 func UpdateSecret(c *gin.Context) {
-	logrus.Info("Admin: updating secret in database")
-
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
+
+	l.Debug("platform admin: updating secret")
 
 	// capture body from API request
 	input := new(library.Secret)
@@ -68,6 +68,15 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
+	l.WithFields(logrus.Fields{
+		"secret_id":   input.GetID(),
+		"secret_org":  util.EscapeValue(input.GetOrg()),
+		"secret_repo": util.EscapeValue(input.GetRepo()),
+		"secret_type": util.EscapeValue(input.GetType()),
+		"secret_name": util.EscapeValue(input.GetName()),
+		"secret_team": util.EscapeValue(input.GetTeam()),
+	}).Debug("platform admin: attempting to update secret")
+
 	// send API call to update the secret
 	s, err := database.FromContext(c).UpdateSecret(ctx, input)
 	if err != nil {
@@ -77,6 +86,15 @@ func UpdateSecret(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"secret_id":   s.GetID(),
+		"secret_org":  s.GetOrg(),
+		"secret_repo": s.GetRepo(),
+		"secret_type": s.GetType(),
+		"secret_name": s.GetName(),
+		"secret_team": s.GetTeam(),
+	}).Info("platform admin: secret updated")
 
 	c.JSON(http.StatusOK, s)
 }

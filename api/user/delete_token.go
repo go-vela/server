@@ -44,15 +44,11 @@ import (
 // and recreate a user token.
 func DeleteToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("revoking token for user %s", u.GetName())
+	l.Debugf("revoking token for user %s", u.GetName())
 
 	tm := c.MustGet("token-manager").(*token.Manager)
 
@@ -77,6 +73,8 @@ func DeleteToken(c *gin.Context) {
 
 		return
 	}
+
+	l.Info("user updated - token rotated")
 
 	c.JSON(http.StatusOK, library.Token{Token: &at})
 }

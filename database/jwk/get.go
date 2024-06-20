@@ -13,7 +13,7 @@ import (
 
 // GetActiveJWK gets a JWK by UUID (kid) from the database if active.
 func (e *engine) GetActiveJWK(_ context.Context, id string) (jwk.RSAPublicKey, error) {
-	e.logger.Tracef("getting key %s from the database", id)
+	e.logger.Tracef("getting JWK key %s", id)
 
 	// variable to store query results
 	j := new(types.JWK)

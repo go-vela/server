@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
@@ -75,6 +76,7 @@ func TestWorker_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/worker_0", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/workers/:worker", func(c *gin.Context) {
@@ -111,6 +113,7 @@ func TestWorker_Establish_NoWorkerParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/workers/:worker", func(c *gin.Context) {

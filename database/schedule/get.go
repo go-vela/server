@@ -12,7 +12,7 @@ import (
 
 // GetSchedule gets a schedule by ID from the database.
 func (e *engine) GetSchedule(ctx context.Context, id int64) (*api.Schedule, error) {
-	e.logger.Tracef("getting schedule %d from the database", id)
+	e.logger.Tracef("getting schedule %d", id)
 
 	// variable to store query results
 	s := new(types.Schedule)

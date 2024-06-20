@@ -18,7 +18,7 @@ import (
 func (e *engine) ListReposForUser(ctx context.Context, u *api.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*api.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Tracef("listing repos for user %s from the database", u.GetName())
+	}).Tracef("listing repos for user %s", u.GetName())
 
 	// variables to store query results and return values
 	count := int64(0)

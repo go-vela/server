@@ -3,18 +3,13 @@
 package hook
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/hook"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/util"
 )
 
 // swagger:operation GET /api/v1/hooks/{org}/{repo}/{hook} webhook GetHook
@@ -67,42 +62,11 @@ import (
 // GetHook represents the API handler to get a hook.
 func GetHook(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
-	hook := util.PathParameter(c, "hook")
-	ctx := c.Request.Context()
+	h := hook.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"hook": hook,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading hook %s", entry)
-
-	number, err := strconv.Atoi(hook)
-	if err != nil {
-		retErr := fmt.Errorf("invalid hook parameter provided: %s", hook)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHookForRepo(ctx, r, number)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get hook %s: %w", entry, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
+	l.Debugf("reading hook %s/%d", r.GetFullName(), h.GetNumber())
 
 	c.JSON(http.StatusOK, h)
 }

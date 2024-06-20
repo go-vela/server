@@ -20,7 +20,7 @@ func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*library.Hoo
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("getting last hook for repo %s from the database", r.GetFullName())
+	}).Tracef("getting last hook for repo %s", r.GetFullName())
 
 	// variable to store query results
 	h := new(database.Hook)

@@ -60,7 +60,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 
 	// check if we should skip creating deployment database objects
 	if e.config.SkipCreation {
-		e.logger.Warning("skipping creation of deployment table and indexes in the database")
+		e.logger.Warning("skipping creation of deployment table and indexes")
 
 		return e, nil
 	}

@@ -31,10 +31,12 @@ func Options(c *gin.Context) {
 		c.Next()
 	} else {
 		c.Header("Access-Control-Allow-Origin", "*")
+
 		if len(m.Vela.WebAddress) > 0 {
 			c.Header("Access-Control-Allow-Origin", m.Vela.WebAddress)
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
+
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
 		c.Header("Access-Control-Max-Age", "86400")

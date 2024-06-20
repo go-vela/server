@@ -17,9 +17,9 @@ func (e *engine) UpdateLog(ctx context.Context, l *library.Log) error {
 	// check what the log entry is for
 	switch {
 	case l.GetServiceID() > 0:
-		e.logger.Tracef("updating log for service %d for build %d in the database", l.GetServiceID(), l.GetBuildID())
+		e.logger.Tracef("updating log for service %d for build %d", l.GetServiceID(), l.GetBuildID())
 	case l.GetStepID() > 0:
-		e.logger.Tracef("updating log for step %d for build %d in the database", l.GetStepID(), l.GetBuildID())
+		e.logger.Tracef("updating log for step %d for build %d", l.GetStepID(), l.GetBuildID())
 	}
 
 	// cast the library type to database type

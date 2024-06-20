@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
@@ -81,6 +82,7 @@ func TestDashboard_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/c8da1302-07d6-11ea-882f-4893bca275b8", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:dashboard", func(c *gin.Context) {
@@ -117,6 +119,7 @@ func TestDashboard_Establish_NoDashboardParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "//test", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:dashboard/test", func(c *gin.Context) {
@@ -147,6 +150,7 @@ func TestDashboard_Establish_NoDashboard(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/c8da1302-07d6-11ea-882f-4893bca275b8", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:dashboard", func(c *gin.Context) {

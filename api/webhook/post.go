@@ -82,11 +82,12 @@ var baseErr = "unable to process webhook"
 //
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func PostWebhook(c *gin.Context) {
-	logrus.Info("webhook received")
-
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
+
+	l.Debug("webhook received")
 
 	// duplicate request so we can perform operations on the request body
 	//
@@ -142,8 +143,8 @@ func PostWebhook(c *gin.Context) {
 
 	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
 
-	logrus.Debugf("hook generated from SCM: %v", h)
-	logrus.Debugf("repo generated from SCM: %v", r)
+	l.Debugf("hook generated from SCM: %v", h)
+	l.Debugf("repo generated from SCM: %v", r)
 
 	// if event is repository event, handle separately and return
 	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {
@@ -173,7 +174,7 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	logrus.Debugf(`build author: %s,
+	l.Debugf(`build author: %s,
 		build branch: %s,
 		build commit: %s,
 		build ref: %s`,
@@ -191,8 +192,16 @@ func PostWebhook(c *gin.Context) {
 		// send API call to update the webhook
 		_, err = database.FromContext(c).UpdateHook(ctx, h)
 		if err != nil {
-			logrus.Errorf("unable to update webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
+			l.Errorf("unable to update webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		}
+
+		l.WithFields(logrus.Fields{
+			"hook":    h.GetNumber(),
+			"hook_id": h.GetID(),
+			"org":     r.GetOrg(),
+			"repo":    r.GetName(),
+			"repo_id": r.GetID(),
+		}).Info("hook updated")
 	}()
 
 	// send API call to capture parsed repo from webhook
@@ -260,6 +269,13 @@ func PostWebhook(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"hook":    h.GetNumber(),
+		"hook_id": h.GetID(),
+		"org":     repo.GetOrg(),
+		"repo":    repo.GetName(),
+	}).Info("hook created")
 
 	// verify the webhook from the source control provider
 	if c.Value("webhookvalidation").(bool) {
@@ -371,7 +387,7 @@ func PostWebhook(c *gin.Context) {
 				deployment.SetRepoID(repo.GetID())
 				deployment.SetBuilds([]*library.Build{b.ToLibrary()})
 
-				_, err := database.FromContext(c).CreateDeployment(c, deployment)
+				dr, err := database.FromContext(c).CreateDeployment(c, deployment)
 				if err != nil {
 					retErr := fmt.Errorf("%s: failed to create deployment %s/%d: %w", baseErr, repo.GetFullName(), deployment.GetNumber(), err)
 					util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -381,6 +397,14 @@ func PostWebhook(c *gin.Context) {
 
 					return
 				}
+
+				l.WithFields(logrus.Fields{
+					"deployment":    dr.GetNumber(),
+					"deployment_id": dr.GetID(),
+					"org":           repo.GetOrg(),
+					"repo":          repo.GetName(),
+					"repo_id":       repo.GetID(),
+				}).Info("deployment created")
 			} else {
 				retErr := fmt.Errorf("%s: failed to get deployment %s/%d: %w", baseErr, repo.GetFullName(), webhook.Deployment.GetNumber(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -405,6 +429,14 @@ func PostWebhook(c *gin.Context) {
 
 				return
 			}
+
+			l.WithFields(logrus.Fields{
+				"deployment":    d.GetNumber(),
+				"deployment_id": d.GetID(),
+				"org":           repo.GetOrg(),
+				"repo":          repo.GetName(),
+				"repo_id":       repo.GetID(),
+			}).Info("deployment updated")
 		}
 	}
 
@@ -416,8 +448,16 @@ func PostWebhook(c *gin.Context) {
 			// fetch pending and running builds
 			rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c, repo)
 			if err != nil {
-				logrus.Errorf("unable to fetch pending and running builds for %s: %v", repo.GetFullName(), err)
+				l.Errorf("unable to fetch pending and running builds for %s: %v", repo.GetFullName(), err)
 			}
+
+			l.WithFields(logrus.Fields{
+				"build":    b.GetNumber(),
+				"build_id": b.GetID(),
+				"org":      repo.GetOrg(),
+				"repo":     repo.GetName(),
+				"repo_id":  repo.GetID(),
+			}).Debugf("found %d pending/running builds", len(rBs))
 
 			for _, rB := range rBs {
 				// call auto cancel routine
@@ -425,18 +465,26 @@ func PostWebhook(c *gin.Context) {
 				if err != nil {
 					// continue cancel loop if error, but log based on type of error
 					if canceled {
-						logrus.Errorf("unable to update canceled build error message: %v", err)
+						l.Errorf("unable to update canceled build error message: %v", err)
 					} else {
-						logrus.Errorf("unable to cancel running build: %v", err)
+						l.Errorf("unable to cancel running build: %v", err)
 					}
 				}
+
+				l.WithFields(logrus.Fields{
+					"build":    rB.GetNumber(),
+					"build_id": rB.GetID(),
+					"org":      repo.GetOrg(),
+					"repo":     repo.GetName(),
+					"repo_id":  repo.GetID(),
+				}).Debug("auto-canceled build")
 			}
 		}
 	}()
 
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
 	if webhook.PullRequest.IsFromFork {
-		logrus.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), r.GetFullName(), b.GetNumber())
+		l.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), r.GetFullName(), b.GetNumber())
 
 		switch repo.GetApproveBuild() {
 		case constants.ApproveForkAlways:
@@ -458,7 +506,7 @@ func PostWebhook(c *gin.Context) {
 				return
 			}
 
-			logrus.Debugf("fork PR build %s/%d automatically running without approval", repo.GetFullName(), b.GetNumber())
+			l.Debugf("fork PR build %s/%d automatically running without approval", repo.GetFullName(), b.GetNumber())
 		case constants.ApproveOnce:
 			// determine if build sender is in the contributors list for the repo
 			//
@@ -482,14 +530,14 @@ func PostWebhook(c *gin.Context) {
 		case constants.ApproveNever:
 			fallthrough
 		default:
-			logrus.Debugf("fork PR build %s/%d automatically running without approval", repo.GetFullName(), b.GetNumber())
+			l.Debugf("fork PR build %s/%d automatically running without approval", repo.GetFullName(), b.GetNumber())
 		}
 	}
 
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(ctx, repo.GetOwner(), b, repo.GetOrg(), repo.GetName())
 	if err != nil {
-		logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
+		l.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 	}
 
 	// publish the build to the queue
@@ -505,14 +553,28 @@ func PostWebhook(c *gin.Context) {
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
 // the database resources with any relevant changes resulting from the event, such as name changes, transfers, etc.
 func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *library.Hook, r *types.Repo) (*types.Repo, error) {
-	logrus.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l = l.WithFields(logrus.Fields{
+		"event_type": h.GetEvent(),
+	})
+
+	l.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
 
 	defer func() {
 		// send API call to update the webhook
-		_, err := database.FromContext(c).CreateHook(ctx, h)
+		hr, err := database.FromContext(c).CreateHook(ctx, h)
 		if err != nil {
-			logrus.Errorf("unable to create webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
+			l.Errorf("unable to create webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		}
+
+		l.WithFields(logrus.Fields{
+			"hook":    hr.GetNumber(),
+			"hook_id": hr.GetID(),
+			"org":     r.GetOrg(),
+			"repo":    r.GetName(),
+			"repo_id": r.GetID(),
+		}).Info("hook created")
 	}()
 
 	switch h.GetEventAction() {
@@ -529,7 +591,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 		return r, nil
 	// if action is archived, unarchived, or edited, perform edits to relevant repo fields
 	case "archived", "unarchived", constants.ActionEdited:
-		logrus.Debugf("repository action %s for %s", h.GetEventAction(), r.GetFullName())
+		l.Debugf("repository action %s for %s", h.GetEventAction(), r.GetFullName())
 		// send call to get repository from database
 		dbRepo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
 		if err != nil {
@@ -585,6 +647,12 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 			return nil, err
 		}
 
+		l.WithFields(logrus.Fields{
+			"org":     dbRepo.GetOrg(),
+			"repo":    dbRepo.GetName(),
+			"repo_id": dbRepo.GetID(),
+		}).Info("repo updated")
+
 		return dbRepo, nil
 	// all other repo event actions are skippable
 	default:
@@ -597,7 +665,13 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo as well as build links for the UI.
 func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
-	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l = l.WithFields(logrus.Fields{
+		"event_type": h.GetEvent(),
+	})
+
+	l.Debugf("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 
 	// get any matching hook with the repo's unique webhook ID in the SCM
 	hook, err := database.FromContext(c).GetHookByWebhookID(ctx, h.GetWebhookID())
@@ -662,6 +736,12 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 		if err != nil {
 			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
 		}
+
+		l.WithFields(logrus.Fields{
+			"secret_id": secret.GetID(),
+			"repo":      secret.GetRepo(),
+			"org":       secret.GetOrg(),
+		}).Info("secret updated")
 	}
 
 	// get total number of builds associated with repository
@@ -694,6 +774,14 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 		if err != nil {
 			return nil, fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}
+
+		l.WithFields(logrus.Fields{
+			"build_id": build.GetID(),
+			"build":    build.GetNumber(),
+			"org":      dbR.GetOrg(),
+			"repo":     dbR.GetName(),
+			"repo_id":  dbR.GetID(),
+		}).Info("build updated")
 	}
 
 	// update the repo name information
@@ -707,7 +795,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 	// update the repo in the database
 	dbR, err = database.FromContext(c).UpdateRepo(ctx, dbR)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, dbR.GetOrg(), dbR.GetName())
+		retErr := fmt.Errorf("%s: failed to update repo %s/%s", baseErr, dbR.GetOrg(), dbR.GetName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -716,19 +804,38 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 		return nil, retErr
 	}
 
+	l.WithFields(logrus.Fields{
+		"org":     dbR.GetOrg(),
+		"repo":    dbR.GetName(),
+		"repo_id": dbR.GetID(),
+	}).Infof("repo updated in database (previous name: %s)", r.GetPreviousName())
+
 	return dbR, nil
 }
 
 // gatekeepBuild is a helper function that will set the status of a build to 'pending approval' and
 // send a status update to the SCM.
 func gatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo) error {
-	logrus.Debugf("fork PR build %s/%d waiting for approval", r.GetFullName(), b.GetNumber())
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l = l.WithFields(logrus.Fields{
+		"org":      r.GetOrg(),
+		"repo":     r.GetName(),
+		"repo_id":  r.GetID(),
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	})
+
+	l.Debug("fork PR build waiting for approval")
+
 	b.SetStatus(constants.StatusPendingApproval)
 
 	_, err := database.FromContext(c).UpdateBuild(c, b)
 	if err != nil {
 		return fmt.Errorf("unable to update build for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
+
+	l.Info("build updated")
 
 	// update the build components to pending approval status
 	err = build.UpdateComponentStatuses(c, b, constants.StatusPendingApproval)
@@ -739,7 +846,7 @@ func gatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo) error {
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(c, r.GetOwner(), b, r.GetOrg(), r.GetName())
 	if err != nil {
-		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	return nil

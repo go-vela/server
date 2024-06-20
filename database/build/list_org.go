@@ -18,7 +18,7 @@ import (
 func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[string]interface{}, page, perPage int) ([]*api.Build, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
-	}).Tracef("listing builds for org %s from the database", org)
+	}).Tracef("listing builds for org %s", org)
 
 	// variables to store query results and return values
 	count := int64(0)

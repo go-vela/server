@@ -10,10 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -67,23 +65,14 @@ import (
 // DeletePipeline represents the API handler to remove a pipeline for a repository.
 func DeletePipeline(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":      o,
-		"pipeline": p.GetCommit(),
-		"repo":     r.GetName(),
-		"user":     u.GetName(),
-	}).Infof("deleting pipeline %s", entry)
+	l.Debugf("deleting pipeline %s", entry)
 
 	// send API call to remove the build
 	err := database.FromContext(c).DeletePipeline(ctx, p)

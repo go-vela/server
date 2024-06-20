@@ -11,7 +11,7 @@ import (
 
 // helper function to setup the scm from the CLI arguments.
 func setupSCM(c *cli.Context) (scm.Service, error) {
-	logrus.Debug("Creating scm client from CLI configuration")
+	logrus.Debug("creating scm client from CLI configuration")
 
 	// scm configuration
 	_setup := &scm.Setup{

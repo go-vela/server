@@ -44,7 +44,7 @@ settings (
 
 // CreateSettingsTable creates the settings table in the database.
 func (e *engine) CreateSettingsTable(_ context.Context, driver string) error {
-	e.logger.Tracef("creating settings table in the database")
+	e.logger.Tracef("creating settings table")
 
 	// handle the driver provided to create the table
 	switch driver {

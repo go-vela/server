@@ -12,9 +12,7 @@ import (
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -77,23 +75,14 @@ import (
 // a step for a build.
 func CreateStep(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("creating new step for build %s", entry)
+	l.Debugf("creating new step for build %s", entry)
 
 	// capture body from API request
 	input := new(library.Step)
@@ -128,6 +117,11 @@ func CreateStep(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"step":    s.GetName(),
+		"step_id": s.GetID(),
+	}).Infof("step %s created for build %s", s.GetName(), entry)
 
 	c.JSON(http.StatusCreated, s)
 }

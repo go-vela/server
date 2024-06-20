@@ -8,10 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 )
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/{pipeline} pipelines GetPipeline
@@ -65,20 +63,11 @@ import (
 // GetPipeline represents the API handler to get a pipeline for a repo.
 func GetPipeline(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":      o,
-		"pipeline": p.GetCommit(),
-		"repo":     r.GetName(),
-		"user":     u.GetName(),
-	}).Infof("reading pipeline %s/%s", r.GetFullName(), p.GetCommit())
+	l.Debugf("reading pipeline %s/%s", r.GetFullName(), p.GetCommit())
 
 	c.JSON(http.StatusOK, p)
 }

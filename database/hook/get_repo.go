@@ -19,7 +19,7 @@ func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int) (*
 		"hook": number,
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("getting hook %s/%d from the database", r.GetFullName(), number)
+	}).Tracef("getting hook %s/%d", r.GetFullName(), number)
 
 	// variable to store query results
 	h := new(database.Hook)

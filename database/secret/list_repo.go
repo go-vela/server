@@ -21,7 +21,7 @@ func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 		"type": constants.SecretRepo,
-	}).Tracef("listing secrets for repo %s from the database", r.GetFullName())
+	}).Tracef("listing secrets for repo %s", r.GetFullName())
 
 	// variables to store query results and return values
 	count := int64(0)

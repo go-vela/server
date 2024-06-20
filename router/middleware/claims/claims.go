@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/auth"
@@ -22,7 +23,9 @@ func Retrieve(c *gin.Context) *token.Claims {
 // Establish sets the claims in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		l := c.MustGet("logger").(*logrus.Entry)
 		tm := c.MustGet("token-manager").(*token.Manager)
+
 		// get the access token from the request
 		at, err := auth.RetrieveAccessToken(c.Request)
 		if err != nil {
@@ -50,6 +53,13 @@ func Establish() gin.HandlerFunc {
 			util.HandleError(c, http.StatusUnauthorized, err)
 			return
 		}
+
+		l = l.WithFields(logrus.Fields{
+			"claim_subject": claims.Subject,
+		})
+
+		// update the logger with the new fields
+		c.Set("logger", l)
 
 		ToContext(c, claims)
 		c.Next()

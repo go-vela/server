@@ -10,7 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -62,19 +61,12 @@ import (
 // DeleteRepo represents the API handler to remove a repository.
 func DeleteRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("deleting repo %s", r.GetFullName())
+	l.Debugf("deleting repo %s", r.GetFullName())
 
 	// send API call to remove the webhook
 	err := scm.FromContext(c).Disable(ctx, u, r.GetOrg(), r.GetName())

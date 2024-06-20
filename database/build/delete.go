@@ -16,7 +16,7 @@ import (
 func (e *engine) DeleteBuild(ctx context.Context, b *api.Build) error {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-	}).Tracef("deleting build %d from the database", b.GetNumber())
+	}).Tracef("deleting build %d", b.GetNumber())
 
 	build := types.BuildFromAPI(b)
 

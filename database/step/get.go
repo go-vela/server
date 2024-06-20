@@ -12,7 +12,7 @@ import (
 
 // GetStep gets a step by ID from the database.
 func (e *engine) GetStep(ctx context.Context, id int64) (*library.Step, error) {
-	e.logger.Tracef("getting step %d from the database", id)
+	e.logger.Tracef("getting step %d", id)
 
 	// variable to store query results
 	s := new(database.Step)

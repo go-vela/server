@@ -16,7 +16,7 @@ import (
 func (e *engine) GetUserForName(ctx context.Context, name string) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": name,
-	}).Tracef("getting user %s from the database", name)
+	}).Tracef("getting user %s", name)
 
 	// variable to store query results
 	u := new(types.User)

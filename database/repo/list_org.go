@@ -18,7 +18,7 @@ import (
 func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filters map[string]interface{}, page, perPage int) ([]*api.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
-	}).Tracef("listing repos for org %s from the database", org)
+	}).Tracef("listing repos for org %s", org)
 
 	// variables to store query results and return values
 	count := int64(0)
