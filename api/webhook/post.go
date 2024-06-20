@@ -87,7 +87,7 @@ func PostWebhook(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
-	l.Info("webhook received")
+	l.Debug("webhook received")
 
 	// duplicate request so we can perform operations on the request body
 	//
