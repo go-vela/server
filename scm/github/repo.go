@@ -660,3 +660,75 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 
 	return data.GetName(), data.GetCommit().GetSHA(), nil
 }
+
+// CreateChecks defines a function that does stuff...
+func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step string) (int64, error) {
+	// create client from GitHub App
+	client := c.newGithubAppToken(r)
+
+	opts := github.CreateCheckRunOptions{
+		Name:    fmt.Sprintf("vela-%s-%s", commit, step),
+		HeadSHA: commit,
+	}
+
+	check, _, err := client.Checks.CreateCheckRun(ctx, r.GetOrg(), r.GetName(), opts)
+	if err != nil {
+		return 0, err
+	}
+
+	return check.GetID(), nil
+}
+
+// UpdateChecks defines a function that does stuff...
+func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step, commit string) error {
+	// create client from GitHub App
+	client := c.newGithubAppToken(r)
+
+	var (
+		conclusion string
+		status     string
+	)
+	// set the conclusion and status for the step check depending on what the status of the step is
+	switch s.GetStatus() {
+	case constants.StatusPending:
+		conclusion = "neutral"
+		status = "queued"
+	case constants.StatusPendingApproval:
+		conclusion = "action_required"
+		status = "queued"
+	case constants.StatusRunning:
+		conclusion = "neutral"
+		status = "in_progress"
+	case constants.StatusSuccess:
+		conclusion = "success"
+		status = "completed"
+	case constants.StatusFailure:
+		conclusion = "failure"
+		status = "completed"
+	case constants.StatusCanceled:
+		conclusion = "cancelled"
+		status = "completed"
+	case constants.StatusKilled:
+		conclusion = "cancelled"
+		status = "completed"
+	case constants.StatusSkipped:
+		conclusion = "skipped"
+		status = "completed"
+	default:
+		conclusion = "neutral"
+		status = "completed"
+	}
+
+	opts := github.UpdateCheckRunOptions{
+		Name:       fmt.Sprintf("vela-%s-%s", commit, s.GetName()),
+		Conclusion: github.String(conclusion),
+		Status:     github.String(status),
+	}
+
+	_, _, err := client.Checks.UpdateCheckRun(ctx, r.GetOrg(), r.GetName(), s.GetCheckID(), opts)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

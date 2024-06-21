@@ -154,6 +154,15 @@ func UpdateStep(c *gin.Context) {
 		return
 	}
 
+	err = scm.FromContext(c).UpdateChecks(ctx, r, s, b.GetCommit())
+	if err != nil {
+		retErr := fmt.Errorf("unable to set step check %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	c.JSON(http.StatusOK, s)
 
 	// check if the build is in a "final" state
