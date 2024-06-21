@@ -8,16 +8,18 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestStep_Engine_CountStepsForBuild(t *testing.T) {
 	// setup types
-	_build := testBuild()
+	_build := testutils.APIBuild()
 	_build.SetID(1)
-	_build.SetRepoID(1)
+	_build.SetRepo(testutils.APIRepo())
 	_build.SetNumber(1)
 
-	_stepOne := testStep()
+	_stepOne := testutils.APIStep()
 	_stepOne.SetID(1)
 	_stepOne.SetRepoID(1)
 	_stepOne.SetBuildID(1)
@@ -25,7 +27,7 @@ func TestStep_Engine_CountStepsForBuild(t *testing.T) {
 	_stepOne.SetName("foo")
 	_stepOne.SetImage("bar")
 
-	_stepTwo := testStep()
+	_stepTwo := testutils.APIStep()
 	_stepTwo.SetID(2)
 	_stepTwo.SetRepoID(1)
 	_stepTwo.SetBuildID(2)

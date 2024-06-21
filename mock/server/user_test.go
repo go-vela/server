@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestUser_ActiveUserResp(t *testing.T) {
-	testUser := library.User{}
+	testUser := api.User{}
 
 	err := json.Unmarshal([]byte(UserResp), &testUser)
 	if err != nil {

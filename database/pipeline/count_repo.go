@@ -5,17 +5,18 @@ package pipeline
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
 )
 
 // CountPipelinesForRepo gets the count of pipelines by repo ID from the database.
-func (e *engine) CountPipelinesForRepo(ctx context.Context, r *library.Repo) (int64, error) {
+func (e *engine) CountPipelinesForRepo(ctx context.Context, r *api.Repo) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("getting count of pipelines for repo %s from the database", r.GetFullName())
+	}).Tracef("getting count of pipelines for repo %s", r.GetFullName())
 
 	// variable to store query results
 	var p int64

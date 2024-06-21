@@ -10,9 +10,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -170,52 +168,6 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	return _engine
-}
-
-// testSchedule is a test helper function to create an API Schedule type with all fields set to their zero values.
-func testSchedule() *library.Schedule {
-	return &library.Schedule{
-		ID:          new(int64),
-		RepoID:      new(int64),
-		Active:      new(bool),
-		Name:        new(string),
-		Entry:       new(string),
-		CreatedAt:   new(int64),
-		CreatedBy:   new(string),
-		UpdatedAt:   new(int64),
-		UpdatedBy:   new(string),
-		ScheduledAt: new(int64),
-		Branch:      new(string),
-	}
-}
-
-// testRepo is a test helper function to create a library Repo type with all fields set to their zero values.
-func testRepo() *library.Repo {
-	return &library.Repo{
-		ID:           new(int64),
-		UserID:       new(int64),
-		BuildLimit:   new(int64),
-		Timeout:      new(int64),
-		Counter:      new(int),
-		PipelineType: new(string),
-		Hash:         new(string),
-		Org:          new(string),
-		Name:         new(string),
-		FullName:     new(string),
-		Link:         new(string),
-		Clone:        new(string),
-		Branch:       new(string),
-		Visibility:   new(string),
-		PreviousName: new(string),
-		Private:      new(bool),
-		Trusted:      new(bool),
-		Active:       new(bool),
-		AllowPull:    new(bool),
-		AllowPush:    new(bool),
-		AllowDeploy:  new(bool),
-		AllowTag:     new(bool),
-		AllowComment: new(bool),
-	}
 }
 
 // This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values

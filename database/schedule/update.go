@@ -5,20 +5,21 @@ package schedule
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // UpdateSchedule updates an existing schedule in the database.
-func (e *engine) UpdateSchedule(ctx context.Context, s *library.Schedule, fields bool) (*library.Schedule, error) {
+func (e *engine) UpdateSchedule(ctx context.Context, s *api.Schedule, fields bool) (*api.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("updating schedule %s in the database", s.GetName())
 
-	// cast the library type to database type
-	schedule := database.ScheduleFromLibrary(s)
+	// cast the API type to database type
+	schedule := types.ScheduleFromAPI(s)
 
 	// validate the necessary fields are populated
 	err := schedule.Validate()
@@ -36,5 +37,13 @@ func (e *engine) UpdateSchedule(ctx context.Context, s *library.Schedule, fields
 		err = e.client.Table(constants.TableSchedule).Model(schedule).UpdateColumn("scheduled_at", s.GetScheduledAt()).Error
 	}
 
-	return schedule.ToLibrary(), err
+	if err != nil {
+		return nil, err
+	}
+
+	// set repo to provided repo if update successful
+	result := schedule.ToAPI()
+	result.SetRepo(s.GetRepo())
+
+	return result, nil
 }

@@ -6,9 +6,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // List captures a list of secrets.
@@ -36,7 +38,7 @@ func (c *client) List(ctx context.Context, sType, org, name string, page, perPag
 		}).Tracef("listing native %s secrets for %s/%s", sType, org, name)
 
 		// create the repo with the information available
-		r := new(library.Repo)
+		r := new(api.Repo)
 		r.SetOrg(org)
 		r.SetName(name)
 		r.SetFullName(fmt.Sprintf("%s/%s", org, name))

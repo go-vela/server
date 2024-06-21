@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
@@ -35,7 +37,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Token"
 //   '401':
-//     description: Unable to authenticate
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '503':
@@ -43,11 +45,11 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// PostAuthToken represents the API handler to
-// process a user logging in using PAT to Vela from
-// the API.
+// PostAuthToken represents the API handler to process
+// a user logging in using PAT to Vela from the API.
 func PostAuthToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
 	// attempt to get user from source
@@ -60,15 +62,22 @@ func PostAuthToken(c *gin.Context) {
 		return
 	}
 
+	l.Infof("SCM user %s authenticated using PAT", u.GetName())
+
 	// check if the user exists
 	u, err = database.FromContext(c).GetUserForName(ctx, u.GetName())
 	if err != nil {
-		retErr := fmt.Errorf("user %s not found", u.GetName())
+		retErr := fmt.Errorf("unable to authenticate: user %s not found", u.GetName())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"user":    u.GetName(),
+		"user_id": u.GetID(),
+	}).Info("user successfully authenticated via SCM PAT")
 
 	// We don't need refresh token for this scenario
 	// We only need access token and are configured based on the config defined
@@ -80,14 +89,14 @@ func PostAuthToken(c *gin.Context) {
 		TokenType:     constants.UserAccessTokenType,
 		TokenDuration: tm.UserAccessTokenDuration,
 	}
-	at, err := tm.MintToken(amto)
 
+	at, err := tm.MintToken(amto)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
 	}
 
-	// return the user with their jwt access token
+	// return jwt access token
 	c.JSON(http.StatusOK, library.Token{Token: &at})
 }

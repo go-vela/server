@@ -7,25 +7,28 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
+	"github.com/go-vela/server/database/settings"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 type (
@@ -45,6 +48,14 @@ type (
 		Driver string
 		// specifies the encryption key to use for the database engine
 		EncryptionKey string
+		// specifies the database engine specific log level
+		LogLevel string
+		// specifies to skip logging when a record is not found
+		LogSkipNotFound bool
+		// specifies the threshold for slow queries in the database engine
+		LogSlowThreshold time.Duration
+		// specifies whether to log SQL queries in the database engine
+		LogShowSQL bool
 		// specifies to skip creating tables and indexes for the database engine
 		SkipCreation bool
 	}
@@ -60,10 +71,13 @@ type (
 		// sirupsen/logrus logger used in database functions
 		logger *logrus.Entry
 
+		settings.SettingsInterface
 		build.BuildInterface
+		dashboard.DashboardInterface
 		executable.BuildExecutableInterface
 		deployment.DeploymentInterface
 		hook.HookInterface
+		jwk.JWKInterface
 		log.LogInterface
 		pipeline.PipelineInterface
 		repo.RepoInterface
@@ -107,21 +121,62 @@ func New(opts ...EngineOpt) (Interface, error) {
 		return nil, err
 	}
 
-	// update the logger with additional metadata
+	// by default use the global logger with additional metadata
 	e.logger = logrus.NewEntry(logrus.StandardLogger()).WithField("database", e.Driver())
 
+	// translate the log level to logrus level for the database engine
+	var dbLogLevel logrus.Level
+
+	switch e.config.LogLevel {
+	case "t", "trace", "Trace", "TRACE":
+		dbLogLevel = logrus.TraceLevel
+	case "d", "debug", "Debug", "DEBUG":
+		dbLogLevel = logrus.DebugLevel
+	case "i", "info", "Info", "INFO":
+		dbLogLevel = logrus.InfoLevel
+	case "w", "warn", "Warn", "WARN":
+		dbLogLevel = logrus.WarnLevel
+	case "e", "error", "Error", "ERROR":
+		dbLogLevel = logrus.ErrorLevel
+	case "f", "fatal", "Fatal", "FATAL":
+		dbLogLevel = logrus.FatalLevel
+	case "p", "panic", "Panic", "PANIC":
+		dbLogLevel = logrus.PanicLevel
+	}
+
+	// if the log level for the database engine is different than
+	// the global log level, create a new logrus instance
+	if dbLogLevel != logrus.GetLevel() {
+		log := logrus.New()
+
+		// set the custom log level
+		log.Level = dbLogLevel
+
+		// copy the formatter from the global logger to
+		// retain the same format for the database engine
+		log.Formatter = logrus.StandardLogger().Formatter
+
+		// update the logger with additional metadata
+		e.logger = logrus.NewEntry(log).WithField("database", e.Driver())
+	}
+
 	e.logger.Trace("creating database engine from configuration")
-	// process the database driver being provided
+
+	// configure gorm to use logrus as internal logger
+	gormConfig := &gorm.Config{
+		Logger: NewGormLogger(e.logger, e.config.LogSlowThreshold, e.config.LogSkipNotFound, e.config.LogShowSQL),
+	}
+
 	switch e.config.Driver {
 	case constants.DriverPostgres:
 		// create the new Postgres database client
-		e.client, err = gorm.Open(postgres.Open(e.config.Address), &gorm.Config{})
+		e.client, err = gorm.Open(postgres.Open(e.config.Address), gormConfig)
 		if err != nil {
 			return nil, err
 		}
 	case constants.DriverSqlite:
 		// create the new Sqlite database client
-		e.client, err = gorm.Open(sqlite.Open(e.config.Address), &gorm.Config{})
+		e.client, err = gorm.Open(sqlite.Open(e.config.Address), gormConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -171,5 +226,9 @@ func NewTest() (Interface, error) {
 		WithDriver("sqlite3"),
 		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithSkipCreation(false),
+		WithLogLevel("warn"),
+		WithLogShowSQL(false),
+		WithLogSkipNotFound(true),
+		WithLogSlowThreshold(200*time.Millisecond),
 	)
 }

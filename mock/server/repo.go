@@ -9,15 +9,22 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
 	// RepoResp represents a JSON return for a single repo.
 	RepoResp = `{
   "id": 1,
-  "user_id": 1,
+  "owner": {
+	"id": 1,
+	"name": "octocat",
+	"favorites": [],
+	"active": true,
+    "admin": false
+  },
   "org": "github",
   "counter": 10,
   "name": "octocat",
@@ -33,11 +40,6 @@ const (
   "pipeline_type": "yaml",
   "topics": [],
   "active": true,
-  "allow_pull": false,
-  "allow_push": true,
-  "allow_deploy": false,
-  "allow_tag": false,
-  "allow_comment": false,
   "allow_events": {
 	"push": {
 		"branch": true,
@@ -77,11 +79,7 @@ const (
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true,
-    "allow_pr": false,
-    "allow_push": true,
-    "allow_deploy": false,
-    "allow_tag": false
+    "active": true
   },
   {
     "id": 2,
@@ -97,11 +95,7 @@ const (
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true,
-    "allow_pr": false,
-    "allow_push": true,
-    "allow_deploy": false,
-    "allow_tag": false
+    "active": true
   }
 ]`
 )
@@ -110,7 +104,7 @@ const (
 func getRepos(c *gin.Context) {
 	data := []byte(ReposResp)
 
-	var body []library.Repo
+	var body []api.Repo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -132,7 +126,7 @@ func getRepo(c *gin.Context) {
 
 	data := []byte(RepoResp)
 
-	var body library.Repo
+	var body api.Repo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -142,7 +136,7 @@ func getRepo(c *gin.Context) {
 func addRepo(c *gin.Context) {
 	data := []byte(RepoResp)
 
-	var body library.Repo
+	var body api.Repo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -166,7 +160,7 @@ func updateRepo(c *gin.Context) {
 
 	data := []byte(RepoResp)
 
-	var body library.Repo
+	var body api.Repo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

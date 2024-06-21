@@ -9,9 +9,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -172,28 +170,6 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	return _engine
-}
-
-// testPipeline is a test helper function to create a library
-// Pipeline type with all fields set to their zero values.
-func testPipeline() *library.Pipeline {
-	return &library.Pipeline{
-		ID:              new(int64),
-		RepoID:          new(int64),
-		Commit:          new(string),
-		Flavor:          new(string),
-		Platform:        new(string),
-		Ref:             new(string),
-		Type:            new(string),
-		Version:         new(string),
-		ExternalSecrets: new(bool),
-		InternalSecrets: new(bool),
-		Services:        new(bool),
-		Stages:          new(bool),
-		Steps:           new(bool),
-		Templates:       new(bool),
-		Data:            new([]byte),
-	}
 }
 
 // This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values

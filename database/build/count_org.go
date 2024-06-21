@@ -5,15 +5,16 @@ package build
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
 )
 
 // CountBuildsForOrg gets the count of builds by org name from the database.
 func (e *engine) CountBuildsForOrg(ctx context.Context, org string, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
-	}).Tracef("getting count of builds for org %s from the database", org)
+	}).Tracef("getting count of builds for org %s", org)
 
 	// variable to store query results
 	var b int64

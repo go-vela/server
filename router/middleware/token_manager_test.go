@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/internal/token"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/server/internal/token"
 )
 
 func TestMiddleware_TokenManager(t *testing.T) {
@@ -21,7 +21,7 @@ func TestMiddleware_TokenManager(t *testing.T) {
 	var got *token.Manager
 
 	want := new(token.Manager)
-	want.PrivateKey = "123abc"
+	want.PrivateKeyHMAC = "123abc"
 
 	// setup context
 	gin.SetMode(gin.TestMode)

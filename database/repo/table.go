@@ -31,11 +31,6 @@ repos (
 	private       BOOLEAN,
 	trusted       BOOLEAN,
 	active        BOOLEAN,
-	allow_pull    BOOLEAN,
-	allow_push    BOOLEAN,
-	allow_deploy  BOOLEAN,
-	allow_tag     BOOLEAN,
-	allow_comment BOOLEAN,
 	allow_events  INTEGER,
 	pipeline_type TEXT,
 	previous_name VARCHAR(100),
@@ -66,11 +61,6 @@ repos (
 	private       BOOLEAN,
 	trusted       BOOLEAN,
 	active        BOOLEAN,
-	allow_pull    BOOLEAN,
-	allow_push    BOOLEAN,
-	allow_deploy  BOOLEAN,
-	allow_tag     BOOLEAN,
-	allow_comment BOOLEAN,
 	allow_events  INTEGER,
 	pipeline_type TEXT,
 	previous_name TEXT,
@@ -82,7 +72,7 @@ repos (
 
 // CreateRepoTable creates the repos table in the database.
 func (e *engine) CreateRepoTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating repos table in the database")
+	e.logger.Tracef("creating repos table")
 
 	// handle the driver provided to create the table
 	switch driver {

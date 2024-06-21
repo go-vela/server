@@ -3,7 +3,9 @@
 package compiler
 
 import (
-	"github.com/go-vela/types"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
@@ -23,7 +25,7 @@ type Engine interface {
 	// CompileLite defines a function that produces an light executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	CompileLite(interface{}, bool) (*yaml.Build, *library.Pipeline, error)
+	CompileLite(interface{}, *pipeline.RuleData, bool) (*yaml.Build, *library.Pipeline, error)
 
 	// Duplicate defines a function that
 	// creates a clone of the Engine.
@@ -115,7 +117,7 @@ type Engine interface {
 
 	// WithBuild defines a function that sets
 	// the library build type in the Engine.
-	WithBuild(*library.Build) Engine
+	WithBuild(*api.Build) Engine
 	// WithComment defines a function that sets
 	// the comment in the Engine.
 	WithComment(string) Engine
@@ -133,14 +135,23 @@ type Engine interface {
 	WithLocalTemplates([]string) Engine
 	// WithMetadata defines a function that sets
 	// the compiler Metadata type in the Engine.
-	WithMetadata(*types.Metadata) Engine
+	WithMetadata(*internal.Metadata) Engine
 	// WithRepo defines a function that sets
 	// the library repo type in the Engine.
-	WithRepo(*library.Repo) Engine
+	WithRepo(*api.Repo) Engine
 	// WithUser defines a function that sets
 	// the library user type in the Engine.
-	WithUser(*library.User) Engine
-	// WithUser defines a function that sets
+	WithUser(*api.User) Engine
+	// WithLabel defines a function that sets
+	// the label(s) in the Engine.
+	WithLabels([]string) Engine
+	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(string, string) Engine
+	// GetSettings defines a function that returns new api settings
+	// with the compiler Engine fields filled.
+	GetSettings() settings.Compiler
+	// SetSettings defines a function that takes api settings
+	// and updates the compiler Engine.
+	SetSettings(*settings.Platform)
 }

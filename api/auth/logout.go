@@ -7,20 +7,19 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/util"
-
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/constants"
-
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 )
 
 // swagger:operation GET /logout authenticate GetLogout
 //
-// Log out of the Vela api
+// Log out of the Vela API
 //
 // ---
 // produces:
@@ -30,6 +29,10 @@ import (
 //     description: Successfully logged out
 //     schema:
 //       type: string
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '503':
 //     description: Logout did not succeed
 //     schema:
@@ -41,26 +44,20 @@ import (
 // refresh token cookie.
 func Logout(c *gin.Context) {
 	// grab the metadata to help deal with the cookie
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	// capture middleware values
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	})
-
-	logger.Infof("logging out user %s", u.GetName())
+	l.Debug("logging out user")
 
 	// parse the address for the backend server
 	// so we can set it for the cookie domain
 	addr, err := url.Parse(m.Vela.Address)
 	if err != nil {
 		// silently fail
-		logger.Error("unable to parse Vela address during logout")
+		l.Error("unable to parse Vela address during logout")
 	}
 
 	// set the same samesite attribute we used to create the cookie
@@ -82,6 +79,8 @@ func Logout(c *gin.Context) {
 
 		return
 	}
+
+	l.Info("updated user - logged out")
 
 	// return 200 for successful logout
 	c.JSON(http.StatusOK, "ok")

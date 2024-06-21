@@ -8,9 +8,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -168,21 +166,6 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	return _engine
-}
-
-// testUser is a test helper function to create a library
-// User type with all fields set to their zero values.
-func testUser() *library.User {
-	return &library.User{
-		ID:           new(int64),
-		Name:         new(string),
-		RefreshToken: new(string),
-		Token:        new(string),
-		Hash:         new(string),
-		Favorites:    new([]string),
-		Active:       new(bool),
-		Admin:        new(bool),
-	}
 }
 
 // This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values

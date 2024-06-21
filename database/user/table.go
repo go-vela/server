@@ -18,10 +18,10 @@ users (
 	name           VARCHAR(250),
 	refresh_token  VARCHAR(500),
 	token          VARCHAR(500),
-	hash           VARCHAR(500),
 	favorites      VARCHAR(5000),
 	active         BOOLEAN,
 	admin          BOOLEAN,
+	dashboards     VARCHAR(5000),
 	UNIQUE(name)
 );
 `
@@ -35,10 +35,10 @@ users (
 	name           TEXT,
 	refresh_token  TEXT,
 	token          TEXT,
-	hash           TEXT,
 	favorites      TEXT,
 	active         BOOLEAN,
 	admin          BOOLEAN,
+	dashboards     TEXT,
 	UNIQUE(name)
 );
 `
@@ -46,7 +46,7 @@ users (
 
 // CreateUserTable creates the users table in the database.
 func (e *engine) CreateUserTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating users table in the database")
+	e.logger.Tracef("creating users table")
 
 	// handle the driver provided to create the table
 	switch driver {

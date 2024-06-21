@@ -8,20 +8,36 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestBuild_Engine_CountBuildsForStatus(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
+	_owner := testutils.APIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+	_repo.GetOwner().SetID(1)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+
+	_buildOne := testutils.APIBuild()
 	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
+	_buildOne.SetRepo(_repo)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
 	_buildOne.SetStatus("running")
 
-	_buildTwo := testBuild()
+	_buildTwo := testutils.APIBuild()
 	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
+	_buildTwo.SetRepo(_repo)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
 	_buildTwo.SetStatus("running")

@@ -4,21 +4,23 @@ package step
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
+
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestStep_Engine_GetStepForBuild(t *testing.T) {
 	// setup types
-	_build := testBuild()
+	_build := testutils.APIBuild()
 	_build.SetID(1)
-	_build.SetRepoID(1)
+	_build.SetRepo(testutils.APIRepo())
 	_build.SetNumber(1)
 
-	_step := testStep()
+	_step := testutils.APIStep()
 	_step.SetID(1)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)
@@ -34,8 +36,8 @@ func TestStep_Engine_GetStepForBuild(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution"}).
-		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "")
+		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution", "report_as"}).
+		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "", "")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "steps" WHERE build_id = $1 AND number = $2 LIMIT $3`).WithArgs(1, 1, 1).WillReturnRows(_rows)
@@ -85,8 +87,8 @@ func TestStep_Engine_GetStepForBuild(t *testing.T) {
 				t.Errorf("GetStepForBuild for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetStepForBuild for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("GetStepForBuild for %s is a mismatch (-want +got):\n%s", test.name, diff)
 			}
 		})
 	}

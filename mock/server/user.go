@@ -10,8 +10,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
@@ -22,7 +23,8 @@ const (
   "token": null,
   "favorites": ["github/octocat"],
   "active": true,
-  "admin": false
+  "admin": false,
+  "dashboards": []
 }`
 
 	// UsersResp represents a JSON return for one to many users.
@@ -33,7 +35,8 @@ const (
     "token": null,
     "favorites": ["github/octocat"],
     "active": true,
-    "admin": false
+    "admin": false,
+	"dashboards": []
   },
   {
     "id": 1,
@@ -41,7 +44,8 @@ const (
     "token": null,
     "favorites": ["github/octocat"],
     "active": true,
-    "admin": false
+    "admin": false,
+	"dashboards": []
   }
 ]`
 )
@@ -50,7 +54,7 @@ const (
 func getUsers(c *gin.Context) {
 	data := []byte(UsersResp)
 
-	var body []library.User
+	var body []api.User
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -72,7 +76,7 @@ func getUser(c *gin.Context) {
 
 	data := []byte(UserResp)
 
-	var body library.User
+	var body api.User
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -82,7 +86,7 @@ func getUser(c *gin.Context) {
 func addUser(c *gin.Context) {
 	data := []byte(UserResp)
 
-	var body library.User
+	var body api.User
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -106,7 +110,7 @@ func updateUser(c *gin.Context) {
 
 	data := []byte(UserResp)
 
-	var body library.User
+	var body api.User
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

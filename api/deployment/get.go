@@ -8,18 +8,18 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/deployments/{org}/{repo}/{deployment} deployments GetDeployment
 //
-// Get a deployment from the configured backend
+// Get a deployment
 //
 // ---
 // produces:
@@ -27,12 +27,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -48,19 +48,26 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Deployment"
 //   '400':
-//     description: Unable to retrieve the deployment
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the deployment
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetDeployment represents the API handler to
-// capture a deployment from the configured backend.
+// GetDeployment represents the API handler to get a deployment.
 func GetDeployment(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	deployment := util.PathParameter(c, "deployment")
@@ -68,14 +75,7 @@ func GetDeployment(c *gin.Context) {
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), deployment)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading deployment %s", entry)
+	l.Debugf("reading deployment %s", entry)
 
 	number, err := strconv.Atoi(deployment)
 	if err != nil {

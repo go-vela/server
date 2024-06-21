@@ -4,22 +4,23 @@ package repo
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	wh "github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
-	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo
 //
-// Remove and recreate the webhook for a repo
+// Repair a hook for a repository in Vela and the configured SCM
 //
 // ---
 // produces:
@@ -27,12 +28,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // security:
@@ -42,8 +43,20 @@ import (
 //     description: Successfully repaired the repo
 //     schema:
 //       type: string
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to repair the repo
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -51,21 +64,13 @@ import (
 // and then create a webhook for a repo.
 func RepairRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
-	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("repairing repo %s", r.GetFullName())
+	l.Debugf("repairing repo %s", r.GetFullName())
 
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
@@ -117,6 +122,10 @@ func RepairRepo(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"hook": hook.GetID(),
+		}).Info("new webhook created")
 	}
 
 	// get repo information from the source
@@ -167,6 +176,8 @@ func RepairRepo(c *gin.Context) {
 
 			return
 		}
+
+		l.Infof("repo %s updated - set to active", r.GetFullName())
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("repo %s repaired", r.GetFullName()))

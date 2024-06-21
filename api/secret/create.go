@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
@@ -16,10 +18,8 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/library/actions"
-	"github.com/sirupsen/logrus"
 )
 
-//
 // swagger:operation POST /api/v1/secrets/{engine}/{type}/{org}/{name} secrets CreateSecret
 //
 // Create a secret
@@ -44,17 +44,17 @@ import (
 //   type: string
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: name
-//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   description: Name of the repository if a repository secret, team name if a shared secret, or '*' if an organization secret
 //   required: true
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the secret to create
+//   description: Secret object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Secret"
@@ -66,20 +66,25 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Secret"
 //   '400':
-//     description: Unable to create the secret
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the secret
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateSecret represents the API handler to
-// create a secret in the configured backend.
+// create a secret.
 //
 //nolint:funlen // suppress long function error
 func CreateSecret(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	e := util.PathParameter(c, "engine")
 	t := util.PathParameter(c, "type")
@@ -91,24 +96,23 @@ func CreateSecret(c *gin.Context) {
 
 	// create log fields from API metadata
 	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"type":   t,
-		"user":   u.GetName(),
+		"secret_engine": e,
+		"secret_org":    o,
+		"secret_repo":   n,
+		"secret_type":   t,
 	}
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
-		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
+		// update log fields for shared secret
+		delete(fields, "secret_repo")
+		fields["secret_team"] = n
 	}
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logger := l.WithFields(fields)
 
 	if strings.EqualFold(t, constants.SecretOrg) {
 		// retrieve org name from SCM
@@ -168,10 +172,7 @@ func CreateSecret(c *gin.Context) {
 		}
 	}
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("creating new secret %s for %s service", entry, e)
+	logger.Debugf("creating new secret %s for %s service", entry, e)
 
 	// capture body from API request
 	input := new(library.Secret)
@@ -225,13 +226,16 @@ func CreateSecret(c *gin.Context) {
 		input.SetAllowEvents(e)
 	}
 
-	if len(input.GetEvents()) == 0 {
-		// set default events to enable for the secret
-		input.SetEvents([]string{constants.EventPush, constants.EventTag, constants.EventDeploy})
-	}
-
 	if input.AllowCommand == nil {
 		input.SetAllowCommand(true)
+	}
+
+	// default to not allow substitution for shared secrets
+	if strings.EqualFold(input.GetType(), constants.SecretShared) && input.AllowSubstitution == nil {
+		input.SetAllowSubstitution(false)
+		input.SetAllowCommand(false)
+	} else if input.AllowSubstitution == nil {
+		input.SetAllowSubstitution(true)
 	}
 
 	// check if secret is a shared secret
@@ -250,6 +254,24 @@ func CreateSecret(c *gin.Context) {
 
 		return
 	}
+
+	// update log fields from create response
+	fields = logrus.Fields{
+		"secret_id":   s.GetID(),
+		"secret_name": s.GetName(),
+		"secret_org":  s.GetOrg(),
+		"secret_repo": s.GetRepo(),
+		"secret_type": s.GetType(),
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(t, constants.SecretShared) {
+		// update log fields for shared secret
+		delete(fields, "secret_repo")
+		fields["secret_team"] = s.GetTeam()
+	}
+
+	l.WithFields(fields).Infof("created secret %s for %s service", entry, e)
 
 	c.JSON(http.StatusOK, s.Sanitize())
 }

@@ -10,7 +10,7 @@ import (
 
 // CountBuilds gets the count of all builds from the database.
 func (e *engine) CountBuilds(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all builds from the database")
+	e.logger.Tracef("getting count of all builds")
 
 	// variable to store query results
 	var b int64

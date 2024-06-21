@@ -5,15 +5,16 @@ package repo
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
 )
 
 // CountReposForOrg gets the count of repos by org name from the database.
 func (e *engine) CountReposForOrg(ctx context.Context, org string, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
-	}).Tracef("getting count of repos for org %s from the database", org)
+	}).Tracef("getting count of repos for org %s", org)
 
 	// variable to store query results
 	var r int64

@@ -29,18 +29,18 @@ func WithAddress(address string) ClientOpt {
 	}
 }
 
-// WithChannels sets the channels in the queue client for Redis.
-func WithChannels(channels ...string) ClientOpt {
+// WithRoutes sets the routes in the queue client for Redis.
+func WithRoutes(routes ...string) ClientOpt {
 	return func(c *client) error {
-		c.Logger.Trace("configuring channels in redis queue client")
+		c.Logger.Trace("configuring routes in redis queue client")
 
-		// check if the channels provided are empty
-		if len(channels) == 0 {
-			return fmt.Errorf("no Redis queue channels provided")
+		// check if the routes provided are empty
+		if len(routes) == 0 {
+			return fmt.Errorf("no Redis queue routes provided")
 		}
 
-		// set the queue channels in the redis client
-		c.config.Channels = channels
+		// set the queue routes in the redis client
+		c.SetRoutes(routes)
 
 		return nil
 	}

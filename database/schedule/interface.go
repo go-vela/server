@@ -5,7 +5,7 @@ package schedule
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 // ScheduleInterface represents the Vela interface for schedule
@@ -29,21 +29,21 @@ type ScheduleInterface interface {
 	// CountSchedules defines a function that gets the count of all schedules.
 	CountSchedules(context.Context) (int64, error)
 	// CountSchedulesForRepo defines a function that gets the count of schedules by repo ID.
-	CountSchedulesForRepo(context.Context, *library.Repo) (int64, error)
+	CountSchedulesForRepo(context.Context, *api.Repo) (int64, error)
 	// CreateSchedule defines a function that creates a new schedule.
-	CreateSchedule(context.Context, *library.Schedule) (*library.Schedule, error)
+	CreateSchedule(context.Context, *api.Schedule) (*api.Schedule, error)
 	// DeleteSchedule defines a function that deletes an existing schedule.
-	DeleteSchedule(context.Context, *library.Schedule) error
+	DeleteSchedule(context.Context, *api.Schedule) error
 	// GetSchedule defines a function that gets a schedule by ID.
-	GetSchedule(context.Context, int64) (*library.Schedule, error)
+	GetSchedule(context.Context, int64) (*api.Schedule, error)
 	// GetScheduleForRepo defines a function that gets a schedule by repo ID and name.
-	GetScheduleForRepo(context.Context, *library.Repo, string) (*library.Schedule, error)
+	GetScheduleForRepo(context.Context, *api.Repo, string) (*api.Schedule, error)
 	// ListActiveSchedules defines a function that gets a list of all active schedules.
-	ListActiveSchedules(context.Context) ([]*library.Schedule, error)
+	ListActiveSchedules(context.Context) ([]*api.Schedule, error)
 	// ListSchedules defines a function that gets a list of all schedules.
-	ListSchedules(context.Context) ([]*library.Schedule, error)
+	ListSchedules(context.Context) ([]*api.Schedule, error)
 	// ListSchedulesForRepo defines a function that gets a list of schedules by repo ID.
-	ListSchedulesForRepo(context.Context, *library.Repo, int, int) ([]*library.Schedule, int64, error)
+	ListSchedulesForRepo(context.Context, *api.Repo, int, int) ([]*api.Schedule, int64, error)
 	// UpdateSchedule defines a function that updates an existing schedule.
-	UpdateSchedule(context.Context, *library.Schedule, bool) (*library.Schedule, error)
+	UpdateSchedule(context.Context, *api.Schedule, bool) (*api.Schedule, error)
 }

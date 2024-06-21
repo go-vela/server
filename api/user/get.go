@@ -7,15 +7,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation GET /api/v1/users/{user} users GetUser
 //
-// Retrieve a user for the configured backend
+// Get a user
 //
 // ---
 // produces:
@@ -33,25 +33,23 @@ import (
 //     description: Successfully retrieved the user
 //     schema:
 //       "$ref": "#/definitions/User"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve the user
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetUser represents the API handler to capture a
-// user from the configured backend.
+// GetUser represents the API handler to get a user.
 func GetUser(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	user := util.PathParameter(c, "user")
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("reading user %s", user)
+	l.Debugf("reading user %s", user)
 
 	// send API call to capture the user
 	u, err := database.FromContext(c).GetUserForName(ctx, user)

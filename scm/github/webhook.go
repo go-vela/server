@@ -13,18 +13,19 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/go-github/v62/github"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v59/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
 //
 //nolint:nilerr // ignore webhook returning nil
-func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*types.Webhook, error) {
+func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*internal.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
 	// create our own record of the hook and populate its fields
@@ -55,20 +56,20 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 
 	payload, err := github.ValidatePayloadFromBody(contentType, request.Body, "", nil)
 	if err != nil {
-		return &types.Webhook{Hook: h}, nil
+		return &internal.Webhook{Hook: h}, nil
 	}
 
 	// parse the payload from the webhook
 	event, err := github.ParseWebHook(github.WebHookType(request), payload)
 
 	if err != nil {
-		return &types.Webhook{Hook: h}, nil
+		return &internal.Webhook{Hook: h}, nil
 	}
 
 	// process the event from the webhook
 	switch event := event.(type) {
 	case *github.PushEvent:
-		return c.processPushEvent(h, event)
+		return c.processPushEvent(ctx, h, event)
 	case *github.PullRequestEvent:
 		return c.processPREvent(h, event)
 	case *github.DeploymentEvent:
@@ -79,11 +80,11 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 		return c.processRepositoryEvent(h, event)
 	}
 
-	return &types.Webhook{Hook: h}, nil
+	return &internal.Webhook{Hook: h}, nil
 }
 
 // VerifyWebhook verifies the webhook from a repo.
-func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *library.Repo) error {
+func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *api.Repo) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -98,7 +99,7 @@ func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *li
 }
 
 // RedeliverWebhook redelivers webhooks from GitHub.
-func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) error {
+func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, r *api.Repo, h *library.Hook) error {
 	// create GitHub OAuth client with user's token
 	//nolint:contextcheck // do not need to pass context in this instance
 	client := c.newClientToken(*u.Token)
@@ -127,7 +128,7 @@ func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *libra
 }
 
 // processPushEvent is a helper function to process the push event.
-func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhook, error) {
+func (c *client) processPushEvent(ctx context.Context, h *library.Hook, payload *github.PushEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -136,7 +137,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	repo := payload.GetRepo()
 
 	// convert payload to library repo
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
 	r.SetFullName(repo.GetFullName())
@@ -147,7 +148,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetEvent(constants.EventPush)
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.GetHeadCommit().GetURL())
@@ -155,6 +156,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	b.SetMessage(payload.GetHeadCommit().GetMessage())
 	b.SetCommit(payload.GetHeadCommit().GetID())
 	b.SetSender(payload.GetSender().GetLogin())
+	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
 	b.SetAuthor(payload.GetHeadCommit().GetAuthor().GetLogin())
 	b.SetEmail(payload.GetHeadCommit().GetAuthor().GetEmail())
 	b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/heads/"))
@@ -224,7 +226,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 		}
 	}
 
-	return &types.Webhook{
+	return &internal.Webhook{
 		Hook:  h,
 		Repo:  r,
 		Build: b,
@@ -232,7 +234,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 }
 
 // processPREvent is a helper function to process the pull_request event.
-func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.Webhook, error) {
+func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -247,22 +249,24 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 
 	// if the pull request state isn't open we ignore it
 	if payload.GetPullRequest().GetState() != "open" {
-		return &types.Webhook{Hook: h}, nil
+		return &internal.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize, reopened, or edited
+	// skip if the pull request action is not opened, synchronize, reopened, edited, labeled, or unlabeled
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") &&
 		!strings.EqualFold(payload.GetAction(), "reopened") &&
-		!strings.EqualFold(payload.GetAction(), "edited") {
-		return &types.Webhook{Hook: h}, nil
+		!strings.EqualFold(payload.GetAction(), "edited") &&
+		!strings.EqualFold(payload.GetAction(), "labeled") &&
+		!strings.EqualFold(payload.GetAction(), "unlabeled") {
+		return &internal.Webhook{Hook: h}, nil
 	}
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
 
 	// convert payload to library repo
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
 	r.SetFullName(repo.GetFullName())
@@ -272,8 +276,8 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
 
-	// convert payload to library build
-	b := new(library.Build)
+	// convert payload to api build
+	b := new(api.Build)
 	b.SetEvent(constants.EventPull)
 	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())
@@ -282,6 +286,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	b.SetMessage(payload.GetPullRequest().GetTitle())
 	b.SetCommit(payload.GetPullRequest().GetHead().GetSHA())
 	b.SetSender(payload.GetSender().GetLogin())
+	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
 	b.SetAuthor(payload.GetPullRequest().GetUser().GetLogin())
 	b.SetEmail(payload.GetPullRequest().GetUser().GetEmail())
 	b.SetBranch(payload.GetPullRequest().GetBase().GetRef())
@@ -302,6 +307,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	// ensure the build sender is set
 	if len(b.GetSender()) == 0 {
 		b.SetSender(payload.GetPullRequest().GetUser().GetLogin())
+		b.SetSenderSCMID(fmt.Sprint(payload.GetPullRequest().GetUser().GetID()))
 	}
 
 	// ensure the build email is set
@@ -309,14 +315,26 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
 
+	var prLabels []string
+	if strings.EqualFold(payload.GetAction(), "labeled") ||
+		strings.EqualFold(payload.GetAction(), "unlabeled") {
+		prLabels = append(prLabels, payload.GetLabel().GetName())
+	} else {
+		labels := payload.GetPullRequest().Labels
+		for _, label := range labels {
+			prLabels = append(prLabels, label.GetName())
+		}
+	}
+
 	// determine if pull request head is a fork and does not match the repo name of base
 	fromFork := payload.GetPullRequest().GetHead().GetRepo().GetFork() &&
 		!strings.EqualFold(payload.GetPullRequest().GetBase().GetRepo().GetFullName(), payload.GetPullRequest().GetHead().GetRepo().GetFullName())
 
-	return &types.Webhook{
-		PullRequest: types.PullRequest{
+	return &internal.Webhook{
+		PullRequest: internal.PullRequest{
 			Number:     payload.GetNumber(),
 			IsFromFork: fromFork,
+			Labels:     prLabels,
 		},
 		Hook:  h,
 		Repo:  r,
@@ -325,7 +343,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 }
 
 // processDeploymentEvent is a helper function to process the deployment event.
-func (c *client) processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
+func (c *client) processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -335,7 +353,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	repo := payload.GetRepo()
 
 	// convert payload to library repo
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
 	r.SetFullName(repo.GetFullName())
@@ -345,9 +363,10 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
 
-	// convert payload to library build
-	b := new(library.Build)
+	// convert payload to api build
+	b := new(api.Build)
 	b.SetEvent(constants.EventDeploy)
+	b.SetEventAction(constants.ActionCreated)
 	b.SetClone(repo.GetCloneURL())
 	b.SetDeploy(payload.GetDeployment().GetEnvironment())
 	b.SetDeployNumber(payload.GetDeployment().GetID())
@@ -356,6 +375,8 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	b.SetMessage(payload.GetDeployment().GetDescription())
 	b.SetCommit(payload.GetDeployment().GetSHA())
 	b.SetSender(payload.GetSender().GetLogin())
+	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
+
 	b.SetAuthor(payload.GetDeployment().GetCreator().GetLogin())
 	b.SetEmail(payload.GetDeployment().GetCreator().GetEmail())
 	b.SetBranch(payload.GetDeployment().GetRef())
@@ -385,7 +406,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 		// unmarshal the payload into the expected map[string]string format
 		err := json.Unmarshal(payload.GetDeployment().Payload, &deployPayload)
 		if err != nil {
-			return &types.Webhook{}, err
+			return &internal.Webhook{}, err
 		}
 
 		// check if the map is empty
@@ -412,11 +433,12 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	// update the hook object
 	h.SetBranch(b.GetBranch())
 	h.SetEvent(constants.EventDeploy)
+	h.SetEventAction(constants.ActionCreated)
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
 
-	return &types.Webhook{
+	return &internal.Webhook{
 		Hook:       h,
 		Repo:       r,
 		Build:      b,
@@ -425,7 +447,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 }
 
 // processIssueCommentEvent is a helper function to process the issue comment event.
-func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
+func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -437,10 +459,10 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
 	)
 
-	// skip if the comment action is deleted
-	if strings.EqualFold(payload.GetAction(), "deleted") {
-		// return &types.Webhook{Hook: h}, nil
-		return &types.Webhook{
+	// skip if the comment action is deleted or not part of a pull request
+	if strings.EqualFold(payload.GetAction(), "deleted") || !payload.GetIssue().IsPullRequest() {
+		// return &internal.Webhook{Hook: h}, nil
+		return &internal.Webhook{
 			Hook: h,
 		}, nil
 	}
@@ -449,7 +471,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	repo := payload.GetRepo()
 
 	// convert payload to library repo
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
 	r.SetFullName(repo.GetFullName())
@@ -460,7 +482,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetEvent(constants.EventComment)
 	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())
@@ -468,24 +490,15 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventComment, repo.GetHTMLURL()))
 	b.SetMessage(payload.Issue.GetTitle())
 	b.SetSender(payload.GetSender().GetLogin())
+	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
 	b.SetAuthor(payload.GetIssue().GetUser().GetLogin())
 	b.SetEmail(payload.GetIssue().GetUser().GetEmail())
-	// treat as non-pull-request comment by default and
-	// set ref to default branch for the repo
-	b.SetRef(fmt.Sprintf("refs/heads/%s", r.GetBranch()))
+	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
 
-	pr := 0
-	// override ref and pull request number if this is
-	// a comment on a pull request
-	if payload.GetIssue().IsPullRequest() {
-		b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
-		pr = payload.GetIssue().GetNumber()
-	}
-
-	return &types.Webhook{
-		PullRequest: types.PullRequest{
+	return &internal.Webhook{
+		PullRequest: internal.PullRequest{
 			Comment: payload.GetComment().GetBody(),
-			Number:  pr,
+			Number:  payload.GetIssue().GetNumber(),
 		},
 		Hook:  h,
 		Repo:  r,
@@ -495,13 +508,13 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 
 // processRepositoryEvent is a helper function to process the repository event.
 
-func (c *client) processRepositoryEvent(h *library.Hook, payload *github.RepositoryEvent) (*types.Webhook, error) {
+func (c *client) processRepositoryEvent(h *library.Hook, payload *github.RepositoryEvent) (*internal.Webhook, error) {
 	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
 
 	// convert payload to library repo
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
 	r.SetFullName(repo.GetFullName())
@@ -519,7 +532,7 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
 
-	return &types.Webhook{
+	return &internal.Webhook{
 		Hook: h,
 		Repo: r,
 	}, nil
@@ -527,7 +540,7 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 
 // getDeliveryID gets the last 100 webhook deliveries for a repo and
 // finds the matching delivery id with the source id in the hook.
-func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, r *library.Repo, h *library.Hook) (int64, error) {
+func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, r *api.Repo, h *library.Hook) (int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

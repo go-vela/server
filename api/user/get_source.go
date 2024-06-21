@@ -7,17 +7,18 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/user/source/repos users GetSourceRepos
 //
-// Retrieve a list of repos for the current authenticated user
+// Get all repos for the current authenticated user
 //
 // ---
 // produces:
@@ -29,28 +30,27 @@ import (
 //     description: Successfully retrieved a list of repos for the current user
 //     schema:
 //       "$ref": "#/definitions/Repo"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve a list of repos for the current user
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetSourceRepos represents the API handler to capture
-// the list of repos for a user from the configured backend.
+// GetSourceRepos represents the API handler to get a list of repos for a user.
 func GetSourceRepos(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("reading available SCM repos for user %s", u.GetName())
+	l.Debugf("reading available SCM repos for user %s", u.GetName())
 
 	// variables to capture requested data
-	dbRepos := []*library.Repo{}
-	output := make(map[string][]library.Repo)
+	dbRepos := []*types.Repo{}
+	output := make(map[string][]types.Repo)
 
 	// send API call to capture the list of repos for the user
 	srcRepos, err := scm.FromContext(c).ListUserRepos(ctx, u)
@@ -72,7 +72,7 @@ func GetSourceRepos(c *gin.Context) {
 		active := false
 
 		// library struct to omit optional fields
-		repo := library.Repo{
+		repo := types.Repo{
 			Org:    org,
 			Name:   name,
 			Active: &active,

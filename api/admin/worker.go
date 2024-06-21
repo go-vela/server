@@ -6,17 +6,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/internal/token"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation POST /api/v1/admin/workers/{worker}/register-token admin RegisterToken
+// swagger:operation POST /api/v1/admin/workers/{worker}/register admin RegisterToken
 //
 // Get a worker registration token
 //
@@ -40,15 +39,17 @@ import (
 //     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // RegisterToken represents the API handler to
 // generate a registration token for onboarding a worker.
 func RegisterToken(c *gin.Context) {
-	// retrieve user from context
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 
-	logrus.Infof("Platform admin %s: generating registration token", u.GetName())
-
+	// capture middleware values
 	host := util.PathParameter(c, "worker")
 
 	tm := c.MustGet("token-manager").(*token.Manager)
@@ -58,6 +59,8 @@ func RegisterToken(c *gin.Context) {
 		TokenDuration: tm.WorkerRegisterTokenDuration,
 	}
 
+	l.Debug("platform admin: generating worker registration token")
+
 	rt, err := tm.MintToken(rmto)
 	if err != nil {
 		retErr := fmt.Errorf("unable to generate registration token: %w", err)
@@ -66,6 +69,8 @@ func RegisterToken(c *gin.Context) {
 
 		return
 	}
+
+	l.Infof("platform admin: generated worker registration token for %s", host)
 
 	c.JSON(http.StatusOK, library.Token{Token: &rt})
 }

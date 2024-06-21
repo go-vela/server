@@ -14,21 +14,21 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 secrets (
-	id            SERIAL PRIMARY KEY,
-	type          VARCHAR(100),
-	org           VARCHAR(250),
-	repo          VARCHAR(250),
-	team          VARCHAR(250),
-	name          VARCHAR(250),
-	value         BYTEA,
-	images        VARCHAR(1000),
-	events        VARCHAR(1000),
-	allow_events  INTEGER,
-	allow_command BOOLEAN,
-	created_at    INTEGER,
-	created_by    VARCHAR(250),
-	updated_at    INTEGER,
-	updated_by    VARCHAR(250),
+	id                 SERIAL PRIMARY KEY,
+	type               VARCHAR(100),
+	org                VARCHAR(250),
+	repo               VARCHAR(250),
+	team               VARCHAR(250),
+	name               VARCHAR(250),
+	value              BYTEA,
+	images             VARCHAR(1000),
+	allow_events       INTEGER,
+	allow_command      BOOLEAN,
+	allow_substitution BOOLEAN,
+	created_at         INTEGER,
+	created_by         VARCHAR(250),
+	updated_at         INTEGER,
+	updated_by         VARCHAR(250),
 	UNIQUE(type, org, repo, name),
 	UNIQUE(type, org, team, name)
 );
@@ -39,21 +39,21 @@ secrets (
 CREATE TABLE
 IF NOT EXISTS
 secrets (
-	id            INTEGER PRIMARY KEY AUTOINCREMENT,
-	type          TEXT,
-	org           TEXT,
-	repo          TEXT,
-	team          TEXT,
-	name          TEXT,
-	value         TEXT,
-	images        TEXT,
-	events        TEXT,
-	allow_events  INTEGER,
-	allow_command BOOLEAN,
-	created_at    INTEGER,
-	created_by	  TEXT,
-	updated_at    INTEGER,
-	updated_by    TEXT,
+	id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+	type               TEXT,
+	org                TEXT,
+	repo               TEXT,
+	team               TEXT,
+	name               TEXT,
+	value              TEXT,
+	images             TEXT,
+	allow_events       INTEGER,
+	allow_command      BOOLEAN,
+	allow_substitution BOOLEAN,
+	created_at         INTEGER,
+	created_by	       TEXT,
+	updated_at         INTEGER,
+	updated_by         TEXT,
 	UNIQUE(type, org, repo, name),
 	UNIQUE(type, org, team, name)
 );
@@ -62,7 +62,7 @@ secrets (
 
 // CreateSecretTable creates the secrets table in the database.
 func (e *engine) CreateSecretTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating secrets table in the database")
+	e.logger.Tracef("creating secrets table")
 
 	// handle the driver provided to create the table
 	switch driver {

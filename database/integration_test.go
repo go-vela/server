@@ -10,40 +10,52 @@ import (
 	"testing"
 	"time"
 
+	"github.com/adhocore/gronx"
+	"github.com/google/go-cmp/cmp"
+	"github.com/lestrrat-go/jwx/v2/jwk"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	dbJWK "github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
+	dbSettings "github.com/go-vela/server/database/settings"
 	"github.com/go-vela/server/database/step"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/google/go-cmp/cmp"
 )
 
 // Resources represents the object containing test resources.
 type Resources struct {
-	Builds      []*library.Build
+	Builds      []*api.Build
+	Dashboards  []*api.Dashboard
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
 	Hooks       []*library.Hook
+	JWKs        jwk.Set
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
-	Repos       []*library.Repo
-	Schedules   []*library.Schedule
+	Repos       []*api.Repo
+	Schedules   []*api.Schedule
 	Secrets     []*library.Secret
 	Services    []*library.Service
 	Steps       []*library.Step
-	Users       []*library.User
-	Workers     []*library.Worker
+	Users       []*api.User
+	Workers     []*api.Worker
+	Platform    []*settings.Platform
 }
 
 func TestDatabase_Integration(t *testing.T) {
@@ -119,11 +131,15 @@ func TestDatabase_Integration(t *testing.T) {
 
 			t.Run("test_builds", func(t *testing.T) { testBuilds(t, db, resources) })
 
+			t.Run("test_dashboards", func(t *testing.T) { testDashboards(t, db, resources) })
+
 			t.Run("test_deployments", func(t *testing.T) { testDeployments(t, db, resources) })
 
 			t.Run("test_executables", func(t *testing.T) { testExecutables(t, db, resources) })
 
 			t.Run("test_hooks", func(t *testing.T) { testHooks(t, db, resources) })
+
+			t.Run("test_jwks", func(t *testing.T) { testJWKs(t, db, resources) })
 
 			t.Run("test_logs", func(t *testing.T) { testLogs(t, db, resources) })
 
@@ -142,6 +158,8 @@ func TestDatabase_Integration(t *testing.T) {
 			t.Run("test_users", func(t *testing.T) { testUsers(t, db, resources) })
 
 			t.Run("test_workers", func(t *testing.T) { testWorkers(t, db, resources) })
+
+			t.Run("test_settings", func(t *testing.T) { testSettings(t, db, resources) })
 
 			err = db.Close()
 			if err != nil {
@@ -169,6 +187,14 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	// create the users for build related functions (owners of repos)
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
 	// create the repos for build related functions
 	for _, repo := range resources.Repos {
 		_, err := db.CreateRepo(context.TODO(), repo)
@@ -177,19 +203,19 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 
-	buildOne := new(library.BuildQueue)
+	buildOne := new(api.QueueBuild)
 	buildOne.SetCreated(1563474076)
 	buildOne.SetFullName("github/octocat")
 	buildOne.SetNumber(1)
 	buildOne.SetStatus("running")
 
-	buildTwo := new(library.BuildQueue)
+	buildTwo := new(api.QueueBuild)
 	buildTwo.SetCreated(1563474076)
 	buildTwo.SetFullName("github/octocat")
 	buildTwo.SetNumber(2)
 	buildTwo.SetStatus("running")
 
-	queueBuilds := []*library.BuildQueue{buildOne, buildTwo}
+	queueBuilds := []*api.QueueBuild{buildOne, buildTwo}
 
 	// create the builds
 	for _, build := range resources.Builds {
@@ -281,10 +307,28 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	if diff := cmp.Diff([]*library.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
 		t.Errorf("ListBuildsForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListBuildsForRepo"] = true
+
+	list, err = db.ListBuildsForDashboardRepo(context.TODO(), resources.Repos[0], []string{"main"}, []string{"push"})
+	if err != nil {
+		t.Errorf("unable to list build for dashboard repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if len(list) != 1 {
+		t.Errorf("Number of results for ListBuildsForDashboardRepo() is %v, want %v", len(list), 1)
+	}
+
+	// ListBuildsForDashboardRepo does not contain nested repo
+	wantBuild := *resources.Builds[0]
+	wantBuild.Repo = testutils.APIRepo()
+	wantBuild.Repo.Owner = testutils.APIUser().Crop()
+
+	if diff := cmp.Diff([]*api.Build{&wantBuild}, list); diff != "" {
+		t.Errorf("ListBuildsForDashboardRepo() mismatch (-want +got):\n%s", diff)
+	}
+	methods["ListBuildsForDashboardRepo"] = true
 
 	// list the pending / running builds for a repo
 	list, err = db.ListPendingAndRunningBuildsForRepo(context.TODO(), resources.Repos[0])
@@ -294,7 +338,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListPendingAndRunningBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	if diff := cmp.Diff([]*library.Build{resources.Builds[0], resources.Builds[1]}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Build{resources.Builds[0], resources.Builds[1]}, list); diff != "" {
 		t.Errorf("ListPendingAndRunningBuildsForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListPendingAndRunningBuildsForRepo"] = true
@@ -321,7 +365,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the builds by repo and number
 	for _, build := range resources.Builds {
-		repo := resources.Repos[build.GetRepoID()-1]
+		repo := resources.Repos[build.GetRepo().GetID()-1]
 		got, err = db.GetBuildForRepo(context.TODO(), repo, build.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
@@ -379,10 +423,104 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 
+	// delete the users for the build related functions
+	for _, user := range resources.Users {
+		err = db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
+		}
+	}
+
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
 		if !called {
 			t.Errorf("method %s was not called for builds", method)
+		}
+	}
+}
+
+func testDashboards(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for schedules
+	methods := make(map[string]bool)
+	// capture the element type of the schedule interface
+	element := reflect.TypeOf(new(dashboard.DashboardInterface)).Elem()
+	// iterate through all methods found in the schedule interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for schedules
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	ctx := context.TODO()
+
+	// create the dashboard
+	for _, dashboard := range resources.Dashboards {
+		_, err := db.CreateDashboard(ctx, dashboard)
+		if err != nil {
+			t.Errorf("unable to create dashboard %s: %v", dashboard.GetID(), err)
+		}
+	}
+	methods["CreateDashboard"] = true
+
+	// lookup the dashboards by ID
+	for _, dashboard := range resources.Dashboards {
+		got, err := db.GetDashboard(ctx, dashboard.GetID())
+		if err != nil {
+			t.Errorf("unable to get dashboard %s: %v", dashboard.GetID(), err)
+		}
+
+		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
+		cmpAdmins := []*api.User{}
+		for _, admin := range got.GetAdmins() {
+			cmpAdmins = append(cmpAdmins, admin.Crop())
+		}
+		got.SetAdmins(cmpAdmins)
+
+		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
+			t.Errorf("GetDashboard() is %v, want %v", got, dashboard)
+		}
+	}
+	methods["GetDashboard"] = true
+
+	// update the dashboards
+	for _, dashboard := range resources.Dashboards {
+		dashboard.SetUpdatedAt(time.Now().UTC().Unix())
+		got, err := db.UpdateDashboard(ctx, dashboard)
+		if err != nil {
+			t.Errorf("unable to update dashboard %s: %v", dashboard.GetID(), err)
+		}
+
+		// JSON marshaling does not include comparing token due to `-` struct tag
+		cmpAdmins := got.GetAdmins()
+		for i, admin := range cmpAdmins {
+			admin.SetToken(resources.Users[i].GetToken())
+		}
+
+		if diff := cmp.Diff(dashboard, got, CmpOptApproxUpdatedAt()); diff != "" {
+			t.Errorf("UpdateDashboard() mismatch (-want +got):\n%s", diff)
+		}
+	}
+	methods["UpdateDashboard"] = true
+
+	// delete the schedules
+	for _, dashboard := range resources.Dashboards {
+		err := db.DeleteDashboard(ctx, dashboard)
+		if err != nil {
+			t.Errorf("unable to delete dashboard %s: %v", dashboard.GetID(), err)
+		}
+	}
+	methods["DeleteDashboard"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for dashboards", method)
 		}
 	}
 }
@@ -722,6 +860,89 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	}
 }
 
+func testJWKs(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for jwks
+	methods := make(map[string]bool)
+	// capture the element type of the jwk interface
+	element := reflect.TypeOf(new(dbJWK.JWKInterface)).Elem()
+	// iterate through all methods found in the jwk interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for jwks
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	for i := 0; i < resources.JWKs.Len(); i++ {
+		jk, _ := resources.JWKs.Key(i)
+
+		jkPub, _ := jk.(jwk.RSAPublicKey)
+
+		err := db.CreateJWK(context.TODO(), jkPub)
+		if err != nil {
+			t.Errorf("unable to create jwk %s: %v", jkPub.KeyID(), err)
+		}
+	}
+	methods["CreateJWK"] = true
+
+	list, err := db.ListJWKs(context.TODO())
+	if err != nil {
+		t.Errorf("unable to list jwks: %v", err)
+	}
+
+	if !reflect.DeepEqual(resources.JWKs, list) {
+		t.Errorf("ListJWKs() mismatch, want %v, got %v", resources.JWKs, list)
+	}
+
+	methods["ListJWKs"] = true
+
+	for i := 0; i < resources.JWKs.Len(); i++ {
+		jk, _ := resources.JWKs.Key(i)
+
+		jkPub, _ := jk.(jwk.RSAPublicKey)
+
+		got, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		if err != nil {
+			t.Errorf("unable to get jwk %s: %v", jkPub.KeyID(), err)
+		}
+
+		if !cmp.Equal(jkPub, got, testutils.JwkKeyOpts) {
+			t.Errorf("GetJWK() is %v, want %v", got, jkPub)
+		}
+	}
+
+	methods["GetActiveJWK"] = true
+
+	err = db.RotateKeys(context.TODO())
+	if err != nil {
+		t.Errorf("unable to rotate keys: %v", err)
+	}
+
+	for i := 0; i < resources.JWKs.Len(); i++ {
+		jk, _ := resources.JWKs.Key(i)
+
+		jkPub, _ := jk.(jwk.RSAPublicKey)
+
+		_, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		if err == nil {
+			t.Errorf("GetActiveJWK() should return err after rotation")
+		}
+	}
+
+	methods["RotateKeys"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for jwks", method)
+		}
+	}
+}
+
 func testLogs(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for logs
 	methods := make(map[string]bool)
@@ -993,6 +1214,14 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	// create owners
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
 	// create the repos
 	for _, repo := range resources.Repos {
 		_, err := db.CreateRepo(context.TODO(), repo)
@@ -1109,6 +1338,14 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["DeleteRepo"] = true
 
+	// delete the owners
+	for _, user := range resources.Users {
+		err := db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
+		}
+	}
+
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
 		if !called {
@@ -1135,11 +1372,25 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
-	ctx := context.TODO()
+	// create owners
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
+	// create the repos
+	for _, repo := range resources.Repos {
+		_, err := db.CreateRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+		}
+	}
 
 	// create the schedules
 	for _, schedule := range resources.Schedules {
-		_, err := db.CreateSchedule(ctx, schedule)
+		_, err := db.CreateSchedule(context.TODO(), schedule)
 		if err != nil {
 			t.Errorf("unable to create schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1147,7 +1398,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateSchedule"] = true
 
 	// count the schedules
-	count, err := db.CountSchedules(ctx)
+	count, err := db.CountSchedules(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count schedules: %v", err)
 	}
@@ -1157,7 +1408,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedules"] = true
 
 	// count the schedules for a repo
-	count, err = db.CountSchedulesForRepo(ctx, resources.Repos[0])
+	count, err = db.CountSchedulesForRepo(context.TODO(), resources.Repos[0])
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -1167,7 +1418,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedulesForRepo"] = true
 
 	// list the schedules
-	list, err := db.ListSchedules(ctx)
+	list, err := db.ListSchedules(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -1177,7 +1428,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListSchedules"] = true
 
 	// list the active schedules
-	list, err = db.ListActiveSchedules(ctx)
+	list, err = db.ListActiveSchedules(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -1187,22 +1438,22 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListActiveSchedules"] = true
 
 	// list the schedules for a repo
-	list, count, err = db.ListSchedulesForRepo(ctx, resources.Repos[0], 1, 10)
+	list, count, err = db.ListSchedulesForRepo(context.TODO(), resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
 	if int(count) != len(resources.Schedules) {
 		t.Errorf("ListSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
 	}
-	if !cmp.Equal(list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]}, CmpOptApproxUpdatedAt()) {
-		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]})
+	if !cmp.Equal(list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]}, CmpOptApproxUpdatedAt()) {
+		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]})
 	}
 	methods["ListSchedulesForRepo"] = true
 
 	// lookup the schedules by name
 	for _, schedule := range resources.Schedules {
-		repo := resources.Repos[schedule.GetRepoID()-1]
-		got, err := db.GetScheduleForRepo(ctx, repo, schedule.GetName())
+		repo := resources.Repos[schedule.GetRepo().GetID()-1]
+		got, err := db.GetScheduleForRepo(context.TODO(), repo, schedule.GetName())
 		if err != nil {
 			t.Errorf("unable to get schedule %d for repo %d: %v", schedule.GetID(), repo.GetID(), err)
 		}
@@ -1215,7 +1466,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// update the schedules
 	for _, schedule := range resources.Schedules {
 		schedule.SetUpdatedAt(time.Now().UTC().Unix())
-		got, err := db.UpdateSchedule(ctx, schedule, true)
+		got, err := db.UpdateSchedule(context.TODO(), schedule, true)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1229,12 +1480,28 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the schedules
 	for _, schedule := range resources.Schedules {
-		err = db.DeleteSchedule(ctx, schedule)
+		err = db.DeleteSchedule(context.TODO(), schedule)
 		if err != nil {
 			t.Errorf("unable to delete schedule %d: %v", schedule.GetID(), err)
 		}
 	}
 	methods["DeleteSchedule"] = true
+
+	// delete the repos
+	for _, repo := range resources.Repos {
+		err = db.DeleteRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
+		}
+	}
+
+	// delete the owners
+	for _, user := range resources.Users {
+		err := db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
+		}
+	}
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -1793,27 +2060,27 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
-	userOne := new(library.User)
+	userOne := new(api.User)
 	userOne.SetID(1)
 	userOne.SetName("octocat")
 	userOne.SetToken("")
 	userOne.SetRefreshToken("")
-	userOne.SetHash("")
 	userOne.SetFavorites(nil)
+	userOne.SetDashboards(nil)
 	userOne.SetActive(false)
 	userOne.SetAdmin(false)
 
-	userTwo := new(library.User)
+	userTwo := new(api.User)
 	userTwo.SetID(2)
 	userTwo.SetName("octokitty")
 	userTwo.SetToken("")
 	userTwo.SetRefreshToken("")
-	userTwo.SetHash("")
 	userTwo.SetFavorites(nil)
+	userTwo.SetDashboards(nil)
 	userTwo.SetActive(false)
 	userTwo.SetAdmin(false)
 
-	liteUsers := []*library.User{userOne, userTwo}
+	liteUsers := []*api.User{userOne, userTwo}
 
 	// create the users
 	for _, user := range resources.Users {
@@ -1992,10 +2259,126 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	}
 }
 
+func testSettings(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for settings
+	methods := make(map[string]bool)
+	// capture the element type of the settings interface
+	element := reflect.TypeOf(new(dbSettings.SettingsInterface)).Elem()
+	// iterate through all methods found in the settings interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for settings
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	// create the settings
+	for _, s := range resources.Platform {
+		_, err := db.CreateSettings(context.TODO(), s)
+		if err != nil {
+			t.Errorf("unable to create settings %d: %v", s.GetID(), err)
+		}
+	}
+	methods["CreateSettings"] = true
+
+	// update the settings
+	for _, s := range resources.Platform {
+		s.SetCloneImage("target/vela-git:abc123")
+		got, err := db.UpdateSettings(context.TODO(), s)
+		if err != nil {
+			t.Errorf("unable to update settings %d: %v", s.GetID(), err)
+		}
+
+		if !cmp.Equal(got, s) {
+			t.Errorf("UpdateSettings() is %v, want %v", got, s)
+		}
+	}
+	methods["UpdateSettings"] = true
+	methods["GetSettings"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for settings", method)
+		}
+	}
+}
+
 func newResources() *Resources {
-	buildOne := new(library.Build)
+	userOne := new(api.User)
+	userOne.SetID(1)
+	userOne.SetName("octocat")
+	userOne.SetToken("superSecretToken")
+	userOne.SetRefreshToken("superSecretRefreshToken")
+	userOne.SetFavorites([]string{"github/octocat"})
+	userOne.SetActive(true)
+	userOne.SetAdmin(false)
+	userOne.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
+
+	userTwo := new(api.User)
+	userTwo.SetID(2)
+	userTwo.SetName("octokitty")
+	userTwo.SetToken("superSecretToken")
+	userTwo.SetRefreshToken("superSecretRefreshToken")
+	userTwo.SetFavorites([]string{"github/octocat"})
+	userTwo.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
+	userTwo.SetActive(true)
+	userTwo.SetAdmin(false)
+
+	repoOne := new(api.Repo)
+	repoOne.SetID(1)
+	repoOne.SetOwner(userOne.Crop())
+	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	repoOne.SetOrg("github")
+	repoOne.SetName("octocat")
+	repoOne.SetFullName("github/octocat")
+	repoOne.SetLink("https://github.com/github/octocat")
+	repoOne.SetClone("https://github.com/github/octocat.git")
+	repoOne.SetBranch("main")
+	repoOne.SetTopics([]string{"cloud", "security"})
+	repoOne.SetBuildLimit(10)
+	repoOne.SetTimeout(30)
+	repoOne.SetCounter(0)
+	repoOne.SetVisibility("public")
+	repoOne.SetPrivate(false)
+	repoOne.SetTrusted(false)
+	repoOne.SetActive(true)
+	repoOne.SetPipelineType("")
+	repoOne.SetPreviousName("")
+	repoOne.SetApproveBuild(constants.ApproveNever)
+	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
+
+	repoTwo := new(api.Repo)
+	repoTwo.SetID(2)
+	repoTwo.SetOwner(userOne.Crop())
+	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	repoTwo.SetOrg("github")
+	repoTwo.SetName("octokitty")
+	repoTwo.SetFullName("github/octokitty")
+	repoTwo.SetLink("https://github.com/github/octokitty")
+	repoTwo.SetClone("https://github.com/github/octokitty.git")
+	repoTwo.SetBranch("main")
+	repoTwo.SetTopics([]string{"cloud", "security"})
+	repoTwo.SetBuildLimit(10)
+	repoTwo.SetTimeout(30)
+	repoTwo.SetCounter(0)
+	repoTwo.SetVisibility("public")
+	repoTwo.SetPrivate(false)
+	repoTwo.SetTrusted(false)
+	repoTwo.SetActive(true)
+	repoTwo.SetPipelineType("")
+	repoTwo.SetPreviousName("")
+	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
+	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+
+	buildOne := new(api.Build)
 	buildOne.SetID(1)
-	buildOne.SetRepoID(1)
+	buildOne.SetRepo(repoOne)
 	buildOne.SetPipelineID(1)
 	buildOne.SetNumber(1)
 	buildOne.SetParent(1)
@@ -2016,6 +2399,7 @@ func newResources() *Resources {
 	buildOne.SetMessage("First commit...")
 	buildOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	buildOne.SetSender("OctoKitty")
+	buildOne.SetSenderSCMID("123")
 	buildOne.SetAuthor("OctoKitty")
 	buildOne.SetEmail("OctoKitty@github.com")
 	buildOne.SetLink("https://example.company.com/github/octocat/1")
@@ -2029,9 +2413,9 @@ func newResources() *Resources {
 	buildOne.SetApprovedAt(1563474078)
 	buildOne.SetApprovedBy("OctoCat")
 
-	buildTwo := new(library.Build)
+	buildTwo := new(api.Build)
 	buildTwo.SetID(2)
-	buildTwo.SetRepoID(1)
+	buildTwo.SetRepo(repoOne)
 	buildTwo.SetPipelineID(1)
 	buildTwo.SetNumber(2)
 	buildTwo.SetParent(1)
@@ -2052,6 +2436,7 @@ func newResources() *Resources {
 	buildTwo.SetMessage("Second commit...")
 	buildTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
 	buildTwo.SetSender("OctoKitty")
+	buildTwo.SetSenderSCMID("123")
 	buildTwo.SetAuthor("OctoKitty")
 	buildTwo.SetEmail("OctoKitty@github.com")
 	buildTwo.SetLink("https://example.company.com/github/octocat/2")
@@ -2064,6 +2449,39 @@ func newResources() *Resources {
 	buildTwo.SetDistribution("linux")
 	buildTwo.SetApprovedAt(1563474078)
 	buildTwo.SetApprovedBy("OctoCat")
+
+	dashRepo := new(api.DashboardRepo)
+	dashRepo.SetID(1)
+	dashRepo.SetName("go-vela/server")
+	dashRepo.SetBranches([]string{"main"})
+	dashRepo.SetEvents([]string{"push"})
+
+	// crop and set "-" JSON tag fields to nil for dashboard admins
+	dashboardAdmins := []*api.User{userOne.Crop(), userTwo.Crop()}
+	for _, admin := range dashboardAdmins {
+		admin.Token = nil
+		admin.RefreshToken = nil
+	}
+
+	dashboardOne := new(api.Dashboard)
+	dashboardOne.SetID("ba657dab-bc6e-421f-9188-86272bd0069a")
+	dashboardOne.SetName("vela")
+	dashboardOne.SetCreatedAt(1)
+	dashboardOne.SetCreatedBy("octocat")
+	dashboardOne.SetUpdatedAt(2)
+	dashboardOne.SetUpdatedBy("octokitty")
+	dashboardOne.SetAdmins(dashboardAdmins)
+	dashboardOne.SetRepos([]*api.DashboardRepo{dashRepo})
+
+	dashboardTwo := new(api.Dashboard)
+	dashboardTwo.SetID("45bcf19b-c151-4e2d-b8c6-80a62ba2eae7")
+	dashboardTwo.SetName("vela")
+	dashboardTwo.SetCreatedAt(1)
+	dashboardTwo.SetCreatedBy("octocat")
+	dashboardTwo.SetUpdatedAt(2)
+	dashboardTwo.SetUpdatedBy("octokitty")
+	dashboardTwo.SetAdmins(dashboardAdmins)
+	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	executableOne := new(library.BuildExecutable)
 	executableOne.SetID(1)
@@ -2154,6 +2572,15 @@ func newResources() *Resources {
 	hookThree.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookThree.SetWebhookID(78910)
 
+	jwkOne := testutils.JWK()
+	jwkTwo := testutils.JWK()
+
+	jwkSet := jwk.NewSet()
+
+	_ = jwkSet.AddKey(jwkOne)
+
+	_ = jwkSet.AddKey(jwkTwo)
+
 	logServiceOne := new(library.Log)
 	logServiceOne.SetID(1)
 	logServiceOne.SetBuildID(1)
@@ -2220,65 +2647,12 @@ func newResources() *Resources {
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
 
-	repoOne := new(library.Repo)
-	repoOne.SetID(1)
-	repoOne.SetUserID(1)
-	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	repoOne.SetOrg("github")
-	repoOne.SetName("octocat")
-	repoOne.SetFullName("github/octocat")
-	repoOne.SetLink("https://github.com/github/octocat")
-	repoOne.SetClone("https://github.com/github/octocat.git")
-	repoOne.SetBranch("main")
-	repoOne.SetTopics([]string{"cloud", "security"})
-	repoOne.SetBuildLimit(10)
-	repoOne.SetTimeout(30)
-	repoOne.SetCounter(0)
-	repoOne.SetVisibility("public")
-	repoOne.SetPrivate(false)
-	repoOne.SetTrusted(false)
-	repoOne.SetActive(true)
-	repoOne.SetAllowPull(false)
-	repoOne.SetAllowPush(true)
-	repoOne.SetAllowDeploy(false)
-	repoOne.SetAllowTag(false)
-	repoOne.SetAllowComment(false)
-	repoOne.SetPipelineType("")
-	repoOne.SetPreviousName("")
-	repoOne.SetApproveBuild(constants.ApproveNever)
-	repoOne.SetAllowEvents(library.NewEventsFromMask(1))
+	currTime := time.Now().UTC()
+	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)
 
-	repoTwo := new(library.Repo)
-	repoTwo.SetID(2)
-	repoTwo.SetUserID(1)
-	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	repoTwo.SetOrg("github")
-	repoTwo.SetName("octokitty")
-	repoTwo.SetFullName("github/octokitty")
-	repoTwo.SetLink("https://github.com/github/octokitty")
-	repoTwo.SetClone("https://github.com/github/octokitty.git")
-	repoTwo.SetBranch("main")
-	repoTwo.SetTopics([]string{"cloud", "security"})
-	repoTwo.SetBuildLimit(10)
-	repoTwo.SetTimeout(30)
-	repoTwo.SetCounter(0)
-	repoTwo.SetVisibility("public")
-	repoTwo.SetPrivate(false)
-	repoTwo.SetTrusted(false)
-	repoTwo.SetActive(true)
-	repoTwo.SetAllowPull(false)
-	repoTwo.SetAllowPush(true)
-	repoTwo.SetAllowDeploy(false)
-	repoTwo.SetAllowTag(false)
-	repoTwo.SetAllowComment(false)
-	repoTwo.SetPipelineType("")
-	repoTwo.SetPreviousName("")
-	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
-	repoTwo.SetAllowEvents(library.NewEventsFromMask(1))
-
-	scheduleOne := new(library.Schedule)
+	scheduleOne := new(api.Schedule)
 	scheduleOne.SetID(1)
-	scheduleOne.SetRepoID(1)
+	scheduleOne.SetRepo(repoOne)
 	scheduleOne.SetActive(true)
 	scheduleOne.SetName("nightly")
 	scheduleOne.SetEntry("0 0 * * *")
@@ -2288,10 +2662,15 @@ func newResources() *Resources {
 	scheduleOne.SetUpdatedBy("octokitty")
 	scheduleOne.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	scheduleOne.SetBranch("main")
+	scheduleOne.SetError("no version: YAML property provided")
+	scheduleOne.SetNextRun(nextTime.Unix())
 
-	scheduleTwo := new(library.Schedule)
+	currTime = time.Now().UTC()
+	nextTime, _ = gronx.NextTickAfter("0 * * * *", currTime, false)
+
+	scheduleTwo := new(api.Schedule)
 	scheduleTwo.SetID(2)
-	scheduleTwo.SetRepoID(1)
+	scheduleTwo.SetRepo(repoOne)
 	scheduleTwo.SetActive(true)
 	scheduleTwo.SetName("hourly")
 	scheduleTwo.SetEntry("0 * * * *")
@@ -2301,6 +2680,8 @@ func newResources() *Resources {
 	scheduleTwo.SetUpdatedBy("octokitty")
 	scheduleTwo.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	scheduleTwo.SetBranch("main")
+	scheduleTwo.SetError("no version: YAML property provided")
+	scheduleTwo.SetNextRun(nextTime.Unix())
 
 	secretOrg := new(library.Secret)
 	secretOrg.SetID(1)
@@ -2311,9 +2692,9 @@ func newResources() *Resources {
 	secretOrg.SetValue("bar")
 	secretOrg.SetType("org")
 	secretOrg.SetImages([]string{"alpine"})
-	secretOrg.SetEvents([]string{"push", "tag", "deployment"})
 	secretOrg.SetAllowEvents(library.NewEventsFromMask(1))
 	secretOrg.SetAllowCommand(true)
+	secretOrg.SetAllowSubstitution(true)
 	secretOrg.SetCreatedAt(time.Now().UTC().Unix())
 	secretOrg.SetCreatedBy("octocat")
 	secretOrg.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
@@ -2328,9 +2709,9 @@ func newResources() *Resources {
 	secretRepo.SetValue("bar")
 	secretRepo.SetType("repo")
 	secretRepo.SetImages([]string{"alpine"})
-	secretRepo.SetEvents([]string{"push", "tag", "deployment"})
 	secretRepo.SetAllowEvents(library.NewEventsFromMask(1))
 	secretRepo.SetAllowCommand(true)
+	secretRepo.SetAllowSubstitution(true)
 	secretRepo.SetCreatedAt(time.Now().UTC().Unix())
 	secretRepo.SetCreatedBy("octocat")
 	secretRepo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
@@ -2345,8 +2726,8 @@ func newResources() *Resources {
 	secretShared.SetValue("bar")
 	secretShared.SetType("shared")
 	secretShared.SetImages([]string{"alpine"})
-	secretShared.SetEvents([]string{"push", "tag", "deployment"})
 	secretShared.SetAllowCommand(true)
+	secretShared.SetAllowSubstitution(true)
 	secretShared.SetAllowEvents(library.NewEventsFromMask(1))
 	secretShared.SetCreatedAt(time.Now().UTC().Unix())
 	secretShared.SetCreatedBy("octocat")
@@ -2404,6 +2785,7 @@ func newResources() *Resources {
 	stepOne.SetHost("example.company.com")
 	stepOne.SetRuntime("docker")
 	stepOne.SetDistribution("linux")
+	stepOne.SetReportAs("")
 
 	stepTwo := new(library.Step)
 	stepTwo.SetID(2)
@@ -2422,28 +2804,15 @@ func newResources() *Resources {
 	stepTwo.SetHost("example.company.com")
 	stepTwo.SetRuntime("docker")
 	stepTwo.SetDistribution("linux")
+	stepTwo.SetReportAs("test")
 
-	userOne := new(library.User)
-	userOne.SetID(1)
-	userOne.SetName("octocat")
-	userOne.SetToken("superSecretToken")
-	userOne.SetRefreshToken("superSecretRefreshToken")
-	userOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	userOne.SetFavorites([]string{"github/octocat"})
-	userOne.SetActive(true)
-	userOne.SetAdmin(false)
+	_bPartialOne := new(api.Build)
+	_bPartialOne.SetID(1)
 
-	userTwo := new(library.User)
-	userTwo.SetID(2)
-	userTwo.SetName("octokitty")
-	userTwo.SetToken("superSecretToken")
-	userTwo.SetRefreshToken("superSecretRefreshToken")
-	userTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	userTwo.SetFavorites([]string{"github/octocat"})
-	userTwo.SetActive(true)
-	userTwo.SetAdmin(false)
+	_bPartialTwo := new(api.Build)
+	_bPartialTwo.SetID(2)
 
-	workerOne := new(library.Worker)
+	workerOne := new(api.Worker)
 	workerOne.SetID(1)
 	workerOne.SetHostname("worker-1.example.com")
 	workerOne.SetAddress("https://worker-1.example.com")
@@ -2451,13 +2820,13 @@ func newResources() *Resources {
 	workerOne.SetActive(true)
 	workerOne.SetStatus("available")
 	workerOne.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerOne.SetRunningBuildIDs([]string{"12345"})
+	workerOne.SetRunningBuilds([]*api.Build{_bPartialOne})
 	workerOne.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerOne.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerOne.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerOne.SetBuildLimit(1)
 
-	workerTwo := new(library.Worker)
+	workerTwo := new(api.Worker)
 	workerTwo.SetID(2)
 	workerTwo.SetHostname("worker-2.example.com")
 	workerTwo.SetAddress("https://worker-2.example.com")
@@ -2465,26 +2834,28 @@ func newResources() *Resources {
 	workerTwo.SetActive(true)
 	workerTwo.SetStatus("available")
 	workerTwo.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerTwo.SetRunningBuildIDs([]string{"12345"})
+	workerTwo.SetRunningBuilds([]*api.Build{_bPartialTwo})
 	workerTwo.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerTwo.SetBuildLimit(1)
 
 	return &Resources{
-		Builds:      []*library.Build{buildOne, buildTwo},
+		Builds:      []*api.Build{buildOne, buildTwo},
+		Dashboards:  []*api.Dashboard{dashboardOne, dashboardTwo},
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
+		JWKs:        jwkSet,
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
-		Repos:       []*library.Repo{repoOne, repoTwo},
-		Schedules:   []*library.Schedule{scheduleOne, scheduleTwo},
+		Repos:       []*api.Repo{repoOne, repoTwo},
+		Schedules:   []*api.Schedule{scheduleOne, scheduleTwo},
 		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},
 		Services:    []*library.Service{serviceOne, serviceTwo},
 		Steps:       []*library.Step{stepOne, stepTwo},
-		Users:       []*library.User{userOne, userTwo},
-		Workers:     []*library.Worker{workerOne, workerTwo},
+		Users:       []*api.User{userOne, userTwo},
+		Workers:     []*api.Worker{workerOne, workerTwo},
 	}
 }
 

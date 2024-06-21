@@ -7,13 +7,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 )
 
 // swagger:operation GET /validate-oauth authenticate ValidateOAuthToken
 //
-// Validate that a user oauth token was created by Vela
+// Validate that a user OAuth token was created by Vela
 //
 // ---
 // produces:
@@ -29,17 +31,20 @@ import (
 //   '200':
 //     description: Successfully validated
 //     schema:
-//       "$ref": "#/definitions/Token"
+//       type: string
 //   '401':
-//     description: Unable to validate
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // ValidateOAuthToken represents the API handler to
-// validate that a user oauth token was created by Vela.
+// validate that a user OAuth token was created by Vela.
 func ValidateOAuthToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
+
+	l.Info("validating oauth token")
 
 	token := c.Request.Header.Get("Token")
 	if len(token) == 0 {

@@ -7,11 +7,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestLog_Engine_DeleteLog(t *testing.T) {
 	// setup types
-	_log := testLog()
+	_log := testutils.APILog()
 	_log.SetID(1)
 	_log.SetRepoID(1)
 	_log.SetBuildID(1)

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
@@ -28,7 +29,6 @@ const (
   "images": [
     "alpine"
   ],
-  "events": [],
   "allow_events": {
 	  "push": {
 		  "branch": true,
@@ -49,6 +49,7 @@ const (
 	  }
   },
   "allow_command": true,
+  "allow_substitution": true,
   "created_at": 1,
   "created_by": "Octocat",
   "updated_at": 2,
@@ -67,9 +68,6 @@ const (
     "type": "repo",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   },
   {
@@ -82,9 +80,6 @@ const (
     "type": "org",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   },
   {
@@ -97,9 +92,6 @@ const (
     "type": "shared",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   }
 ]`

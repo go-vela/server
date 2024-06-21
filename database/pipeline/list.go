@@ -12,7 +12,7 @@ import (
 
 // ListPipelines gets a list of all pipelines from the database.
 func (e *engine) ListPipelines(ctx context.Context) ([]*library.Pipeline, error) {
-	e.logger.Trace("listing all pipelines from the database")
+	e.logger.Trace("listing all pipelines")
 
 	// variables to store query results and return value
 	count := int64(0)

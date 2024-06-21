@@ -8,7 +8,6 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -33,6 +32,10 @@ func TestDatabase_New(t *testing.T) {
 				ConnectionOpen:   20,
 				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 				SkipCreation:     false,
+				LogLevel:         "info",
+				LogSkipNotFound:  true,
+				LogSlowThreshold: 100 * time.Millisecond,
+				LogShowSQL:       false,
 			},
 		},
 		{
@@ -47,6 +50,10 @@ func TestDatabase_New(t *testing.T) {
 				ConnectionOpen:   20,
 				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 				SkipCreation:     false,
+				LogLevel:         "info",
+				LogSkipNotFound:  true,
+				LogSlowThreshold: 100 * time.Millisecond,
+				LogShowSQL:       false,
 			},
 		},
 		{
@@ -61,6 +68,10 @@ func TestDatabase_New(t *testing.T) {
 				ConnectionOpen:   20,
 				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 				SkipCreation:     false,
+				LogLevel:         "info",
+				LogSkipNotFound:  true,
+				LogSlowThreshold: 100 * time.Millisecond,
+				LogShowSQL:       false,
 			},
 		},
 		{
@@ -75,6 +86,10 @@ func TestDatabase_New(t *testing.T) {
 				ConnectionOpen:   20,
 				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 				SkipCreation:     false,
+				LogLevel:         "info",
+				LogSkipNotFound:  true,
+				LogSlowThreshold: 100 * time.Millisecond,
+				LogShowSQL:       false,
 			},
 		},
 	}
@@ -89,6 +104,10 @@ func TestDatabase_New(t *testing.T) {
 				WithConnectionIdle(test.config.ConnectionIdle),
 				WithConnectionOpen(test.config.ConnectionOpen),
 				WithDriver(test.config.Driver),
+				WithLogLevel(test.config.LogLevel),
+				WithLogShowSQL(test.config.LogShowSQL),
+				WithLogSkipNotFound(test.config.LogSkipNotFound),
+				WithLogSlowThreshold(test.config.LogSlowThreshold),
 				WithEncryptionKey(test.config.EncryptionKey),
 				WithSkipCreation(test.config.SkipCreation),
 			)
@@ -120,6 +139,10 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 			Driver:           "postgres",
 			EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 			SkipCreation:     false,
+			LogLevel:         "info",
+			LogSkipNotFound:  true,
+			LogSlowThreshold: 100 * time.Millisecond,
+			LogShowSQL:       false,
 		},
 		logger: logrus.NewEntry(logrus.StandardLogger()),
 	}
@@ -162,6 +185,10 @@ func testSqlite(t *testing.T) *engine {
 			Driver:           "sqlite3",
 			EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 			SkipCreation:     false,
+			LogLevel:         "info",
+			LogSkipNotFound:  true,
+			LogSlowThreshold: 100 * time.Millisecond,
+			LogShowSQL:       false,
 		},
 		logger: logrus.NewEntry(logrus.StandardLogger()),
 	}

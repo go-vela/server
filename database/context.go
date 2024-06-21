@@ -49,6 +49,10 @@ func FromCLIContext(c *cli.Context) (Interface, error) {
 		WithConnectionOpen(c.Int("database.connection.open")),
 		WithDriver(c.String("database.driver")),
 		WithEncryptionKey(c.String("database.encryption.key")),
+		WithLogLevel(c.String("database.log.level")),
+		WithLogSkipNotFound(c.Bool("database.log.skip_notfound")),
+		WithLogSlowThreshold(c.Duration("database.log.slow_threshold")),
+		WithLogShowSQL(c.Bool("database.log.show_sql")),
 		WithSkipCreation(c.Bool("database.skip_creation")),
 	)
 }

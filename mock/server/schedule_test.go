@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestSchedule_ActiveScheduleResp(t *testing.T) {
-	testSchedule := library.Schedule{}
+	testSchedule := api.Schedule{}
 
 	err := json.Unmarshal([]byte(ScheduleResp), &testSchedule)
 	if err != nil {

@@ -5,20 +5,21 @@ package user
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // GetUserForName gets a user by name from the database.
-func (e *engine) GetUserForName(ctx context.Context, name string) (*library.User, error) {
+func (e *engine) GetUserForName(ctx context.Context, name string) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": name,
-	}).Tracef("getting user %s from the database", name)
+	}).Tracef("getting user %s", name)
 
 	// variable to store query results
-	u := new(database.User)
+	u := new(types.User)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -31,8 +32,6 @@ func (e *engine) GetUserForName(ctx context.Context, name string) (*library.User
 	}
 
 	// decrypt the fields for the user
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
 	err = u.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		// TODO: remove backwards compatibility before 1.x.x release
@@ -44,7 +43,5 @@ func (e *engine) GetUserForName(ctx context.Context, name string) (*library.User
 	}
 
 	// return the decrypted user
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.ToLibrary
-	return u.ToLibrary(), nil
+	return u.ToAPI(), nil
 }

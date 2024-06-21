@@ -6,16 +6,22 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/claims"
+	"github.com/go-vela/server/router/middleware/dashboard"
+	"github.com/go-vela/server/router/middleware/hook"
 	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/schedule"
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // This file, in part, reproduces portions of
@@ -45,11 +51,20 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 		// some evil middlewares modify this values
 		path := util.EscapeValue(c.Request.URL.Path)
 
+		fields := logrus.Fields{
+			"ip":   util.EscapeValue(c.ClientIP()),
+			"path": path,
+		}
+
+		entry := logger.WithFields(fields)
+
+		// set the logger in the context so
+		// downstream handlers can use it
+		c.Set("logger", entry)
+
 		c.Next()
 
-		end := time.Now()
-
-		latency := end.Sub(start)
+		latency := time.Since(start)
 
 		// prevent us from logging the health endpoint
 		if c.Request.URL.Path != "/health" {
@@ -72,6 +87,7 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 			build := build.Retrieve(c)
 			if build != nil {
 				fields["build"] = build.Number
+				fields["build_id"] = build.ID
 			}
 
 			org := org.Retrieve(c)
@@ -79,29 +95,73 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 				fields["org"] = org
 			}
 
+			pipeline := pipeline.Retrieve(c)
+			if pipeline != nil {
+				fields["pipeline_id"] = pipeline.ID
+			}
+
 			repo := repo.Retrieve(c)
 			if repo != nil {
 				fields["repo"] = repo.Name
+				fields["repo_id"] = repo.ID
 			}
 
 			service := service.Retrieve(c)
 			if service != nil {
 				fields["service"] = service.Number
+				fields["service_id"] = service.ID
+			}
+
+			hook := hook.Retrieve(c)
+			if hook != nil {
+				fields["hook"] = hook.Number
+				fields["hook_id"] = hook.ID
 			}
 
 			step := step.Retrieve(c)
 			if step != nil {
 				fields["step"] = step.Number
+				fields["step_id"] = step.ID
+			}
+
+			schedule := schedule.Retrieve(c)
+			if schedule != nil {
+				fields["schedule"] = schedule.Name
+				fields["schedule_id"] = schedule.ID
+			}
+
+			dashboard := dashboard.Retrieve(c)
+			if dashboard != nil {
+				fields["dashboard"] = dashboard.Name
+				fields["dashboard_id"] = dashboard.ID
 			}
 
 			user := user.Retrieve(c)
-			if user != nil {
+			// we check to make sure user name is populated
+			// because when it's not a user token, we still
+			// inject an empty user object into the context
+			// which results in log entries with 'user: null'
+			if user != nil && user.GetName() != "" {
 				fields["user"] = user.Name
+				fields["user_id"] = user.ID
 			}
 
 			worker := worker.Retrieve(c)
 			if worker != nil {
 				fields["worker"] = worker.Hostname
+				fields["worker_id"] = worker.ID
+			}
+
+			// if there's no user or worker in the context
+			// of this request, we log claims subject
+			_, hasUser := fields["user"]
+			_, hasWorker := fields["worker"]
+
+			if !hasUser && !hasWorker {
+				claims := claims.Retrieve(c)
+				if claims != nil {
+					fields["claims_subject"] = claims.Subject
+				}
 			}
 
 			entry := logger.WithFields(fields)
@@ -144,6 +204,7 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 
 		for k, v := range e.Data {
 			switch k {
+			// map fields attached to requests
 			case "ip":
 				data["client.ip"] = v
 			case "latency":
@@ -158,6 +219,11 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 				data["user_agent.name"] = v
 			case "version":
 				data["user_agent.version"] = v
+
+			// map other fields
+			case "user":
+				data["user.name"] = v
+
 			default:
 				extraData[k] = v
 			}
@@ -181,7 +247,7 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	}
 
 	jf := logrus.JSONFormatter{
-		TimestampFormat: "2006-01-02T15:04:05.000Z0700",
+		TimestampFormat: time.RFC3339, // same as default in logrus
 		FieldMap:        ecsFieldMap,
 	}
 

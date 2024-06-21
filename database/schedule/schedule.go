@@ -6,15 +6,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
+
+	"github.com/go-vela/types/constants"
 )
 
 type (
 	// config represents the settings required to create the engine that implements the ScheduleInterface interface.
 	config struct {
+		// specifies the encryption key to use for the Schedule engine
+		EncryptionKey string
 		// specifies to skip creating tables and indexes for the Schedule engine
 		SkipCreation bool
 	}

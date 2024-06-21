@@ -36,6 +36,7 @@ builds (
 	message        VARCHAR(2000),
 	commit         VARCHAR(500),
 	sender         VARCHAR(250),
+	sender_scm_id  VARCHAR(250),
 	author         VARCHAR(250),
 	email          VARCHAR(500),
 	link           VARCHAR(1000),
@@ -80,6 +81,7 @@ builds (
 	message        TEXT,
 	'commit'       TEXT,
 	sender         TEXT,
+	sender_scm_id  TEXT,
 	author         TEXT,
 	email          TEXT,
 	link           TEXT,
@@ -100,7 +102,7 @@ builds (
 
 // CreateBuildTable creates the builds table in the database.
 func (e *engine) CreateBuildTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating builds table in the database")
+	e.logger.Tracef("creating builds table")
 
 	// handle the driver provided to create the table
 	switch driver {

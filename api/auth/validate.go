@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/util"
 )
@@ -34,7 +36,10 @@ import (
 // ValidateServerToken will validate if a token was issued by the server
 // if it is provided in the auth header.
 func ValidateServerToken(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
 	cl := claims.Retrieve(c)
+
+	l.Info("validating server token")
 
 	if !strings.EqualFold(cl.Subject, "vela-server") {
 		retErr := fmt.Errorf("token is not a valid server token")

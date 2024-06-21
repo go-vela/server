@@ -8,8 +8,9 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/google/go-cmp/cmp"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestWorker_Engine_ListWorkers(t *testing.T) {
@@ -21,6 +22,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 	_workerOne.SetHostname("worker_0")
 	_workerOne.SetAddress("localhost")
 	_workerOne.SetActive(true)
+	_workerOne.SetRunningBuilds(nil)
 	_workerOne.SetLastCheckedIn(newer)
 
 	_workerTwo := testWorker()
@@ -29,6 +31,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 	_workerTwo.SetAddress("localhost")
 	_workerTwo.SetActive(true)
 	_workerTwo.SetLastCheckedIn(older)
+	_workerTwo.SetRunningBuilds(nil)
 
 	_workerThree := testWorker()
 	_workerThree.SetID(3)
@@ -36,6 +39,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 	_workerThree.SetAddress("localhost")
 	_workerThree.SetActive(false)
 	_workerThree.SetLastCheckedIn(newer)
+	_workerThree.SetRunningBuilds(nil)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -75,7 +79,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 		active   string
 		name     string
 		database *engine
-		want     []*library.Worker
+		want     []*api.Worker
 	}{
 		{
 			failure:  false,
@@ -83,7 +87,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 			active:   "all",
 			name:     "sqlite3 before filter",
 			database: _sqlite,
-			want:     []*library.Worker{_workerTwo},
+			want:     []*api.Worker{_workerTwo},
 		},
 		{
 			failure:  false,
@@ -91,7 +95,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 			active:   "all",
 			name:     "postgres catch all",
 			database: _postgres,
-			want:     []*library.Worker{_workerOne, _workerTwo, _workerThree},
+			want:     []*api.Worker{_workerOne, _workerTwo, _workerThree},
 		},
 		{
 			failure:  false,
@@ -99,7 +103,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 			active:   "all",
 			name:     "sqlite3 catch all",
 			database: _sqlite,
-			want:     []*library.Worker{_workerOne, _workerTwo, _workerThree},
+			want:     []*api.Worker{_workerOne, _workerTwo, _workerThree},
 		},
 		{
 			failure:  false,
@@ -107,7 +111,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 			active:   "true",
 			name:     "sqlite3 active filter",
 			database: _sqlite,
-			want:     []*library.Worker{_workerOne, _workerTwo},
+			want:     []*api.Worker{_workerOne, _workerTwo},
 		},
 	}
 

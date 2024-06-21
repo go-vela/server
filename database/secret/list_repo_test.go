@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/constants"
-
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 
@@ -17,7 +17,7 @@ func TestSecret_Engine_ListSecretsForRepo(t *testing.T) {
 	// setup types
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
@@ -63,9 +63,9 @@ func TestSecret_Engine_ListSecretsForRepo(t *testing.T) {
 
 	// create expected name query result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, nil, 1, false, 1, "user", 1, "user2").
-		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, nil, 1, false, 1, "user", 1, "user2")
+		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
+		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2").
+		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND repo = $3 ORDER BY id DESC LIMIT $4`).

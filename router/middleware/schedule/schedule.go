@@ -7,24 +7,24 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // Retrieve gets the schedule in the given context.
-func Retrieve(c *gin.Context) *library.Schedule {
+func Retrieve(c *gin.Context) *api.Schedule {
 	return FromContext(c)
 }
 
 // Establish sets the schedule in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		l := c.MustGet("logger").(*logrus.Entry)
 		r := repo.Retrieve(c)
-		u := user.Retrieve(c)
 		ctx := c.Request.Context()
 
 		sParam := util.PathParameter(c, "schedule")
@@ -35,14 +35,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		// update engine logger with API metadata
-		//
-		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-		logrus.WithFields(logrus.Fields{
-			"org":  r.GetOrg(),
-			"repo": r.GetName(),
-			"user": u.GetName(),
-		}).Debugf("reading schedule %s for repo %s", sParam, r.GetFullName())
+		l.Debugf("reading schedule %s", sParam)
 
 		s, err := database.FromContext(c).GetScheduleForRepo(ctx, r, sParam)
 		if err != nil {
@@ -51,6 +44,14 @@ func Establish() gin.HandlerFunc {
 
 			return
 		}
+
+		l = l.WithFields(logrus.Fields{
+			"schedule":    s.GetName(),
+			"schedule_id": s.GetID(),
+		})
+
+		// update the logger with the new fields
+		c.Set("logger", l)
 
 		ToContext(c, s)
 		c.Next()

@@ -5,19 +5,21 @@ package pipeline
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // GetPipelineForRepo gets a pipeline by number and repo ID from the database.
-func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *library.Repo) (*library.Pipeline, error) {
+func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *api.Repo) (*library.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":      r.GetOrg(),
 		"pipeline": commit,
 		"repo":     r.GetName(),
-	}).Tracef("getting pipeline %s/%s from the database", r.GetFullName(), commit)
+	}).Tracef("getting pipeline %s/%s", r.GetFullName(), commit)
 
 	// variable to store query results
 	p := new(database.Pipeline)

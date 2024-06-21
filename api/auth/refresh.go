@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/server/util"
@@ -35,6 +37,10 @@ import (
 // RefreshAccessToken will return a new access token if the provided
 // refresh token via cookie is valid.
 func RefreshAccessToken(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Info("refreshing access token")
+
 	// capture the refresh token
 	// TODO: move this into token package and do it internally
 	// since we are already passsing context

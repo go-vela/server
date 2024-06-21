@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,16 +14,21 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router"
-	"github.com/go-vela/server/router/middleware"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
-
+	"gorm.io/gorm"
 	"k8s.io/apimachinery/pkg/util/wait"
+
+	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/compiler/native"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/router"
+	"github.com/go-vela/server/router/middleware"
 )
 
+//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func server(c *cli.Context) error {
 	// set log formatter
 	switch c.String("log-formatter") {
@@ -67,7 +73,7 @@ func server(c *cli.Context) error {
 		logrus.SetLevel(logrus.PanicLevel)
 	}
 
-	compiler, err := setupCompiler(c)
+	compiler, err := native.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
@@ -77,7 +83,7 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	queue, err := setupQueue(c)
+	queue, err := queue.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
@@ -97,12 +103,65 @@ func server(c *cli.Context) error {
 		return err
 	}
 
+	tm, err := setupTokenManager(c, database)
+	if err != nil {
+		return err
+	}
+
+	jitter := wait.Jitter(5*time.Second, 2.0)
+
+	logrus.Infof("retrieving initial platform settings after %v delay", jitter)
+
+	time.Sleep(jitter)
+
+	ps, err := database.GetSettings(context.Background())
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	// platform settings record does not exist
+	if err != nil {
+		logrus.Info("creating initial platform settings")
+
+		// create initial settings record
+		ps = settings.FromCLIContext(c)
+
+		// singleton record ID should always be 1
+		ps.SetID(1)
+
+		ps.SetCreatedAt(time.Now().UTC().Unix())
+		ps.SetUpdatedAt(time.Now().UTC().Unix())
+		ps.SetUpdatedBy("vela-server")
+
+		// read in defaults supplied from the cli runtime
+		compilerSettings := compiler.GetSettings()
+		ps.SetCompiler(compilerSettings)
+
+		queueSettings := queue.GetSettings()
+		ps.SetQueue(queueSettings)
+
+		// create the settings record in the database
+		_, err = database.CreateSettings(context.Background(), ps)
+		if err != nil {
+			return err
+		}
+
+		logrus.Info("initial platform settings created")
+	}
+
+	// update any internal settings, this occurs in middleware
+	// to keep settings refreshed for each request
+	queue.SetSettings(ps)
+	compiler.SetSettings(ps)
+
 	router := router.Load(
+		middleware.CLI(c),
+		middleware.Settings(ps),
 		middleware.Compiler(compiler),
 		middleware.Database(database),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
 		middleware.Metadata(metadata),
-		middleware.TokenManager(setupTokenManager(c)),
+		middleware.TokenManager(tm),
 		middleware.Queue(queue),
 		middleware.RequestVersion,
 		middleware.Secret(c.String("vela-secret")),
@@ -111,7 +170,6 @@ func server(c *cli.Context) error {
 		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(c.String("queue.public-key")),
 		middleware.QueueAddress(c.String("queue.addr")),
-		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
 		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
 		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
 		middleware.MaxBuildLimit(c.Int64("max-build-limit")),
@@ -121,7 +179,6 @@ func server(c *cli.Context) error {
 		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
 		middleware.DefaultRepoEventsMask(c.Int64("default-repo-events-mask")),
 		middleware.DefaultRepoApproveBuild(c.String("default-repo-approve-build")),
-		middleware.AllowlistSchedule(c.StringSlice("vela-schedule-allowlist")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
 	)
 
@@ -158,26 +215,52 @@ func server(c *cli.Context) error {
 		select {
 		case sig := <-signalChannel:
 			logrus.Infof("received signal: %s", sig)
+
 			err := srv.Shutdown(ctx)
 			if err != nil {
 				logrus.Error(err)
 			}
+
 			done()
 		case <-gctx.Done():
 			logrus.Info("closing signal goroutine")
+
 			err := srv.Shutdown(ctx)
 			if err != nil {
 				logrus.Error(err)
 			}
+
 			return gctx.Err()
 		}
 
 		return nil
 	})
 
+	// spawn goroutine for refreshing settings
+	g.Go(func() error {
+		interval := c.Duration("settings-refresh-interval")
+
+		logrus.Infof("refreshing platform settings every %v", interval)
+
+		for {
+			time.Sleep(interval)
+
+			newSettings, err := database.GetSettings(context.Background())
+			if err != nil {
+				logrus.WithError(err).Warn("unable to refresh platform settings")
+
+				continue
+			}
+
+			// update the internal fields for the shared settings record
+			ps.FromSettings(newSettings)
+		}
+	})
+
 	// spawn goroutine for starting the server
 	g.Go(func() error {
 		logrus.Infof("starting server on %s", addr.Host)
+
 		err = srv.ListenAndServe()
 		if err != nil {
 			// log a message indicating the failure of the server
@@ -190,6 +273,7 @@ func server(c *cli.Context) error {
 	// spawn goroutine for starting the scheduler
 	g.Go(func() error {
 		logrus.Info("starting scheduler")
+
 		for {
 			// track the starting time for when the server begins processing schedules
 			//
@@ -214,7 +298,11 @@ func server(c *cli.Context) error {
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
+			// update internal settings updated through refresh
+			compiler.SetSettings(ps)
+			queue.SetSettings(ps)
+
+			err = processSchedules(ctx, start, ps, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

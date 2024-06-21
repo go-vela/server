@@ -7,16 +7,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/user users UpdateCurrentUser
 //
-// Update the current authenticated user in the configured backend
+// Update the current authenticated user
 //
 // ---
 // produces:
@@ -24,7 +25,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing the user to update
+//   description: The user object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/User"
@@ -36,34 +37,30 @@ import (
 //     schema:
 //       "$ref": "#/definitions/User"
 //   '400':
-//     description: Unable to update the current user
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '404':
-//     description: Unable to update the current user
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the current user
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // UpdateCurrentUser represents the API handler to capture and
-// update the currently authenticated user from the configured backend.
+// update the currently authenticated user.
 func UpdateCurrentUser(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("updating current user %s", u.GetName())
+	l.Debugf("updating current user %s", u.GetName())
 
 	// capture body from API request
-	input := new(library.User)
+	input := new(types.User)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -78,6 +75,12 @@ func UpdateCurrentUser(c *gin.Context) {
 	if input.Favorites != nil {
 		// update favorites if set
 		u.SetFavorites(input.GetFavorites())
+	}
+
+	// update user fields if provided
+	if input.Dashboards != nil {
+		// update dashboards if set
+		u.SetDashboards(input.GetDashboards())
 	}
 
 	// send API call to update the user

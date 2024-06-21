@@ -8,11 +8,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestStep_Engine_CleanStep(t *testing.T) {
 	// setup types
-	_stepOne := testStep()
+	_stepOne := testutils.APIStep()
 	_stepOne.SetID(1)
 	_stepOne.SetRepoID(1)
 	_stepOne.SetBuildID(1)
@@ -22,7 +24,7 @@ func TestStep_Engine_CleanStep(t *testing.T) {
 	_stepOne.SetCreated(1)
 	_stepOne.SetStatus("running")
 
-	_stepTwo := testStep()
+	_stepTwo := testutils.APIStep()
 	_stepTwo.SetID(2)
 	_stepTwo.SetRepoID(1)
 	_stepTwo.SetBuildID(1)
@@ -32,7 +34,7 @@ func TestStep_Engine_CleanStep(t *testing.T) {
 	_stepTwo.SetCreated(1)
 	_stepTwo.SetStatus("pending")
 
-	_stepThree := testStep()
+	_stepThree := testutils.APIStep()
 	_stepThree.SetID(3)
 	_stepThree.SetRepoID(1)
 	_stepThree.SetBuildID(1)
@@ -42,7 +44,7 @@ func TestStep_Engine_CleanStep(t *testing.T) {
 	_stepThree.SetCreated(1)
 	_stepThree.SetStatus("success")
 
-	_stepFour := testStep()
+	_stepFour := testutils.APIStep()
 	_stepFour.SetID(4)
 	_stepFour.SetRepoID(1)
 	_stepFour.SetBuildID(1)

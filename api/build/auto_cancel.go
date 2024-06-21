@@ -12,16 +12,29 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 )
 
 // AutoCancel is a helper function that checks to see if any pending or running
 // builds for the repo can be replaced by the current build.
-func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.Repo, cancelOpts *pipeline.CancelOptions) (bool, error) {
+func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pipeline.CancelOptions) (bool, error) {
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	// in this path, the middleware doesn't inject build,
+	// so we need to set it manually
+	l = l.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	})
+
+	l.Debug("checking if builds should be auto canceled")
+
 	// if build is the current build, continue
 	if rB.GetID() == b.GetID() {
 		return false, nil
@@ -43,6 +56,11 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 				return false, err
 			}
 
+			l.WithFields(logrus.Fields{
+				"build":    rB.GetNumber(),
+				"build_id": rB.GetID(),
+			}).Info("build updated - build canceled")
+
 			// remove executable from table
 			_, err = database.FromContext(c).PopBuildExecutable(c, rB.GetID())
 			if err != nil {
@@ -50,7 +68,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 			}
 		case strings.EqualFold(status, constants.StatusRunning) && cancelOpts.Running:
 			// call cancelRunning routine for builds already running on worker
-			err := cancelRunning(c, rB, r)
+			err := cancelRunning(c, rB)
 			if err != nil {
 				return false, err
 			}
@@ -66,6 +84,11 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 			// if this call fails, we still canceled the build, so return true
 			return true, err
 		}
+
+		l.WithFields(logrus.Fields{
+			"build":    rB.GetNumber(),
+			"build_id": rB.GetID(),
+		}).Info("build updated - build canceled")
 	}
 
 	return true, nil
@@ -73,8 +96,10 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 
 // cancelRunning is a helper function that determines the executor currently running a build and sends an API call
 // to that executor's worker to cancel the build.
-func cancelRunning(c *gin.Context, b *library.Build, r *library.Repo) error {
-	e := new([]library.Executor)
+func cancelRunning(c *gin.Context, b *types.Build) error {
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	e := new([]types.Executor)
 	// retrieve the worker
 	w, err := database.FromContext(c).GetWorkerForHostname(c, b.GetHost())
 	if err != nil {
@@ -131,7 +156,7 @@ func cancelRunning(c *gin.Context, b *library.Build, r *library.Repo) error {
 
 	for _, executor := range *e {
 		// check each executor on the worker running the build to see if it's running the build we want to cancel
-		if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
+		if executor.Build.GetID() == b.GetID() {
 			// prepare the request to the worker
 			client := http.DefaultClient
 			client.Timeout = 30 * time.Second
@@ -169,6 +194,8 @@ func cancelRunning(c *gin.Context, b *library.Build, r *library.Repo) error {
 			}
 			defer resp.Body.Close()
 
+			l.Debugf("sent cancel request to worker %s (executor %d) for build %d", w.GetHostname(), executor.GetID(), b.GetID())
+
 			// Read Response Body
 			respBody, err := io.ReadAll(resp.Body)
 			if err != nil {
@@ -187,7 +214,7 @@ func cancelRunning(c *gin.Context, b *library.Build, r *library.Repo) error {
 
 // isCancelable is a helper function that determines whether a `target` build should be auto-canceled
 // given a current build that intends to supersede it.
-func isCancelable(target *library.Build, current *library.Build) bool {
+func isCancelable(target *types.Build, current *types.Build) bool {
 	switch target.GetEvent() {
 	case constants.EventPush:
 		// target is cancelable if current build is also a push event and the branches are the same
@@ -204,7 +231,7 @@ func isCancelable(target *library.Build, current *library.Build) bool {
 
 // ShouldAutoCancel is a helper function that determines whether or not a build should be eligible to
 // auto cancel currently running / pending builds.
-func ShouldAutoCancel(opts *pipeline.CancelOptions, b *library.Build, defaultBranch string) bool {
+func ShouldAutoCancel(opts *pipeline.CancelOptions, b *types.Build, defaultBranch string) bool {
 	// if the build is pending approval, it should always be eligible to auto cancel
 	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
 		return true

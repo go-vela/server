@@ -9,11 +9,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/compiler/registry"
-
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/registry"
 )
 
 func TestGithub_Template(t *testing.T) {
@@ -36,7 +35,7 @@ func TestGithub_Template(t *testing.T) {
 
 	// setup types
 	str := "foo"
-	u := &library.User{
+	u := &api.User{
 		Name:  &str,
 		Token: &str,
 	}
@@ -97,7 +96,7 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 
 	// setup types
 	str := "foo"
-	u := &library.User{
+	u := &api.User{
 		Name:  &str,
 		Token: &str,
 	}
@@ -163,7 +162,7 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 
 	// setup types
 	str := "foo"
-	u := &library.User{
+	u := &api.User{
 		Name:  &str,
 		Token: &str,
 	}
@@ -222,7 +221,7 @@ func TestGithub_Template_BadRequest(t *testing.T) {
 
 	// setup types
 	str := "foo"
-	u := &library.User{
+	u := &api.User{
 		Name:  &str,
 		Token: &str,
 	}
@@ -272,7 +271,7 @@ func TestGithub_Template_NotFound(t *testing.T) {
 
 	// setup types
 	str := "foo"
-	u := &library.User{
+	u := &api.User{
 		Name:  &str,
 		Token: &str,
 	}

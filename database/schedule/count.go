@@ -4,12 +4,13 @@ package schedule
 
 import (
 	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
 // CountSchedules gets the count of all schedules from the database.
 func (e *engine) CountSchedules(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all schedules from the database")
+	e.logger.Tracef("getting count of all schedules")
 
 	// variable to store query results
 	var s int64

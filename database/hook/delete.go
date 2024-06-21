@@ -5,17 +5,18 @@ package hook
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // DeleteHook deletes an existing hook from the database.
 func (e *engine) DeleteHook(ctx context.Context, h *library.Hook) error {
 	e.logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
-	}).Tracef("deleting hook %d in the database", h.GetNumber())
+	}).Tracef("deleting hook %d", h.GetNumber())
 
 	// cast the library type to database type
 	//

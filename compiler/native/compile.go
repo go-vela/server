@@ -12,16 +12,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-vela/types/constants"
-
 	yml "github.com/buildkite/yaml"
+	"github.com/hashicorp/go-cleanhttp"
+	"github.com/hashicorp/go-retryablehttp"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-	"github.com/hashicorp/go-cleanhttp"
-	"github.com/hashicorp/go-retryablehttp"
 )
 
 // ModifyRequest contains the payload passed to the modification endpoint.
@@ -70,11 +70,12 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 		Repo:    c.repo.GetFullName(),
 		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
 		Target:  c.build.GetDeploy(),
+		Label:   c.labels,
 	}
 
 	switch {
 	case p.Metadata.RenderInline:
-		newPipeline, err := c.compileInline(p, c.TemplateDepth)
+		newPipeline, err := c.compileInline(p, c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -97,7 +98,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(v interface{}, substitute bool) (*yaml.Build, *library.Pipeline, error) {
+func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *library.Pipeline, error) {
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -109,7 +110,7 @@ func (c *client) CompileLite(v interface{}, substitute bool) (*yaml.Build, *libr
 	_pipeline.SetType(c.repo.GetPipelineType())
 
 	if p.Metadata.RenderInline {
-		newPipeline, err := c.compileInline(p, c.TemplateDepth)
+		newPipeline, err := c.compileInline(p, c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -125,36 +126,71 @@ func (c *client) CompileLite(v interface{}, substitute bool) (*yaml.Build, *libr
 	// create map of templates for easy lookup
 	templates := mapFromTemplates(p.Templates)
 
-	if len(templates) > 0 {
-		switch {
-		case len(p.Stages) > 0:
-			// inject the templates into the steps
-			p, err = c.ExpandStages(p, templates, nil)
+	switch {
+	case len(p.Stages) > 0:
+		// inject the templates into the steps
+		p, err = c.ExpandStages(p, templates, ruleData)
+		if err != nil {
+			return nil, _pipeline, err
+		}
+
+		if substitute {
+			// inject the substituted environment variables into the steps
+			p.Stages, err = c.SubstituteStages(p.Stages)
 			if err != nil {
 				return nil, _pipeline, err
 			}
+		}
 
-			if substitute {
-				// inject the substituted environment variables into the steps
-				p.Stages, err = c.SubstituteStages(p.Stages)
-				if err != nil {
-					return nil, _pipeline, err
+		if ruleData != nil {
+			purgedStages := new(yaml.StageSlice)
+
+			for _, stg := range p.Stages {
+				purgedSteps := new(yaml.StepSlice)
+
+				for _, s := range stg.Steps {
+					cRuleset := s.Ruleset.ToPipeline()
+					if match, err := cRuleset.Match(ruleData); err == nil && match {
+						*purgedSteps = append(*purgedSteps, s)
+					}
+				}
+
+				stg.Steps = *purgedSteps
+
+				if len(stg.Steps) > 0 {
+					*purgedStages = append(*purgedStages, stg)
 				}
 			}
-		case len(p.Steps) > 0:
-			// inject the templates into the steps
-			p, err = c.ExpandSteps(p, templates, nil, c.TemplateDepth)
+
+			p.Stages = *purgedStages
+		}
+
+	case len(p.Steps) > 0:
+		// inject the templates into the steps
+		p, err = c.ExpandSteps(p, templates, ruleData, c.GetTemplateDepth())
+		if err != nil {
+			return nil, _pipeline, err
+		}
+
+		if substitute {
+			// inject the substituted environment variables into the steps
+			p.Steps, err = c.SubstituteSteps(p.Steps)
 			if err != nil {
 				return nil, _pipeline, err
 			}
+		}
 
-			if substitute {
-				// inject the substituted environment variables into the steps
-				p.Steps, err = c.SubstituteSteps(p.Steps)
-				if err != nil {
-					return nil, _pipeline, err
+		if ruleData != nil {
+			purgedSteps := new(yaml.StepSlice)
+
+			for _, s := range p.Steps {
+				cRuleset := s.Ruleset.ToPipeline()
+				if match, err := cRuleset.Match(ruleData); err == nil && match {
+					*purgedSteps = append(*purgedSteps, s)
 				}
 			}
+
+			p.Steps = *purgedSteps
 		}
 	}
 
@@ -173,7 +209,7 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 
 	// return if max template depth has been reached
 	if depth == 0 {
-		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
+		retErr := fmt.Errorf("max template depth of %d exceeded", c.GetTemplateDepth())
 
 		return nil, retErr
 	}
@@ -190,6 +226,14 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 		if template.Format == "" {
 			format = constants.PipelineTypeGo
 		}
+
+		// initialize variable map if not parsed from config
+		if len(template.Variables) == 0 {
+			template.Variables = make(map[string]interface{})
+		}
+
+		// inject template name into variables
+		template.Variables["VELA_TEMPLATE_NAME"] = template.Name
 
 		parsed, _, err := c.Parse(bytes, format, template)
 		if err != nil {
@@ -255,8 +299,6 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 }
 
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
-//
-//nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
@@ -276,7 +318,7 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 	}
 
 	// inject the templates into the steps
-	p, err = c.ExpandSteps(p, tmpls, r, c.TemplateDepth)
+	p, err = c.ExpandSteps(p, tmpls, r, c.GetTemplateDepth())
 	if err != nil {
 		return nil, _pipeline, err
 	}
@@ -352,8 +394,6 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 }
 
 // compileStages executes the workflow for converting a YAML pipeline into an executable struct.
-//
-//nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
@@ -458,7 +498,7 @@ func errorHandler(resp *http.Response, err error, attempts int) (*http.Response,
 }
 
 // modifyConfig sends the configuration to external http endpoint for modification.
-func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, repo *library.Repo) (*yaml.Build, error) {
+func (c *client) modifyConfig(build *yaml.Build, libraryBuild *api.Build, repo *api.Repo) (*yaml.Build, error) {
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
 	if err != nil {

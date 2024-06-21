@@ -9,19 +9,19 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
-	"github.com/sirupsen/logrus"
 )
 
 // Graph contains nodes, and relationships between nodes, or edges.
@@ -90,7 +90,7 @@ const (
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
 //
-// Get directed a-cyclical graph for a build in the configured backend
+// Get directed a-cyclical graph for a build
 //
 // ---
 // produces:
@@ -98,12 +98,12 @@ const (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -119,48 +119,41 @@ const (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Graph"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unable to retrieve graph for the build — unauthorized
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve graph for the build — not found
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve graph for the build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetBuildGraph represents the API handler to capture a
-// directed a-cyclical graph for a build from the configured backend.
+// GetBuildGraph represents the API handler to get a
+// directed a-cyclical graph for a build.
 //
 //nolint:funlen,goconst,gocyclo // ignore function length and constants
 func GetBuildGraph(c *gin.Context) {
 	// capture middleware values
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	m := c.MustGet("metadata").(*types.Metadata)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
-	logger := logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	})
 
 	baseErr := "unable to retrieve graph"
 
-	logger.Infof("constructing graph for build %s", entry)
-
-	logger.Info("retrieving pipeline configuration")
+	l.Debugf("constructing graph for build %s and retrieving pipeline configuration", entry)
 
 	var config []byte
 
@@ -194,7 +187,7 @@ func GetBuildGraph(c *gin.Context) {
 		// check if the build event is not pull_request
 		if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
 			// send API call to capture list of files changed for the commit
-			files, err = scm.FromContext(c).Changeset(ctx, u, r, b.GetCommit())
+			files, err = scm.FromContext(c).Changeset(ctx, r, b.GetCommit())
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -205,7 +198,7 @@ func GetBuildGraph(c *gin.Context) {
 		}
 	}
 
-	logger.Info("compiling pipeline configuration")
+	l.Debug("compiling pipeline configuration")
 
 	// parse and compile the pipeline configuration file
 	p, _, err := compiler.FromContext(c).
@@ -221,7 +214,7 @@ func GetBuildGraph(c *gin.Context) {
 		// format the error message with extra information
 		err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
 
-		logger.Error(err.Error())
+		l.Error(err.Error())
 
 		retErr := fmt.Errorf("%s: %w", baseErr, err)
 
@@ -233,7 +226,7 @@ func GetBuildGraph(c *gin.Context) {
 	if p == nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: pipeline is nil", r.GetFullName())
 
-		logger.Error(retErr)
+		l.Error(retErr)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -326,7 +319,7 @@ func GetBuildGraph(c *gin.Context) {
 		return
 	}
 
-	logger.Info("generating build graph")
+	l.Debug("generating build graph")
 
 	// create nodes from pipeline stages
 	nodes := make(map[int]*node)

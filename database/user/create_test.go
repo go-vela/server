@@ -8,15 +8,16 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestUser_Engine_CreateUser(t *testing.T) {
 	// setup types
-	_user := testUser()
+	_user := testutils.APIUser()
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")
-	_user.SetHash("baz")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -26,9 +27,9 @@ func TestUser_Engine_CreateUser(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "users"
-("name","refresh_token","token","hash","favorites","active","admin","id")
+("name","refresh_token","token","favorites","active","admin","dashboards","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
-		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, nil, false, false, 1).
+		WithArgs("foo", AnyArgument{}, AnyArgument{}, nil, false, false, AnyArgument{}, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

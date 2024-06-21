@@ -6,16 +6,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/router/middleware/org"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/{pipeline} pipelines GetPipeline
 //
-// Get a pipeline from the configured backend
+// Get a pipeline
 //
 // ---
 // produces:
@@ -23,12 +22,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -44,25 +43,31 @@ import (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Pipeline"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
+//     schema:
+//       "$ref": "#/definitions/Error"
 
-// GetPipeline represents the API handler to capture
-// a pipeline for a repo from the configured backend.
+// GetPipeline represents the API handler to get a pipeline for a repo.
 func GetPipeline(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":      o,
-		"pipeline": p.GetCommit(),
-		"repo":     r.GetName(),
-		"user":     u.GetName(),
-	}).Infof("reading pipeline %s/%s", r.GetFullName(), p.GetCommit())
+	l.Debugf("reading pipeline %s/%s", r.GetFullName(), p.GetCommit())
 
 	c.JSON(http.StatusOK, p)
 }

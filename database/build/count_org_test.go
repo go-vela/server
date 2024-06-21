@@ -8,29 +8,22 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
-	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
-	_buildOne.SetNumber(1)
-	_buildOne.SetDeployPayload(nil)
-	_buildOne.SetEvent("push")
+	_owner := testutils.APIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
 
-	_buildTwo := testBuild()
-	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(2)
-	_buildTwo.SetNumber(2)
-	_buildTwo.SetDeployPayload(nil)
-	_buildTwo.SetEvent("push")
-
-	_repoOne := testRepo()
+	_repoOne := testutils.APIRepo()
 	_repoOne.SetID(1)
-	_repoOne.SetUserID(1)
+	_repoOne.SetOwner(_owner)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
@@ -39,9 +32,9 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetTopics([]string{})
 
-	_repoTwo := testRepo()
+	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.SetUserID(1)
+	_repoTwo.SetOwner(_owner)
 	_repoTwo.SetHash("bar")
 	_repoTwo.SetOrg("foo")
 	_repoTwo.SetName("baz")
@@ -49,6 +42,20 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetTopics([]string{})
+
+	_buildOne := testutils.APIBuild()
+	_buildOne.SetID(1)
+	_buildOne.SetRepo(_repoOne)
+	_buildOne.SetNumber(1)
+	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetEvent("push")
+
+	_buildTwo := testutils.APIBuild()
+	_buildTwo.SetID(2)
+	_buildTwo.SetRepo(_repoTwo)
+	_buildTwo.SetNumber(2)
+	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetEvent("push")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -76,17 +83,17 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.Repo{})
+	err = _sqlite.client.AutoMigrate(&types.Repo{})
 	if err != nil {
 		t.Errorf("unable to create repo table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(database.RepoFromLibrary(_repoOne)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repoOne)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(database.RepoFromLibrary(_repoTwo)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repoTwo)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}

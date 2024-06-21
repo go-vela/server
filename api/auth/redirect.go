@@ -7,9 +7,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation GET /authenticate/web authenticate GetAuthenticateTypeWeb
@@ -24,11 +25,11 @@ import (
 // parameters:
 // - in: query
 //   name: code
-//   description: the code received after identity confirmation
+//   description: The code received after identity confirmation
 //   type: string
 // - in: query
 //   name: state
-//   description: a random string
+//   description: A random string
 //   type: string
 // responses:
 //   '307':
@@ -47,15 +48,15 @@ import (
 // - in: path
 //   name: port
 //   required: true
-//   description: the port number
+//   description: The port number
 //   type: integer
 // - in: query
 //   name: code
-//   description: the code received after identity confirmation
+//   description: The code received after identity confirmation
 //   type: string
 // - in: query
 //   name: state
-//   description: a random string
+//   description: A random string
 //   type: string
 // responses:
 //   '307':
@@ -68,9 +69,10 @@ import (
 // This will only handle non-headless flows (ie. web or cli).
 func GetAuthRedirect(c *gin.Context) {
 	// load the metadata
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 
-	logrus.Info("redirecting for final auth flow destination")
+	l.Debug("redirecting for final auth flow destination")
 
 	// capture the path elements
 	t := util.PathParameter(c, "type")
