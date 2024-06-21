@@ -7,34 +7,29 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // UpdateUser updates an existing user in the database.
-func (e *engine) UpdateUser(ctx context.Context, u *library.User) (*library.User, error) {
+func (e *engine) UpdateUser(ctx context.Context, u *api.User) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Tracef("updating user %s in the database", u.GetName())
+	}).Tracef("updating user %s", u.GetName())
 
 	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#UserFromLibrary
-	user := database.UserFromLibrary(u)
+	user := types.UserFromAPI(u)
 
 	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.Validate
 	err := user.Validate()
 	if err != nil {
 		return nil, err
 	}
 
 	// encrypt the fields for the user
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.Encrypt
 	err = user.Encrypt(e.config.EncryptionKey)
 	if err != nil {
 		return nil, fmt.Errorf("unable to encrypt user %s: %w", u.GetName(), err)
@@ -49,5 +44,5 @@ func (e *engine) UpdateUser(ctx context.Context, u *library.User) (*library.User
 		return nil, fmt.Errorf("unable to decrypt user %s: %w", u.GetName(), err)
 	}
 
-	return user.ToLibrary(), result.Error
+	return user.ToAPI(), result.Error
 }

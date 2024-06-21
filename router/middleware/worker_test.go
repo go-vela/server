@@ -37,10 +37,10 @@ func TestMiddleware_Worker(t *testing.T) {
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Secret returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("Worker returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Secret is %v, want %v", got, want)
+		t.Errorf("Worker is %v, want %v", got, want)
 	}
 }

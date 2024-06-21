@@ -6,26 +6,21 @@ package build
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // UpdateBuild updates an existing build in the database.
-func (e *engine) UpdateBuild(ctx context.Context, b *library.Build) (*library.Build, error) {
+func (e *engine) UpdateBuild(ctx context.Context, b *api.Build) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-	}).Tracef("updating build %d in the database", b.GetNumber())
+	}).Tracef("updating build %d", b.GetNumber())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#BuildFromLibrary
-	build := database.BuildFromLibrary(b)
+	build := types.BuildFromAPI(b)
 
-	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Build.Validate
 	err := build.Validate()
 	if err != nil {
 		return nil, err
@@ -35,7 +30,13 @@ func (e *engine) UpdateBuild(ctx context.Context, b *library.Build) (*library.Bu
 	build = build.Crop()
 
 	// send query to the database
-	result := e.client.Table(constants.TableBuild).Save(build)
+	err = e.client.Table(constants.TableBuild).Save(build).Error
+	if err != nil {
+		return nil, err
+	}
 
-	return build.ToLibrary(), result.Error
+	result := build.ToAPI()
+	result.SetRepo(b.GetRepo())
+
+	return result, nil
 }

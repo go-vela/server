@@ -5,9 +5,32 @@ package queue
 import (
 	"fmt"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/types/constants"
 )
+
+// FromCLIContext helper function to setup the queue from the CLI arguments.
+func FromCLIContext(c *cli.Context) (Service, error) {
+	logrus.Debug("creating queue client from CLI configuration")
+
+	// queue configuration
+	_setup := &Setup{
+		Driver:     c.String("queue.driver"),
+		Address:    c.String("queue.addr"),
+		Cluster:    c.Bool("queue.cluster"),
+		Routes:     c.StringSlice("queue.routes"),
+		Timeout:    c.Duration("queue.pop.timeout"),
+		PrivateKey: c.String("queue.private-key"),
+		PublicKey:  c.String("queue.public-key"),
+	}
+
+	// setup the queue
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/queue?tab=doc#New
+	return New(_setup)
+}
 
 // New creates and returns a Vela service capable of
 // integrating with the configured queue environment.

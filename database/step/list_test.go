@@ -8,12 +8,14 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestStep_Engine_ListSteps(t *testing.T) {
 	// setup types
-	_stepOne := testStep()
+	_stepOne := testutils.APIStep()
 	_stepOne.SetID(1)
 	_stepOne.SetRepoID(1)
 	_stepOne.SetBuildID(1)
@@ -21,7 +23,7 @@ func TestStep_Engine_ListSteps(t *testing.T) {
 	_stepOne.SetName("foo")
 	_stepOne.SetImage("bar")
 
-	_stepTwo := testStep()
+	_stepTwo := testutils.APIStep()
 	_stepTwo.SetID(2)
 	_stepTwo.SetRepoID(1)
 	_stepTwo.SetBuildID(2)
@@ -42,9 +44,9 @@ func TestStep_Engine_ListSteps(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution"}).
-		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "").
-		AddRow(2, 1, 2, 1, "bar", "foo", "", "", "", 0, 0, 0, 0, "", "", "")
+		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution", "report_as"}).
+		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "", "").
+		AddRow(2, 1, 2, 1, "bar", "foo", "", "", "", 0, 0, 0, 0, "", "", "", "")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "steps"`).WillReturnRows(_rows)

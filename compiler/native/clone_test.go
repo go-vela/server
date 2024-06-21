@@ -7,8 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/yaml"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/types/yaml"
 )
 
 const defaultCloneImage = "target/vela-git:latest"
@@ -83,7 +84,7 @@ func TestNative_CloneStage(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := New(c)
+		compiler, err := FromCLIContext(c)
 		if err != nil {
 			t.Errorf("unable to create new compiler: %v", err)
 		}
@@ -166,7 +167,7 @@ func TestNative_CloneStep(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := New(c)
+		compiler, err := FromCLIContext(c)
 		if err != nil {
 			t.Errorf("Unable to create new compiler: %v", err)
 		}

@@ -7,9 +7,10 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // Compose generates a refresh and access token pair unique
@@ -18,10 +19,10 @@ import (
 // guarantee the signature is unique per token. The refresh
 // token is returned to store with the user
 // in the database.
-func (tm *Manager) Compose(c *gin.Context, u *library.User) (string, string, error) {
+func (tm *Manager) Compose(c *gin.Context, u *api.User) (string, string, error) {
 	// grab the metadata from the context to pull in provided
 	// cookie duration information
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 
 	// mint token options for refresh token
 	rmto := MintTokenOpts{

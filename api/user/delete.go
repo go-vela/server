@@ -7,15 +7,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation DELETE /api/v1/users/{user} users DeleteUser
 //
-// Delete a user for the configured backend
+// Delete a user
 //
 // ---
 // produces:
@@ -30,32 +30,30 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully deleted of user
+//     description: Successfully deleted user
 //     schema:
 //       type: string
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to delete user
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to delete user
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeleteUser represents the API handler to remove
-// a user from the configured backend.
+// DeleteUser represents the API handler to remove a user.
 func DeleteUser(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	user := util.PathParameter(c, "user")
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("deleting user %s", user)
+	l.Debugf("deleting user %s", user)
 
 	// send API call to capture the user
 	u, err := database.FromContext(c).GetUserForName(ctx, user)

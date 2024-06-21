@@ -7,9 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/queue/redis"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // Setup represents the configuration necessary for
@@ -44,7 +45,7 @@ func (s *Setup) Redis() (Service, error) {
 	// https://pkg.go.dev/github.com/go-vela/server/queue/redis?tab=doc#New
 	return redis.New(
 		redis.WithAddress(s.Address),
-		redis.WithChannels(s.Routes...),
+		redis.WithRoutes(s.Routes...),
 		redis.WithCluster(s.Cluster),
 		redis.WithTimeout(s.Timeout),
 		redis.WithPrivateKey(s.PrivateKey),

@@ -5,17 +5,18 @@ package service
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // DeleteService deletes an existing service from the database.
 func (e *engine) DeleteService(ctx context.Context, s *library.Service) error {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
-	}).Tracef("deleting service %s from the database", s.GetName())
+	}).Tracef("deleting service %s", s.GetName())
 
 	// cast the library type to database type
 	//

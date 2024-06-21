@@ -5,20 +5,22 @@ package pipeline
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // ListPipelinesForRepo gets a list of pipelines by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListPipelinesForRepo(ctx context.Context, r *library.Repo, page, perPage int) ([]*library.Pipeline, int64, error) {
+func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*library.Pipeline, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("listing pipelines for repo %s from the database", r.GetFullName())
+	}).Tracef("listing pipelines for repo %s", r.GetFullName())
 
 	// variables to store query results and return values
 	count := int64(0)

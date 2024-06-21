@@ -31,6 +31,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/auth"
 	"github.com/go-vela/server/api/webhook"
@@ -88,6 +89,10 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Webhook endpoint
 	r.POST("/webhook", webhook.PostWebhook)
 
+	// JWKS endpoints
+	r.GET("/_services/token/.well-known/openid-configuration", api.GetOpenIDConfig)
+	r.GET("/_services/token/.well-known/jwks", api.GetJWKS)
+
 	// Authentication endpoints
 	authenticate := r.Group("/authenticate")
 	{
@@ -123,8 +128,8 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		// Source code management endpoints
 		ScmHandlers(baseAPI)
 
-		// Search endpoints
-		SearchHandlers(baseAPI)
+		// Dashboard endpoints
+		DashboardHandlers(baseAPI)
 
 		// Secret endpoints
 		SecretHandlers(baseAPI)

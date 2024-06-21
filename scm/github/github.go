@@ -12,12 +12,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/bradleyfalzon/ghinstallation/v2"
-	"github.com/google/go-github/v59/github"
+	api "github.com/go-vela/server/api/types"
+	"github.com/google/go-github/v62/github"
 	"github.com/sirupsen/logrus"
-
 	"golang.org/x/oauth2"
 )
 
@@ -202,7 +200,7 @@ func (c *client) newClientToken(token string) *github.Client {
 }
 
 // helper function to return the GitHub App token.
-func (c *client) newGithubAppToken(r *library.Repo) (*github.Client, error) {
+func (c *client) newGithubAppToken(r *api.Repo) (*github.Client, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
 	if err != nil {

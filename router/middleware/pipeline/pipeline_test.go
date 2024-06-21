@@ -13,9 +13,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
@@ -23,11 +28,8 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/urfave/cli/v2"
 )
 
 func TestPipeline_Retrieve(t *testing.T) {
@@ -66,9 +68,12 @@ func TestPipeline_Retrieve(t *testing.T) {
 
 func TestPipeline_Establish(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -117,6 +122,7 @@ func TestPipeline_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/48afb5bdc41ad69bf22588491333f7cf71135163", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -155,6 +161,7 @@ func TestPipeline_Establish_NoRepo(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/48afb5bdc41ad69bf22588491333f7cf71135163", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 
@@ -168,9 +175,12 @@ func TestPipeline_Establish_NoRepo(t *testing.T) {
 
 func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -198,6 +208,7 @@ func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -219,43 +230,44 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -275,7 +287,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", "target/vela-git:latest", "doc")
 
-	comp, err := native.New(cli.NewContext(nil, set, nil))
+	comp, err := native.FromCLIContext(cli.NewContext(nil, set, nil))
 	if err != nil {
 		t.Errorf("unable to create compiler: %v", err)
 	}
@@ -317,6 +329,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("metadata", m) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })

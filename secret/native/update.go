@@ -6,9 +6,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // Update updates an existing secret.
@@ -17,11 +18,6 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 	secret, err := c.Get(ctx, sType, org, name, s.GetName())
 	if err != nil {
 		return nil, err
-	}
-
-	// update the events if set
-	if len(s.GetEvents()) > 0 {
-		secret.SetEvents(s.GetEvents())
 	}
 
 	// update allow events if set
@@ -42,6 +38,11 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 	// update allow_command if set
 	if s.AllowCommand != nil {
 		secret.SetAllowCommand(s.GetAllowCommand())
+	}
+
+	// update allow_substitution if set
+	if s.AllowSubstitution != nil {
+		secret.SetAllowSubstitution(s.GetAllowSubstitution())
 	}
 
 	// update updated_at if set

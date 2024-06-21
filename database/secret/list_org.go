@@ -5,10 +5,11 @@ package secret
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // ListSecretsForOrg gets a list of secrets by org name from the database.
@@ -18,7 +19,7 @@ func (e *engine) ListSecretsForOrg(ctx context.Context, org string, filters map[
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"type": constants.SecretOrg,
-	}).Tracef("listing secrets for org %s from the database", org)
+	}).Tracef("listing secrets for org %s", org)
 
 	// variables to store query results and return values
 	count := int64(0)

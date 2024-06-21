@@ -3,15 +3,15 @@
 package main
 
 import (
-	"github.com/go-vela/server/scm"
 	"github.com/sirupsen/logrus"
-
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/server/scm"
 )
 
 // helper function to setup the scm from the CLI arguments.
 func setupSCM(c *cli.Context) (scm.Service, error) {
-	logrus.Debug("Creating scm client from CLI configuration")
+	logrus.Debug("creating scm client from CLI configuration")
 
 	// scm configuration
 	_setup := &scm.Setup{

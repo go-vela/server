@@ -6,17 +6,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /badge/{org}/{repo}/status.svg base GetBadge
 //
-// Get a badge for the repo
+// Get a build status badge for a repository
 //
 // ---
 // produces:
@@ -24,37 +24,39 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org the repo belongs to
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo to get the badge for
+//   description: Name of the repository
 //   required: true
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully retrieved a status Badge
+//     description: Successfully retrieved the build status badge
 //     schema:
 //       type: string
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // GetBadge represents the API handler to
 // return a build status badge.
 func GetBadge(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
 
 	branch := util.QueryParameter(c, "branch", r.GetBranch())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-	}).Infof("creating latest build badge for repo %s on branch %s", r.GetFullName(), branch)
+	l.Debugf("creating latest build badge for repo %s on branch %s", r.GetFullName(), branch)
 
 	// send API call to capture the last build for the repo and branch
 	b, err := database.FromContext(c).LastBuildForRepo(ctx, r, branch)

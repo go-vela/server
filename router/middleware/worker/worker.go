@@ -7,20 +7,22 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // Retrieve gets the worker in the given context.
-func Retrieve(c *gin.Context) *library.Worker {
+func Retrieve(c *gin.Context) *api.Worker {
 	return FromContext(c)
 }
 
 // Establish sets the worker in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		l := c.MustGet("logger").(*logrus.Entry)
 		ctx := c.Request.Context()
 
 		wParam := util.PathParameter(c, "worker")
@@ -31,7 +33,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		logrus.Debugf("Reading worker %s", wParam)
+		l.Debugf("reading worker %s", wParam)
 
 		w, err := database.FromContext(c).GetWorkerForHostname(ctx, wParam)
 		if err != nil {
@@ -40,6 +42,14 @@ func Establish() gin.HandlerFunc {
 
 			return
 		}
+
+		l = l.WithFields(logrus.Fields{
+			"worker":    w.GetHostname(),
+			"worker_id": w.GetID(),
+		})
+
+		// update the logger with the new fields
+		c.Set("logger", l)
 
 		ToContext(c, w)
 		c.Next()

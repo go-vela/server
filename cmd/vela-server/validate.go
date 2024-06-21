@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/constants"
-
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/types/constants"
 )
 
 func validate(c *cli.Context) error {
-	logrus.Debug("Validating CLI configuration")
+	logrus.Debug("validating CLI configuration")
 
 	// validate core configuration
 	err := validateCore(c)
@@ -32,7 +32,7 @@ func validate(c *cli.Context) error {
 
 // helper function to validate the core CLI configuration.
 func validateCore(c *cli.Context) error {
-	logrus.Trace("Validating core CLI configuration")
+	logrus.Trace("validating core CLI configuration")
 
 	if len(c.String("server-addr")) == 0 {
 		return fmt.Errorf("server-addr (VELA_ADDR or VELA_HOST) flag is not properly configured")
@@ -110,7 +110,7 @@ func validateCore(c *cli.Context) error {
 
 // helper function to validate the compiler CLI configuration.
 func validateCompiler(c *cli.Context) error {
-	logrus.Trace("Validating compiler CLI configuration")
+	logrus.Trace("validating compiler CLI configuration")
 
 	if c.Bool("github-driver") {
 		if len(c.String("github-url")) == 0 {

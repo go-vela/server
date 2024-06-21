@@ -8,38 +8,38 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
-	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/yaml"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/{pipeline}/templates pipelines GetTemplates
 //
-// Get a map of templates utilized by a pipeline from the configured backend
+// Get pipeline templates
 //
 // ---
 // produces:
-// - application/x-yaml
+// - application/yaml
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -61,13 +61,23 @@ import (
 //   '200':
 //     description: Successfully retrieved the map of pipeline templates
 //     schema:
-//       "$ref": "#/definitions/Template"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Template"
 //   '400':
-//     description: Unable to retrieve the pipeline configuration templates
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve the pipeline configuration templates
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -75,7 +85,8 @@ import (
 // map of templates utilized by a pipeline configuration.
 func GetTemplates(c *gin.Context) {
 	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	o := org.Retrieve(c)
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
@@ -84,15 +95,7 @@ func GetTemplates(c *gin.Context) {
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":      o,
-		"pipeline": p.GetCommit(),
-		"repo":     r.GetName(),
-		"user":     u.GetName(),
-	}).Infof("reading templates from pipeline %s", entry)
+	l.Debugf("reading templates from pipeline %s", entry)
 
 	// create the compiler object
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
@@ -101,14 +104,6 @@ func GetTemplates(c *gin.Context) {
 	pipeline, _, err := compiler.Parse(p.GetData(), p.GetType(), new(yaml.Template))
 	if err != nil {
 		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("unable to parse pipeline %s: %w", entry, err))
-
-		return
-	}
-
-	// send API call to capture the repo owner
-	user, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-	if err != nil {
-		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err))
 
 		return
 	}
@@ -144,7 +139,7 @@ func GetTemplates(c *gin.Context) {
 		}
 
 		// retrieve link to template file from github
-		link, err := scm.FromContext(c).GetHTMLURL(ctx, user, src.Org, src.Repo, src.Name, src.Ref)
+		link, err := scm.FromContext(c).GetHTMLURL(ctx, r.GetOwner(), src.Org, src.Repo, src.Name, src.Ref)
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("%s: unable to get html url for %s/%s/%s/@%s: %w", baseErr, src.Org, src.Repo, src.Name, src.Ref, err))
 

@@ -8,43 +8,42 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/executors"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/cancel builds CancelBuild
 //
-// Cancel a running build
+// Cancel a build
 //
 // ---
 // produces:
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to cancel
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -53,43 +52,39 @@ import (
 //   '200':
 //     description: Successfully canceled the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Unable to cancel build
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to cancel build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to cancel build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CancelBuild represents the API handler to cancel a running build.
+// CancelBuild represents the API handler to cancel a build.
 //
 //nolint:funlen // ignore statement count
 func CancelBuild(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
 	e := executors.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	user := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  user.GetName(),
-	}).Infof("canceling build %s", entry)
+	l.Debugf("canceling build %s", entry)
 
 	switch b.GetStatus() {
 	case constants.StatusRunning:
@@ -104,7 +99,7 @@ func CancelBuild(c *gin.Context) {
 
 		for _, executor := range e {
 			// check each executor on the worker running the build to see if it's running the build we want to cancel
-			if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
+			if executor.Build.GetID() == b.GetID() {
 				// prepare the request to the worker
 				client := http.DefaultClient
 				client.Timeout = 30 * time.Second
@@ -178,6 +173,11 @@ func CancelBuild(c *gin.Context) {
 					return
 				}
 
+				l.WithFields(logrus.Fields{
+					"build":    b.GetNumber(),
+					"build_id": b.GetID(),
+				}).Info("build updated - build canceled")
+
 				c.JSON(resp.StatusCode, b)
 
 				return
@@ -206,6 +206,11 @@ func CancelBuild(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	}).Info("build updated - build canceled")
 
 	// remove build executable for clean up
 	_, err = database.FromContext(c).PopBuildExecutable(ctx, b.GetID())

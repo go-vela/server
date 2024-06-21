@@ -8,12 +8,14 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestHook_Engine_LastHookForRepo(t *testing.T) {
 	// setup types
-	_hook := testHook()
+	_hook := testutils.APIHook()
 	_hook.SetID(1)
 	_hook.SetRepoID(1)
 	_hook.SetBuildID(1)
@@ -21,9 +23,9 @@ func TestHook_Engine_LastHookForRepo(t *testing.T) {
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hook.SetWebhookID(1)
 
-	_repo := testRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")

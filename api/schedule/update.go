@@ -8,18 +8,18 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/schedule"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/schedules/{org}/{repo}/{schedule} schedules UpdateSchedule
 //
-// Update a schedule for the configured backend
+// Update a schedule
 //
 // ---
 // produces:
@@ -27,12 +27,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -42,7 +42,7 @@ import (
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the schedule to update
+//   description: The schedule object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Schedule"
@@ -54,40 +54,36 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Schedule"
 //   '400':
-//     description: Unable to update the schedule
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to update the schedule
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the schedule
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateSchedule represents the API handler to update
-// a schedule in the configured backend.
+// UpdateSchedule represents the API handler to update a schedule.
 func UpdateSchedule(c *gin.Context) {
 	// capture middleware values
-	r := repo.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	s := schedule.Retrieve(c)
-	ctx := c.Request.Context()
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 	scheduleName := util.PathParameter(c, "schedule")
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"schedule": scheduleName,
-		"repo":     r.GetName(),
-		"org":      r.GetOrg(),
-	}).Infof("updating schedule %s", scheduleName)
+	l.Debugf("updating schedule %s", scheduleName)
 
 	// capture body from API request
-	input := new(library.Schedule)
+	input := new(api.Schedule)
 
 	err := c.Bind(input)
 	if err != nil {

@@ -3,19 +3,18 @@
 package secret
 
 import (
-	"database/sql/driver"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/library/actions"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/library/actions"
 )
 
 func TestSecret_New(t *testing.T) {
@@ -178,10 +177,9 @@ func testSqlite(t *testing.T) *engine {
 
 // testRepo is a test helper function to create a library
 // Repo type with all fields set to their zero values.
-func testRepo() *library.Repo {
-	return &library.Repo{
+func testRepo() *api.Repo {
+	return &api.Repo{
 		ID:           new(int64),
-		UserID:       new(int64),
 		BuildLimit:   new(int64),
 		Timeout:      new(int64),
 		Counter:      new(int),
@@ -198,11 +196,6 @@ func testRepo() *library.Repo {
 		Private:      new(bool),
 		Trusted:      new(bool),
 		Active:       new(bool),
-		AllowPull:    new(bool),
-		AllowPush:    new(bool),
-		AllowDeploy:  new(bool),
-		AllowTag:     new(bool),
-		AllowComment: new(bool),
 	}
 }
 
@@ -210,21 +203,21 @@ func testRepo() *library.Repo {
 // Secret type with all fields set to their zero values.
 func testSecret() *library.Secret {
 	return &library.Secret{
-		ID:           new(int64),
-		Org:          new(string),
-		Repo:         new(string),
-		Team:         new(string),
-		Name:         new(string),
-		Value:        new(string),
-		Type:         new(string),
-		Images:       new([]string),
-		Events:       new([]string),
-		AllowEvents:  testEvents(),
-		AllowCommand: new(bool),
-		CreatedAt:    new(int64),
-		CreatedBy:    new(string),
-		UpdatedAt:    new(int64),
-		UpdatedBy:    new(string),
+		ID:                new(int64),
+		Org:               new(string),
+		Repo:              new(string),
+		Team:              new(string),
+		Name:              new(string),
+		Value:             new(string),
+		Type:              new(string),
+		Images:            new([]string),
+		AllowEvents:       testEvents(),
+		AllowCommand:      new(bool),
+		AllowSubstitution: new(bool),
+		CreatedAt:         new(int64),
+		CreatedBy:         new(string),
+		UpdatedAt:         new(int64),
+		UpdatedBy:         new(string),
 	}
 }
 
@@ -241,6 +234,8 @@ func testEvents() *library.Events {
 			Edited:      new(bool),
 			Synchronize: new(bool),
 			Reopened:    new(bool),
+			Labeled:     new(bool),
+			Unlabeled:   new(bool),
 		},
 		Deployment: &actions.Deploy{
 			Created: new(bool),
@@ -253,30 +248,4 @@ func testEvents() *library.Events {
 			Run: new(bool),
 		},
 	}
-}
-
-// This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values
-// that are otherwise not easily compared. These typically would be values generated
-// before adding or updating them in the database.
-//
-// https://github.com/DATA-DOG/go-sqlmock#matching-arguments-like-timetime
-type AnyArgument struct{}
-
-// Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(_ driver.Value) bool {
-	return true
-}
-
-// NowTimestamp is used to test whether timestamps get updated correctly to the current time with lenience.
-type NowTimestamp struct{}
-
-// Match satisfies sqlmock.Argument interface.
-func (t NowTimestamp) Match(v driver.Value) bool {
-	ts, ok := v.(int64)
-	if !ok {
-		return false
-	}
-	now := time.Now().Unix()
-
-	return now-ts < 10
 }

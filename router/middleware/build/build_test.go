@@ -6,19 +6,22 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/go-cmp/cmp"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/types/library"
 )
 
 func TestBuild_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.Build)
+	want := new(api.Build)
 	want.SetID(1)
 
 	// setup context
@@ -37,18 +40,23 @@ func TestBuild_Retrieve(t *testing.T) {
 
 func TestBuild_Establish(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := testutils.APIUser().Crop()
+	owner.SetID(1)
+	owner.SetName("octocat")
+	owner.SetToken("foo")
+
+	r := testutils.APIRepo()
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	want := new(library.Build)
+	want := new(api.Build)
 	want.SetID(1)
-	want.SetRepoID(1)
+	want.SetRepo(r)
 	want.SetPipelineID(0)
 	want.SetNumber(1)
 	want.SetParent(1)
@@ -68,6 +76,7 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetMessage("")
 	want.SetCommit("")
 	want.SetSender("")
+	want.SetSenderSCMID("")
 	want.SetAuthor("")
 	want.SetEmail("")
 	want.SetLink("")
@@ -82,7 +91,7 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetApprovedAt(0)
 	want.SetApprovedBy("")
 
-	got := new(library.Build)
+	got := new(api.Build)
 
 	// setup database
 	db, err := database.NewTest()
@@ -93,11 +102,24 @@ func TestBuild_Establish(t *testing.T) {
 	defer func() {
 		_ = db.DeleteBuild(context.TODO(), want)
 		_ = db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteUser(context.TODO(), owner)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(context.TODO(), r)
-	_, _ = db.CreateBuild(context.TODO(), want)
+	_, err = db.CreateUser(context.TODO(), owner)
+	if err != nil {
+		t.Errorf("unable to create test user: %v", err)
+	}
+
+	_, err = db.CreateRepo(context.TODO(), r)
+	if err != nil {
+		t.Errorf("unable to create test repo: %v", err)
+	}
+
+	_, err = db.CreateBuild(context.TODO(), want)
+	if err != nil {
+		t.Errorf("unable to create test build: %v", err)
+	}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -107,6 +129,7 @@ func TestBuild_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -124,8 +147,8 @@ func TestBuild_Establish(t *testing.T) {
 		t.Errorf("Establish returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Establish is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Establish mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -145,6 +168,7 @@ func TestBuild_Establish_NoRepo(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 
@@ -158,9 +182,12 @@ func TestBuild_Establish_NoRepo(t *testing.T) {
 
 func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -188,6 +215,7 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -206,9 +234,12 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 
 func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -236,6 +267,7 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/foo", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -254,9 +286,9 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 
 func TestBuild_Establish_NoBuild(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.GetOwner().SetID(1)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -284,6 +316,7 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -9,18 +8,17 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/util"
-
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation GET /api/v1/admin/builds/queue admin AllBuildsQueue
 //
-// Get all of the running and pending builds in the database
+// Get running and pending builds
 //
 // ---
 // produces:
@@ -39,19 +37,24 @@ import (
 //     schema:
 //       type: array
 //       items:
-//         "$ref": "#/definitions/BuildQueue"
+//         "$ref": "#/definitions/QueueBuild"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve all running and pending builds from the database
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// AllBuildsQueue represents the API handler to
-// captures all running and pending builds stored in the database.
+// AllBuildsQueue represents the API handler to get running and pending builds.
 func AllBuildsQueue(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Debug("platform admin: reading running and pending builds")
+
 	// capture middleware values
 	ctx := c.Request.Context()
-
-	logrus.Info("Admin: reading running and pending builds")
 
 	// default timestamp to 24 hours ago if user did not provide it as query parameter
 	after := c.DefaultQuery("after", strconv.FormatInt(time.Now().UTC().Add(-24*time.Hour).Unix(), 10))
@@ -71,7 +74,7 @@ func AllBuildsQueue(c *gin.Context) {
 
 // swagger:operation PUT /api/v1/admin/build admin AdminUpdateBuild
 //
-// Update a build in the database
+// Update a build
 //
 // ---
 // produces:
@@ -79,7 +82,7 @@ func AllBuildsQueue(c *gin.Context) {
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing build to update
+//   description: The build object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Build"
@@ -87,37 +90,45 @@ func AllBuildsQueue(c *gin.Context) {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the build in the database
+//     description: Successfully updated the build
 //     schema:
 //       "$ref": "#/definitions/Build"
-//   '404':
-//     description: Unable to update the build in the database
+//   '400':
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the build in the database
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateBuild represents the API handler to
-// update any build stored in the database.
+// UpdateBuild represents the API handler to update a build.
 func UpdateBuild(c *gin.Context) {
-	logrus.Info("Admin: updating build in database")
-
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
+	l.Debug("platform admin: updating build")
+
 	// capture body from API request
-	input := new(library.Build)
+	input := new(types.Build)
 
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for build %d: %w", input.GetID(), err)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"build":    input.GetNumber(),
+		"build_id": input.GetID(),
+		"repo":     util.EscapeValue(input.GetRepo().GetName()),
+		"repo_id":  input.GetRepo().GetID(),
+		"org":      util.EscapeValue(input.GetRepo().GetOrg()),
+	}).Debug("platform admin: attempting to update build")
 
 	// send API call to update the build
 	b, err := database.FromContext(c).UpdateBuild(ctx, input)
@@ -128,6 +139,14 @@ func UpdateBuild(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+		"repo":     b.GetRepo().GetName(),
+		"repo_id":  b.GetRepo().GetID(),
+		"org":      b.GetRepo().GetOrg(),
+	}).Info("platform admin: updated build")
 
 	c.JSON(http.StatusOK, b)
 }

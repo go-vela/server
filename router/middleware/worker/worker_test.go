@@ -10,13 +10,15 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestWorker_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.Worker)
+	want := new(api.Worker)
 	want.SetID(1)
 
 	// setup context
@@ -34,7 +36,10 @@ func TestWorker_Retrieve(t *testing.T) {
 
 func TestWorker_Establish(t *testing.T) {
 	// setup types
-	want := new(library.Worker)
+	b := new(api.Build)
+	b.SetID(1)
+
+	want := new(api.Worker)
 	want.SetID(1)
 	want.SetHostname("worker_0")
 	want.SetAddress("localhost")
@@ -42,13 +47,13 @@ func TestWorker_Establish(t *testing.T) {
 	want.SetActive(true)
 	want.SetStatus("available")
 	want.SetLastStatusUpdateAt(12345)
-	want.SetRunningBuildIDs([]string{})
+	want.SetRunningBuilds([]*api.Build{b})
 	want.SetLastBuildStartedAt(12345)
 	want.SetLastBuildFinishedAt(12345)
 	want.SetLastCheckedIn(12345)
 	want.SetBuildLimit(0)
 
-	got := new(library.Worker)
+	got := new(api.Worker)
 
 	// setup database
 	db, err := database.NewTest()
@@ -71,6 +76,7 @@ func TestWorker_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/worker_0", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/workers/:worker", func(c *gin.Context) {
@@ -107,6 +113,7 @@ func TestWorker_Establish_NoWorkerParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/workers/:worker", func(c *gin.Context) {

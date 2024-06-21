@@ -9,20 +9,21 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/approve builds ApproveBuild
 //
-// Sign off on a build to run from an outside contributor
+// Approve a build to run
 //
 // ---
 // produces:
@@ -30,17 +31,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to retrieve
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -50,41 +51,33 @@ import (
 //     description: Request processed but build was skipped
 //     schema:
 //       type: string
-//   '201':
-//     description: Successfully created the build
-//     type: json
-//     schema:
-//       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Unable to create the build
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to create the build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CreateBuild represents the API handler to approve a build to run in the configured backend.
+// ApproveBuild represents the API handler to approve a build to run.
 func ApproveBuild(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	})
+	l.Debugf("approving build %d", b.GetID())
 
 	// verify build is in correct status
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
@@ -102,37 +95,25 @@ func ApproveBuild(c *gin.Context) {
 		return
 	}
 
-	logger.Debugf("user %s approved build %s/%d for execution", u.GetName(), r.GetFullName(), b.GetNumber())
-
-	// send API call to capture the repo owner
-	owner, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
 	// set fields
 	b.SetStatus(constants.StatusPending)
 	b.SetApprovedAt(time.Now().Unix())
 	b.SetApprovedBy(u.GetName())
 
 	// update the build in the db
-	_, err = database.FromContext(c).UpdateBuild(ctx, b)
+	_, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
-		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
+		l.Errorf("failed to update build during publish to queue: %v", err)
 	}
 
+	l.Info("build updated - user approved build execution")
+
 	// publish the build to the queue
-	go PublishToQueue(
+	go Enqueue(
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		b,
-		r,
-		owner,
+		models.ToItem(b),
 		b.GetHost(),
 	)
 

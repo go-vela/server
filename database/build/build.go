@@ -6,15 +6,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
+
+	"github.com/go-vela/types/constants"
 )
 
 type (
 	// config represents the settings required to create the engine that implements the BuildInterface interface.
 	config struct {
+		// specifies the encryption key to use for the Build engine
+		EncryptionKey string
 		// specifies to skip creating tables and indexes for the Build engine
 		SkipCreation bool
 	}
@@ -60,7 +62,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 
 	// check if we should skip creating build database objects
 	if e.config.SkipCreation {
-		e.logger.Warning("skipping creation of builds table and indexes in the database")
+		e.logger.Warning("skipping creation of builds table and indexes")
 
 		return e, nil
 	}

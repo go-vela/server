@@ -44,7 +44,7 @@ ON builds (status);
 
 // CreateBuildIndexes creates the indexes for the builds table in the database.
 func (e *engine) CreateBuildIndexes(ctx context.Context) error {
-	e.logger.Tracef("creating indexes for builds table in the database")
+	e.logger.Tracef("creating indexes for builds table")
 
 	// create the created column index for the builds table
 	err := e.client.Exec(CreateCreatedIndex).Error

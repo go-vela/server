@@ -5,14 +5,15 @@ package log
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListLogsForBuild gets a list of logs by build ID from the database.
-func (e *engine) ListLogsForBuild(ctx context.Context, b *library.Build, page, perPage int) ([]*library.Log, int64, error) {
-	e.logger.Tracef("listing logs for build %d from the database", b.GetID())
+func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPage int) ([]*library.Log, int64, error) {
+	e.logger.Tracef("listing logs for build %d", b.GetID())
 
 	// variables to store query results and return value
 	count := int64(0)

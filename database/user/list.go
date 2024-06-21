@@ -5,19 +5,19 @@ package user
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListUsers gets a list of all users from the database.
-func (e *engine) ListUsers(ctx context.Context) ([]*library.User, error) {
-	e.logger.Trace("listing all users from the database")
+func (e *engine) ListUsers(ctx context.Context) ([]*api.User, error) {
+	e.logger.Trace("listing all users")
 
 	// variables to store query results and return value
 	count := int64(0)
-	u := new([]database.User)
-	users := []*library.User{}
+	u := new([]types.User)
+	users := []*api.User{}
 
 	// count the results
 	count, err := e.CountUsers(ctx)
@@ -45,8 +45,6 @@ func (e *engine) ListUsers(ctx context.Context) ([]*library.User, error) {
 		tmp := user
 
 		// decrypt the fields for the user
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
 		err = tmp.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
@@ -57,10 +55,8 @@ func (e *engine) ListUsers(ctx context.Context) ([]*library.User, error) {
 			e.logger.Errorf("unable to decrypt user %d: %v", tmp.ID.Int64, err)
 		}
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#User.ToLibrary
-		users = append(users, tmp.ToLibrary())
+		// convert query result to API type
+		users = append(users, tmp.ToAPI())
 	}
 
 	return users, nil

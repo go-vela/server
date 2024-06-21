@@ -6,19 +6,21 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // GetDeploymentForRepo gets a deployment by repo ID and number from the database.
-func (e *engine) GetDeploymentForRepo(ctx context.Context, r *library.Repo, number int64) (*library.Deployment, error) {
+func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number int64) (*library.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": number,
 		"org":        r.GetOrg(),
 		"repo":       r.GetName(),
-	}).Tracef("getting deployment %s/%d from the database", r.GetFullName(), number)
+	}).Tracef("getting deployment %s/%d", r.GetFullName(), number)
 
 	// variable to store query results
 	d := new(database.Deployment)

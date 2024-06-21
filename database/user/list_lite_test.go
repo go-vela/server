@@ -8,24 +8,26 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	// setup types
-	_userOne := testUser()
+	_userOne := testutils.APIUser()
 	_userOne.SetID(1)
 	_userOne.SetName("foo")
 	_userOne.SetToken("bar")
-	_userOne.SetHash("baz")
 	_userOne.SetFavorites([]string{})
+	_userOne.SetDashboards([]string{})
 
-	_userTwo := testUser()
+	_userTwo := testutils.APIUser()
 	_userTwo.SetID(2)
 	_userTwo.SetName("baz")
 	_userTwo.SetToken("bar")
-	_userTwo.SetHash("foo")
 	_userTwo.SetFavorites([]string{})
+	_userTwo.SetDashboards([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -61,32 +63,32 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	// empty fields not returned by query
 	_userOne.RefreshToken = new(string)
 	_userOne.Token = new(string)
-	_userOne.Hash = new(string)
 	_userOne.Favorites = new([]string)
+	_userOne.Dashboards = new([]string)
 
 	_userTwo.RefreshToken = new(string)
 	_userTwo.Token = new(string)
-	_userTwo.Hash = new(string)
 	_userTwo.Favorites = new([]string)
+	_userTwo.Dashboards = new([]string)
 
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.User
+		want     []*api.User
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.User{_userOne, _userTwo},
+			want:     []*api.User{_userOne, _userTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.User{_userTwo, _userOne},
+			want:     []*api.User{_userTwo, _userOne},
 		},
 	}
 

@@ -8,33 +8,33 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/compiler"
-	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/{pipeline}/expand pipelines ExpandPipeline
 //
-// Get and expand a pipeline from the configured backend
+// Expand a pipeline
 //
 // ---
 // produces:
-// - application/x-yaml
+// - application/yaml
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -59,11 +59,19 @@ import (
 //     schema:
 //       "$ref": "#/definitions/PipelineBuild"
 //   '400':
-//     description: Unable to expand the pipeline configuration
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve the pipeline configuration
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -71,23 +79,15 @@ import (
 // expand a pipeline configuration.
 func ExpandPipeline(c *gin.Context) {
 	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
-	o := org.Retrieve(c)
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":      o,
-		"pipeline": p.GetCommit(),
-		"repo":     r.GetName(),
-		"user":     u.GetName(),
-	}).Infof("expanding templates for pipeline %s", entry)
+	l.Debugf("expanding templates for pipeline %s", entry)
 
 	// ensure we use the expected pipeline type when compiling
 	r.SetPipelineType(p.GetType())
@@ -95,8 +95,10 @@ func ExpandPipeline(c *gin.Context) {
 	// create the compiler object
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
+	ruleData := prepareRuleData(c)
+
 	// expand the templates in the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), false)
+	pipeline, _, err := compiler.CompileLite(p.GetData(), ruleData, false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to expand pipeline %s: %w", entry, err)
 

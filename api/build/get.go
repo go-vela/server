@@ -6,16 +6,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/repo"
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild
 //
-// Get a build in the configured backend
+// Get a build
 //
 // ---
 // produces:
@@ -23,17 +22,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to retrieve
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -44,25 +43,28 @@ import (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 
-// GetBuild represents the API handler to capture
-// a build for a repo from the configured backend.
+// GetBuild represents the API handler to get
+// a build for a repository.
 func GetBuild(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("reading build %s/%d", r.GetFullName(), b.GetNumber())
+	l.Debugf("reading build %s/%d", r.GetFullName(), b.GetNumber())
 
 	c.JSON(http.StatusOK, b)
 }

@@ -30,7 +30,11 @@ steps (
 	host          VARCHAR(250),
 	runtime       VARCHAR(250),
 	distribution  VARCHAR(250),
+<<<<<<< HEAD
 	check_id      INTEGER,
+=======
+	report_as     VARCHAR(250),
+>>>>>>> hackathon/github_app
 	UNIQUE(build_id, number)
 );
 `
@@ -56,7 +60,11 @@ steps (
 	host          TEXT,
 	runtime       TEXT,
 	distribution  TEXT,
+<<<<<<< HEAD
 	check_id      INTEGER,
+=======
+	report_as     TEXT,
+>>>>>>> hackathon/github_app
 	UNIQUE(build_id, number)
 );
 `

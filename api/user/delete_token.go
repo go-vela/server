@@ -8,12 +8,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation DELETE /api/v1/user/token users DeleteToken
@@ -30,24 +31,24 @@ import (
 //     description: Successfully delete a token for the current user
 //     schema:
 //       type: string
-//   '500':
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '503':
 //     description: Unable to delete a token for the current user
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // DeleteToken represents the API handler to revoke
-// and recreate a user token in the configured backend.
+// and recreate a user token.
 func DeleteToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("revoking token for user %s", u.GetName())
+	l.Debugf("revoking token for user %s", u.GetName())
 
 	tm := c.MustGet("token-manager").(*token.Manager)
 
@@ -72,6 +73,8 @@ func DeleteToken(c *gin.Context) {
 
 		return
 	}
+
+	l.Info("user updated - token rotated")
 
 	c.JSON(http.StatusOK, library.Token{Token: &at})
 }

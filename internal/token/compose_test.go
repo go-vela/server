@@ -9,24 +9,22 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
+	"github.com/golang-jwt/jwt/v5"
 
-	jwt "github.com/golang-jwt/jwt/v5"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
+	"github.com/go-vela/types/constants"
 )
 
 func TestToken_Compose(t *testing.T) {
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -48,13 +46,13 @@ func TestToken_Compose(t *testing.T) {
 
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	want, err := tkn.SignedString([]byte(tm.PrivateKey))
+	want, err := tkn.SignedString([]byte(tm.PrivateKeyHMAC))
 	if err != nil {
 		t.Errorf("Unable to create test token: %v", err)
 	}
 
-	m := &types.Metadata{
-		Vela: &types.Vela{
+	m := &internal.Metadata{
+		Vela: &internal.Vela{
 			AccessTokenDuration: d,
 		},
 	}

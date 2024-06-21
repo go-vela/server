@@ -8,17 +8,17 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-vela/types/constants"
+	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
+
+	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/version"
-	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
-
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/go-vela/types/constants"
 )
 
 //nolint:funlen // ignore line length
@@ -78,6 +78,12 @@ func main() {
 			EnvVars: []string{"VELA_SECRET"},
 			Name:    "vela-secret",
 			Usage:   "secret used for server <-> agent communication",
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_PLATFORM_SETTINGS_REFRESH_INTERVAL", "VELA_SETTINGS_REFRESH_INTERVAL"},
+			Name:    "settings-refresh-interval",
+			Usage:   "interval at which platform settings will be refreshed",
+			Value:   5 * time.Second,
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SERVER_PRIVATE_KEY"},
@@ -174,6 +180,12 @@ func main() {
 			Name:    "worker-register-token-duration",
 			Usage:   "sets the duration of the worker register token",
 			Value:   1 * time.Minute,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_OPEN_ID_TOKEN_DURATION", "OPEN_ID_TOKEN_DURATION"},
+			Name:    "id-token-duration",
+			Usage:   "sets the duration of an OpenID token requested during a build (should be short)",
+			Value:   5 * time.Minute,
 		},
 		// Compiler Flags
 		&cli.BoolFlag{

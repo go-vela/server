@@ -12,10 +12,10 @@ jobs:
 
     steps:
     - name: clone
-      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
     - name: install go
-      uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+      uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5.0.1
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
@@ -23,7 +23,7 @@ jobs:
         check-latest: true
 
     - name: golangci-lint
-      uses: reviewdog/action-golangci-lint@8e1117c7d327bbfb1eb7ec8dc2d895d13e6e17c3 # v2.6.0
+      uses: reviewdog/action-golangci-lint@00311c26a97213f93f2fd3a3524d66762e956ae0 # v2.6.1
       with:
         github_token: ${{ secrets.github_token }}
         golangci_lint_flags: "--config=.golangci.yml --timeout=5m"
@@ -36,10 +36,10 @@ jobs:
 
     steps:
     - name: clone
-      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
     - name: install go
-      uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+      uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5.0.1
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
@@ -47,7 +47,7 @@ jobs:
         check-latest: true
 
     - name: golangci-lint
-      uses: reviewdog/action-golangci-lint@8e1117c7d327bbfb1eb7ec8dc2d895d13e6e17c3 # v2.6.0
+      uses: reviewdog/action-golangci-lint@00311c26a97213f93f2fd3a3524d66762e956ae0 # v2.6.1
       with:
         github_token: ${{ secrets.github_token }}
         golangci_lint_flags: "--config=.golangci.yml --timeout=5m"

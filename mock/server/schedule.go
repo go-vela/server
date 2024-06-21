@@ -9,28 +9,61 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
 	// ScheduleResp represents a JSON return for a single schedule.
 	ScheduleResp = `{
-	"id": 2,
-	"repo_id": 1,
-	"active": true,
-	"name": "foo",
-	"entry": "@weekly",
-	"created_at": 1683154980,
-	"created_by": "octocat",
-	"updated_at": 1683154980,
-	"updated_by": "octocat",
-	"scheduled_at": 0,
-	"branch": "main"
-}`
-	SchedulesResp = `[
-	{
 		"id": 2,
+		"repo": {
+			"id": 1,
+			"owner": {
+				"id": 1,
+				"name": "octocat",
+				"favorites": [],
+				"active": true,
+				"admin": false
+			},
+			"org": "github",
+			"counter": 10,
+			"name": "octocat",
+			"full_name": "github/octocat",
+			"link": "https://github.com/github/octocat",
+			"clone": "https://github.com/github/octocat",
+			"branch": "main",
+			"build_limit": 10,
+			"timeout": 60,
+			"visibility": "public",
+			"private": false,
+			"trusted": true,
+			"pipeline_type": "yaml",
+			"topics": [],
+			"active": true,
+			"allow_events": {
+				"push": {
+					"branch": true,
+					"tag": true
+				},
+				"pull_request": {
+					"opened": true,
+					"synchronize": true,
+					"reopened": true,
+					"edited": false
+				},
+				"deployment": {
+					"created": true
+				},
+				"comment": {
+					"created": false,
+					"edited": false
+				}
+			},
+			"approve_build": "fork-always",
+			"previous_name": ""
+		},
 		"active": true,
 		"name": "foo",
 		"entry": "@weekly",
@@ -39,11 +72,119 @@ const (
 		"updated_at": 1683154980,
 		"updated_by": "octocat",
 		"scheduled_at": 0,
-		"repo_id": 1,
-		"branch": "main"
+		"branch": "main",
+		"error": "error message",
+		"next_run": 0
+	}`
+	SchedulesResp = `[
+	{
+		"id": 2,
+		"repo": {
+			"id": 1,
+			"owner": {
+				"id": 1,
+				"name": "octocat",
+				"favorites": [],
+				"active": true,
+				"admin": false
+			},
+			"org": "github",
+			"counter": 10,
+			"name": "octocat",
+			"full_name": "github/octocat",
+			"link": "https://github.com/github/octocat",
+			"clone": "https://github.com/github/octocat",
+			"branch": "main",
+			"build_limit": 10,
+			"timeout": 60,
+			"visibility": "public",
+			"private": false,
+			"trusted": true,
+			"pipeline_type": "yaml",
+			"topics": [],
+			"active": true,
+			"allow_events": {
+				"push": {
+					"branch": true,
+					"tag": true
+				},
+				"pull_request": {
+					"opened": true,
+					"synchronize": true,
+					"reopened": true,
+					"edited": false
+				},
+				"deployment": {
+					"created": true
+				},
+				"comment": {
+					"created": false,
+					"edited": false
+				}
+			},
+			"approve_build": "fork-always",
+			"previous_name": ""
+		},
+		"active": true,
+		"name": "foo",
+		"entry": "@weekly",
+		"created_at": 1683154980,
+		"created_by": "octocat",
+		"updated_at": 1683154980,
+		"updated_by": "octocat",
+		"scheduled_at": 0,
+		"branch": "main",
+		"error": "error message",
+		"next_run": 0
 	},
 	{
 		"id": 1,
+		"repo": {
+			"id": 1,
+			"owner": {
+				"id": 1,
+				"name": "octocat",
+				"favorites": [],
+				"active": true,
+				"admin": false
+			},
+			"org": "github",
+			"counter": 10,
+			"name": "octocat",
+			"full_name": "github/octocat",
+			"link": "https://github.com/github/octocat",
+			"clone": "https://github.com/github/octocat",
+			"branch": "main",
+			"build_limit": 10,
+			"timeout": 60,
+			"visibility": "public",
+			"private": false,
+			"trusted": true,
+			"pipeline_type": "yaml",
+			"topics": [],
+			"active": true,
+			"allow_events": {
+				"push": {
+					"branch": true,
+					"tag": true
+				},
+				"pull_request": {
+					"opened": true,
+					"synchronize": true,
+					"reopened": true,
+					"edited": false
+				},
+				"deployment": {
+					"created": true
+				},
+				"comment": {
+					"created": false,
+					"edited": false
+				}
+			},
+			"approve_build": "fork-always",
+			"previous_name": ""
+		},
 		"active": true,
 		"name": "bar",
 		"entry": "@weekly",
@@ -53,16 +194,17 @@ const (
 		"updated_by": "octocat",
 		"scheduled_at": 0,
 		"repo_id": 1,
-		"branch": "main
-	}
-]`
+		"branch": "main",
+		"error": "error message",
+		"next_run": 0
+	}]`
 )
 
 // getSchedules returns mock JSON for a http GET.
 func getSchedules(c *gin.Context) {
 	data := []byte(SchedulesResp)
 
-	var body []library.Schedule
+	var body []api.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -84,7 +226,7 @@ func getSchedule(c *gin.Context) {
 
 	data := []byte(ScheduleResp)
 
-	var body library.Schedule
+	var body api.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -94,7 +236,7 @@ func getSchedule(c *gin.Context) {
 func addSchedule(c *gin.Context) {
 	data := []byte(ScheduleResp)
 
-	var body library.Schedule
+	var body api.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -118,7 +260,7 @@ func updateSchedule(c *gin.Context) {
 
 	data := []byte(ScheduleResp)
 
-	var body library.Schedule
+	var body api.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

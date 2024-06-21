@@ -4,6 +4,7 @@ package step
 
 import (
 	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -11,7 +12,7 @@ import (
 
 // ListSteps gets a list of all steps from the database.
 func (e *engine) ListSteps(ctx context.Context) ([]*library.Step, error) {
-	e.logger.Trace("listing all steps from the database")
+	e.logger.Trace("listing all steps")
 
 	// variables to store query results and return value
 	count := int64(0)

@@ -17,7 +17,7 @@ ON hooks (repo_id);
 
 // CreateHookIndexes creates the indexes for the hooks table in the database.
 func (e *engine) CreateHookIndexes(ctx context.Context) error {
-	e.logger.Tracef("creating indexes for hooks table in the database")
+	e.logger.Tracef("creating indexes for hooks table")
 
 	// create the repo_id column index for the hooks table
 	return e.client.Exec(CreateRepoIDIndex).Error

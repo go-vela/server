@@ -3,14 +3,17 @@
 package vault
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
-	"github.com/go-vela/types/library"
 	"github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/library"
 )
 
 const (
@@ -142,25 +145,44 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 		data = vault.Data
 	}
 
-	// set events if found in Vault secret
-	v, ok := data["events"]
+	// set allow_events if found in Vault secret
+	v, ok := data["allow_events"]
 	if ok {
-		events, ok := v.([]interface{})
+		maskJSON, ok := v.(json.Number)
 		if ok {
-			for _, element := range events {
-				event, ok := element.(string)
-				if ok {
-					s.SetEvents(append(s.GetEvents(), event))
-				}
+			mask, err := maskJSON.Int64()
+			if err == nil {
+				s.SetAllowEvents(library.NewEventsFromMask(mask))
 			}
 		}
-	}
-
-	v, ok = data["allow_events"]
-	if ok {
-		mask, ok := v.(int64)
+	} else {
+		// if not found, convert events to allow_events
+		// this happens when vault secret has not been updated since before v0.23
+		events, ok := data["events"]
 		if ok {
-			s.SetAllowEvents(library.NewEventsFromMask(mask))
+			allowEventsMask := int64(0)
+
+			for _, element := range events.([]interface{}) {
+				event, ok := element.(string)
+				if ok {
+					switch event {
+					case constants.EventPush:
+						allowEventsMask |= constants.AllowPushBranch
+					case constants.EventPull:
+						allowEventsMask |= constants.AllowPullOpen | constants.AllowPullReopen | constants.AllowPullSync
+					case constants.EventComment:
+						allowEventsMask |= constants.AllowCommentCreate | constants.AllowCommentEdit
+					case constants.EventDeploy:
+						allowEventsMask |= constants.AllowDeployCreate
+					case constants.EventTag:
+						allowEventsMask |= constants.AllowPushTag
+					case constants.EventSchedule:
+						allowEventsMask |= constants.AllowSchedule
+					}
+				}
+			}
+
+			s.SetAllowEvents(library.NewEventsFromMask(allowEventsMask))
 		}
 	}
 
@@ -241,12 +263,33 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 		}
 	}
 
+	// set allow_substitution if found in Vault secret
+	v, ok = data["allow_substitution"]
+	if ok {
+		substitution, ok := v.(bool)
+		if ok {
+			s.SetAllowSubstitution(substitution)
+		}
+	} else {
+		// set allow_substitution to allow_command value if not found in Vault secret
+		cmd, ok := data["allow_command"]
+		if ok {
+			command, ok := cmd.(bool)
+			if ok {
+				s.SetAllowSubstitution(command)
+			}
+		}
+	}
+
 	// set created_at if found in Vault secret
 	v, ok = data["created_at"]
 	if ok {
-		createdAt, ok := v.(int64)
+		createdAtJSON, ok := v.(json.Number)
 		if ok {
-			s.SetCreatedAt(createdAt)
+			createdAt, err := createdAtJSON.Int64()
+			if err == nil {
+				s.SetCreatedAt(createdAt)
+			}
 		}
 	}
 
@@ -262,9 +305,12 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	// set updated_at if found in Vault secret
 	v, ok = data["updated_at"]
 	if ok {
-		updatedAt, ok := v.(int64)
+		updatedAtJSON, ok := v.(json.Number)
 		if ok {
-			s.SetUpdatedAt(updatedAt)
+			updatedAt, err := updatedAtJSON.Int64()
+			if err == nil {
+				s.SetUpdatedAt(updatedAt)
+			}
 		}
 	}
 
@@ -285,11 +331,6 @@ func vaultFromSecret(s *library.Secret) *api.Secret {
 	data := make(map[string]interface{})
 	vault := new(api.Secret)
 	vault.Data = data
-
-	// set events if found in Vela secret
-	if len(s.GetEvents()) > 0 {
-		vault.Data["events"] = s.GetEvents()
-	}
 
 	// set allow events to mask
 	if s.GetAllowEvents().ToDatabase() != 0 {
@@ -334,6 +375,11 @@ func vaultFromSecret(s *library.Secret) *api.Secret {
 	// set allow_command if found in Vela secret
 	if s.AllowCommand != nil {
 		vault.Data["allow_command"] = s.GetAllowCommand()
+	}
+
+	// set allow_substitution if found in Vela secret
+	if s.AllowSubstitution != nil {
+		vault.Data["allow_substitution"] = s.GetAllowSubstitution()
 	}
 
 	// set created_at if found in Vela secret

@@ -3,18 +3,19 @@
 package native
 
 import (
+	"fmt"
 	"time"
-
-	"github.com/go-vela/server/compiler"
-
-	"github.com/go-vela/server/compiler/registry"
-	"github.com/go-vela/server/compiler/registry/github"
-
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/compiler/registry"
+	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/internal/image"
 )
 
 type ModificationConfig struct {
@@ -29,26 +30,26 @@ type client struct {
 	PrivateGithub       registry.Service
 	UsePrivateGithub    bool
 	ModificationService ModificationConfig
-	CloneImage          string
-	TemplateDepth       int
-	StarlarkExecLimit   uint64
 
-	build          *library.Build
+	settings.Compiler
+
+	build          *api.Build
 	comment        string
 	commit         string
 	files          []string
 	local          bool
 	localTemplates []string
-	metadata       *types.Metadata
-	repo           *library.Repo
-	user           *library.User
+	metadata       *internal.Metadata
+	repo           *api.Repo
+	user           *api.User
+	labels         []string
 }
 
-// New returns a Pipeline implementation that integrates with the supported registries.
+// FromCLIContext returns a Pipeline implementation that integrates with the supported registries.
 //
 //nolint:revive // ignore returning unexported client
-func New(ctx *cli.Context) (*client, error) {
-	logrus.Debug("Creating registry clients from CLI configuration")
+func FromCLIContext(ctx *cli.Context) (*client, error) {
+	logrus.Debug("creating registry clients from CLI configuration")
 
 	c := new(client)
 
@@ -69,14 +70,24 @@ func New(ctx *cli.Context) (*client, error) {
 
 	c.Github = github
 
+	c.Compiler = settings.Compiler{}
+
+	cloneImage := ctx.String("clone-image")
+
+	// validate clone image
+	_, err = image.ParseWithError(cloneImage)
+	if err != nil {
+		return nil, fmt.Errorf("invalid clone image %s: %w", cloneImage, err)
+	}
+
 	// set the clone image to use for the injected clone step
-	c.CloneImage = ctx.String("clone-image")
+	c.SetCloneImage(cloneImage)
 
 	// set the template depth to use for nested templates
-	c.TemplateDepth = ctx.Int("max-template-depth")
+	c.SetTemplateDepth(ctx.Int("max-template-depth"))
 
 	// set the starlark execution step limit for compiling starlark pipelines
-	c.StarlarkExecLimit = ctx.Uint64("compiler-starlark-exec-limit")
+	c.SetStarlarkExecLimit(ctx.Uint64("compiler-starlark-exec-limit"))
 
 	if ctx.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))
@@ -96,14 +107,14 @@ func New(ctx *cli.Context) (*client, error) {
 // setupGithub is a helper function to setup the
 // Github registry service from the CLI arguments.
 func setupGithub() (registry.Service, error) {
-	logrus.Tracef("Creating %s registry client from CLI configuration", "github")
+	logrus.Tracef("creating %s registry client from CLI configuration", "github")
 	return github.New("", "")
 }
 
 // setupPrivateGithub is a helper function to setup the
 // Github registry service from the CLI arguments.
 func setupPrivateGithub(addr, token string) (registry.Service, error) {
-	logrus.Tracef("Creating private %s registry client from CLI configuration", "github")
+	logrus.Tracef("creating private %s registry client from CLI configuration", "github")
 	return github.New(addr, token)
 }
 
@@ -124,7 +135,7 @@ func (c *client) Duplicate() compiler.Engine {
 }
 
 // WithBuild sets the library build type in the Engine.
-func (c *client) WithBuild(b *library.Build) compiler.Engine {
+func (c *client) WithBuild(b *api.Build) compiler.Engine {
 	if b != nil {
 		c.build = b
 	}
@@ -174,7 +185,7 @@ func (c *client) WithLocalTemplates(templates []string) compiler.Engine {
 }
 
 // WithMetadata sets the compiler metadata type in the Engine.
-func (c *client) WithMetadata(m *types.Metadata) compiler.Engine {
+func (c *client) WithMetadata(m *internal.Metadata) compiler.Engine {
 	if m != nil {
 		c.metadata = m
 	}
@@ -194,7 +205,7 @@ func (c *client) WithPrivateGitHub(url, token string) compiler.Engine {
 }
 
 // WithRepo sets the library repo type in the Engine.
-func (c *client) WithRepo(r *library.Repo) compiler.Engine {
+func (c *client) WithRepo(r *api.Repo) compiler.Engine {
 	if r != nil {
 		c.repo = r
 	}
@@ -203,9 +214,18 @@ func (c *client) WithRepo(r *library.Repo) compiler.Engine {
 }
 
 // WithUser sets the library user type in the Engine.
-func (c *client) WithUser(u *library.User) compiler.Engine {
+func (c *client) WithUser(u *api.User) compiler.Engine {
 	if u != nil {
 		c.user = u
+	}
+
+	return c
+}
+
+// WithLabels sets the label(s) in the Engine.
+func (c *client) WithLabels(labels []string) compiler.Engine {
+	if len(labels) != 0 {
+		c.labels = labels
 	}
 
 	return c

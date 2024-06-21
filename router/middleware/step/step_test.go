@@ -10,6 +10,9 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
@@ -38,18 +41,21 @@ func TestStep_Retrieve(t *testing.T) {
 
 func TestStep_Establish(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	want := new(library.Step)
@@ -69,6 +75,7 @@ func TestStep_Establish(t *testing.T) {
 	want.SetHost("")
 	want.SetRuntime("")
 	want.SetDistribution("")
+	want.SetReportAs("")
 
 	got := new(library.Step)
 
@@ -97,6 +104,7 @@ func TestStep_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -136,6 +144,7 @@ func TestStep_Establish_NoRepo(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org/:repo/builds/:build/steps/:step", func(c *gin.Context) {
@@ -152,9 +161,12 @@ func TestStep_Establish_NoRepo(t *testing.T) {
 
 func TestStep_Establish_NoBuild(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -182,6 +194,7 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -200,18 +213,21 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 
 func TestStep_Establish_NoStepParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	// setup database
@@ -237,6 +253,7 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -256,18 +273,21 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 
 func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	// setup database
@@ -293,6 +313,7 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/foo", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -312,18 +333,21 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 
 func TestStep_Establish_NoStep(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(api.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	// setup database
@@ -349,6 +373,7 @@ func TestStep_Establish_NoStep(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())

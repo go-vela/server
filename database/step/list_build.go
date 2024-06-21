@@ -4,17 +4,20 @@ package step
 
 import (
 	"context"
+
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // ListStepsForBuild gets a list of all steps from the database.
-func (e *engine) ListStepsForBuild(ctx context.Context, b *library.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Step, int64, error) {
+func (e *engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Step, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-	}).Tracef("listing steps for build %d from the database", b.GetNumber())
+	}).Tracef("listing steps for build %d", b.GetNumber())
 
 	// variables to store query results and return value
 	count := int64(0)

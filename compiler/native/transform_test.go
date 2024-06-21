@@ -7,33 +7,34 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types"
+	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/yaml"
-
-	"github.com/urfave/cli/v2"
 )
 
 func TestNative_TransformStages(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -220,7 +221,7 @@ func TestNative_TransformStages(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := New(c)
+		compiler, err := FromCLIContext(c)
 		if err != nil {
 			t.Errorf("unable to create new compiler: %v", err)
 		}
@@ -257,23 +258,24 @@ func TestNative_TransformStages(t *testing.T) {
 func TestNative_TransformSteps(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -439,7 +441,7 @@ func TestNative_TransformSteps(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := New(c)
+		compiler, err := FromCLIContext(c)
 		if err != nil {
 			t.Errorf("unable to create new compiler: %v", err)
 		}

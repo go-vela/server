@@ -8,19 +8,18 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/steps steps ListSteps
 //
-// Retrieve a list of steps for a build
+// Get all steps for a build
 //
 // ---
 // produces:
@@ -28,12 +27,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -66,38 +65,36 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the list of steps
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the list of steps
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListSteps represents the API handler to capture a list
-// of steps for a build from the configured backend.
+// ListSteps represents the API handler to get a list of steps for a build.
 func ListSteps(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("listing steps for build %s", entry)
+	l.Debugf("listing steps for build %s", entry)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

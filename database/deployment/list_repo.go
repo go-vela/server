@@ -6,18 +6,20 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // ListDeploymentsForRepo gets a list of deployments by repo ID from the database.
-func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
+func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*library.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("listing deployments for repo %s from the database", r.GetFullName())
+	}).Tracef("listing deployments for repo %s", r.GetFullName())
 
 	// variables to store query results and return value
 	d := new([]database.Deployment)

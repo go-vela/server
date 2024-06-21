@@ -8,16 +8,17 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/repos repos ListRepos
 //
-// Get all repos in the configured backend
+// Get all repositories
 //
 // ---
 // produces:
@@ -48,30 +49,30 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the repo
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the repo
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListRepos represents the API handler to capture a list
-// of repos for a user from the configured backend.
+// ListRepos represents the API handler to get a list
+// of repositories for a user.
 func ListRepos(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("listing repos for user %s", u.GetName())
+	l.Debugf("listing repos for user %s", u.GetName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

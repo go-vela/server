@@ -9,21 +9,21 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
-	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo} repos UpdateRepo
 //
-// Update a repo in the configured backend
+// Update a repository
 //
 // ---
 // produces:
@@ -31,17 +31,17 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the repo to update
+//   description: The repository object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Repo"
@@ -53,11 +53,15 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Repo"
 //   '400':
-//     description: Unable to update the repo
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the repo
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '503':
@@ -65,13 +69,12 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// UpdateRepo represents the API handler to update
-// a repo in the configured backend.
+// UpdateRepo represents the API handler to update a repo.
 //
 //nolint:funlen,gocyclo // ignore function length
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
@@ -79,17 +82,10 @@ func UpdateRepo(c *gin.Context) {
 	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("updating repo %s", r.GetFullName())
+	l.Debug("updating repo")
 
 	// capture body from API request
-	input := new(library.Repo)
+	input := new(types.Repo)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -191,51 +187,6 @@ func UpdateRepo(c *gin.Context) {
 		eventsChanged = true
 	}
 
-	// -- DEPRECATED SECTION --
-	if input.AllowPull != nil {
-		// update allow_pull if set
-		r.SetAllowPull(input.GetAllowPull())
-
-		eventsChanged = true
-	}
-
-	if input.AllowPush != nil {
-		// update allow_push if set
-		r.SetAllowPush(input.GetAllowPush())
-
-		eventsChanged = true
-	}
-
-	if input.AllowDeploy != nil {
-		// update allow_deploy if set
-		r.SetAllowDeploy(input.GetAllowDeploy())
-
-		eventsChanged = true
-	}
-
-	if input.AllowTag != nil {
-		// update allow_tag if set
-		r.SetAllowTag(input.GetAllowTag())
-
-		eventsChanged = true
-	}
-
-	if input.AllowComment != nil {
-		// update allow_comment if set
-		r.SetAllowComment(input.GetAllowComment())
-
-		eventsChanged = true
-	}
-
-	// set default events if no events are enabled
-	if !r.GetAllowPull() && !r.GetAllowPush() &&
-		!r.GetAllowDeploy() && !r.GetAllowTag() &&
-		!r.GetAllowComment() {
-		r.SetAllowPull(true)
-		r.SetAllowPush(true)
-	}
-	// -- END DEPRECATED SECTION --
-
 	// set default events if no events are enabled
 	if r.GetAllowEvents().ToDatabase() == 0 {
 		r.SetAllowEvents(defaultAllowedEvents(defaultRepoEvents, defaultRepoEventsMask))
@@ -294,26 +245,15 @@ func UpdateRepo(c *gin.Context) {
 
 			return
 		}
-		// if user is platform admin, fetch the repo owner token to make changes to webhook
+		// if user is platform admin, use repo owner token to make changes to webhook
 		if u.GetAdmin() {
 			// capture admin name for logging
 			admn := u.GetName()
 
-			u, err = database.FromContext(c).GetUser(ctx, r.GetUserID())
-			if err != nil {
-				retErr := fmt.Errorf("unable to get repo owner of %s for platform admin webhook update: %w", r.GetFullName(), err)
-
-				util.HandleError(c, http.StatusInternalServerError, retErr)
-
-				return
-			}
-
 			// log admin override update repo hook
-			logrus.WithFields(logrus.Fields{
-				"org":  o,
-				"repo": r.GetName(),
-				"user": u.GetName(),
-			}).Infof("platform admin %s updating repo webhook events for repo %s", admn, r.GetFullName())
+			l.Debugf("platform admin %s updating repo webhook events for repo %s", admn, r.GetFullName())
+
+			u = r.GetOwner()
 		}
 		// update webhook with new events
 		_, err = scm.FromContext(c).Update(ctx, u, r, lastHook.GetWebhookID())

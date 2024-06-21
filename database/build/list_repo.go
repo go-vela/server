@@ -5,25 +5,26 @@ package build
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // ListBuildsForRepo gets a list of builds by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForRepo(ctx context.Context, r *library.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
+func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*api.Build, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("listing builds for repo %s from the database", r.GetFullName())
+	}).Tracef("listing builds for repo %s", r.GetFullName())
 
 	// variables to store query results and return values
 	count := int64(0)
-	b := new([]database.Build)
-	builds := []*library.Build{}
+	b := new([]types.Build)
+	builds := []*api.Build{}
 
 	// count the results
 	count, err := e.CountBuildsForRepo(ctx, r, filters)
@@ -41,6 +42,8 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *library.Repo, filters
 
 	err = e.client.
 		Table(constants.TableBuild).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("created < ?", before).
 		Where("created > ?", after).
@@ -59,10 +62,12 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *library.Repo, filters
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Build.ToLibrary
-		builds = append(builds, tmp.ToLibrary())
+		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
+		}
+
+		builds = append(builds, tmp.ToAPI())
 	}
 
 	return builds, count, nil

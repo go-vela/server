@@ -7,8 +7,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/version"
-	"github.com/go-vela/types"
 )
 
 // NoCache is a middleware function that appends headers
@@ -24,16 +25,18 @@ func NoCache(c *gin.Context) {
 // for OPTIONS preflight requests and aborts then exits
 // the middleware chain and ends the request.
 func Options(c *gin.Context) {
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 
 	if c.Request.Method != "OPTIONS" {
 		c.Next()
 	} else {
 		c.Header("Access-Control-Allow-Origin", "*")
+
 		if len(m.Vela.WebAddress) > 0 {
 			c.Header("Access-Control-Allow-Origin", m.Vela.WebAddress)
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
+
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
 		c.Header("Access-Control-Max-Age", "86400")
@@ -58,7 +61,7 @@ func Secure(c *gin.Context) {
 // CORS related requests. These are attached to actual requests
 // unlike the OPTIONS preflight requests.
 func Cors(c *gin.Context) {
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 
 	c.Header("Access-Control-Allow-Origin", "*")
 

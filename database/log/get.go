@@ -12,7 +12,7 @@ import (
 
 // GetLog gets a log by ID from the database.
 func (e *engine) GetLog(ctx context.Context, id int64) (*library.Log, error) {
-	e.logger.Tracef("getting log %d from the database", id)
+	e.logger.Tracef("getting log %d", id)
 
 	// variable to store query results
 	l := new(database.Log)

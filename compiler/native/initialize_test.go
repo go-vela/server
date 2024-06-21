@@ -7,13 +7,15 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/yaml"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/types/yaml"
 )
 
 func TestNative_InitStage(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -60,7 +62,7 @@ func TestNative_InitStage(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -78,6 +80,7 @@ func TestNative_InitStage(t *testing.T) {
 func TestNative_InitStep(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -108,7 +111,7 @@ func TestNative_InitStep(t *testing.T) {
 		},
 	}
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}

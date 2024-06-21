@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 )
 
@@ -31,11 +32,11 @@ func TestGithub_CreateDeployment(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
 	r.SetOrg("foo")
 	r.SetName("bar")

@@ -10,7 +10,7 @@ import (
 
 // CountDeployments gets the count of all deployments from the database.
 func (e *engine) CountDeployments(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all deployments from the database")
+	e.logger.Tracef("getting count of all deployments")
 
 	// variable to store query results
 	var d int64

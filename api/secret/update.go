@@ -9,18 +9,19 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 //
 // swagger:operation PUT /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets UpdateSecret
 //
-// Update a secret on the configured backend
+// Update a secret
 //
 // ---
 // produces:
@@ -42,12 +43,12 @@ import (
 //   type: string
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: name
-//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   description: Name of the repository if a repository secret, team name if a shared secret, or '*' if an organization secret
 //   required: true
 //   type: string
 // - in: path
@@ -69,17 +70,22 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Secret"
 //   '400':
-//     description: Unable to update the secret
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the secret
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // UpdateSecret updates a secret for the provided secrets service.
 func UpdateSecret(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	e := util.PathParameter(c, "engine")
 	t := util.PathParameter(c, "type")
@@ -92,31 +98,24 @@ func UpdateSecret(c *gin.Context) {
 
 	// create log fields from API metadata
 	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"secret": s,
-		"type":   t,
-		"user":   u.GetName(),
+		"secret_engine": e,
+		"secret_org":    o,
+		"secret_repo":   n,
+		"secret_name":   s,
+		"secret_type":   t,
 	}
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"secret": s,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
+		delete(fields, "secret_repo")
+		fields["secret_team"] = n
 	}
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("updating secret %s for %s service", entry, e)
+	l.WithFields(fields).Debugf("updating secret %s for %s service", entry, e)
 
 	// capture body from API request
 	input := new(library.Secret)
@@ -143,13 +142,13 @@ func UpdateSecret(c *gin.Context) {
 		input.SetImages(util.Unique(input.GetImages()))
 	}
 
-	if len(input.GetEvents()) > 0 {
-		input.SetEvents(util.Unique(input.GetEvents()))
-	}
-
 	if input.AllowCommand != nil {
 		// update allow_command if set
 		input.SetAllowCommand(input.GetAllowCommand())
+	}
+
+	if input.AllowSubstitution != nil {
+		input.SetAllowSubstitution(input.GetAllowSubstitution())
 	}
 
 	// check if secret is a shared secret
@@ -168,6 +167,8 @@ func UpdateSecret(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(fields).Info("secret updated")
 
 	c.JSON(http.StatusOK, secret.Sanitize())
 }

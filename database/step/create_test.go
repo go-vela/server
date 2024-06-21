@@ -8,17 +8,20 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestStep_Engine_CreateStep(t *testing.T) {
 	// setup types
-	_step := testStep()
+	_step := testutils.APIStep()
 	_step.SetID(1)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)
 	_step.SetNumber(1)
 	_step.SetName("foo")
 	_step.SetImage("bar")
+	_step.SetReportAs("test")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -28,9 +31,9 @@ func TestStep_Engine_CreateStep(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "steps"
-("build_id","repo_id","number","name","image","stage","status","error","exit_code","created","started","finished","host","runtime","distribution","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING "id"`).
-		WithArgs(1, 1, 1, "foo", "bar", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
+("build_id","repo_id","number","name","image","stage","status","error","exit_code","created","started","finished","host","runtime","distribution","report_as","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING "id"`).
+		WithArgs(1, 1, 1, "foo", "bar", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "test", 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

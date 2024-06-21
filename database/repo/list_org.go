@@ -5,24 +5,25 @@ package repo
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // ListReposForOrg gets a list of repos by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
+func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filters map[string]interface{}, page, perPage int) ([]*api.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
-	}).Tracef("listing repos for org %s from the database", org)
+	}).Tracef("listing repos for org %s", org)
 
 	// variables to store query results and return values
 	count := int64(0)
-	r := new([]database.Repo)
-	repos := []*library.Repo{}
+	r := new([]types.Repo)
+	repos := []*api.Repo{}
 
 	// count the results
 	count, err := e.CountReposForOrg(ctx, org, filters)
@@ -49,6 +50,7 @@ func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filter
 
 		err = e.client.
 			Table(constants.TableRepo).
+			Preload("Owner").
 			Select("repos.*").
 			Joins("LEFT JOIN (?) t on repos.id = t.id", query).
 			Order("latest_build DESC NULLS LAST").
@@ -64,6 +66,7 @@ func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filter
 	default:
 		err = e.client.
 			Table(constants.TableRepo).
+			Preload("Owner").
 			Where("org = ?", org).
 			Where(filters).
 			Order("name").
@@ -82,8 +85,6 @@ func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filter
 		tmp := repo
 
 		// decrypt the fields for the repo
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
 		err = tmp.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
@@ -94,10 +95,8 @@ func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filter
 			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
 		}
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.ToLibrary
-		repos = append(repos, tmp.ToLibrary())
+		// convert query result to API type
+		repos = append(repos, tmp.ToAPI())
 	}
 
 	return repos, count, nil

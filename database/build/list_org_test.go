@@ -4,52 +4,61 @@ package build
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
-	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
-	_buildOne.SetNumber(1)
-	_buildOne.SetDeployPayload(nil)
-	_buildOne.SetEvent("push")
+	_owner := testutils.APIUser().Crop()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
 
-	_buildTwo := testBuild()
-	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(2)
-	_buildTwo.SetNumber(2)
-	_buildTwo.SetDeployPayload(nil)
-	_buildTwo.SetEvent("push")
-
-	_repoOne := testRepo()
+	_repoOne := testutils.APIRepo()
 	_repoOne.SetID(1)
-	_repoOne.SetUserID(1)
+	_repoOne.SetOwner(_owner)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
+	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 	_repoOne.SetTopics([]string{})
 
-	_repoTwo := testRepo()
+	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.SetUserID(1)
+	_repoTwo.SetOwner(_owner)
 	_repoTwo.SetHash("bar")
 	_repoTwo.SetOrg("foo")
 	_repoTwo.SetName("baz")
 	_repoTwo.SetFullName("foo/baz")
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
+	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 	_repoTwo.SetTopics([]string{})
+
+	_buildOne := testutils.APIBuild()
+	_buildOne.SetID(1)
+	_buildOne.SetRepo(_repoOne)
+	_buildOne.SetNumber(1)
+	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetEvent("push")
+
+	_buildTwo := testutils.APIBuild()
+	_buildTwo.SetID(2)
+	_buildTwo.SetRepo(_repoTwo)
+	_buildTwo.SetNumber(2)
+	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetEvent("push")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -63,8 +72,20 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
 		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
 		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
+
+	_repoRows := sqlmock.NewRows(
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "").
+		AddRow(2, 1, "bar", "foo", "baz", "foo/baz", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+
+	_userRows := sqlmock.NewRows(
+		[]string{"id", "name", "token", "hash", "active", "admin"}).
+		AddRow(1, "foo", "bar", "baz", false, false)
+
 	// ensure the mock expects the query without filters
 	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 ORDER BY created DESC,id LIMIT $2`).WithArgs("foo", 10).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
+	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	// create expected count query with event filter result in mock
 	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
@@ -75,8 +96,20 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
 		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
 		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
+
+	_repoRows = sqlmock.NewRows(
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "").
+		AddRow(2, 1, "bar", "foo", "baz", "foo/baz", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+
+	_userRows = sqlmock.NewRows(
+		[]string{"id", "name", "token", "hash", "active", "admin"}).
+		AddRow(1, "foo", "bar", "baz", false, false)
+
 	// ensure the mock expects the query with event filter
 	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "event" = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "push", 10).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
+	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	// create expected count query with visibility filter result in mock
 	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
@@ -87,8 +120,20 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
 		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
 		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
+
+	_repoRows = sqlmock.NewRows(
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "").
+		AddRow(2, 1, "bar", "foo", "baz", "foo/baz", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+
+	_userRows = sqlmock.NewRows(
+		[]string{"id", "name", "token", "hash", "active", "admin"}).
+		AddRow(1, "foo", "bar", "baz", false, false)
+
 	// ensure the mock expects the query with visibility filter
 	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "visibility" = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "public", 10).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
+	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -103,19 +148,29 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.Repo{})
+	err = _sqlite.client.AutoMigrate(&types.Repo{})
 	if err != nil {
 		t.Errorf("unable to create repo table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(database.RepoFromLibrary(_repoOne)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repoOne)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(database.RepoFromLibrary(_repoTwo)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repoTwo)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.AutoMigrate(&types.User{})
+	if err != nil {
+		t.Errorf("unable to create build table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
+	if err != nil {
+		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
 
 	// setup tests
@@ -124,14 +179,14 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		name     string
 		database *engine
 		filters  map[string]interface{}
-		want     []*library.Build
+		want     []*api.Build
 	}{
 		{
 			failure:  false,
 			name:     "postgres without filters",
 			database: _postgres,
 			filters:  map[string]interface{}{},
-			want:     []*library.Build{_buildOne, _buildTwo},
+			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
@@ -140,7 +195,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			filters: map[string]interface{}{
 				"event": "push",
 			},
-			want: []*library.Build{_buildOne, _buildTwo},
+			want: []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
@@ -149,14 +204,14 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			filters: map[string]interface{}{
 				"visibility": "public",
 			},
-			want: []*library.Build{_buildOne, _buildTwo},
+			want: []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3 without filters",
 			database: _sqlite,
 			filters:  map[string]interface{}{},
-			want:     []*library.Build{_buildOne, _buildTwo},
+			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
@@ -165,7 +220,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			filters: map[string]interface{}{
 				"event": "push",
 			},
-			want: []*library.Build{_buildOne, _buildTwo},
+			want: []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
@@ -174,7 +229,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			filters: map[string]interface{}{
 				"visibility": "public",
 			},
-			want: []*library.Build{_buildOne, _buildTwo},
+			want: []*api.Build{_buildOne, _buildTwo},
 		},
 	}
 
@@ -195,8 +250,8 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 				t.Errorf("ListBuildsForOrg for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("ListBuildsForOrg for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("ListBuildsForOrg for %s mismatch (-want +got):\n%s", test.name, diff)
 			}
 		})
 	}

@@ -8,9 +8,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -176,99 +174,4 @@ type AnyArgument struct{}
 // Match satisfies sqlmock.Argument interface.
 func (a AnyArgument) Match(_ driver.Value) bool {
 	return true
-}
-
-// testBuild is a test helper function to create a library
-// Build type with all fields set to their zero values.
-func testBuild() *library.Build {
-	return &library.Build{
-		ID:           new(int64),
-		RepoID:       new(int64),
-		PipelineID:   new(int64),
-		Number:       new(int),
-		Parent:       new(int),
-		Event:        new(string),
-		EventAction:  new(string),
-		Status:       new(string),
-		Error:        new(string),
-		Enqueued:     new(int64),
-		Created:      new(int64),
-		Started:      new(int64),
-		Finished:     new(int64),
-		Deploy:       new(string),
-		Clone:        new(string),
-		Source:       new(string),
-		Title:        new(string),
-		Message:      new(string),
-		Commit:       new(string),
-		Sender:       new(string),
-		Author:       new(string),
-		Email:        new(string),
-		Link:         new(string),
-		Branch:       new(string),
-		Ref:          new(string),
-		BaseRef:      new(string),
-		HeadRef:      new(string),
-		Host:         new(string),
-		Runtime:      new(string),
-		Distribution: new(string),
-	}
-}
-
-// testLog is a test helper function to create a library
-// Log type with all fields set to their zero values.
-func testLog() *library.Log {
-	return &library.Log{
-		ID:        new(int64),
-		RepoID:    new(int64),
-		BuildID:   new(int64),
-		ServiceID: new(int64),
-		StepID:    new(int64),
-		Data:      new([]byte),
-	}
-}
-
-// testService is a test helper function to create a library
-// Service type with all fields set to their zero values.
-func testService() *library.Service {
-	return &library.Service{
-		ID:           new(int64),
-		BuildID:      new(int64),
-		RepoID:       new(int64),
-		Number:       new(int),
-		Name:         new(string),
-		Image:        new(string),
-		Status:       new(string),
-		Error:        new(string),
-		ExitCode:     new(int),
-		Created:      new(int64),
-		Started:      new(int64),
-		Finished:     new(int64),
-		Host:         new(string),
-		Runtime:      new(string),
-		Distribution: new(string),
-	}
-}
-
-// testStep is a test helper function to create a library
-// Step type with all fields set to their zero values.
-func testStep() *library.Step {
-	return &library.Step{
-		ID:           new(int64),
-		BuildID:      new(int64),
-		RepoID:       new(int64),
-		Number:       new(int),
-		Name:         new(string),
-		Image:        new(string),
-		Stage:        new(string),
-		Status:       new(string),
-		Error:        new(string),
-		ExitCode:     new(int),
-		Created:      new(int64),
-		Started:      new(int64),
-		Finished:     new(int64),
-		Host:         new(string),
-		Runtime:      new(string),
-		Distribution: new(string),
-	}
 }

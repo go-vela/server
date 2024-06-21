@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -27,7 +28,7 @@ func TestRedis_Driver(t *testing.T) {
 
 	_service, err := New(
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
-		WithChannels("foo"),
+		WithRoutes("foo"),
 		WithCluster(false),
 		WithTimeout(5*time.Second),
 	)

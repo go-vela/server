@@ -6,17 +6,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/pipeline"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
-	"github.com/spf13/afero"
-
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-	"github.com/sirupsen/logrus"
 )
 
 // ExpandStages injects the template for each
@@ -29,7 +28,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r 
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.TemplateDepth)
+		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.GetTemplateDepth())
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +51,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 
 	// return if max template depth has been reached
 	if depth == 0 {
-		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
+		retErr := fmt.Errorf("max template depth of %d exceeded", c.GetTemplateDepth())
 
 		return s, retErr
 	}
@@ -61,6 +60,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 	secrets := s.Secrets
 	services := s.Services
 	environment := s.Environment
+	templates := s.Templates
 
 	if len(environment) == 0 {
 		environment = make(raw.StringSliceMap)
@@ -120,6 +120,14 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 			return s, err
 		}
 
+		// initialize variable map if not parsed from config
+		if len(step.Template.Variables) == 0 {
+			step.Template.Variables = make(map[string]interface{})
+		}
+
+		// inject template name into variables
+		step.Template.Variables["VELA_TEMPLATE_NAME"] = step.Template.Name
+
 		tmplBuild, err := c.mergeTemplate(bytes, tmpl, step)
 		if err != nil {
 			return s, err
@@ -131,6 +139,8 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 			if tmplBuild.Metadata.RenderInline && !s.Metadata.RenderInline {
 				return s, fmt.Errorf("cannot use render_inline inside a called template (%s)", step.Template.Name)
 			}
+
+			templates = append(templates, tmplBuild.Templates...)
 
 			tmplBuild, err = c.ExpandSteps(tmplBuild, mapFromTemplates(tmplBuild.Templates), r, depth-1)
 			if err != nil {
@@ -195,6 +205,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 	s.Secrets = secrets
 	s.Services = services
 	s.Environment = environment
+	s.Templates = templates
 
 	return s, nil
 }
@@ -338,7 +349,7 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	case constants.PipelineTypeStarlark:
 		//nolint:lll // ignore long line length due to return
-		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.StarlarkExecLimit)
+		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.GetStarlarkExecLimit())
 	default:
 		//nolint:lll // ignore long line length due to return
 		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)

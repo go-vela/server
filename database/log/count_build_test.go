@@ -8,26 +8,31 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestLog_Engine_CountLogsForBuild(t *testing.T) {
 	// setup types
-	_service := testLog()
+	_service := testutils.APILog()
 	_service.SetID(1)
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
 
-	_step := testLog()
+	_step := testutils.APILog()
 	_step.SetID(2)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
 
-	_build := testBuild()
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+
+	_build := testutils.APIBuild()
 	_build.SetID(1)
 	_build.SetID(1)
-	_build.SetRepoID(1)
+	_build.SetRepo(_repo)
 	_build.SetNumber(1)
 
 	_postgres, _mock := testPostgres(t)
