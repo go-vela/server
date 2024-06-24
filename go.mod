@@ -4,8 +4,6 @@ go 1.22.0
 
 toolchain go1.22.4
 
-replace github.com/go-vela/server => ../server
-
 require (
 	github.com/Bose/minisentinel v0.0.0-20200130220412-917c5a9223bb
 	github.com/DATA-DOG/go-sqlmock v1.5.2
