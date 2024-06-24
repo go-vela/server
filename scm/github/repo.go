@@ -411,7 +411,7 @@ func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *l
 	client := c.newClientToken(*u.Token)
 
 	context := fmt.Sprintf("%s/%s/%s", c.config.StatusContext, b.GetEvent(), s.GetReportAs())
-	url := fmt.Sprintf("%s/%s/%s/%d#step:%d", c.config.WebUIAddress, org, name, b.GetNumber(), s.GetNumber())
+	url := fmt.Sprintf("%s/%s/%s/%d#%d", c.config.WebUIAddress, org, name, b.GetNumber(), s.GetNumber())
 
 	var (
 		state       string
