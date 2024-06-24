@@ -662,12 +662,15 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 }
 
 // CreateChecks defines a function that does stuff...
-func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step string) (int64, error) {
+func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, event string) (int64, error) {
 	// create client from GitHub App
-	client := c.newGithubAppToken(r)
+	client, err := c.newGithubAppToken(r)
+	if err != nil {
+		return 0, err
+	}
 
 	opts := github.CreateCheckRunOptions{
-		Name:    fmt.Sprintf("vela-%s-%s", commit, step),
+		Name:    fmt.Sprintf("vela-%s-%s", event, step),
 		HeadSHA: commit,
 	}
 
@@ -680,9 +683,12 @@ func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step str
 }
 
 // UpdateChecks defines a function that does stuff...
-func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step, commit string) error {
+func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step, commit, event string) error {
 	// create client from GitHub App
-	client := c.newGithubAppToken(r)
+	client, err := c.newGithubAppToken(r)
+	if err != nil {
+		return err
+	}
 
 	var (
 		conclusion string
@@ -719,13 +725,41 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step,
 		status = "completed"
 	}
 
-	opts := github.UpdateCheckRunOptions{
-		Name:       fmt.Sprintf("vela-%s-%s", commit, s.GetName()),
-		Conclusion: github.String(conclusion),
-		Status:     github.String(status),
+	var annotations []*github.CheckRunAnnotation
+
+	for _, reportAnnotation := range s.GetReport().GetAnnotations() {
+		annotation := &github.CheckRunAnnotation{
+			Path:            github.String(reportAnnotation.GetPath()),
+			StartLine:       github.Int(reportAnnotation.GetStartLine()),
+			EndLine:         github.Int(reportAnnotation.GetEndLine()),
+			StartColumn:     github.Int(reportAnnotation.GetStartColumn()),
+			EndColumn:       github.Int(reportAnnotation.GetEndColumn()),
+			AnnotationLevel: github.String(reportAnnotation.GetAnnotationLevel()),
+			Message:         github.String(reportAnnotation.GetMessage()),
+			Title:           github.String(reportAnnotation.GetTitle()),
+			RawDetails:      github.String(reportAnnotation.GetRawDetails()),
+		}
+
+		annotations = append(annotations, annotation)
 	}
 
-	_, _, err := client.Checks.UpdateCheckRun(ctx, r.GetOrg(), r.GetName(), s.GetCheckID(), opts)
+	output := &github.CheckRunOutput{
+		Title:            github.String(s.GetReport().GetTitle()),
+		Summary:          github.String(s.GetReport().GetSummary()),
+		Text:             github.String(s.GetReport().GetText()),
+		AnnotationsCount: github.Int(s.GetReport().GetAnnotationsCount()),
+		AnnotationsURL:   github.String(s.GetReport().GetAnnotationsURL()),
+		Annotations:      annotations,
+	}
+
+	opts := github.UpdateCheckRunOptions{
+		Name:       fmt.Sprintf("vela-%s-%s", event, s.GetName()),
+		Conclusion: github.String(conclusion),
+		Status:     github.String(status),
+		Output:     output,
+	}
+
+	_, _, err = client.Checks.UpdateCheckRun(ctx, r.GetOrg(), r.GetName(), s.GetCheckID(), opts)
 	if err != nil {
 		return err
 	}

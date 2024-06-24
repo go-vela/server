@@ -64,17 +64,18 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	s.SetReportAs(c.ReportAs)
 	s.SetCreated(time.Now().UTC().Unix())
 
-	id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName())
-	if err != nil {
-		// TODO: make this error more meaningful
-		return nil, err
+	if c.ReportStatus {
+		id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName(), b.GetEvent())
+		if err != nil {
+			// TODO: make this error more meaningful
+			return nil, err
+		}
+
+		s.SetCheckID(id)
 	}
 
-	// TODO: have to store the check ID somewhere
-	s.SetCheckID(id)
-
 	// send API call to create the step
-	s, err = database.CreateStep(ctx, s)
+	s, err := database.CreateStep(ctx, s)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create step %s: %w", s.GetName(), err)
 	}
