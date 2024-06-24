@@ -21,7 +21,7 @@ func (c *client) Pop(ctx context.Context, inRoutes []string) (*models.Item, erro
 	var routes []string
 
 	// if routes were supplied, use those
-	if len(routes) > 0 {
+	if len(inRoutes) > 0 {
 		routes = inRoutes
 	} else {
 		routes = c.GetRoutes()
