@@ -11,7 +11,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/adhocore/gronx v1.8.1
 	github.com/alicebob/miniredis/v2 v2.33.0
-	github.com/aws/aws-sdk-go v1.54.1
+	github.com/aws/aws-sdk-go v1.54.6
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/distribution/reference v0.6.0
 	github.com/drone/envsubst v1.0.3
@@ -29,7 +29,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/hashicorp/vault/api v1.14.0
 	github.com/joho/godotenv v1.5.1
-	github.com/lestrrat-go/jwx/v2 v2.0.21
+	github.com/lestrrat-go/jwx/v2 v2.1.0
 	github.com/lib/pq v1.10.9
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/pkg/errors v0.9.1
@@ -62,7 +62,7 @@ require (
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -71,7 +71,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
-	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
