@@ -553,7 +553,7 @@ func PostWebhook(c *gin.Context) {
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
 // the database resources with any relevant changes resulting from the event, such as name changes, transfers, etc.
 //
-// the caller is responsible for returning a response to the client.
+// the caller is responsible for returning errors to the client.
 func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *library.Hook, r *types.Repo) (*types.Repo, error) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
@@ -667,7 +667,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo as well as build links for the UI.
 //
-// The caller is responsible for returning a response to the client.
+// the caller is responsible for returning errors to the client.
 func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
