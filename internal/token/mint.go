@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
@@ -195,6 +196,8 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	if err != nil {
 		return "", fmt.Errorf("unable to sign token: %w", err)
 	}
+
+	logrus.Debugf("signed ID token with subject %s", claims.Subject)
 
 	return token, nil
 }
