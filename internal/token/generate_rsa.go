@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
 )
@@ -53,6 +54,8 @@ func (tm *Manager) GenerateRSA(ctx context.Context, db database.Interface) error
 		}
 
 		tm.RSAKeySet = keySet
+
+		logrus.Infof("generated RSA key pair with kid %s", kid.String())
 
 		return nil
 	default:
