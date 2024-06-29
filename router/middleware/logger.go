@@ -53,7 +53,7 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 
 		fields := logrus.Fields{
 			"ip":   util.EscapeValue(c.ClientIP()),
-			"id":   util.EscapeValue(c.GetHeader("X-Request-ID")),
+			"id":   c.GetHeader("X-Request-ID"),
 			"path": path,
 		}
 
