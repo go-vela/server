@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/go-vela/server/internal"
 )
@@ -59,225 +60,277 @@ func TestMiddleware_NoCache(t *testing.T) {
 }
 
 func TestMiddleware_Options(t *testing.T) {
-	// setup types
-	wantOrigin := "*"
-	wantMethods := "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-	wantHeaders := "authorization, origin, content-type, accept"
-	wantAllow := "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS"
-	wantContentType := "application/json"
-	m := &internal.Metadata{
-		Vela: &internal.Vela{
-			Address: "http://localhost:8080",
+	// setup tests
+	tests := []struct {
+		name            string
+		webAddress      string
+		requestMethod   string
+		wantStatusCode  int
+		wantOrigin      string
+		wantMethods     string
+		wantHeaders     string
+		wantAllow       string
+		wantContentType string
+		wantCredentials string
+	}{
+		{
+			name:            "without web address",
+			webAddress:      "",
+			requestMethod:   http.MethodOptions,
+			wantStatusCode:  http.StatusOK,
+			wantOrigin:      "*",
+			wantMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+			wantHeaders:     "authorization, origin, content-type, accept",
+			wantAllow:       "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS",
+			wantContentType: "application/json",
+			wantCredentials: "",
+		},
+		{
+			name:            "with web address",
+			webAddress:      "http://localhost:8888",
+			requestMethod:   http.MethodOptions,
+			wantStatusCode:  http.StatusOK,
+			wantOrigin:      "http://localhost:8888",
+			wantMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+			wantHeaders:     "authorization, origin, content-type, accept",
+			wantAllow:       "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS",
+			wantContentType: "application/json",
+			wantCredentials: "true",
+		},
+		{
+			name:            "not OPTIONS request",
+			webAddress:      "http://localhost:8888",
+			requestMethod:   http.MethodGet,
+			wantStatusCode:  http.StatusNotFound,
+			wantOrigin:      "",
+			wantMethods:     "",
+			wantHeaders:     "",
+			wantAllow:       "",
+			wantContentType: "text/plain",
+			wantCredentials: "",
 		},
 	}
 
-	// setup context
-	gin.SetMode(gin.TestMode)
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// setup context
+			gin.SetMode(gin.TestMode)
 
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodOptions, "/health", nil)
+			resp := httptest.NewRecorder()
+			context, engine := gin.CreateTestContext(resp)
+			context.Request, _ = http.NewRequest(test.requestMethod, "/health", nil)
 
-	// setup mock server
-	engine.Use(Metadata(m))
-	engine.Use(Options)
-	engine.OPTIONS("/health", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
+			// setup mock server
+			m := &internal.Metadata{
+				Vela: &internal.Vela{
+					Address:    "http://localhost:8080",
+					WebAddress: test.webAddress,
+				},
+			}
+			engine.Use(Metadata(m))
+			engine.Use(Options)
+			engine.OPTIONS("/health", func(c *gin.Context) {
+				c.Status(http.StatusOK)
+			})
 
-	// run test
-	engine.ServeHTTP(context.Writer, context.Request)
+			// run test
+			engine.ServeHTTP(context.Writer, context.Request)
 
-	gotOrigin := context.Writer.Header().Get("Access-Control-Allow-Origin")
-	gotMethods := context.Writer.Header().Get("Access-Control-Allow-Methods")
-	gotHeaders := context.Writer.Header().Get("Access-Control-Allow-Headers")
-	gotAllow := context.Writer.Header().Get("Allow")
-	gotContentType := context.Writer.Header().Get("Content-Type")
+			gotOrigin := context.Writer.Header().Get("Access-Control-Allow-Origin")
+			gotMethods := context.Writer.Header().Get("Access-Control-Allow-Methods")
+			gotHeaders := context.Writer.Header().Get("Access-Control-Allow-Headers")
+			gotCredentialsHeaders := context.Writer.Header().Get("Access-Control-Allow-Credentials")
+			gotAllow := context.Writer.Header().Get("Allow")
+			gotContentType := context.Writer.Header().Get("Content-Type")
 
-	if resp.Code != http.StatusOK {
-		t.Errorf("Options returned %v, want %v", resp.Code, http.StatusOK)
-	}
+			if resp.Code != test.wantStatusCode {
+				t.Errorf("Options returned %v, want %v", resp.Code, http.StatusOK)
+			}
 
-	if !reflect.DeepEqual(gotOrigin, wantOrigin) {
-		t.Errorf("Options Access-Control-Allow-Origin is %v, want %v", gotOrigin, wantOrigin)
-	}
+			if gotOrigin != test.wantOrigin {
+				t.Errorf("Options Access-Control-Allow-Origin is %v, want %v", gotOrigin, test.wantOrigin)
+			}
 
-	if !reflect.DeepEqual(gotMethods, wantMethods) {
-		t.Errorf("Options Access-Control-Allow-Methods is %v, want %v", gotMethods, wantMethods)
-	}
+			if gotMethods != test.wantMethods {
+				t.Errorf("Options Access-Control-Allow-Methods is %v, want %v", gotMethods, test.wantMethods)
+			}
 
-	if !reflect.DeepEqual(gotHeaders, wantHeaders) {
-		t.Errorf("Options Access-Control-Allow-Headers is %v, want %v", gotHeaders, wantHeaders)
-	}
+			if gotHeaders != test.wantHeaders {
+				t.Errorf("Options Access-Control-Allow-Headers is %v, want %v", gotHeaders, test.wantHeaders)
+			}
 
-	if !reflect.DeepEqual(gotAllow, wantAllow) {
-		t.Errorf("Options Allow is %v, want %v", gotAllow, wantAllow)
-	}
+			if gotCredentialsHeaders != test.wantCredentials {
+				t.Errorf("Options Access-Control-Allow-Credentials is %v, want %v", gotCredentialsHeaders, test.wantCredentials)
+			}
 
-	if !reflect.DeepEqual(gotContentType, wantContentType) {
-		t.Errorf("Options Content-Type is %v, want %v", gotContentType, wantContentType)
-	}
-}
+			if gotAllow != test.wantAllow {
+				t.Errorf("Options Allow is %v, want %v", gotAllow, test.wantAllow)
+			}
 
-func TestMiddleware_Options_InvalidMethod(t *testing.T) {
-	// setup types
-	m := &internal.Metadata{
-		Vela: &internal.Vela{
-			Address: "http://localhost:8080",
-		},
-	}
-
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
-
-	// setup mock server
-	engine.Use(Metadata(m))
-	engine.Use(Options)
-	engine.GET("/health", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
-
-	// run test
-	engine.ServeHTTP(context.Writer, context.Request)
-
-	gotOrigin := context.Writer.Header().Get("Access-Control-Allow-Origin")
-	gotMethods := context.Writer.Header().Get("Access-Control-Allow-Methods")
-	gotHeaders := context.Writer.Header().Get("Access-Control-Allow-Headers")
-	gotAllow := context.Writer.Header().Get("Allow")
-	gotContentType := context.Writer.Header().Get("Content-Type")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Options returned %v, want %v", resp.Code, http.StatusOK)
-	}
-
-	if len(gotOrigin) > 0 {
-		t.Errorf("Options Access-Control-Allow-Origin is %v, want \"\"", gotOrigin)
-	}
-
-	if len(gotMethods) > 0 {
-		t.Errorf("Options Access-Control-Allow-Methods is %v, want \"\"", gotMethods)
-	}
-
-	if len(gotHeaders) > 0 {
-		t.Errorf("Options Access-Control-Allow-Headers is %v, want \"\"", gotHeaders)
-	}
-
-	if len(gotAllow) > 0 {
-		t.Errorf("Options Allow is %v, want \"\"", gotAllow)
-	}
-
-	if len(gotContentType) > 0 {
-		t.Errorf("Options Content-Type is %v, want \"\"", gotContentType)
+			if gotContentType != test.wantContentType {
+				t.Errorf("Options Content-Type is %v, want %v", gotContentType, test.wantContentType)
+			}
+		})
 	}
 }
 
 func TestMiddleware_Cors(t *testing.T) {
-	// setup types
-	wantOrigin := "*"
-	wantExposeHeaders := "link, x-total-count"
-	m := &internal.Metadata{
-		Vela: &internal.Vela{
-			Address: "http://localhost:8080",
+	// setup tests
+	tests := []struct {
+		name              string
+		webAddress        string
+		wantOrigin        string
+		wantExposeHeaders string
+		wantCredentials   string
+	}{
+		{
+			name:              "without web address",
+			webAddress:        "",
+			wantOrigin:        "*",
+			wantExposeHeaders: "link, x-total-count",
+			wantCredentials:   "",
+		},
+		{
+			name:              "with web address",
+			webAddress:        "http://localhost:8888",
+			wantOrigin:        "http://localhost:8888",
+			wantExposeHeaders: "link, x-total-count",
+			wantCredentials:   "true",
 		},
 	}
 
-	// setup context
-	gin.SetMode(gin.TestMode)
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// setup types
+			m := &internal.Metadata{
+				Vela: &internal.Vela{
+					Address:    "http://localhost:8080",
+					WebAddress: test.webAddress,
+				},
+			}
 
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+			// setup context
+			gin.SetMode(gin.TestMode)
 
-	// setup mock server
-	engine.Use(Metadata(m))
-	engine.Use(Cors)
-	engine.GET("/health", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
+			resp := httptest.NewRecorder()
+			context, engine := gin.CreateTestContext(resp)
+			context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
-	// run test
-	engine.ServeHTTP(context.Writer, context.Request)
+			// setup mock server
+			engine.Use(Metadata(m))
+			engine.Use(Cors)
+			engine.GET("/health", func(c *gin.Context) {
+				c.Status(http.StatusOK)
+			})
 
-	gotOrigin := context.Writer.Header().Get("Access-Control-Allow-Origin")
-	gotExposeHeaders := context.Writer.Header().Get("Access-Control-Expose-Headers")
+			// run test
+			engine.ServeHTTP(context.Writer, context.Request)
 
-	if resp.Code != http.StatusOK {
-		t.Errorf("CORS returned %v, want %v", resp.Code, http.StatusOK)
-	}
+			gotOrigin := context.Writer.Header().Get("Access-Control-Allow-Origin")
+			gotExposeHeaders := context.Writer.Header().Get("Access-Control-Expose-Headers")
+			gotCredentialsHeaders := context.Writer.Header().Get("Access-Control-Allow-Credentials")
 
-	if !reflect.DeepEqual(gotOrigin, wantOrigin) {
-		t.Errorf("CORS Access-Control-Allow-Origin is %v, want %v", gotOrigin, wantOrigin)
-	}
+			if resp.Code != http.StatusOK {
+				t.Errorf("CORS returned %v, want %v", resp.Code, http.StatusOK)
+			}
 
-	if !reflect.DeepEqual(gotExposeHeaders, wantExposeHeaders) {
-		t.Errorf("CORS Access-Control-Expose-Headers is %v, want %v", gotExposeHeaders, wantExposeHeaders)
+			if gotOrigin != test.wantOrigin {
+				t.Errorf("CORS Access-Control-Allow-Origin is %v, want %v", gotOrigin, test.wantOrigin)
+			}
+
+			if gotExposeHeaders != test.wantExposeHeaders {
+				t.Errorf("CORS Access-Control-Expose-Headers is %v, want %v", gotExposeHeaders, test.wantExposeHeaders)
+			}
+
+			if gotCredentialsHeaders != test.wantCredentials {
+				t.Errorf("CORS Access-Control-Allow-Credentials is %v, want %v", gotCredentialsHeaders, test.wantCredentials)
+			}
+		})
 	}
 }
 
 func TestMiddleware_Secure(t *testing.T) {
-	// setup types
-	wantFrameOptions := "DENY"
-	wantContentTypeOptions := "nosniff"
-	wantProtection := "1; mode=block"
-
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
-
-	// setup mock server
-	engine.Use(Secure)
-	engine.GET("/health", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
-
-	// run test
-	engine.ServeHTTP(context.Writer, context.Request)
-
-	gotFrameOptions := context.Writer.Header().Get("X-Frame-Options")
-	gotContentTypeOptions := context.Writer.Header().Get("X-Content-Type-Options")
-	gotProtection := context.Writer.Header().Get("X-XSS-Protection")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Secure returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name   string
+		useTLS bool
+	}{
+		{
+			name:   "with tls",
+			useTLS: true,
+		},
+		{
+			name:   "without tls",
+			useTLS: false,
+		},
 	}
 
-	if !reflect.DeepEqual(gotFrameOptions, wantFrameOptions) {
-		t.Errorf("Secure X-Frame-Options is %v, want %v", gotFrameOptions, wantFrameOptions)
-	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// setup types
+			wantFrameOptions := "DENY"
+			wantContentTypeOptions := "nosniff"
+			wantProtection := "1; mode=block"
+			wantSecurity := "max-age=63072000; includeSubDomains; preload"
 
-	if !reflect.DeepEqual(gotContentTypeOptions, wantContentTypeOptions) {
-		t.Errorf("Secure X-Content-Type-Options is %v, want %v", gotContentTypeOptions, wantContentTypeOptions)
-	}
+			// setup context
+			gin.SetMode(gin.TestMode)
 
-	if !reflect.DeepEqual(gotProtection, wantProtection) {
-		t.Errorf("Secure X-XSS-Protection is %v, want %v", gotProtection, wantProtection)
+			resp := httptest.NewRecorder()
+			context, engine := gin.CreateTestContext(resp)
+			context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+			if test.useTLS {
+				context.Request.TLS = new(tls.ConnectionState)
+			}
+
+			// setup mock server
+			engine.Use(Secure)
+			engine.GET("/health", func(c *gin.Context) {
+				c.Status(http.StatusOK)
+			})
+
+			// run test
+			engine.ServeHTTP(context.Writer, context.Request)
+
+			gotFrameOptions := context.Writer.Header().Get("X-Frame-Options")
+			gotContentTypeOptions := context.Writer.Header().Get("X-Content-Type-Options")
+			gotProtection := context.Writer.Header().Get("X-XSS-Protection")
+			gotSecurity := context.Writer.Header().Get("Strict-Transport-Security")
+
+			if resp.Code != http.StatusOK {
+				t.Errorf("Secure returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if gotFrameOptions != wantFrameOptions {
+				t.Errorf("Secure X-Frame-Options is %v, want %v", gotFrameOptions, wantFrameOptions)
+			}
+
+			if gotContentTypeOptions != wantContentTypeOptions {
+				t.Errorf("Secure X-Content-Type-Options is %v, want %v", gotContentTypeOptions, wantContentTypeOptions)
+			}
+
+			if gotProtection != wantProtection {
+				t.Errorf("Secure X-XSS-Protection is %v, want %v", gotProtection, wantProtection)
+			}
+
+			if gotSecurity != wantSecurity {
+				t.Errorf("Secure Strict-Transport-Security is %v, want %v", gotSecurity, wantSecurity)
+			}
+		})
 	}
 }
 
-func TestMiddleware_Secure_TLS(t *testing.T) {
-	// setup types
-	wantFrameOptions := "DENY"
-	wantContentTypeOptions := "nosniff"
-	wantProtection := "1; mode=block"
-	wantSecurity := "max-age=63072000; includeSubDomains; preload"
-
+func TestMiddleware_RequestID(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
-	context.Request.TLS = new(tls.ConnectionState)
 
 	// setup mock server
-	engine.Use(Secure)
+	engine.Use(RequestID)
 	engine.GET("/health", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
@@ -285,28 +338,14 @@ func TestMiddleware_Secure_TLS(t *testing.T) {
 	// run test
 	engine.ServeHTTP(context.Writer, context.Request)
 
-	gotFrameOptions := context.Writer.Header().Get("X-Frame-Options")
-	gotContentTypeOptions := context.Writer.Header().Get("X-Content-Type-Options")
-	gotProtection := context.Writer.Header().Get("X-XSS-Protection")
-	gotSecurity := context.Writer.Header().Get("Strict-Transport-Security")
+	gotRequestID := context.Writer.Header().Get("X-Request-ID")
+	_, err := uuid.Parse(gotRequestID)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Secure returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("RequestID returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(gotFrameOptions, wantFrameOptions) {
-		t.Errorf("Secure X-Frame-Options is %v, want %v", gotFrameOptions, wantFrameOptions)
-	}
-
-	if !reflect.DeepEqual(gotContentTypeOptions, wantContentTypeOptions) {
-		t.Errorf("Secure X-Content-Type-Options is %v, want %v", gotContentTypeOptions, wantContentTypeOptions)
-	}
-
-	if !reflect.DeepEqual(gotProtection, wantProtection) {
-		t.Errorf("Secure X-XSS-Protection is %v, want %v", gotProtection, wantProtection)
-	}
-
-	if !reflect.DeepEqual(gotSecurity, wantSecurity) {
-		t.Errorf("Secure Strict-Transport-Security is %v, want %v", gotSecurity, wantSecurity)
+	if err != nil {
+		t.Errorf("RequestID X-Request-ID is not a valid UUID: %v", err)
 	}
 }

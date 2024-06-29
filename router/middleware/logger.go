@@ -53,6 +53,7 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 
 		fields := logrus.Fields{
 			"ip":   util.EscapeValue(c.ClientIP()),
+			"id":   util.EscapeValue(c.GetHeader("X-Request-ID")),
 			"path": path,
 		}
 
@@ -70,6 +71,7 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 		if c.Request.URL.Path != "/health" {
 			fields := logrus.Fields{
 				"ip":         util.EscapeValue(c.ClientIP()),
+				"id":         c.GetHeader("X-Request-ID"),
 				"latency":    latency,
 				"method":     c.Request.Method,
 				"path":       path,
@@ -207,6 +209,8 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 			// map fields attached to requests
 			case "ip":
 				data["client.ip"] = v
+			case "id":
+				data["http.request.id"] = v
 			case "latency":
 				data["event.duration"] = v
 			case "method":

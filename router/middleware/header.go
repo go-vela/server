@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/version"
@@ -71,6 +72,23 @@ func Cors(c *gin.Context) {
 	}
 
 	c.Header("Access-Control-Expose-Headers", "link, x-total-count")
+}
+
+// RequestID is a middleware function that generates a unique request ID and
+// sets it in both the request and response headers. This is intended for
+// debugging and troubleshooting purposes, to help trace requests through
+// the system.
+func RequestID(c *gin.Context) {
+	// on error "id" will be a zero value UUID (UUID.Nil), not nil
+	id, _ := uuid.NewV7()
+
+	idString := id.String()
+
+	// set request ID in the request for other middleware to consume
+	c.Request.Header.Set("X-Request-ID", idString)
+
+	// set request ID in the response for clients to consume
+	c.Header("X-Request-ID", idString)
 }
 
 // RequestVersion is a middleware function that injects the Vela API version

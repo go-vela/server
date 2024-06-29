@@ -155,6 +155,8 @@ func server(c *cli.Context) error {
 	compiler.SetSettings(ps)
 
 	router := router.Load(
+		middleware.RequestID,
+		middleware.RequestVersion,
 		middleware.CLI(c),
 		middleware.Settings(ps),
 		middleware.Compiler(compiler),
@@ -163,7 +165,6 @@ func server(c *cli.Context) error {
 		middleware.Metadata(metadata),
 		middleware.TokenManager(tm),
 		middleware.Queue(queue),
-		middleware.RequestVersion,
 		middleware.Secret(c.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),

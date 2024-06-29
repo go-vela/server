@@ -53,7 +53,6 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r.Use(gin.Recovery())
 
 	r.Use(options...)
-	r.Use(middleware.RequestVersion)
 	r.Use(middleware.NoCache)
 	r.Use(middleware.Options)
 	r.Use(middleware.Cors)

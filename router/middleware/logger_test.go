@@ -19,7 +19,12 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/dashboard"
+	"github.com/go-vela/server/router/middleware/hook"
+	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/schedule"
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
@@ -55,47 +60,70 @@ func TestMiddleware_Logger(t *testing.T) {
 	s.SetNumber(1)
 	s.SetName("foo")
 
+	h := new(library.Hook)
+	h.SetID(1)
+	h.SetRepoID(1)
+	h.SetBuildID(1)
+
+	sc := new(api.Schedule)
+	sc.SetID(1)
+	sc.SetRepo(r)
+	sc.SetName("foo")
+
 	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
+
+	d := new(api.Dashboard)
+	d.SetID("1")
+	d.SetName("foo")
 
 	w := new(api.Worker)
 	w.SetID(1)
 	w.SetHostname("worker_0")
 	w.SetAddress("localhost")
 
+	p := new(library.Pipeline)
+	p.SetID(1)
+	p.SetRepoID(1)
+
 	payload, _ := json.Marshal(`{"foo": "bar"}`)
 	wantLevel := logrus.InfoLevel
 
-	logger, hook := test.NewNullLogger()
-	defer hook.Reset()
+	logger, loggerHook := test.NewNullLogger()
+	defer loggerHook.Reset()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodPost, "/foobar", bytes.NewBuffer(payload))
+	context.Request, _ = http.NewRequest(http.MethodPost, "/repos/foo", bytes.NewBuffer(payload))
 
 	// setup mock server
+	engine.Use(Logger(logger, time.RFC3339))
 	engine.Use(func(c *gin.Context) { build.ToContext(c, b) })
+	engine.Use(func(c *gin.Context) { dashboard.ToContext(c, d) })
+	engine.Use(func(c *gin.Context) { hook.ToContext(c, h) })
+	engine.Use(func(c *gin.Context) { pipeline.ToContext(c, p) })
 	engine.Use(func(c *gin.Context) { repo.ToContext(c, r) })
+	engine.Use(func(c *gin.Context) { schedule.ToContext(c, sc) })
 	engine.Use(func(c *gin.Context) { service.ToContext(c, svc) })
 	engine.Use(func(c *gin.Context) { step.ToContext(c, s) })
 	engine.Use(func(c *gin.Context) { user.ToContext(c, u) })
 	engine.Use(func(c *gin.Context) { worker.ToContext(c, w) })
+	engine.Use(org.Establish())
 	engine.Use(Payload())
-	engine.Use(Logger(logger, time.RFC3339))
-	engine.POST("/foobar", func(c *gin.Context) {
+	engine.POST("/repos/:org", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
 
 	// run test
 	engine.ServeHTTP(context.Writer, context.Request)
 
-	gotLevel := hook.LastEntry().Level
-	gotMessage := hook.LastEntry().Message
+	gotLevel := loggerHook.LastEntry().Level
+	gotMessage := loggerHook.LastEntry().Message
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Logger returned %v, want %v", resp.Code, http.StatusOK)
@@ -235,6 +263,7 @@ func TestMiddleware_Format(t *testing.T) {
 
 	fields := logrus.Fields{
 		"ip":         "123.4.5.6",
+		"id":         "deadbeef",
 		"method":     http.MethodGet,
 		"path":       "/foobar",
 		"latency":    0,
@@ -242,6 +271,7 @@ func TestMiddleware_Format(t *testing.T) {
 		"user-agent": "foobar",
 		"version":    "v1.0.0",
 		"org":        "foo",
+		"user":       "octocat",
 	}
 
 	logger := logrus.NewEntry(logrus.StandardLogger())
