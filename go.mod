@@ -11,7 +11,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/adhocore/gronx v1.8.1
 	github.com/alicebob/miniredis/v2 v2.33.0
-	github.com/aws/aws-sdk-go v1.54.6
+	github.com/aws/aws-sdk-go v1.54.12
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/distribution/reference v0.6.0
 	github.com/drone/envsubst v1.0.3
