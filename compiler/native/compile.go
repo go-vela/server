@@ -63,14 +63,15 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 
 	// create the ruledata to purge steps
 	r := &pipeline.RuleData{
-		Branch:  c.build.GetBranch(),
-		Comment: c.comment,
-		Event:   event,
-		Path:    c.files,
-		Repo:    c.repo.GetFullName(),
-		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
-		Target:  c.build.GetDeploy(),
-		Label:   c.labels,
+		Branch:   c.build.GetBranch(),
+		Comment:  c.comment,
+		Event:    event,
+		Path:     c.files,
+		Repo:     c.repo.GetFullName(),
+		Tag:      strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
+		Target:   c.build.GetDeploy(),
+		Label:    c.labels,
+		Instance: c.metadata.Vela.Address,
 	}
 
 	switch {
