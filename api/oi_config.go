@@ -40,7 +40,7 @@ func GetOpenIDConfig(c *gin.Context) {
 	config := types.OpenIDConfig{
 		Issuer:      fmt.Sprintf("%s/_services/token", m.Vela.Address),
 		JWKSAddress: fmt.Sprintf("%s/%s", m.Vela.Address, "_services/token/.well-known/jwks"),
-		SupportedClaims: []string{
+		ClaimsSupported: []string{
 			"sub",
 			"exp",
 			"iat",
@@ -59,8 +59,14 @@ func GetOpenIDConfig(c *gin.Context) {
 			"sha",
 			"ref",
 		},
+		ResponseTypesSupported: []string{
+			"id_token",
+		},
 		Algorithms: []string{
 			jwt.SigningMethodRS256.Name,
+		},
+		SubjectTypesSupported: []string{
+			"public",
 		},
 	}
 
