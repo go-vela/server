@@ -16,7 +16,6 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -84,9 +83,9 @@ import (
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	cl := claims.Retrieve(c)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	scm := scm.FromContext(c)
@@ -94,15 +93,7 @@ func RestartBuild(c *gin.Context) {
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	})
+	l.Debugf("restarting build %d", b.GetNumber())
 
 	// a build that is in a pending approval state cannot be restarted
 	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
@@ -131,7 +122,7 @@ func RestartBuild(c *gin.Context) {
 	// parent to the previous build
 	b.SetParent(b.GetNumber())
 
-	logger.Debugf("Generating queue items for build %s", entry)
+	l.Debugf("generating queue items for build %s", entry)
 
 	// restart form
 	config := CompileAndPublishConfig{
@@ -151,12 +142,16 @@ func RestartBuild(c *gin.Context) {
 		compiler.FromContext(c),
 		queue.FromContext(c),
 	)
-
 	if err != nil {
 		util.HandleError(c, code, err)
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"new_build":    item.Build.GetNumber(),
+		"new_build_id": item.Build.GetID(),
+	}).Info("build created via restart")
 
 	c.JSON(http.StatusCreated, item.Build)
 

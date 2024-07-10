@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
@@ -34,6 +35,10 @@ import (
 
 // GetJWKS represents the API handler for requests to public keys in the Vela OpenID service.
 func GetJWKS(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Debug("reading JWKS")
+
 	// retrieve JWKs from the database
 	keys, err := database.FromContext(c).ListJWKs(c)
 	if err != nil {

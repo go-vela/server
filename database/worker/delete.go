@@ -16,7 +16,7 @@ import (
 func (e *engine) DeleteWorker(ctx context.Context, w *api.Worker) error {
 	e.logger.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
-	}).Tracef("deleting worker %s from the database", w.GetHostname())
+	}).Tracef("deleting worker %s", w.GetHostname())
 
 	// cast the library type to database type
 	//

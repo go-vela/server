@@ -34,7 +34,7 @@ jwks (
 
 // CreateJWKTable creates the jwks table in the database.
 func (e *engine) CreateJWKTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating jwks table in the database")
+	e.logger.Tracef("creating jwks table")
 
 	// handle the driver provided to create the table
 	switch driver {

@@ -11,7 +11,7 @@ import (
 
 // CreateSettings creates a platform settings record in the database.
 func (e *engine) CreateSettings(_ context.Context, s *settings.Platform) (*settings.Platform, error) {
-	e.logger.Tracef("creating platform settings in the database with %v", s.String())
+	e.logger.Tracef("creating platform settings with %v", s.String())
 
 	// cast the api type to database type
 	settings := types.SettingsFromAPI(s)

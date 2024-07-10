@@ -17,7 +17,7 @@ import (
 func (e *engine) CreateJWK(_ context.Context, j jwk.RSAPublicKey) error {
 	e.logger.WithFields(logrus.Fields{
 		"jwk": j.KeyID(),
-	}).Tracef("creating key %s in the database", j.KeyID())
+	}).Tracef("creating key %s", j.KeyID())
 
 	key := types.JWKFromAPI(j)
 	key.Active = sql.NullBool{Bool: true, Valid: true}

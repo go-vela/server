@@ -16,7 +16,7 @@ import (
 func (e *engine) DeleteHook(ctx context.Context, h *library.Hook) error {
 	e.logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
-	}).Tracef("deleting hook %d in the database", h.GetNumber())
+	}).Tracef("deleting hook %d", h.GetNumber())
 
 	// cast the library type to database type
 	//

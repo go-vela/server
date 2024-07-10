@@ -15,7 +15,7 @@ import (
 func (e *engine) CountStepsForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-	}).Tracef("getting count of steps for build %d from the database", b.GetNumber())
+	}).Tracef("getting count of steps for build %d", b.GetNumber())
 
 	// variable to store query results
 	var s int64

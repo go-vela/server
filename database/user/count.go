@@ -10,7 +10,7 @@ import (
 
 // CountUsers gets the count of all users from the database.
 func (e *engine) CountUsers(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all users from the database")
+	e.logger.Tracef("getting count of all users")
 
 	// variable to store query results
 	var u int64

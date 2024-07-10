@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api/service"
 	"github.com/go-vela/server/api/step"
 	"github.com/go-vela/server/api/types"
@@ -39,6 +41,11 @@ func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service
 
 		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	}).Info("build created")
 
 	// plan all services for the build
 	services, err := service.PlanServices(ctx, database, p, b)

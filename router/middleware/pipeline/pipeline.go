@@ -13,7 +13,6 @@ import (
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -29,7 +28,7 @@ func Retrieve(c *gin.Context) *library.Pipeline {
 // Establish sets the pipeline in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		o := org.Retrieve(c)
+		l := c.MustGet("logger").(*logrus.Entry)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
@@ -53,15 +52,7 @@ func Establish() gin.HandlerFunc {
 
 		entry := fmt.Sprintf("%s/%s", r.GetFullName(), p)
 
-		// update engine logger with API metadata
-		//
-		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-		logrus.WithFields(logrus.Fields{
-			"org":      o,
-			"pipeline": p,
-			"repo":     r.GetName(),
-			"user":     u.GetName(),
-		}).Debugf("reading pipeline %s", entry)
+		l.Debugf("reading pipeline %s", entry)
 
 		pipeline, err := database.FromContext(c).GetPipelineForRepo(ctx, p, r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
@@ -94,8 +85,15 @@ func Establish() gin.HandlerFunc {
 			}
 		}
 
-		ToContext(c, pipeline)
+		l = l.WithFields(logrus.Fields{
+			"pipeline":    pipeline.GetCommit(),
+			"pipeline_id": pipeline.GetID(),
+		})
 
+		// update the logger with the new fields
+		c.Set("logger", l)
+
+		ToContext(c, pipeline)
 		c.Next()
 	}
 }

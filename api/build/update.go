@@ -12,8 +12,6 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -78,23 +76,14 @@ import (
 // a build for a repo.
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
-	cl := claims.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  cl.Subject,
-	}).Infof("updating build %s", entry)
+	l.Debugf("updating build %s", entry)
 
 	// capture body from API request
 	input := new(types.Build)
@@ -181,14 +170,25 @@ func UpdateBuild(c *gin.Context) {
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).Status(ctx, r.GetOwner(), b, r.GetOrg(), r.GetName())
 		if err != nil {
-			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
+			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
 	}
 }
 
 // UpdateComponentStatuses updates all components (steps and services) for a build to a given status.
 func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) error {
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
+
+	l = l.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+		"org":      b.GetRepo().GetOrg(),
+		"repo":     b.GetRepo().GetName(),
+		"repo_id":  b.GetRepo().GetID(),
+	})
+
+	l.Debug("updating component statuses")
 
 	// retrieve the steps for the build from the step table
 	steps := []*library.Step{}
@@ -222,6 +222,11 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) erro
 		if err != nil {
 			return err
 		}
+
+		l.WithFields(logrus.Fields{
+			"step":    step.GetNumber(),
+			"step_id": step.GetID(),
+		}).Infof("step status updated")
 	}
 
 	// retrieve the services for the build from the service table
@@ -255,6 +260,11 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) erro
 		if err != nil {
 			return err
 		}
+
+		l.WithFields(logrus.Fields{
+			"service":    service.GetNumber(),
+			"service_id": service.GetID(),
+		}).Info("service status updated")
 	}
 
 	return nil

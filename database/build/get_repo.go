@@ -18,7 +18,7 @@ func (e *engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int) (
 		"build": number,
 		"org":   r.GetOrg(),
 		"repo":  r.GetName(),
-	}).Tracef("getting build %s/%d from the database", r.GetFullName(), number)
+	}).Tracef("getting build %s/%d", r.GetFullName(), number)
 
 	// variable to store query results
 	b := new(types.Build)

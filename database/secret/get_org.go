@@ -18,7 +18,7 @@ func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*librar
 		"org":    org,
 		"secret": name,
 		"type":   constants.SecretOrg,
-	}).Tracef("getting org secret %s/%s from the database", org, name)
+	}).Tracef("getting org secret %s/%s", org, name)
 
 	// variable to store query results
 	s := new(database.Secret)

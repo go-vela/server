@@ -16,7 +16,7 @@ func (e *engine) CountSchedulesForRepo(ctx context.Context, r *api.Repo) (int64,
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("getting count of schedules for repo %s from the database", r.GetFullName())
+	}).Tracef("getting count of schedules for repo %s", r.GetFullName())
 
 	// variable to store query results
 	var s int64

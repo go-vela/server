@@ -53,15 +53,11 @@ import (
 // update the currently authenticated user.
 func UpdateCurrentUser(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("updating current user %s", u.GetName())
+	l.Debugf("updating current user %s", u.GetName())
 
 	// capture body from API request
 	input := new(types.User)

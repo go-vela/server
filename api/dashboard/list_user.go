@@ -29,9 +29,10 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved user dashboards
-//     type: json
 //     schema:
-//       "$ref": "#/definitions/Dashboard"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/DashCard"
 //   '400':
 //     description: Invalid request payload
 //     schema:
@@ -49,14 +50,10 @@ import (
 // of dashboards for a user.
 func ListUserDashboards(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("listing dashboards for user %s", u.GetName())
+	l.Debugf("listing dashboards for user %s", u.GetName())
 
 	var dashCards []types.DashCard
 

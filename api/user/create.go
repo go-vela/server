@@ -52,6 +52,7 @@ import (
 // CreateUser represents the API handler to create a user.
 func CreateUser(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
@@ -70,9 +71,9 @@ func CreateUser(c *gin.Context) {
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
+	l.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("creating new user %s", input.GetName())
+	}).Debugf("creating new user %s", input.GetName())
 
 	// send API call to create the user
 	user, err := database.FromContext(c).CreateUser(ctx, input)
@@ -83,6 +84,11 @@ func CreateUser(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"user":    user.GetName(),
+		"user_id": user.GetID(),
+	}).Info("user created")
 
 	c.JSON(http.StatusCreated, user)
 }

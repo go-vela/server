@@ -15,7 +15,6 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
@@ -72,20 +71,13 @@ import (
 // ApproveBuild represents the API handler to approve a build to run.
 func ApproveBuild(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	})
+	l.Debugf("approving build %d", b.GetID())
 
 	// verify build is in correct status
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
@@ -103,8 +95,6 @@ func ApproveBuild(c *gin.Context) {
 		return
 	}
 
-	logger.Debugf("user %s approved build %s/%d for execution", u.GetName(), r.GetFullName(), b.GetNumber())
-
 	// set fields
 	b.SetStatus(constants.StatusPending)
 	b.SetApprovedAt(time.Now().Unix())
@@ -113,8 +103,10 @@ func ApproveBuild(c *gin.Context) {
 	// update the build in the db
 	_, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
-		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
+		l.Errorf("failed to update build during publish to queue: %v", err)
 	}
+
+	l.Info("build updated - user approved build execution")
 
 	// publish the build to the queue
 	go Enqueue(

@@ -14,7 +14,7 @@ import (
 //
 //nolint:lll // ignore long line length due to variable names
 func (e *engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*api.User, int64, error) {
-	e.logger.Trace("listing lite users from the database")
+	e.logger.Trace("listing lite users")
 
 	// variables to store query results and return values
 	count := int64(0)

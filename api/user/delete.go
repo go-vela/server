@@ -10,7 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -50,16 +49,11 @@ import (
 // DeleteUser represents the API handler to remove a user.
 func DeleteUser(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	user := util.PathParameter(c, "user")
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("deleting user %s", user)
+	l.Debugf("deleting user %s", user)
 
 	// send API call to capture the user
 	u, err := database.FromContext(c).GetUserForName(ctx, user)

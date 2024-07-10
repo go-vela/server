@@ -60,7 +60,7 @@ services (
 
 // CreateServiceTable creates the services table in the database.
 func (e *engine) CreateServiceTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating services table in the database")
+	e.logger.Tracef("creating services table")
 
 	// handle the driver provided to create the table
 	switch driver {

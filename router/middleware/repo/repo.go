@@ -12,7 +12,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -24,8 +23,8 @@ func Retrieve(c *gin.Context) *api.Repo {
 // Establish sets the repo in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		l := c.MustGet("logger").(*logrus.Entry)
 		o := org.Retrieve(c)
-		u := user.Retrieve(c)
 		ctx := c.Request.Context()
 
 		rParam := util.PathParameter(c, "repo")
@@ -36,14 +35,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		// update engine logger with API metadata
-		//
-		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-		logrus.WithFields(logrus.Fields{
-			"org":  o,
-			"repo": rParam,
-			"user": u.GetName(),
-		}).Debugf("reading repo %s/%s", o, rParam)
+		l.Debugf("reading repo %s", rParam)
 
 		r, err := database.FromContext(c).GetRepoForOrg(ctx, o, rParam)
 		if err != nil {
@@ -52,6 +44,14 @@ func Establish() gin.HandlerFunc {
 
 			return
 		}
+
+		l = l.WithFields(logrus.Fields{
+			"repo":    r.GetName(),
+			"repo_id": r.GetID(),
+		})
+
+		// update the logger with the new fields
+		c.Set("logger", l)
 
 		ToContext(c, r)
 		c.Next()

@@ -18,7 +18,7 @@ import (
 func (e *engine) UpdateUser(ctx context.Context, u *api.User) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Tracef("updating user %s in the database", u.GetName())
+	}).Tracef("updating user %s", u.GetName())
 
 	// cast the library type to database type
 	user := types.UserFromAPI(u)

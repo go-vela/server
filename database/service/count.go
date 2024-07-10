@@ -10,7 +10,7 @@ import (
 
 // CountServices gets the count of all services from the database.
 func (e *engine) CountServices(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all services from the database")
+	e.logger.Tracef("getting count of all services")
 
 	// variable to store query results
 	var s int64

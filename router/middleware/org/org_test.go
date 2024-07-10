@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
@@ -74,6 +75,7 @@ func TestOrg_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org", func(c *gin.Context) {
@@ -110,6 +112,7 @@ func TestOrg_Establish_NoOrgParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "//test", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org/test", func(c *gin.Context) {

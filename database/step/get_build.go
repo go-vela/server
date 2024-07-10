@@ -18,7 +18,7 @@ func (e *engine) GetStepForBuild(ctx context.Context, b *api.Build, number int) 
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"step":  number,
-	}).Tracef("getting step %d from the database", number)
+	}).Tracef("getting step %d", number)
 
 	// variable to store query results
 	s := new(database.Step)

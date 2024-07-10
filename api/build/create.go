@@ -14,9 +14,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 )
@@ -82,21 +80,11 @@ import (
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	})
-
-	logger.Infof("creating new build for repo %s", r.GetFullName())
+	l.Debugf("creating new build for repo %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(types.Build)
@@ -151,6 +139,11 @@ func CreateBuild(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"build":    item.Build.GetNumber(),
+		"build_id": item.Build.GetID(),
+	}).Info("build created")
 
 	c.JSON(http.StatusCreated, item.Build)
 

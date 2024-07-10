@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
@@ -32,6 +33,10 @@ import (
 // GetOpenIDConfig represents the API handler for requests for configurations in the Vela OpenID service.
 func GetOpenIDConfig(c *gin.Context) {
 	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Debug("reading OpenID configuration")
+
 	config := types.OpenIDConfig{
 		Issuer:      fmt.Sprintf("%s/_services/token", m.Vela.Address),
 		JWKSAddress: fmt.Sprintf("%s/%s", m.Vela.Address, "_services/token/.well-known/jwks"),

@@ -14,7 +14,7 @@ import (
 
 // helper function to setup the tokenmanager from the CLI arguments.
 func setupTokenManager(c *cli.Context, db database.Interface) (*token.Manager, error) {
-	logrus.Debug("Creating token manager from CLI configuration")
+	logrus.Debug("creating token manager from CLI configuration")
 
 	tm := &token.Manager{
 		PrivateKeyHMAC:              c.String("vela-server-private-key"),

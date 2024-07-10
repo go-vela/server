@@ -12,7 +12,7 @@ import (
 
 // ListPendingAndRunningBuilds gets a list of all pending and running builds in the provided timeframe from the database.
 func (e *engine) ListPendingAndRunningBuilds(ctx context.Context, after string) ([]*api.QueueBuild, error) {
-	e.logger.Trace("listing all pending and running builds from the database")
+	e.logger.Trace("listing all pending and running builds")
 
 	// variables to store query results and return value
 	b := new([]types.QueueBuild)

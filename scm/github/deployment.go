@@ -158,9 +158,10 @@ func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 // CreateDeployment creates a new deployment for the GitHub repo.
 func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo, d *library.Deployment) error {
 	c.Logger.WithFields(logrus.Fields{
-		"org":  r.GetOrg(),
-		"repo": r.GetName(),
-		"user": u.GetName(),
+		"org":     r.GetOrg(),
+		"repo":    r.GetName(),
+		"user":    u.GetName(),
+		"user_id": u.GetID(),
 	}).Tracef("creating deployment for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token

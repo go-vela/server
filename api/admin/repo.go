@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -51,10 +50,11 @@ import (
 
 // UpdateRepo represents the API handler to update a repo.
 func UpdateRepo(c *gin.Context) {
-	logrus.Info("Admin: updating repo in database")
-
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
+
+	l.Debug("platform admin: updating repo")
 
 	// capture body from API request
 	input := new(types.Repo)
@@ -68,6 +68,12 @@ func UpdateRepo(c *gin.Context) {
 		return
 	}
 
+	l.WithFields(logrus.Fields{
+		"org":     util.EscapeValue(input.GetOrg()),
+		"repo":    util.EscapeValue(input.GetName()),
+		"repo_id": input.GetID(),
+	}).Debug("platform admin: attempting to update repo")
+
 	// send API call to update the repo
 	r, err := database.FromContext(c).UpdateRepo(ctx, input)
 	if err != nil {
@@ -77,6 +83,12 @@ func UpdateRepo(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"org":     r.GetOrg(),
+		"repo":    r.GetName(),
+		"repo_id": r.GetID(),
+	}).Info("platform admin: repo updated")
 
 	c.JSON(http.StatusOK, r)
 }

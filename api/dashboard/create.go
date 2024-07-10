@@ -56,6 +56,7 @@ import (
 // create a dashboard.
 func CreateDashboard(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 
 	// capture body from API request
@@ -77,12 +78,7 @@ func CreateDashboard(c *gin.Context) {
 		return
 	}
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("creating new dashboard %s", input.GetName())
+	l.Debugf("creating new dashboard %s", input.GetName())
 
 	d := new(types.Dashboard)
 
@@ -123,6 +119,11 @@ func CreateDashboard(c *gin.Context) {
 		return
 	}
 
+	l.WithFields(logrus.Fields{
+		"dashboard":    d.GetName(),
+		"dashboard_id": d.GetID(),
+	}).Info("dashboard created")
+
 	// add dashboard to claims' user's dashboard set
 	u.SetDashboards(append(u.GetDashboards(), d.GetID()))
 
@@ -135,6 +136,8 @@ func CreateDashboard(c *gin.Context) {
 
 		return
 	}
+
+	l.Infof("user updated with new dashboard %s", d.GetName())
 
 	c.JSON(http.StatusCreated, d)
 }
