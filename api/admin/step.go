@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+//nolint:dupl // ignore similar code with user.go
 package admin
 
 import (
@@ -50,11 +51,14 @@ import (
 
 // UpdateStep represents the API handler to update a step.
 func UpdateStep(c *gin.Context) {
-	logrus.Info("Admin: updating step in database")
+	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
+	ctx := c.Request.Context()
+
+	l.Debug("platform admin: updating step")
 
 	// capture body from API request
 	input := new(library.Step)
-	ctx := c.Request.Context()
 
 	err := c.Bind(input)
 	if err != nil {
@@ -65,6 +69,11 @@ func UpdateStep(c *gin.Context) {
 		return
 	}
 
+	l.WithFields(logrus.Fields{
+		"step_id": input.GetID(),
+		"step":    util.EscapeValue(input.GetName()),
+	}).Debug("platform admin: attempting to update step")
+
 	// send API call to update the step
 	s, err := database.FromContext(c).UpdateStep(ctx, input)
 	if err != nil {
@@ -74,6 +83,11 @@ func UpdateStep(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"step_id": s.GetID(),
+		"step":    s.GetName(),
+	}).Info("platform admin: updated step")
 
 	c.JSON(http.StatusOK, s)
 }

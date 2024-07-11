@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
@@ -83,6 +84,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -163,6 +165,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -213,6 +216,7 @@ func TestPerm_MustWorkerRegisterToken(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
@@ -276,6 +280,7 @@ func TestPerm_MustWorkerRegisterToken_PlatAdmin(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(claims.Establish())
@@ -324,6 +329,7 @@ func TestPerm_MustWorkerAuthToken(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
@@ -364,6 +370,7 @@ func TestPerm_MustWorkerAuth_ServerWorkerToken(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(claims.Establish())
@@ -448,6 +455,7 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -542,6 +550,7 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -633,6 +642,7 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -726,6 +736,7 @@ func TestPerm_MustIDRequestToken(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -824,6 +835,7 @@ func TestPerm_MustIDRequestToken_NotRunning(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -915,6 +927,7 @@ func TestPerm_MustIDRequestToken_WrongBuild(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1003,6 +1016,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1088,6 +1102,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1173,6 +1188,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1269,6 +1285,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1368,6 +1385,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1467,6 +1485,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1566,6 +1585,7 @@ func TestPerm_MustWrite(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1665,6 +1685,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1764,6 +1785,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1863,6 +1885,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -1962,6 +1985,7 @@ func TestPerm_MustRead(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -2061,6 +2085,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -2149,6 +2174,7 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -2248,6 +2274,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -2347,6 +2374,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -2446,6 +2474,7 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -2545,6 +2574,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	client, _ := github.NewTest(s.URL)
 
 	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })

@@ -14,7 +14,7 @@ import (
 
 // PopBuildExecutable pops a build executable by build_id from the database.
 func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.BuildExecutable, error) {
-	e.logger.Tracef("popping build executable for build %d from the database", id)
+	e.logger.Tracef("popping build executable for build %d", id)
 
 	// variable to store query results
 	b := new(database.BuildExecutable)
@@ -30,7 +30,6 @@ func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.Bui
 			Where("build_id = ?", id).
 			Delete(b).
 			Error
-
 		if err != nil {
 			return nil, err
 		}

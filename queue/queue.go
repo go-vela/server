@@ -13,7 +13,7 @@ import (
 
 // FromCLIContext helper function to setup the queue from the CLI arguments.
 func FromCLIContext(c *cli.Context) (Service, error) {
-	logrus.Debug("Creating queue client from CLI configuration")
+	logrus.Debug("creating queue client from CLI configuration")
 
 	// queue configuration
 	_setup := &Setup{

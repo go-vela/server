@@ -12,7 +12,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
@@ -60,10 +59,10 @@ import (
 // CleanResources represents the API handler to update stale resources.
 func CleanResources(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
-	logrus.Infof("platform admin %s: updating pending resources in database", u.GetName())
+	l.Debug("platform admin: cleaning resources")
 
 	// default error message
 	msg := "build cleaned by platform admin"
@@ -82,7 +81,7 @@ func CleanResources(c *gin.Context) {
 
 	// if a message is provided, set the error message to that
 	if input.Message != nil {
-		msg = *input.Message
+		msg = util.EscapeValue(*input.Message)
 	}
 
 	// capture before query parameter, default to max build timeout
@@ -105,7 +104,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d builds in database", u.GetName(), builds)
+	l.Debugf("platform admin: cleaned %d builds", builds)
 
 	// clean executables
 	executables, err := database.FromContext(c).CleanBuildExecutables(ctx)
@@ -117,6 +116,8 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
+	l.Debugf("platform admin: cleaned %d executables", executables)
+
 	// clean services
 	services, err := database.FromContext(c).CleanServices(ctx, msg, before)
 	if err != nil {
@@ -127,7 +128,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d services in database", u.GetName(), services)
+	l.Debugf("platform admin: cleaned %d services", services)
 
 	// clean steps
 	steps, err := database.FromContext(c).CleanSteps(ctx, msg, before)
@@ -139,7 +140,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d steps in database", u.GetName(), steps)
+	l.Debugf("platform admin: cleaned %d steps", steps)
 
 	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d executables cleaned. %d services cleaned. %d steps cleaned.", builds, executables, services, steps))
 }

@@ -16,7 +16,7 @@ import (
 func (e *engine) CreateHook(ctx context.Context, h *api.Hook) (*api.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
-	}).Tracef("creating hook %d in the database", h.GetNumber())
+	}).Tracef("creating hook %d", h.GetNumber())
 
 	hook := types.HookFromAPI(h)
 

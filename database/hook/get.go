@@ -12,7 +12,7 @@ import (
 
 // GetHook gets a hook by ID from the database.
 func (e *engine) GetHook(ctx context.Context, id int64) (*api.Hook, error) {
-	e.logger.Tracef("getting hook %d from the database", id)
+	e.logger.Tracef("getting hook %d", id)
 
 	// variable to store query results
 	h := new(types.Hook)

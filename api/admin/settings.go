@@ -47,15 +47,17 @@ import (
 
 // GetSettings represents the API handler to get platform settings.
 func GetSettings(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Debug("platform admin: reading platform settings")
+
 	// capture middleware values
 	s := sMiddleware.FromContext(c)
-
-	logrus.Info("Admin: reading settings")
 
 	// check captured value because we aren't retrieving settings from the database
 	// instead we are retrieving the auto-refreshed middleware value
 	if s == nil {
-		retErr := fmt.Errorf("settings not found")
+		retErr := fmt.Errorf("platform settings not found")
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -108,16 +110,17 @@ func GetSettings(c *gin.Context) {
 // platform settings singleton.
 func UpdateSettings(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	s := sMiddleware.FromContext(c)
 	u := uMiddleware.FromContext(c)
 	ctx := c.Request.Context()
 
-	logrus.Info("Admin: updating settings")
+	l.Debug("platform admin: updating platform settings")
 
 	// check captured value because we aren't retrieving settings from the database
 	// instead we are retrieving the auto-refreshed middleware value
 	if s == nil {
-		retErr := fmt.Errorf("settings not found")
+		retErr := fmt.Errorf("platform settings not found")
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -136,7 +139,7 @@ func UpdateSettings(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for settings: %w", err)
+		retErr := fmt.Errorf("unable to decode JSON for platform settings: %w", err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -150,7 +153,7 @@ func UpdateSettings(c *gin.Context) {
 
 			_, err = image.ParseWithError(cloneImage)
 			if err != nil {
-				retErr := fmt.Errorf("invalid clone image %s: %w", cloneImage, err)
+				retErr := fmt.Errorf("invalid clone image %s for platform settings: %w", cloneImage, err)
 
 				util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -158,14 +161,20 @@ func UpdateSettings(c *gin.Context) {
 			}
 
 			_s.SetCloneImage(cloneImage)
+
+			l.Infof("platform admin: updating clone image to %s", cloneImage)
 		}
 
 		if input.TemplateDepth != nil {
 			_s.SetTemplateDepth(*input.TemplateDepth)
+
+			l.Infof("platform admin: updating template depth to %d", *input.TemplateDepth)
 		}
 
 		if input.StarlarkExecLimit != nil {
 			_s.SetStarlarkExecLimit(*input.StarlarkExecLimit)
+
+			l.Infof("platform admin: updating starlark exec limit to %d", *input.StarlarkExecLimit)
 		}
 	}
 
@@ -173,14 +182,20 @@ func UpdateSettings(c *gin.Context) {
 		if input.Queue.Routes != nil {
 			_s.SetRoutes(input.GetRoutes())
 		}
+
+		l.Infof("platform admin: updating queue routes to: %s", input.GetRoutes())
 	}
 
 	if input.RepoAllowlist != nil {
 		_s.SetRepoAllowlist(input.GetRepoAllowlist())
+
+		l.Infof("platform admin: updating repo allowlist to: %s", input.GetRepoAllowlist())
 	}
 
 	if input.ScheduleAllowlist != nil {
 		_s.SetScheduleAllowlist(input.GetScheduleAllowlist())
+
+		l.Infof("platform admin: updating schedule allowlist to: %s", input.GetScheduleAllowlist())
 	}
 
 	_s.SetUpdatedBy(u.GetName())
@@ -188,7 +203,7 @@ func UpdateSettings(c *gin.Context) {
 	// send API call to update the settings
 	_s, err = database.FromContext(c).UpdateSettings(ctx, _s)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update settings: %w", err)
+		retErr := fmt.Errorf("unable to update platform settings: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -229,18 +244,20 @@ func UpdateSettings(c *gin.Context) {
 // RestoreSettings represents the API handler to
 // restore platform settings to the environment defaults.
 func RestoreSettings(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Debug("platform admin: restoring platform settings")
+
 	// capture middleware values
+	ctx := c.Request.Context()
+	cliCtx := cliMiddleware.FromContext(c)
 	s := sMiddleware.FromContext(c)
 	u := uMiddleware.FromContext(c)
-	cliCtx := cliMiddleware.FromContext(c)
-	ctx := c.Request.Context()
-
-	logrus.Info("Admin: restoring settings")
 
 	// check captured value because we aren't retrieving settings from the database
 	// instead we are retrieving the auto-refreshed middleware value
 	if s == nil {
-		retErr := fmt.Errorf("settings not found")
+		retErr := fmt.Errorf("platform settings not found")
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -249,7 +266,7 @@ func RestoreSettings(c *gin.Context) {
 
 	compiler, err := native.FromCLIContext(cliCtx)
 	if err != nil {
-		retErr := fmt.Errorf("unable to restore settings: %w", err)
+		retErr := fmt.Errorf("unable to restore platform settings: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -258,7 +275,7 @@ func RestoreSettings(c *gin.Context) {
 
 	queue, err := queue.FromCLIContext(cliCtx)
 	if err != nil {
-		retErr := fmt.Errorf("unable to restore settings: %w", err)
+		retErr := fmt.Errorf("unable to restore platform settings: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -281,7 +298,7 @@ func RestoreSettings(c *gin.Context) {
 	// send API call to update the settings
 	s, err = database.FromContext(c).UpdateSettings(ctx, _s)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update (restore) settings: %w", err)
+		retErr := fmt.Errorf("unable to update (restore) platform settings: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

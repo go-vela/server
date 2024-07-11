@@ -45,25 +45,19 @@ import (
 func Logout(c *gin.Context) {
 	// grab the metadata to help deal with the cookie
 	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	// capture middleware values
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logger := logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	})
-
-	logger.Infof("logging out user %s", u.GetName())
+	l.Debug("logging out user")
 
 	// parse the address for the backend server
 	// so we can set it for the cookie domain
 	addr, err := url.Parse(m.Vela.Address)
 	if err != nil {
 		// silently fail
-		logger.Error("unable to parse Vela address during logout")
+		l.Error("unable to parse Vela address during logout")
 	}
 
 	// set the same samesite attribute we used to create the cookie
@@ -85,6 +79,8 @@ func Logout(c *gin.Context) {
 
 		return
 	}
+
+	l.Info("updated user - logged out")
 
 	// return 200 for successful logout
 	c.JSON(http.StatusOK, "ok")

@@ -23,6 +23,7 @@ func Retrieve(c *gin.Context) *api.Dashboard {
 // Establish sets the build in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		l := c.MustGet("logger").(*logrus.Entry)
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
 
@@ -39,13 +40,7 @@ func Establish() gin.HandlerFunc {
 			id = userBoards[0]
 		}
 
-		// update engine logger with API metadata
-		//
-		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-		logrus.WithFields(logrus.Fields{
-			"dashboard": id,
-			"user":      u.GetName(),
-		}).Debugf("reading dashboard %s", id)
+		l.Debugf("reading dashboard %s", id)
 
 		d, err := database.FromContext(c).GetDashboard(ctx, id)
 		if err != nil {
@@ -54,6 +49,13 @@ func Establish() gin.HandlerFunc {
 
 			return
 		}
+
+		l = l.WithFields(logrus.Fields{
+			"dashboard": d.GetID(),
+		})
+
+		// update the logger with the new fields
+		c.Set("logger", l)
 
 		ToContext(c, d)
 		c.Next()

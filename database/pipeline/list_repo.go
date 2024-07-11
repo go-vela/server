@@ -20,7 +20,7 @@ func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, pe
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("listing pipelines for repo %s from the database", r.GetFullName())
+	}).Tracef("listing pipelines for repo %s", r.GetFullName())
 
 	// variables to store query results and return values
 	count := int64(0)

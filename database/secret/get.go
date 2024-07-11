@@ -12,7 +12,7 @@ import (
 
 // GetSecret gets a secret by ID from the database.
 func (e *engine) GetSecret(ctx context.Context, id int64) (*library.Secret, error) {
-	e.logger.Tracef("getting secret %d from the database", id)
+	e.logger.Tracef("getting secret %d", id)
 
 	// variable to store query results
 	s := new(database.Secret)

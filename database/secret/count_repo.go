@@ -17,7 +17,7 @@ func (e *engine) CountSecretsForRepo(ctx context.Context, r *api.Repo, filters m
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 		"type": constants.SecretRepo,
-	}).Tracef("getting count of secrets for repo %s from the database", r.GetFullName())
+	}).Tracef("getting count of secrets for repo %s", r.GetFullName())
 
 	// variable to store query results
 	var s int64

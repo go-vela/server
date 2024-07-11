@@ -8,9 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo} repos GetRepo
@@ -54,18 +52,10 @@ import (
 // GetRepo represents the API handler to get a repository.
 func GetRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading repo %s", r.GetFullName())
+	l.Debug("reading repo")
 
 	c.JSON(http.StatusOK, r)
 }

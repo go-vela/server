@@ -12,7 +12,7 @@ import (
 
 // ListSecrets gets a list of all secrets from the database.
 func (e *engine) ListSecrets(ctx context.Context) ([]*library.Secret, error) {
-	e.logger.Trace("listing all secrets from the database")
+	e.logger.Trace("listing all secrets")
 
 	// variables to store query results and return value
 	count := int64(0)

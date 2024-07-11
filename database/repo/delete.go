@@ -17,7 +17,7 @@ func (e *engine) DeleteRepo(ctx context.Context, r *api.Repo) error {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("deleting repo %s from the database", r.GetFullName())
+	}).Tracef("deleting repo %s", r.GetFullName())
 
 	// cast the library type to database type
 	repo := types.RepoFromAPI(r)

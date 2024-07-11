@@ -10,7 +10,7 @@ import (
 
 // CountBuildsForStatus gets the count of builds by status from the database.
 func (e *engine) CountBuildsForStatus(ctx context.Context, status string, filters map[string]interface{}) (int64, error) {
-	e.logger.Tracef("getting count of builds for status %s from the database", status)
+	e.logger.Tracef("getting count of builds for status %s", status)
 
 	// variable to store query results
 	var b int64

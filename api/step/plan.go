@@ -70,6 +70,14 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 		return nil, fmt.Errorf("unable to create step %s: %w", s.GetName(), err)
 	}
 
+	logrus.WithFields(logrus.Fields{
+		"step":    s.GetName(),
+		"step_id": s.GetID(),
+		"org":     b.GetRepo().GetOrg(),
+		"repo":    b.GetRepo().GetName(),
+		"repo_id": b.GetRepo().GetID(),
+	}).Info("step created")
+
 	// populate environment variables from step library
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/library#step.Environment
@@ -90,6 +98,15 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	if err != nil {
 		return nil, fmt.Errorf("unable to create logs for step %s: %w", s.GetName(), err)
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"step":    s.GetName(),
+		"step_id": s.GetID(),
+		"log_id":  l.GetID(), // it won't have an ID here
+		"org":     b.GetRepo().GetOrg(),
+		"repo":    b.GetRepo().GetName(),
+		"repo_id": b.GetRepo().GetID(),
+	}).Info("log for step created")
 
 	if len(s.GetReportAs()) > 0 {
 		// send API call to set the status on the commit

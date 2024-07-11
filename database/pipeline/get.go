@@ -12,7 +12,7 @@ import (
 
 // GetPipeline gets a pipeline by ID from the database.
 func (e *engine) GetPipeline(ctx context.Context, id int64) (*library.Pipeline, error) {
-	e.logger.Tracef("getting pipeline %d from the database", id)
+	e.logger.Tracef("getting pipeline %d", id)
 
 	// variable to store query results
 	p := new(database.Pipeline)

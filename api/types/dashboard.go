@@ -31,6 +31,8 @@ type BuildPartial struct {
 
 // DashCard is an API type that holds the dashboard information as
 // well as a list of RepoPartials attached to the dashboard.
+//
+// swagger:model DashCard
 type DashCard struct {
 	Dashboard *Dashboard    `json:"dashboard,omitempty"`
 	Repos     []RepoPartial `json:"repos,omitempty"`

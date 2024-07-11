@@ -17,7 +17,7 @@ func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*api.Repo
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,
-	}).Tracef("getting repo %s/%s from the database", org, name)
+	}).Tracef("getting repo %s/%s", org, name)
 
 	// variable to store query results
 	r := new(types.Repo)

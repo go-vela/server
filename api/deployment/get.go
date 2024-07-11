@@ -11,7 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -68,7 +67,7 @@ import (
 // GetDeployment represents the API handler to get a deployment.
 func GetDeployment(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	deployment := util.PathParameter(c, "deployment")
@@ -76,14 +75,7 @@ func GetDeployment(c *gin.Context) {
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), deployment)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading deployment %s", entry)
+	l.Debugf("reading deployment %s", entry)
 
 	number, err := strconv.Atoi(deployment)
 	if err != nil {

@@ -24,6 +24,7 @@ func Retrieve(c *gin.Context) *api.User {
 // Establish sets the user in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		l := c.MustGet("logger").(*logrus.Entry)
 		cl := claims.Retrieve(c)
 		ctx := c.Request.Context()
 
@@ -37,7 +38,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		logrus.Debugf("parsing user access token")
+		l.Debugf("parsing user access token")
 
 		// lookup user in claims subject in the database
 		u, err := database.FromContext(c).GetUserForName(ctx, cl.Subject)
@@ -45,6 +46,14 @@ func Establish() gin.HandlerFunc {
 			util.HandleError(c, http.StatusUnauthorized, err)
 			return
 		}
+
+		l = l.WithFields(logrus.Fields{
+			"user":    u.GetName(),
+			"user_id": u.GetID(),
+		})
+
+		// update the logger with the new fields
+		c.Set("logger", l)
 
 		ToContext(c, u)
 		c.Next()

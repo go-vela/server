@@ -15,7 +15,7 @@ import (
 func (e *engine) CountReposForUser(ctx context.Context, u *api.User, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Tracef("getting count of repos for user %s from the database", u.GetName())
+	}).Tracef("getting count of repos for user %s", u.GetName())
 
 	// variable to store query results
 	var r int64

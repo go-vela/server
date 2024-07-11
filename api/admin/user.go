@@ -51,10 +51,11 @@ import (
 
 // UpdateUser represents the API handler to update a user.
 func UpdateUser(c *gin.Context) {
-	logrus.Info("Admin: updating user in database")
-
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
+
+	l.Debug("platform admin: updating user")
 
 	// capture body from API request
 	input := new(types.User)
@@ -68,8 +69,13 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
+	l.WithFields(logrus.Fields{
+		"target_user_id": input.GetID(),
+		"target_user":    util.EscapeValue(input.GetName()),
+	}).Debug("platform admin: attempting to update user")
+
 	// send API call to update the user
-	u, err := database.FromContext(c).UpdateUser(ctx, input)
+	tu, err := database.FromContext(c).UpdateUser(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %d: %w", input.GetID(), err)
 
@@ -78,5 +84,10 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, u)
+	l.WithFields(logrus.Fields{
+		"target_user_id": tu.GetID(),
+		"target_user":    tu.GetName(),
+	}).Info("platform admin: updated user")
+
+	c.JSON(http.StatusOK, tu)
 }

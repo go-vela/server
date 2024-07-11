@@ -62,7 +62,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 
 	// check if we should skip creating secret database objects
 	if e.config.SkipCreation {
-		e.logger.Warning("skipping creation of secrets table and indexes in the database")
+		e.logger.Warning("skipping creation of secrets table and indexes")
 
 		return e, nil
 	}

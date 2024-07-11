@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
@@ -100,6 +101,7 @@ func TestService_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -139,6 +141,7 @@ func TestService_Establish_NoRepo(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org/:repo/builds/:build/services/:service", func(c *gin.Context) {
@@ -185,6 +188,7 @@ func TestService_Establish_NoBuild(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -243,6 +247,7 @@ func TestService_Establish_NoServiceParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -302,6 +307,7 @@ func TestService_Establish_InvalidServiceParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/foo", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -358,6 +364,7 @@ func TestService_Establish_NoService(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())

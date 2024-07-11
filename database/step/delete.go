@@ -16,7 +16,7 @@ import (
 func (e *engine) DeleteStep(ctx context.Context, s *library.Step) error {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
-	}).Tracef("deleting step %s from the database", s.GetName())
+	}).Tracef("deleting step %s", s.GetName())
 
 	// cast the library type to database type
 	//

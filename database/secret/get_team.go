@@ -19,7 +19,7 @@ func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (
 		"team":   team,
 		"secret": name,
 		"type":   constants.SecretShared,
-	}).Tracef("getting shared secret %s/%s/%s from the database", org, team, name)
+	}).Tracef("getting shared secret %s/%s/%s", org, team, name)
 
 	// variable to store query results
 	s := new(database.Secret)

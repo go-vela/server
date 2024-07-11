@@ -40,7 +40,9 @@ import (
 // RotateOIDCKeys represents the API handler to
 // rotate RSA keys in the OIDC provider service.
 func RotateOIDCKeys(c *gin.Context) {
-	logrus.Info("Admin: rotating keys for OIDC provider")
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Info("platform admin: rotating keys for OIDC provider")
 
 	// capture middleware values
 	ctx := c.Request.Context()

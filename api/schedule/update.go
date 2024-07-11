@@ -12,7 +12,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/schedule"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
@@ -74,21 +73,14 @@ import (
 // UpdateSchedule represents the API handler to update a schedule.
 func UpdateSchedule(c *gin.Context) {
 	// capture middleware values
-	r := repo.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	s := schedule.Retrieve(c)
-	ctx := c.Request.Context()
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 	scheduleName := util.PathParameter(c, "schedule")
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"schedule": scheduleName,
-		"repo":     r.GetName(),
-		"org":      r.GetOrg(),
-	}).Infof("updating schedule %s", scheduleName)
+	l.Debugf("updating schedule %s", scheduleName)
 
 	// capture body from API request
 	input := new(api.Schedule)

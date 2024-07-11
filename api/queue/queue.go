@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/types/library"
 )
 
@@ -34,11 +33,9 @@ import (
 // Info represents the API handler to
 // retrieve queue credentials as part of worker onboarding.
 func Info(c *gin.Context) {
-	cl := claims.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 
-	logrus.WithFields(logrus.Fields{
-		"user": cl.Subject,
-	}).Info("requesting queue credentials with registration token")
+	l.Info("requesting queue credentials with registration token")
 
 	// extract the public key that was packed into gin context
 	k := c.MustGet("public-key").(string)

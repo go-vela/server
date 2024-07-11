@@ -20,7 +20,7 @@ func (e *engine) GetSecretForRepo(ctx context.Context, name string, r *api.Repo)
 		"repo":   r.GetName(),
 		"secret": name,
 		"type":   constants.SecretRepo,
-	}).Tracef("getting repo secret %s/%s from the database", r.GetFullName(), name)
+	}).Tracef("getting repo secret %s/%s", r.GetFullName(), name)
 
 	// variable to store query results
 	s := new(database.Secret)

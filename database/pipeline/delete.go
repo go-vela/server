@@ -16,7 +16,7 @@ import (
 func (e *engine) DeletePipeline(ctx context.Context, p *library.Pipeline) error {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
-	}).Tracef("deleting pipeline %s from the database", p.GetCommit())
+	}).Tracef("deleting pipeline %s", p.GetCommit())
 
 	// cast the library type to database type
 	//

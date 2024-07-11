@@ -15,17 +15,17 @@ import (
 
 // Pop grabs an item from the specified channel off the queue.
 func (c *client) Pop(ctx context.Context, inRoutes []string) (*models.Item, error) {
-	c.Logger.Tracef("popping item from queue %s", c.GetRoutes())
-
 	// define routes to pop from
 	var routes []string
 
 	// if routes were supplied, use those
-	if len(routes) > 0 {
+	if len(inRoutes) > 0 {
 		routes = inRoutes
 	} else {
 		routes = c.GetRoutes()
 	}
+
+	c.Logger.Tracef("popping item from queue %s", routes)
 
 	// build a redis queue command to pop an item from queue
 	//

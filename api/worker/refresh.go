@@ -61,6 +61,7 @@ import (
 // refresh the auth token for a worker.
 func Refresh(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	w := worker.Retrieve(c)
 	cl := claims.Retrieve(c)
 	ctx := c.Request.Context()
@@ -69,10 +70,7 @@ func Refresh(c *gin.Context) {
 	if !strings.EqualFold(cl.TokenType, constants.ServerWorkerTokenType) && !strings.EqualFold(cl.Subject, w.GetHostname()) {
 		retErr := fmt.Errorf("unable to refresh worker auth: claims subject %s does not match worker hostname %s", cl.Subject, w.GetHostname())
 
-		logrus.WithFields(logrus.Fields{
-			"subject": cl.Subject,
-			"worker":  w.GetHostname(),
-		}).Warnf("attempted refresh of worker %s using token from worker %s", w.GetHostname(), cl.Subject)
+		l.Warnf("attempted refresh of worker %s using token from worker %s", w.GetHostname(), cl.Subject)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -92,12 +90,9 @@ func Refresh(c *gin.Context) {
 		return
 	}
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"worker": w.GetHostname(),
-	}).Infof("refreshing worker %s authentication", w.GetHostname())
+	l.Info("worker updated - check-in time updated")
+
+	l.Debugf("refreshing worker %s authentication", w.GetHostname())
 
 	switch cl.TokenType {
 	// if symmetric token configured, send back symmetric token
@@ -105,6 +100,7 @@ func Refresh(c *gin.Context) {
 		if secret, ok := c.Value("secret").(string); ok {
 			tkn := new(library.Token)
 			tkn.SetToken(secret)
+
 			c.JSON(http.StatusOK, tkn)
 
 			return

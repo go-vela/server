@@ -11,13 +11,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 )
 
-//
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets GetSecret
 //
 // Get a secret
@@ -74,8 +72,8 @@ import (
 // GetSecret gets a secret from the provided secrets service.
 func GetSecret(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	cl := claims.Retrieve(c)
-	u := user.Retrieve(c)
 	e := util.PathParameter(c, "engine")
 	t := util.PathParameter(c, "type")
 	o := util.PathParameter(c, "org")
@@ -87,31 +85,26 @@ func GetSecret(c *gin.Context) {
 
 	// create log fields from API metadata
 	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"secret": s,
-		"type":   t,
-		"user":   u.GetName(),
+		"secret_engine": e,
+		"secret_org":    o,
+		"secret_repo":   n,
+		"secret_name":   s,
+		"secret_type":   t,
 	}
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"secret": s,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
+		delete(fields, "secret_repo")
+		fields["secret_team"] = n
 	}
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("reading secret %s from %s service", entry, e)
+	logger := l.WithFields(fields)
+
+	logger.Debugf("reading secret %s from %s service", entry, e)
 
 	// send API call to capture the secret
 	secret, err := secret.FromContext(c, e).Get(ctx, t, o, n, s)
@@ -129,6 +122,8 @@ func GetSecret(c *gin.Context) {
 
 		return
 	}
+
+	logger.Infof("retrieved secret %s from %s service", entry, e)
 
 	c.JSON(http.StatusOK, secret.Sanitize())
 }

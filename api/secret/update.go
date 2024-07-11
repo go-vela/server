@@ -85,6 +85,7 @@ import (
 // UpdateSecret updates a secret for the provided secrets service.
 func UpdateSecret(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	e := util.PathParameter(c, "engine")
 	t := util.PathParameter(c, "type")
@@ -97,31 +98,24 @@ func UpdateSecret(c *gin.Context) {
 
 	// create log fields from API metadata
 	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"secret": s,
-		"type":   t,
-		"user":   u.GetName(),
+		"secret_engine": e,
+		"secret_org":    o,
+		"secret_repo":   n,
+		"secret_name":   s,
+		"secret_type":   t,
 	}
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"secret": s,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
+		delete(fields, "secret_repo")
+		fields["secret_team"] = n
 	}
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("updating secret %s for %s service", entry, e)
+	l.WithFields(fields).Debugf("updating secret %s for %s service", entry, e)
 
 	// capture body from API request
 	input := new(library.Secret)
@@ -173,6 +167,8 @@ func UpdateSecret(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(fields).Info("secret updated")
 
 	c.JSON(http.StatusOK, secret.Sanitize())
 }

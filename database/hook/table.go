@@ -58,7 +58,7 @@ hooks (
 
 // CreateHookTable creates the hooks table in the database.
 func (e *engine) CreateHookTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating hooks table in the database")
+	e.logger.Tracef("creating hooks table")
 
 	// handle the driver provided to create the table
 	switch driver {

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -51,10 +50,11 @@ import (
 
 // UpdateHook represents the API handler to update a hook.
 func UpdateHook(c *gin.Context) {
-	logrus.Info("Admin: updating hook in database")
-
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
+
+	l.Debug("platform admin: updating hook")
 
 	// capture body from API request
 	input := new(types.Hook)
@@ -68,6 +68,10 @@ func UpdateHook(c *gin.Context) {
 		return
 	}
 
+	l.WithFields(logrus.Fields{
+		"hook_id": input.GetID(),
+	}).Debug("platform admin: attempting to update hook")
+
 	// send API call to update the hook
 	h, err := database.FromContext(c).UpdateHook(ctx, input)
 	if err != nil {
@@ -77,6 +81,10 @@ func UpdateHook(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"hook_id": h.GetID(),
+	}).Info("platform admin: hook updated")
 
 	c.JSON(http.StatusOK, h)
 }

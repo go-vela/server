@@ -13,7 +13,7 @@ import (
 
 // ListJWKs gets a list of all configured JWKs from the database.
 func (e *engine) ListJWKs(_ context.Context) (jwk.Set, error) {
-	e.logger.Trace("listing all jwks from the database")
+	e.logger.Trace("listing all JWKs")
 
 	k := new([]types.JWK)
 	keySet := jwk.NewSet()

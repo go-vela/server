@@ -9,10 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
-	"github.com/go-vela/server/router/middleware/user"
 )
 
 //
@@ -71,22 +69,12 @@ import (
 // GetService represents the API handler to get a service for a build.
 func GetService(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build":   b.GetNumber(),
-		"org":     o,
-		"repo":    r.GetName(),
-		"service": s.GetNumber(),
-		"user":    u.GetName(),
-	}).Infof("reading service %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
+	l.Debugf("reading service %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
 	c.JSON(http.StatusOK, s)
 }

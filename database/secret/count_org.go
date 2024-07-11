@@ -15,7 +15,7 @@ func (e *engine) CountSecretsForOrg(ctx context.Context, org string, filters map
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"type": constants.SecretOrg,
-	}).Tracef("getting count of secrets for org %s from the database", org)
+	}).Tracef("getting count of secrets for org %s", org)
 
 	// variable to store query results
 	var s int64

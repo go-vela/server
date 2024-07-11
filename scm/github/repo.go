@@ -25,7 +25,7 @@ func (c *client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, re
 	retryLimit := 5
 
 	for i := 0; i < retryLimit; i++ {
-		logrus.Debugf("Fetching config file - Attempt %d", i+1)
+		logrus.Debugf("fetching config file - Attempt %d", i+1)
 		// attempt to fetch the config
 		data, err = c.Config(ctx, u, r, ref)
 
@@ -411,7 +411,7 @@ func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *l
 	client := c.newClientToken(*u.Token)
 
 	context := fmt.Sprintf("%s/%s/%s", c.config.StatusContext, b.GetEvent(), s.GetReportAs())
-	url := fmt.Sprintf("%s/%s/%s/%d#step:%d", c.config.WebUIAddress, org, name, b.GetNumber(), s.GetNumber())
+	url := fmt.Sprintf("%s/%s/%s/%d#%d", c.config.WebUIAddress, org, name, b.GetNumber(), s.GetNumber())
 
 	var (
 		state       string

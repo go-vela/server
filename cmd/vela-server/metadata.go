@@ -13,7 +13,7 @@ import (
 
 // helper function to setup the metadata from the CLI arguments.
 func setupMetadata(c *cli.Context) (*internal.Metadata, error) {
-	logrus.Debug("Creating metadata from CLI configuration")
+	logrus.Debug("creating metadata from CLI configuration")
 
 	m := new(internal.Metadata)
 
@@ -50,7 +50,7 @@ func setupMetadata(c *cli.Context) (*internal.Metadata, error) {
 
 // helper function to capture the database metadata from the CLI arguments.
 func metadataDatabase(c *cli.Context) (*internal.Database, error) {
-	logrus.Trace("Creating database metadata from CLI configuration")
+	logrus.Trace("creating database metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("database.addr"))
 	if err != nil {
@@ -65,7 +65,7 @@ func metadataDatabase(c *cli.Context) (*internal.Database, error) {
 
 // helper function to capture the queue metadata from the CLI arguments.
 func metadataQueue(c *cli.Context) (*internal.Queue, error) {
-	logrus.Trace("Creating queue metadata from CLI configuration")
+	logrus.Trace("creating queue metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("queue.addr"))
 	if err != nil {
@@ -80,7 +80,7 @@ func metadataQueue(c *cli.Context) (*internal.Queue, error) {
 
 // helper function to capture the source metadata from the CLI arguments.
 func metadataSource(c *cli.Context) (*internal.Source, error) {
-	logrus.Trace("Creating source metadata from CLI configuration")
+	logrus.Trace("creating source metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("scm.addr"))
 	if err != nil {
@@ -97,7 +97,7 @@ func metadataSource(c *cli.Context) (*internal.Source, error) {
 //
 //nolint:unparam // ignore unparam for now
 func metadataVela(c *cli.Context) (*internal.Vela, error) {
-	logrus.Trace("Creating Vela metadata from CLI configuration")
+	logrus.Trace("creating Vela metadata from CLI configuration")
 
 	vela := new(internal.Vela)
 
