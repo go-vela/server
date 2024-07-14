@@ -279,8 +279,8 @@ spec-install:
 	$(if $(shell command -v apt-get 2> /dev/null),,$(error 'apt-get' not found - install jq, sponge, and go-swagger manually))
 	@echo
 	@echo "### Installing utilities (jq and sponge)"
-	@apt-get update
-	@apt-get install -y jq moreutils
+	@sudo apt-get update
+	@sudo apt-get install -y jq moreutils
 	@echo "### Installing go-swagger"
 	@go install github.com/go-swagger/go-swagger/cmd/swagger@latest
 
