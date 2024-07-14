@@ -282,7 +282,7 @@ spec-install:
 	@sudo apt-get update
 	@sudo apt-get install -y jq moreutils
 	@echo "### Installing go-swagger"
-	@go install github.com/go-swagger/go-swagger/cmd/swagger@latest
+	@go install github.com/go-swagger/go-swagger/cmd/swagger@v0.31.0
 
 # The `spec-gen` target is intended to create an api-spec
 # using go-swagger (https://goswagger.io)
