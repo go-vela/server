@@ -189,7 +189,7 @@ func main() {
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_OPEN_ID_ISSUER", "OPEN_ID_ISSUER"},
-			Name:    "id-issuer",
+			Name:    "oidc-issuer",
 			Usage:   "sets the issuer of the OpenID token requested during a build",
 		},
 		// Compiler Flags
