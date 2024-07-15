@@ -16,6 +16,12 @@ import (
 func setupTokenManager(c *cli.Context, db database.Interface) (*token.Manager, error) {
 	logrus.Debug("creating token manager from CLI configuration")
 
+	// set custom OIDC issuer if provided
+	oidcIssuer := c.String("oidc-issuer")
+	if len(oidcIssuer) == 0 {
+		oidcIssuer = fmt.Sprintf("%s/_services/token", c.String("server-addr"))
+	}
+
 	tm := &token.Manager{
 		PrivateKeyHMAC:              c.String("vela-server-private-key"),
 		UserAccessTokenDuration:     c.Duration("user-access-token-duration"),
@@ -24,7 +30,7 @@ func setupTokenManager(c *cli.Context, db database.Interface) (*token.Manager, e
 		WorkerAuthTokenDuration:     c.Duration("worker-auth-token-duration"),
 		WorkerRegisterTokenDuration: c.Duration("worker-register-token-duration"),
 		IDTokenDuration:             c.Duration("id-token-duration"),
-		Issuer:                      fmt.Sprintf("%s/_services/token", c.String("server-addr")),
+		Issuer:                      oidcIssuer,
 	}
 
 	// generate a new RSA key pair

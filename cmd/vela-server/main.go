@@ -187,6 +187,11 @@ func main() {
 			Usage:   "sets the duration of an OpenID token requested during a build (should be short)",
 			Value:   5 * time.Minute,
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_OPEN_ID_ISSUER", "OPEN_ID_ISSUER"},
+			Name:    "id-issuer",
+			Usage:   "sets the issuer of the OpenID token requested during a build",
+		},
 		// Compiler Flags
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_COMPILER_GITHUB", "COMPILER_GITHUB"},
