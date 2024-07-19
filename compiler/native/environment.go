@@ -309,12 +309,14 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) m
 	// populate environment variables from metadata
 	if m != nil {
 		env["VELA_ADDR"] = m.Vela.WebAddress
+		env["VELA_SERVER_ADDR"] = m.Vela.Address
 		env["VELA_CHANNEL"] = m.Queue.Channel
 		env["VELA_DATABASE"] = m.Database.Driver
 		env["VELA_HOST"] = m.Vela.Address
 		env["VELA_NETRC_MACHINE"] = m.Source.Host
 		env["VELA_QUEUE"] = m.Queue.Driver
 		env["VELA_SOURCE"] = m.Source.Driver
+		env["VELA_OPEN_ID_ISSUER"] = m.Vela.OpenIDIssuer
 		env["VELA_ID_TOKEN_REQUEST_URL"] = fmt.Sprintf("%s/api/v1/repos/%s/builds/%d/id_token", m.Vela.Address, r.GetFullName(), b.GetNumber())
 		channel = m.Queue.Channel
 		workspace = fmt.Sprintf("%s/%s/%s/%s", workspace, m.Source.Host, r.GetOrg(), r.GetName())

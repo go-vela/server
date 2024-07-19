@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/internal/token"
 )
 
 // swagger:operation GET /_services/token/.well-known/openid-configuration token GetOpenIDConfig
@@ -32,14 +32,14 @@ import (
 
 // GetOpenIDConfig represents the API handler for requests for configurations in the Vela OpenID service.
 func GetOpenIDConfig(c *gin.Context) {
-	m := c.MustGet("metadata").(*internal.Metadata)
 	l := c.MustGet("logger").(*logrus.Entry)
+	tm := c.MustGet("token-manager").(*token.Manager)
 
 	l.Debug("reading OpenID configuration")
 
 	config := types.OpenIDConfig{
-		Issuer:      fmt.Sprintf("%s/_services/token", m.Vela.Address),
-		JWKSAddress: fmt.Sprintf("%s/%s", m.Vela.Address, "_services/token/.well-known/jwks"),
+		Issuer:      tm.Issuer,
+		JWKSAddress: fmt.Sprintf("%s/.well-known/jwks", tm.Issuer),
 		ClaimsSupported: []string{
 			"sub",
 			"exp",

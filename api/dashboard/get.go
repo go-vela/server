@@ -116,6 +116,7 @@ func buildRepoPartials(c context.Context, repos []*types.DashboardRepo) ([]types
 				Status:   build.GetStatus(),
 				Started:  build.GetStarted(),
 				Finished: build.GetFinished(),
+				Ref:      build.GetRef(),
 				Sender:   build.GetSender(),
 				Branch:   build.GetBranch(),
 				Event:    build.GetEvent(),
