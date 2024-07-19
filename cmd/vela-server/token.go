@@ -3,8 +3,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
@@ -24,7 +22,6 @@ func setupTokenManager(c *cli.Context, db database.Interface) (*token.Manager, e
 		WorkerAuthTokenDuration:     c.Duration("worker-auth-token-duration"),
 		WorkerRegisterTokenDuration: c.Duration("worker-register-token-duration"),
 		IDTokenDuration:             c.Duration("id-token-duration"),
-		Issuer:                      fmt.Sprintf("%s/_services/token", c.String("server-addr")),
 	}
 
 	// generate a new RSA key pair

@@ -108,6 +108,15 @@ func server(c *cli.Context) error {
 		return err
 	}
 
+	// determine issuer for metadata and token manager
+	oidcIssuer := c.String("oidc-issuer")
+	if len(oidcIssuer) == 0 {
+		oidcIssuer = fmt.Sprintf("%s/_services/token", c.String("server-addr"))
+	}
+
+	metadata.Vela.OpenIDIssuer = oidcIssuer
+	tm.Issuer = oidcIssuer
+
 	jitter := wait.Jitter(5*time.Second, 2.0)
 
 	logrus.Infof("retrieving initial platform settings after %v delay", jitter)
