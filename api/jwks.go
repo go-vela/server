@@ -21,8 +21,6 @@ import (
 // produces:
 // - application/json
 // parameters:
-// security:
-//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the Vela JWKS

@@ -43,5 +43,5 @@ jobs:
 
     - name: validate spec
       run: |
-        sudo make spec-install
+        make spec-install
         make spec
