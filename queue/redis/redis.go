@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
+	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 
@@ -151,9 +152,10 @@ func failoverFromOptions(source *redis.Options) *redis.FailoverOptions {
 // we try to set it up.
 func pingQueue(c *client) error {
 	// attempt 10 times
+	var err error
 	for i := 0; i < 10; i++ {
 		// send ping request to client
-		err := c.Redis.Ping(context.Background()).Err()
+		err = c.Redis.Ping(context.Background()).Err()
 		if err != nil {
 			c.Logger.Debugf("unable to ping Redis queue. Retrying in %v", time.Duration(i)*time.Second)
 			time.Sleep(1 * time.Second)
@@ -164,7 +166,8 @@ func pingQueue(c *client) error {
 		return nil
 	}
 
-	return fmt.Errorf("unable to establish connection to Redis queue")
+	// capture last seen non-nil error
+	return errors.Wrap(err, "unable to establish connection to Redis queue")
 }
 
 // NewTest returns a Queue implementation that
