@@ -337,6 +337,14 @@ func CreateRepo(c *gin.Context) {
 		}).Infof("hook %d created for repo %s", h.GetID(), r.GetFullName())
 	}
 
+	// todo: vader todo: ghapps
+	// install the github app into this repository if not already done
+	// somehow ensure previously created repos have the app installed to avoid breaking things
+	// there will need to be some kind of "Repair" equivalent to ensure all repos have the app installed
+	// builds might HAVE to break until the app is installed
+	// todo: vader
+	// will there need to be an installation callback? sorta like oauth but to install the app into the repo
+
 	c.JSON(http.StatusCreated, r)
 }
 
