@@ -11,10 +11,12 @@ import (
 //
 // swagger:model OpenIDConfig
 type OpenIDConfig struct {
-	Issuer          string   `json:"issuer"`
-	JWKSAddress     string   `json:"jwks_uri"`
-	SupportedClaims []string `json:"supported_claims"`
-	Algorithms      []string `json:"id_token_signing_alg_values_supported"`
+	Issuer                 string   `json:"issuer"`
+	JWKSAddress            string   `json:"jwks_uri"`
+	ClaimsSupported        []string `json:"claims_supported"`
+	Algorithms             []string `json:"id_token_signing_alg_values_supported"`
+	ResponseTypesSupported []string `json:"response_types_supported"`
+	SubjectTypesSupported  []string `json:"subject_types_supported"`
 }
 
 // OpenIDClaims struct is an extension of the JWT standard claims. It

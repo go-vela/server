@@ -484,7 +484,7 @@ func PostWebhook(c *gin.Context) {
 
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
 	if webhook.PullRequest.IsFromFork {
-		l.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), r.GetFullName(), b.GetNumber())
+		l.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), repo.GetFullName(), b.GetNumber())
 
 		switch repo.GetApproveBuild() {
 		case constants.ApproveForkAlways:
@@ -496,7 +496,7 @@ func PostWebhook(c *gin.Context) {
 			return
 		case constants.ApproveForkNoWrite:
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
-			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
+			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), repo.GetOwner().GetToken(), repo.GetOrg(), repo.GetName())
 			if err != nil {
 				err = gatekeepBuild(c, b, repo)
 				if err != nil {
@@ -512,7 +512,7 @@ func PostWebhook(c *gin.Context) {
 			//
 			// NOTE: this call is cumbersome for repos with lots of contributors. Potential TODO: improve this if
 			// GitHub adds a single-contributor API endpoint.
-			contributor, err := scm.FromContext(c).RepoContributor(ctx, r.GetOwner(), b.GetSender(), r.GetOrg(), r.GetName())
+			contributor, err := scm.FromContext(c).RepoContributor(ctx, repo.GetOwner(), b.GetSender(), repo.GetOrg(), repo.GetName())
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
 			}
