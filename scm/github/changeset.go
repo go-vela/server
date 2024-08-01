@@ -21,7 +21,7 @@ func (c *client) Changeset(ctx context.Context, r *api.Repo, sha string) ([]stri
 	}).Tracef("capturing commit changeset for %s/commit/%s", r.GetFullName(), sha)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(r.GetOwner().GetToken())
+	client := c.newClientToken(ctx, r.GetOwner().GetToken())
 	s := []string{}
 
 	// set the max per page for the options to capture the commit
@@ -50,7 +50,7 @@ func (c *client) ChangesetPR(ctx context.Context, r *api.Repo, number int) ([]st
 	}).Tracef("capturing pull request changeset for %s/pull/%d", r.GetFullName(), number)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(r.GetOwner().GetToken())
+	client := c.newClientToken(ctx, r.GetOwner().GetToken())
 	s := []string{}
 	f := []*github.CommitFile{}
 

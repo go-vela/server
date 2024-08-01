@@ -5,10 +5,13 @@ package github
 import (
 	"context"
 	"fmt"
+	"net/http/httptrace"
 	"net/url"
 
 	"github.com/google/go-github/v63/github"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 )
 
@@ -138,14 +141,14 @@ func NewTest(urls ...string) (*client, error) {
 }
 
 // helper function to return the GitHub OAuth client.
-func (c *client) newClientToken(token string) *github.Client {
+func (c *client) newClientToken(ctx context.Context, token string) *github.Client {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 
 	// create the OAuth client
-	tc := oauth2.NewClient(context.Background(), ts)
+	tc := oauth2.NewClient(ctx, ts)
 	// if c.SkipVerify {
 	// 	tc.Transport.(*oauth2.Transport).Base = &http.Transport{
 	// 		Proxy: http.ProxyFromEnvironment,
@@ -154,6 +157,13 @@ func (c *client) newClientToken(token string) *github.Client {
 	// 		},
 	// 	}
 	// }
+
+	tc.Transport = otelhttp.NewTransport(
+		tc.Transport,
+		otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+			return otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
+		}),
+	)
 
 	// create the GitHub client from the OAuth client
 	github := github.NewClient(tc)

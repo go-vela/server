@@ -5,6 +5,8 @@ package database
 import (
 	"context"
 	"time"
+
+	"github.com/go-vela/server/tracing"
 )
 
 // EngineOpt represents a configuration option to initialize the database engine.
@@ -125,6 +127,16 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	return func(e *engine) error {
 		// set to skip creating tables and indexes in the database engine
 		e.config.SkipCreation = skipCreation
+
+		return nil
+	}
+}
+
+// WithTracingConfig sets the shared tracing config in the database engine.
+func WithTracingConfig(tracing *tracing.Config) EngineOpt {
+	return func(e *engine) error {
+		// set the tracing config
+		e.tracing = tracing
 
 		return nil
 	}
