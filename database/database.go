@@ -7,6 +7,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -25,12 +31,6 @@ import (
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
-	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 type (

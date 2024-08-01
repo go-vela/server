@@ -10,10 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"go.opentelemetry.io/otel/trace"
-
 	"github.com/google/go-github/v63/github"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/trace"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"

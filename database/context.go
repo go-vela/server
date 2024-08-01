@@ -5,9 +5,10 @@ package database
 import (
 	"context"
 
-	"github.com/go-vela/server/tracing"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/server/tracing"
 )
 
 const key = "database"

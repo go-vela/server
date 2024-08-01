@@ -4,7 +4,6 @@ package tracing
 
 import (
 	"github.com/urfave/cli/v2"
-
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 

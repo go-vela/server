@@ -3,9 +3,8 @@
 package database
 
 import (
-	"time"
-
 	"context"
+	"time"
 
 	"github.com/go-vela/server/tracing"
 )

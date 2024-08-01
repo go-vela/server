@@ -10,10 +10,9 @@ import (
 
 	"github.com/google/go-github/v63/github"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/oauth2"
-
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"golang.org/x/oauth2"
 )
 
 const (

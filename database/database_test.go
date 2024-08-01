@@ -3,7 +3,6 @@
 package database
 
 import (
-	"github.com/go-vela/server/tracing"
 	"testing"
 	"time"
 
@@ -12,6 +11,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"github.com/go-vela/server/tracing"
 )
 
 func TestDatabase_New(t *testing.T) {

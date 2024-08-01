@@ -14,10 +14,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router"
-	"github.com/go-vela/server/router/middleware"
-	"github.com/go-vela/server/tracing"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -31,6 +27,7 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/tracing"
 )
 
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity

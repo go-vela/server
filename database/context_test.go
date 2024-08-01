@@ -4,13 +4,14 @@ package database
 
 import (
 	"flag"
-	"github.com/go-vela/server/tracing"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/server/tracing"
 )
 
 func TestDatabase_FromContext(t *testing.T) {
