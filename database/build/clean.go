@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -8,22 +6,23 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // CleanBuilds updates builds to an error with a provided message with a created timestamp prior to a defined moment.
 func (e *engine) CleanBuilds(ctx context.Context, msg string, before int64) (int64, error) {
-	logrus.Tracef("cleaning pending or running builds in the database created prior to %d", before)
+	logrus.Tracef("cleaning pending or running builds created prior to %d", before)
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetStatus(constants.StatusError)
 	b.SetError(msg)
 	b.SetFinished(time.Now().UTC().Unix())
 
-	build := database.BuildFromLibrary(b)
+	build := types.BuildFromAPI(b)
 
 	// send query to the database
 	result := e.client.

@@ -1,24 +1,22 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListPendingAndRunningBuilds gets a list of all pending and running builds in the provided timeframe from the database.
-func (e *engine) ListPendingAndRunningBuilds(ctx context.Context, after string) ([]*library.BuildQueue, error) {
-	e.logger.Trace("listing all pending and running builds from the database")
+func (e *engine) ListPendingAndRunningBuilds(ctx context.Context, after string) ([]*api.QueueBuild, error) {
+	e.logger.Trace("listing all pending and running builds")
 
 	// variables to store query results and return value
-	b := new([]database.BuildQueue)
-	builds := []*library.BuildQueue{}
+	b := new([]types.QueueBuild)
+	builds := []*api.QueueBuild{}
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -38,10 +36,7 @@ func (e *engine) ListPendingAndRunningBuilds(ctx context.Context, after string) 
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Build.ToLibrary
-		builds = append(builds, tmp.ToLibrary())
+		builds = append(builds, tmp.ToAPI())
 	}
 
 	return builds, nil

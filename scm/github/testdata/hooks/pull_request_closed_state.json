@@ -33,7 +33,7 @@
       "type": "User",
       "site_admin": false
     },
-    "body": "This is a pretty simple change that we need to pull into master.",
+    "body": "This is a pretty simple change that we need to pull into main.",
     "created_at": "2018-05-30T20:18:30Z",
     "updated_at": "2018-05-30T20:18:50Z",
     "closed_at": "2018-05-30T20:18:50Z",
@@ -173,12 +173,12 @@
         "forks": 0,
         "open_issues": 1,
         "watchers": 0,
-        "default_branch": "master"
+        "default_branch": "main"
       }
     },
     "base": {
-      "label": "Codertocat:master",
-      "ref": "master",
+      "label": "Codertocat:main",
+      "ref": "main",
       "sha": "a10867b14bb761a232cd80139fbd4c0d33264240",
       "user": {
         "login": "Codertocat",
@@ -291,7 +291,7 @@
         "forks": 0,
         "open_issues": 1,
         "watchers": 0,
-        "default_branch": "master"
+        "default_branch": "main"
       }
     },
     "_links": {
@@ -425,7 +425,7 @@
     "forks": 0,
     "open_issues": 1,
     "watchers": 0,
-    "default_branch": "master"
+    "default_branch": "main"
   },
   "sender": {
     "login": "Codertocat",

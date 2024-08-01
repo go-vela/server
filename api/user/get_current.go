@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -8,13 +6,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/router/middleware/user"
 )
 
 // swagger:operation GET /api/v1/user users GetCurrentUser
 //
-// Retrieve the current authenticated user from the configured backend
+// Get the current authenticated user
 //
 // ---
 // produces:
@@ -26,19 +25,19 @@ import (
 //     description: Successfully retrieved the current user
 //     schema:
 //       "$ref": "#/definitions/User"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // GetCurrentUser represents the API handler to capture the
-// currently authenticated user from the configured backend.
+// currently authenticated user.
 func GetCurrentUser(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("reading current user %s", u.GetName())
+	l.Debugf("reading current user %s", u.GetName())
 
 	c.JSON(http.StatusOK, u)
 }

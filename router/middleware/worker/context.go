@@ -1,13 +1,11 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const key = "worker"
@@ -18,13 +16,13 @@ type Setter interface {
 }
 
 // FromContext returns the Worker associated with this context.
-func FromContext(c context.Context) *library.Worker {
+func FromContext(c context.Context) *api.Worker {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	w, ok := value.(*library.Worker)
+	w, ok := value.(*api.Worker)
 	if !ok {
 		return nil
 	}
@@ -34,6 +32,6 @@ func FromContext(c context.Context) *library.Worker {
 
 // ToContext adds the Worker to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, w *library.Worker) {
+func ToContext(c Setter, w *api.Worker) {
 	c.Set(key, w)
 }

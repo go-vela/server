@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code with get_service.go
 package log
@@ -15,7 +13,7 @@ import (
 
 // GetLogForStep gets a log by step ID from the database.
 func (e *engine) GetLogForStep(ctx context.Context, s *library.Step) (*library.Log, error) {
-	e.logger.Tracef("getting log for step %d for build %d from the database", s.GetID(), s.GetBuildID())
+	e.logger.Tracef("getting log for step %d for build %d", s.GetID(), s.GetBuildID())
 
 	// variable to store query results
 	l := new(database.Log)

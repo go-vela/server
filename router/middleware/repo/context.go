@@ -1,13 +1,11 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const key = "repo"
@@ -18,13 +16,13 @@ type Setter interface {
 }
 
 // FromContext returns the Repo associated with this context.
-func FromContext(c context.Context) *library.Repo {
+func FromContext(c context.Context) *api.Repo {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	r, ok := value.(*library.Repo)
+	r, ok := value.(*api.Repo)
 	if !ok {
 		return nil
 	}
@@ -34,6 +32,6 @@ func FromContext(c context.Context) *library.Repo {
 
 // ToContext adds the Repo to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, r *library.Repo) {
+func ToContext(c Setter, r *api.Repo) {
 	c.Set(key, r)
 }

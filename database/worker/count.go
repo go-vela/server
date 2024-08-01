@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -12,7 +10,7 @@ import (
 
 // CountWorkers gets the count of all workers from the database.
 func (e *engine) CountWorkers(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all workers from the database")
+	e.logger.Tracef("getting count of all workers")
 
 	// variable to store query results
 	var w int64

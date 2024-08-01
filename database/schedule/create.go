@@ -1,27 +1,25 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code with update.go
 package schedule
 
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // CreateSchedule creates a new schedule in the database.
-func (e *engine) CreateSchedule(ctx context.Context, s *library.Schedule) (*library.Schedule, error) {
+func (e *engine) CreateSchedule(ctx context.Context, s *api.Schedule) (*api.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("creating schedule %s in the database", s.GetName())
 
-	// cast the library type to database type
-	schedule := database.ScheduleFromLibrary(s)
+	// cast the API type to database type
+	schedule := types.ScheduleFromAPI(s)
 
 	// validate the necessary fields are populated
 	err := schedule.Validate()
@@ -30,7 +28,14 @@ func (e *engine) CreateSchedule(ctx context.Context, s *library.Schedule) (*libr
 	}
 
 	// send query to the database
-	result := e.client.Table(constants.TableSchedule).Create(schedule)
+	err = e.client.Table(constants.TableSchedule).Create(schedule).Error
+	if err != nil {
+		return nil, err
+	}
 
-	return schedule.ToLibrary(), result.Error
+	// set repo to provided repo if creation successful
+	result := schedule.ToAPI()
+	result.SetRepo(s.GetRepo())
+
+	return result, nil
 }

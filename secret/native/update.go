@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -8,9 +6,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // Update updates an existing secret.
@@ -21,9 +20,9 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 		return nil, err
 	}
 
-	// update the events if set
-	if len(s.GetEvents()) > 0 {
-		secret.SetEvents(s.GetEvents())
+	// update allow events if set
+	if s.GetAllowEvents().ToDatabase() > 0 {
+		secret.SetAllowEvents(s.GetAllowEvents())
 	}
 
 	// update the images if set
@@ -39,6 +38,11 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 	// update allow_command if set
 	if s.AllowCommand != nil {
 		secret.SetAllowCommand(s.GetAllowCommand())
+	}
+
+	// update allow_substitution if set
+	if s.AllowSubstitution != nil {
+		secret.SetAllowSubstitution(s.GetAllowSubstitution())
 	}
 
 	// update updated_at if set

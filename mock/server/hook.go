@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore duplicate with user code
 package server
@@ -12,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
@@ -27,7 +26,9 @@ const (
   "created": 1563475419,
   "host": "github.com",
   "event": "push",
-  "branch": "master",
+  "event_action": "",
+  "webhook_id": 1234,
+  "branch": "main",
   "error": "",
   "status": "success",
   "link": "https://github.com/github/octocat/settings/hooks/1"
@@ -44,7 +45,7 @@ const (
     "created": 1563475420,
     "host": "github.com",
     "event": "push",
-    "branch": "master",
+    "branch": "main",
     "error": "",
     "status": "success",
     "link": "https://github.com/github/octocat/settings/hooks/1"
@@ -58,7 +59,7 @@ const (
     "created": 1563475419,
     "host": "github.com",
     "event": "push",
-    "branch": "master",
+    "branch": "main",
     "error": "",
     "status": "success",
     "link": "https://github.com/github/octocat/settings/hooks/1"

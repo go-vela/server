@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -9,24 +7,24 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // Retrieve gets the repo in the given context.
-func Retrieve(c *gin.Context) *library.Repo {
+func Retrieve(c *gin.Context) *api.Repo {
 	return FromContext(c)
 }
 
 // Establish sets the repo in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		l := c.MustGet("logger").(*logrus.Entry)
 		o := org.Retrieve(c)
-		u := user.Retrieve(c)
 		ctx := c.Request.Context()
 
 		rParam := util.PathParameter(c, "repo")
@@ -37,14 +35,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		// update engine logger with API metadata
-		//
-		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-		logrus.WithFields(logrus.Fields{
-			"org":  o,
-			"repo": rParam,
-			"user": u.GetName(),
-		}).Debugf("reading repo %s/%s", o, rParam)
+		l.Debugf("reading repo %s", rParam)
 
 		r, err := database.FromContext(c).GetRepoForOrg(ctx, o, rParam)
 		if err != nil {
@@ -53,6 +44,14 @@ func Establish() gin.HandlerFunc {
 
 			return
 		}
+
+		l = l.WithFields(logrus.Fields{
+			"repo":    r.GetName(),
+			"repo_id": r.GetID(),
+		})
+
+		// update the logger with the new fields
+		c.Set("logger", l)
 
 		ToContext(c, r)
 		c.Next()

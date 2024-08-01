@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore duplicate with user code
 package server
@@ -12,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
@@ -30,9 +29,31 @@ const (
   "images": [
     "alpine"
   ],
-  "events": [
-    "push"
-  ]
+  "allow_events": {
+	  "push": {
+		  "branch": true,
+		  "tag": true
+	  },
+	  "pull_request": {
+		  "opened": true,
+		  "synchronize": true,
+		  "reopened": true,
+		  "edited": false
+	  },
+	  "deployment": {
+		  "created": true
+	  },
+	  "comment": {
+		  "created": false,
+		  "edited": false
+	  }
+  },
+  "allow_command": true,
+  "allow_substitution": true,
+  "created_at": 1,
+  "created_by": "Octocat",
+  "updated_at": 2,
+  "updated_by": "OctoKitty"
 }`
 
 	// SecretsResp represents a JSON return for one to many secrets.
@@ -47,9 +68,6 @@ const (
     "type": "repo",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   },
   {
@@ -62,9 +80,6 @@ const (
     "type": "org",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   },
   {
@@ -77,9 +92,6 @@ const (
     "type": "shared",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   }
 ]`

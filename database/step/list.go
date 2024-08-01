@@ -1,18 +1,18 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListSteps gets a list of all steps from the database.
-func (e *engine) ListSteps() ([]*library.Step, error) {
-	e.logger.Trace("listing all steps from the database")
+func (e *engine) ListSteps(ctx context.Context) ([]*library.Step, error) {
+	e.logger.Trace("listing all steps")
 
 	// variables to store query results and return value
 	count := int64(0)
@@ -20,7 +20,7 @@ func (e *engine) ListSteps() ([]*library.Step, error) {
 	steps := []*library.Step{}
 
 	// count the results
-	count, err := e.CountSteps()
+	count, err := e.CountSteps(ctx)
 	if err != nil {
 		return nil, err
 	}

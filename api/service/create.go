@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -10,20 +8,19 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/services services CreateService
 //
-// Create a service for a build in the configured backend
+// Create a service for a build
 //
 // ---
 // produces:
@@ -31,12 +28,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -46,7 +43,7 @@ import (
 //   type: integer
 // - in: body
 //   name: body
-//   description: Payload containing the service to create
+//   description: Service object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Service"
@@ -58,35 +55,34 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Service"
 //   '400':
-//     description: Unable to create the service
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the service
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateService represents the API handler to create
-// a service for a build in the configured backend.
+// a service for a build.
 func CreateService(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("creating new service for build %s", entry)
+	l.Debugf("creating new service for build %s", entry)
 
 	// capture body from API request
 	input := new(library.Service)
@@ -121,6 +117,11 @@ func CreateService(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"service":    s.GetName(),
+		"service_id": s.GetID(),
+	}).Infof("service %s created for build %s", s.GetName(), entry)
 
 	c.JSON(http.StatusCreated, s)
 }

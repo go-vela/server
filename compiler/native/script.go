@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -41,11 +39,15 @@ func (c *client) ScriptSteps(s yaml.StepSlice) (yaml.StepSlice, error) {
 		// set the default home
 		//nolint:goconst // ignore making this a constant for now
 		home := "/root"
+
 		// override the home value if user is defined
-		// TODO:
-		// - add ability to override user home directory
 		if step.User != "" {
 			home = fmt.Sprintf("/home/%s", step.User)
+		}
+
+		// if user provides a home directory, use that
+		if override, ok := step.Environment["HOME"]; ok {
+			home = override
 		}
 
 		// generate script from commands

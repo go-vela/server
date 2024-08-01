@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -12,7 +10,7 @@ import (
 
 // CountUsers gets the count of all users from the database.
 func (e *engine) CountUsers(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all users from the database")
+	e.logger.Tracef("getting count of all users")
 
 	// variable to store query results
 	var u int64

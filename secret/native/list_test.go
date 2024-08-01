@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -24,8 +22,9 @@ func TestNative_List(t *testing.T) {
 	sOne.SetValue("foob")
 	sOne.SetType("repo")
 	sOne.SetImages([]string{"foo", "bar"})
-	sOne.SetEvents([]string{"foo", "bar"})
+	sOne.SetAllowEvents(library.NewEventsFromMask(1))
 	sOne.SetAllowCommand(false)
+	sOne.SetAllowSubstitution(false)
 	sOne.SetCreatedAt(1)
 	sOne.SetCreatedBy("user")
 	sOne.SetUpdatedAt(1)
@@ -40,8 +39,9 @@ func TestNative_List(t *testing.T) {
 	sTwo.SetValue("baz")
 	sTwo.SetType("repo")
 	sTwo.SetImages([]string{"foo", "bar"})
-	sTwo.SetEvents([]string{"foo", "bar"})
+	sTwo.SetAllowEvents(library.NewEventsFromMask(1))
 	sTwo.SetAllowCommand(false)
+	sTwo.SetAllowSubstitution(false)
 	sTwo.SetCreatedAt(1)
 	sTwo.SetCreatedBy("user")
 	sTwo.SetUpdatedAt(1)
@@ -56,8 +56,8 @@ func TestNative_List(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), sOne)
-		db.DeleteSecret(context.TODO(), sTwo)
+		_ = db.DeleteSecret(context.TODO(), sOne)
+		_ = db.DeleteSecret(context.TODO(), sTwo)
 		db.Close()
 	}()
 

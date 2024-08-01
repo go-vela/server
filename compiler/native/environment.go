@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -9,7 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-vela/types"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
@@ -92,18 +91,6 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 	// gather set of default environment variables
 	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
 
-	// check if the compiler is setup for a local pipeline
-	// and the step isn't setup to run in a detached state
-	if c.local && !s.Detach {
-		// capture all environment variables from the local environment
-		for _, e := range os.Environ() {
-			// split the environment variable on = into a key value pair
-			parts := strings.SplitN(e, "=", 2)
-
-			env[parts[0]] = parts[1]
-		}
-	}
-
 	// inject the declared stage environment
 	// WARNING: local env can override global + stage
 	env = appendMap(env, stageEnv)
@@ -120,6 +107,17 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 	// to ensure the default env overrides any conflicts
 	for k, v := range defaultEnv {
 		env[k] = v
+	}
+
+	// check if the compiler is setup for a local pipeline
+	if c.local && !s.Detach {
+		// capture all environment variables from the local environment
+		for _, e := range os.Environ() {
+			// split the environment variable on = into a key value pair
+			parts := strings.SplitN(e, "=", 2)
+
+			env[parts[0]] = parts[1]
+		}
 	}
 
 	// inject the declared parameter
@@ -194,17 +192,6 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 		// gather set of default environment variables
 		defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
 
-		// check if the compiler is setup for a local pipeline
-		if c.local {
-			// capture all environment variables from the local environment
-			for _, e := range os.Environ() {
-				// split the environment variable on = into a key value pair
-				parts := strings.SplitN(e, "=", 2)
-
-				env[parts[0]] = parts[1]
-			}
-		}
-
 		// inject the declared global environment
 		// WARNING: local env can override global
 		env = appendMap(env, globalEnv)
@@ -221,6 +208,17 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 		// to ensure the default env overrides any conflicts
 		for k, v := range defaultEnv {
 			env[k] = v
+		}
+
+		// check if the compiler is setup for a local pipeline
+		if c.local {
+			// capture all environment variables from the local environment
+			for _, e := range os.Environ() {
+				// split the environment variable on = into a key value pair
+				parts := strings.SplitN(e, "=", 2)
+
+				env[parts[0]] = parts[1]
+			}
 		}
 
 		// inject the declared parameter
@@ -252,6 +250,14 @@ func (c *client) EnvironmentBuild() map[string]string {
 	// gather set of default environment variables
 	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
 
+	// inject the default environment
+	// variables to the build
+	// we do this after injecting the declared environment
+	// to ensure the default env overrides any conflicts
+	for k, v := range defaultEnv {
+		env[k] = v
+	}
+
 	// check if the compiler is setup for a local pipeline
 	if c.local {
 		// capture all environment variables from the local environment
@@ -261,14 +267,6 @@ func (c *client) EnvironmentBuild() map[string]string {
 
 			env[parts[0]] = parts[1]
 		}
-	}
-
-	// inject the default environment
-	// variables to the build secret
-	// we do this after injecting the declared environment
-	// to ensure the default env overrides any conflicts
-	for k, v := range defaultEnv {
-		env[k] = v
 	}
 
 	return env
@@ -284,7 +282,7 @@ func appendMap(originalMap, otherMap map[string]string) map[string]string {
 }
 
 // helper function that creates the standard set of environment variables for a pipeline.
-func environment(b *library.Build, m *types.Metadata, r *library.Repo, u *library.User) map[string]string {
+func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) map[string]string {
 	// set default workspace
 	workspace := constants.WorkspaceDefault
 	notImplemented := "TODO"
@@ -311,12 +309,15 @@ func environment(b *library.Build, m *types.Metadata, r *library.Repo, u *librar
 	// populate environment variables from metadata
 	if m != nil {
 		env["VELA_ADDR"] = m.Vela.WebAddress
+		env["VELA_SERVER_ADDR"] = m.Vela.Address
 		env["VELA_CHANNEL"] = m.Queue.Channel
 		env["VELA_DATABASE"] = m.Database.Driver
 		env["VELA_HOST"] = m.Vela.Address
 		env["VELA_NETRC_MACHINE"] = m.Source.Host
 		env["VELA_QUEUE"] = m.Queue.Driver
 		env["VELA_SOURCE"] = m.Source.Driver
+		env["VELA_OPEN_ID_ISSUER"] = m.Vela.OpenIDIssuer
+		env["VELA_ID_TOKEN_REQUEST_URL"] = fmt.Sprintf("%s/api/v1/repos/%s/builds/%d/id_token", m.Vela.Address, r.GetFullName(), b.GetNumber())
 		channel = m.Queue.Channel
 		workspace = fmt.Sprintf("%s/%s/%s/%s", workspace, m.Source.Host, r.GetOrg(), r.GetName())
 	}

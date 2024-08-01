@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
@@ -13,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestGithub_OrgAccess_Admin(t *testing.T) {
@@ -36,7 +34,7 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 	// setup types
 	want := "admin"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -78,7 +76,7 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 	// setup types
 	want := "member"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -108,7 +106,7 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -146,7 +144,7 @@ func TestGithub_OrgAccess_Pending(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -176,7 +174,7 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 	// setup types
 	want := "admin"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -214,14 +212,14 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 	// setup types
 	want := "admin"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(context.TODO(), u, u.GetToken(), "github", "octocat")
+	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("RepoAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -244,14 +242,14 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(context.TODO(), u, u.GetToken(), "github", "octocat")
+	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat")
 
 	if err == nil {
 		t.Errorf("RepoAccess should have returned err")
@@ -282,7 +280,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	// setup types
 	want := "admin"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -324,7 +322,7 @@ func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -354,7 +352,7 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -392,7 +390,7 @@ func TestGithub_TeamList(t *testing.T) {
 	// setup types
 	want := []string{"Justice League", "octocat"}
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -411,5 +409,82 @@ func TestGithub_TeamList(t *testing.T) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("TeamAccess is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_RepoContributor(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contributors", func(c *gin.Context) {
+		if c.Param("org") != "github" {
+			c.Status(http.StatusNotFound)
+
+			return
+		}
+
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/list_contributors.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(api.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	tests := []struct {
+		name    string
+		sender  string
+		org     string
+		repo    string
+		want    bool
+		wantErr bool
+	}{
+		{
+			name:   "repo contributor",
+			sender: "octocat",
+			org:    "github",
+			repo:   "example",
+			want:   true,
+		},
+		{
+			name:   "repo non-contributor",
+			sender: "userA",
+			org:    "github",
+			repo:   "example",
+			want:   false,
+		},
+		{
+			name:    "repo not found",
+			sender:  "octocat",
+			org:     "foo",
+			repo:    "example",
+			wantErr: true,
+		},
+	}
+
+	client, _ := NewTest(s.URL)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := client.RepoContributor(context.TODO(), u, tt.sender, tt.org, tt.repo)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("RepoContributor() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if got != tt.want {
+				t.Errorf("RepoContributor() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

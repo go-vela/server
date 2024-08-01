@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package auth
 
@@ -10,27 +8,28 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation GET /login authenticate GetLogin
 //
-// Log into the Vela api
+// Log into the Vela API
 //
 // ---
 // parameters:
 // - in: query
 //   name: type
-//   description: the login type ("cli" or "web")
+//   description: The login type ("cli" or "web")
 //   type: string
 //   enum:
 //     - web
 //     - cli
 // - in: query
 //   name: port
-//   description: the port number when type=cli
+//   description: The port number when type=cli
 //   type: integer
 // responses:
 //   '307':
@@ -40,7 +39,8 @@ import (
 // process a user logging in to Vela.
 func Login(c *gin.Context) {
 	// load the metadata
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 
 	// capture query params
 	t := util.FormParameter(c, "type")
@@ -52,18 +52,20 @@ func Login(c *gin.Context) {
 	// default path (headless mode)
 	path := "/authenticate"
 
+	l.Info("logging in user")
+
 	// handle web and cli logins
 	switch t {
 	case "web":
 		r = fmt.Sprintf("%s/authenticate/%s", m.Vela.Address, t)
 
-		logrus.Debugf("web login request, setting redirect to: %s", r)
+		l.Infof("web login request, setting redirect to: %s", r)
 	case "cli":
 		// port must be supplied
 		if len(p) > 0 {
 			r = fmt.Sprintf("%s/authenticate/%s/%s", m.Vela.Address, t, p)
 
-			logrus.Debugf("cli login request, setting redirect to: %s", r)
+			l.Infof("cli login request, setting redirect to: %s", r)
 		}
 	}
 

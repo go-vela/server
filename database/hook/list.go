@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -14,7 +12,7 @@ import (
 
 // ListHooks gets a list of all hooks from the database.
 func (e *engine) ListHooks(ctx context.Context) ([]*library.Hook, error) {
-	e.logger.Trace("listing all hooks from the database")
+	e.logger.Trace("listing all hooks")
 
 	// variables to store query results and return value
 	count := int64(0)

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code with delete token
 package user
@@ -10,12 +8,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/user/token users CreateToken
@@ -32,24 +31,24 @@ import (
 //     description: Successfully created a token for the current user
 //     schema:
 //       "$ref": "#/definitions/Token"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '503':
 //     description: Unable to create a token for the current user
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateToken represents the API handler to create
-// a user token in the configured backend.
+// a user token.
 func CreateToken(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("composing token for user %s", u.GetName())
+	l.Debugf("composing token for user %s", u.GetName())
 
 	tm := c.MustGet("token-manager").(*token.Manager)
 
@@ -74,6 +73,8 @@ func CreateToken(c *gin.Context) {
 
 		return
 	}
+
+	l.Info("user updated - token created")
 
 	c.JSON(http.StatusOK, library.Token{Token: &at})
 }

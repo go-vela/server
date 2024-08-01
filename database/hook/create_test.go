@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -9,11 +7,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestHook_Engine_CreateHook(t *testing.T) {
 	// setup types
-	_hook := testHook()
+	_hook := testutils.APIHook()
 	_hook.SetID(1)
 	_hook.SetRepoID(1)
 	_hook.SetBuildID(1)

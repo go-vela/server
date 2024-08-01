@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package vault
 
@@ -11,9 +9,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestVault_List_Org(t *testing.T) {
@@ -68,7 +66,13 @@ func TestVault_List_Org(t *testing.T) {
 	sec.SetValue("baz")
 	sec.SetType("org")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(true)
+	sec.SetAllowSubstitution(true)
+	sec.SetAllowEvents(library.NewEventsFromMask(1))
+	sec.SetCreatedAt(1563474077)
+	sec.SetCreatedBy("octocat")
+	sec.SetUpdatedAt(1563474079)
+	sec.SetUpdatedBy("octocat2")
 
 	want := []*library.Secret{sec}
 
@@ -199,7 +203,13 @@ func TestVault_List_Repo(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(true)
+	sec.SetAllowSubstitution(true)
+	sec.SetAllowEvents(library.NewEventsFromMask(3))
+	sec.SetCreatedAt(1563474077)
+	sec.SetCreatedBy("octocat")
+	sec.SetUpdatedAt(1563474079)
+	sec.SetUpdatedBy("octocat2")
 
 	want := []*library.Secret{sec}
 
@@ -315,7 +325,13 @@ func TestVault_List_Shared(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("shared")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
+	sec.SetAllowSubstitution(false)
+	sec.SetAllowEvents(library.NewEventsFromMask(1))
+	sec.SetCreatedAt(1563474077)
+	sec.SetCreatedBy("octocat")
+	sec.SetUpdatedAt(1563474079)
+	sec.SetUpdatedBy("octocat2")
 
 	want := []*library.Secret{sec}
 

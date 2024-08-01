@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package vault
 
@@ -11,9 +9,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestVault_Create_Org(t *testing.T) {
@@ -53,7 +51,13 @@ func TestVault_Create_Org(t *testing.T) {
 	sec.SetValue("baz")
 	sec.SetType("org")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(true)
+	sec.SetAllowSubstitution(true)
+	sec.SetAllowEvents(library.NewEventsFromMask(1))
+	sec.SetCreatedAt(1563474077)
+	sec.SetCreatedBy("octocat")
+	sec.SetUpdatedAt(1563474079)
+	sec.SetUpdatedBy("octocat2")
 
 	type args struct {
 		version string
@@ -137,7 +141,13 @@ func TestVault_Create_Repo(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(true)
+	sec.SetAllowSubstitution(true)
+	sec.SetAllowEvents(library.NewEventsFromMask(3))
+	sec.SetCreatedAt(1563474077)
+	sec.SetCreatedBy("octocat")
+	sec.SetUpdatedAt(1563474079)
+	sec.SetUpdatedBy("octocat2")
 
 	type args struct {
 		version string
@@ -222,7 +232,13 @@ func TestVault_Create_Shared(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("shared")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
+	sec.SetAllowSubstitution(false)
+	sec.SetAllowEvents(library.NewEventsFromMask(1))
+	sec.SetCreatedAt(1563474077)
+	sec.SetCreatedBy("octocat")
+	sec.SetUpdatedAt(1563474079)
+	sec.SetUpdatedBy("octocat2")
 
 	type args struct {
 		version string
@@ -302,7 +318,6 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 	sec.SetValue("")
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
 	type args struct {
@@ -357,7 +372,6 @@ func TestVault_Create_InvalidType(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("invalid")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
 	// setup mock server
@@ -411,7 +425,6 @@ func TestVault_Create_ClosedServer(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
 	// setup mock server

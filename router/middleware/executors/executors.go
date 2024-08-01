@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package executors
 
@@ -10,31 +8,35 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // Retrieve gets the executors in the given context.
-func Retrieve(c *gin.Context) []library.Executor {
+func Retrieve(c *gin.Context) []api.Executor {
 	return FromContext(c)
 }
 
 // Establish sets the executors in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		e := new([]library.Executor)
+		e := new([]api.Executor)
 		b := build.Retrieve(c)
 		ctx := c.Request.Context()
 
-		// if build has no host, we cannot establish executors
-		if len(b.GetHost()) == 0 {
+		// if build is pending or pending approval, there is no host to establish executors
+		if strings.EqualFold(b.GetStatus(), constants.StatusPending) ||
+			strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) ||
+			len(b.GetHost()) == 0 {
 			ToContext(c, *e)
 			c.Next()
 

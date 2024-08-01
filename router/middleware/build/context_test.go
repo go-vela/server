@@ -1,21 +1,19 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
 	"testing"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestBuild_FromContext(t *testing.T) {
 	// setup types
 	bID := int64(1)
-	want := &library.Build{ID: &bID}
+	want := &api.Build{ID: &bID}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -74,7 +72,7 @@ func TestBuild_FromContext_Empty(t *testing.T) {
 func TestBuild_ToContext(t *testing.T) {
 	// setup types
 	bID := int64(1)
-	want := &library.Build{ID: &bID}
+	want := &api.Build{ID: &bID}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

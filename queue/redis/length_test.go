@@ -1,25 +1,21 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
 import (
 	"context"
+	"encoding/json"
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types"
-	"gopkg.in/square/go-jose.v2/json"
+	"github.com/go-vela/server/queue/models"
 )
 
 func TestRedis_Length(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
-	_item := &types.Item{
+	_item := &models.Item{
 		Build: _build,
-		Repo:  _repo,
-		User:  _user,
 	}
 
 	// setup queue item
@@ -36,33 +32,32 @@ func TestRedis_Length(t *testing.T) {
 
 	// setup tests
 	tests := []struct {
-		channels []string
-		want     int64
+		routes []string
+		want   int64
 	}{
 		{
-			channels: []string{"vela"},
-			want:     1,
+			routes: []string{"vela"},
+			want:   1,
 		},
 		{
-			channels: []string{"vela", "vela:second", "vela:third"},
-			want:     4,
+			routes: []string{"vela", "vela:second", "vela:third"},
+			want:   4,
 		},
 		{
-			channels: []string{"vela", "vela:second", "phony"},
-			want:     6,
+			routes: []string{"vela", "vela:second", "phony"},
+			want:   6,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		for _, channel := range test.channels {
+		for _, channel := range test.routes {
 			err := _redis.Push(context.Background(), channel, bytes)
 			if err != nil {
 				t.Errorf("unable to push item to queue: %v", err)
 			}
 		}
 		got, err := _redis.Length(context.Background())
-
 		if err != nil {
 			t.Errorf("Length returned err: %v", err)
 		}

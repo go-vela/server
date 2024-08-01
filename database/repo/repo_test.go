@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -10,9 +8,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -153,7 +149,10 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 func testSqlite(t *testing.T) *engine {
 	_sqlite, err := gorm.Open(
 		sqlite.Open("file::memory:?cache=shared"),
-		&gorm.Config{SkipDefaultTransaction: true},
+		&gorm.Config{
+			SkipDefaultTransaction:                   true,
+			DisableForeignKeyConstraintWhenMigrating: true,
+		},
 	)
 	if err != nil {
 		t.Errorf("unable to create new sqlite database: %v", err)
@@ -172,36 +171,6 @@ func testSqlite(t *testing.T) *engine {
 	return _engine
 }
 
-// testRepo is a test helper function to create a library
-// Repo type with all fields set to their zero values.
-func testRepo() *library.Repo {
-	return &library.Repo{
-		ID:           new(int64),
-		UserID:       new(int64),
-		BuildLimit:   new(int64),
-		Timeout:      new(int64),
-		Counter:      new(int),
-		PipelineType: new(string),
-		Hash:         new(string),
-		Org:          new(string),
-		Name:         new(string),
-		FullName:     new(string),
-		Link:         new(string),
-		Clone:        new(string),
-		Branch:       new(string),
-		Visibility:   new(string),
-		PreviousName: new(string),
-		Private:      new(bool),
-		Trusted:      new(bool),
-		Active:       new(bool),
-		AllowPull:    new(bool),
-		AllowPush:    new(bool),
-		AllowDeploy:  new(bool),
-		AllowTag:     new(bool),
-		AllowComment: new(bool),
-	}
-}
-
 // This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values
 // that are otherwise not easily compared. These typically would be values generated
 // before adding or updating them in the database.
@@ -210,6 +179,6 @@ func testRepo() *library.Repo {
 type AnyArgument struct{}
 
 // Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(v driver.Value) bool {
+func (a AnyArgument) Match(_ driver.Value) bool {
 	return true
 }

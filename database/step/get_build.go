@@ -1,22 +1,24 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
+	"context"
+
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // GetStepForBuild gets a step by number and build ID from the database.
-func (e *engine) GetStepForBuild(b *library.Build, number int) (*library.Step, error) {
+func (e *engine) GetStepForBuild(ctx context.Context, b *api.Build, number int) (*library.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"step":  number,
-	}).Tracef("getting step %d from the database", number)
+	}).Tracef("getting step %d", number)
 
 	// variable to store query results
 	s := new(database.Step)

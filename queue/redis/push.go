@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -26,11 +24,6 @@ func (c *client) Push(ctx context.Context, channel string, item []byte) error {
 	var signed []byte
 
 	var out []byte
-
-	// this should already be validated on startup
-	if c.config.PrivateKey == nil || len(*c.config.PrivateKey) != 64 {
-		return errors.New("no valid signing private key provided")
-	}
 
 	c.Logger.Tracef("signing item for queue %s", channel)
 

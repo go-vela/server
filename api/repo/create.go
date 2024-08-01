@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -11,19 +9,23 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/repos repos CreateRepo
 //
-// Create a repo in the configured backend
+// Create a repository
 //
 // ---
 // produces:
@@ -31,7 +33,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing the repo to create
+//   description: Repo object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Repo"
@@ -43,7 +45,11 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Repo"
 //   '400':
-//     description: Unable to create the repo
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '403':
@@ -55,7 +61,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the repo
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '503':
@@ -63,22 +69,26 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CreateRepo represents the API handler to
-// create a repo in the configured backend.
+// CreateRepo represents the API handler to create a repository.
 //
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
-	allowlist := c.Value("allowlist").([]string)
+	s := settings.FromContext(c)
+
 	defaultBuildLimit := c.Value("defaultBuildLimit").(int64)
 	defaultTimeout := c.Value("defaultTimeout").(int64)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
+	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
+	defaultRepoApproveBuild := c.Value("defaultRepoApproveBuild").(string)
+
 	ctx := c.Request.Context()
 
 	// capture body from API request
-	input := new(library.Repo)
+	input := new(types.Repo)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -89,17 +99,10 @@ func CreateRepo(c *gin.Context) {
 		return
 	}
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  input.GetOrg(),
-		"repo": input.GetName(),
-		"user": u.GetName(),
-	}).Infof("creating new repo %s", input.GetFullName())
+	l.Debugf("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
-	r, err := scm.FromContext(c).GetRepo(ctx, u, input)
+	r, _, err := scm.FromContext(c).GetRepo(ctx, u, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", r.GetFullName(), err)
 
@@ -109,7 +112,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// update fields in repo object
-	r.SetUserID(u.GetID())
+	r.SetOwner(u)
 
 	// set the active field based off the input provided
 	if input.Active == nil {
@@ -146,6 +149,25 @@ func CreateRepo(c *gin.Context) {
 		r.SetVisibility(input.GetVisibility())
 	}
 
+	// set the fork policy field based off the input provided
+	if len(input.GetApproveBuild()) > 0 {
+		// ensure the approve build setting matches one of the expected values
+		if input.GetApproveBuild() != constants.ApproveForkAlways &&
+			input.GetApproveBuild() != constants.ApproveForkNoWrite &&
+			input.GetApproveBuild() != constants.ApproveNever &&
+			input.GetApproveBuild() != constants.ApproveOnce {
+			retErr := fmt.Errorf("approve_build of %s is invalid", input.GetApproveBuild())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		r.SetApproveBuild(input.GetApproveBuild())
+	} else {
+		r.SetApproveBuild(defaultRepoApproveBuild)
+	}
+
 	// fields restricted to platform admins
 	if u.GetAdmin() {
 		// trusted default is false
@@ -154,30 +176,11 @@ func CreateRepo(c *gin.Context) {
 		}
 	}
 
-	// set default events if no events are passed in
-	if !input.GetAllowPull() && !input.GetAllowPush() &&
-		!input.GetAllowDeploy() && !input.GetAllowTag() &&
-		!input.GetAllowComment() {
-		for _, event := range defaultRepoEvents {
-			switch event {
-			case constants.EventPull:
-				r.SetAllowPull(true)
-			case constants.EventPush:
-				r.SetAllowPush(true)
-			case constants.EventDeploy:
-				r.SetAllowDeploy(true)
-			case constants.EventTag:
-				r.SetAllowTag(true)
-			case constants.EventComment:
-				r.SetAllowComment(true)
-			}
-		}
+	// set allow events based on input if given
+	if input.GetAllowEvents().ToDatabase() != 0 {
+		r.SetAllowEvents(input.GetAllowEvents())
 	} else {
-		r.SetAllowComment(input.GetAllowComment())
-		r.SetAllowDeploy(input.GetAllowDeploy())
-		r.SetAllowPull(input.GetAllowPull())
-		r.SetAllowPush(input.GetAllowPush())
-		r.SetAllowTag(input.GetAllowTag())
+		r.SetAllowEvents(defaultAllowedEvents(defaultRepoEvents, defaultRepoEventsMask))
 	}
 
 	if len(input.GetPipelineType()) == 0 {
@@ -193,6 +196,7 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
+
 		r.SetPipelineType(input.GetPipelineType())
 	}
 
@@ -213,7 +217,7 @@ func CreateRepo(c *gin.Context) {
 	)
 
 	// ensure repo is allowed to be activated
-	if !util.CheckAllowlist(r, allowlist) {
+	if !util.CheckAllowlist(r, s.GetRepoAllowlist()) {
 		retErr := fmt.Errorf("unable to activate repo: %s is not on allowlist", r.GetFullName())
 
 		util.HandleError(c, http.StatusForbidden, retErr)
@@ -245,11 +249,7 @@ func CreateRepo(c *gin.Context) {
 
 		// make sure our record of the repo allowed events matches what we send to SCM
 		// what the dbRepo has should override default events on enable
-		r.SetAllowComment(dbRepo.GetAllowComment())
-		r.SetAllowDeploy(dbRepo.GetAllowDeploy())
-		r.SetAllowPull(dbRepo.GetAllowPull())
-		r.SetAllowPush(dbRepo.GetAllowPush())
-		r.SetAllowTag(dbRepo.GetAllowTag())
+		r.SetAllowEvents(dbRepo.GetAllowEvents())
 	}
 
 	// check if we should create the webhook
@@ -277,13 +277,15 @@ func CreateRepo(c *gin.Context) {
 	// if the repo exists but is inactive
 	if len(dbRepo.GetOrg()) > 0 && !dbRepo.GetActive() {
 		// update the repo owner
-		dbRepo.SetUserID(u.GetID())
+		dbRepo.SetOwner(u)
 		// update the default branch
 		dbRepo.SetBranch(r.GetBranch())
 		// activate the repo
 		dbRepo.SetActive(true)
 
 		// send API call to update the repo
+		// NOTE: not logging modification out separately
+		// although we are CREATING a repo in this path
 		r, err = database.FromContext(c).UpdateRepo(ctx, dbRepo)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", dbRepo.GetFullName(), err)
@@ -292,6 +294,12 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"org":     r.GetOrg(),
+			"repo":    r.GetName(),
+			"repo_id": r.GetID(),
+		}).Infof("repo %s activated", r.GetFullName())
 	} else {
 		// send API call to create the repo
 		r, err = database.FromContext(c).CreateRepo(ctx, r)
@@ -302,6 +310,12 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"org":     r.GetOrg(),
+			"repo":    r.GetName(),
+			"repo_id": r.GetID(),
+		}).Infof("repo %s created", r.GetFullName())
 	}
 
 	// create init hook in the DB after repo has been added in order to capture its ID
@@ -317,7 +331,62 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"hook": h.GetID(),
+		}).Infof("hook %d created for repo %s", h.GetID(), r.GetFullName())
 	}
 
 	c.JSON(http.StatusCreated, r)
+}
+
+// defaultAllowedEvents is a helper function that generates an Events struct that results
+// from an admin-provided `sliceDefaults` or an admin-provided `maskDefaults`. If the admin
+// supplies a mask, that will be the default. Otherwise, it will be the legacy event list.
+func defaultAllowedEvents(sliceDefaults []string, maskDefaults int64) *types.Events {
+	if maskDefaults > 0 {
+		return types.NewEventsFromMask(maskDefaults)
+	}
+
+	events := new(types.Events)
+
+	for _, event := range sliceDefaults {
+		switch event {
+		case constants.EventPull:
+			pull := new(actions.Pull)
+			pull.SetOpened(true)
+			pull.SetSynchronize(true)
+
+			events.SetPullRequest(pull)
+		case constants.EventPush:
+			push := events.GetPush()
+			push.SetBranch(true)
+
+			events.SetPush(push)
+		case constants.EventTag:
+			tag := events.GetPush()
+			tag.SetTag(true)
+
+			events.SetPush(tag)
+		case constants.EventDeploy:
+			deploy := new(actions.Deploy)
+			deploy.SetCreated(true)
+
+			events.SetDeployment(deploy)
+		case constants.EventComment:
+			comment := new(actions.Comment)
+			comment.SetCreated(true)
+			comment.SetEdited(true)
+
+			events.SetComment(comment)
+		case constants.EventDelete:
+			deletion := events.GetPush()
+			deletion.SetDeleteBranch(true)
+			deletion.SetDeleteTag(true)
+
+			events.SetPush(deletion)
+		}
+	}
+
+	return events
 }

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -9,16 +7,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // Retrieve gets the pipeline in the given context.
@@ -29,7 +28,7 @@ func Retrieve(c *gin.Context) *library.Pipeline {
 // Establish sets the pipeline in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		o := org.Retrieve(c)
+		l := c.MustGet("logger").(*logrus.Entry)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
@@ -53,15 +52,7 @@ func Establish() gin.HandlerFunc {
 
 		entry := fmt.Sprintf("%s/%s", r.GetFullName(), p)
 
-		// update engine logger with API metadata
-		//
-		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-		logrus.WithFields(logrus.Fields{
-			"org":      o,
-			"pipeline": p,
-			"repo":     r.GetName(),
-			"user":     u.GetName(),
-		}).Debugf("reading pipeline %s", entry)
+		l.Debugf("reading pipeline %s", entry)
 
 		pipeline, err := database.FromContext(c).GetPipelineForRepo(ctx, p, r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
@@ -75,13 +66,15 @@ func Establish() gin.HandlerFunc {
 				return
 			}
 
+			b := new(api.Build)
+			b.SetRepo(r)
+
 			// parse and compile the pipeline configuration file
 			_, pipeline, err = compiler.FromContext(c).
 				Duplicate().
 				WithCommit(p).
-				WithMetadata(c.MustGet("metadata").(*types.Metadata)).
-				WithRepo(r).
-				WithUser(u).
+				WithMetadata(c.MustGet("metadata").(*internal.Metadata)).
+				WithBuild(b).
 				Compile(config)
 			if err != nil {
 				retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)
@@ -92,8 +85,15 @@ func Establish() gin.HandlerFunc {
 			}
 		}
 
-		ToContext(c, pipeline)
+		l = l.WithFields(logrus.Fields{
+			"pipeline":    pipeline.GetCommit(),
+			"pipeline_id": pipeline.GetID(),
+		})
 
+		// update the logger with the new fields
+		c.Set("logger", l)
+
+		ToContext(c, pipeline)
 		c.Next()
 	}
 }

@@ -1,20 +1,21 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
+	"context"
+
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
 )
 
 // CountStepsForBuild gets the count of steps by build ID from the database.
-func (e *engine) CountStepsForBuild(b *library.Build, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountStepsForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-	}).Tracef("getting count of steps for build %d from the database", b.GetNumber())
+	}).Tracef("getting count of steps for build %d", b.GetNumber())
 
 	// variable to store query results
 	var s int64

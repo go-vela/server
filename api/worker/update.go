@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -9,17 +7,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/workers/{worker} workers UpdateWorker
 //
-// Update a worker for the configured backend
+// Update a worker
 //
 // ---
 // produces:
@@ -27,7 +25,7 @@ import (
 // parameters:
 // - in: body
 //   name: body
-//   description: Payload containing the worker to update
+//   description: The worker object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Worker"
@@ -44,36 +42,34 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Worker"
 //   '400':
-//     description: Unable to update the worker
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to update the worker
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the worker
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // UpdateWorker represents the API handler to
-// update a worker in the configured backend.
+// update a worker.
 func UpdateWorker(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	w := worker.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user":   u.GetName(),
-		"worker": w.GetHostname(),
-	}).Infof("updating worker %s", w.GetHostname())
+	l.Debugf("updating worker %s", w.GetHostname())
 
 	// capture body from API request
-	input := new(library.Worker)
+	input := new(types.Worker)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -99,9 +95,9 @@ func UpdateWorker(c *gin.Context) {
 		w.SetActive(input.GetActive())
 	}
 
-	if input.RunningBuildIDs != nil {
+	if input.RunningBuilds != nil {
 		// update runningBuildIDs if set
-		w.SetRunningBuildIDs(input.GetRunningBuildIDs())
+		w.SetRunningBuilds(input.GetRunningBuilds())
 	}
 
 	if len(input.GetStatus()) > 0 {

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package router Vela server
 //
@@ -33,6 +31,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/auth"
 	"github.com/go-vela/server/api/webhook"
@@ -81,11 +80,18 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Validate Server Token endpoint
 	r.GET("/validate-token", claims.Establish(), auth.ValidateServerToken)
 
+	// Validate OAuth Token endpoint
+	r.GET("/validate-oauth", claims.Establish(), auth.ValidateOAuthToken)
+
 	// Version endpoint
 	r.GET("/version", api.Version)
 
 	// Webhook endpoint
 	r.POST("/webhook", webhook.PostWebhook)
+
+	// JWKS endpoints
+	r.GET("/_services/token/.well-known/openid-configuration", api.GetOpenIDConfig)
+	r.GET("/_services/token/.well-known/jwks", api.GetJWKS)
 
 	// Authentication endpoints
 	authenticate := r.Group("/authenticate")
@@ -122,8 +128,8 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		// Source code management endpoints
 		ScmHandlers(baseAPI)
 
-		// Search endpoints
-		SearchHandlers(baseAPI)
+		// Dashboard endpoints
+		DashboardHandlers(baseAPI)
 
 		// Secret endpoints
 		SecretHandlers(baseAPI)
@@ -137,6 +143,8 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		// Pipeline endpoints
 		PipelineHandlers(baseAPI)
 
+		// Queue endpoints
+		QueueHandlers(baseAPI)
 	} // end of api
 
 	return r

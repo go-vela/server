@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -31,18 +29,18 @@ func WithAddress(address string) ClientOpt {
 	}
 }
 
-// WithChannels sets the channels in the queue client for Redis.
-func WithChannels(channels ...string) ClientOpt {
+// WithRoutes sets the routes in the queue client for Redis.
+func WithRoutes(routes ...string) ClientOpt {
 	return func(c *client) error {
-		c.Logger.Trace("configuring channels in redis queue client")
+		c.Logger.Trace("configuring routes in redis queue client")
 
-		// check if the channels provided are empty
-		if len(channels) == 0 {
-			return fmt.Errorf("no Redis queue channels provided")
+		// check if the routes provided are empty
+		if len(routes) == 0 {
+			return fmt.Errorf("no Redis queue routes provided")
 		}
 
-		// set the queue channels in the redis client
-		c.config.Channels = channels
+		// set the queue routes in the redis client
+		c.SetRoutes(routes)
 
 		return nil
 	}
@@ -96,6 +94,10 @@ func WithPrivateKey(key string) ClientOpt {
 		c.config.PrivateKey = new([64]byte)
 		copy(c.config.PrivateKey[:], decoded)
 
+		if len(*c.config.PrivateKey) != 64 {
+			return errors.New("no valid queue signing private key provided")
+		}
+
 		if c.config.PrivateKey == nil {
 			return errors.New("unable to copy decoded queue signing private key, copied key is nil")
 		}
@@ -132,8 +134,12 @@ func WithPublicKey(key string) ClientOpt {
 		c.config.PublicKey = new([32]byte)
 		copy(c.config.PublicKey[:], decoded)
 
+		if len(*c.config.PublicKey) != 32 {
+			return errors.New("no valid queue public key provided")
+		}
+
 		if c.config.PublicKey == nil {
-			return errors.New("unable to copy decoded queue signing public key, copied key is nil")
+			return errors.New("unable to copy decoded queue public key, copied key is nil")
 		}
 
 		if len(c.config.PublicKey) == 0 {

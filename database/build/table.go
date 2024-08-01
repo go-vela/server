@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -30,6 +28,7 @@ builds (
 	started        INTEGER,
 	finished       INTEGER,
 	deploy         VARCHAR(500),
+	deploy_number  INTEGER,
 	deploy_payload VARCHAR(2000),
 	clone          VARCHAR(1000),
 	source         VARCHAR(1000),
@@ -37,6 +36,7 @@ builds (
 	message        VARCHAR(2000),
 	commit         VARCHAR(500),
 	sender         VARCHAR(250),
+	sender_scm_id  VARCHAR(250),
 	author         VARCHAR(250),
 	email          VARCHAR(500),
 	link           VARCHAR(1000),
@@ -47,6 +47,8 @@ builds (
 	host           VARCHAR(250),
 	runtime        VARCHAR(250),
 	distribution   VARCHAR(250),
+	approved_at    INTEGER,
+	approved_by    VARCHAR(250),
 	timestamp      INTEGER,
 	UNIQUE(repo_id, number)
 );
@@ -71,6 +73,7 @@ builds (
 	started        INTEGER,
 	finished       INTEGER,
 	deploy         TEXT,
+	deploy_number  INTEGER,
 	deploy_payload TEXT,
 	clone          TEXT,
 	source         TEXT,
@@ -78,6 +81,7 @@ builds (
 	message        TEXT,
 	'commit'       TEXT,
 	sender         TEXT,
+	sender_scm_id  TEXT,
 	author         TEXT,
 	email          TEXT,
 	link           TEXT,
@@ -88,6 +92,8 @@ builds (
 	host           TEXT,
 	runtime        TEXT,
 	distribution   TEXT,
+	approved_at    INTEGER,
+	approved_by    TEXT,
 	timestamp      INTEGER,
 	UNIQUE(repo_id, number)
 );
@@ -96,7 +102,7 @@ builds (
 
 // CreateBuildTable creates the builds table in the database.
 func (e *engine) CreateBuildTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating builds table in the database")
+	e.logger.Tracef("creating builds table")
 
 	// handle the driver provided to create the table
 	switch driver {

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
@@ -14,7 +12,7 @@ import (
 
 // ListLogs gets a list of all logs from the database.
 func (e *engine) ListLogs(ctx context.Context) ([]*library.Log, error) {
-	e.logger.Trace("listing all logs from the database")
+	e.logger.Trace("listing all logs")
 
 	// variables to store query results and return value
 	count := int64(0)

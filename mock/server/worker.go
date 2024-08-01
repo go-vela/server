@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -11,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
@@ -28,7 +28,72 @@ const (
 			"large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"last_checked_in": 1602612590,
+			"status": "busy",
+			"last_status_update_at": 1602612590,
+			"last_build_started_at": 1602612590,
+			"last_build_finished_at": 1602612590,
+			"build_limit": 2,
+			"running_builds": [
+  				{
+					"id": 2,
+					"repo_id": 1,
+					"number": 2,
+					"parent": 1,
+					"event": "push",
+					"status": "running",
+					"error": "",
+					"enqueued": 1563474204,
+					"created": 1563474204,
+					"started": 1563474204,
+					"finished": 0,
+					"deploy": "",
+					"clone": "https://github.com/github/octocat.git",
+					"source": "https://github.com/github/octocat/commit/48afb5bdc41ad69bf22588491333f7cf71135163",
+					"title": "push received from https://github.com/github/octocat",
+					"message": "Second commit...",
+					"commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
+					"sender": "OctoKitty",
+					"author": "OctoKitty",
+					"email": "octokitty@github.com",
+					"link": "https://vela.example.company.com/github/octocat/1",
+					"branch": "main",
+					"ref": "refs/heads/main",
+					"base_ref": "",
+					"host": "ed95dcc0687c",
+					"runtime": "",
+					"distribution": ""
+  				},
+  				{
+					"id": 1,
+					"repo_id": 1,
+					"number": 1,
+					"parent": 1,
+					"event": "push",
+					"status": "running",
+					"error": "",
+					"enqueued": 1563474077,
+					"created": 1563474076,
+					"started": 1563474077,
+					"finished": 0,
+					"deploy": "",
+					"clone": "https://github.com/github/octocat.git",
+					"source": "https://github.com/github/octocat/commit/48afb5bdc41ad69bf22588491333f7cf71135163",
+					"title": "push received from https://github.com/github/octocat",
+					"message": "First commit...",
+					"commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
+					"sender": "OctoKitty",
+					"author": "OctoKitty",
+					"email": "octokitty@github.com",
+					"link": "https://vela.example.company.com/github/octocat/1",
+					"branch": "main",
+					"ref": "refs/heads/main",
+					"base_ref": "",
+					"host": "82823eb770b0",
+					"runtime": "",
+					"distribution": ""
+  				}
+			]
 		}`
 
 	// WorkersResp represents a JSON return for one to many workers.
@@ -43,7 +108,43 @@ const (
 			  "large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"last_checked_in": 1602612590,
+			"status": "available",
+			"last_status_update_at": 1602612590,
+			"last_build_started_at": 1602612590,
+			"last_build_finished_at": 1602612590,
+			"build_limit": 2,
+			"running_builds": [
+  				{
+					"id": 2,
+					"repo_id": 1,
+					"number": 2,
+					"parent": 1,
+					"event": "push",
+					"status": "running",
+					"error": "",
+					"enqueued": 1563474204,
+					"created": 1563474204,
+					"started": 1563474204,
+					"finished": 0,
+					"deploy": "",
+					"clone": "https://github.com/github/octocat.git",
+					"source": "https://github.com/github/octocat/commit/48afb5bdc41ad69bf22588491333f7cf71135163",
+					"title": "push received from https://github.com/github/octocat",
+					"message": "Second commit...",
+					"commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
+					"sender": "OctoKitty",
+					"author": "OctoKitty",
+					"email": "octokitty@github.com",
+					"link": "https://vela.example.company.com/github/octocat/1",
+					"branch": "main",
+					"ref": "refs/heads/main",
+					"base_ref": "",
+					"host": "ed95dcc0687c",
+					"runtime": "",
+					"distribution": ""
+  				}
+			]
 		  },
 		{
 			"id": 2,
@@ -55,7 +156,13 @@ const (
 			  "large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"last_checked_in": 1602612590,
+			"status": "idle",
+			"last_status_update_at": 1602612590,
+			"last_build_started_at": 1602612590,
+			"last_build_finished_at": 1602612590,
+			"build_limit": 2,
+			"running_builds": []
 		  }
 	]`
 
@@ -75,13 +182,21 @@ const (
 	RegisterTokenResp = `{
 		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJSZWdpc3RlciJ9.gEzKaZB-sDd_gFCVF5uGo2mcf3iy9CrXDTLPZ6PTsTc"
 	}`
+
+	// QueueInfoResp represents a JSON return for an admin requesting a queue registration info.
+	//
+	//not actual credentials.
+	QueueInfoResp = `{
+		"queue_public_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
+		"queue_address": "redis://redis:6000"
+	}`
 )
 
 // getWorkers returns mock JSON for a http GET.
 func getWorkers(c *gin.Context) {
 	data := []byte(WorkersResp)
 
-	var body []library.Worker
+	var body []api.Worker
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -101,7 +216,7 @@ func getWorker(c *gin.Context) {
 
 	data := []byte(WorkerResp)
 
-	var body library.Worker
+	var body api.Worker
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -133,7 +248,7 @@ func updateWorker(c *gin.Context) {
 
 	data := []byte(WorkerResp)
 
-	var body library.Worker
+	var body api.Worker
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -195,6 +310,28 @@ func registerToken(c *gin.Context) {
 	data := []byte(RegisterTokenResp)
 
 	var body library.Token
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusCreated, body)
+}
+
+// getQueueCreds returns mock JSON for a http GET.
+//
+// Pass "" to Authorization header to test receiving a http 401 response.
+func getQueueCreds(c *gin.Context) {
+	token := c.Request.Header.Get("Authorization")
+	// verify token if empty
+	if token == "" {
+		msg := "unable get queue credentials; invalid registration token"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &msg})
+
+		return
+	}
+
+	data := []byte(QueueInfoResp)
+
+	var body library.QueueInfo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)

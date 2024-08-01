@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
@@ -19,7 +17,7 @@ ON logs (build_id);
 
 // CreateLogIndexes creates the indexes for the logs table in the database.
 func (e *engine) CreateLogIndexes(ctx context.Context) error {
-	e.logger.Tracef("creating indexes for logs table in the database")
+	e.logger.Tracef("creating indexes for logs table")
 
 	// create the build_id column index for the logs table
 	return e.client.Exec(CreateBuildIDIndex).Error

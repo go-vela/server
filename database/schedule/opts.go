@@ -1,13 +1,11 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +17,16 @@ func WithClient(client *gorm.DB) EngineOpt {
 	return func(e *engine) error {
 		// set the gorm.io/gorm client in the schedule engine
 		e.client = client
+
+		return nil
+	}
+}
+
+// WithEncryptionKey sets the encryption key in the database engine for Schedules.
+func WithEncryptionKey(key string) EngineOpt {
+	return func(e *engine) error {
+		// set the encryption key in the schedule engine
+		e.config.EncryptionKey = key
 
 		return nil
 	}

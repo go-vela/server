@@ -1,26 +1,26 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package deployment
 
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/router/middleware/org"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/deployments/{org}/{repo} deployments CreateDeployment
 //
-// Create a deployment for the configured backend
+// Create a deployment
 //
 // ---
 // produces:
@@ -28,12 +28,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // security:
@@ -44,31 +44,32 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Deployment"
 //   '400':
-//     description: Unable to create the deployment
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the deployment
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateDeployment represents the API handler to
-// create a deployment in the configured backend.
+// create a deployment.
 func CreateDeployment(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("creating new deployment for repo %s", r.GetFullName())
+	l.Debugf("creating new deployment for repo %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(library.Deployment)
@@ -84,7 +85,8 @@ func CreateDeployment(c *gin.Context) {
 
 	// update fields in deployment object
 	input.SetRepoID(r.GetID())
-	input.SetUser(u.GetName())
+	input.SetCreatedBy(u.GetName())
+	input.SetCreatedAt(time.Now().Unix())
 
 	if len(input.GetDescription()) == 0 {
 		input.SetDescription("Deployment request from Vela")
@@ -109,5 +111,19 @@ func CreateDeployment(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, input)
+	// send API call to create the deployment
+	d, err := database.FromContext(c).CreateDeployment(c, input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	l.WithFields(logrus.Fields{
+		"deployment_id": d.GetID(),
+	}).Info("deployment created")
+
+	c.JSON(http.StatusCreated, d)
 }

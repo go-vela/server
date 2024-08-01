@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
@@ -80,6 +78,46 @@ func WithEncryptionKey(encryptionKey string) EngineOpt {
 	return func(e *engine) error {
 		// set the key for encrypting resources in the database engine
 		e.config.EncryptionKey = encryptionKey
+
+		return nil
+	}
+}
+
+// WithLogLevel sets the log level in the database engine.
+func WithLogLevel(logLevel string) EngineOpt {
+	return func(e *engine) error {
+		// set the log level for the database engine
+		e.config.LogLevel = logLevel
+
+		return nil
+	}
+}
+
+// WithLogSkipNotFound sets the log skip not found option in the database engine.
+func WithLogSkipNotFound(logSkipNotFound bool) EngineOpt {
+	return func(e *engine) error {
+		// set the log skip not found option for the database engine
+		e.config.LogSkipNotFound = logSkipNotFound
+
+		return nil
+	}
+}
+
+// WithLogSlowThreshold sets the log slow query threshold in the database engine.
+func WithLogSlowThreshold(logSlowThreshold time.Duration) EngineOpt {
+	return func(e *engine) error {
+		// set the slow query threshold for the database engine
+		e.config.LogSlowThreshold = logSlowThreshold
+
+		return nil
+	}
+}
+
+// WithLogShowSQL sets the log show SQL option in the database engine.
+func WithLogShowSQL(logShowSQL bool) EngineOpt {
+	return func(e *engine) error {
+		// set the log show SQL option for the database engine
+		e.config.LogShowSQL = logShowSQL
 
 		return nil
 	}

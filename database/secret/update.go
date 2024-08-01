@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code with create.go
 package secret
@@ -9,10 +7,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // UpdateSecret updates an existing secret in the database.
@@ -25,14 +24,14 @@ func (e *engine) UpdateSecret(ctx context.Context, s *library.Secret) (*library.
 			"team":   s.GetTeam(),
 			"secret": s.GetName(),
 			"type":   s.GetType(),
-		}).Tracef("updating secret %s/%s/%s/%s in the database", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName())
+		}).Tracef("updating secret %s/%s/%s/%s", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName())
 	default:
 		e.logger.WithFields(logrus.Fields{
 			"org":    s.GetOrg(),
 			"repo":   s.GetRepo(),
 			"secret": s.GetName(),
 			"type":   s.GetType(),
-		}).Tracef("updating secret %s/%s/%s/%s in the database", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName())
+		}).Tracef("updating secret %s/%s/%s/%s", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName())
 	}
 
 	// cast the library type to database type

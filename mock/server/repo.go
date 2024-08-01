@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -11,31 +9,58 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
 	// RepoResp represents a JSON return for a single repo.
 	RepoResp = `{
   "id": 1,
-  "user_id": 1,
+  "owner": {
+	"id": 1,
+	"name": "octocat",
+	"favorites": [],
+	"active": true,
+    "admin": false
+  },
   "org": "github",
+  "counter": 10,
   "name": "octocat",
   "full_name": "github/octocat",
   "link": "https://github.com/github/octocat",
   "clone": "https://github.com/github/octocat",
-  "branch": "master",
+  "branch": "main",
   "build_limit": 10,
   "timeout": 60,
   "visibility": "public",
   "private": false,
   "trusted": true,
+  "pipeline_type": "yaml",
+  "topics": [],
   "active": true,
-  "allow_pr": false,
-  "allow_push": true,
-  "allow_deploy": false,
-  "allow_tag": false
+  "allow_events": {
+	"push": {
+		"branch": true,
+		"tag": true
+	},
+	"pull_request": {
+		"opened": true,
+		"synchronize": true,
+		"reopened": true,
+		"edited": false
+	},
+	"deployment": {
+		"created": true
+	},
+	"comment": {
+		"created": false,
+		"edited": false
+	}
+  },
+  "approve_build": "fork-always",
+  "previous_name": ""
 }`
 
 	// ReposResp represents a JSON return for one to many repos.
@@ -48,17 +73,13 @@ const (
     "full_name": "github/octocat",
     "link": "https://github.com/github/octocat",
     "clone": "https://github.com/github/octocat",
-    "branch": "master",
+    "branch": "main",
     "build_limit": 10,
     "timeout": 60,
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true,
-    "allow_pr": false,
-    "allow_push": true,
-    "allow_deploy": false,
-    "allow_tag": false
+    "active": true
   },
   {
     "id": 2,
@@ -68,17 +89,13 @@ const (
     "full_name": "github/octokitty",
     "link": "https://github.com/github/octokitty",
     "clone": "https://github.com/github/octokitty",
-    "branch": "master",
+    "branch": "main",
     "build_limit": 10,
     "timeout": 60,
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true,
-    "allow_pr": false,
-    "allow_push": true,
-    "allow_deploy": false,
-    "allow_tag": false
+    "active": true
   }
 ]`
 )
@@ -87,7 +104,7 @@ const (
 func getRepos(c *gin.Context) {
 	data := []byte(ReposResp)
 
-	var body []library.Repo
+	var body []api.Repo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -109,7 +126,7 @@ func getRepo(c *gin.Context) {
 
 	data := []byte(RepoResp)
 
-	var body library.Repo
+	var body api.Repo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -119,7 +136,7 @@ func getRepo(c *gin.Context) {
 func addRepo(c *gin.Context) {
 	data := []byte(RepoResp)
 
-	var body library.Repo
+	var body api.Repo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -143,7 +160,7 @@ func updateRepo(c *gin.Context) {
 
 	data := []byte(RepoResp)
 
-	var body library.Repo
+	var body api.Repo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -11,16 +9,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/router/middleware/org"
-
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/router/middleware/org"
 )
 
 func TestRepo_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.Repo)
+	want := new(api.Repo)
 	want.SetID(1)
 
 	// setup context
@@ -38,9 +38,15 @@ func TestRepo_Retrieve(t *testing.T) {
 
 func TestRepo_Establish(t *testing.T) {
 	// setup types
-	want := new(library.Repo)
+	owner := testutils.APIUser().Crop()
+	owner.SetID(1)
+	owner.SetName("foo")
+	owner.SetActive(false)
+	owner.SetToken("bar")
+
+	want := new(api.Repo)
 	want.SetID(1)
-	want.SetUserID(1)
+	want.SetOwner(owner)
 	want.SetHash("baz")
 	want.SetOrg("foo")
 	want.SetName("bar")
@@ -56,15 +62,12 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetPrivate(false)
 	want.SetTrusted(false)
 	want.SetActive(false)
-	want.SetAllowPull(false)
-	want.SetAllowPush(false)
-	want.SetAllowDeploy(false)
-	want.SetAllowTag(false)
-	want.SetAllowComment(false)
+	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("")
+	want.SetApproveBuild("")
 
-	got := new(library.Repo)
+	got := new(api.Repo)
 
 	// setup database
 	db, err := database.NewTest()
@@ -73,10 +76,12 @@ func TestRepo_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), want)
+		_ = db.DeleteRepo(context.TODO(), want)
+		_ = db.DeleteUser(context.TODO(), owner)
 		db.Close()
 	}()
 
+	_, _ = db.CreateUser(context.TODO(), owner)
 	_, _ = db.CreateRepo(context.TODO(), want)
 
 	// setup context
@@ -87,6 +92,7 @@ func TestRepo_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(org.Establish())
 	engine.Use(Establish())
@@ -124,6 +130,7 @@ func TestRepo_Establish_NoOrgParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "//bar/test", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org/:repo/test", func(c *gin.Context) {
@@ -154,6 +161,7 @@ func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo//test", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org/:repo/test", func(c *gin.Context) {
@@ -184,6 +192,7 @@ func TestRepo_Establish_NoRepo(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org/:repo", func(c *gin.Context) {

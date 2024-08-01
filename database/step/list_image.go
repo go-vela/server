@@ -1,18 +1,17 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/go-vela/types/constants"
 )
 
 // ListStepImageCount gets a list of all step images and the count of their occurrence from the database.
-func (e *engine) ListStepImageCount() (map[string]float64, error) {
-	e.logger.Tracef("getting count of all images for steps from the database")
+func (e *engine) ListStepImageCount(ctx context.Context) (map[string]float64, error) {
+	e.logger.Tracef("getting count of all images for steps")
 
 	// variables to store query results and return value
 	s := []struct {

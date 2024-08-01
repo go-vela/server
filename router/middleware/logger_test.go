@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package middleware
 
@@ -16,6 +14,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
@@ -23,23 +25,21 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
-	"github.com/sirupsen/logrus/hooks/test"
 )
 
 func TestMiddleware_Logger(t *testing.T) {
 	// setup types
-	b := new(library.Build)
-	b.SetID(1)
-	b.SetRepoID(1)
-	b.SetNumber(1)
-
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.GetOwner().SetID(1)
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+
+	b := new(api.Build)
+	b.SetID(1)
+	b.SetRepo(r)
+	b.SetNumber(1)
 
 	svc := new(library.Service)
 	svc.SetID(1)
@@ -55,19 +55,18 @@ func TestMiddleware_Logger(t *testing.T) {
 	s.SetNumber(1)
 	s.SetName("foo")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	w := new(library.Worker)
+	w := new(api.Worker)
 	w.SetID(1)
 	w.SetHostname("worker_0")
 	w.SetAddress("localhost")
 
 	payload, _ := json.Marshal(`{"foo": "bar"}`)
 	wantLevel := logrus.InfoLevel
-	wantMessage := ""
 
 	logger, hook := test.NewNullLogger()
 	defer hook.Reset()
@@ -106,8 +105,16 @@ func TestMiddleware_Logger(t *testing.T) {
 		t.Errorf("Logger Level is %v, want %v", gotLevel, wantLevel)
 	}
 
-	if !reflect.DeepEqual(gotMessage, wantMessage) {
-		t.Errorf("Logger Message is %v, want %v", gotMessage, wantMessage)
+	if gotMessage == "" {
+		t.Errorf("Logger Message is %v, want non-empty string", gotMessage)
+	}
+
+	if strings.Contains(gotMessage, "GET") {
+		t.Errorf("Logger Message is %v, want message to contain GET", gotMessage)
+	}
+
+	if !strings.Contains(gotMessage, "POST") {
+		t.Errorf("Logger Message is %v, message shouldn't contain POST", gotMessage)
 	}
 }
 
@@ -156,17 +163,17 @@ func TestMiddleware_Logger_Error(t *testing.T) {
 func TestMiddleware_Logger_Sanitize(t *testing.T) {
 	var logBody, logWant map[string]interface{}
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.GetOwner().SetID(1)
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	logRepo, _ := json.Marshal(r)
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 	b.SetEmail("octocat@github.com")
 	logBuild, _ := json.Marshal(b)
@@ -215,5 +222,48 @@ func TestMiddleware_Logger_Sanitize(t *testing.T) {
 		if !reflect.DeepEqual(got, logWant) {
 			t.Errorf("Logger returned %v, want %v", got, logWant)
 		}
+	}
+}
+
+func TestMiddleware_Format(t *testing.T) {
+	wantLabels := "labels.vela"
+
+	// setup data, fields, and logger
+	formatter := &ECSFormatter{
+		DataKey: wantLabels,
+	}
+
+	fields := logrus.Fields{
+		"ip":         "123.4.5.6",
+		"method":     http.MethodGet,
+		"path":       "/foobar",
+		"latency":    0,
+		"status":     http.StatusOK,
+		"user-agent": "foobar",
+		"version":    "v1.0.0",
+		"org":        "foo",
+	}
+
+	logger := logrus.NewEntry(logrus.StandardLogger())
+	entry := logger.WithFields(fields)
+
+	got, err := formatter.Format(entry)
+
+	// run test
+
+	if err != nil {
+		t.Errorf("Format returned err: %v", err)
+	}
+
+	if got == nil {
+		t.Errorf("Format returned nothing, want a log")
+	}
+
+	if !strings.Contains(string(got), "GET") {
+		t.Errorf("Format returned %v, want to contain GET", string(got))
+	}
+
+	if !strings.Contains(string(got), "/foobar") {
+		t.Errorf("Format returned %v, want to contain /foobar", string(got))
 	}
 }

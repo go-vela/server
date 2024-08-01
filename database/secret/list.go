@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
@@ -14,7 +12,7 @@ import (
 
 // ListSecrets gets a list of all secrets from the database.
 func (e *engine) ListSecrets(ctx context.Context) ([]*library.Secret, error) {
-	e.logger.Trace("listing all secrets from the database")
+	e.logger.Trace("listing all secrets")
 
 	// variables to store query results and return value
 	count := int64(0)

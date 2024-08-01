@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package claims
 
@@ -15,11 +13,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestClaims_Retrieve(t *testing.T) {
@@ -52,19 +52,22 @@ func TestClaims_Retrieve(t *testing.T) {
 
 func TestClaims_Establish(t *testing.T) {
 	// setup types
-	user := new(library.User)
+	user := new(api.User)
 	user.SetID(1)
 	user.SetName("foo")
 	user.SetRefreshToken("fresh")
 	user.SetToken("bar")
-	user.SetHash("baz")
 	user.SetActive(true)
 	user.SetAdmin(false)
 	user.SetFavorites([]string{})
 
+	build := new(api.Build)
+	build.SetID(1)
+	build.SetNumber(1)
+	build.SetSender("octocat")
+
 	tm := &token.Manager{
-		PrivateKey:                  "123abc",
-		SignMethod:                  jwt.SigningMethodHS256,
+		PrivateKeyHMAC:              "123abc",
 		UserAccessTokenDuration:     time.Minute * 5,
 		UserRefreshTokenDuration:    time.Minute * 30,
 		WorkerAuthTokenDuration:     time.Minute * 20,
@@ -114,7 +117,7 @@ func TestClaims_Establish(t *testing.T) {
 			},
 			Mto: &token.MintTokenOpts{
 				Hostname:      "host",
-				BuildID:       1,
+				Build:         build,
 				Repo:          "foo/bar",
 				TokenDuration: time.Minute * 35,
 				TokenType:     constants.WorkerBuildTokenType,
@@ -196,6 +199,7 @@ func TestClaims_Establish(t *testing.T) {
 			gin.SetMode(gin.TestMode)
 
 			// setup vela mock server
+			engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 			engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 			engine.Use(Establish())
 			engine.PUT(tt.Endpoint, func(c *gin.Context) {
@@ -225,8 +229,7 @@ func TestClaims_Establish(t *testing.T) {
 func TestClaims_Establish_NoToken(t *testing.T) {
 	// setup types
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -237,6 +240,7 @@ func TestClaims_Establish_NoToken(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/host", nil)
 
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(Establish())
 
@@ -251,8 +255,7 @@ func TestClaims_Establish_NoToken(t *testing.T) {
 func TestClaims_Establish_BadToken(t *testing.T) {
 	// setup types
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -263,10 +266,9 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/host", nil)
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("octocat")
-	u.SetHash("abc")
 
 	// setup database
 	db, err := database.NewTest()
@@ -275,7 +277,7 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -291,6 +293,7 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", "very-secret") })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })

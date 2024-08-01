@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
@@ -10,9 +8,8 @@ import (
 	"net/http/httptrace"
 	"net/url"
 
-	"github.com/google/go-github/v54/github"
+	"github.com/google/go-github/v63/github"
 	"github.com/sirupsen/logrus"
-
 	"golang.org/x/oauth2"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"

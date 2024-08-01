@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package registry
 
-import "github.com/go-vela/types/library"
+import (
+	api "github.com/go-vela/server/api/types"
+)
 
 // Service represents the interface for Vela integrating
 // with the different supported template registries.
@@ -15,5 +15,5 @@ type Service interface {
 
 	// Template defines a function that captures the
 	// templated pipeline configuration from a repo.
-	Template(*library.User, *Source) ([]byte, error)
+	Template(*api.User, *Source) ([]byte, error)
 }

@@ -1,26 +1,23 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/hook"
+	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation DELETE /api/v1/hooks/{org}/{repo}/{hook} webhook DeleteHook
 //
-// Delete a webhook for the configured backend
+// Delete a hook
 //
 // ---
 // produces:
@@ -28,12 +25,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -49,63 +46,38 @@ import (
 //     schema:
 //       type: string
 //   '400':
-//     description: The webhook was unable to be deleted
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: The webhook was unable to be deleted
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: The webhook was unable to be deleted
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeleteHook represents the API handler to remove
-// a webhook from the configured backend.
+// DeleteHook represents the API handler to remove a webhook.
 func DeleteHook(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
-	hook := util.PathParameter(c, "hook")
+	h := hook.Retrieve(c)
 	ctx := c.Request.Context()
 
-	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
+	entry := fmt.Sprintf("%s/%d", r.GetFullName(), h.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"hook": hook,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("deleting hook %s", entry)
-
-	number, err := strconv.Atoi(hook)
-	if err != nil {
-		retErr := fmt.Errorf("invalid hook parameter provided: %s", hook)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHookForRepo(ctx, r, number)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get hook %s: %w", hook, err)
-
-		util.HandleError(c, http.StatusNotFound, retErr)
-
-		return
-	}
+	l.Debugf("deleting hook %s", entry)
 
 	// send API call to remove the webhook
-	err = database.FromContext(c).DeleteHook(ctx, h)
+	err := database.FromContext(c).DeleteHook(ctx, h)
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete hook %s: %w", hook, err)
+		retErr := fmt.Errorf("unable to delete hook %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -8,10 +6,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
+
+	"github.com/go-vela/types/constants"
 )
 
 type (
@@ -62,7 +60,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 
 	// check if we should skip creating hook database objects
 	if e.config.SkipCreation {
-		e.logger.Warning("skipping creation of hooks table and indexes in the database")
+		e.logger.Warning("skipping creation of hooks table and indexes")
 
 		return e, nil
 	}

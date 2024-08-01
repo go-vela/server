@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -8,27 +6,29 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // LastBuildForRepo gets the last build by repo ID and branch from the database.
-func (e *engine) LastBuildForRepo(ctx context.Context, r *library.Repo, branch string) (*library.Build, error) {
+func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch string) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("getting last build for repo %s from the database", r.GetFullName())
+	}).Tracef("getting last build for repo %s", r.GetFullName())
 
 	// variable to store query results
-	b := new(database.Build)
+	b := new(types.Build)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableBuild).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("branch = ?", branch).
 		Order("number DESC").
@@ -44,5 +44,10 @@ func (e *engine) LastBuildForRepo(ctx context.Context, r *library.Repo, branch s
 		return nil, err
 	}
 
-	return b.ToLibrary(), nil
+	err = b.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
+	}
+
+	return b.ToAPI(), nil
 }

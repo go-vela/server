@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -24,8 +22,9 @@ func TestNative_Create_Org(t *testing.T) {
 	want.SetValue("baz")
 	want.SetType("org")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
+	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
 	want.SetCreatedBy("user")
 	want.SetUpdatedAt(1)
@@ -38,7 +37,7 @@ func TestNative_Create_Org(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -71,8 +70,9 @@ func TestNative_Create_Repo(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("repo")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
+	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
 	want.SetCreatedBy("user")
 	want.SetUpdatedAt(1)
@@ -85,7 +85,7 @@ func TestNative_Create_Repo(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -118,8 +118,9 @@ func TestNative_Create_Shared(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("shared")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
+	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
 	want.SetCreatedBy("user")
 	want.SetUpdatedAt(1)
@@ -132,7 +133,7 @@ func TestNative_Create_Shared(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -165,8 +166,9 @@ func TestNative_Create_Invalid(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("invalid")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowEvents(library.NewEventsFromMask(1))
 	sec.SetAllowCommand(false)
+	sec.SetAllowSubstitution(false)
 	sec.SetCreatedAt(1)
 	sec.SetCreatedBy("user")
 	sec.SetUpdatedAt(1)
@@ -179,7 +181,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), sec)
+		_ = db.DeleteSecret(context.TODO(), sec)
 		db.Close()
 	}()
 

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -9,12 +7,12 @@ import (
 	"io"
 	"os"
 
+	"github.com/buildkite/yaml"
+
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	"github.com/go-vela/types/constants"
 	types "github.com/go-vela/types/yaml"
-
-	"github.com/buildkite/yaml"
 )
 
 // ParseRaw converts an object to a string.
@@ -73,7 +71,7 @@ func (c *client) Parse(v interface{}, pipelineType string, template *types.Templ
 		// capture the raw pipeline configuration
 		raw = []byte(parsedRaw)
 
-		p, err = starlark.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables, c.StarlarkExecLimit)
+		p, err = starlark.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables, c.GetStarlarkExecLimit())
 		if err != nil {
 			return nil, raw, err
 		}

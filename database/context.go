@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
@@ -54,6 +52,10 @@ func FromCLIContext(c *cli.Context, tc *tracing.Config) (Interface, error) {
 		WithConnectionOpen(c.Int("database.connection.open")),
 		WithDriver(c.String("database.driver")),
 		WithEncryptionKey(c.String("database.encryption.key")),
+		WithLogLevel(c.String("database.log.level")),
+		WithLogSkipNotFound(c.Bool("database.log.skip_notfound")),
+		WithLogSlowThreshold(c.Duration("database.log.slow_threshold")),
+		WithLogShowSQL(c.Bool("database.log.show_sql")),
 		WithSkipCreation(c.Bool("database.skip_creation")),
 		WithTracingConfig(tc),
 	)

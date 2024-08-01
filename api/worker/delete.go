@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -9,16 +7,16 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation DELETE /api/v1/workers/{worker} workers DeleteWorker
 //
-// Delete a worker for the configured backend
+// Delete a worker
 //
 // ---
 // produces:
@@ -33,29 +31,34 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully deleted of worker
+//     description: Successfully deleted worker
 //     schema:
 //       type: string
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to delete worker
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// DeleteWorker represents the API handler to remove
-// a worker from the configured backend.
+// DeleteWorker represents the API handler to remove a worker.
 func DeleteWorker(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	w := worker.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user":   u.GetName(),
-		"worker": w.GetHostname(),
-	}).Infof("deleting worker %s", w.GetHostname())
+	l.Debugf("deleting worker %s", w.GetHostname())
 
 	// send API call to remove the step
 	err := database.FromContext(c).DeleteWorker(ctx, w)

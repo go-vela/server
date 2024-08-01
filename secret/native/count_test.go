@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -22,7 +20,6 @@ func TestNative_Count(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetCreatedAt(1)
 	sec.SetUpdatedAt(1)
 
@@ -35,7 +32,7 @@ func TestNative_Count(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), sec)
+		_ = db.DeleteSecret(context.TODO(), sec)
 		db.Close()
 	}()
 

@@ -1,21 +1,19 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
 	"testing"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestUser_FromContext(t *testing.T) {
 	// setup types
 	uID := int64(1)
-	want := &library.User{ID: &uID}
+	want := &api.User{ID: &uID}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -74,7 +72,7 @@ func TestUser_FromContext_Empty(t *testing.T) {
 func TestUser_ToContext(t *testing.T) {
 	// setup types
 	uID := int64(1)
-	want := &library.User{ID: &uID}
+	want := &api.User{ID: &uID}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

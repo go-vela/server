@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -14,7 +12,7 @@ import (
 
 // ListServices gets a list of all services from the database.
 func (e *engine) ListServices(ctx context.Context) ([]*library.Service, error) {
-	e.logger.Trace("listing all services from the database")
+	e.logger.Trace("listing all services")
 
 	// variables to store query results and return value
 	count := int64(0)

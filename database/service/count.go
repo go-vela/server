@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -12,7 +10,7 @@ import (
 
 // CountServices gets the count of all services from the database.
 func (e *engine) CountServices(ctx context.Context) (int64, error) {
-	e.logger.Tracef("getting count of all services from the database")
+	e.logger.Tracef("getting count of all services")
 
 	// variable to store query results
 	var s int64

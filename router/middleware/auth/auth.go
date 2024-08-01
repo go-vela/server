@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package auth
 
@@ -8,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-vela/types/constants"
-
 	"github.com/golang-jwt/jwt/v5/request"
+
+	"github.com/go-vela/types/constants"
 )
 
 // RetrieveAccessToken gets the passed in access token from the header in the request.

@@ -12,10 +12,10 @@ jobs:
 
     steps:
     - name: clone
-      uses: actions/checkout@v3
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
     - name: install go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
@@ -23,10 +23,10 @@ jobs:
         check-latest: true
 
     - name: golangci-lint
-      uses: reviewdog/action-golangci-lint@v2
+      uses: reviewdog/action-golangci-lint@7708105983c614f7a2725e2172908b7709d1c3e4 # v2.6.2
       with:
         github_token: ${{ secrets.github_token }}
-        golangci_lint_flags: "--config=.golangci.yml"
+        golangci_lint_flags: "--config=.golangci.yml --timeout=5m"
         fail_on_error: true
         filter_mode: diff_context
         reporter: github-pr-review
@@ -36,10 +36,10 @@ jobs:
 
     steps:
     - name: clone
-      uses: actions/checkout@v3
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
     - name: install go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
@@ -47,9 +47,9 @@ jobs:
         check-latest: true
 
     - name: golangci-lint
-      uses: reviewdog/action-golangci-lint@v2
+      uses: reviewdog/action-golangci-lint@7708105983c614f7a2725e2172908b7709d1c3e4 # v2.6.2
       with:
         github_token: ${{ secrets.github_token }}
-        golangci_lint_flags: "--config=.golangci.yml"
+        golangci_lint_flags: "--config=.golangci.yml --timeout=5m"
         fail_on_error: false
         filter_mode: nofilter

@@ -1,16 +1,16 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
 // CountSteps gets the count of all steps from the database.
-func (e *engine) CountSteps() (int64, error) {
-	e.logger.Tracef("getting count of all steps from the database")
+func (e *engine) CountSteps(ctx context.Context) (int64, error) {
+	e.logger.Tracef("getting count of all steps")
 
 	// variable to store query results
 	var s int64

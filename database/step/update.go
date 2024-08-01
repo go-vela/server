@@ -1,18 +1,19 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
+	"context"
+
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // UpdateStep updates an existing step in the database.
-func (e *engine) UpdateStep(s *library.Step) (*library.Step, error) {
+func (e *engine) UpdateStep(ctx context.Context, s *library.Step) (*library.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
 	}).Tracef("updating step %s in the database", s.GetName())

@@ -1,12 +1,11 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 )
 
@@ -31,7 +30,7 @@ type PipelineInterface interface {
 	// CountPipelines defines a function that gets the count of all pipelines.
 	CountPipelines(context.Context) (int64, error)
 	// CountPipelinesForRepo defines a function that gets the count of pipelines by repo ID.
-	CountPipelinesForRepo(context.Context, *library.Repo) (int64, error)
+	CountPipelinesForRepo(context.Context, *api.Repo) (int64, error)
 	// CreatePipeline defines a function that creates a new pipeline.
 	CreatePipeline(context.Context, *library.Pipeline) (*library.Pipeline, error)
 	// DeletePipeline defines a function that deletes an existing pipeline.
@@ -39,11 +38,11 @@ type PipelineInterface interface {
 	// GetPipeline defines a function that gets a pipeline by ID.
 	GetPipeline(context.Context, int64) (*library.Pipeline, error)
 	// GetPipelineForRepo defines a function that gets a pipeline by commit SHA and repo ID.
-	GetPipelineForRepo(context.Context, string, *library.Repo) (*library.Pipeline, error)
+	GetPipelineForRepo(context.Context, string, *api.Repo) (*library.Pipeline, error)
 	// ListPipelines defines a function that gets a list of all pipelines.
 	ListPipelines(context.Context) ([]*library.Pipeline, error)
 	// ListPipelinesForRepo defines a function that gets a list of pipelines by repo ID.
-	ListPipelinesForRepo(context.Context, *library.Repo, int, int) ([]*library.Pipeline, int64, error)
+	ListPipelinesForRepo(context.Context, *api.Repo, int, int) ([]*library.Pipeline, int64, error)
 	// UpdatePipeline defines a function that updates an existing pipeline.
 	UpdatePipeline(context.Context, *library.Pipeline) (*library.Pipeline, error)
 }

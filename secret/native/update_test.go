@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -25,8 +23,9 @@ func TestNative_Update(t *testing.T) {
 	original.SetValue("secretValue")
 	original.SetType("repo")
 	original.SetImages([]string{"foo", "baz"})
-	original.SetEvents([]string{"foob", "bar"})
+	original.SetAllowEvents(library.NewEventsFromMask(1))
 	original.SetAllowCommand(true)
+	original.SetAllowSubstitution(true)
 	original.SetCreatedAt(1)
 	original.SetCreatedBy("user")
 	original.SetUpdatedAt(time.Now().UTC().Unix())
@@ -41,8 +40,9 @@ func TestNative_Update(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("repo")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowEvents(library.NewEventsFromMask(3))
 	want.SetAllowCommand(false)
+	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
 	want.SetCreatedBy("user")
 	want.SetUpdatedAt(time.Now().UTC().Unix())
@@ -55,7 +55,7 @@ func TestNative_Update(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), original)
+		_ = db.DeleteSecret(context.TODO(), original)
 		db.Close()
 	}()
 

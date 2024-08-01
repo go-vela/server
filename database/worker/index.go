@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -19,7 +17,7 @@ ON workers (hostname, address);
 
 // CreateWorkerIndexes creates the indexes for the workers table in the database.
 func (e *engine) CreateWorkerIndexes(ctx context.Context) error {
-	e.logger.Tracef("creating indexes for workers table in the database")
+	e.logger.Tracef("creating indexes for workers table")
 
 	// create the hostname and address columns index for the workers table
 	return e.client.Exec(CreateHostnameAddressIndex).Error

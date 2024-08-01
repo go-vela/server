@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore duplicate with user code
 package server
@@ -12,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
@@ -24,6 +23,10 @@ const (
   "repo_id": 1,
   "number": 1,
   "name": "clone",
+  "image": "redis",
+  "host": "vela",
+  "runtime": "docker",
+  "distribution": "linux",
   "status": "success",
   "error": "",
   "exit_code": 0,

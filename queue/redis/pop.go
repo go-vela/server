@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -9,29 +7,30 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/go-vela/types"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/nacl/sign"
+
+	"github.com/go-vela/server/queue/models"
 )
 
 // Pop grabs an item from the specified channel off the queue.
-func (c *client) Pop(ctx context.Context, routes []string) (*types.Item, error) {
-	c.Logger.Tracef("popping item from queue %s", c.config.Channels)
-
-	// define channels to pop from
-	var channels []string
+func (c *client) Pop(ctx context.Context, inRoutes []string) (*models.Item, error) {
+	// define routes to pop from
+	var routes []string
 
 	// if routes were supplied, use those
-	if len(routes) > 0 {
-		channels = routes
+	if len(inRoutes) > 0 {
+		routes = inRoutes
 	} else {
-		channels = c.config.Channels
+		routes = c.GetRoutes()
 	}
+
+	c.Logger.Tracef("popping item from queue %s", routes)
 
 	// build a redis queue command to pop an item from queue
 	//
 	// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#Client.BLPop
-	popCmd := c.Redis.BLPop(ctx, c.config.Timeout, channels...)
+	popCmd := c.Redis.BLPop(ctx, c.config.Timeout, routes...)
 
 	// blocking call to pop item from queue
 	//
@@ -44,11 +43,6 @@ func (c *client) Pop(ctx context.Context, routes []string) (*types.Item, error) 
 		}
 
 		return nil, err
-	}
-
-	// this should already be validated on startup
-	if c.config.PublicKey == nil || len(*c.config.PublicKey) != 32 {
-		return nil, errors.New("no valid signing public key provided")
 	}
 
 	// extract signed item from pop results
@@ -65,7 +59,7 @@ func (c *client) Pop(ctx context.Context, routes []string) (*types.Item, error) 
 	}
 
 	// unmarshal result into queue item
-	item := new(types.Item)
+	item := new(models.Item)
 
 	err = json.Unmarshal(opened, item)
 	if err != nil {

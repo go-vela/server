@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -8,20 +6,21 @@ import (
 	"context"
 	"errors"
 
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
-
-	"gorm.io/gorm"
 )
 
 // LastHookForRepo gets the last hook by repo ID from the database.
-func (e *engine) LastHookForRepo(ctx context.Context, r *library.Repo) (*library.Hook, error) {
+func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*library.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-	}).Tracef("getting last hook for repo %s from the database", r.GetFullName())
+	}).Tracef("getting last hook for repo %s", r.GetFullName())
 
 	// variable to store query results
 	h := new(database.Hook)

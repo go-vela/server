@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
@@ -10,15 +8,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/steps steps CreateStep
@@ -31,12 +28,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -46,7 +43,7 @@ import (
 //   type: integer
 // - in: body
 //   name: body
-//   description: Payload containing the step to create
+//   description: Step object to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Step"
@@ -58,34 +55,34 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Step"
 //   '400':
-//     description: Unable to create the step
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the step
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // CreateStep represents the API handler to create
-// a step for a build in the configured backend.
+// a step for a build.
 func CreateStep(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("creating new step for build %s", entry)
+	l.Debugf("creating new step for build %s", entry)
 
 	// capture body from API request
 	input := new(library.Step)
@@ -112,7 +109,7 @@ func CreateStep(c *gin.Context) {
 	}
 
 	// send API call to create the step
-	s, err := database.FromContext(c).CreateStep(input)
+	s, err := database.FromContext(c).CreateStep(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create step for build %s: %w", entry, err)
 
@@ -120,6 +117,11 @@ func CreateStep(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"step":    s.GetName(),
+		"step_id": s.GetID(),
+	}).Infof("step %s created for build %s", s.GetName(), entry)
 
 	c.JSON(http.StatusCreated, s)
 }

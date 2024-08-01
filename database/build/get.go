@@ -1,27 +1,27 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetBuild gets a build by ID from the database.
-func (e *engine) GetBuild(ctx context.Context, id int64) (*library.Build, error) {
-	e.logger.Tracef("getting build %d from the database", id)
+func (e *engine) GetBuild(ctx context.Context, id int64) (*api.Build, error) {
+	e.logger.Tracef("getting build %d", id)
 
 	// variable to store query results
-	b := new(database.Build)
+	b := new(types.Build)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableBuild).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("id = ?", id).
 		Take(b).
 		Error
@@ -29,5 +29,10 @@ func (e *engine) GetBuild(ctx context.Context, id int64) (*library.Build, error)
 		return nil, err
 	}
 
-	return b.ToLibrary(), nil
+	err = b.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo: %v", err)
+	}
+
+	return b.ToAPI(), nil
 }

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
@@ -403,6 +401,182 @@ func TestDatabase_EngineOpt_WithSkipCreation(t *testing.T) {
 
 			if !reflect.DeepEqual(e.config.SkipCreation, test.want) {
 				t.Errorf("WithSkipCreation is %v, want %v", e.config.SkipCreation, test.want)
+			}
+		})
+	}
+}
+
+func TestDatabase_EngineOpt_WithLogLevel(t *testing.T) {
+	e := &engine{config: new(config)}
+
+	tests := []struct {
+		failure  bool
+		name     string
+		logLevel string
+		want     string
+	}{
+		{
+			failure:  false,
+			name:     "log level set to debug",
+			logLevel: "debug",
+			want:     "debug",
+		},
+		{
+			failure:  false,
+			name:     "log level set to info",
+			logLevel: "info",
+			want:     "info",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := WithLogLevel(test.logLevel)(e)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("WithLogLevel for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("WithLogLevel returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(e.config.LogLevel, test.want) {
+				t.Errorf("WithLogLevel is %v, want %v", e.config.SkipCreation, test.want)
+			}
+		})
+	}
+}
+
+func TestDatabase_EngineOpt_WithLogSkipNotFound(t *testing.T) {
+	e := &engine{config: new(config)}
+
+	tests := []struct {
+		failure bool
+		name    string
+		skip    bool
+		want    bool
+	}{
+		{
+			failure: false,
+			name:    "log skip not found set to true",
+			skip:    true,
+			want:    true,
+		},
+		{
+			failure: false,
+			name:    "log skip not found set to false",
+			skip:    false,
+			want:    false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := WithLogSkipNotFound(test.skip)(e)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("WithLogSkipNotFound for %s should have returned err", test.name)
+				}
+
+				if err != nil {
+					t.Errorf("WithLogSkipNotFound for %s returned err: %v", test.name, err)
+				}
+
+				if !reflect.DeepEqual(e.config.LogSkipNotFound, test.want) {
+					t.Errorf("WithLogSkipNotFound for %s is %v, want %v", test.name, e.config.LogSkipNotFound, test.want)
+				}
+			}
+		})
+	}
+}
+
+func TestDatabase_EngineOpt_WithLogSlowThreshold(t *testing.T) {
+	e := &engine{config: new(config)}
+
+	tests := []struct {
+		failure   bool
+		name      string
+		threshold time.Duration
+		want      time.Duration
+	}{
+		{
+			failure:   false,
+			name:      "log slow threshold set to 1ms",
+			threshold: 1 * time.Millisecond,
+			want:      1 * time.Millisecond,
+		},
+		{
+			failure:   false,
+			name:      "log slow threshold set to 2ms",
+			threshold: 2 * time.Millisecond,
+			want:      2 * time.Millisecond,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := WithLogSlowThreshold(test.threshold)(e)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("WithLogSlowThreshold for %s should have returned err", test.name)
+				}
+
+				if err != nil {
+					t.Errorf("WithLogSlowThreshold for %s returned err: %v", test.name, err)
+				}
+
+				if !reflect.DeepEqual(e.config.LogSlowThreshold, test.want) {
+					t.Errorf("WithLogSlowThreshold for %s is %v, want %v", test.name, e.config.LogSlowThreshold, test.want)
+				}
+			}
+		})
+	}
+}
+
+func TestDatabase_EngineOpt_WithLogShowSQL(t *testing.T) {
+	e := &engine{config: new(config)}
+
+	tests := []struct {
+		failure bool
+		name    string
+		show    bool
+		want    bool
+	}{
+		{
+			failure: false,
+			name:    "log show SQL set to true",
+			show:    true,
+			want:    true,
+		},
+		{
+			failure: false,
+			name:    "log show SQL set to false",
+			show:    false,
+			want:    false,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := WithLogShowSQL(test.show)(e)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("WithLogShowSQL for %s should have returned err", test.name)
+				}
+
+				if err != nil {
+					t.Errorf("WithLogShowSQL for %s returned err: %v", test.name, err)
+				}
+
+				if !reflect.DeepEqual(e.config.LogShowSQL, test.want) {
+					t.Errorf("WithLogShowSQL for %s is %v, want %v", test.name, e.config.LogShowSQL, test.want)
+				}
 			}
 		})
 	}

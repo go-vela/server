@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -9,12 +7,12 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestWorker_New(t *testing.T) {
@@ -108,6 +106,48 @@ func TestWorker_New(t *testing.T) {
 	}
 }
 
+func TestWorker_convertToBuilds(t *testing.T) {
+	_buildOne := new(api.Build)
+	_buildOne.SetID(1)
+
+	_buildTwo := new(api.Build)
+	_buildTwo.SetID(2)
+
+	// setup tests
+	tests := []struct {
+		name string
+		ids  []string
+		want []*api.Build
+	}{
+		{
+			name: "one id",
+			ids:  []string{"1"},
+			want: []*api.Build{_buildOne},
+		},
+		{
+			name: "multiple ids",
+			ids:  []string{"1", "2"},
+			want: []*api.Build{_buildOne, _buildTwo},
+		},
+		{
+			name: "not int64",
+			ids:  []string{"1", "foo"},
+			want: nil,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := convertToBuilds(test.ids)
+
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("convertToBuilds for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
+	}
+}
+
 // testPostgres is a helper function to create a Postgres engine for testing.
 func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	// create the new mock sql database
@@ -168,8 +208,11 @@ func testSqlite(t *testing.T) *engine {
 
 // testWorker is a test helper function to create a library
 // Worker type with all fields set to their zero values.
-func testWorker() *library.Worker {
-	return &library.Worker{
+func testWorker() *api.Worker {
+	b := new(api.Build)
+	b.SetID(1)
+
+	return &api.Worker{
 		ID:                  new(int64),
 		Hostname:            new(string),
 		Address:             new(string),
@@ -177,7 +220,7 @@ func testWorker() *library.Worker {
 		Active:              new(bool),
 		Status:              new(string),
 		LastStatusUpdateAt:  new(int64),
-		RunningBuildIDs:     new([]string),
+		RunningBuilds:       &[]*api.Build{b},
 		LastBuildStartedAt:  new(int64),
 		LastBuildFinishedAt: new(int64),
 		LastCheckedIn:       new(int64),

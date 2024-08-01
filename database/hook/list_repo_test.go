@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -10,12 +8,14 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	// setup types
-	_hookOne := testHook()
+	_hookOne := testutils.APIHook()
 	_hookOne.SetID(1)
 	_hookOne.SetRepoID(1)
 	_hookOne.SetBuildID(1)
@@ -23,7 +23,7 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookOne.SetWebhookID(1)
 
-	_hookTwo := testHook()
+	_hookTwo := testutils.APIHook()
 	_hookTwo.SetID(2)
 	_hookTwo.SetRepoID(1)
 	_hookTwo.SetBuildID(2)
@@ -31,9 +31,9 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookTwo.SetWebhookID(1)
 
-	_repo := testRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
@@ -54,7 +54,7 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 		AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "hooks" WHERE repo_id = $1 ORDER BY id DESC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "hooks" WHERE repo_id = $1 ORDER BY id DESC LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

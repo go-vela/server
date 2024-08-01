@@ -1,16 +1,15 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // GetSecretForOrg gets a secret by org name from the database.
@@ -19,7 +18,7 @@ func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*librar
 		"org":    org,
 		"secret": name,
 		"type":   constants.SecretOrg,
-	}).Tracef("getting org secret %s/%s from the database", org, name)
+	}).Tracef("getting org secret %s/%s", org, name)
 
 	// variable to store query results
 	s := new(database.Secret)

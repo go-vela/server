@@ -5,6 +5,6 @@ steps:
       vars:
         image: golang:latest
         pull_policy: "pull: true"
-        branch: master
+        branch: main
         
         

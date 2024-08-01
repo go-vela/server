@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -9,16 +7,14 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/go-vela/types"
+	"github.com/go-vela/server/queue/models"
 )
 
 func TestRedis_Push(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
-	_item := &types.Item{
+	_item := &models.Item{
 		Build: _build,
-		Repo:  _repo,
-		User:  _user,
 	}
 
 	// setup queue item

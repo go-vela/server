@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package admin
 
@@ -10,19 +8,18 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
-
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/admin/clean admin AdminCleanResources
 //
-// Update pending build resources to error status before a given time
+// Update stale build resources to error status
 //
 // ---
 // produces:
@@ -30,7 +27,7 @@ import (
 // parameters:
 // - in: query
 //   name: before
-//   description: filter pending resources created before a certain time
+//   description: Filter stale resources created before a certain time
 //   required: true
 //   type: integer
 // - in: body
@@ -45,28 +42,27 @@ import (
 //   '200':
 //     description: Successfully updated pending resources with error message
 //     schema:
-//     type: string
+//       type: string
 //   '400':
-//     description: Unable to update resources — bad request
+//     description: Invalid request payload
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unable to update resources — unauthorized
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update resources
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CleanResources represents the API handler to
-// update any user stored in the database.
+// CleanResources represents the API handler to update stale resources.
 func CleanResources(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
-	logrus.Infof("platform admin %s: updating pending resources in database", u.GetName())
+	l.Debug("platform admin: cleaning resources")
 
 	// default error message
 	msg := "build cleaned by platform admin"
@@ -85,7 +81,7 @@ func CleanResources(c *gin.Context) {
 
 	// if a message is provided, set the error message to that
 	if input.Message != nil {
-		msg = *input.Message
+		msg = util.EscapeValue(*input.Message)
 	}
 
 	// capture before query parameter, default to max build timeout
@@ -108,31 +104,43 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d builds in database", u.GetName(), builds)
+	l.Debugf("platform admin: cleaned %d builds", builds)
+
+	// clean executables
+	executables, err := database.FromContext(c).CleanBuildExecutables(ctx)
+	if err != nil {
+		retErr := fmt.Errorf("%d builds cleaned. unable to clean build executables: %w", builds, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	l.Debugf("platform admin: cleaned %d executables", executables)
 
 	// clean services
 	services, err := database.FromContext(c).CleanServices(ctx, msg, before)
 	if err != nil {
-		retErr := fmt.Errorf("%d builds cleaned. unable to update services: %w", builds, err)
+		retErr := fmt.Errorf("%d builds cleaned. %d executables cleaned. unable to update services: %w", builds, executables, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d services in database", u.GetName(), services)
+	l.Debugf("platform admin: cleaned %d services", services)
 
 	// clean steps
-	steps, err := database.FromContext(c).CleanSteps(msg, before)
+	steps, err := database.FromContext(c).CleanSteps(ctx, msg, before)
 	if err != nil {
-		retErr := fmt.Errorf("%d builds cleaned. %d services cleaned. unable to update steps: %w", builds, services, err)
+		retErr := fmt.Errorf("%d builds cleaned. %d executables cleaned. %d services cleaned. unable to update steps: %w", builds, executables, services, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d steps in database", u.GetName(), steps)
+	l.Debugf("platform admin: cleaned %d steps", steps)
 
-	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d services cleaned. %d steps cleaned.", builds, services, steps))
+	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d executables cleaned. %d services cleaned. %d steps cleaned.", builds, executables, services, steps))
 }

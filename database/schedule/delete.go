@@ -1,25 +1,25 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
 	"context"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // DeleteSchedule deletes an existing schedule from the database.
-func (e *engine) DeleteSchedule(ctx context.Context, s *library.Schedule) error {
+func (e *engine) DeleteSchedule(ctx context.Context, s *api.Schedule) error {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("deleting schedule %s in the database", s.GetName())
 
-	// cast the library type to database type
-	schedule := database.ScheduleFromLibrary(s)
+	// cast the API type to database type
+	schedule := types.ScheduleFromAPI(s)
 
 	// send query to the database
 	return e.client.

@@ -1,21 +1,20 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package executable
 
 import (
 	"context"
 
+	"gorm.io/gorm/clause"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm/clause"
 )
 
 // PopBuildExecutable pops a build executable by build_id from the database.
 func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.BuildExecutable, error) {
-	e.logger.Tracef("popping build executable for build %d from the database", id)
+	e.logger.Tracef("popping build executable for build %d", id)
 
 	// variable to store query results
 	b := new(database.BuildExecutable)
@@ -31,7 +30,6 @@ func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.Bui
 			Where("build_id = ?", id).
 			Delete(b).
 			Error
-
 		if err != nil {
 			return nil, err
 		}

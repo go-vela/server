@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package vault
 
@@ -47,8 +45,9 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 
 	// convert the Vault secret our secret
 	vault := vaultFromSecret(sec)
-	if len(s.GetEvents()) > 0 {
-		vault.Data["events"] = s.GetEvents()
+
+	if s.GetAllowEvents().ToDatabase() != 0 {
+		vault.Data["allow_events"] = s.GetAllowEvents().ToDatabase()
 	}
 
 	if s.Images != nil {
@@ -61,6 +60,10 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 
 	if s.AllowCommand != nil {
 		vault.Data["allow_command"] = s.GetAllowCommand()
+	}
+
+	if s.AllowSubstitution != nil {
+		vault.Data["allow_substitution"] = s.GetAllowSubstitution()
 	}
 
 	// validate the secret

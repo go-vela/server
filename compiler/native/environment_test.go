@@ -1,27 +1,26 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
 import (
 	"flag"
 	"reflect"
+	"strings"
 	"testing"
 
-	"github.com/go-vela/types/raw"
 	"github.com/google/go-cmp/cmp"
-
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/yaml"
-
 	"github.com/urfave/cli/v2"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
+	"github.com/go-vela/types/raw"
+	"github.com/go-vela/types/yaml"
 )
 
 func TestNative_EnvironmentStages(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -62,7 +61,7 @@ func TestNative_EnvironmentStages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -80,6 +79,7 @@ func TestNative_EnvironmentStages(t *testing.T) {
 func TestNative_EnvironmentSteps(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	e := raw.StringSliceMap{
@@ -128,11 +128,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 				"BUILD_WORKSPACE":          "/vela/src",
 				"CI":                       "true",
 				"REPOSITORY_ACTIVE":        "false",
-				"REPOSITORY_ALLOW_COMMENT": "false",
-				"REPOSITORY_ALLOW_DEPLOY":  "false",
-				"REPOSITORY_ALLOW_PULL":    "false",
-				"REPOSITORY_ALLOW_PUSH":    "false",
-				"REPOSITORY_ALLOW_TAG":     "false",
+				"REPOSITORY_ALLOW_EVENTS":  "",
 				"REPOSITORY_BRANCH":        "",
 				"REPOSITORY_CLONE":         "",
 				"REPOSITORY_FULL_NAME":     "",
@@ -145,6 +141,8 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 				"REPOSITORY_VISIBILITY":    "",
 				"VELA":                     "true",
 				"VELA_ADDR":                "TODO",
+				"VELA_BUILD_APPROVED_AT":   "0",
+				"VELA_BUILD_APPROVED_BY":   "",
 				"VELA_BUILD_AUTHOR":        "",
 				"VELA_BUILD_AUTHOR_EMAIL":  "",
 				"VELA_BUILD_BASE_REF":      "",
@@ -165,6 +163,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 				"VELA_BUILD_REF":           "",
 				"VELA_BUILD_RUNTIME":       "",
 				"VELA_BUILD_SENDER":        "",
+				"VELA_BUILD_SENDER_SCM_ID": "",
 				"VELA_BUILD_SOURCE":        "",
 				"VELA_BUILD_STARTED":       "0",
 				"VELA_BUILD_STATUS":        "",
@@ -179,11 +178,8 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 				"VELA_NETRC_USERNAME":      "x-oauth-basic",
 				"VELA_QUEUE":               "TODO",
 				"VELA_REPO_ACTIVE":         "false",
-				"VELA_REPO_ALLOW_COMMENT":  "false",
-				"VELA_REPO_ALLOW_DEPLOY":   "false",
-				"VELA_REPO_ALLOW_PULL":     "false",
-				"VELA_REPO_ALLOW_PUSH":     "false",
-				"VELA_REPO_ALLOW_TAG":      "false",
+				"VELA_REPO_ALLOW_EVENTS":   "",
+				"VELA_REPO_APPROVE_BUILD":  "",
 				"VELA_REPO_BRANCH":         "",
 				"VELA_REPO_TOPICS":         "",
 				"VELA_REPO_BUILD_LIMIT":    "0",
@@ -192,6 +188,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 				"VELA_REPO_LINK":           "",
 				"VELA_REPO_NAME":           "",
 				"VELA_REPO_ORG":            "",
+				"VELA_REPO_OWNER":          "",
 				"VELA_REPO_PIPELINE_TYPE":  "",
 				"VELA_REPO_PRIVATE":        "false",
 				"VELA_REPO_TIMEOUT":        "0",
@@ -210,13 +207,43 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 		},
 	}
 
-	// run test
-	compiler, err := New(c)
+	// run test non-local
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
+	// run test local
+	compiler.WithLocal(true)
+
+	t.Setenv("VELA_BUILD_COMMIT", "123abc")
+
 	got, err := compiler.EnvironmentSteps(s, e)
+	if err != nil {
+		t.Errorf("EnvironmentSteps returned err: %v", err)
+	}
+
+	// cannot use complete diff since local compiler pulls from OS env
+	if !strings.EqualFold(got[0].Environment["VELA_BUILD_COMMIT"], "123abc") {
+		t.Errorf("EnvironmentSteps with local compiler should have set VELA_BUILD_COMMIT to 123abc, got %s", got[0].Environment["VELA_BUILD_COMMIT"])
+	}
+
+	// test without local
+	compiler.WithLocal(false)
+
+	// reset s
+	s = yaml.StepSlice{
+		&yaml.Step{
+			Image: "alpine",
+			Name:  str,
+			Pull:  "always",
+			Environment: raw.StringSliceMap{
+				"BUILD_CHANNEL": "foo",
+			},
+		},
+	}
+
+	got, err = compiler.EnvironmentSteps(s, e)
 	if err != nil {
 		t.Errorf("EnvironmentSteps returned err: %v", err)
 	}
@@ -229,6 +256,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 func TestNative_EnvironmentServices(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	e := raw.StringSliceMap{
@@ -277,11 +305,7 @@ func TestNative_EnvironmentServices(t *testing.T) {
 				"BUILD_WORKSPACE":          "/vela/src",
 				"CI":                       "true",
 				"REPOSITORY_ACTIVE":        "false",
-				"REPOSITORY_ALLOW_COMMENT": "false",
-				"REPOSITORY_ALLOW_DEPLOY":  "false",
-				"REPOSITORY_ALLOW_PULL":    "false",
-				"REPOSITORY_ALLOW_PUSH":    "false",
-				"REPOSITORY_ALLOW_TAG":     "false",
+				"REPOSITORY_ALLOW_EVENTS":  "",
 				"REPOSITORY_BRANCH":        "",
 				"REPOSITORY_CLONE":         "",
 				"REPOSITORY_FULL_NAME":     "",
@@ -294,6 +318,8 @@ func TestNative_EnvironmentServices(t *testing.T) {
 				"REPOSITORY_VISIBILITY":    "",
 				"VELA":                     "true",
 				"VELA_ADDR":                "TODO",
+				"VELA_BUILD_APPROVED_AT":   "0",
+				"VELA_BUILD_APPROVED_BY":   "",
 				"VELA_BUILD_AUTHOR":        "",
 				"VELA_BUILD_AUTHOR_EMAIL":  "",
 				"VELA_BUILD_BASE_REF":      "",
@@ -314,6 +340,7 @@ func TestNative_EnvironmentServices(t *testing.T) {
 				"VELA_BUILD_REF":           "",
 				"VELA_BUILD_RUNTIME":       "",
 				"VELA_BUILD_SENDER":        "",
+				"VELA_BUILD_SENDER_SCM_ID": "",
 				"VELA_BUILD_SOURCE":        "",
 				"VELA_BUILD_STARTED":       "0",
 				"VELA_BUILD_STATUS":        "",
@@ -328,11 +355,8 @@ func TestNative_EnvironmentServices(t *testing.T) {
 				"VELA_NETRC_USERNAME":      "x-oauth-basic",
 				"VELA_QUEUE":               "TODO",
 				"VELA_REPO_ACTIVE":         "false",
-				"VELA_REPO_ALLOW_COMMENT":  "false",
-				"VELA_REPO_ALLOW_DEPLOY":   "false",
-				"VELA_REPO_ALLOW_PULL":     "false",
-				"VELA_REPO_ALLOW_PUSH":     "false",
-				"VELA_REPO_ALLOW_TAG":      "false",
+				"VELA_REPO_ALLOW_EVENTS":   "",
+				"VELA_REPO_APPROVE_BUILD":  "",
 				"VELA_REPO_BRANCH":         "",
 				"VELA_REPO_TOPICS":         "",
 				"VELA_REPO_BUILD_LIMIT":    "0",
@@ -341,6 +365,7 @@ func TestNative_EnvironmentServices(t *testing.T) {
 				"VELA_REPO_LINK":           "",
 				"VELA_REPO_NAME":           "",
 				"VELA_REPO_ORG":            "",
+				"VELA_REPO_OWNER":          "",
 				"VELA_REPO_PIPELINE_TYPE":  "",
 				"VELA_REPO_PRIVATE":        "false",
 				"VELA_REPO_TIMEOUT":        "0",
@@ -360,7 +385,7 @@ func TestNative_EnvironmentServices(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -378,6 +403,7 @@ func TestNative_EnvironmentServices(t *testing.T) {
 func TestNative_EnvironmentSecrets(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	e := raw.StringSliceMap{
@@ -438,11 +464,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 					"CI":                       "true",
 					"PARAMETER_FOO":            "bar",
 					"REPOSITORY_ACTIVE":        "false",
-					"REPOSITORY_ALLOW_COMMENT": "false",
-					"REPOSITORY_ALLOW_DEPLOY":  "false",
-					"REPOSITORY_ALLOW_PULL":    "false",
-					"REPOSITORY_ALLOW_PUSH":    "false",
-					"REPOSITORY_ALLOW_TAG":     "false",
+					"REPOSITORY_ALLOW_EVENTS":  "",
 					"REPOSITORY_BRANCH":        "",
 					"REPOSITORY_CLONE":         "",
 					"REPOSITORY_FULL_NAME":     "",
@@ -455,6 +477,8 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 					"REPOSITORY_VISIBILITY":    "",
 					"VELA":                     "true",
 					"VELA_ADDR":                "TODO",
+					"VELA_BUILD_APPROVED_AT":   "0",
+					"VELA_BUILD_APPROVED_BY":   "",
 					"VELA_BUILD_AUTHOR":        "",
 					"VELA_BUILD_AUTHOR_EMAIL":  "",
 					"VELA_BUILD_BASE_REF":      "",
@@ -475,6 +499,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 					"VELA_BUILD_REF":           "",
 					"VELA_BUILD_RUNTIME":       "",
 					"VELA_BUILD_SENDER":        "",
+					"VELA_BUILD_SENDER_SCM_ID": "",
 					"VELA_BUILD_SOURCE":        "",
 					"VELA_BUILD_STARTED":       "0",
 					"VELA_BUILD_STATUS":        "",
@@ -489,11 +514,8 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 					"VELA_NETRC_USERNAME":      "x-oauth-basic",
 					"VELA_QUEUE":               "TODO",
 					"VELA_REPO_ACTIVE":         "false",
-					"VELA_REPO_ALLOW_COMMENT":  "false",
-					"VELA_REPO_ALLOW_DEPLOY":   "false",
-					"VELA_REPO_ALLOW_PULL":     "false",
-					"VELA_REPO_ALLOW_PUSH":     "false",
-					"VELA_REPO_ALLOW_TAG":      "false",
+					"VELA_REPO_ALLOW_EVENTS":   "",
+					"VELA_REPO_APPROVE_BUILD":  "",
 					"VELA_REPO_BRANCH":         "",
 					"VELA_REPO_TOPICS":         "",
 					"VELA_REPO_BUILD_LIMIT":    "0",
@@ -502,6 +524,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 					"VELA_REPO_LINK":           "",
 					"VELA_REPO_NAME":           "",
 					"VELA_REPO_ORG":            "",
+					"VELA_REPO_OWNER":          "",
 					"VELA_REPO_PIPELINE_TYPE":  "",
 					"VELA_REPO_PRIVATE":        "false",
 					"VELA_REPO_TIMEOUT":        "0",
@@ -522,7 +545,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -532,7 +555,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 		t.Errorf("EnvironmentSecrets returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(got, want); diff != "" {
+	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("EnvironmentSecrets mismatch (-want +got):\n%s", diff)
 	}
 }
@@ -560,47 +583,47 @@ func TestNative_environment(t *testing.T) {
 
 	tests := []struct {
 		w    string
-		b    *library.Build
-		m    *types.Metadata
-		r    *library.Repo
-		u    *library.User
+		b    *api.Build
+		m    *internal.Metadata
+		r    *api.Repo
+		u    *api.User
 		want map[string]string
 	}{
 		// push
 		{
 			w:    workspace,
-			b:    &library.Build{ID: &num64, RepoID: &num64, Number: &num, Parent: &num, Event: &push, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, Author: &str, Branch: &str, Ref: &str, BaseRef: &str},
-			m:    &types.Metadata{Database: &types.Database{Driver: str, Host: str}, Queue: &types.Queue{Channel: str, Driver: str, Host: str}, Source: &types.Source{Driver: str, Host: str}, Vela: &types.Vela{Address: str, WebAddress: str}},
-			r:    &library.Repo{ID: &num64, UserID: &num64, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL, AllowPull: &booL, AllowPush: &booL, AllowDeploy: &booL, AllowTag: &booL, AllowComment: &booL},
-			u:    &library.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
-			want: map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "push", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "foo", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_COMMENT": "false", "REPOSITORY_ALLOW_DEPLOY": "false", "REPOSITORY_ALLOW_PULL": "false", "REPOSITORY_ALLOW_PUSH": "false", "REPOSITORY_ALLOW_TAG": "false", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "push", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "foo", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_COMMENT": "false", "VELA_REPO_ALLOW_DEPLOY": "false", "VELA_REPO_ALLOW_PULL": "false", "VELA_REPO_ALLOW_PUSH": "false", "VELA_REPO_ALLOW_TAG": "false", "VELA_REPO_BRANCH": "foo", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo"},
+			b:    &api.Build{ID: &num64, Repo: &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL}, Number: &num, Parent: &num, Event: &push, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, SenderSCMID: &str, Author: &str, Branch: &str, Ref: &str, BaseRef: &str},
+			m:    &internal.Metadata{Database: &internal.Database{Driver: str, Host: str}, Queue: &internal.Queue{Channel: str, Driver: str, Host: str}, Source: &internal.Source{Driver: str, Host: str}, Vela: &internal.Vela{Address: str, WebAddress: str, OpenIDIssuer: str}},
+			r:    &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL},
+			u:    &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
+			want: map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "push", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "foo", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_EVENTS": "", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_SERVER_ADDR": "foo", "VELA_OPEN_ID_ISSUER": "foo", "VELA_BUILD_APPROVED_AT": "0", "VELA_BUILD_APPROVED_BY": "", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "push", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "foo", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SENDER_SCM_ID": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_EVENTS": "", "VELA_REPO_APPROVE_BUILD": "", "VELA_REPO_BRANCH": "foo", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_OWNER": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_ID_TOKEN_REQUEST_URL": "foo/api/v1/repos/foo/builds/1/id_token"},
 		},
 		// tag
 		{
 			w:    workspace,
-			b:    &library.Build{ID: &num64, RepoID: &num64, Number: &num, Parent: &num, Event: &tag, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, Author: &str, Branch: &str, Ref: &tagref, BaseRef: &str},
-			m:    &types.Metadata{Database: &types.Database{Driver: str, Host: str}, Queue: &types.Queue{Channel: str, Driver: str, Host: str}, Source: &types.Source{Driver: str, Host: str}, Vela: &types.Vela{Address: str, WebAddress: str}},
-			r:    &library.Repo{ID: &num64, UserID: &num64, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL, AllowPull: &booL, AllowPush: &booL, AllowDeploy: &booL, AllowTag: &booL, AllowComment: &booL},
-			u:    &library.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
-			want: map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "tag", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "refs/tags/1", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TAG": "1", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_COMMENT": "false", "REPOSITORY_ALLOW_DEPLOY": "false", "REPOSITORY_ALLOW_PULL": "false", "REPOSITORY_ALLOW_PUSH": "false", "REPOSITORY_ALLOW_TAG": "false", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "tag", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "refs/tags/1", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TAG": "1", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_COMMENT": "false", "VELA_REPO_ALLOW_DEPLOY": "false", "VELA_REPO_ALLOW_PULL": "false", "VELA_REPO_ALLOW_PUSH": "false", "VELA_REPO_ALLOW_TAG": "false", "VELA_REPO_BRANCH": "foo", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo"},
+			b:    &api.Build{ID: &num64, Repo: &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL}, Number: &num, Parent: &num, Event: &tag, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, SenderSCMID: &str, Author: &str, Branch: &str, Ref: &tagref, BaseRef: &str},
+			m:    &internal.Metadata{Database: &internal.Database{Driver: str, Host: str}, Queue: &internal.Queue{Channel: str, Driver: str, Host: str}, Source: &internal.Source{Driver: str, Host: str}, Vela: &internal.Vela{Address: str, WebAddress: str, OpenIDIssuer: str}},
+			r:    &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL},
+			u:    &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
+			want: map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "tag", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "refs/tags/1", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TAG": "1", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_EVENTS": "", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_SERVER_ADDR": "foo", "VELA_OPEN_ID_ISSUER": "foo", "VELA_BUILD_APPROVED_AT": "0", "VELA_BUILD_APPROVED_BY": "", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "tag", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "refs/tags/1", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SENDER_SCM_ID": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TAG": "1", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_EVENTS": "", "VELA_REPO_APPROVE_BUILD": "", "VELA_REPO_BRANCH": "foo", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_OWNER": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_ID_TOKEN_REQUEST_URL": "foo/api/v1/repos/foo/builds/1/id_token"},
 		},
 		// pull_request
 		{
 			w:    workspace,
-			b:    &library.Build{ID: &num64, RepoID: &num64, Number: &num, Parent: &num, Event: &pull, EventAction: &pullact, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, Author: &str, Branch: &str, Ref: &pullref, BaseRef: &str},
-			m:    &types.Metadata{Database: &types.Database{Driver: str, Host: str}, Queue: &types.Queue{Channel: str, Driver: str, Host: str}, Source: &types.Source{Driver: str, Host: str}, Vela: &types.Vela{Address: str, WebAddress: str}},
-			r:    &library.Repo{ID: &num64, UserID: &num64, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL, AllowPull: &booL, AllowPush: &booL, AllowDeploy: &booL, AllowTag: &booL, AllowComment: &booL},
-			u:    &library.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
-			want: map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "pull_request", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_PULL_REQUEST_NUMBER": "1", "BUILD_REF": "refs/pull/1/head", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_COMMENT": "false", "REPOSITORY_ALLOW_DEPLOY": "false", "REPOSITORY_ALLOW_PULL": "false", "REPOSITORY_ALLOW_PUSH": "false", "REPOSITORY_ALLOW_TAG": "false", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "pull_request", "VELA_BUILD_EVENT_ACTION": "opened", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_PULL_REQUEST": "1", "VELA_BUILD_REF": "refs/pull/1/head", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_PULL_REQUEST": "1", "VELA_PULL_REQUEST_SOURCE": "", "VELA_PULL_REQUEST_TARGET": "foo", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_COMMENT": "false", "VELA_REPO_ALLOW_DEPLOY": "false", "VELA_REPO_ALLOW_PULL": "false", "VELA_REPO_ALLOW_PUSH": "false", "VELA_REPO_ALLOW_TAG": "false", "VELA_REPO_BRANCH": "foo", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo"},
+			b:    &api.Build{ID: &num64, Repo: &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL}, Number: &num, Parent: &num, Event: &pull, EventAction: &pullact, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, SenderSCMID: &str, Author: &str, Branch: &str, Ref: &pullref, BaseRef: &str},
+			m:    &internal.Metadata{Database: &internal.Database{Driver: str, Host: str}, Queue: &internal.Queue{Channel: str, Driver: str, Host: str}, Source: &internal.Source{Driver: str, Host: str}, Vela: &internal.Vela{Address: str, WebAddress: str, OpenIDIssuer: str}},
+			r:    &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL},
+			u:    &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
+			want: map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "pull_request", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_PULL_REQUEST_NUMBER": "1", "BUILD_REF": "refs/pull/1/head", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_EVENTS": "", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_SERVER_ADDR": "foo", "VELA_OPEN_ID_ISSUER": "foo", "VELA_BUILD_APPROVED_AT": "0", "VELA_BUILD_APPROVED_BY": "", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "pull_request", "VELA_BUILD_EVENT_ACTION": "opened", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_PULL_REQUEST": "1", "VELA_BUILD_REF": "refs/pull/1/head", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SENDER_SCM_ID": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_PULL_REQUEST": "1", "VELA_PULL_REQUEST_SOURCE": "", "VELA_PULL_REQUEST_TARGET": "foo", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_EVENTS": "", "VELA_REPO_APPROVE_BUILD": "", "VELA_REPO_BRANCH": "foo", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_OWNER": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_ID_TOKEN_REQUEST_URL": "foo/api/v1/repos/foo/builds/1/id_token"},
 		},
 		// deployment
 		{
 			w:    workspace,
-			b:    &library.Build{ID: &num64, RepoID: &num64, Number: &num, Parent: &num, Event: &deploy, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &target, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, Author: &str, Branch: &str, Ref: &pullref, BaseRef: &str},
-			m:    &types.Metadata{Database: &types.Database{Driver: str, Host: str}, Queue: &types.Queue{Channel: str, Driver: str, Host: str}, Source: &types.Source{Driver: str, Host: str}, Vela: &types.Vela{Address: str, WebAddress: str}},
-			r:    &library.Repo{ID: &num64, UserID: &num64, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL, AllowPull: &booL, AllowPush: &booL, AllowDeploy: &booL, AllowTag: &booL, AllowComment: &booL},
-			u:    &library.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
-			want: map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "deployment", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "refs/pull/1/head", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TARGET": "production", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_COMMENT": "false", "REPOSITORY_ALLOW_DEPLOY": "false", "REPOSITORY_ALLOW_PULL": "false", "REPOSITORY_ALLOW_PUSH": "false", "REPOSITORY_ALLOW_TAG": "false", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "deployment", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "refs/pull/1/head", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TARGET": "production", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DEPLOYMENT": "production", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_COMMENT": "false", "VELA_REPO_ALLOW_DEPLOY": "false", "VELA_REPO_ALLOW_PULL": "false", "VELA_REPO_ALLOW_PUSH": "false", "VELA_REPO_ALLOW_TAG": "false", "VELA_REPO_BRANCH": "foo", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo"},
+			b:    &api.Build{ID: &num64, Repo: &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL}, Number: &num, Parent: &num, Event: &deploy, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &target, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, SenderSCMID: &str, Author: &str, Branch: &str, Ref: &pullref, BaseRef: &str},
+			m:    &internal.Metadata{Database: &internal.Database{Driver: str, Host: str}, Queue: &internal.Queue{Channel: str, Driver: str, Host: str}, Source: &internal.Source{Driver: str, Host: str}, Vela: &internal.Vela{Address: str, WebAddress: str, OpenIDIssuer: str}},
+			r:    &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL},
+			u:    &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
+			want: map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "deployment", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "refs/pull/1/head", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TARGET": "production", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_EVENTS": "", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_SERVER_ADDR": "foo", "VELA_OPEN_ID_ISSUER": "foo", "VELA_BUILD_APPROVED_AT": "0", "VELA_BUILD_APPROVED_BY": "", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "deployment", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "refs/pull/1/head", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SENDER_SCM_ID": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TARGET": "production", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DEPLOYMENT": "production", "VELA_DEPLOYMENT_NUMBER": "0", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_EVENTS": "", "VELA_REPO_APPROVE_BUILD": "", "VELA_REPO_BRANCH": "foo", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_OWNER": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_ID_TOKEN_REQUEST_URL": "foo/api/v1/repos/foo/builds/1/id_token"},
 		},
 	}
 
@@ -673,10 +696,10 @@ func Test_client_EnvironmentBuild(t *testing.T) {
 	target := "production"
 
 	type fields struct {
-		build    *library.Build
-		metadata *types.Metadata
-		repo     *library.Repo
-		user     *library.User
+		build    *api.Build
+		metadata *internal.Metadata
+		repo     *api.Repo
+		user     *api.User
 	}
 
 	tests := []struct {
@@ -685,31 +708,31 @@ func Test_client_EnvironmentBuild(t *testing.T) {
 		want   map[string]string
 	}{
 		{"push", fields{
-			build:    &library.Build{ID: &num64, RepoID: &num64, Number: &num, Parent: &num, Event: &push, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, Author: &str, Branch: &str, Ref: &str, BaseRef: &str},
-			metadata: &types.Metadata{Database: &types.Database{Driver: str, Host: str}, Queue: &types.Queue{Channel: str, Driver: str, Host: str}, Source: &types.Source{Driver: str, Host: str}, Vela: &types.Vela{Address: str, WebAddress: str}},
-			repo:     &library.Repo{ID: &num64, UserID: &num64, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL, AllowPull: &booL, AllowPush: &booL, AllowDeploy: &booL, AllowTag: &booL, AllowComment: &booL},
-			user:     &library.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
-		}, map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "push", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "foo", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_COMMENT": "false", "REPOSITORY_ALLOW_DEPLOY": "false", "REPOSITORY_ALLOW_PULL": "false", "REPOSITORY_ALLOW_PUSH": "false", "REPOSITORY_ALLOW_TAG": "false", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "push", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "foo", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_COMMENT": "false", "VELA_REPO_ALLOW_DEPLOY": "false", "VELA_REPO_ALLOW_PULL": "false", "VELA_REPO_ALLOW_PUSH": "false", "VELA_REPO_ALLOW_TAG": "false", "VELA_REPO_BRANCH": "foo", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo"}},
+			build:    &api.Build{ID: &num64, Repo: &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL}, Number: &num, Parent: &num, Event: &push, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, SenderSCMID: &str, Author: &str, Branch: &str, Ref: &str, BaseRef: &str},
+			metadata: &internal.Metadata{Database: &internal.Database{Driver: str, Host: str}, Queue: &internal.Queue{Channel: str, Driver: str, Host: str}, Source: &internal.Source{Driver: str, Host: str}, Vela: &internal.Vela{Address: str, WebAddress: str, OpenIDIssuer: str}},
+			repo:     &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL},
+			user:     &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
+		}, map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "push", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "foo", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_EVENTS": "", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_SERVER_ADDR": "foo", "VELA_OPEN_ID_ISSUER": "foo", "VELA_BUILD_APPROVED_AT": "0", "VELA_BUILD_APPROVED_BY": "", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "push", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "foo", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SENDER_SCM_ID": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_EVENTS": "", "VELA_REPO_APPROVE_BUILD": "", "VELA_REPO_OWNER": "foo", "VELA_REPO_BRANCH": "foo", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_ID_TOKEN_REQUEST_URL": "foo/api/v1/repos/foo/builds/1/id_token"}},
 		{"tag", fields{
-			build:    &library.Build{ID: &num64, RepoID: &num64, Number: &num, Parent: &num, Event: &tag, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, Author: &str, Branch: &str, Ref: &tagref, BaseRef: &str},
-			metadata: &types.Metadata{Database: &types.Database{Driver: str, Host: str}, Queue: &types.Queue{Channel: str, Driver: str, Host: str}, Source: &types.Source{Driver: str, Host: str}, Vela: &types.Vela{Address: str, WebAddress: str}},
-			repo:     &library.Repo{ID: &num64, UserID: &num64, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL, AllowPull: &booL, AllowPush: &booL, AllowDeploy: &booL, AllowTag: &booL, AllowComment: &booL},
-			user:     &library.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
-		}, map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "tag", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "refs/tags/1", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TAG": "1", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_COMMENT": "false", "REPOSITORY_ALLOW_DEPLOY": "false", "REPOSITORY_ALLOW_PULL": "false", "REPOSITORY_ALLOW_PUSH": "false", "REPOSITORY_ALLOW_TAG": "false", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "tag", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "refs/tags/1", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TAG": "1", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_COMMENT": "false", "VELA_REPO_ALLOW_DEPLOY": "false", "VELA_REPO_ALLOW_PULL": "false", "VELA_REPO_ALLOW_PUSH": "false", "VELA_REPO_ALLOW_TAG": "false", "VELA_REPO_BRANCH": "foo", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo"},
+			build:    &api.Build{ID: &num64, Repo: &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL}, Number: &num, Parent: &num, Event: &tag, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, SenderSCMID: &str, Author: &str, Branch: &str, Ref: &tagref, BaseRef: &str},
+			metadata: &internal.Metadata{Database: &internal.Database{Driver: str, Host: str}, Queue: &internal.Queue{Channel: str, Driver: str, Host: str}, Source: &internal.Source{Driver: str, Host: str}, Vela: &internal.Vela{Address: str, WebAddress: str, OpenIDIssuer: str}},
+			repo:     &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL},
+			user:     &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
+		}, map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "tag", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "refs/tags/1", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TAG": "1", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_EVENTS": "", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_SERVER_ADDR": "foo", "VELA_OPEN_ID_ISSUER": "foo", "VELA_BUILD_APPROVED_AT": "0", "VELA_BUILD_APPROVED_BY": "", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "tag", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "refs/tags/1", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SENDER_SCM_ID": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TAG": "1", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_EVENTS": "", "VELA_REPO_APPROVE_BUILD": "", "VELA_REPO_OWNER": "foo", "VELA_REPO_BRANCH": "foo", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_ID_TOKEN_REQUEST_URL": "foo/api/v1/repos/foo/builds/1/id_token"},
 		},
 		{"pull_request", fields{
-			build:    &library.Build{ID: &num64, RepoID: &num64, Number: &num, Parent: &num, Event: &pull, EventAction: &pullact, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, Author: &str, Branch: &str, Ref: &pullref, BaseRef: &str},
-			metadata: &types.Metadata{Database: &types.Database{Driver: str, Host: str}, Queue: &types.Queue{Channel: str, Driver: str, Host: str}, Source: &types.Source{Driver: str, Host: str}, Vela: &types.Vela{Address: str, WebAddress: str}},
-			repo:     &library.Repo{ID: &num64, UserID: &num64, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL, AllowPull: &booL, AllowPush: &booL, AllowDeploy: &booL, AllowTag: &booL, AllowComment: &booL},
-			user:     &library.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
-		}, map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "pull_request", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_PULL_REQUEST_NUMBER": "1", "BUILD_REF": "refs/pull/1/head", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_COMMENT": "false", "REPOSITORY_ALLOW_DEPLOY": "false", "REPOSITORY_ALLOW_PULL": "false", "REPOSITORY_ALLOW_PUSH": "false", "REPOSITORY_ALLOW_TAG": "false", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "pull_request", "VELA_BUILD_EVENT_ACTION": "opened", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_PULL_REQUEST": "1", "VELA_BUILD_REF": "refs/pull/1/head", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_PULL_REQUEST": "1", "VELA_PULL_REQUEST_SOURCE": "", "VELA_PULL_REQUEST_TARGET": "foo", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_COMMENT": "false", "VELA_REPO_ALLOW_DEPLOY": "false", "VELA_REPO_ALLOW_PULL": "false", "VELA_REPO_ALLOW_PUSH": "false", "VELA_REPO_ALLOW_TAG": "false", "VELA_REPO_BRANCH": "foo", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo"},
+			build:    &api.Build{ID: &num64, Repo: &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL}, Number: &num, Parent: &num, Event: &pull, EventAction: &pullact, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &str, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, SenderSCMID: &str, Author: &str, Branch: &str, Ref: &pullref, BaseRef: &str},
+			metadata: &internal.Metadata{Database: &internal.Database{Driver: str, Host: str}, Queue: &internal.Queue{Channel: str, Driver: str, Host: str}, Source: &internal.Source{Driver: str, Host: str}, Vela: &internal.Vela{Address: str, WebAddress: str, OpenIDIssuer: str}},
+			repo:     &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL},
+			user:     &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
+		}, map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "pull_request", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_PULL_REQUEST_NUMBER": "1", "BUILD_REF": "refs/pull/1/head", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_EVENTS": "", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_SERVER_ADDR": "foo", "VELA_OPEN_ID_ISSUER": "foo", "VELA_BUILD_APPROVED_AT": "0", "VELA_BUILD_APPROVED_BY": "", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "pull_request", "VELA_BUILD_EVENT_ACTION": "opened", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_PULL_REQUEST": "1", "VELA_BUILD_REF": "refs/pull/1/head", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SENDER_SCM_ID": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_PULL_REQUEST": "1", "VELA_PULL_REQUEST_SOURCE": "", "VELA_PULL_REQUEST_TARGET": "foo", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_EVENTS": "", "VELA_REPO_APPROVE_BUILD": "", "VELA_REPO_OWNER": "foo", "VELA_REPO_BRANCH": "foo", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_ID_TOKEN_REQUEST_URL": "foo/api/v1/repos/foo/builds/1/id_token"},
 		},
 		{"deployment", fields{
-			build:    &library.Build{ID: &num64, RepoID: &num64, Number: &num, Parent: &num, Event: &deploy, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &target, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, Author: &str, Branch: &str, Ref: &pullref, BaseRef: &str},
-			metadata: &types.Metadata{Database: &types.Database{Driver: str, Host: str}, Queue: &types.Queue{Channel: str, Driver: str, Host: str}, Source: &types.Source{Driver: str, Host: str}, Vela: &types.Vela{Address: str, WebAddress: str}},
-			repo:     &library.Repo{ID: &num64, UserID: &num64, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL, AllowPull: &booL, AllowPush: &booL, AllowDeploy: &booL, AllowTag: &booL, AllowComment: &booL},
-			user:     &library.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
-		}, map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "deployment", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "refs/pull/1/head", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TARGET": "production", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_COMMENT": "false", "REPOSITORY_ALLOW_DEPLOY": "false", "REPOSITORY_ALLOW_PULL": "false", "REPOSITORY_ALLOW_PUSH": "false", "REPOSITORY_ALLOW_TAG": "false", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "deployment", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "refs/pull/1/head", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TARGET": "production", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DEPLOYMENT": "production", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_COMMENT": "false", "VELA_REPO_ALLOW_DEPLOY": "false", "VELA_REPO_ALLOW_PULL": "false", "VELA_REPO_ALLOW_PUSH": "false", "VELA_REPO_ALLOW_TAG": "false", "VELA_REPO_BRANCH": "foo", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo"},
+			build:    &api.Build{ID: &num64, Repo: &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL}, Number: &num, Parent: &num, Event: &deploy, Status: &str, Error: &str, Enqueued: &num64, Created: &num64, Started: &num64, Finished: &num64, Deploy: &target, Clone: &str, Source: &str, Title: &str, Message: &str, Commit: &str, Sender: &str, SenderSCMID: &str, Author: &str, Branch: &str, Ref: &pullref, BaseRef: &str},
+			metadata: &internal.Metadata{Database: &internal.Database{Driver: str, Host: str}, Queue: &internal.Queue{Channel: str, Driver: str, Host: str}, Source: &internal.Source{Driver: str, Host: str}, Vela: &internal.Vela{Address: str, WebAddress: str, OpenIDIssuer: str}},
+			repo:     &api.Repo{ID: &num64, Owner: &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL}, Org: &str, Name: &str, FullName: &str, Link: &str, Clone: &str, Branch: &str, Topics: &topics, BuildLimit: &num64, Timeout: &num64, Visibility: &str, Private: &booL, Trusted: &booL, Active: &booL},
+			user:     &api.User{ID: &num64, Name: &str, Token: &str, Active: &booL, Admin: &booL},
+		}, map[string]string{"BUILD_AUTHOR": "foo", "BUILD_AUTHOR_EMAIL": "", "BUILD_BASE_REF": "foo", "BUILD_BRANCH": "foo", "BUILD_CHANNEL": "foo", "BUILD_CLONE": "foo", "BUILD_COMMIT": "foo", "BUILD_CREATED": "1", "BUILD_ENQUEUED": "1", "BUILD_EVENT": "deployment", "BUILD_HOST": "", "BUILD_LINK": "", "BUILD_MESSAGE": "foo", "BUILD_NUMBER": "1", "BUILD_PARENT": "1", "BUILD_REF": "refs/pull/1/head", "BUILD_SENDER": "foo", "BUILD_SOURCE": "foo", "BUILD_STARTED": "1", "BUILD_STATUS": "foo", "BUILD_TARGET": "production", "BUILD_TITLE": "foo", "BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "CI": "true", "REPOSITORY_ACTIVE": "false", "REPOSITORY_ALLOW_EVENTS": "", "REPOSITORY_BRANCH": "foo", "REPOSITORY_CLONE": "foo", "REPOSITORY_FULL_NAME": "foo", "REPOSITORY_LINK": "foo", "REPOSITORY_NAME": "foo", "REPOSITORY_ORG": "foo", "REPOSITORY_PRIVATE": "false", "REPOSITORY_TIMEOUT": "1", "REPOSITORY_TRUSTED": "false", "REPOSITORY_VISIBILITY": "foo", "VELA": "true", "VELA_ADDR": "foo", "VELA_SERVER_ADDR": "foo", "VELA_OPEN_ID_ISSUER": "foo", "VELA_BUILD_APPROVED_AT": "0", "VELA_BUILD_APPROVED_BY": "", "VELA_BUILD_AUTHOR": "foo", "VELA_BUILD_AUTHOR_EMAIL": "", "VELA_BUILD_BASE_REF": "foo", "VELA_BUILD_BRANCH": "foo", "VELA_BUILD_CHANNEL": "foo", "VELA_BUILD_CLONE": "foo", "VELA_BUILD_COMMIT": "foo", "VELA_BUILD_CREATED": "1", "VELA_BUILD_DISTRIBUTION": "", "VELA_BUILD_ENQUEUED": "1", "VELA_BUILD_EVENT": "deployment", "VELA_BUILD_EVENT_ACTION": "", "VELA_BUILD_HOST": "", "VELA_BUILD_LINK": "", "VELA_BUILD_MESSAGE": "foo", "VELA_BUILD_NUMBER": "1", "VELA_BUILD_PARENT": "1", "VELA_BUILD_REF": "refs/pull/1/head", "VELA_BUILD_RUNTIME": "", "VELA_BUILD_SENDER": "foo", "VELA_BUILD_SENDER_SCM_ID": "foo", "VELA_BUILD_SOURCE": "foo", "VELA_BUILD_STARTED": "1", "VELA_BUILD_STATUS": "foo", "VELA_BUILD_TARGET": "production", "VELA_BUILD_TITLE": "foo", "VELA_BUILD_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_CHANNEL": "foo", "VELA_DATABASE": "foo", "VELA_DEPLOYMENT": "production", "VELA_DEPLOYMENT_NUMBER": "0", "VELA_DISTRIBUTION": "TODO", "VELA_HOST": "foo", "VELA_NETRC_MACHINE": "foo", "VELA_NETRC_PASSWORD": "foo", "VELA_NETRC_USERNAME": "x-oauth-basic", "VELA_QUEUE": "foo", "VELA_REPO_ACTIVE": "false", "VELA_REPO_ALLOW_EVENTS": "", "VELA_REPO_APPROVE_BUILD": "", "VELA_REPO_OWNER": "foo", "VELA_REPO_BRANCH": "foo", "VELA_REPO_BUILD_LIMIT": "1", "VELA_REPO_CLONE": "foo", "VELA_REPO_FULL_NAME": "foo", "VELA_REPO_LINK": "foo", "VELA_REPO_NAME": "foo", "VELA_REPO_ORG": "foo", "VELA_REPO_PIPELINE_TYPE": "", "VELA_REPO_PRIVATE": "false", "VELA_REPO_TIMEOUT": "1", "VELA_REPO_TOPICS": "cloud,security", "VELA_REPO_TRUSTED": "false", "VELA_REPO_VISIBILITY": "foo", "VELA_RUNTIME": "TODO", "VELA_SOURCE": "foo", "VELA_USER_ACTIVE": "false", "VELA_USER_ADMIN": "false", "VELA_USER_FAVORITES": "[]", "VELA_USER_NAME": "foo", "VELA_VERSION": "TODO", "VELA_WORKSPACE": "/vela/src/foo/foo/foo", "VELA_ID_TOKEN_REQUEST_URL": "foo/api/v1/repos/foo/builds/1/id_token"},
 		},
 	}
 	for _, tt := range tests {

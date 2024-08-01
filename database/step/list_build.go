@@ -1,21 +1,23 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
+	"context"
+
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // ListStepsForBuild gets a list of all steps from the database.
-func (e *engine) ListStepsForBuild(b *library.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Step, int64, error) {
+func (e *engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Step, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-	}).Tracef("listing steps for build %d from the database", b.GetNumber())
+	}).Tracef("listing steps for build %d", b.GetNumber())
 
 	// variables to store query results and return value
 	count := int64(0)
@@ -23,7 +25,7 @@ func (e *engine) ListStepsForBuild(b *library.Build, filters map[string]interfac
 	steps := []*library.Step{}
 
 	// count the results
-	count, err := e.CountStepsForBuild(b, filters)
+	count, err := e.CountStepsForBuild(ctx, b, filters)
 	if err != nil {
 		return steps, 0, err
 	}

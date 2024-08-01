@@ -1,23 +1,21 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetUser gets a user by ID from the database.
-func (e *engine) GetUser(ctx context.Context, id int64) (*library.User, error) {
-	e.logger.Tracef("getting user %d from the database", id)
+func (e *engine) GetUser(ctx context.Context, id int64) (*api.User, error) {
+	e.logger.Tracef("getting user %d", id)
 
 	// variable to store query results
-	u := new(database.User)
+	u := new(types.User)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -30,8 +28,6 @@ func (e *engine) GetUser(ctx context.Context, id int64) (*library.User, error) {
 	}
 
 	// decrypt the fields for the user
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
 	err = u.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		// TODO: remove backwards compatibility before 1.x.x release
@@ -43,7 +39,5 @@ func (e *engine) GetUser(ctx context.Context, id int64) (*library.User, error) {
 	}
 
 	// return the decrypted user
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.ToLibrary
-	return u.ToLibrary(), nil
+	return u.ToAPI(), nil
 }

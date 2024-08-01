@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
@@ -9,11 +7,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestLog_Engine_DeleteLog(t *testing.T) {
 	// setup types
-	_log := testLog()
+	_log := testutils.APILog()
 	_log.SetID(1)
 	_log.SetRepoID(1)
 	_log.SetBuildID(1)

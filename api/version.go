@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package api
 
@@ -14,7 +12,7 @@ import (
 
 // swagger:operation GET /version base Version
 //
-// Get the version of the Vela API
+// Get the Vela API version
 //
 // ---
 // produces:

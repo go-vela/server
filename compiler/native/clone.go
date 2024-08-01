@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -32,7 +30,7 @@ func (c *client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Detach:     false,
-				Image:      c.CloneImage,
+				Image:      c.GetCloneImage(),
 				Name:       cloneStepName,
 				Privileged: false,
 				Pull:       constants.PullNotPresent,
@@ -65,7 +63,7 @@ func (c *client) CloneStep(p *yaml.Build) (*yaml.Build, error) {
 	// create new clone step
 	clone := &yaml.Step{
 		Detach:     false,
-		Image:      c.CloneImage,
+		Image:      c.GetCloneImage(),
 		Name:       cloneStepName,
 		Privileged: false,
 		Pull:       constants.PullNotPresent,

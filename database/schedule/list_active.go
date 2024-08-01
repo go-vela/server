@@ -1,24 +1,23 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
 	"context"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListActiveSchedules gets a list of all active schedules from the database.
-func (e *engine) ListActiveSchedules(ctx context.Context) ([]*library.Schedule, error) {
-	e.logger.Trace("listing all active schedules from the database")
+func (e *engine) ListActiveSchedules(ctx context.Context) ([]*api.Schedule, error) {
+	e.logger.Trace("listing all active schedules")
 
 	// variables to store query results and return value
 	count := int64(0)
-	s := new([]database.Schedule)
-	schedules := []*library.Schedule{}
+	s := new([]types.Schedule)
+	schedules := []*api.Schedule{}
 
 	// count the results
 	count, err := e.CountActiveSchedules(ctx)
@@ -34,6 +33,8 @@ func (e *engine) ListActiveSchedules(ctx context.Context) ([]*library.Schedule, 
 	// send query to the database and store result in variable
 	err = e.client.
 		Table(constants.TableSchedule).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("active = ?", true).
 		Find(&s).
 		Error
@@ -46,8 +47,14 @@ func (e *engine) ListActiveSchedules(ctx context.Context) ([]*library.Schedule, 
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := schedule
 
+		// decrypt hash value for repo
+		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.Repo.ID.Int64, err)
+		}
+
 		// convert query result to API type
-		schedules = append(schedules, tmp.ToLibrary())
+		schedules = append(schedules, tmp.ToAPI())
 	}
 
 	return schedules, nil

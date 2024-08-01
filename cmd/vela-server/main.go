@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package main
 
@@ -10,7 +8,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-vela/types/constants"
+	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
+
+	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -18,10 +19,7 @@ import (
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/server/version"
-	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
-
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/go-vela/types/constants"
 )
 
 //nolint:funlen // ignore line length
@@ -50,6 +48,12 @@ func main() {
 			Value:   "info",
 		},
 		&cli.StringFlag{
+			EnvVars: []string{"VELA_LOG_FORMATTER", "LOG_FORMATTER"},
+			Name:    "log-formatter",
+			Usage:   "set log formatter - options: (json|ecs)",
+			Value:   "json",
+		},
+		&cli.StringFlag{
 			EnvVars: []string{"VELA_ADDR", "VELA_HOST"},
 			Name:    "server-addr",
 			Usage:   "server address as a fully qualified url (<scheme>://<host>)",
@@ -76,6 +80,12 @@ func main() {
 			Name:    "vela-secret",
 			Usage:   "secret used for server <-> agent communication",
 		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_PLATFORM_SETTINGS_REFRESH_INTERVAL", "VELA_SETTINGS_REFRESH_INTERVAL"},
+			Name:    "settings-refresh-interval",
+			Usage:   "interval at which platform settings will be refreshed",
+			Value:   5 * time.Second,
+		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SERVER_PRIVATE_KEY"},
 			Name:    "vela-server-private-key",
@@ -85,7 +95,8 @@ func main() {
 			EnvVars: []string{"VELA_CLONE_IMAGE"},
 			Name:    "clone-image",
 			Usage:   "the clone image to use for the injected clone step",
-			Value:   "target/vela-git:v0.8.0@sha256:02de004ae9dbf184c70039cb9ce431c31d6e7580eb9e6ec64a97ebf108aa65cb",
+			// renovate: image=target/vela-git
+			Value: "target/vela-git:v0.8.0@sha256:02de004ae9dbf184c70039cb9ce431c31d6e7580eb9e6ec64a97ebf108aa65cb",
 		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
@@ -129,6 +140,17 @@ func main() {
 			Usage:   "override default events for newly activated repositories",
 			Value:   cli.NewStringSlice(constants.EventPush),
 		},
+		&cli.Int64Flag{
+			EnvVars: []string{"VELA_DEFAULT_REPO_EVENTS_MASK"},
+			Name:    "default-repo-events-mask",
+			Usage:   "set default event mask for newly activated repositories",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_DEFAULT_REPO_APPROVE_BUILD"},
+			Name:    "default-repo-approve-build",
+			Usage:   "override default approve build for newly activated repositories",
+			Value:   constants.ApproveForkAlways,
+		},
 		// Token Manager Flags
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_USER_ACCESS_TOKEN_DURATION", "USER_ACCESS_TOKEN_DURATION"},
@@ -159,6 +181,17 @@ func main() {
 			Name:    "worker-register-token-duration",
 			Usage:   "sets the duration of the worker register token",
 			Value:   1 * time.Minute,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_OPEN_ID_TOKEN_DURATION", "OPEN_ID_TOKEN_DURATION"},
+			Name:    "id-token-duration",
+			Usage:   "sets the duration of an OpenID token requested during a build (should be short)",
+			Value:   5 * time.Minute,
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_OPEN_ID_ISSUER", "OPEN_ID_ISSUER"},
+			Name:    "oidc-issuer",
+			Usage:   "sets the issuer of the OpenID token requested during a build",
 		},
 		// Compiler Flags
 		&cli.BoolFlag{
@@ -250,9 +283,6 @@ func main() {
 
 	// Add Tracing Flags
 	app.Flags = append(app.Flags, tracing.Flags...)
-
-	// set logrus to log in JSON format
-	logrus.SetFormatter(&logrus.JSONFormatter{})
 
 	if err = app.Run(os.Args); err != nil {
 		logrus.Fatal(err)

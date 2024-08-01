@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package api
 
@@ -9,13 +7,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/queue"
-	"github.com/go-vela/types/constants"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/queue"
+	"github.com/go-vela/types/constants"
 )
 
 // MetricsQueryParameters holds query parameter information pertaining to requested metrics.
@@ -102,7 +101,7 @@ var (
 
 // swagger:operation GET /metrics base BaseMetrics
 //
-// Retrieve metrics from the Vela api
+// Get Vela API metrics
 //
 // ---
 // produces:
@@ -115,7 +114,7 @@ var (
 //   default: false
 // - in: query
 //   name: repo_count
-//   description: Indicates a request for repo count
+//   description: Indicates a request for repository count
 //   type: boolean
 //   default: false
 // - in: query
@@ -360,7 +359,7 @@ func recordGauges(c *gin.Context) {
 	// step_image_count
 	if q.StepImageCount {
 		// send API call to capture the total number of step images
-		stepImageMap, err := database.FromContext(c).ListStepImageCount()
+		stepImageMap, err := database.FromContext(c).ListStepImageCount(ctx)
 		if err != nil {
 			logrus.Errorf("unable to get count of all step images: %v", err)
 		}
@@ -373,7 +372,7 @@ func recordGauges(c *gin.Context) {
 	// step_status_count
 	if q.StepStatusCount {
 		// send API call to capture the total number of step statuses
-		stepStatusMap, err := database.FromContext(c).ListStepStatusCount()
+		stepStatusMap, err := database.FromContext(c).ListStepStatusCount(ctx)
 		if err != nil {
 			logrus.Errorf("unable to get count of all step statuses: %v", err)
 		}
@@ -424,7 +423,7 @@ func recordGauges(c *gin.Context) {
 	// worker_build_limit, active_worker_count, inactive_worker_count, idle_worker_count, available_worker_count, busy_worker_count, error_worker_count
 	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount || q.IdleWorkerCount || q.AvailableWorkerCount || q.BusyWorkerCount || q.ErrorWorkerCount {
 		// send API call to capture the workers
-		workers, err := database.FromContext(c).ListWorkers(ctx)
+		workers, err := database.FromContext(c).ListWorkers(ctx, "all", time.Now().Unix(), 0)
 		if err != nil {
 			logrus.Errorf("unable to get workers: %v", err)
 		}
@@ -444,7 +443,6 @@ func recordGauges(c *gin.Context) {
 			}
 			// check if the worker checked in within the last worker_active_interval
 			if worker.GetLastCheckedIn() >= before {
-
 				switch worker.GetStatus() {
 				case constants.WorkerStatusIdle:
 					idleWorkers++

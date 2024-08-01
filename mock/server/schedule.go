@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -11,51 +9,61 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
 	// ScheduleResp represents a JSON return for a single schedule.
 	ScheduleResp = `{
-	"id": 2,
-	"active": true,
-	"name": "foo",
-	"entry": "@weekly",
-	"created_at": 1683154980,
-	"created_by": "octocat",
-	"updated_at": 1683154980,
-	"updated_by": "octocat",
-	"scheduled_at": 0,
-	"repo": {
-		"id": 1,
-		"user_id": 1,
-		"org": "github",
-		"name": "octocat",
-		"full_name": "github/octocat",
-		"link": "https://github.com/github/octocat",
-		"clone": "https://github.com/github/octocat.git",
-		"branch": "main",
-		"topics": [],
-		"build_limit": 10,
-		"timeout": 30,
-		"counter": 0,
-		"visibility": "public",
-		"private": false,
-		"trusted": false,
-		"active": true,
-		"allow_pull": false,
-		"allow_push": true,
-		"allow_deploy": false,
-		"allow_tag": false,
-		"allow_comment": false,
-		"pipeline_type": "yaml",
-		"previous_name": ""
-	}
-}`
-	SchedulesResp = `[
-	{
 		"id": 2,
+		"repo": {
+			"id": 1,
+			"owner": {
+				"id": 1,
+				"name": "octocat",
+				"favorites": [],
+				"active": true,
+				"admin": false
+			},
+			"org": "github",
+			"counter": 10,
+			"name": "octocat",
+			"full_name": "github/octocat",
+			"link": "https://github.com/github/octocat",
+			"clone": "https://github.com/github/octocat",
+			"branch": "main",
+			"build_limit": 10,
+			"timeout": 60,
+			"visibility": "public",
+			"private": false,
+			"trusted": true,
+			"pipeline_type": "yaml",
+			"topics": [],
+			"active": true,
+			"allow_events": {
+				"push": {
+					"branch": true,
+					"tag": true
+				},
+				"pull_request": {
+					"opened": true,
+					"synchronize": true,
+					"reopened": true,
+					"edited": false
+				},
+				"deployment": {
+					"created": true
+				},
+				"comment": {
+					"created": false,
+					"edited": false
+				}
+			},
+			"approve_build": "fork-always",
+			"previous_name": ""
+		},
 		"active": true,
 		"name": "foo",
 		"entry": "@weekly",
@@ -64,34 +72,119 @@ const (
 		"updated_at": 1683154980,
 		"updated_by": "octocat",
 		"scheduled_at": 0,
+		"branch": "main",
+		"error": "error message",
+		"next_run": 0
+	}`
+	SchedulesResp = `[
+	{
+		"id": 2,
 		"repo": {
 			"id": 1,
-			"user_id": 1,
+			"owner": {
+				"id": 1,
+				"name": "octocat",
+				"favorites": [],
+				"active": true,
+				"admin": false
+			},
 			"org": "github",
-			"name": "octokitty",
-			"full_name": "github/octokitty",
-			"link": "https://github.com/github/octokitty",
-			"clone": "https://github.com/github/octokitty.git",
+			"counter": 10,
+			"name": "octocat",
+			"full_name": "github/octocat",
+			"link": "https://github.com/github/octocat",
+			"clone": "https://github.com/github/octocat",
 			"branch": "main",
-			"topics": [],
 			"build_limit": 10,
-			"timeout": 30,
-			"counter": 0,
+			"timeout": 60,
 			"visibility": "public",
 			"private": false,
-			"trusted": false,
-			"active": true,
-			"allow_pull": false,
-			"allow_push": true,
-			"allow_deploy": false,
-			"allow_tag": false,
-			"allow_comment": false,
+			"trusted": true,
 			"pipeline_type": "yaml",
+			"topics": [],
+			"active": true,
+			"allow_events": {
+				"push": {
+					"branch": true,
+					"tag": true
+				},
+				"pull_request": {
+					"opened": true,
+					"synchronize": true,
+					"reopened": true,
+					"edited": false
+				},
+				"deployment": {
+					"created": true
+				},
+				"comment": {
+					"created": false,
+					"edited": false
+				}
+			},
+			"approve_build": "fork-always",
 			"previous_name": ""
-		}
+		},
+		"active": true,
+		"name": "foo",
+		"entry": "@weekly",
+		"created_at": 1683154980,
+		"created_by": "octocat",
+		"updated_at": 1683154980,
+		"updated_by": "octocat",
+		"scheduled_at": 0,
+		"branch": "main",
+		"error": "error message",
+		"next_run": 0
 	},
 	{
 		"id": 1,
+		"repo": {
+			"id": 1,
+			"owner": {
+				"id": 1,
+				"name": "octocat",
+				"favorites": [],
+				"active": true,
+				"admin": false
+			},
+			"org": "github",
+			"counter": 10,
+			"name": "octocat",
+			"full_name": "github/octocat",
+			"link": "https://github.com/github/octocat",
+			"clone": "https://github.com/github/octocat",
+			"branch": "main",
+			"build_limit": 10,
+			"timeout": 60,
+			"visibility": "public",
+			"private": false,
+			"trusted": true,
+			"pipeline_type": "yaml",
+			"topics": [],
+			"active": true,
+			"allow_events": {
+				"push": {
+					"branch": true,
+					"tag": true
+				},
+				"pull_request": {
+					"opened": true,
+					"synchronize": true,
+					"reopened": true,
+					"edited": false
+				},
+				"deployment": {
+					"created": true
+				},
+				"comment": {
+					"created": false,
+					"edited": false
+				}
+			},
+			"approve_build": "fork-always",
+			"previous_name": ""
+		},
 		"active": true,
 		"name": "bar",
 		"entry": "@weekly",
@@ -100,40 +193,18 @@ const (
 		"updated_at": 1683154974,
 		"updated_by": "octocat",
 		"scheduled_at": 0,
-		"repo": {
-			"id": 1,
-			"user_id": 1,
-			"org": "github",
-			"name": "octokitty",
-			"full_name": "github/octokitty",
-			"link": "https://github.com/github/octokitty",
-			"clone": "https://github.com/github/octokitty.git",
-			"branch": "main",
-			"topics": [],
-			"build_limit": 10,
-			"timeout": 30,
-			"counter": 0,
-			"visibility": "public",
-			"private": false,
-			"trusted": false,
-			"active": true,
-			"allow_pull": false,
-			"allow_push": true,
-			"allow_deploy": false,
-			"allow_tag": false,
-			"allow_comment": false,
-			"pipeline_type": "yaml",
-			"previous_name": ""
-		}
-	}
-]`
+		"repo_id": 1,
+		"branch": "main",
+		"error": "error message",
+		"next_run": 0
+	}]`
 )
 
 // getSchedules returns mock JSON for a http GET.
 func getSchedules(c *gin.Context) {
 	data := []byte(SchedulesResp)
 
-	var body []library.Schedule
+	var body []api.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -155,7 +226,7 @@ func getSchedule(c *gin.Context) {
 
 	data := []byte(ScheduleResp)
 
-	var body library.Schedule
+	var body api.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -165,7 +236,7 @@ func getSchedule(c *gin.Context) {
 func addSchedule(c *gin.Context) {
 	data := []byte(ScheduleResp)
 
-	var body library.Schedule
+	var body api.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -189,7 +260,7 @@ func updateSchedule(c *gin.Context) {
 
 	data := []byte(ScheduleResp)
 
-	var body library.Schedule
+	var body api.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

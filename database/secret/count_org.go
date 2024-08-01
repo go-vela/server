@@ -1,14 +1,13 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
 )
 
 // CountSecretsForOrg gets the count of secrets by org name from the database.
@@ -16,7 +15,7 @@ func (e *engine) CountSecretsForOrg(ctx context.Context, org string, filters map
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"type": constants.SecretOrg,
-	}).Tracef("getting count of secrets for org %s from the database", org)
+	}).Tracef("getting count of secrets for org %s", org)
 
 	// variable to store query results
 	var s int64

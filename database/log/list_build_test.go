@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
@@ -10,29 +8,34 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	// setup types
-	_service := testLog()
+	_service := testutils.APILog()
 	_service.SetID(1)
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
 	_service.SetData([]byte{})
 
-	_step := testLog()
+	_step := testutils.APILog()
 	_step.SetID(2)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
 	_step.SetData([]byte{})
 
-	_build := testBuild()
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+
+	_build := testutils.APIBuild()
 	_build.SetID(1)
 	_build.SetID(1)
-	_build.SetRepoID(1)
+	_build.SetRepo(_repo)
 	_build.SetNumber(1)
 
 	_postgres, _mock := testPostgres(t)
@@ -50,7 +53,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 		AddRow(1, 1, 1, 1, 0, []byte{}).AddRow(2, 1, 1, 0, 1, []byte{})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE build_id = $1 ORDER BY service_id ASC NULLS LAST,step_id ASC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE build_id = $1 ORDER BY service_id ASC NULLS LAST,step_id ASC LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

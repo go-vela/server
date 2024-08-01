@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -10,6 +8,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
@@ -17,12 +17,11 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/repos/{org} repos ListReposForOrg
 //
-// Get all repos for the provided org in the configured backend
+// Get all repositories for an organization
 //
 // ---
 // produces:
@@ -32,7 +31,7 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: query
@@ -71,32 +70,31 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the org
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the org
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListReposForOrg represents the API handler to capture a list
-// of repos for an org from the configured backend.
+// ListReposForOrg represents the API handler to get a list
+// of repositories for an organization.
 func ListReposForOrg(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	o := org.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"user": u.GetName(),
-	}).Infof("listing repos for org %s", o)
+	l.Debugf("listing repos for org %s", o)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -124,17 +122,22 @@ func ListReposForOrg(c *gin.Context) {
 	// capture the sort_by query parameter if present
 	sortBy := util.QueryParameter(c, "sort_by", "name")
 
+	// prep filters
+	filters := make(map[string]interface{})
+
 	// capture the query parameters if present:
 	//
 	// * active
-	filters := map[string]interface{}{
-		"active": util.QueryParameter(c, "active", "true"),
+	active := util.QueryParameter(c, "active", "true")
+	// ensure active is a boolean and add it to filters as such
+	if activeBool, err := strconv.ParseBool(active); err == nil {
+		filters["active"] = activeBool
 	}
 
 	// See if the user is an org admin to bypass individual permission checks
 	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
 	if err != nil {
-		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
+		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
 	if perm != "admin" {

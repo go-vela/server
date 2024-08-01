@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -14,7 +12,7 @@ import (
 
 // GetHook gets a hook by ID from the database.
 func (e *engine) GetHook(ctx context.Context, id int64) (*library.Hook, error) {
-	e.logger.Tracef("getting hook %d from the database", id)
+	e.logger.Tracef("getting hook %d", id)
 
 	// variable to store query results
 	h := new(database.Hook)

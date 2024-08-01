@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package auth
 
@@ -9,6 +7,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
@@ -26,15 +27,15 @@ import (
 // parameters:
 // - in: query
 //   name: code
-//   description: the code received after identity confirmation
+//   description: The code received after identity confirmation
 //   type: string
 // - in: query
 //   name: state
-//   description: a random string
+//   description: A random string
 //   type: string
 // - in: query
 //   name: redirect_uri
-//   description: the url where the user will be sent after authorization
+//   description: The URL where the user will be sent after authorization
 //   type: string
 // responses:
 //   '200':
@@ -47,7 +48,7 @@ import (
 //   '307':
 //     description: Redirected for authentication
 //   '401':
-//     description: Unable to authenticate
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '503':
@@ -61,8 +62,9 @@ import (
 func GetAuthToken(c *gin.Context) {
 	var err error
 
-	tm := c.MustGet("token-manager").(*token.Manager)
 	// capture middleware values
+	tm := c.MustGet("token-manager").(*token.Manager)
+	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
 	// capture the OAuth state if present
@@ -103,7 +105,7 @@ func GetAuthToken(c *gin.Context) {
 	// create a new user account
 	if len(u.GetName()) == 0 || err != nil {
 		// create the user account
-		u := new(library.User)
+		u := new(types.User)
 		u.SetName(newUser.GetName())
 		u.SetToken(newUser.GetToken())
 		u.SetActive(true)
@@ -123,7 +125,7 @@ func GetAuthToken(c *gin.Context) {
 		u.SetRefreshToken(rt)
 
 		// send API call to create the user in the database
-		_, err = database.FromContext(c).CreateUser(ctx, u)
+		ur, err := database.FromContext(c).CreateUser(ctx, u)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create user %s: %w", u.GetName(), err)
 
@@ -131,6 +133,11 @@ func GetAuthToken(c *gin.Context) {
 
 			return
 		}
+
+		l.WithFields(logrus.Fields{
+			"user":    ur.GetName(),
+			"user_id": ur.GetID(),
+		}).Info("new user created")
 
 		// return the jwt access token
 		c.JSON(http.StatusOK, library.Token{Token: &at})
@@ -156,7 +163,7 @@ func GetAuthToken(c *gin.Context) {
 	u.SetRefreshToken(rt)
 
 	// send API call to update the user in the database
-	_, err = database.FromContext(c).UpdateUser(ctx, u)
+	ur, err := database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 
@@ -164,6 +171,11 @@ func GetAuthToken(c *gin.Context) {
 
 		return
 	}
+
+	l.WithFields(logrus.Fields{
+		"user":    ur.GetName(),
+		"user_id": ur.GetID(),
+	}).Info("user updated - new token")
 
 	// return the user with their jwt access token
 	c.JSON(http.StatusOK, library.Token{Token: &at})

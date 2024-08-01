@@ -1,24 +1,24 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // GetServiceForBuild gets a service by number and build ID from the database.
-func (e *engine) GetServiceForBuild(ctx context.Context, b *library.Build, number int) (*library.Service, error) {
+func (e *engine) GetServiceForBuild(ctx context.Context, b *api.Build, number int) (*library.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build":   b.GetNumber(),
 		"service": number,
-	}).Tracef("getting service %d from the database", number)
+	}).Tracef("getting service %d", number)
 
 	// variable to store query results
 	s := new(database.Service)

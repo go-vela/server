@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
@@ -8,15 +6,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
+
+	"github.com/go-vela/types/constants"
 )
 
 type (
 	// config represents the settings required to create the engine that implements the ScheduleInterface interface.
 	config struct {
+		// specifies the encryption key to use for the Schedule engine
+		EncryptionKey string
 		// specifies to skip creating tables and indexes for the Schedule engine
 		SkipCreation bool
 	}

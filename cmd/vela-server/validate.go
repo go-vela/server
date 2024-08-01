@@ -1,21 +1,20 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package main
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
-
-	"github.com/go-vela/types/constants"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/types/constants"
 )
 
 func validate(c *cli.Context) error {
-	logrus.Debug("Validating CLI configuration")
+	logrus.Debug("validating CLI configuration")
 
 	// validate core configuration
 	err := validateCore(c)
@@ -34,7 +33,7 @@ func validate(c *cli.Context) error {
 
 // helper function to validate the core CLI configuration.
 func validateCore(c *cli.Context) error {
-	logrus.Trace("Validating core CLI configuration")
+	logrus.Trace("validating core CLI configuration")
 
 	if len(c.String("server-addr")) == 0 {
 		return fmt.Errorf("server-addr (VELA_ADDR or VELA_HOST) flag is not properly configured")
@@ -100,12 +99,26 @@ func validateCore(c *cli.Context) error {
 		}
 	}
 
+	if c.String("default-repo-approve-build") != constants.ApproveForkAlways &&
+		c.String("default-repo-approve-build") != constants.ApproveNever &&
+		c.String("default-repo-approve-build") != constants.ApproveForkNoWrite &&
+		c.String("default-repo-approve-build") != constants.ApproveOnce {
+		return fmt.Errorf("default-repo-approve-build (VELA_DEFAULT_REPO_APPROVE_BUILD) has the unsupported value of %s", c.String("default-repo-approve-build"))
+	}
+
+	if len(c.String("oidc-issuer")) > 0 {
+		_, err := url.Parse(c.String("oidc-issuer"))
+		if err != nil {
+			return fmt.Errorf("oidc-issuer (VELA_OPEN_ID_ISSUER) flag must be a valid URL")
+		}
+	}
+
 	return nil
 }
 
 // helper function to validate the compiler CLI configuration.
 func validateCompiler(c *cli.Context) error {
-	logrus.Trace("Validating compiler CLI configuration")
+	logrus.Trace("validating compiler CLI configuration")
 
 	if c.Bool("github-driver") {
 		if len(c.String("github-url")) == 0 {

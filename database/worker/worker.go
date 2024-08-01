@@ -1,17 +1,17 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
 import (
 	"context"
 	"fmt"
+	"strconv"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
 )
 
 type (
@@ -62,7 +62,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 
 	// check if we should skip creating worker database objects
 	if e.config.SkipCreation {
-		e.logger.Warning("skipping creation of workers table and indexes in the database")
+		e.logger.Warning("skipping creation of workers table and indexes")
 
 		return e, nil
 	}
@@ -80,4 +80,24 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	return e, nil
+}
+
+// convertToBuilds is a helper function that generates build objects with ID fields given a list of IDs.
+func convertToBuilds(ids []string) []*api.Build {
+	// create stripped build objects holding the IDs
+	var rBs []*api.Build
+
+	for _, b := range ids {
+		id, err := strconv.ParseInt(b, 10, 64)
+		if err != nil {
+			return nil
+		}
+
+		build := new(api.Build)
+		build.SetID(id)
+
+		rBs = append(rBs, build)
+	}
+
+	return rBs
 }

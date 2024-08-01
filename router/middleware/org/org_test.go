@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package org
 
@@ -12,8 +10,10 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestOrg_Retrieve(t *testing.T) {
@@ -35,9 +35,9 @@ func TestOrg_Retrieve(t *testing.T) {
 
 func TestOrg_Establish(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.GetOwner().SetID(1)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -50,11 +50,6 @@ func TestOrg_Establish(t *testing.T) {
 	r.SetPrivate(false)
 	r.SetTrusted(false)
 	r.SetActive(false)
-	r.SetAllowPull(false)
-	r.SetAllowPush(false)
-	r.SetAllowDeploy(false)
-	r.SetAllowTag(false)
-	r.SetAllowComment(false)
 
 	want := "foo"
 	got := ""
@@ -66,7 +61,7 @@ func TestOrg_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -80,6 +75,7 @@ func TestOrg_Establish(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org", func(c *gin.Context) {
@@ -116,6 +112,7 @@ func TestOrg_Establish_NoOrgParameter(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "//test", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org/test", func(c *gin.Context) {

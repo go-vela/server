@@ -1,21 +1,23 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package token
 
 import (
+	"crypto/rsa"
 	"time"
-
-	"github.com/golang-jwt/jwt/v5"
 )
 
-type Manager struct {
-	// PrivateKey key used to sign tokens
-	PrivateKey string
+type RSAKeySet struct {
+	PrivateKey *rsa.PrivateKey
+	KID        string
+}
 
-	// SignMethod method to sign tokens
-	SignMethod jwt.SigningMethod
+type Manager struct {
+	// PrivateKeyHMAC is the private key used to sign and validate closed-system tokens
+	PrivateKeyHMAC string
+
+	// RSAKeySet is the private key used to sign and validate open-system tokens (OIDC)
+	RSAKeySet RSAKeySet
 
 	// UserAccessTokenDuration specifies the token duration to use for users
 	UserAccessTokenDuration time.Duration
@@ -31,4 +33,10 @@ type Manager struct {
 
 	// WorkerRegisterTokenDuration specifies the token duration for worker register
 	WorkerRegisterTokenDuration time.Duration
+
+	// IDTokenDuration specifies the token duration for ID tokens
+	IDTokenDuration time.Duration
+
+	// Issuer specifies the issuer of the token
+	Issuer string
 }

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -8,10 +6,10 @@ import (
 	"flag"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/urfave/cli/v2"
 
 	"github.com/go-vela/types/yaml"
-	"github.com/google/go-cmp/cmp"
 )
 
 func Test_client_SubstituteStages(t *testing.T) {
@@ -21,6 +19,7 @@ func Test_client_SubstituteStages(t *testing.T) {
 
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tests := []struct {
@@ -114,7 +113,7 @@ func Test_client_SubstituteStages(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler, err := New(c)
+			compiler, err := FromCLIContext(c)
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}
@@ -139,6 +138,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tests := []struct {
@@ -238,7 +238,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler, err := New(c)
+			compiler, err := FromCLIContext(c)
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}

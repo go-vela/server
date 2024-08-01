@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package version
 
@@ -9,8 +7,9 @@ import (
 	"runtime"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/go-vela/types/version"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/version"
 )
 
 var (

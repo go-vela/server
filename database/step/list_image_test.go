@@ -1,19 +1,20 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestStep_Engine_ListStepImageCount(t *testing.T) {
 	// setup types
-	_stepOne := testStep()
+	_stepOne := testutils.APIStep()
 	_stepOne.SetID(1)
 	_stepOne.SetRepoID(1)
 	_stepOne.SetBuildID(1)
@@ -21,7 +22,7 @@ func TestStep_Engine_ListStepImageCount(t *testing.T) {
 	_stepOne.SetName("foo")
 	_stepOne.SetImage("bar")
 
-	_stepTwo := testStep()
+	_stepTwo := testutils.APIStep()
 	_stepTwo.SetID(2)
 	_stepTwo.SetRepoID(1)
 	_stepTwo.SetBuildID(1)
@@ -30,6 +31,8 @@ func TestStep_Engine_ListStepImageCount(t *testing.T) {
 	_stepTwo.SetImage("bar")
 
 	_postgres, _mock := testPostgres(t)
+
+	ctx := context.TODO()
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -41,12 +44,12 @@ func TestStep_Engine_ListStepImageCount(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateStep(_stepOne)
+	_, err := _sqlite.CreateStep(ctx, _stepOne)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateStep(_stepTwo)
+	_, err = _sqlite.CreateStep(ctx, _stepTwo)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
@@ -75,7 +78,7 @@ func TestStep_Engine_ListStepImageCount(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListStepImageCount()
+			got, err := test.database.ListStepImageCount(ctx)
 
 			if test.failure {
 				if err == nil {

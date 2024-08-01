@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -8,19 +6,18 @@ import (
 	"context"
 	"fmt"
 	"strings"
-
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types/settings"
 )
 
 type config struct {
 	// specifies the address to use for the Redis client
 	Address string
-	// specifies a list of channels for managing builds for the Redis client
-	Channels []string
 	// enables the Redis client to integrate with a Redis cluster
 	Cluster bool
 	// specifies the timeout to use for the Redis client
@@ -35,6 +32,9 @@ type client struct {
 	config  *config
 	Redis   *redis.Client
 	Options *redis.Options
+
+	settings.Queue
+
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }
@@ -177,7 +177,7 @@ func pingQueue(c *client) error {
 // This function is intended for running tests only.
 //
 //nolint:revive // ignore returning unexported client
-func NewTest(signingPrivateKey, signingPublicKey string, channels ...string) (*client, error) {
+func NewTest(signingPrivateKey, signingPublicKey string, routes ...string) (*client, error) {
 	// create a local fake redis instance
 	//
 	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run
@@ -188,7 +188,7 @@ func NewTest(signingPrivateKey, signingPublicKey string, channels ...string) (*c
 
 	return New(
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
-		WithChannels(channels...),
+		WithRoutes(routes...),
 		WithCluster(false),
 		WithPrivateKey(signingPrivateKey),
 		WithPublicKey(signingPublicKey),

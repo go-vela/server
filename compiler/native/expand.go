@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -8,17 +6,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/pipeline"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
-	"github.com/spf13/afero"
-
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-	"github.com/sirupsen/logrus"
 )
 
 // ExpandStages injects the template for each
@@ -31,7 +28,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r 
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.TemplateDepth)
+		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.GetTemplateDepth())
 		if err != nil {
 			return nil, err
 		}
@@ -54,7 +51,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 
 	// return if max template depth has been reached
 	if depth == 0 {
-		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
+		retErr := fmt.Errorf("max template depth of %d exceeded", c.GetTemplateDepth())
 
 		return s, retErr
 	}
@@ -63,6 +60,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 	secrets := s.Secrets
 	services := s.Services
 	environment := s.Environment
+	templates := s.Templates
 
 	if len(environment) == 0 {
 		environment = make(raw.StringSliceMap)
@@ -91,7 +89,10 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 				Steps: *check.ToPipeline(),
 			}
 
-			pipeline = pipeline.Purge(r)
+			pipeline, err := pipeline.Purge(r)
+			if err != nil {
+				return nil, fmt.Errorf("unable to purge pipeline: %w", err)
+			}
 
 			// if step purged, do not proceed with expansion
 			if len(pipeline.Steps) == 0 {
@@ -119,6 +120,14 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 			return s, err
 		}
 
+		// initialize variable map if not parsed from config
+		if len(step.Template.Variables) == 0 {
+			step.Template.Variables = make(map[string]interface{})
+		}
+
+		// inject template name into variables
+		step.Template.Variables["VELA_TEMPLATE_NAME"] = step.Template.Name
+
 		tmplBuild, err := c.mergeTemplate(bytes, tmpl, step)
 		if err != nil {
 			return s, err
@@ -130,6 +139,8 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 			if tmplBuild.Metadata.RenderInline && !s.Metadata.RenderInline {
 				return s, fmt.Errorf("cannot use render_inline inside a called template (%s)", step.Template.Name)
 			}
+
+			templates = append(templates, tmplBuild.Templates...)
 
 			tmplBuild, err = c.ExpandSteps(tmplBuild, mapFromTemplates(tmplBuild.Templates), r, depth-1)
 			if err != nil {
@@ -194,6 +205,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 	s.Secrets = secrets
 	s.Services = services
 	s.Environment = environment
+	s.Templates = templates
 
 	return s, nil
 }
@@ -206,6 +218,10 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 
 	switch {
 	case c.local:
+		a := &afero.Afero{
+			Fs: afero.NewOsFs(),
+		}
+
 		// iterate over locally provided templates
 		for _, t := range c.localTemplates {
 			parts := strings.Split(t, ":")
@@ -213,11 +229,8 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				return nil, fmt.Errorf("local templates must be provided in the form <name>:<path>, got %s", t)
 			}
 
+			// if local template has a match, read file path provided
 			if strings.EqualFold(tmpl.Name, parts[0]) {
-				a := &afero.Afero{
-					Fs: afero.NewOsFs(),
-				}
-
 				bytes, err = a.ReadFile(parts[1])
 				if err != nil {
 					return bytes, err
@@ -227,8 +240,22 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 			}
 		}
 
-		// no template found in provided templates, exit with error
-		return nil, fmt.Errorf("unable to find template %s: not supplied in list %s", tmpl.Name, c.localTemplates)
+		// file type templates can be retrieved locally using `source`
+		if strings.EqualFold(tmpl.Type, "file") {
+			bytes, err = a.ReadFile(tmpl.Source)
+			if err != nil {
+				return nil, fmt.Errorf("unable to read file for template %s. `File` type templates must be located at `source` or supplied to local template files", tmpl.Name)
+			}
+
+			return bytes, nil
+		}
+
+		// local exec may still request remote templates
+		if !strings.EqualFold(tmpl.Type, "github") {
+			return nil, fmt.Errorf("unable to find template %s: not supplied in list %s", tmpl.Name, c.localTemplates)
+		}
+
+		fallthrough
 
 	case strings.EqualFold(tmpl.Type, "github"):
 		// parse source from template
@@ -257,6 +284,11 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"path": src.Name,
 				"host": src.Host,
 			}).Tracef("Using authenticated GitHub client to pull template")
+
+			// verify private GitHub is actually set up
+			if c.PrivateGithub == nil {
+				return nil, fmt.Errorf("unable to fetch template %s: missing credentials", src.Name)
+			}
 
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(c.user, src)
@@ -291,6 +323,10 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"path": src.Name,
 			}).Tracef("Using authenticated GitHub client to pull template")
 
+			if c.PrivateGithub == nil {
+				return nil, fmt.Errorf("unable to fetch template %s: missing credentials", src.Name)
+			}
+
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(c.user, src)
 			if err != nil {
@@ -313,7 +349,7 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	case constants.PipelineTypeStarlark:
 		//nolint:lll // ignore long line length due to return
-		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.StarlarkExecLimit)
+		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.GetStarlarkExecLimit())
 	default:
 		//nolint:lll // ignore long line length due to return
 		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
@@ -11,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -18,13 +18,11 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
-//
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name} secrets ListSecrets
 //
-// Retrieve a list of secrets from the configured backend
+// Get all organization or shared secrets
 //
 // ---
 // produces:
@@ -46,12 +44,12 @@ import (
 //   type: string
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: name
-//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   description: Name of the repository if a repository secret, team name if a shared secret, or '*' if an organization secret
 //   required: true
 //   type: string
 // - in: query
@@ -79,21 +77,25 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the list of secrets
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the list of secrets
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListSecrets represents the API handler to capture
-// a list of secrets from the configured backend.
+// ListSecrets represents the API handler to get a list of secrets.
 func ListSecrets(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	e := util.PathParameter(c, "engine")
 	t := util.PathParameter(c, "type")
@@ -120,29 +122,25 @@ func ListSecrets(c *gin.Context) {
 
 	// create log fields from API metadata
 	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"type":   t,
-		"user":   u.GetName(),
+		"secret_engine": e,
+		"secret_org":    o,
+		"secret_repo":   n,
+		"secret_type":   t,
 	}
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
+		delete(fields, "secret_repo")
+		fields["secret_team"] = n
 	}
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("listing secrets %s from %s service", entry, e)
+	logger := l.WithFields(fields)
+
+	logger.Debugf("listing secrets %s from %s service", entry, e)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -206,6 +204,8 @@ func ListSecrets(c *gin.Context) {
 		// sanitize secret to ensure no value is provided
 		secrets = append(secrets, tmp.Sanitize())
 	}
+
+	logger.Infof("successfully listed secrets %s from %s service", entry, e)
 
 	c.JSON(http.StatusOK, secrets)
 }

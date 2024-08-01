@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -13,7 +11,7 @@ import (
 
 // ListServiceImageCount gets a list of all service images and the count of their occurrence from the database.
 func (e *engine) ListServiceImageCount(ctx context.Context) (map[string]float64, error) {
-	e.logger.Tracef("getting count of all images for services from the database")
+	e.logger.Tracef("getting count of all images for services")
 
 	// variables to store query results and return value
 	s := []struct {

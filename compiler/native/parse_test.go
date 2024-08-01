@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -12,19 +10,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
+	"github.com/google/go-cmp/cmp"
+	"github.com/urfave/cli/v2"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-	"github.com/google/go-cmp/cmp"
-
-	"github.com/urfave/cli/v2"
 )
 
 func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -52,7 +49,7 @@ func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 
 func TestNative_Parse_Metadata_File(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -82,7 +79,7 @@ func TestNative_Parse_Metadata_File(t *testing.T) {
 
 func TestNative_Parse_Metadata_Invalid(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 
 	// run test
 	got, _, err := client.Parse(nil, "", new(yaml.Template))
@@ -98,7 +95,7 @@ func TestNative_Parse_Metadata_Invalid(t *testing.T) {
 
 func TestNative_Parse_Metadata_Path(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -121,7 +118,7 @@ func TestNative_Parse_Metadata_Path(t *testing.T) {
 
 func TestNative_Parse_Metadata_Reader(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -149,7 +146,7 @@ func TestNative_Parse_Metadata_Reader(t *testing.T) {
 
 func TestNative_Parse_Metadata_String(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -177,7 +174,7 @@ func TestNative_Parse_Metadata_String(t *testing.T) {
 
 func TestNative_Parse_Parameters(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -224,7 +221,7 @@ func TestNative_Parse_Parameters(t *testing.T) {
 
 func TestNative_Parse_StagesPipeline(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -322,12 +319,14 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 				Key:    "org/repo/docker/username",
 				Engine: "native",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/repo/docker/password",
 				Engine: "vault",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 		},
 	}
@@ -350,13 +349,17 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 
 func TestNative_Parse_StepsPipeline(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	tBool := true
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
 			Template:    false,
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel: &yaml.CancelOptions{
+				Running: &tBool,
+			},
 		},
 		Environment: map[string]string{
 			"HELLO": "Hello, Global Environment",
@@ -419,12 +422,14 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 				Key:    "org/repo/docker/username",
 				Engine: "native",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/repo/docker/password",
 				Engine: "vault",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 		},
 	}
@@ -447,7 +452,7 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 
 func TestNative_Parse_Secrets(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -458,36 +463,42 @@ func TestNative_Parse_Secrets(t *testing.T) {
 				Key:    "org/repo/docker/username",
 				Engine: "native",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/repo/docker/password",
 				Engine: "vault",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_username",
 				Key:    "org/docker/username",
 				Engine: "native",
 				Type:   "org",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/docker/password",
 				Engine: "vault",
 				Type:   "org",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_username",
 				Key:    "org/team/docker/username",
 				Engine: "native",
 				Type:   "shared",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/team/docker/password",
 				Engine: "vault",
 				Type:   "shared",
+				Pull:   "build_start",
 			},
 		},
 	}
@@ -511,7 +522,7 @@ func TestNative_Parse_Secrets(t *testing.T) {
 
 func TestNative_Parse_Stages(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -587,7 +598,7 @@ func TestNative_Parse_Stages(t *testing.T) {
 
 func TestNative_Parse_Steps(t *testing.T) {
 	// setup types
-	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -846,7 +857,7 @@ func TestNative_ParseString_Metadata(t *testing.T) {
 
 type FailReader struct{}
 
-func (FailReader) Read(p []byte) (n int, err error) {
+func (FailReader) Read(_ []byte) (n int, err error) {
 	return 0, errors.New("this is a reader that fails when you try to read")
 }
 
@@ -898,11 +909,13 @@ func Test_client_Parse(t *testing.T) {
 			}
 
 			var c *client
-			if tt.args.pipelineType == "nil" {
+
+			pipelineType := tt.args.pipelineType
+			if pipelineType == "nil" {
 				c = &client{}
 			} else {
 				c = &client{
-					repo: &library.Repo{PipelineType: &tt.args.pipelineType},
+					repo: &api.Repo{PipelineType: &pipelineType},
 				}
 			}
 

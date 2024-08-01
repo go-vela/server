@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -9,21 +7,21 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build} builds UpdateBuild
 //
-// Updates a build in the configured backend
+// Update a build
 //
 // ---
 // produces:
@@ -31,22 +29,22 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to update
+//   description: Build number
 //   required: true
 //   type: integer
 // - in: body
 //   name: body
-//   description: Payload containing the build to update
+//   description: The build object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Build"
@@ -57,39 +55,38 @@ import (
 //     description: Successfully updated the build
 //     schema:
 //       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to update the build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // UpdateBuild represents the API handler to update
-// a build for a repo in the configured backend.
+// a build for a repo.
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
-	cl := claims.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  cl.Subject,
-	}).Infof("updating build %s", entry)
+	l.Debugf("updating build %s", entry)
 
 	// capture body from API request
-	input := new(library.Build)
+	input := new(types.Build)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -164,21 +161,111 @@ func UpdateBuild(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 
 	// check if the build is in a "final" state
-	if b.GetStatus() == constants.StatusSuccess ||
+	// and if build is not a scheduled event
+	if (b.GetStatus() == constants.StatusSuccess ||
 		b.GetStatus() == constants.StatusFailure ||
 		b.GetStatus() == constants.StatusCanceled ||
 		b.GetStatus() == constants.StatusKilled ||
-		b.GetStatus() == constants.StatusError {
-		// send API call to capture the repo owner
-		u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-		if err != nil {
-			logrus.Errorf("unable to get owner for build %s: %v", entry, err)
-		}
-
+		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(ctx, u, b, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(ctx, r.GetOwner(), b, r.GetOrg(), r.GetName())
 		if err != nil {
-			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
+			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
 	}
+}
+
+// UpdateComponentStatuses updates all components (steps and services) for a build to a given status.
+func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) error {
+	l := c.MustGet("logger").(*logrus.Entry)
+	ctx := c.Request.Context()
+
+	l = l.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+		"org":      b.GetRepo().GetOrg(),
+		"repo":     b.GetRepo().GetName(),
+		"repo_id":  b.GetRepo().GetID(),
+	})
+
+	l.Debug("updating component statuses")
+
+	// retrieve the steps for the build from the step table
+	steps := []*library.Step{}
+	page := 1
+	perPage := 100
+
+	for page > 0 {
+		// retrieve build steps (per page) from the database
+		stepsPart, _, err := database.FromContext(c).ListStepsForBuild(ctx, b, map[string]interface{}{}, page, perPage)
+		if err != nil {
+			return err
+		}
+
+		// add page of steps to list steps
+		steps = append(steps, stepsPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		if len(stepsPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
+	// iterate over each step for the build
+	// setting status
+	for _, step := range steps {
+		step.SetStatus(status)
+
+		_, err := database.FromContext(c).UpdateStep(ctx, step)
+		if err != nil {
+			return err
+		}
+
+		l.WithFields(logrus.Fields{
+			"step":    step.GetNumber(),
+			"step_id": step.GetID(),
+		}).Infof("step status updated")
+	}
+
+	// retrieve the services for the build from the service table
+	services := []*library.Service{}
+	page = 1
+
+	for page > 0 {
+		// retrieve build services (per page) from the database
+		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(ctx, b, map[string]interface{}{}, page, perPage)
+		if err != nil {
+			return err
+		}
+
+		// add page of services to the list of services
+		services = append(services, servicesPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		if len(servicesPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
+	// iterate over each service for the build
+	// setting status
+	for _, service := range services {
+		service.SetStatus(status)
+
+		_, err := database.FromContext(c).UpdateService(ctx, service)
+		if err != nil {
+			return err
+		}
+
+		l.WithFields(logrus.Fields{
+			"service":    service.GetNumber(),
+			"service_id": service.GetID(),
+		}).Info("service status updated")
+	}
+
+	return nil
 }

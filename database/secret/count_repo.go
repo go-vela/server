@@ -1,24 +1,23 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
 )
 
 // CountSecretsForRepo gets the count of secrets by org and repo name from the database.
-func (e *engine) CountSecretsForRepo(ctx context.Context, r *library.Repo, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 		"type": constants.SecretRepo,
-	}).Tracef("getting count of secrets for repo %s from the database", r.GetFullName())
+	}).Tracef("getting count of secrets for repo %s", r.GetFullName())
 
 	// variable to store query results
 	var s int64

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
@@ -9,7 +7,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -17,8 +19,8 @@ import (
 
 // PlanSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
-// for the build in the configured backend.
-func PlanSteps(ctx context.Context, database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
+// for the build.
+func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}
 
@@ -27,7 +29,7 @@ func PlanSteps(ctx context.Context, database database.Interface, p *pipeline.Bui
 		// iterate through all steps for each pipeline stage
 		for _, step := range stage.Steps {
 			// create the step object
-			s, err := planStep(ctx, database, b, step, stage.Name)
+			s, err := planStep(ctx, database, scm, b, step, stage.Name)
 			if err != nil {
 				return steps, err
 			}
@@ -38,7 +40,7 @@ func PlanSteps(ctx context.Context, database database.Interface, p *pipeline.Bui
 
 	// iterate through all pipeline steps
 	for _, step := range p.Steps {
-		s, err := planStep(ctx, database, b, step, "")
+		s, err := planStep(ctx, database, scm, b, step, "")
 		if err != nil {
 			return steps, err
 		}
@@ -49,23 +51,32 @@ func PlanSteps(ctx context.Context, database database.Interface, p *pipeline.Bui
 	return steps, nil
 }
 
-func planStep(ctx context.Context, database database.Interface, b *library.Build, c *pipeline.Container, stage string) (*library.Step, error) {
+func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *types.Build, c *pipeline.Container, stage string) (*library.Step, error) {
 	// create the step object
 	s := new(library.Step)
 	s.SetBuildID(b.GetID())
-	s.SetRepoID(b.GetRepoID())
+	s.SetRepoID(b.GetRepo().GetID())
 	s.SetNumber(c.Number)
 	s.SetName(c.Name)
 	s.SetImage(c.Image)
 	s.SetStage(stage)
 	s.SetStatus(constants.StatusPending)
+	s.SetReportAs(c.ReportAs)
 	s.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the step
-	s, err := database.CreateStep(s)
+	s, err := database.CreateStep(ctx, s)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create step %s: %w", s.GetName(), err)
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"step":    s.GetName(),
+		"step_id": s.GetID(),
+		"org":     b.GetRepo().GetOrg(),
+		"repo":    b.GetRepo().GetName(),
+		"repo_id": b.GetRepo().GetID(),
+	}).Info("step created")
 
 	// populate environment variables from step library
 	//
@@ -79,13 +90,30 @@ func planStep(ctx context.Context, database database.Interface, b *library.Build
 	l := new(library.Log)
 	l.SetStepID(s.GetID())
 	l.SetBuildID(b.GetID())
-	l.SetRepoID(b.GetRepoID())
+	l.SetRepoID(b.GetRepo().GetID())
 	l.SetData([]byte{})
 
 	// send API call to create the step logs
 	err = database.CreateLog(ctx, l)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create logs for step %s: %w", s.GetName(), err)
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"step":    s.GetName(),
+		"step_id": s.GetID(),
+		"log_id":  l.GetID(), // it won't have an ID here
+		"org":     b.GetRepo().GetOrg(),
+		"repo":    b.GetRepo().GetName(),
+		"repo_id": b.GetRepo().GetID(),
+	}).Info("log for step created")
+
+	if len(s.GetReportAs()) > 0 {
+		// send API call to set the status on the commit
+		err = scm.StepStatus(ctx, b.GetRepo().GetOwner(), b, s, b.GetRepo().GetOrg(), b.GetRepo().GetName())
+		if err != nil {
+			logrus.Errorf("unable to set commit status for build: %v", err)
+		}
 	}
 
 	return s, nil

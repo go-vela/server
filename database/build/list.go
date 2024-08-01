@@ -1,25 +1,23 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListBuilds gets a list of all builds from the database.
-func (e *engine) ListBuilds(ctx context.Context) ([]*library.Build, error) {
-	e.logger.Trace("listing all builds from the database")
+func (e *engine) ListBuilds(ctx context.Context) ([]*api.Build, error) {
+	e.logger.Trace("listing all builds")
 
 	// variables to store query results and return value
 	count := int64(0)
-	b := new([]database.Build)
-	builds := []*library.Build{}
+	b := new([]types.Build)
+	builds := []*api.Build{}
 
 	// count the results
 	count, err := e.CountBuilds(ctx)
@@ -34,6 +32,8 @@ func (e *engine) ListBuilds(ctx context.Context) ([]*library.Build, error) {
 
 	// send query to the database and store result in variable
 	err = e.client.
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Table(constants.TableBuild).
 		Find(&b).
 		Error
@@ -46,10 +46,12 @@ func (e *engine) ListBuilds(ctx context.Context) ([]*library.Build, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Build.ToLibrary
-		builds = append(builds, tmp.ToLibrary())
+		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo: %v", err)
+		}
+
+		builds = append(builds, tmp.ToAPI())
 	}
 
 	return builds, nil

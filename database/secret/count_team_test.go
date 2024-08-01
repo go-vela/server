@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
@@ -9,9 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/constants"
-
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/types/constants"
 )
 
 func TestSecret_Engine_CountSecretsForTeam(t *testing.T) {
@@ -114,7 +112,7 @@ func TestSecret_Engine_CountSecretsForTeams(t *testing.T) {
 	// setup types
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")

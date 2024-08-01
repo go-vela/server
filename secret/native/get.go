@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -8,9 +6,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // Get captures a secret.
@@ -35,7 +35,7 @@ func (c *client) Get(ctx context.Context, sType, org, name, path string) (*libra
 		}).Tracef("getting native %s secret %s for %s/%s", sType, path, org, name)
 
 		// create the repo with the information available
-		r := new(library.Repo)
+		r := new(api.Repo)
 		r.SetOrg(org)
 		r.SetName(name)
 		r.SetFullName(fmt.Sprintf("%s/%s", org, name))

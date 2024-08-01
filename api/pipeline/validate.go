@@ -1,42 +1,39 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/compiler"
-	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/{pipeline}/validate pipelines ValidatePipeline
 //
-// Get, expand and validate a pipeline from the configured backend
+// Get, expand and validate a pipeline
 //
 // ---
 // produces:
-// - application/x-yaml
+// - application/yaml
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -60,11 +57,19 @@ import (
 //     schema:
 //       type: string
 //   '400':
-//     description: Unable to validate the pipeline configuration
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to retrieve the pipeline configuration
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -72,23 +77,15 @@ import (
 // expand and validate a pipeline configuration.
 func ValidatePipeline(c *gin.Context) {
 	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
-	o := org.Retrieve(c)
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":      o,
-		"pipeline": p.GetCommit(),
-		"repo":     r.GetName(),
-		"user":     u.GetName(),
-	}).Infof("validating pipeline %s", entry)
+	l.Debugf("validating pipeline %s", entry)
 
 	// ensure we use the expected pipeline type when compiling
 	r.SetPipelineType(p.GetType())
@@ -96,16 +93,10 @@ func ValidatePipeline(c *gin.Context) {
 	// create the compiler object
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
-	// capture optional template query parameter
-	template, err := strconv.ParseBool(c.DefaultQuery("template", "true"))
-	if err != nil {
-		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("unable to parse template query parameter for %s: %w", entry, err))
-
-		return
-	}
+	ruleData := prepareRuleData(c)
 
 	// validate the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), template, false)
+	pipeline, _, err := compiler.CompileLite(p.GetData(), ruleData, false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline %s: %w", entry, err)
 

@@ -1,27 +1,25 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListLiteUsers gets a lite (only: id, name) list of users from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*library.User, int64, error) {
-	e.logger.Trace("listing lite users from the database")
+func (e *engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*api.User, int64, error) {
+	e.logger.Trace("listing lite users")
 
 	// variables to store query results and return values
 	count := int64(0)
-	u := new([]database.User)
-	users := []*library.User{}
+	u := new([]types.User)
+	users := []*api.User{}
 
 	// count the results
 	count, err := e.CountUsers(ctx)
@@ -53,10 +51,8 @@ func (e *engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*libra
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := user
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#User.ToLibrary
-		users = append(users, tmp.ToLibrary())
+		// convert query result to API type
+		users = append(users, tmp.ToAPI())
 	}
 
 	return users, count, nil

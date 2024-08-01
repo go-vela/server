@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -10,9 +8,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -172,21 +168,6 @@ func testSqlite(t *testing.T) *engine {
 	return _engine
 }
 
-// testUser is a test helper function to create a library
-// User type with all fields set to their zero values.
-func testUser() *library.User {
-	return &library.User{
-		ID:           new(int64),
-		Name:         new(string),
-		RefreshToken: new(string),
-		Token:        new(string),
-		Hash:         new(string),
-		Favorites:    new([]string),
-		Active:       new(bool),
-		Admin:        new(bool),
-	}
-}
-
 // This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values
 // that are otherwise not easily compared. These typically would be values generated
 // before adding or updating them in the database.
@@ -195,6 +176,6 @@ func testUser() *library.User {
 type AnyArgument struct{}
 
 // Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(v driver.Value) bool {
+func (a AnyArgument) Match(_ driver.Value) bool {
 	return true
 }

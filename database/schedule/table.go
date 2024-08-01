@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
@@ -27,6 +25,7 @@ schedules (
 	updated_by   VARCHAR(250),
 	scheduled_at INTEGER,
 	branch       VARCHAR(250),
+	error        VARCHAR(250),
 	UNIQUE(repo_id, name)
 );
 `
@@ -47,6 +46,7 @@ schedules (
 	updated_by   TEXT,
 	scheduled_at INTEGER,
 	branch       TEXT,
+	error        TEXT,
 	UNIQUE(repo_id, name)
 );
 `

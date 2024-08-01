@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package middleware
 
@@ -10,11 +8,11 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/secret/native"
-
-	"github.com/gin-gonic/gin"
 )
 
 func TestMiddleware_Secret(t *testing.T) {

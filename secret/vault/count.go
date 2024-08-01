@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package vault
 
@@ -9,10 +7,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/vault/api"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/constants"
-	"github.com/hashicorp/vault/api"
 )
 
 // Count counts a list of secrets.
@@ -36,7 +34,6 @@ func (c *client) Count(ctx context.Context, sType, org, name string, _ []string)
 
 	c.Logger.WithFields(fields).Tracef("counting vault %s secrets for %s/%s", sType, org, name)
 
-	//nolint:staticcheck // ignore false positive
 	vault := new(api.Secret)
 	count := 0
 

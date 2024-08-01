@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -10,24 +8,26 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestUser_Engine_ListUsers(t *testing.T) {
 	// setup types
-	_userOne := testUser()
+	_userOne := testutils.APIUser()
 	_userOne.SetID(1)
 	_userOne.SetName("foo")
 	_userOne.SetToken("bar")
-	_userOne.SetHash("baz")
 	_userOne.SetFavorites([]string{})
+	_userOne.SetDashboards([]string{})
 
-	_userTwo := testUser()
+	_userTwo := testutils.APIUser()
 	_userTwo.SetID(2)
 	_userTwo.SetName("baz")
 	_userTwo.SetToken("bar")
-	_userTwo.SetHash("foo")
 	_userTwo.SetFavorites([]string{})
+	_userTwo.SetDashboards([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -40,9 +40,9 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin"}).
-		AddRow(1, "foo", "", "bar", "baz", "{}", false, false).
-		AddRow(2, "baz", "", "bar", "foo", "{}", false, false)
+		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin", "dashboards"}).
+		AddRow(1, "foo", "", "bar", "baz", "{}", false, false, "{}").
+		AddRow(2, "baz", "", "bar", "foo", "{}", false, false, "{}")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "users"`).WillReturnRows(_rows)
@@ -65,19 +65,19 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.User
+		want     []*api.User
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.User{_userOne, _userTwo},
+			want:     []*api.User{_userOne, _userTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.User{_userOne, _userTwo},
+			want:     []*api.User{_userOne, _userTwo},
 		},
 	}
 

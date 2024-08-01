@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package scm
 
@@ -8,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types/constants"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Setup represents the configuration necessary for

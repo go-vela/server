@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -9,6 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/yaml"
 )
 
@@ -103,8 +102,8 @@ func validateStages(s yaml.StageSlice) error {
 				return fmt.Errorf("no name provided for step for stage %s", stage.Name)
 			}
 
-			if len(step.Image) == 0 && len(step.Template.Name) == 0 {
-				return fmt.Errorf("no image or template provided for step %s for stage %s", step.Name, stage.Name)
+			if len(step.Image) == 0 {
+				return fmt.Errorf("no image provided for step %s for stage %s", step.Name, stage.Name)
 			}
 
 			if step.Name == "clone" || step.Name == "init" {
@@ -125,17 +124,30 @@ func validateStages(s yaml.StageSlice) error {
 // validateSteps is a helper function that verifies the
 // steps block in the yaml configuration is valid.
 func validateSteps(s yaml.StepSlice) error {
+	reportCount := 0
+
+	reportMap := make(map[string]string)
+
 	for _, step := range s {
 		if len(step.Name) == 0 {
 			return fmt.Errorf("no name provided for step")
 		}
 
-		if len(step.Image) == 0 && len(step.Template.Name) == 0 {
-			return fmt.Errorf("no image or template provided for step %s", step.Name)
+		if len(step.Image) == 0 {
+			return fmt.Errorf("no image provided for step %s", step.Name)
 		}
 
 		if step.Name == "clone" || step.Name == "init" {
 			continue
+		}
+
+		if s, ok := reportMap[step.ReportAs]; ok {
+			return fmt.Errorf("report_as to %s for step %s is already targeted by step %s", step.ReportAs, step.Name, s)
+		}
+
+		if len(step.ReportAs) > 0 {
+			reportMap[step.ReportAs] = step.Name
+			reportCount++
 		}
 
 		if len(step.Commands) == 0 && len(step.Environment) == 0 &&
@@ -143,6 +155,10 @@ func validateSteps(s yaml.StepSlice) error {
 			len(step.Template.Name) == 0 && !step.Detach {
 			return fmt.Errorf("no commands, environment, parameters, secrets or template provided for step %s", step.Name)
 		}
+	}
+
+	if reportCount > constants.ReportStepStatusLimit {
+		return fmt.Errorf("report_as is limited to %d steps, counted %d", constants.ReportStepStatusLimit, reportCount)
 	}
 
 	return nil

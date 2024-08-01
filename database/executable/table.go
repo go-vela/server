@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package executable
 
@@ -38,7 +36,7 @@ build_executables (
 
 // CreateBuildExecutableTable creates the build executables table in the database.
 func (e *engine) CreateBuildExecutableTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating build_executables table in the database")
+	e.logger.Tracef("creating build_executables table")
 
 	// handle the driver provided to create the table
 	switch driver {

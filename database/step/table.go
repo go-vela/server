@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -30,6 +30,7 @@ steps (
 	host          VARCHAR(250),
 	runtime       VARCHAR(250),
 	distribution  VARCHAR(250),
+	report_as     VARCHAR(250),
 	UNIQUE(build_id, number)
 );
 `
@@ -55,13 +56,14 @@ steps (
 	host          TEXT,
 	runtime       TEXT,
 	distribution  TEXT,
+	report_as     TEXT,
 	UNIQUE(build_id, number)
 );
 `
 )
 
 // CreateStepTable creates the steps table in the database.
-func (e *engine) CreateStepTable(driver string) error {
+func (e *engine) CreateStepTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating steps table in the database")
 
 	// handle the driver provided to create the table

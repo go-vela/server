@@ -1,6 +1,4 @@
-# Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-#
-# Use of this source code is governed by the LICENSE file in this repository.
+# SPDX-License-Identifier: Apache-2.0
 
 # capture the current date we build the application from
 BUILD_DATE = $(shell date +%Y-%m-%dT%H:%M:%SZ)
@@ -91,12 +89,25 @@ fix:
 	@echo "### Fixing Go Code"
 	@go fix ./...
 
-# The `integration-test` target is intended to run all integration tests for the Go source code.
+# The `integration-test` target is intended to run all database integration
+# tests for the Go source code.
+#
+# Optionally target specific database drivers by passing a variable
+# named "DB_DRIVER" to the make command. This assumes that test names
+# coincide with database driver names.
+#
+# Example: "DB_DRIVER=postgres make integration-test"
+# will only run integration tests for the postgres driver.
 .PHONY: integration-test
 integration-test:
 	@echo
-	@echo "### Integration Testing"
-	INTEGRATION=1 go test -run TestDatabase_Integration ./...
+	@if [ -n "$(DB_DRIVER)" ]; then \
+		echo "### DB Integration Testing ($(DB_DRIVER))"; \
+		INTEGRATION=1 go test -run TestDatabase_Integration/$(DB_DRIVER) ./...; \
+	else \
+		echo "### DB Integration Testing"; \
+		INTEGRATION=1 go test -run TestDatabase_Integration ./...; \
+	fi
 
 # The `test` target is intended to run
 # the tests for the Go source code.
@@ -229,7 +240,7 @@ bump-deps-full: check
 pull:
 	@echo
 	@echo "### Pulling images for docker-compose stack"
-	@docker-compose pull
+	@docker compose pull
 
 # The `compose-up` target is intended to build and create
 # all containers for the local Docker compose stack.
@@ -239,7 +250,7 @@ pull:
 compose-up:
 	@echo
 	@echo "### Creating containers for docker-compose stack"
-	@docker-compose -f docker-compose.yml up -d --build
+	@docker compose -f docker-compose.yml up -d --build
 
 # The `compose-down` target is intended to destroy
 # all containers for the local Docker compose stack.
@@ -249,7 +260,7 @@ compose-up:
 compose-down:
 	@echo
 	@echo "### Destroying containers for docker-compose stack"
-	@docker-compose -f docker-compose.yml down
+	@docker compose -f docker-compose.yml down
 
 # The `spec-install` target is intended to install the
 # the needed dependencies to generate the api spec.
@@ -325,3 +336,14 @@ lint:
 	@echo
 	@echo "### Linting Go Code"
 	@golangci-lint run ./...
+
+# The `lintfix` target is intended to lint the
+# Go source code with golangci-lint and apply
+# any fixes that can be automatically applied.
+#
+# Usage: `make lintfix`
+.PHONY: lintfix
+lintfix:
+	@echo
+	@echo "### Fixing Go code with linter"
+	@golangci-lint run ./... --fix

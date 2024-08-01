@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
@@ -9,19 +7,21 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestLog_Engine_UpdateLog(t *testing.T) {
 	// setup types
-	_service := testLog()
+	_service := testutils.APILog()
 	_service.SetID(1)
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
 	_service.SetData([]byte{})
 
-	_step := testLog()
+	_step := testutils.APILog()
 	_step.SetID(2)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)

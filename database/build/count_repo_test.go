@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -10,30 +8,37 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestBuild_Engine_CountBuildsForRepo(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
-	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
-	_buildOne.SetNumber(1)
-	_buildOne.SetDeployPayload(nil)
+	_owner := testutils.APIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
 
-	_buildTwo := testBuild()
-	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
-	_buildTwo.SetNumber(2)
-	_buildTwo.SetDeployPayload(nil)
-
-	_repo := testRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
+
+	_buildOne := testutils.APIBuild()
+	_buildOne.SetID(1)
+	_buildOne.SetRepo(_repo)
+	_buildOne.SetNumber(1)
+	_buildOne.SetDeployPayload(nil)
+
+	_buildTwo := testutils.APIBuild()
+	_buildTwo.SetID(2)
+	_buildTwo.SetRepo(_repo)
+	_buildTwo.SetNumber(2)
+	_buildTwo.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

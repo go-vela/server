@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -10,11 +8,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestService_Engine_CleanService(t *testing.T) {
 	// setup types
-	_serviceOne := testService()
+	_serviceOne := testutils.APIService()
 	_serviceOne.SetID(1)
 	_serviceOne.SetRepoID(1)
 	_serviceOne.SetBuildID(1)
@@ -24,7 +24,7 @@ func TestService_Engine_CleanService(t *testing.T) {
 	_serviceOne.SetCreated(1)
 	_serviceOne.SetStatus("running")
 
-	_serviceTwo := testService()
+	_serviceTwo := testutils.APIService()
 	_serviceTwo.SetID(2)
 	_serviceTwo.SetRepoID(1)
 	_serviceTwo.SetBuildID(1)
@@ -34,7 +34,7 @@ func TestService_Engine_CleanService(t *testing.T) {
 	_serviceTwo.SetCreated(1)
 	_serviceTwo.SetStatus("pending")
 
-	_serviceThree := testService()
+	_serviceThree := testutils.APIService()
 	_serviceThree.SetID(3)
 	_serviceThree.SetRepoID(1)
 	_serviceThree.SetBuildID(1)
@@ -44,7 +44,7 @@ func TestService_Engine_CleanService(t *testing.T) {
 	_serviceThree.SetCreated(1)
 	_serviceThree.SetStatus("success")
 
-	_serviceFour := testService()
+	_serviceFour := testutils.APIService()
 	_serviceFour.SetID(4)
 	_serviceFour.SetRepoID(1)
 	_serviceFour.SetBuildID(1)

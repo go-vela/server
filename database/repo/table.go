@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -33,13 +31,10 @@ repos (
 	private       BOOLEAN,
 	trusted       BOOLEAN,
 	active        BOOLEAN,
-	allow_pull    BOOLEAN,
-	allow_push    BOOLEAN,
-	allow_deploy  BOOLEAN,
-	allow_tag     BOOLEAN,
-	allow_comment BOOLEAN,
+	allow_events  INTEGER,
 	pipeline_type TEXT,
 	previous_name VARCHAR(100),
+	approve_build VARCHAR(20),
 	UNIQUE(full_name)
 );
 `
@@ -66,13 +61,10 @@ repos (
 	private       BOOLEAN,
 	trusted       BOOLEAN,
 	active        BOOLEAN,
-	allow_pull    BOOLEAN,
-	allow_push    BOOLEAN,
-	allow_deploy  BOOLEAN,
-	allow_tag     BOOLEAN,
-	allow_comment BOOLEAN,
+	allow_events  INTEGER,
 	pipeline_type TEXT,
 	previous_name TEXT,
+	approve_build TEXT,
 	UNIQUE(full_name)
 );
 `
@@ -80,7 +72,7 @@ repos (
 
 // CreateRepoTable creates the repos table in the database.
 func (e *engine) CreateRepoTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating repos table in the database")
+	e.logger.Tracef("creating repos table")
 
 	// handle the driver provided to create the table
 	switch driver {

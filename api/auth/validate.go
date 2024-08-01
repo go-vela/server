@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package auth
 
@@ -10,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/util"
 )
@@ -36,7 +36,10 @@ import (
 // ValidateServerToken will validate if a token was issued by the server
 // if it is provided in the auth header.
 func ValidateServerToken(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
 	cl := claims.Retrieve(c)
+
+	l.Info("validating server token")
 
 	if !strings.EqualFold(cl.Subject, "vela-server") {
 		retErr := fmt.Errorf("token is not a valid server token")

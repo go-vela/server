@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package middleware
 
@@ -13,7 +11,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types"
+
+	"github.com/go-vela/server/internal"
 )
 
 func TestMiddleware_NoCache(t *testing.T) {
@@ -66,8 +65,8 @@ func TestMiddleware_Options(t *testing.T) {
 	wantHeaders := "authorization, origin, content-type, accept"
 	wantAllow := "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS"
 	wantContentType := "application/json"
-	m := &types.Metadata{
-		Vela: &types.Vela{
+	m := &internal.Metadata{
+		Vela: &internal.Vela{
 			Address: "http://localhost:8080",
 		},
 	}
@@ -122,8 +121,8 @@ func TestMiddleware_Options(t *testing.T) {
 
 func TestMiddleware_Options_InvalidMethod(t *testing.T) {
 	// setup types
-	m := &types.Metadata{
-		Vela: &types.Vela{
+	m := &internal.Metadata{
+		Vela: &internal.Vela{
 			Address: "http://localhost:8080",
 		},
 	}
@@ -180,8 +179,8 @@ func TestMiddleware_Cors(t *testing.T) {
 	// setup types
 	wantOrigin := "*"
 	wantExposeHeaders := "link, x-total-count"
-	m := &types.Metadata{
-		Vela: &types.Vela{
+	m := &internal.Metadata{
+		Vela: &internal.Vela{
 			Address: "http://localhost:8080",
 		},
 	}

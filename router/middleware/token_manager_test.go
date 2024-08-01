@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package middleware
 
@@ -10,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/internal/token"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/server/internal/token"
 )
 
 func TestMiddleware_TokenManager(t *testing.T) {
@@ -23,7 +21,7 @@ func TestMiddleware_TokenManager(t *testing.T) {
 	var got *token.Manager
 
 	want := new(token.Manager)
-	want.PrivateKey = "123abc"
+	want.PrivateKeyHMAC = "123abc"
 
 	// setup context
 	gin.SetMode(gin.TestMode)

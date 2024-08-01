@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -9,15 +7,17 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestPipeline_Engine_DeletePipeline(t *testing.T) {
 	// setup types
-	_pipeline := testPipeline()
+	_pipeline := testutils.APIPipeline()
 	_pipeline.SetID(1)
 	_pipeline.SetRepoID(1)
 	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	_pipeline.SetRef("refs/heads/master")
+	_pipeline.SetRef("refs/heads/main")
 	_pipeline.SetType("yaml")
 	_pipeline.SetVersion("1")
 

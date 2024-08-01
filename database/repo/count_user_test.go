@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -10,33 +8,33 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestRepo_Engine_CountReposForUser(t *testing.T) {
 	// setup types
-	_repoOne := testRepo()
+	_user := testutils.APIUser()
+	_user.SetID(1)
+	_user.SetName("foo")
+
+	_repoOne := testutils.APIRepo()
 	_repoOne.SetID(1)
-	_repoOne.SetUserID(1)
+	_repoOne.SetOwner(_user)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
 
-	_repoTwo := testRepo()
+	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.SetUserID(1)
+	_repoTwo.SetOwner(_user)
 	_repoTwo.SetHash("baz")
 	_repoTwo.SetOrg("bar")
 	_repoTwo.SetName("foo")
 	_repoTwo.SetFullName("bar/foo")
 	_repoTwo.SetVisibility("public")
-
-	_user := new(library.User)
-	_user.SetID(1)
-	_user.SetName("foo")
-	_user.SetToken("bar")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

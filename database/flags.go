@@ -1,14 +1,13 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
 import (
 	"time"
 
-	"github.com/go-vela/types/constants"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/types/constants"
 )
 
 // Flags represents all supported command line interface (CLI) flags for the database.
@@ -60,6 +59,33 @@ var Flags = []cli.Flag{
 		FilePath: "/vela/database/encryption_key",
 		Name:     "database.encryption.key",
 		Usage:    "AES-256 key for encrypting and decrypting values in the database",
+	},
+	&cli.StringFlag{
+		EnvVars:  []string{"VELA_DATABASE_LOG_LEVEL", "DATABASE_LOG_LEVEL"},
+		FilePath: "/vela/database/log_level",
+		Name:     "database.log.level",
+		Usage:    "set log level - options: (trace|debug|info|warn|error|fatal|panic)",
+		Value:    "warn",
+	},
+	&cli.BoolFlag{
+		EnvVars:  []string{"VELA_DATABASE_LOG_SHOW_SQL", "DATABASE_LOG_SHOW_SQL"},
+		FilePath: "/vela/database/log_show_sql",
+		Name:     "database.log.show_sql",
+		Usage:    "show the SQL query in the logs",
+	},
+	&cli.BoolFlag{
+		EnvVars:  []string{"VELA_DATABASE_LOG_SKIP_NOTFOUND", "DATABASE_LOG_SKIP_NOTFOUND"},
+		FilePath: "/vela/database/log_skip_notfound",
+		Name:     "database.log.skip_notfound",
+		Usage:    "skip logging when a resource is not found in the database",
+		Value:    true,
+	},
+	&cli.DurationFlag{
+		EnvVars:  []string{"VELA_DATABASE_LOG_SLOW_THRESHOLD", "DATABASE_LOG_SLOW_THRESHOLD"},
+		FilePath: "/vela/database/log_slow_threshold",
+		Name:     "database.log.slow_threshold",
+		Usage:    "queries that take longer than this threshold are considered slow and will be logged",
+		Value:    200 * time.Millisecond,
 	},
 	&cli.BoolFlag{
 		EnvVars:  []string{"VELA_DATABASE_SKIP_CREATION", "DATABASE_SKIP_CREATION"},

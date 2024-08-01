@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
@@ -8,8 +6,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
 )
 
 // CountSecretsForTeam gets the count of secrets by org and team name from the database.
@@ -18,7 +17,7 @@ func (e *engine) CountSecretsForTeam(ctx context.Context, org, team string, filt
 		"org":  org,
 		"team": team,
 		"type": constants.SecretShared,
-	}).Tracef("getting count of secrets for team %s/%s from the database", org, team)
+	}).Tracef("getting count of secrets for team %s/%s", org, team)
 
 	// variable to store query results
 	var s int64
@@ -50,7 +49,7 @@ func (e *engine) CountSecretsForTeams(ctx context.Context, org string, teams []s
 		"org":   org,
 		"teams": teams,
 		"type":  constants.SecretShared,
-	}).Tracef("getting count of secrets for teams %s in org %s from the database", teams, org)
+	}).Tracef("getting count of secrets for teams %s in org %s", teams, org)
 
 	// variable to store query results
 	var s int64

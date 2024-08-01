@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -9,13 +7,11 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/go-vela/types/raw"
-
-	types "github.com/go-vela/types/yaml"
-
 	"github.com/Masterminds/sprig/v3"
-
 	"github.com/buildkite/yaml"
+
+	"github.com/go-vela/types/raw"
+	types "github.com/go-vela/types/yaml"
 )
 
 // Render combines the template with the step in the yaml pipeline.

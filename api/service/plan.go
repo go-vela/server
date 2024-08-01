@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -9,6 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -17,8 +18,8 @@ import (
 
 // PlanServices is a helper function to plan all services
 // in the build for execution. This creates the services
-// for the build in the configured backend.
-func PlanServices(ctx context.Context, database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
+// for the build.
+func PlanServices(ctx context.Context, database database.Interface, p *pipeline.Build, b *types.Build) ([]*library.Service, error) {
 	// variable to store planned services
 	services := []*library.Service{}
 
@@ -27,7 +28,7 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 		// create the service object
 		s := new(library.Service)
 		s.SetBuildID(b.GetID())
-		s.SetRepoID(b.GetRepoID())
+		s.SetRepoID(b.GetRepo().GetID())
 		s.SetName(service.Name)
 		s.SetImage(service.Image)
 		s.SetNumber(service.Number)
@@ -39,6 +40,14 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 		if err != nil {
 			return services, fmt.Errorf("unable to create service %s: %w", s.GetName(), err)
 		}
+
+		logrus.WithFields(logrus.Fields{
+			"service":    s.GetName(),
+			"service_id": s.GetID(),
+			"org":        b.GetRepo().GetOrg(),
+			"repo":       b.GetRepo().GetName(),
+			"repo_id":    b.GetRepo().GetID(),
+		}).Info("service created")
 
 		// populate environment variables from service library
 		//
@@ -52,7 +61,7 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 		l := new(library.Log)
 		l.SetServiceID(s.GetID())
 		l.SetBuildID(b.GetID())
-		l.SetRepoID(b.GetRepoID())
+		l.SetRepoID(b.GetRepo().GetID())
 		l.SetData([]byte{})
 
 		// send API call to create the service logs
@@ -60,6 +69,15 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 		if err != nil {
 			return services, fmt.Errorf("unable to create service logs for service %s: %w", s.GetName(), err)
 		}
+
+		logrus.WithFields(logrus.Fields{
+			"service":    s.GetName(),
+			"service_id": s.GetID(),
+			"log_id":     l.GetID(), // it won't have an ID here, because CreateLog doesn't return the created log
+			"org":        b.GetRepo().GetOrg(),
+			"repo":       b.GetRepo().GetName(),
+			"repo_id":    b.GetRepo().GetID(),
+		}).Info("log for service created")
 	}
 
 	return services, nil

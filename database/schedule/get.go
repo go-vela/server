@@ -1,26 +1,27 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
 	"context"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetSchedule gets a schedule by ID from the database.
-func (e *engine) GetSchedule(ctx context.Context, id int64) (*library.Schedule, error) {
-	e.logger.Tracef("getting schedule %d from the database", id)
+func (e *engine) GetSchedule(ctx context.Context, id int64) (*api.Schedule, error) {
+	e.logger.Tracef("getting schedule %d", id)
 
 	// variable to store query results
-	s := new(database.Schedule)
+	s := new(types.Schedule)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableSchedule).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("id = ?", id).
 		Take(s).
 		Error
@@ -28,5 +29,11 @@ func (e *engine) GetSchedule(ctx context.Context, id int64) (*library.Schedule, 
 		return nil, err
 	}
 
-	return s.ToLibrary(), nil
+	// decrypt hash value for repo
+	err = s.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo %d: %v", s.Repo.ID.Int64, err)
+	}
+
+	return s.ToAPI(), nil
 }

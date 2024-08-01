@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -10,16 +8,19 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	// setup types
-	_pipeline := testPipeline()
+	_pipeline := testutils.APIPipeline()
 	_pipeline.SetID(1)
 	_pipeline.SetRepoID(1)
 	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	_pipeline.SetRef("refs/heads/master")
+	_pipeline.SetRef("refs/heads/main")
 	_pipeline.SetType("yaml")
 	_pipeline.SetVersion("1")
 	_pipeline.SetData([]byte("foo"))
@@ -30,10 +31,10 @@ func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "repo_id", "commit", "flavor", "platform", "ref", "type", "version", "services", "stages", "steps", "templates", "data"}).
-		AddRow(1, 1, "48afb5bdc41ad69bf22588491333f7cf71135163", "", "", "refs/heads/master", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
+		AddRow(1, 1, "48afb5bdc41ad69bf22588491333f7cf71135163", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 AND "commit" = $2 LIMIT 1`).WithArgs(1, "48afb5bdc41ad69bf22588491333f7cf71135163").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 AND "commit" = $2 LIMIT $3`).WithArgs(1, "48afb5bdc41ad69bf22588491333f7cf71135163", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -67,7 +68,7 @@ func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetPipelineForRepo(context.TODO(), "48afb5bdc41ad69bf22588491333f7cf71135163", &library.Repo{ID: _pipeline.RepoID})
+			got, err := test.database.GetPipelineForRepo(context.TODO(), "48afb5bdc41ad69bf22588491333f7cf71135163", &api.Repo{ID: _pipeline.RepoID})
 
 			if test.failure {
 				if err == nil {

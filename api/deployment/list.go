@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package deployment
 
@@ -10,20 +8,17 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/deployments/{org}/{repo} deployments ListDeployments
 //
-// Get a list of deployments for the configured backend
+// Get all deployments for a repository
 //
 // ---
 // produces:
@@ -31,12 +26,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: query
@@ -64,34 +59,32 @@ import (
 //         description: Total number of results
 //         type: integer
 //       Link:
-//         description: see https://tools.ietf.org/html/rfc5988
+//         description: See https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the list of deployments
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the list of deployments
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ListDeployments represents the API handler to capture
-// a list of deployments from the configured backend.
+// ListDeployments represents the API handler to get a list of deployments.
 func ListDeployments(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
+	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
-	ctx := c.Request.Context()
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading deployments for repo %s", r.GetFullName())
+	l.Debugf("reading deployments for repo %s", r.GetFullName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -117,7 +110,7 @@ func ListDeployments(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of deployments for the repo
-	t, err := scm.FromContext(c).GetDeploymentCount(ctx, u, r)
+	t, err := database.FromContext(c).CountDeploymentsForRepo(c, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployment count for %s: %w", r.GetFullName(), err)
 
@@ -127,35 +120,13 @@ func ListDeployments(c *gin.Context) {
 	}
 
 	// send API call to capture the list of deployments for the repo
-	d, err := scm.FromContext(c).GetDeploymentList(ctx, u, r, page, perPage)
+	d, err := database.FromContext(c).ListDeploymentsForRepo(c, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployments for %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
-	}
-
-	dWithBs := []*library.Deployment{}
-
-	for _, deployment := range d {
-		b, _, err := database.FromContext(c).ListBuildsForDeployment(ctx, deployment, nil, 1, 3)
-		if err != nil {
-			retErr := fmt.Errorf("unable to get builds for deployment %d: %w", deployment.GetID(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-
-		builds := []library.Build{}
-		for _, build := range b {
-			builds = append(builds, *build)
-		}
-
-		deployment.SetBuilds(builds)
-
-		dWithBs = append(dWithBs, deployment)
 	}
 
 	// create pagination object
@@ -167,5 +138,5 @@ func ListDeployments(c *gin.Context) {
 	// set pagination headers
 	pagination.SetHeaderLink(c)
 
-	c.JSON(http.StatusOK, dWithBs)
+	c.JSON(http.StatusOK, d)
 }

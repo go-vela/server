@@ -1,13 +1,11 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const key = "build"
@@ -18,13 +16,13 @@ type Setter interface {
 }
 
 // FromContext returns the Build associated with this context.
-func FromContext(c context.Context) *library.Build {
+func FromContext(c context.Context) *api.Build {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	b, ok := value.(*library.Build)
+	b, ok := value.(*api.Build)
 	if !ok {
 		return nil
 	}
@@ -34,6 +32,6 @@ func FromContext(c context.Context) *library.Build {
 
 // ToContext adds the Build to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, b *library.Build) {
+func ToContext(c Setter, b *api.Build) {
 	c.Set(key, b)
 }

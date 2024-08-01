@@ -1,19 +1,21 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
 import (
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/dashboard"
+	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
+	"github.com/go-vela/server/database/settings"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
@@ -34,14 +36,26 @@ type Interface interface {
 
 	// Resource Interface Functions
 
+	// SettingsInterface defines the interface for platform settings stored in the database.
+	settings.SettingsInterface
+
 	// BuildInterface defines the interface for builds stored in the database.
 	build.BuildInterface
 
 	// BuildExecutableInterface defines the interface for build executables stored in the database.
 	executable.BuildExecutableInterface
 
+	// DashboardInterface defines the interface for builds store in the database.
+	dashboard.DashboardInterface
+
+	// DeploymentInterface defines the interface for deployments stored in the database.
+	deployment.DeploymentInterface
+
 	// HookInterface defines the interface for hooks stored in the database.
 	hook.HookInterface
+
+	// JWKInterface defines the interface for JWKs stored in the database.
+	jwk.JWKInterface
 
 	// LogInterface defines the interface for logs stored in the database.
 	log.LogInterface

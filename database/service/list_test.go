@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -10,12 +8,14 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestService_Engine_ListServices(t *testing.T) {
 	// setup types
-	_serviceOne := testService()
+	_serviceOne := testutils.APIService()
 	_serviceOne.SetID(1)
 	_serviceOne.SetRepoID(1)
 	_serviceOne.SetBuildID(1)
@@ -23,7 +23,7 @@ func TestService_Engine_ListServices(t *testing.T) {
 	_serviceOne.SetName("foo")
 	_serviceOne.SetImage("bar")
 
-	_serviceTwo := testService()
+	_serviceTwo := testutils.APIService()
 	_serviceTwo.SetID(2)
 	_serviceTwo.SetRepoID(1)
 	_serviceTwo.SetBuildID(2)

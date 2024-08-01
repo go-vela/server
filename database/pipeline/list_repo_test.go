@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -10,21 +8,24 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 	// setup types
-	_pipelineOne := testPipeline()
+	_pipelineOne := testutils.APIPipeline()
 	_pipelineOne.SetID(1)
 	_pipelineOne.SetRepoID(1)
 	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	_pipelineOne.SetRef("refs/heads/master")
+	_pipelineOne.SetRef("refs/heads/main")
 	_pipelineOne.SetType("yaml")
 	_pipelineOne.SetVersion("1")
 	_pipelineOne.SetData([]byte("foo"))
 
-	_pipelineTwo := testPipeline()
+	_pipelineTwo := testutils.APIPipeline()
 	_pipelineTwo.SetID(2)
 	_pipelineTwo.SetRepoID(1)
 	_pipelineTwo.SetCommit("a49aaf4afae6431a79239c95247a2b169fd9f067")
@@ -45,11 +46,11 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "commit", "flavor", "platform", "ref", "type", "version", "services", "stages", "steps", "templates", "data"}).
-		AddRow(1, 1, "48afb5bdc41ad69bf22588491333f7cf71135163", "", "", "refs/heads/master", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69}).
+		AddRow(1, 1, "48afb5bdc41ad69bf22588491333f7cf71135163", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69}).
 		AddRow(2, 1, "a49aaf4afae6431a79239c95247a2b169fd9f067", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -88,7 +89,7 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListPipelinesForRepo(context.TODO(), &library.Repo{ID: _pipelineOne.RepoID}, 1, 10)
+			got, _, err := test.database.ListPipelinesForRepo(context.TODO(), &api.Repo{ID: _pipelineOne.RepoID}, 1, 10)
 
 			if test.failure {
 				if err == nil {

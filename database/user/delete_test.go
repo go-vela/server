@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -9,15 +7,16 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestUser_Engine_DeleteUser(t *testing.T) {
 	// setup types
-	_user := testUser()
+	_user := testutils.APIUser()
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")
-	_user.SetHash("baz")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

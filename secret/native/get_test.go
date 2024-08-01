@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -24,8 +22,9 @@ func TestNative_Get(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("repo")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
+	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
 	want.SetCreatedBy("user")
 	want.SetUpdatedAt(1)
@@ -39,7 +38,7 @@ func TestNative_Get(t *testing.T) {
 	defer db.Close()
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 

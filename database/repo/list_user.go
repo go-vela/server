@@ -1,30 +1,29 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
 )
 
 // ListReposForUser gets a list of repos by user ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListReposForUser(ctx context.Context, u *library.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
+func (e *engine) ListReposForUser(ctx context.Context, u *api.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*api.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Tracef("listing repos for user %s from the database", u.GetName())
+	}).Tracef("listing repos for user %s", u.GetName())
 
 	// variables to store query results and return values
 	count := int64(0)
-	r := new([]database.Repo)
-	repos := []*library.Repo{}
+	r := new([]types.Repo)
+	repos := []*api.Repo{}
 
 	// count the results
 	count, err := e.CountReposForUser(ctx, u, filters)
@@ -51,6 +50,7 @@ func (e *engine) ListReposForUser(ctx context.Context, u *library.User, sortBy s
 
 		err = e.client.
 			Table(constants.TableRepo).
+			Preload("Owner").
 			Select("repos.*").
 			Joins("LEFT JOIN (?) t on repos.id = t.id", query).
 			Order("latest_build DESC NULLS LAST").
@@ -66,6 +66,7 @@ func (e *engine) ListReposForUser(ctx context.Context, u *library.User, sortBy s
 	default:
 		err = e.client.
 			Table(constants.TableRepo).
+			Preload("Owner").
 			Where("user_id = ?", u.GetID()).
 			Where(filters).
 			Order("name").
@@ -84,8 +85,6 @@ func (e *engine) ListReposForUser(ctx context.Context, u *library.User, sortBy s
 		tmp := repo
 
 		// decrypt the fields for the repo
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
 		err = tmp.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
@@ -97,9 +96,7 @@ func (e *engine) ListReposForUser(ctx context.Context, u *library.User, sortBy s
 		}
 
 		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.ToLibrary
-		repos = append(repos, tmp.ToLibrary())
+		repos = append(repos, tmp.ToAPI())
 	}
 
 	return repos, count, nil

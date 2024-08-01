@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package token
 
@@ -12,23 +10,21 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestTokenManager_Refresh(t *testing.T) {
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -53,7 +49,7 @@ func TestTokenManager_Refresh(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(context.TODO(), u)
+		_ = db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 
@@ -81,15 +77,13 @@ func TestTokenManager_Refresh(t *testing.T) {
 
 func TestTokenManager_Refresh_Expired(t *testing.T) {
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -114,7 +108,7 @@ func TestTokenManager_Refresh_Expired(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(context.TODO(), u)
+		_ = db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
@@ -10,19 +8,21 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestLog_Engine_GetLogForService(t *testing.T) {
 	// setup types
-	_log := testLog()
+	_log := testutils.APILog()
 	_log.SetID(1)
 	_log.SetRepoID(1)
 	_log.SetBuildID(1)
 	_log.SetServiceID(1)
 	_log.SetData([]byte{})
 
-	_service := testService()
+	_service := testutils.APIService()
 	_service.SetID(1)
 	_service.SetID(1)
 	_service.SetRepoID(1)
@@ -38,7 +38,7 @@ func TestLog_Engine_GetLogForService(t *testing.T) {
 		AddRow(1, 1, 1, 1, 0, []byte{})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE service_id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE service_id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

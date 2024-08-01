@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore duplicate with user code
 package server
@@ -12,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
@@ -26,13 +25,16 @@ const (
   "name": "clone",
   "status": "success",
   "error": "",
+  "image": "alpine",
+  "stage": "",
   "exit_code": 0,
   "created": 1563475419,
   "started": 0,
   "finished": 0,
   "host": "host.company.com",
   "runtime": "docker",
-  "distribution": "linux"
+  "distribution": "linux",
+  "report_as": "test"
 }`
 
 	// StepsResp represents a JSON return for one to many steps.
@@ -51,7 +53,8 @@ const (
     "finished": 0,
     "host": "host.company.com",
     "runtime": "docker",
-    "distribution": "linux"
+    "distribution": "linux",
+	"report_as": ""
   },
   {
     "id": 1,
@@ -67,7 +70,8 @@ const (
     "finished": 0,
     "host": "host.company.com",
     "runtime": "docker",
-    "distribution": "linux"
+    "distribution": "linux",
+	"report_as": "test"
   }
 ]`
 )

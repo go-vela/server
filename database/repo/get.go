@@ -1,27 +1,26 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetRepo gets a repo by ID from the database.
-func (e *engine) GetRepo(ctx context.Context, id int64) (*library.Repo, error) {
-	e.logger.Tracef("getting repo %d from the database", id)
+func (e *engine) GetRepo(ctx context.Context, id int64) (*api.Repo, error) {
+	e.logger.Tracef("getting repo %d", id)
 
 	// variable to store query results
-	r := new(database.Repo)
+	r := new(types.Repo)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableRepo).
+		Preload("Owner").
 		Where("id = ?", id).
 		Take(r).
 		Error
@@ -44,11 +43,11 @@ func (e *engine) GetRepo(ctx context.Context, id int64) (*library.Repo, error) {
 		// return the unencrypted repo
 		//
 		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.ToLibrary
-		return r.ToLibrary(), nil
+		return r.ToAPI(), nil
 	}
 
 	// return the decrypted repo
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.ToLibrary
-	return r.ToLibrary(), nil
+	return r.ToAPI(), nil
 }

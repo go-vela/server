@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -10,44 +8,42 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/executors"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/cancel builds CancelBuild
 //
-// Cancel a running build
+// Cancel a build
 //
 // ---
 // produces:
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to cancel
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -56,43 +52,39 @@ import (
 //   '200':
 //     description: Successfully canceled the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Unable to cancel build
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to cancel build
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to cancel build
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CancelBuild represents the API handler to cancel a running build.
+// CancelBuild represents the API handler to cancel a build.
 //
 //nolint:funlen // ignore statement count
 func CancelBuild(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
 	e := executors.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
+	user := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("canceling build %s", entry)
+	l.Debugf("canceling build %s", entry)
 
 	switch b.GetStatus() {
 	case constants.StatusRunning:
@@ -107,7 +99,7 @@ func CancelBuild(c *gin.Context) {
 
 		for _, executor := range e {
 			// check each executor on the worker running the build to see if it's running the build we want to cancel
-			if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
+			if executor.Build.GetID() == b.GetID() {
 				// prepare the request to the worker
 				client := http.DefaultClient
 				client.Timeout = 30 * time.Second
@@ -171,12 +163,27 @@ func CancelBuild(c *gin.Context) {
 					return
 				}
 
+				b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
+
+				b, err = database.FromContext(c).UpdateBuild(ctx, b)
+				if err != nil {
+					retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+
+				l.WithFields(logrus.Fields{
+					"build":    b.GetNumber(),
+					"build_id": b.GetID(),
+				}).Info("build updated - build canceled")
+
 				c.JSON(resp.StatusCode, b)
 
 				return
 			}
 		}
-	case constants.StatusPending:
+	case constants.StatusPending, constants.StatusPendingApproval:
 		break
 
 	default:
@@ -190,6 +197,7 @@ func CancelBuild(c *gin.Context) {
 	// build has been abandoned
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
+	b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
 
 	b, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
@@ -199,91 +207,27 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
-	// retrieve the steps for the build from the step table
-	steps := []*library.Step{}
-	page := 1
-	perPage := 100
+	l.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	}).Info("build updated - build canceled")
 
-	for page > 0 {
-		// retrieve build steps (per page) from the database
-		stepsPart, _, err := database.FromContext(c).ListStepsForBuild(b, map[string]interface{}{}, page, perPage)
-		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
-			util.HandleError(c, http.StatusNotFound, retErr)
+	// remove build executable for clean up
+	_, err = database.FromContext(c).PopBuildExecutable(ctx, b.GetID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to pop build %s from executables table: %w", entry, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
 
-			return
-		}
-
-		// add page of steps to list steps
-		steps = append(steps, stepsPart...)
-
-		// assume no more pages exist if under 100 results are returned
-		if len(stepsPart) < 100 {
-			page = 0
-		} else {
-			page++
-		}
+		return
 	}
 
-	// iterate over each step for the build
-	// setting anything running or pending to canceled
-	for _, step := range steps {
-		if step.GetStatus() == constants.StatusRunning || step.GetStatus() == constants.StatusPending {
-			step.SetStatus(constants.StatusCanceled)
+	// update component statuses to canceled
+	err = UpdateComponentStatuses(c, b, constants.StatusCanceled)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update component statuses for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
 
-			_, err = database.FromContext(c).UpdateStep(step)
-			if err != nil {
-				retErr := fmt.Errorf("unable to update step %s for build %s: %w", step.GetName(), entry, err)
-				util.HandleError(c, http.StatusNotFound, retErr)
-
-				return
-			}
-		}
-	}
-
-	// retrieve the services for the build from the service table
-	services := []*library.Service{}
-	page = 1
-
-	for page > 0 {
-		// retrieve build services (per page) from the database
-		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(ctx, b, map[string]interface{}{}, page, perPage)
-		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
-			util.HandleError(c, http.StatusNotFound, retErr)
-
-			return
-		}
-
-		// add page of services to the list of services
-		services = append(services, servicesPart...)
-
-		// assume no more pages exist if under 100 results are returned
-		if len(servicesPart) < 100 {
-			page = 0
-		} else {
-			page++
-		}
-	}
-
-	// iterate over each service for the build
-	// setting anything running or pending to canceled
-	for _, service := range services {
-		if service.GetStatus() == constants.StatusRunning || service.GetStatus() == constants.StatusPending {
-			service.SetStatus(constants.StatusCanceled)
-
-			_, err = database.FromContext(c).UpdateService(ctx, service)
-			if err != nil {
-				retErr := fmt.Errorf("unable to update service %s for build %s: %w",
-					service.GetName(),
-					entry,
-					err,
-				)
-				util.HandleError(c, http.StatusNotFound, retErr)
-
-				return
-			}
-		}
+		return
 	}
 
 	c.JSON(http.StatusOK, b)

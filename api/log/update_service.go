@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code with step
 package log
@@ -10,20 +8,19 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services UpdateServiceLog
 //
-// Update the logs for a service
+// Update service logs for a build
 //
 // ---
 // deprecated: true
@@ -32,12 +29,12 @@ import (
 // parameters:
 // - in: path
 //   name: org
-//   description: Name of the org
+//   description: Name of the organization
 //   required: true
 //   type: string
 // - in: path
 //   name: repo
-//   description: Name of the repo
+//   description: Name of the repository
 //   required: true
 //   type: string
 // - in: path
@@ -52,7 +49,7 @@ import (
 //   type: integer
 // - in: body
 //   name: body
-//   description: Payload containing the log to update
+//   description: The log object with the fields to be updated
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Log"
@@ -61,43 +58,39 @@ import (
 // responses:
 //   '200':
 //     description: Successfully updated the service logs
-//     schema:
-//       "$ref": "#/definitions/Log"
 //   '400':
-//     description: Unable to updated the service logs
+//     description: Invalid request payload or path
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to updates the service logs
+//     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // UpdateServiceLog represents the API handler to update
-// the logs for a service in the configured backend.
+// the logs for a service.
 func UpdateServiceLog(c *gin.Context) {
 	// capture middleware values
+	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build":   b.GetNumber(),
-		"org":     o,
-		"repo":    r.GetName(),
-		"service": s.GetNumber(),
-		"user":    u.GetName(),
-	}).Infof("updating logs for service %s", entry)
+	l.Debugf("updating logs for service %s", entry)
 
 	// send API call to capture the service logs
-	l, err := database.FromContext(c).GetLogForService(ctx, s)
+	sl, err := database.FromContext(c).GetLogForService(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
 
@@ -121,11 +114,11 @@ func UpdateServiceLog(c *gin.Context) {
 	// update log fields if provided
 	if len(input.GetData()) > 0 {
 		// update data if set
-		l.SetData(input.GetData())
+		sl.SetData(input.GetData())
 	}
 
 	// send API call to update the log
-	err = database.FromContext(c).UpdateLog(ctx, l)
+	err = database.FromContext(c).UpdateLog(ctx, sl)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update logs for service %s: %w", entry, err)
 

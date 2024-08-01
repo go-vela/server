@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -10,8 +8,8 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/pipeline"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 // The following functions were taken from
@@ -48,8 +46,29 @@ func Strings(v []string) *[]string { return &v }
 var (
 	_signingPrivateKey = "tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=="
 	_signingPublicKey  = "DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko="
-	_build             = &library.Build{
-		ID:           Int64(1),
+	_build             = &api.Build{
+		ID: Int64(1),
+		Repo: &api.Repo{
+			ID: Int64(1),
+			Owner: &api.User{
+				ID:     Int64(1),
+				Name:   String("octocat"),
+				Token:  nil,
+				Active: Bool(true),
+				Admin:  Bool(false),
+			},
+			Org:        String("github"),
+			Name:       String("octocat"),
+			FullName:   String("github/octocat"),
+			Link:       String("https://github.com/github/octocat"),
+			Clone:      String("https://github.com/github/octocat.git"),
+			Branch:     String("main"),
+			Timeout:    Int64(60),
+			Visibility: String("public"),
+			Private:    Bool(false),
+			Trusted:    Bool(false),
+			Active:     Bool(true),
+		},
 		Number:       Int(1),
 		Parent:       Int(1),
 		Event:        String("push"),
@@ -67,87 +86,12 @@ var (
 		Commit:       String("48afb5bdc41ad69bf22588491333f7cf71135163"),
 		Sender:       String("OctoKitty"),
 		Author:       String("OctoKitty"),
-		Branch:       String("master"),
-		Ref:          String("refs/heads/master"),
+		Branch:       String("main"),
+		Ref:          String("refs/heads/main"),
 		BaseRef:      String(""),
 		Host:         String("example.company.com"),
 		Runtime:      String("docker"),
 		Distribution: String("linux"),
-	}
-
-	_repo = &library.Repo{
-		ID:          Int64(1),
-		Org:         String("github"),
-		Name:        String("octocat"),
-		FullName:    String("github/octocat"),
-		Link:        String("https://github.com/github/octocat"),
-		Clone:       String("https://github.com/github/octocat.git"),
-		Branch:      String("master"),
-		Timeout:     Int64(60),
-		Visibility:  String("public"),
-		Private:     Bool(false),
-		Trusted:     Bool(false),
-		Active:      Bool(true),
-		AllowPull:   Bool(false),
-		AllowPush:   Bool(true),
-		AllowDeploy: Bool(false),
-		AllowTag:    Bool(false),
-	}
-
-	_steps = &pipeline.Build{
-		Version: "1",
-		ID:      "github_octocat_1",
-		Services: pipeline.ContainerSlice{
-			{
-				ID:          "service_github_octocat_1_postgres",
-				Directory:   "/home/github/octocat",
-				Environment: map[string]string{"FOO": "bar"},
-				Image:       "postgres:12-alpine",
-				Name:        "postgres",
-				Number:      1,
-				Ports:       []string{"5432:5432"},
-				Pull:        "not_present",
-			},
-		},
-		Steps: pipeline.ContainerSlice{
-			{
-				ID:          "step_github_octocat_1_init",
-				Directory:   "/home/github/octocat",
-				Environment: map[string]string{"FOO": "bar"},
-				Image:       "#init",
-				Name:        "init",
-				Number:      1,
-				Pull:        "always",
-			},
-			{
-				ID:          "step_github_octocat_1_clone",
-				Directory:   "/home/github/octocat",
-				Environment: map[string]string{"FOO": "bar"},
-				Image:       "target/vela-git:v0.5.1",
-				Name:        "clone",
-				Number:      2,
-				Pull:        "always",
-			},
-			{
-				ID:          "step_github_octocat_1_echo",
-				Commands:    []string{"echo hello"},
-				Directory:   "/home/github/octocat",
-				Environment: map[string]string{"FOO": "bar"},
-				Image:       "alpine:latest",
-				Name:        "echo",
-				Number:      3,
-				Pull:        "always",
-			},
-		},
-	}
-
-	_user = &library.User{
-		ID:     Int64(1),
-		Name:   String("octocat"),
-		Token:  nil,
-		Hash:   nil,
-		Active: Bool(true),
-		Admin:  Bool(false),
 	}
 )
 
@@ -181,7 +125,7 @@ func TestRedis_New(t *testing.T) {
 	for _, test := range tests {
 		_, err := New(
 			WithAddress(test.address),
-			WithChannels("foo"),
+			WithRoutes("foo"),
 			WithCluster(false),
 			WithTimeout(5*time.Second),
 		)

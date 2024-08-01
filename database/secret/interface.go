@@ -1,12 +1,11 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 )
 
@@ -33,7 +32,7 @@ type SecretInterface interface {
 	// CountSecretsForOrg defines a function that gets the count of secrets by org name.
 	CountSecretsForOrg(context.Context, string, map[string]interface{}) (int64, error)
 	// CountSecretsForRepo defines a function that gets the count of secrets by org and repo name.
-	CountSecretsForRepo(context.Context, *library.Repo, map[string]interface{}) (int64, error)
+	CountSecretsForRepo(context.Context, *api.Repo, map[string]interface{}) (int64, error)
 	// CountSecretsForTeam defines a function that gets the count of secrets by org and team name.
 	CountSecretsForTeam(context.Context, string, string, map[string]interface{}) (int64, error)
 	// CountSecretsForTeams defines a function that gets the count of secrets by teams within an org.
@@ -47,7 +46,7 @@ type SecretInterface interface {
 	// GetSecretForOrg defines a function that gets a secret by org name.
 	GetSecretForOrg(context.Context, string, string) (*library.Secret, error)
 	// GetSecretForRepo defines a function that gets a secret by org and repo name.
-	GetSecretForRepo(context.Context, string, *library.Repo) (*library.Secret, error)
+	GetSecretForRepo(context.Context, string, *api.Repo) (*library.Secret, error)
 	// GetSecretForTeam defines a function that gets a secret by org and team name.
 	GetSecretForTeam(context.Context, string, string, string) (*library.Secret, error)
 	// ListSecrets defines a function that gets a list of all secrets.
@@ -55,7 +54,7 @@ type SecretInterface interface {
 	// ListSecretsForOrg defines a function that gets a list of secrets by org name.
 	ListSecretsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
 	// ListSecretsForRepo defines a function that gets a list of secrets by org and repo name.
-	ListSecretsForRepo(context.Context, *library.Repo, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
+	ListSecretsForRepo(context.Context, *api.Repo, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
 	// ListSecretsForTeam defines a function that gets a list of secrets by org and team name.
 	ListSecretsForTeam(context.Context, string, string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
 	// ListSecretsForTeams defines a function that gets a list of secrets by teams within an org.

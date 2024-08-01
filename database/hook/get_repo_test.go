@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -10,12 +8,14 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestHook_Engine_GetHookForRepo(t *testing.T) {
 	// setup types
-	_hook := testHook()
+	_hook := testutils.APIHook()
 	_hook.SetID(1)
 	_hook.SetRepoID(1)
 	_hook.SetBuildID(1)
@@ -23,9 +23,9 @@ func TestHook_Engine_GetHookForRepo(t *testing.T) {
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hook.SetWebhookID(1)
 
-	_repo := testRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
@@ -39,7 +39,7 @@ func TestHook_Engine_GetHookForRepo(t *testing.T) {
 		AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "hooks" WHERE repo_id = $1 AND number = $2 LIMIT 1`).WithArgs(1, 1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "hooks" WHERE repo_id = $1 AND number = $2 LIMIT $3`).WithArgs(1, 1, 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
