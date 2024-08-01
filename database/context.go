@@ -29,8 +29,6 @@ func FromContext(c context.Context) Interface {
 		return nil
 	}
 
-	// assign as inflight property
-
 	return d
 }
 
