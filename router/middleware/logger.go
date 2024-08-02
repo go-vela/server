@@ -76,6 +76,7 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 				"status":     c.Writer.Status(),
 				"user-agent": util.EscapeValue(c.Request.UserAgent()),
 				"version":    util.EscapeValue(c.GetHeader("X-Vela-Version")),
+				"ui-version": util.EscapeValue(c.GetHeader("X-Vela-UI-Version")),
 			}
 
 			body := c.Value("payload")

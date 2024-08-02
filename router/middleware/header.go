@@ -38,7 +38,7 @@ func Options(c *gin.Context) {
 		}
 
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
+		c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept, x-vela-ui-version")
 		c.Header("Access-Control-Max-Age", "86400")
 		c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
 		c.Header("Content-Type", "application/json")
