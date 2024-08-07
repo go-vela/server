@@ -293,6 +293,26 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	author := "author"
 	number := 1
 
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
 	// run test
 	yaml, err := os.ReadFile("testdata/stages_pipeline.yml")
 	if err != nil {
@@ -329,8 +349,9 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 					Timeout:  1 * time.Second,
 					Endpoint: tt.args.endpoint,
 				},
-				repo:  &api.Repo{Name: &author},
-				build: &api.Build{Author: &name, Number: &number},
+				metadata: m,
+				repo:     &api.Repo{Name: &author},
+				build:    &api.Build{Author: &name, Number: &number},
 			}
 			_, _, err := compiler.Compile(yaml)
 			if (err != nil) != tt.wantErr {
@@ -360,6 +381,26 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 	name := "foo"
 	author := "author"
 	number := 1
+
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
 
 	// run test
 	yaml, err := os.ReadFile("testdata/steps_pipeline.yml")
@@ -397,8 +438,9 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 					Timeout:  1 * time.Second,
 					Endpoint: tt.args.endpoint,
 				},
-				repo:  tt.args.repo,
-				build: tt.args.libraryBuild,
+				repo:     tt.args.repo,
+				build:    tt.args.libraryBuild,
+				metadata: m,
 			}
 			_, _, err := compiler.Compile(yaml)
 			if (err != nil) != tt.wantErr {
@@ -1835,6 +1877,26 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	author := "author"
 	number := 1
 
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
 	// run test
 	yaml, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
@@ -1849,6 +1911,7 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	// todo: this needs to be fixed in compiler validation
 	// this is a dirty hack to make this test pass
 	compiler.SetCloneImage("")
+	compiler.WithMetadata(m)
 
 	compiler.repo = &api.Repo{Name: &author}
 	compiler.build = &api.Build{Author: &name, Number: &number}
@@ -1872,6 +1935,26 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	author := "author"
 	number := 1
 
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
 	// run test
 	yaml, err := os.ReadFile("testdata/steps_and_stages.yml")
 	if err != nil {
@@ -1885,6 +1968,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 
 	compiler.repo = &api.Repo{Name: &author}
 	compiler.build = &api.Build{Author: &name, Number: &number}
+	compiler.WithMetadata(m)
 
 	got, _, err := compiler.Compile(yaml)
 	if err == nil {
