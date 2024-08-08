@@ -9,6 +9,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/library"
+	"github.com/google/go-github/v63/github"
 )
 
 // Service represents the interface for Vela integrating
@@ -141,6 +142,28 @@ type Service interface {
 	// GetHTMLURL defines a function that retrieves
 	// a repository file's html_url.
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
+
+	// GitHub App Interface Functions
+
+	// CreateChecks defines a function that
+	// creates a GitHub App check run.
+	CreateChecks(context.Context, *api.Repo, string, string, string) (int64, error)
+	// UpdateChecks defines a function that
+	// updates a GitHub App check run.
+	UpdateChecks(context.Context, *api.Repo, *library.Step, string, string) error
+	// ProcessGitHubAppWebhook defines a function that
+	// parses the webhook from a GitHub App.
+	ProcessGitHubAppWebhook(ctx context.Context, request *http.Request) error
+	// GetInstallations defines a function that
+	// grabs all the installations associated with a GitHub App
+	GetInstallations() ([]*github.Installation, error)
+	// GetInstallationRepos defines a function that
+	// grabs all the repos associated with a GitHub App installation
+	GetInstallationRepos(*github.Installation) ([]*github.Repository, error)
+	// GetInstallationAccessToken defines a function that
+	// grabs the installation access token related to a repo
+	// TODO: Is there a better way of transporting IAT?
+	GetInstallationAccessToken(*api.Repo) (string, error)
 
 	// Webhook SCM Interface Functions
 

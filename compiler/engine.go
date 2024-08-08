@@ -145,6 +145,9 @@ type Engine interface {
 	// WithLabel defines a function that sets
 	// the label(s) in the Engine.
 	WithLabels([]string) Engine
+	// WithIat defines a function that sets
+	// the iat in the Engine.
+	WithIat(string) Engine
 	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(string, string) Engine

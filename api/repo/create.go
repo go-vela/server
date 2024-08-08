@@ -274,6 +274,32 @@ func CreateRepo(c *gin.Context) {
 		}
 	}
 
+	// get list of installations, match on org, filter by allowed repos, set installID
+	installations, err := scm.FromContext(c).GetInstallations()
+	if err == nil {
+		var id int64
+
+		// iterate through the list of installations
+		for _, install := range installations {
+			// find the installation that matches the org for the repo
+			if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
+				// check if repo is among list of repos accessible to the app installation
+				installationRepos, _ := scm.FromContext(c).GetInstallationRepos(install)
+
+				for _, repo := range installationRepos {
+					if strings.EqualFold(repo.GetName(), r.GetName()) {
+						id = install.GetID()
+						break
+					}
+				}
+			}
+		}
+
+		if id != 0 {
+			r.SetInstallID(id)
+		}
+	}
+
 	// if the repo exists but is inactive
 	if len(dbRepo.GetOrg()) > 0 && !dbRepo.GetActive() {
 		// update the repo owner

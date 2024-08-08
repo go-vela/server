@@ -34,6 +34,7 @@ import (
 
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/auth"
+	"github.com/go-vela/server/api/gha"
 	"github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -88,6 +89,10 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 	// Webhook endpoint
 	r.POST("/webhook", webhook.PostWebhook)
+
+	// TODO: Implement
+	// GitHub App webhook endpoint
+	r.POST("/gh-app", gha.PostWebhook)
 
 	// JWKS endpoints
 	r.GET("/_services/token/.well-known/openid-configuration", api.GetOpenIDConfig)

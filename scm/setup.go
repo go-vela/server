@@ -36,6 +36,10 @@ type Setup struct {
 	WebUIAddress string
 	// specifies the OAuth scopes to use for the scm client
 	Scopes []string
+	// specifies the GitHub App ID to use for the scm client
+	GithubAppID int64
+	// specifies the GitHub App private key to use for the scm client
+	GithubAppPrivateKey string
 }
 
 // Github creates and returns a Vela service capable of
@@ -55,6 +59,8 @@ func (s *Setup) Github() (Service, error) {
 		github.WithStatusContext(s.StatusContext),
 		github.WithWebUIAddress(s.WebUIAddress),
 		github.WithScopes(s.Scopes),
+		github.WithGithubAppID(s.GithubAppID),
+		github.WithGithubPrivateKey(s.GithubAppPrivateKey),
 	)
 }
 

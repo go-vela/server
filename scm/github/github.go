@@ -4,9 +4,14 @@ package github
 
 import (
 	"context"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
 	"fmt"
+	"net/http"
 	"net/url"
 
+	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/google/go-github/v63/github"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
@@ -44,12 +49,17 @@ type config struct {
 	WebUIAddress string
 	// specifies the OAuth scopes to use for the GitHub client
 	Scopes []string
+	// specifies the GitHub App ID to use for the scm client
+	GithubAppID int64
+	// specifies the GitHub App private key to use for the scm client
+	GithubAppPrivateKey string
 }
 
 type client struct {
-	config  *config
-	OAuth   *oauth2.Config
-	AuthReq *github.AuthorizationRequest
+	config        *config
+	OAuth         *oauth2.Config
+	AuthReq       *github.AuthorizationRequest
+	AppsTransport *ghinstallation.AppsTransport
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }
@@ -108,6 +118,28 @@ func New(opts ...ClientOpt) (*client, error) {
 		Scopes:       githubScopes,
 	}
 
+	if c.config.GithubAppID != 0 && len(c.config.GithubAppPrivateKey) > 0 {
+		decodedPEM, err := base64.StdEncoding.DecodeString(c.config.GithubAppPrivateKey)
+		if err != nil {
+			return nil, fmt.Errorf("error decoding base64: %w", err)
+		}
+
+		block, _ := pem.Decode(decodedPEM)
+		if block == nil {
+			return nil, fmt.Errorf("failed to parse PEM block containing the key")
+		}
+
+		privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
+		}
+
+		transport := ghinstallation.NewAppsTransportFromPrivateKey(http.DefaultTransport, c.config.GithubAppID, privateKey)
+
+		transport.BaseURL = c.config.API
+		c.AppsTransport = transport
+	}
+
 	return c, nil
 }
 
@@ -162,4 +194,33 @@ func (c *client) newClientToken(token string) *github.Client {
 	github.BaseURL, _ = url.Parse(c.config.API)
 
 	return github
+}
+
+// helper function to return the GitHub App client.
+func (c *client) newClientGitHubApp() (*github.Client, error) {
+	// create a github client based off the existing GitHub App configuration
+	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
+	if err != nil {
+		return nil, err
+	}
+	return client, err
+}
+
+// // helper function to return the GitHub App installation client.
+func (c *client) newClientGitHubAppInstallation(installation *github.Installation) (*github.Client, error) {
+	// create a github client based off the existing GitHub App configuration
+	client, err := c.newClientGitHubApp()
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: scope IAT by setting github.InstallationTokenOptions
+
+	// create installation token for the repo
+	t, _, err := client.Apps.CreateInstallationToken(context.Background(), installation.GetID(), &github.InstallationTokenOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	return c.newClientToken(t.GetToken()), nil
 }

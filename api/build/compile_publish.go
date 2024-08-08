@@ -257,6 +257,9 @@ func CompileAndPublish(
 			repo.SetPipelineType(pipeline.GetType())
 		}
 
+		// get installation access token
+		iat, err := scm.GetInstallationAccessToken(r)
+
 		var compiled *library.Pipeline
 		// parse and compile the pipeline configuration file
 		p, compiled, err = compiler.
@@ -269,6 +272,7 @@ func CompileAndPublish(
 			WithRepo(repo).
 			WithUser(u).
 			WithLabels(cfg.Labels).
+			WithIat(iat).
 			Compile(pipelineFile)
 		if err != nil {
 			// format the error message with extra information

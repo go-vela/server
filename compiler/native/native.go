@@ -43,6 +43,7 @@ type client struct {
 	repo           *api.Repo
 	user           *api.User
 	labels         []string
+	iat            string // installation access token
 }
 
 // FromCLIContext returns a Pipeline implementation that integrates with the supported registries.
@@ -226,6 +227,15 @@ func (c *client) WithUser(u *api.User) compiler.Engine {
 func (c *client) WithLabels(labels []string) compiler.Engine {
 	if len(labels) != 0 {
 		c.labels = labels
+	}
+
+	return c
+}
+
+// WithIat sets the iat in the Engine.
+func (c *client) WithIat(iat string) compiler.Engine {
+	if iat != "" {
+		c.iat = iat
 	}
 
 	return c
