@@ -31,6 +31,7 @@ type (
 		WebOauthCallbackPath string        `json:"web_oauth_callback_path"`
 		AccessTokenDuration  time.Duration `json:"access_token_duration"`
 		RefreshTokenDuration time.Duration `json:"refresh_token_duration"`
+		OpenIDIssuer         string        `json:"oidc_issuer"`
 	}
 
 	// Metadata is the extra set of data passed to the compiler for

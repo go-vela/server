@@ -484,7 +484,7 @@ func PostWebhook(c *gin.Context) {
 
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
 	if webhook.PullRequest.IsFromFork {
-		l.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), r.GetFullName(), b.GetNumber())
+		l.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), repo.GetFullName(), b.GetNumber())
 
 		switch repo.GetApproveBuild() {
 		case constants.ApproveForkAlways:
@@ -496,7 +496,7 @@ func PostWebhook(c *gin.Context) {
 			return
 		case constants.ApproveForkNoWrite:
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
-			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
+			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), repo.GetOwner().GetToken(), repo.GetOrg(), repo.GetName())
 			if err != nil {
 				err = gatekeepBuild(c, b, repo)
 				if err != nil {
@@ -512,7 +512,7 @@ func PostWebhook(c *gin.Context) {
 			//
 			// NOTE: this call is cumbersome for repos with lots of contributors. Potential TODO: improve this if
 			// GitHub adds a single-contributor API endpoint.
-			contributor, err := scm.FromContext(c).RepoContributor(ctx, r.GetOwner(), b.GetSender(), r.GetOrg(), r.GetName())
+			contributor, err := scm.FromContext(c).RepoContributor(ctx, repo.GetOwner(), b.GetSender(), repo.GetOrg(), repo.GetName())
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
 			}
@@ -552,6 +552,8 @@ func PostWebhook(c *gin.Context) {
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
 // the database resources with any relevant changes resulting from the event, such as name changes, transfers, etc.
+//
+// the caller is responsible for returning errors to the client.
 func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *types.Hook, r *types.Repo) (*types.Repo, error) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
@@ -664,6 +666,8 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo as well as build links for the UI.
+//
+// the caller is responsible for returning errors to the client.
 func RenameRepository(ctx context.Context, h *types.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
@@ -692,7 +696,6 @@ func RenameRepository(ctx context.Context, h *types.Hook, r *types.Repo, c *gin.
 	lastHook, err := database.FromContext(c).LastHookForRepo(ctx, dbR)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
@@ -796,7 +799,6 @@ func RenameRepository(ctx context.Context, h *types.Hook, r *types.Repo, c *gin.
 	dbR, err = database.FromContext(c).UpdateRepo(ctx, dbR)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s/%s", baseErr, dbR.GetOrg(), dbR.GetName())
-		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
