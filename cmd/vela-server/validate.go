@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -103,6 +104,13 @@ func validateCore(c *cli.Context) error {
 		c.String("default-repo-approve-build") != constants.ApproveForkNoWrite &&
 		c.String("default-repo-approve-build") != constants.ApproveOnce {
 		return fmt.Errorf("default-repo-approve-build (VELA_DEFAULT_REPO_APPROVE_BUILD) has the unsupported value of %s", c.String("default-repo-approve-build"))
+	}
+
+	if len(c.String("oidc-issuer")) > 0 {
+		_, err := url.Parse(c.String("oidc-issuer"))
+		if err != nil {
+			return fmt.Errorf("oidc-issuer (VELA_OPEN_ID_ISSUER) flag must be a valid URL")
+		}
 	}
 
 	return nil
