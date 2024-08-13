@@ -84,6 +84,7 @@ func CompilePipeline(c *gin.Context) {
 	p := pMiddleware.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
@@ -98,7 +99,7 @@ func CompilePipeline(c *gin.Context) {
 	ruleData := prepareRuleData(c)
 
 	// compile the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), ruleData, true)
+	pipeline, _, err := compiler.CompileLite(ctx, p.GetData(), ruleData, true)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline %s: %w", entry, err)
 

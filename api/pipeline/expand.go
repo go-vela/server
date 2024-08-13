@@ -84,6 +84,7 @@ func ExpandPipeline(c *gin.Context) {
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
@@ -98,7 +99,7 @@ func ExpandPipeline(c *gin.Context) {
 	ruleData := prepareRuleData(c)
 
 	// expand the templates in the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), ruleData, false)
+	pipeline, _, err := compiler.CompileLite(ctx, p.GetData(), ruleData, false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to expand pipeline %s: %w", entry, err)
 

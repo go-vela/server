@@ -58,7 +58,7 @@ func TestGithub_Template(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -120,7 +120,7 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -185,7 +185,7 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -239,7 +239,7 @@ func TestGithub_Template_BadRequest(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -289,7 +289,7 @@ func TestGithub_Template_NotFound(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)

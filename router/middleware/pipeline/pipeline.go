@@ -75,7 +75,7 @@ func Establish() gin.HandlerFunc {
 				WithCommit(p).
 				WithMetadata(c.MustGet("metadata").(*internal.Metadata)).
 				WithBuild(b).
-				Compile(config)
+				Compile(ctx, config)
 			if err != nil {
 				retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)
 
