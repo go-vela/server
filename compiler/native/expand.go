@@ -46,7 +46,7 @@ func (c *client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[stri
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
 //
-//nolint:funlen // ignore statement count
+//nolint:funlen,gocyclo // ignore function length
 func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, depth int) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
