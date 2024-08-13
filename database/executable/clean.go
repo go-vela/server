@@ -36,11 +36,13 @@ func (e *engine) CleanBuildExecutables(ctx context.Context) (int64, error) {
 		res := e.client.
 			WithContext(ctx).
 			Exec(CleanExecutablesPostgres)
+
 		return res.RowsAffected, res.Error
 	default:
 		res := e.client.
 			WithContext(ctx).
 			Exec(CleanExecutablesSqlite)
+
 		return res.RowsAffected, res.Error
 	}
 }
