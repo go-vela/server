@@ -26,7 +26,7 @@ type client struct {
 // with GitHub or a GitHub Enterprise instance.
 //
 //nolint:revive // ignore returning unexported client
-func New(address, token string) (*client, error) {
+func New(ctx context.Context, address, token string) (*client, error) {
 	// create the client object
 	c := &client{
 		URL: defaultURL,
@@ -50,7 +50,7 @@ func New(address, token string) (*client, error) {
 
 	if len(token) > 0 {
 		// create GitHub OAuth client with user's token
-		gitClient = c.newClientToken(token)
+		gitClient = c.newClientToken(ctx, token)
 	}
 
 	// overwrite the github client
@@ -60,14 +60,14 @@ func New(address, token string) (*client, error) {
 }
 
 // newClientToken is a helper function to return the GitHub oauth2 client.
-func (c *client) newClientToken(token string) *github.Client {
+func (c *client) newClientToken(ctx context.Context, token string) *github.Client {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 
 	// create the OAuth client
-	tc := oauth2.NewClient(context.Background(), ts)
+	tc := oauth2.NewClient(ctx, ts)
 	// if c.SkipVerify {
 	// 	tc.Transport.(*oauth2.Transport).Base = &http.Transport{
 	// 		Proxy: http.ProxyFromEnvironment,

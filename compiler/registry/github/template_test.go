@@ -3,6 +3,7 @@
 package github
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -52,7 +53,7 @@ func TestGithub_Template(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -114,7 +115,7 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -179,7 +180,7 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -233,7 +234,7 @@ func TestGithub_Template_BadRequest(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -283,7 +284,7 @@ func TestGithub_Template_NotFound(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}

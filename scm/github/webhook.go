@@ -102,7 +102,7 @@ func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *ap
 func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, r *api.Repo, h *library.Hook) error {
 	// create GitHub OAuth client with user's token
 	//nolint:contextcheck // do not need to pass context in this instance
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(ctx, *u.Token)
 
 	// capture the delivery ID of the hook using GitHub API
 	deliveryID, err := c.getDeliveryID(ctx, client, r, h)

@@ -19,7 +19,9 @@ func (c *client) Template(u *api.User, s *registry.Source) ([]byte, error) {
 	cli := c.Github
 	if u != nil {
 		// create GitHub OAuth client with user's token
-		cli = c.newClientToken(u.GetToken())
+
+		// todo: need context here
+		// cli = c.newClientToken(ctx, u.GetToken())
 	}
 
 	// create the options to pass
