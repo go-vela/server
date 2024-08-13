@@ -22,6 +22,7 @@ func (e *engine) DeleteDashboard(ctx context.Context, d *api.Dashboard) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableDashboard).
 		Delete(dashboard).
 		Error

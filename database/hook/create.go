@@ -31,7 +31,10 @@ func (e *engine) CreateHook(ctx context.Context, h *library.Hook) (*library.Hook
 		return nil, err
 	}
 
-	result := e.client.Table(constants.TableHook).Create(hook)
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableHook).
+		Create(hook)
 
 	// send query to the database
 	return hook.ToLibrary(), result.Error

@@ -40,7 +40,10 @@ func (e *engine) CreateUser(ctx context.Context, u *api.User) (*api.User, error)
 	}
 
 	// send query to the database
-	result := e.client.Table(constants.TableUser).Create(user)
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableUser).
+		Create(user)
 
 	// decrypt fields to return user
 	err = user.Decrypt(e.config.EncryptionKey)

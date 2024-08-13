@@ -32,6 +32,7 @@ func (e *engine) ListLogs(ctx context.Context) ([]*library.Log, error) {
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableLog).
 		Find(&l).
 		Error

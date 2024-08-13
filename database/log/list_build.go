@@ -36,6 +36,7 @@ func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPa
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableLog).
 		Where("build_id = ?", b.GetID()).
 		Order("service_id ASC NULLS LAST").

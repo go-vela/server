@@ -12,7 +12,7 @@ import (
 )
 
 // GetActiveJWK gets a JWK by UUID (kid) from the database if active.
-func (e *engine) GetActiveJWK(_ context.Context, id string) (jwk.RSAPublicKey, error) {
+func (e *engine) GetActiveJWK(ctx context.Context, id string) (jwk.RSAPublicKey, error) {
 	e.logger.Tracef("getting JWK key %s", id)
 
 	// variable to store query results
@@ -20,6 +20,7 @@ func (e *engine) GetActiveJWK(_ context.Context, id string) (jwk.RSAPublicKey, e
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableJWK).
 		Where("id = ?", id).
 		Where("active = ?", true).

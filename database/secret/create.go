@@ -61,7 +61,10 @@ func (e *engine) CreateSecret(ctx context.Context, s *library.Secret) (*library.
 	}
 
 	// create secret record
-	result := e.client.Table(constants.TableSecret).Create(secret.Nullify())
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableSecret).
+		Create(secret.Nullify())
 
 	if result.Error != nil {
 		return nil, result.Error

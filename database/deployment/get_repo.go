@@ -27,6 +27,7 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableDeployment).
 		Where("repo_id = ?", r.GetID()).
 		Where("number = ?", number).
@@ -48,6 +49,7 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 
 		// send query to the database and store result in variable
 		err = e.client.
+			WithContext(ctx).
 			Table(constants.TableBuild).
 			Where("id = ?", bID).
 			Take(b).

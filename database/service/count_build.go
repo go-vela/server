@@ -22,6 +22,7 @@ func (e *engine) CountServicesForBuild(ctx context.Context, b *api.Build, filter
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableService).
 		Where("build_id = ?", b.GetID()).
 		Where(filters).

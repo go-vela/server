@@ -19,6 +19,7 @@ func (e *engine) GetBuild(ctx context.Context, id int64) (*api.Build, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Preload("Repo").
 		Preload("Repo.Owner").

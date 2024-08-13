@@ -33,10 +33,14 @@ func (e *engine) CleanBuildExecutables(ctx context.Context) (int64, error) {
 
 	switch e.config.Driver {
 	case constants.DriverPostgres:
-		res := e.client.Exec(CleanExecutablesPostgres)
+		res := e.client.
+			WithContext(ctx).
+			Exec(CleanExecutablesPostgres)
 		return res.RowsAffected, res.Error
 	default:
-		res := e.client.Exec(CleanExecutablesSqlite)
+		res := e.client.
+			WithContext(ctx).
+			Exec(CleanExecutablesSqlite)
 		return res.RowsAffected, res.Error
 	}
 }

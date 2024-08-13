@@ -25,6 +25,7 @@ func (e *engine) DeleteStep(ctx context.Context, s *library.Step) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableStep).
 		Delete(step).
 		Error

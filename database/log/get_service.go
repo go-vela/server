@@ -20,6 +20,7 @@ func (e *engine) GetLogForService(ctx context.Context, s *library.Service) (*lib
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableLog).
 		Where("service_id = ?", s.GetID()).
 		Take(l).

@@ -20,5 +20,7 @@ func (e *engine) CreateDeploymentIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for deployments table")
 
 	// create the repo_id column index for the deployments table
-	return e.client.Exec(CreateRepoIDIndex).Error
+	return e.client.
+		WithContext(ctx).
+		Exec(CreateRepoIDIndex).Error
 }

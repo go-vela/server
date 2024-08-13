@@ -32,6 +32,7 @@ func (e *engine) ListBuilds(ctx context.Context) ([]*api.Build, error) {
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Preload("Repo").
 		Preload("Repo.Owner").
 		Table(constants.TableBuild).

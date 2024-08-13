@@ -20,6 +20,7 @@ func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *a
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Preload("Repo").
 		Preload("Repo.Owner").

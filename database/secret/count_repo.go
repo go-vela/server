@@ -24,6 +24,7 @@ func (e *engine) CountSecretsForRepo(ctx context.Context, r *api.Repo, filters m
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretRepo).
 		Where("org = ?", r.GetOrg()).

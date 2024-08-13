@@ -32,6 +32,7 @@ func (e *engine) ListUsers(ctx context.Context) ([]*api.User, error) {
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableUser).
 		Find(&u).
 		Error

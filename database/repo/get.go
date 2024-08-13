@@ -19,6 +19,7 @@ func (e *engine) GetRepo(ctx context.Context, id int64) (*api.Repo, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableRepo).
 		Preload("Owner").
 		Where("id = ?", id).

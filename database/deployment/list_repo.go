@@ -30,6 +30,7 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableDeployment).
 		Where("repo_id = ?", r.GetID()).
 		Order("number DESC").
@@ -58,6 +59,7 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 
 			// send query to the database and store result in variable
 			err = e.client.
+				WithContext(ctx).
 				Table(constants.TableBuild).
 				Where("id = ?", bID).
 				Take(b).
