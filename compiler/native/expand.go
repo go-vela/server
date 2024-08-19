@@ -3,6 +3,7 @@
 package native
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -20,7 +21,7 @@ import (
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*yaml.Build, error) {
+func (c *client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
 	}
@@ -28,7 +29,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r 
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.GetTemplateDepth())
+		p, err := c.ExpandSteps(ctx, &yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.GetTemplateDepth())
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +45,9 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r 
 
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
-func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, depth int) (*yaml.Build, error) {
+//
+//nolint:funlen,gocyclo // ignore function length
+func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, depth int) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
 	}
@@ -115,7 +118,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 			return s, err
 		}
 
-		bytes, err := c.getTemplate(tmpl, step.Template.Name)
+		bytes, err := c.getTemplate(ctx, tmpl, step.Template.Name)
 		if err != nil {
 			return s, err
 		}
@@ -142,7 +145,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 
 			templates = append(templates, tmplBuild.Templates...)
 
-			tmplBuild, err = c.ExpandSteps(tmplBuild, mapFromTemplates(tmplBuild.Templates), r, depth-1)
+			tmplBuild, err = c.ExpandSteps(ctx, tmplBuild, mapFromTemplates(tmplBuild.Templates), r, depth-1)
 			if err != nil {
 				return s, err
 			}
@@ -210,7 +213,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 	return s, nil
 }
 
-func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
+func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name string) ([]byte, error) {
 	var (
 		bytes []byte
 		err   error
@@ -273,7 +276,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"host": src.Host,
 			}).Tracef("Using GitHub client to pull template")
 
-			bytes, err = c.Github.Template(nil, src)
+			bytes, err = c.Github.Template(ctx, nil, src)
 			if err != nil {
 				return bytes, err
 			}
@@ -291,7 +294,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 			}
 
 			// use private (authenticated) github instance to pull from
-			bytes, err = c.PrivateGithub.Template(c.user, src)
+			bytes, err = c.PrivateGithub.Template(ctx, c.user, src)
 			if err != nil {
 				return bytes, err
 			}
@@ -312,7 +315,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"path": src.Name,
 			}).Tracef("Using GitHub client to pull template")
 
-			bytes, err = c.Github.Template(nil, src)
+			bytes, err = c.Github.Template(ctx, nil, src)
 			if err != nil {
 				return bytes, err
 			}
@@ -328,7 +331,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 			}
 
 			// use private (authenticated) github instance to pull from
-			bytes, err = c.PrivateGithub.Template(c.user, src)
+			bytes, err = c.PrivateGithub.Template(ctx, c.user, src)
 			if err != nil {
 				return bytes, err
 			}

@@ -3,6 +3,7 @@
 package native
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -63,7 +64,7 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 	}
 
 	// setup github template service
-	github, err := setupGithub()
+	github, err := setupGithub(ctx.Context)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +93,7 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 	if ctx.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))
 		// setup private github service
-		privGithub, err := setupPrivateGithub(ctx.String("github-url"), ctx.String("github-token"))
+		privGithub, err := setupPrivateGithub(ctx.Context, ctx.String("github-url"), ctx.String("github-token"))
 		if err != nil {
 			return nil, err
 		}
@@ -106,16 +107,16 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 
 // setupGithub is a helper function to setup the
 // Github registry service from the CLI arguments.
-func setupGithub() (registry.Service, error) {
+func setupGithub(ctx context.Context) (registry.Service, error) {
 	logrus.Tracef("creating %s registry client from CLI configuration", "github")
-	return github.New("", "")
+	return github.New(ctx, "", "")
 }
 
 // setupPrivateGithub is a helper function to setup the
 // Github registry service from the CLI arguments.
-func setupPrivateGithub(addr, token string) (registry.Service, error) {
+func setupPrivateGithub(ctx context.Context, addr, token string) (registry.Service, error) {
 	logrus.Tracef("creating private %s registry client from CLI configuration", "github")
-	return github.New(addr, token)
+	return github.New(ctx, addr, token)
 }
 
 // Duplicate creates a clone of the Engine.
@@ -194,9 +195,9 @@ func (c *client) WithMetadata(m *internal.Metadata) compiler.Engine {
 }
 
 // WithPrivateGitHub sets the private github client in the Engine.
-func (c *client) WithPrivateGitHub(url, token string) compiler.Engine {
+func (c *client) WithPrivateGitHub(ctx context.Context, url, token string) compiler.Engine {
 	if len(url) != 0 && len(token) != 0 {
-		privGithub, _ := setupPrivateGithub(url, token)
+		privGithub, _ := setupPrivateGithub(ctx, url, token)
 
 		c.PrivateGithub = privGithub
 	}
