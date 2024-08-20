@@ -41,6 +41,7 @@ func (e *engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPag
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Where("repo_id = ?", r.GetID()).
 		Order("id DESC").

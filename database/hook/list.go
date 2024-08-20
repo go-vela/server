@@ -32,6 +32,7 @@ func (e *engine) ListHooks(ctx context.Context) ([]*library.Hook, error) {
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Find(&h).
 		Error

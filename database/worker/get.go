@@ -19,6 +19,7 @@ func (e *engine) GetWorker(ctx context.Context, id int64) (*api.Worker, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableWorker).
 		Where("id = ?", id).
 		Take(w).

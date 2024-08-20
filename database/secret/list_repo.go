@@ -44,6 +44,7 @@ func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretRepo).
 		Where("org = ?", r.GetOrg()).

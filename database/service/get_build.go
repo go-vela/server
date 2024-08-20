@@ -25,6 +25,7 @@ func (e *engine) GetServiceForBuild(ctx context.Context, b *api.Build, number in
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableService).
 		Where("build_id = ?", b.GetID()).
 		Where("number = ?", number).

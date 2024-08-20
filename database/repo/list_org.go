@@ -42,6 +42,7 @@ func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filter
 	switch sortBy {
 	case "latest":
 		query := e.client.
+			WithContext(ctx).
 			Table(constants.TableBuild).
 			Select("repos.id, MAX(builds.created) AS latest_build").
 			Joins("INNER JOIN repos repos ON builds.repo_id = repos.id").
@@ -49,6 +50,7 @@ func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filter
 			Group("repos.id")
 
 		err = e.client.
+			WithContext(ctx).
 			Table(constants.TableRepo).
 			Preload("Owner").
 			Select("repos.*").
@@ -65,6 +67,7 @@ func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filter
 		fallthrough
 	default:
 		err = e.client.
+			WithContext(ctx).
 			Table(constants.TableRepo).
 			Preload("Owner").
 			Where("org = ?", org).

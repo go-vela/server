@@ -26,6 +26,7 @@ func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch strin
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Preload("Repo").
 		Preload("Repo.Owner").

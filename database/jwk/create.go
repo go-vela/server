@@ -14,7 +14,7 @@ import (
 )
 
 // CreateJWK creates a new JWK in the database.
-func (e *engine) CreateJWK(_ context.Context, j jwk.RSAPublicKey) error {
+func (e *engine) CreateJWK(ctx context.Context, j jwk.RSAPublicKey) error {
 	e.logger.WithFields(logrus.Fields{
 		"jwk": j.KeyID(),
 	}).Tracef("creating key %s", j.KeyID())
@@ -23,5 +23,8 @@ func (e *engine) CreateJWK(_ context.Context, j jwk.RSAPublicKey) error {
 	key.Active = sql.NullBool{Bool: true, Valid: true}
 
 	// send query to the database
-	return e.client.Table(constants.TableJWK).Create(key).Error
+	return e.client.
+		WithContext(ctx).
+		Table(constants.TableJWK).
+		Create(key).Error
 }

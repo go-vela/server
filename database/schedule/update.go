@@ -32,9 +32,16 @@ func (e *engine) UpdateSchedule(ctx context.Context, s *api.Schedule, fields boo
 	// we do this because Gorm will automatically set `updated_at` with the Save function
 	// and the `updated_at` field should reflect the last time a user updated the record, rather than the scheduler
 	if fields {
-		err = e.client.Table(constants.TableSchedule).Save(schedule).Error
+		err = e.client.
+			WithContext(ctx).
+			Table(constants.TableSchedule).
+			Save(schedule).Error
 	} else {
-		err = e.client.Table(constants.TableSchedule).Model(schedule).UpdateColumn("scheduled_at", s.GetScheduledAt()).Error
+		err = e.client.
+			WithContext(ctx).
+			Table(constants.TableSchedule).
+			Model(schedule).
+			UpdateColumn("scheduled_at", s.GetScheduledAt()).Error
 	}
 
 	if err != nil {

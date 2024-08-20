@@ -32,7 +32,10 @@ func (e *engine) CreateService(ctx context.Context, s *library.Service) (*librar
 	}
 
 	// send query to the database
-	result := e.client.Table(constants.TableService).Create(service)
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableService).
+		Create(service)
 
 	return service.ToLibrary(), result.Error
 }
