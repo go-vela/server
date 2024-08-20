@@ -109,7 +109,7 @@ func ListLogsForBuild(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+	perPage = max(1, min(100, perPage))
 
 	// send API call to capture the list of logs for the build
 	bl, t, err := database.FromContext(c).ListLogsForBuild(ctx, b, page, perPage)

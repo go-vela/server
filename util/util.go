@@ -31,30 +31,6 @@ func HandleError(c context.Context, status int, err error) {
 	}
 }
 
-// MaxInt is a helper function to clamp the integer which
-// prevents it from being higher then the provided value.
-//
-// Currently, Go only supports float64 via math. ( max | min ).
-func MaxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-
-	return b
-}
-
-// MinInt is a helper function to clamp the integer which
-// prevents it from being lower then the provided value.
-//
-// Currently, Go only supports float64 via math. ( max | min ).
-func MinInt(a, b int) int {
-	if a < b {
-		return a
-	}
-
-	return b
-}
-
 // FormParameter safely captures a form parameter from the context
 // by removing any new lines and HTML escaping the value.
 func FormParameter(c *gin.Context, parameter string) string {
