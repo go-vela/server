@@ -138,7 +138,7 @@ func NewTest(urls ...string) (*client, error) {
 }
 
 // helper function to return the GitHub OAuth client.
-func (c *client) newClientToken(token string) *github.Client {
+func (c *client) newClientToken(ctx context.Context, token string) *github.Client {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},

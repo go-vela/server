@@ -3,6 +3,7 @@
 package native
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net/http"
@@ -251,7 +252,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -353,7 +354,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 				repo:     &api.Repo{Name: &author},
 				build:    &api.Build{Author: &name, Number: &number},
 			}
-			_, _, err := compiler.Compile(yaml)
+			_, _, err := compiler.Compile(context.Background(), yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -442,7 +443,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 				build:    tt.args.libraryBuild,
 				metadata: m,
 			}
-			_, _, err := compiler.Compile(yaml)
+			_, _, err := compiler.Compile(context.Background(), yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -631,7 +632,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -890,7 +891,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1135,7 +1136,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1256,7 +1257,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1377,7 +1378,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1457,7 +1458,7 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	_, _, err = compiler.Compile(invalidYaml)
+	_, _, err = compiler.Compile(context.Background(), invalidYaml)
 	if err == nil {
 		t.Error("Compile should have returned an err")
 	}
@@ -1645,7 +1646,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 
 			compiler.WithMetadata(m)
 
-			got, _, err := compiler.Compile(yaml)
+			got, _, err := compiler.Compile(context.Background(), yaml)
 			if err != nil {
 				t.Errorf("Compile returned err: %v", err)
 			}
@@ -1856,7 +1857,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			pipelineType := tt.args.pipelineType
 			compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 
-			got, _, err := compiler.Compile(yaml)
+			got, _, err := compiler.Compile(context.Background(), yaml)
 			if err != nil {
 				t.Errorf("Compile returned err: %v", err)
 			}
@@ -1916,7 +1917,7 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	compiler.repo = &api.Repo{Name: &author}
 	compiler.build = &api.Build{Author: &name, Number: &number}
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err == nil {
 		t.Errorf("Compile should have returned err")
 	}
@@ -1970,7 +1971,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	compiler.build = &api.Build{Author: &name, Number: &number}
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err == nil {
 		t.Errorf("Compile should have returned err")
 	}
@@ -3055,7 +3056,7 @@ func Test_Compile_Inline(t *testing.T) {
 				compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 			}
 
-			got, _, err := compiler.Compile(yaml)
+			got, _, err := compiler.Compile(context.Background(), yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -3931,7 +3932,7 @@ func Test_CompileLite(t *testing.T) {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
-			got, _, err := compiler.CompileLite(yaml, tt.args.ruleData, tt.args.substitute)
+			got, _, err := compiler.CompileLite(context.Background(), yaml, tt.args.ruleData, tt.args.substitute)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CompileLite() error = %v, wantErr %v", err, tt.wantErr)
 				return

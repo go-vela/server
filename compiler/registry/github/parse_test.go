@@ -3,6 +3,7 @@
 package github
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -28,7 +29,7 @@ func TestGithub_Parse(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -60,7 +61,7 @@ func TestGithub_ParseWithBranch(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -91,7 +92,7 @@ func TestGithub_Parse_Custom(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -128,7 +129,7 @@ func TestGithub_Parse_Full(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -151,7 +152,7 @@ func TestGithub_Parse_Invalid(t *testing.T) {
 	defer s.Close()
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -186,7 +187,7 @@ func TestGithub_Parse_Hostname(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
@@ -223,7 +224,7 @@ func TestGithub_Parse_Path(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
