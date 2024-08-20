@@ -31,7 +31,7 @@ func (c *client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(ctx, *u.Token)
 
 	// send API call to capture org access level for user
 	membership, _, err := client.Organizations.GetOrgMembership(ctx, *u.Name, org)
@@ -67,9 +67,7 @@ func (c *client) RepoAccess(ctx context.Context, name, token, org, repo string) 
 	}
 
 	// create github oauth client with the given token
-	//
-	//nolint:contextcheck // ignore context passing
-	client := c.newClientToken(token)
+	client := c.newClientToken(ctx, token)
 
 	// send API call to capture repo access level for user
 	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, name)
@@ -100,7 +98,7 @@ func (c *client) TeamAccess(ctx context.Context, u *api.User, org, team string) 
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(ctx, u.GetToken())
 	teams := []*github.Team{}
 
 	// set the max per page for the options to capture the list of repos
@@ -150,7 +148,7 @@ func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *api.User, org stri
 	}).Tracef("capturing %s team membership for org %s", u.GetName(), org)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(ctx, u.GetToken())
 	teams := []*github.Team{}
 
 	// set the max per page for the options to capture the list of repos
@@ -195,7 +193,7 @@ func (c *client) RepoContributor(ctx context.Context, owner *api.User, sender, o
 	}).Tracef("capturing %s contributor status for repo %s/%s", sender, org, repo)
 
 	// create GitHub OAuth client with repo owner's token
-	client := c.newClientToken(owner.GetToken())
+	client := c.newClientToken(ctx, owner.GetToken())
 
 	// set the max per page for the options to capture the list of repos
 	opts := github.ListContributorsOptions{

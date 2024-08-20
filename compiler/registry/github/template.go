@@ -14,12 +14,12 @@ import (
 )
 
 // Template captures the templated pipeline configuration from the GitHub repo.
-func (c *client) Template(u *api.User, s *registry.Source) ([]byte, error) {
+func (c *client) Template(ctx context.Context, u *api.User, s *registry.Source) ([]byte, error) {
 	// use default GitHub OAuth client we provide
 	cli := c.Github
 	if u != nil {
 		// create GitHub OAuth client with user's token
-		cli = c.newClientToken(u.GetToken())
+		cli = c.newClientToken(ctx, u.GetToken())
 	}
 
 	// create the options to pass

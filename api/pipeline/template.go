@@ -115,7 +115,7 @@ func GetTemplates(c *gin.Context) {
 		templates[name] = template.ToLibrary()
 
 		// create a compiler registry client for parsing (no address or token needed for Parse)
-		registry, err := github.New("", "")
+		registry, err := github.New(ctx, "", "")
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("%s: unable to create compiler github client: %w", baseErr, err))
 
