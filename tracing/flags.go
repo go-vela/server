@@ -21,4 +21,10 @@ var Flags = []cli.Flag{
 		Usage:   "set otel tracing service name",
 		Value:   "vela-server",
 	},
+	&cli.Float64Flag{
+		EnvVars: []string{"VELA_TRACING_SAMPLER_RATIO", "TRACING_SAMPLER_RATIO"},
+		Name:    "tracing.sampler.ratio",
+		Usage:   "set otel tracing sampler ratio. see: https://opentelemetry.io/docs/concepts/sampling/",
+		Value:   0.5,
+	},
 }

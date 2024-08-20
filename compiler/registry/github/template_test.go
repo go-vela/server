@@ -3,6 +3,7 @@
 package github
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -52,12 +53,12 @@ func TestGithub_Template(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -114,12 +115,12 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -179,12 +180,12 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -233,12 +234,12 @@ func TestGithub_Template_BadRequest(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -283,12 +284,12 @@ func TestGithub_Template_NotFound(t *testing.T) {
 	}
 
 	// run test
-	c, err := New(s.URL, "")
+	c, err := New(context.Background(), s.URL, "")
 	if err != nil {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(u, src)
+	got, err := c.Template(context.Background(), u, src)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)

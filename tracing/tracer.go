@@ -35,6 +35,8 @@ func initTracer(c *cli.Context) (*sdktrace.TracerProvider, error) {
 
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(c.Float64("tracing.sampler.ratio")))),
+		// sdktrace.WithSampler(sdktrace.RatioSampler(c.Float64("tracing.sampler.ratio"))),
 		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(res),
 	)

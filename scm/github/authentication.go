@@ -56,7 +56,7 @@ func (c *client) Login(ctx context.Context, w http.ResponseWriter, r *http.Reque
 
 // Authenticate completes the authentication workflow for the session
 // and returns the remote user details.
-func (c *client) Authenticate(ctx context.Context, w http.ResponseWriter, r *http.Request, oAuthState string) (*api.User, error) {
+func (c *client) Authenticate(ctx context.Context, _ http.ResponseWriter, r *http.Request, oAuthState string) (*api.User, error) {
 	c.Logger.Trace("authenticating user")
 
 	// get the OAuth code
