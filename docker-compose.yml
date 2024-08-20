@@ -47,6 +47,7 @@ services:
       VELA_ENABLE_TRACING: true
       VELA_TRACING_SERVICE_NAME: 'vela-server'
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      VELA_TRACING_SAMPLER_RATIO: 1
     env_file:
       - .env
     restart: always
