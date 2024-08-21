@@ -22,9 +22,15 @@ var Flags = []cli.Flag{
 		Value:   "vela-server",
 	},
 	&cli.Float64Flag{
-		EnvVars: []string{"VELA_TRACING_SAMPLER_RATIO", "TRACING_SAMPLER_RATIO"},
-		Name:    "tracing.sampler.ratio",
-		Usage:   "set otel tracing sampler ratio. see: https://opentelemetry.io/docs/concepts/sampling/",
+		EnvVars: []string{"VELA_TRACING_SAMPLE_RATIO", "OTEL_TRACE_SAMPLE_RATIO"},
+		Name:    "tracing.sample.ratio",
+		Usage:   "set otel tracing head-sampler acceptance ratio. see: https://opentelemetry.io/docs/concepts/sampling/",
 		Value:   0.5,
+	},
+	&cli.Float64Flag{
+		EnvVars: []string{"VELA_TRACING_SAMPLE_RATELIMIT_PER_SECOND", "OTEL_TRACING_SAMPLE_RATELIMIT_PER_SECOND"},
+		Name:    "tracing.sample.persecond",
+		Usage:   "set otel tracing head-sampler rate-limiting to N per second. see: https://opentelemetry.io/docs/concepts/sampling/",
+		Value:   1,
 	},
 }

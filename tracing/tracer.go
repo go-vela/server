@@ -5,6 +5,7 @@ package tracing
 import (
 	"context"
 
+	"github.com/go-vela/server/tracing/sampler"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"go.opentelemetry.io/otel"
@@ -34,12 +35,14 @@ func initTracer(c *cli.Context) (*sdktrace.TracerProvider, error) {
 		return nil, err
 	}
 
-	logrus.Info("intializing tracing using sampler ratio: ", c.Float64("tracing.sampler.ratio"))
+	logrus.Infof("intializing tracing using samplers: ratio(%f), persecond(%f)", c.Float64("tracing.sampler.ratio"), c.Float64("tracing.sampler.persecond"))
+
+	ratioSampler := sdktrace.ParentBased(sdktrace.TraceIDRatioBased(c.Float64("tracing.sampler.ratio")))
+	rateLimitSampler := sdktrace.ParentBased(sampler.NewRateLimitSampler(c.Float64("tracing.sampler.persecond")))
 
 	tp := sdktrace.NewTracerProvider(
-		// sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(c.Float64("tracing.sampler.ratio")))),
-		// sdktrace.WithSampler(sdktrace.RateLimiting(1000, 1000)),
+		sdktrace.WithSampler(ratioSampler),
+		sdktrace.WithSampler(rateLimitSampler),
 		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(res),
 	)

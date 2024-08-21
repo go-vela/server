@@ -24,7 +24,7 @@ type rateLimitSampler struct {
 	limiter      *rate.Limiter
 }
 
-func newRateLimitSampler(perSec float64) *rateLimitSampler {
+func NewRateLimitSampler(perSec float64) *rateLimitSampler {
 	return &rateLimitSampler{
 		maxPerSecond: perSec,
 		limiter:      rate.NewLimiter(rate.Every(time.Duration(1.0/perSec)*time.Second), 1),
