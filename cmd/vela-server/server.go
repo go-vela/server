@@ -16,7 +16,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -80,20 +79,13 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	// create the tracing config
-	tc, err := tracing.New(c)
+	tc, err := tracing.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
 
-	// opt-in for telemetry
-	tracingMiddleware := func(ctx *gin.Context) {}
+	// shutdown opt-in tracing when server closes
 	if tc.EnableTracing {
-		// initialize tracing middleware
-		tracingMiddleware = otelgin.Middleware(c.String("tracing.service.name"),
-			otelgin.WithTracerProvider(tc.TracerProvider))
-
-		// shutdown tracing when server closes
 		defer func() {
 			err := tc.TracerProvider.Shutdown(context.Background())
 			if err != nil {
@@ -213,9 +205,8 @@ func server(c *cli.Context) error {
 		middleware.DefaultRepoEventsMask(c.Int64("default-repo-events-mask")),
 		middleware.DefaultRepoApproveBuild(c.String("default-repo-approve-build")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
-
-		// tracing middle, which is an empty handler when tracing is disabled
-		tracingMiddleware,
+		middleware.TracingClient(tc),
+		middleware.TracingInstrumentation(tc),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))

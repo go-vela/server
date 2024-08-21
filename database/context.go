@@ -40,7 +40,7 @@ func ToContext(c Setter, d Interface) {
 }
 
 // FromCLIContext creates and returns a database engine from the urfave/cli context.
-func FromCLIContext(c *cli.Context, tc *tracing.Config) (Interface, error) {
+func FromCLIContext(c *cli.Context, tc *tracing.Client) (Interface, error) {
 	logrus.Debug("creating database engine from CLI configuration")
 
 	return New(
@@ -56,6 +56,6 @@ func FromCLIContext(c *cli.Context, tc *tracing.Config) (Interface, error) {
 		WithLogSlowThreshold(c.Duration("database.log.slow_threshold")),
 		WithLogShowSQL(c.Bool("database.log.show_sql")),
 		WithSkipCreation(c.Bool("database.skip_creation")),
-		WithTracingConfig(tc),
+		WithTracing(tc),
 	)
 }

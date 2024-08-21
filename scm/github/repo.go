@@ -12,7 +12,6 @@ import (
 
 	"github.com/google/go-github/v63/github"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel/trace"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
@@ -506,9 +505,7 @@ func (c *client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r
 // ListUserRepos returns a list of all repos the user has access to.
 func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
-		"user":     u.GetName(),
-		"span_id":  trace.SpanFromContext(ctx).SpanContext().SpanID(),
-		"trace_id": trace.SpanFromContext(ctx).SpanContext().TraceID(),
+		"user": u.GetName(),
 	}).Tracef("listing source repositories for %s", u.GetName())
 
 	// create GitHub OAuth client with user's token

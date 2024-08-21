@@ -73,7 +73,7 @@ type (
 		// sirupsen/logrus logger used in database functions
 		logger *logrus.Entry
 		// configurations related to telemetry/tracing
-		tracing *tracing.Config
+		tracing *tracing.Client
 
 		settings.SettingsInterface
 		build.BuildInterface
@@ -243,7 +243,7 @@ func NewTest() (Interface, error) {
 		WithDriver("sqlite3"),
 		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithSkipCreation(false),
-		WithTracingConfig(&tracing.Config{EnableTracing: false}),
+		WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
 		WithLogLevel("warn"),
 		WithLogShowSQL(false),
 		WithLogSkipNotFound(true),

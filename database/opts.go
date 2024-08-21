@@ -132,10 +132,9 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	}
 }
 
-// WithTracingConfig sets the shared tracing config in the database engine.
-func WithTracingConfig(tracing *tracing.Config) EngineOpt {
+// WithTracing sets the shared tracing config in the database engine.
+func WithTracing(tracing *tracing.Client) EngineOpt {
 	return func(e *engine) error {
-		// set the tracing config
 		e.tracing = tracing
 
 		return nil

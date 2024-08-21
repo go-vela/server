@@ -134,7 +134,7 @@ func TestDatabase_FromCLIContext(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := FromCLIContext(test.context, &tracing.Config{EnableTracing: false})
+			_, err := FromCLIContext(test.context, &tracing.Client{Config: tracing.Config{EnableTracing: false}})
 
 			if test.failure {
 				if err == nil {
