@@ -107,32 +107,14 @@ func UpdateRepo(c *gin.Context) {
 	// update build limit if set
 	if input.GetBuildLimit() > 0 {
 		// allow build limit between 1 - value configured by server
-		r.SetBuildLimit(
-			int64(
-				util.MaxInt(
-					constants.BuildLimitMin,
-					util.MinInt(
-						int(input.GetBuildLimit()),
-						int(maxBuildLimit),
-					), // clamp max
-				), // clamp min
-			),
-		)
+		limit := max(constants.BuildLimitMin, min(input.GetBuildLimit(), maxBuildLimit))
+		r.SetBuildLimit(limit)
 	}
 
 	if input.GetTimeout() > 0 {
 		// update build timeout if set
-		r.SetTimeout(
-			int64(
-				util.MaxInt(
-					constants.BuildTimeoutMin,
-					util.MinInt(
-						int(input.GetTimeout()),
-						constants.BuildTimeoutMax,
-					), // clamp max
-				), // clamp min
-			),
-		)
+		limit := max(constants.BuildTimeoutMin, min(input.GetTimeout(), constants.BuildTimeoutMax))
+		r.SetTimeout(limit)
 	}
 
 	if input.GetCounter() > 0 {
