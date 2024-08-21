@@ -32,6 +32,7 @@ func (e *engine) ListSteps(ctx context.Context) ([]*library.Step, error) {
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableStep).
 		Find(&w).
 		Error

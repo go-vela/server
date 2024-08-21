@@ -19,6 +19,7 @@ func (e *engine) GetHook(ctx context.Context, id int64) (*library.Hook, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Where("id = ?", id).
 		Take(h).

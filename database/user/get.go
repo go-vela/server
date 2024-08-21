@@ -19,6 +19,7 @@ func (e *engine) GetUser(ctx context.Context, id int64) (*api.User, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableUser).
 		Where("id = ?", id).
 		Take(u).

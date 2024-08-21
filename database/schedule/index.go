@@ -20,5 +20,7 @@ func (e *engine) CreateScheduleIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for schedules table in the database")
 
 	// create the repo_id column index for the schedules table
-	return e.client.Exec(CreateRepoIDIndex).Error
+	return e.client.
+		WithContext(ctx).
+		Exec(CreateRepoIDIndex).Error
 }

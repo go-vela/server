@@ -20,5 +20,7 @@ func (e *engine) CreateLogIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for logs table")
 
 	// create the build_id column index for the logs table
-	return e.client.Exec(CreateBuildIDIndex).Error
+	return e.client.
+		WithContext(ctx).
+		Exec(CreateBuildIDIndex).Error
 }

@@ -17,6 +17,7 @@ func (e *engine) CountBuildsForStatus(ctx context.Context, status string, filter
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Where("status = ?", status).
 		Where(filters).

@@ -22,6 +22,7 @@ func (e *engine) DeleteBuild(ctx context.Context, b *api.Build) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Delete(build).
 		Error

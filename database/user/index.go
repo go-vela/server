@@ -20,5 +20,7 @@ func (e *engine) CreateUserIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for users table")
 
 	// create the refresh_token column index for the users table
-	return e.client.Exec(CreateUserRefreshIndex).Error
+	return e.client.
+		WithContext(ctx).
+		Exec(CreateUserRefreshIndex).Error
 }

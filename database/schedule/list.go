@@ -32,6 +32,7 @@ func (e *engine) ListSchedules(ctx context.Context) ([]*api.Schedule, error) {
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableSchedule).
 		Preload("Repo").
 		Preload("Repo.Owner").

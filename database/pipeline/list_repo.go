@@ -42,6 +42,7 @@ func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, pe
 	offset := perPage * (page - 1)
 
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TablePipeline).
 		Where("repo_id = ?", r.GetID()).
 		Limit(perPage).

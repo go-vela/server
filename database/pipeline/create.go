@@ -40,7 +40,10 @@ func (e *engine) CreatePipeline(ctx context.Context, p *library.Pipeline) (*libr
 	}
 
 	// send query to the database
-	err = e.client.Table(constants.TablePipeline).Create(pipeline).Error
+	err = e.client.
+		WithContext(ctx).
+		Table(constants.TablePipeline).
+		Create(pipeline).Error
 	if err != nil {
 		return nil, err
 	}

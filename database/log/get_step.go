@@ -20,6 +20,7 @@ func (e *engine) GetLogForStep(ctx context.Context, s *library.Step) (*library.L
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableLog).
 		Where("step_id = ?", s.GetID()).
 		Take(l).

@@ -17,6 +17,7 @@ func (e *engine) CountServices(ctx context.Context) (int64, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableService).
 		Count(&s).
 		Error

@@ -32,6 +32,7 @@ func (e *engine) ListPipelines(ctx context.Context) ([]*library.Pipeline, error)
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TablePipeline).
 		Find(&p).
 		Error
