@@ -12,34 +12,34 @@ import (
 )
 
 const (
-	SAMPLER_TYPE      = "sampler.type"
-	SAMPLER_PARAM     = "sampler.param"
-	SAMPLER_PATH      = "sampler.path"
-	SAMPLER_PARENT    = "sampler.parent"
-	SAMPLER_ALGORITHM = "sampler.algorithm"
+	SamplerType      = "sampler.type"
+	SamplerParam     = "sampler.param"
+	SamplerPath      = "sampler.path"
+	SamplerParent    = "sampler.parent"
+	SamplerAlgorithm = "sampler.algorithm"
 )
 
-var _ sdktrace.Sampler = (*rateLimitSampler)(nil)
+var _ sdktrace.Sampler = (*RateLimitSampler)(nil)
 
-type rateLimitSampler struct {
+type RateLimitSampler struct {
 	maxPerSecond float64
 	limiter      *rate.Limiter
 }
 
 // NewRateLimitSampler returns a new rate limit sampler.
-func NewRateLimitSampler(tc Config) *rateLimitSampler {
-	return &rateLimitSampler{
+func NewRateLimitSampler(tc Config) *RateLimitSampler {
+	return &RateLimitSampler{
 		maxPerSecond: tc.PerSecond,
 		limiter:      rate.NewLimiter(rate.Every(time.Duration(1.0/tc.PerSecond)*time.Second), 1),
 	}
 }
 
 // ShouldSample determines if a trace should be sampled.
-func (s *rateLimitSampler) ShouldSample(parameters sdktrace.SamplingParameters) sdktrace.SamplingResult {
+func (s *RateLimitSampler) ShouldSample(_ sdktrace.SamplingParameters) sdktrace.SamplingResult {
 	// apply sampler attributes
 	attributes := []attribute.KeyValue{
-		attribute.String(SAMPLER_ALGORITHM, "rate-limiting"),
-		attribute.Float64(SAMPLER_PARAM, s.maxPerSecond),
+		attribute.String(SamplerAlgorithm, "rate-limiting"),
+		attribute.Float64(SamplerParam, s.maxPerSecond),
 	}
 
 	// default to drop
@@ -56,6 +56,6 @@ func (s *rateLimitSampler) ShouldSample(parameters sdktrace.SamplingParameters) 
 }
 
 // Description returns the description of the rate limit sampler.
-func (s *rateLimitSampler) Description() string {
+func (s *RateLimitSampler) Description() string {
 	return fmt.Sprintf("rate-limit-sampler{%v}", s.maxPerSecond)
 }

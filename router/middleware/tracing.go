@@ -4,9 +4,10 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+
 	tracingMiddleware "github.com/go-vela/server/router/middleware/tracing"
 	"github.com/go-vela/server/tracing"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 // TracingClient is a middleware function that attaches the tracing config
@@ -26,5 +27,5 @@ func TracingInstrumentation(tc *tracing.Client) gin.HandlerFunc {
 		return otelgin.Middleware(tc.ServiceName, otelgin.WithTracerProvider(tc.TracerProvider))
 	}
 
-	return func(c *gin.Context) {}
+	return func(_ *gin.Context) {}
 }
