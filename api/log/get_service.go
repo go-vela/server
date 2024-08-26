@@ -4,11 +4,13 @@
 package log
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
@@ -85,9 +87,15 @@ func GetServiceLog(c *gin.Context) {
 	// send API call to capture the service logs
 	sl, err := database.FromContext(c).GetLogForService(ctx, s)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
+		var status int
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status = http.StatusNotFound
+		} else {
+			status = http.StatusInternalServerError
+		}
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
+		util.HandleError(c, status, retErr)
 
 		return
 	}
