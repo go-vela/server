@@ -33,6 +33,7 @@ import (
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
+	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
@@ -114,6 +115,7 @@ func TestDatabase_Integration(t *testing.T) {
 				WithDriver(test.config.Driver),
 				WithEncryptionKey(test.config.EncryptionKey),
 				WithSkipCreation(test.config.SkipCreation),
+				WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
 			)
 			if err != nil {
 				t.Errorf("unable to create new database engine for %s: %v", test.name, err)
