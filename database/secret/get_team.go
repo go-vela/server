@@ -26,6 +26,7 @@ func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretShared).
 		Where("org = ?", org).

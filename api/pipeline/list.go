@@ -113,7 +113,7 @@ func ListPipelines(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	//
 	//nolint:gomnd // ignore magic number
-	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+	perPage = max(1, min(100, perPage))
 
 	p, t, err := database.FromContext(c).ListPipelinesForRepo(ctx, r, page, perPage)
 	if err != nil {

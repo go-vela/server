@@ -60,7 +60,10 @@ func (e *engine) UpdateSecret(ctx context.Context, s *library.Secret) (*library.
 		}
 	}
 
-	err = e.client.Table(constants.TableSecret).Save(secret.Nullify()).Error
+	err = e.client.
+		WithContext(ctx).
+		Table(constants.TableSecret).
+		Save(secret.Nullify()).Error
 	if err != nil {
 		return nil, err
 	}

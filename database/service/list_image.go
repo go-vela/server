@@ -22,6 +22,7 @@ func (e *engine) ListServiceImageCount(ctx context.Context) (map[string]float64,
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableService).
 		Select("image", " count(image) as count").
 		Group("image").

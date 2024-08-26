@@ -25,6 +25,7 @@ func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.Bui
 	case constants.DriverPostgres:
 		// send query to the database and store result in variable
 		err := e.client.
+			WithContext(ctx).
 			Table(constants.TableBuildExecutable).
 			Clauses(clause.Returning{}).
 			Where("build_id = ?", id).
@@ -37,6 +38,7 @@ func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.Bui
 	case constants.DriverSqlite:
 		// send query to the database and store result in variable
 		err := e.client.
+			WithContext(ctx).
 			Table(constants.TableBuildExecutable).
 			Where("id = ?", id).
 			Take(b).
@@ -47,6 +49,7 @@ func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.Bui
 
 		// send query to the database to delete result just got
 		err = e.client.
+			WithContext(ctx).
 			Table(constants.TableBuildExecutable).
 			Delete(b).
 			Error

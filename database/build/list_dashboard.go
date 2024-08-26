@@ -23,7 +23,10 @@ func (e *engine) ListBuildsForDashboardRepo(ctx context.Context, r *api.Repo, br
 	b := new([]types.Build)
 	builds := []*api.Build{}
 
-	query := e.client.Table(constants.TableBuild).Where("repo_id = ?", r.GetID())
+	query := e.client.
+		WithContext(ctx).
+		Table(constants.TableBuild).
+		Where("repo_id = ?", r.GetID())
 
 	if len(branches) > 0 {
 		query = query.Where("branch IN (?)", branches)

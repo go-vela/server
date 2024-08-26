@@ -26,6 +26,7 @@ func (e *engine) CleanServices(ctx context.Context, msg string, before int64) (i
 
 	// send query to the database
 	result := e.client.
+		WithContext(ctx).
 		Table(constants.TableService).
 		Where("created < ?", before).
 		Where("status = 'running' OR status = 'pending'").

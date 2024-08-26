@@ -19,6 +19,7 @@ func (e *engine) GetDashboard(ctx context.Context, id string) (*api.Dashboard, e
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableDashboard).
 		Where("id = ?", id).
 		Take(d).

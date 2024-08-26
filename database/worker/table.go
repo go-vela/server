@@ -59,11 +59,15 @@ func (e *engine) CreateWorkerTable(ctx context.Context, driver string) error {
 	switch driver {
 	case constants.DriverPostgres:
 		// create the workers table for Postgres
-		return e.client.Exec(CreatePostgresTable).Error
+		return e.client.
+			WithContext(ctx).
+			Exec(CreatePostgresTable).Error
 	case constants.DriverSqlite:
 		fallthrough
 	default:
 		// create the workers table for Sqlite
-		return e.client.Exec(CreateSqliteTable).Error
+		return e.client.
+			WithContext(ctx).
+			Exec(CreateSqliteTable).Error
 	}
 }

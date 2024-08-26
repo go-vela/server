@@ -25,6 +25,7 @@ func (e *engine) GetScheduleForRepo(ctx context.Context, r *api.Repo, name strin
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableSchedule).
 		Preload("Repo").
 		Preload("Repo.Owner").

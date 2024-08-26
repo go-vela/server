@@ -24,6 +24,7 @@ func (e *engine) DeleteRepo(ctx context.Context, r *api.Repo) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableRepo).
 		Delete(repo).
 		Error

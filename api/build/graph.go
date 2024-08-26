@@ -209,7 +209,7 @@ func GetBuildGraph(c *gin.Context) {
 		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
-		Compile(config)
+		Compile(ctx, config)
 	if err != nil {
 		// format the error message with extra information
 		err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)

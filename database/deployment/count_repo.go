@@ -23,6 +23,7 @@ func (e *engine) CountDeploymentsForRepo(ctx context.Context, r *api.Repo) (int6
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableDeployment).
 		Where("repo_id = ?", r.GetID()).
 		Count(&d).

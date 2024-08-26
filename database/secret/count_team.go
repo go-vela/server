@@ -24,6 +24,7 @@ func (e *engine) CountSecretsForTeam(ctx context.Context, org, team string, filt
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretShared).
 		Where("org = ?", org).
@@ -56,6 +57,7 @@ func (e *engine) CountSecretsForTeams(ctx context.Context, org string, teams []s
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretShared).
 		Where("org = ?", org).

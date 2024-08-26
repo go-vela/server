@@ -3,6 +3,7 @@
 package native
 
 import (
+	"context"
 	"flag"
 	"net/http"
 	"net/http/httptest"
@@ -152,6 +153,7 @@ func TestNative_ExpandStages(t *testing.T) {
 
 	compiler.PrivateGithub = nil
 	_, err = compiler.ExpandStages(
+		context.Background(),
 		&yaml.Build{
 			Stages:      stages,
 			Services:    yaml.ServiceSlice{},
@@ -172,6 +174,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	build, err := compiler.ExpandStages(
+		context.Background(),
 		&yaml.Build{
 			Stages:      stages,
 			Services:    yaml.ServiceSlice{},
@@ -357,7 +360,14 @@ func TestNative_ExpandSteps(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+			build, err := compiler.ExpandSteps(
+				context.Background(),
+				&yaml.Build{
+					Steps:       steps,
+					Services:    yaml.ServiceSlice{},
+					Environment: globalEnvironment,
+				},
+				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
 			if err != nil {
 				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
 			}
@@ -626,7 +636,13 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	ruledata := new(pipeline.RuleData)
 	ruledata.Branch = "main"
 
-	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, ruledata, compiler.GetTemplateDepth())
+	build, err := compiler.ExpandSteps(context.Background(),
+		&yaml.Build{
+			Steps:       steps,
+			Services:    yaml.ServiceSlice{},
+			Environment: raw.StringSliceMap{},
+		},
+		tmpls, ruledata, compiler.GetTemplateDepth())
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
@@ -717,7 +733,14 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Secrets: yaml.SecretSlice{}, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+	build, err := compiler.ExpandSteps(context.Background(),
+		&yaml.Build{
+			Steps:       steps,
+			Secrets:     yaml.SecretSlice{},
+			Services:    yaml.ServiceSlice{},
+			Environment: raw.StringSliceMap{},
+		},
+		tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
@@ -897,7 +920,13 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment, Templates: yaml.TemplateSlice{test.tmpls["chain"]}}, test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+			build, err := compiler.ExpandSteps(context.Background(),
+				&yaml.Build{
+					Steps: steps, Services: yaml.ServiceSlice{},
+					Environment: globalEnvironment,
+					Templates:   yaml.TemplateSlice{test.tmpls["chain"]},
+				},
+				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
 			if err != nil {
 				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
 			}
@@ -1004,7 +1033,11 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+			_, err := compiler.ExpandSteps(context.Background(),
+				&yaml.Build{
+					Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment,
+				},
+				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
 			if err == nil {
 				t.Errorf("ExpandSteps_Type%s should have returned an error", test.name)
 			}
@@ -1091,7 +1124,13 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+			_, err := compiler.ExpandSteps(context.Background(),
+				&yaml.Build{
+					Steps:       steps,
+					Services:    yaml.ServiceSlice{},
+					Environment: globalEnvironment,
+				},
+				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
 			if err == nil {
 				t.Errorf("ExpandSteps_Type%s should have returned an error", test.name)
 			}

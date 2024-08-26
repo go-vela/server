@@ -24,6 +24,7 @@ func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*api.Repo
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableRepo).
 		Preload("Owner").
 		Where("org = ?", org).

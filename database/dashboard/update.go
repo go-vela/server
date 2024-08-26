@@ -26,7 +26,10 @@ func (e *engine) UpdateDashboard(ctx context.Context, d *api.Dashboard) (*api.Da
 	}
 
 	// send query to the database
-	err = e.client.Table(constants.TableDashboard).Save(dashboard).Error
+	err = e.client.
+		WithContext(ctx).
+		Table(constants.TableDashboard).
+		Save(dashboard).Error
 	if err != nil {
 		return nil, err
 	}
