@@ -71,6 +71,6 @@ func TestToken_Compose(t *testing.T) {
 	}
 
 	if !strings.EqualFold(got, want) {
-		t.Errorf("Compose is %v, want %v", got, want)
+		t.Errorf("Compose is %v, wantName %v", got, want)
 	}
 }

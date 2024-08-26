@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -120,7 +121,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 
 	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	//sign token with configured private signing key
+	// sign token with configured private signing key
 	token, err := tk.SignedString([]byte(tm.PrivateKeyHMAC))
 	if err != nil {
 		return "", fmt.Errorf("unable to sign token: %w", err)
@@ -133,6 +134,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db database.Interface) (string, error) {
 	// initialize claims struct
 	var claims = new(api.OpenIDClaims)
+	var err error
 
 	// validate provided claims
 	if len(mto.Repo) == 0 {
@@ -154,6 +156,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	// set claims based on input
 	claims.Actor = mto.Build.GetSender()
 	claims.ActorSCMID = mto.Build.GetSenderSCMID()
+	claims.Branch = mto.Build.GetBranch()
 	claims.BuildNumber = mto.Build.GetNumber()
 	claims.BuildID = mto.Build.GetID()
 	claims.Repo = mto.Repo
@@ -164,6 +167,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.Audience = mto.Audience
 	claims.TokenType = mto.TokenType
 	claims.Image = mto.Image
+	claims.ImageName, claims.ImageTag, err = imageParse(mto.Image)
 	claims.Request = mto.Request
 	claims.Commands = mto.Commands
 
@@ -175,7 +179,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	tk := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
 	// verify key is active in the database before signing
-	_, err := db.GetActiveJWK(ctx, tm.RSAKeySet.KID)
+	_, err = db.GetActiveJWK(ctx, tm.RSAKeySet.KID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return "", fmt.Errorf("unable to get active public key: %w", err)
@@ -191,7 +195,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	// set KID header
 	tk.Header["kid"] = tm.RSAKeySet.KID
 
-	//sign token with configured private signing key
+	// sign token with configured private signing key
 	token, err := tk.SignedString(tm.RSAKeySet.PrivateKey)
 	if err != nil {
 		return "", fmt.Errorf("unable to sign token: %w", err)
@@ -200,4 +204,20 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	logrus.Debugf("signed ID token with subject %s", claims.Subject)
 
 	return token, nil
+}
+
+// imageParse parses the given image string and returns the image name and tag.
+// If no tag is provided in the image string, "latest" is used as the tag.
+// If the image string is invalid, an error is returned.
+func imageParse(image string) (string, string, error) {
+	parts := strings.Split(image, ":")
+
+	switch len(parts) {
+	case 1:
+		return image, "latest", nil
+	case 2:
+		return parts[0], parts[1], nil
+	default:
+		return "", "", fmt.Errorf("invalid image format: %s", image)
+	}
 }
