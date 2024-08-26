@@ -28,7 +28,10 @@ func (e *engine) CreateSchedule(ctx context.Context, s *api.Schedule) (*api.Sche
 	}
 
 	// send query to the database
-	err = e.client.Table(constants.TableSchedule).Create(schedule).Error
+	err = e.client.
+		WithContext(ctx).
+		Table(constants.TableSchedule).
+		Create(schedule).Error
 	if err != nil {
 		return nil, err
 	}

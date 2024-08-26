@@ -18,6 +18,7 @@ func (e *engine) CountLogsForBuild(ctx context.Context, b *api.Build) (int64, er
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableLog).
 		Where("build_id = ?", b.GetID()).
 		Count(&l).

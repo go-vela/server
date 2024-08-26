@@ -10,7 +10,7 @@ import (
 )
 
 // UpdateSettings updates a platform settings in the database.
-func (e *engine) UpdateSettings(_ context.Context, s *settings.Platform) (*settings.Platform, error) {
+func (e *engine) UpdateSettings(ctx context.Context, s *settings.Platform) (*settings.Platform, error) {
 	e.logger.Trace("updating platform settings in the database")
 
 	// cast the api type to database type
@@ -23,7 +23,10 @@ func (e *engine) UpdateSettings(_ context.Context, s *settings.Platform) (*setti
 	}
 
 	// send query to the database
-	err = e.client.Table(TableSettings).Save(dbS.Nullify()).Error
+	err = e.client.
+		WithContext(ctx).
+		Table(TableSettings).
+		Save(dbS.Nullify()).Error
 	if err != nil {
 		return nil, err
 	}

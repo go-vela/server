@@ -23,6 +23,7 @@ func (e *engine) CountSchedulesForRepo(ctx context.Context, r *api.Repo) (int64,
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableSchedule).
 		Where("repo_id = ?", r.GetID()).
 		Count(&s).

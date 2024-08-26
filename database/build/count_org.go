@@ -21,6 +21,7 @@ func (e *engine) CountBuildsForOrg(ctx context.Context, org string, filters map[
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Joins("JOIN repos ON builds.repo_id = repos.id").
 		Where("repos.org = ?", org).

@@ -21,6 +21,7 @@ func (e *engine) ListDeployments(ctx context.Context) ([]*library.Deployment, er
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableDeployment).
 		Find(&d).
 		Error
@@ -45,6 +46,7 @@ func (e *engine) ListDeployments(ctx context.Context) ([]*library.Deployment, er
 
 			// send query to the database and store result in variable
 			err = e.client.
+				WithContext(ctx).
 				Table(constants.TableBuild).
 				Where("id = ?", bID).
 				Take(b).

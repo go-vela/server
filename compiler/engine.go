@@ -3,6 +3,8 @@
 package compiler
 
 import (
+	"context"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/internal"
@@ -20,12 +22,12 @@ type Engine interface {
 	// Compile defines a function that produces an executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	Compile(interface{}) (*pipeline.Build, *library.Pipeline, error)
+	Compile(context.Context, interface{}) (*pipeline.Build, *library.Pipeline, error)
 
 	// CompileLite defines a function that produces an light executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	CompileLite(interface{}, *pipeline.RuleData, bool) (*yaml.Build, *library.Pipeline, error)
+	CompileLite(context.Context, interface{}, *pipeline.RuleData, bool) (*yaml.Build, *library.Pipeline, error)
 
 	// Duplicate defines a function that
 	// creates a clone of the Engine.
@@ -71,10 +73,10 @@ type Engine interface {
 
 	// ExpandStages defines a function that injects the template
 	// for each templated step in every stage in a yaml configuration.
-	ExpandStages(*yaml.Build, map[string]*yaml.Template, *pipeline.RuleData) (*yaml.Build, error)
+	ExpandStages(context.Context, *yaml.Build, map[string]*yaml.Template, *pipeline.RuleData) (*yaml.Build, error)
 	// ExpandSteps defines a function that injects the template
 	// for each templated step in a yaml configuration with the provided template depth.
-	ExpandSteps(*yaml.Build, map[string]*yaml.Template, *pipeline.RuleData, int) (*yaml.Build, error)
+	ExpandSteps(context.Context, *yaml.Build, map[string]*yaml.Template, *pipeline.RuleData, int) (*yaml.Build, error)
 
 	// Init Compiler Interface Functions
 
@@ -147,7 +149,7 @@ type Engine interface {
 	WithLabels([]string) Engine
 	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
-	WithPrivateGitHub(string, string) Engine
+	WithPrivateGitHub(context.Context, string, string) Engine
 	// GetSettings defines a function that returns new api settings
 	// with the compiler Engine fields filled.
 	GetSettings() settings.Compiler

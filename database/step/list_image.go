@@ -22,6 +22,7 @@ func (e *engine) ListStepImageCount(ctx context.Context) (map[string]float64, er
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableStep).
 		Select("image", " count(image) as count").
 		Group("image").

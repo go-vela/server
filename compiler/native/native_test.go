@@ -3,6 +3,7 @@
 package native
 
 import (
+	"context"
 	"flag"
 	"reflect"
 	"testing"
@@ -20,7 +21,7 @@ func TestNative_New(t *testing.T) {
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
-	public, _ := github.New("", "")
+	public, _ := github.New(context.Background(), "", "")
 	want := &client{
 		Github:   public,
 		Compiler: settings.CompilerMockEmpty(),
@@ -49,8 +50,8 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 	set.String("github-token", token, "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
-	public, _ := github.New("", "")
-	private, _ := github.New(url, token)
+	public, _ := github.New(context.Background(), "", "")
+	private, _ := github.New(context.Background(), url, token)
 	want := &client{
 		Github:           public,
 		PrivateGithub:    private,
@@ -81,8 +82,8 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 	set.String("github-token", token, "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
-	public, _ := github.New("", "")
-	private, _ := github.New(url, token)
+	public, _ := github.New(context.Background(), "", "")
+	private, _ := github.New(context.Background(), url, token)
 	want := &client{
 		Github:           public,
 		PrivateGithub:    private,
@@ -286,7 +287,7 @@ func TestNative_WithPrivateGitHub(t *testing.T) {
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	private, _ := github.New(url, token)
+	private, _ := github.New(context.Background(), url, token)
 
 	want, _ := FromCLIContext(c)
 	want.PrivateGithub = private
@@ -297,7 +298,7 @@ func TestNative_WithPrivateGitHub(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	if !reflect.DeepEqual(got.WithPrivateGitHub(url, token), want) {
+	if !reflect.DeepEqual(got.WithPrivateGitHub(context.Background(), url, token), want) {
 		t.Errorf("WithRepo is %v, want %v", got, want)
 	}
 }

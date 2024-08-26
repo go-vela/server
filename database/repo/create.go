@@ -37,7 +37,10 @@ func (e *engine) CreateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error)
 	}
 
 	// send query to the database
-	err = e.client.Table(constants.TableRepo).Create(repo).Error
+	err = e.client.
+		WithContext(ctx).
+		Table(constants.TableRepo).
+		Create(repo).Error
 	if err != nil {
 		return nil, err
 	}
