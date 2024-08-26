@@ -172,7 +172,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	if err != nil {
 		return "", err
 	}
-	
+
 	claims.Request = mto.Request
 	claims.Commands = mto.Commands
 
