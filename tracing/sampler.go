@@ -30,6 +30,7 @@ func NewRateLimitSampler(tc Config) *RateLimitSampler {
 func (s *RateLimitSampler) ShouldSample(p sdktrace.SamplingParameters) sdktrace.SamplingResult {
 	psc := trace.SpanContextFromContext(p.ParentContext)
 	ts := psc.TraceState()
+
 	for k, v := range s.Config.TraceStateAttributes {
 		ts, _ = ts.Insert(k, v)
 	}

@@ -32,7 +32,11 @@ func initTracer(ctx context.Context, cfg Config) (*sdktrace.TracerProvider, erro
 		certs := x509.NewCertPool()
 		certs.AppendCertsFromPEM(pem)
 
-		withTLS = otlptracehttp.WithTLSClientConfig(&tls.Config{RootCAs: certs})
+		withTLS = otlptracehttp.WithTLSClientConfig(
+			&tls.Config{
+				RootCAs:    certs,
+				MinVersion: tls.VersionTLS12,
+			})
 	} else {
 		logrus.Warn("no otel cert path set, exporting traces insecurely")
 	}
