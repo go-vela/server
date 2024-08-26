@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/go-github/v62/github"
+	"github.com/google/go-github/v63/github"
 	"golang.org/x/oauth2"
 )
 
@@ -29,7 +29,7 @@ func TestGithub_New(t *testing.T) {
 	}
 
 	// run test
-	got, err := New(s.URL, "")
+	got, err := New(context.Background(), s.URL, "")
 
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -60,7 +60,7 @@ func TestGithub_NewToken(t *testing.T) {
 	}
 
 	// run test
-	got, err := New(s.URL, token)
+	got, err := New(context.Background(), s.URL, token)
 
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -114,7 +114,7 @@ func TestGithub_NewURL(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		// run test
-		got, err := New(test.address, "foobar")
+		got, err := New(context.Background(), test.address, "foobar")
 
 		if err != nil {
 			t.Errorf("New returned err: %v", err)

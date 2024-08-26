@@ -40,6 +40,7 @@ func (e *engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters ma
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableStep).
 		Where("build_id = ?", b.GetID()).
 		Where(filters).

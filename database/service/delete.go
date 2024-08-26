@@ -25,6 +25,7 @@ func (e *engine) DeleteService(ctx context.Context, s *library.Service) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableService).
 		Delete(service).
 		Error

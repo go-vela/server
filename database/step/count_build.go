@@ -22,6 +22,7 @@ func (e *engine) CountStepsForBuild(ctx context.Context, b *api.Build, filters m
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableStep).
 		Where("build_id = ?", b.GetID()).
 		Where(filters).

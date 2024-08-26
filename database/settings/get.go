@@ -18,6 +18,7 @@ func (e *engine) GetSettings(ctx context.Context) (*settings.Platform, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(TableSettings).
 		Where("id = ?", 1).
 		Take(s).

@@ -27,7 +27,10 @@ func (e *engine) CreateDeployment(ctx context.Context, d *library.Deployment) (*
 		return nil, err
 	}
 
-	result := e.client.Table(constants.TableDeployment).Create(deployment)
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableDeployment).
+		Create(deployment)
 
 	// send query to the database
 	return deployment.ToLibrary(d.Builds), result.Error

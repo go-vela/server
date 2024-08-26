@@ -23,6 +23,7 @@ func (e *engine) DeleteSchedule(ctx context.Context, s *api.Schedule) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableSchedule).
 		Delete(schedule).
 		Error

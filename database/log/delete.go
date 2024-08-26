@@ -27,6 +27,7 @@ func (e *engine) DeleteLog(ctx context.Context, l *library.Log) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableLog).
 		Delete(log).
 		Error

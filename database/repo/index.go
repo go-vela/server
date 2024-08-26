@@ -20,5 +20,7 @@ func (e *engine) CreateRepoIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for repos table")
 
 	// create the org and name columns index for the repos table
-	return e.client.Exec(CreateOrgNameIndex).Error
+	return e.client.
+		WithContext(ctx).
+		Exec(CreateOrgNameIndex).Error
 }

@@ -3,6 +3,8 @@
 package registry
 
 import (
+	"context"
+
 	api "github.com/go-vela/server/api/types"
 )
 
@@ -15,5 +17,5 @@ type Service interface {
 
 	// Template defines a function that captures the
 	// templated pipeline configuration from a repo.
-	Template(*api.User, *Source) ([]byte, error)
+	Template(context.Context, *api.User, *Source) ([]byte, error)
 }

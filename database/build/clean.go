@@ -26,6 +26,7 @@ func (e *engine) CleanBuilds(ctx context.Context, msg string, before int64) (int
 
 	// send query to the database
 	result := e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Where("created < ?", before).
 		Where("status = 'running' OR status = 'pending'").

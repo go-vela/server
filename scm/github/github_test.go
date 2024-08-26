@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/go-github/v62/github"
+	"github.com/google/go-github/v63/github"
 	"golang.org/x/oauth2"
 )
 
@@ -72,7 +72,7 @@ func TestGithub_newClientToken(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got := client.newClientToken("foobar")
+	got := client.newClientToken(context.Background(), "foobar")
 
 	//nolint:staticcheck // ignore false positive
 	if got == nil {

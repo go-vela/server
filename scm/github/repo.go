@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v62/github"
+	"github.com/google/go-github/v63/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -56,7 +56,7 @@ func (c *client) Config(ctx context.Context, u *api.User, r *api.Repo, ref strin
 	}).Tracef("capturing configuration file for %s/commit/%s", r.GetFullName(), ref)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(ctx, *u.Token)
 
 	// default pipeline file names
 	files := []string{".vela.yml", ".vela.yaml"}
@@ -103,7 +103,7 @@ func (c *client) Disable(ctx context.Context, u *api.User, org, name string) err
 	}).Tracef("deleting repository webhooks for %s/%s", org, name)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(ctx, *u.Token)
 
 	// send API call to capture the hooks for the repo
 	hooks, _, err := client.Repositories.ListHooks(ctx, org, name, nil)
@@ -158,7 +158,7 @@ func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *librar
 	}).Tracef("creating repository webhook for %s/%s", r.GetOrg(), r.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(ctx, *u.Token)
 
 	// always listen to repository events in case of repo name change
 	events := []string{eventRepository}
@@ -232,7 +232,7 @@ func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	}).Tracef("updating repository webhook for %s/%s", r.GetOrg(), r.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(ctx, *u.Token)
 
 	// always listen to repository events in case of repo name change
 	events := []string{eventRepository}
@@ -296,7 +296,7 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(ctx, *u.Token)
 
 	context := fmt.Sprintf("%s/%s", c.config.StatusContext, b.GetEvent())
 	url := fmt.Sprintf("%s/%s/%s/%d", c.config.WebUIAddress, org, name, b.GetNumber())
@@ -408,7 +408,7 @@ func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *l
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(ctx, *u.Token)
 
 	context := fmt.Sprintf("%s/%s/%s", c.config.StatusContext, b.GetEvent(), s.GetReportAs())
 	url := fmt.Sprintf("%s/%s/%s/%d#%d", c.config.WebUIAddress, org, name, b.GetNumber(), s.GetNumber())
@@ -471,7 +471,7 @@ func (c *client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Re
 	}).Tracef("retrieving repository information for %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(ctx, u.GetToken())
 
 	// send an API call to get the repo info
 	repo, resp, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
@@ -491,7 +491,7 @@ func (c *client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r
 	}).Tracef("retrieving repository information for %s/%s", o, r)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(ctx, u.GetToken())
 
 	// send an API call to get the repo info
 	repo, _, err := client.Repositories.Get(ctx, o, r)
@@ -509,7 +509,7 @@ func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 	}).Tracef("listing source repositories for %s", u.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(ctx, u.GetToken())
 
 	r := []*github.Repository{}
 	f := []*api.Repo{}
@@ -589,7 +589,7 @@ func (c *client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (s
 	}).Tracef("retrieving pull request %d for repo %s", number, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(r.GetOwner().GetToken())
+	client := c.newClientToken(ctx, r.GetOwner().GetToken())
 
 	pull, _, err := client.PullRequests.Get(ctx, r.GetOrg(), r.GetName(), number)
 	if err != nil {
@@ -613,7 +613,7 @@ func (c *client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, r
 	}).Tracef("capturing html_url for %s/%s/%s@%s", org, repo, name, ref)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(ctx, *u.Token)
 
 	// set the reference for the options to capture the repository contents
 	opts := &github.RepositoryContentGetOptions{
@@ -649,7 +649,7 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 	}).Tracef("retrieving branch %s for repo %s", branch, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(r.GetOwner().GetToken())
+	client := c.newClientToken(ctx, r.GetOwner().GetToken())
 
 	maxRedirects := 3
 

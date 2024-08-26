@@ -23,6 +23,7 @@ func (e *engine) CountHooksForRepo(ctx context.Context, r *api.Repo) (int64, err
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Where("repo_id = ?", r.GetID()).
 		Count(&h).

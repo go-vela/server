@@ -32,7 +32,10 @@ func (e *engine) CreateWorker(ctx context.Context, w *api.Worker) (*api.Worker, 
 	}
 
 	// send query to the database
-	result := e.client.Table(constants.TableWorker).Create(worker)
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableWorker).
+		Create(worker)
 
 	return worker.ToAPI(w.GetRunningBuilds()), result.Error
 }

@@ -28,6 +28,7 @@ func (e *engine) ListServiceStatusCount(ctx context.Context) (map[string]float64
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableService).
 		Select("status", " count(status) as count").
 		Group("status").

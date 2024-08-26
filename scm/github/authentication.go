@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-github/v62/github"
+	"github.com/google/go-github/v63/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/random"
@@ -21,7 +21,7 @@ func (c *client) Authorize(ctx context.Context, token string) (string, error) {
 	c.Logger.Trace("authorizing user with token")
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(token)
+	client := c.newClientToken(ctx, token)
 
 	// send API call to capture the current user making the call
 	u, _, err := client.Users.Get(ctx, "")
@@ -56,7 +56,7 @@ func (c *client) Login(ctx context.Context, w http.ResponseWriter, r *http.Reque
 
 // Authenticate completes the authentication workflow for the session
 // and returns the remote user details.
-func (c *client) Authenticate(ctx context.Context, w http.ResponseWriter, r *http.Request, oAuthState string) (*api.User, error) {
+func (c *client) Authenticate(ctx context.Context, _ http.ResponseWriter, r *http.Request, oAuthState string) (*api.User, error) {
 	c.Logger.Trace("authenticating user")
 
 	// get the OAuth code

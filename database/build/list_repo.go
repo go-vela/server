@@ -41,6 +41,7 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map
 	offset := perPage * (page - 1)
 
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Preload("Repo").
 		Preload("Repo.Owner").
