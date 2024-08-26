@@ -29,7 +29,6 @@ type OpenIDClaims struct {
 	BuildNumber int    `json:"build_number,omitempty"`
 	Commands    bool   `json:"commands,omitempty"`
 	Event       string `json:"event,omitempty"`
-	Fork        bool   `json:"fork,omitempty"`
 	Image       string `json:"image,omitempty"`
 	ImageName   string `json:"image_name,omitempty"`
 	ImageTag    string `json:"image_tag,omitempty"`
