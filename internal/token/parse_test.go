@@ -112,7 +112,7 @@ func TestTokenManager_ParseToken(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got, tt.Want) {
-				t.Errorf("Parse is %v, wantName %v", got, tt.Want)
+				t.Errorf("Parse is %v, want %v", got, tt.Want)
 			}
 		})
 	}
@@ -138,7 +138,7 @@ func TestTokenManager_ParseToken_Error_NoParse(t *testing.T) {
 	}
 
 	if got != nil {
-		t.Errorf("Parse is %v, wantName nil", got)
+		t.Errorf("Parse is %v, want nil", got)
 	}
 }
 
@@ -208,7 +208,7 @@ func TestTokenManager_ParseToken_NoSubject(t *testing.T) {
 	}
 
 	if got != nil {
-		t.Errorf("Parse is %v, wantName nil", got)
+		t.Errorf("Parse is %v, want nil", got)
 	}
 }
 
@@ -248,7 +248,7 @@ func TestTokenManager_ParseToken_Error_InvalidSignature(t *testing.T) {
 	}
 
 	if got != nil {
-		t.Errorf("Parse is %v, wantName nil", got)
+		t.Errorf("Parse is %v, want nil", got)
 	}
 }
 
@@ -285,6 +285,6 @@ func TestToken_Parse_AccessToken_NoExpiration(t *testing.T) {
 	}
 
 	if got != nil {
-		t.Errorf("Parse is %v, wantName nil", got)
+		t.Errorf("Parse is %v, want nil", got)
 	}
 }
