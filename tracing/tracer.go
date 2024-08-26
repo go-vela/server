@@ -4,8 +4,13 @@ package tracing
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"os"
 
+	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
@@ -15,32 +20,52 @@ import (
 )
 
 // initTracer returns the tracer provider supplied to the tracing config.
-func initTracer(ctx context.Context, tCfg Config) (*sdktrace.TracerProvider, error) {
-	client := otlptracehttp.NewClient()
+func initTracer(ctx context.Context, cfg Config) (*sdktrace.TracerProvider, error) {
+	withTLS := otlptracehttp.WithInsecure()
+
+	if len(cfg.CertPath) > 0 {
+		pem, err := os.ReadFile(cfg.CertPath)
+		if err != nil {
+			return nil, err
+		}
+
+		certs := x509.NewCertPool()
+		certs.AppendCertsFromPEM(pem)
+
+		withTLS = otlptracehttp.WithTLSClientConfig(&tls.Config{RootCAs: certs})
+	} else {
+		logrus.Warn("no otel cert path set, exporting traces insecurely")
+	}
+
+	client := otlptracehttp.NewClient(
+		otlptracehttp.WithEndpoint(cfg.ExporterURL),
+		withTLS,
+	)
 
 	exporter, err := otlptrace.New(ctx, client)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := resource.New(ctx, resource.WithAttributes(
-		semconv.ServiceName(tCfg.ServiceName),
-	))
+	attrs := []attribute.KeyValue{
+		semconv.ServiceName(cfg.ServiceName),
+	}
+
+	for k, v := range cfg.ResourceAttributes {
+		attrs = append(attrs, attribute.String(k, v))
+	}
+
+	res, err := resource.Merge(
+		resource.Default(),
+		resource.NewSchemaless(attrs...),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	ratioSampler := sdktrace.ParentBased(
-		sdktrace.TraceIDRatioBased(tCfg.Sampler.Ratio),
-	)
-	rateLimitSampler := sdktrace.ParentBased(
-		NewRateLimitSampler(tCfg),
-	)
-
-	// todo: apply the tags to the sampler
+	rateLimitSampler := NewRateLimitSampler(cfg)
 
 	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(ratioSampler),
 		sdktrace.WithSampler(rateLimitSampler),
 		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(res),

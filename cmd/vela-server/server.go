@@ -84,7 +84,6 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	// shutdown opt-in tracing when server closes
 	if tc.EnableTracing {
 		defer func() {
 			err := tc.TracerProvider.Shutdown(context.Background())
