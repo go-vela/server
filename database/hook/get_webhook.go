@@ -19,6 +19,7 @@ func (e *engine) GetHookByWebhookID(ctx context.Context, webhookID int64) (*libr
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Where("webhook_id = ?", webhookID).
 		Take(h).

@@ -32,6 +32,7 @@ func (e *engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableRepo).
 		Preload("Owner").
 		Find(&r).

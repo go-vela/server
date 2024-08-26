@@ -31,7 +31,10 @@ func (e *engine) UpdateHook(ctx context.Context, h *library.Hook) (*library.Hook
 		return nil, err
 	}
 
-	result := e.client.Table(constants.TableHook).Save(hook)
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableHook).
+		Save(hook)
 
 	// send query to the database
 	return hook.ToLibrary(), result.Error

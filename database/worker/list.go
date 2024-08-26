@@ -21,7 +21,9 @@ func (e *engine) ListWorkers(ctx context.Context, active string, before, after i
 	workers := []*api.Worker{}
 
 	// build query with checked in constraints
-	query := e.client.Table(constants.TableWorker).
+	query := e.client.
+		WithContext(ctx).
+		Table(constants.TableWorker).
 		Where("last_checked_in < ?", before).
 		Where("last_checked_in > ?", after)
 

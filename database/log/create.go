@@ -50,6 +50,7 @@ func (e *engine) CreateLog(ctx context.Context, l *library.Log) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableLog).
 		Create(log).
 		Error

@@ -26,6 +26,7 @@ func (e *engine) CleanSteps(ctx context.Context, msg string, before int64) (int6
 
 	// send query to the database
 	result := e.client.
+		WithContext(ctx).
 		Table(constants.TableStep).
 		Where("created < ?", before).
 		Where("status = 'running' OR status = 'pending'").

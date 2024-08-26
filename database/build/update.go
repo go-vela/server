@@ -30,7 +30,10 @@ func (e *engine) UpdateBuild(ctx context.Context, b *api.Build) (*api.Build, err
 	build = build.Crop()
 
 	// send query to the database
-	err = e.client.Table(constants.TableBuild).Save(build).Error
+	err = e.client.
+		WithContext(ctx).
+		Table(constants.TableBuild).
+		Save(build).Error
 	if err != nil {
 		return nil, err
 	}

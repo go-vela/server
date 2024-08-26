@@ -36,17 +36,23 @@ func (e *engine) CreateSecretIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for secrets table")
 
 	// create the type, org and repo columns index for the secrets table
-	err := e.client.Exec(CreateTypeOrgRepo).Error
+	err := e.client.
+		WithContext(ctx).
+		Exec(CreateTypeOrgRepo).Error
 	if err != nil {
 		return err
 	}
 
 	// create the type, org and team columns index for the secrets table
-	err = e.client.Exec(CreateTypeOrgTeam).Error
+	err = e.client.
+		WithContext(ctx).
+		Exec(CreateTypeOrgTeam).Error
 	if err != nil {
 		return err
 	}
 
 	// create the type and org columns index for the secrets table
-	return e.client.Exec(CreateTypeOrg).Error
+	return e.client.
+		WithContext(ctx).
+		Exec(CreateTypeOrg).Error
 }

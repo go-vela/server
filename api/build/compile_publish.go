@@ -42,7 +42,7 @@ type CompileAndPublishConfig struct {
 //
 //nolint:funlen,gocyclo // ignore function length due to comments, error handling, and general complexity of function
 func CompileAndPublish(
-	c context.Context,
+	ctx context.Context,
 	cfg CompileAndPublishConfig,
 	database database.Interface,
 	scm scm.Service,
@@ -66,7 +66,7 @@ func CompileAndPublish(
 	baseErr := cfg.BaseErr
 
 	// confirm current repo owner has at least write access to repo (needed for status update later)
-	_, err := scm.RepoAccess(c, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
+	_, err := scm.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
 
@@ -87,7 +87,7 @@ func CompileAndPublish(
 	// if the event is issue_comment and the issue is a pull request,
 	// call SCM for more data not provided in webhook payload
 	if strings.EqualFold(cfg.Source, "webhook") && strings.EqualFold(b.GetEvent(), constants.EventComment) {
-		commit, branch, baseref, headref, err := scm.GetPullRequest(c, r, prNum)
+		commit, branch, baseref, headref, err := scm.GetPullRequest(ctx, r, prNum)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -103,7 +103,7 @@ func CompileAndPublish(
 	// if the source is from a schedule, fetch the commit sha from schedule branch (same as build branch at this moment)
 	if strings.EqualFold(cfg.Source, "schedule") {
 		// send API call to capture the commit sha for the branch
-		_, commit, err := scm.GetBranch(c, r, b.GetBranch())
+		_, commit, err := scm.GetBranch(ctx, r, b.GetBranch())
 		if err != nil {
 			retErr := fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
 
@@ -119,7 +119,7 @@ func CompileAndPublish(
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.CountBuildsForRepo(c, r, filters)
+	builds, err := database.CountBuildsForRepo(ctx, r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, r.GetFullName())
 
@@ -156,7 +156,7 @@ func CompileAndPublish(
 		!strings.EqualFold(b.GetEvent(), constants.EventPull) &&
 		!strings.EqualFold(b.GetEvent(), constants.EventDelete) {
 		// send API call to capture list of files changed for the commit
-		files, err = scm.Changeset(c, r, b.GetCommit())
+		files, err = scm.Changeset(ctx, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -167,7 +167,7 @@ func CompileAndPublish(
 	// check if the build event is a pull_request
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) && prNum > 0 {
 		// send API call to capture list of files changed for the pull request
-		files, err = scm.ChangesetPR(c, r, prNum)
+		files, err = scm.ChangesetPR(ctx, r, prNum)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -202,10 +202,10 @@ func CompileAndPublish(
 		}
 
 		// send database call to attempt to capture the pipeline if we already processed it before
-		pipeline, err = database.GetPipelineForRepo(c, b.GetCommit(), r)
+		pipeline, err = database.GetPipelineForRepo(ctx, b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
-			pipelineFile, err = scm.ConfigBackoff(c, u, r, b.GetCommit())
+			pipelineFile, err = scm.ConfigBackoff(ctx, u, r, b.GetCommit())
 			if err != nil {
 				retErr := fmt.Errorf("%s: unable to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -216,7 +216,7 @@ func CompileAndPublish(
 		}
 
 		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
-		repo, err = database.GetRepoForOrg(c, r.GetOrg(), r.GetName())
+		repo, err = database.GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
 		if err != nil {
 			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
 
@@ -269,7 +269,7 @@ func CompileAndPublish(
 			WithRepo(repo).
 			WithUser(u).
 			WithLabels(cfg.Labels).
-			Compile(pipelineFile)
+			Compile(ctx, pipelineFile)
 		if err != nil {
 			// format the error message with extra information
 			err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", repo.GetFullName(), err)
@@ -295,7 +295,7 @@ func CompileAndPublish(
 			b.SetStatus(constants.StatusSkipped)
 
 			// send API call to set the status on the commit
-			err = scm.Status(c, u, b, repo.GetOrg(), repo.GetName())
+			err = scm.Status(ctx, u, b, repo.GetOrg(), repo.GetName())
 			if err != nil {
 				logger.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 			}
@@ -316,7 +316,7 @@ func CompileAndPublish(
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			pipeline, err = database.CreatePipeline(c, pipeline)
+			pipeline, err = database.CreatePipeline(ctx, pipeline)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, repo.GetFullName(), err)
 
@@ -348,7 +348,7 @@ func CompileAndPublish(
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = PlanBuild(c, database, scm, p, b, repo)
+		err = PlanBuild(ctx, database, scm, p, b, repo)
 		if err != nil {
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
@@ -373,7 +373,7 @@ func CompileAndPublish(
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	repo, err = database.UpdateRepo(c, repo)
+	repo, err = database.UpdateRepo(ctx, repo)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, repo.GetFullName(), err)
 
@@ -401,7 +401,7 @@ func CompileAndPublish(
 	}
 
 	// send API call to capture the triggered build
-	b, err = database.GetBuildForRepo(c, repo, b.GetNumber())
+	b, err = database.GetBuildForRepo(ctx, repo, b.GetNumber())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %w", baseErr, repo.GetFullName(), b.GetNumber(), err)
 
@@ -414,7 +414,7 @@ func CompileAndPublish(
 		retErr := fmt.Errorf("unable to set route for build %d for %s: %w", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
-		CleanBuild(c, database, b, nil, nil, retErr)
+		CleanBuild(ctx, database, b, nil, nil, retErr)
 
 		return nil, nil, http.StatusBadRequest, retErr
 	}
@@ -423,7 +423,7 @@ func CompileAndPublish(
 	b.SetHost(route)
 
 	// publish the pipeline.Build to the build_executables table to be requested by a worker
-	err = PublishBuildExecutable(c, database, p, b)
+	err = PublishBuildExecutable(ctx, database, p, b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", repo.GetFullName(), b.GetNumber(), err)
 

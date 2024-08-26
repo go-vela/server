@@ -44,6 +44,7 @@ func (e *engine) ListSecretsForTeam(ctx context.Context, org, team string, filte
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretShared).
 		Where("org = ?", org).
@@ -120,6 +121,7 @@ func (e *engine) ListSecretsForTeams(ctx context.Context, org string, teams []st
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretShared).
 		Where("org = ?", org).
