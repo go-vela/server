@@ -581,7 +581,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 				Secrets: yaml.StepSecretSlice{
 					{
 						Source: "vault_token",
-						Target: "vault_token",
+						Target: "VAULT_TOKEN",
 					},
 				},
 				Parameters: map[string]interface{}{
@@ -602,7 +602,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 				Secrets: yaml.StepSecretSlice{
 					{
 						Source: "vault_token",
-						Target: "vault_token",
+						Target: "VAULT_TOKEN",
 					},
 				},
 				Parameters: map[string]interface{}{

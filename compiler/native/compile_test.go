@@ -208,11 +208,11 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 						Secrets: pipeline.StepSecretSlice{
 							&pipeline.StepSecret{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							&pipeline.StepSecret{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 					},
@@ -548,11 +548,11 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Secrets: pipeline.StepSecretSlice{
 					&pipeline.StepSecret{
 						Source: "docker_username",
-						Target: "registry_username",
+						Target: "REGISTRY_USERNAME",
 					},
 					&pipeline.StepSecret{
 						Source: "docker_password",
-						Target: "registry_password",
+						Target: "REGISTRY_PASSWORD",
 					},
 				},
 			},
@@ -786,11 +786,11 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Secrets: pipeline.StepSecretSlice{
 							&pipeline.StepSecret{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							&pipeline.StepSecret{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 					},
@@ -1033,11 +1033,11 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Secrets: pipeline.StepSecretSlice{
 					&pipeline.StepSecret{
 						Source: "docker_username",
-						Target: "registry_username",
+						Target: "REGISTRY_USERNAME",
 					},
 					&pipeline.StepSecret{
 						Source: "docker_password",
-						Target: "registry_password",
+						Target: "REGISTRY_PASSWORD",
 					},
 				},
 			},
@@ -3583,11 +3583,11 @@ func Test_CompileLite(t *testing.T) {
 						Secrets: yaml.StepSecretSlice{
 							{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 						Image: "plugins/docker:18.09",
@@ -3699,11 +3699,11 @@ func Test_CompileLite(t *testing.T) {
 						Secrets: yaml.StepSecretSlice{
 							{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 						Image: "plugins/docker:18.09",
