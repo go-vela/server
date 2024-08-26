@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/buildkite/yaml"
+	"gopkg.in/yaml.v3"
 
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"

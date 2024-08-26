@@ -8,7 +8,7 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
-	"github.com/buildkite/yaml"
+	"gopkg.in/yaml.v3"
 
 	"github.com/go-vela/types/raw"
 	types "github.com/go-vela/types/yaml"

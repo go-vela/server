@@ -192,11 +192,11 @@ func TestNative_Parse_Parameters(t *testing.T) {
 				Secrets: yaml.StepSecretSlice{
 					&yaml.StepSecret{
 						Source: "docker_username",
-						Target: "docker_username",
+						Target: "DOCKER_USERNAME",
 					},
 					&yaml.StepSecret{
 						Source: "docker_password",
-						Target: "docker_password",
+						Target: "DOCKER_PASSWORD",
 					},
 				},
 			},
@@ -302,11 +302,11 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 						Secrets: yaml.StepSecretSlice{
 							&yaml.StepSecret{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							&yaml.StepSecret{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 					},
@@ -407,11 +407,11 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 				Secrets: yaml.StepSecretSlice{
 					&yaml.StepSecret{
 						Source: "docker_username",
-						Target: "registry_username",
+						Target: "REGISTRY_USERNAME",
 					},
 					&yaml.StepSecret{
 						Source: "docker_password",
-						Target: "registry_password",
+						Target: "REGISTRY_PASSWORD",
 					},
 				},
 			},
