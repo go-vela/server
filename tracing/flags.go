@@ -72,15 +72,9 @@ var Flags = []cli.Flag{
 		Value:   "sampler.type",
 	},
 	&cli.Float64Flag{
-		EnvVars: []string{"VELA_OTEL_TRACING_SAMPLER_RATIO"},
-		Name:    "tracing.sampler.ratio",
-		Usage:   "set otel tracing head-sampler acceptance ratio. see: https://opentelemetry.io/docs/concepts/sampling/",
-		Value:   0.5,
-	},
-	&cli.Float64Flag{
 		EnvVars: []string{"VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND"},
 		Name:    "tracing.sampler.persecond",
 		Usage:   "set otel tracing head-sampler rate-limiting to N per second. see: https://opentelemetry.io/docs/concepts/sampling/",
-		Value:   1,
+		Value:   0.2,
 	},
 }
