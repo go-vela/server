@@ -134,6 +134,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db database.Interface) (string, error) {
 	// initialize claims struct
 	var claims = new(api.OpenIDClaims)
+
 	var err error
 
 	// validate provided claims
@@ -168,6 +169,9 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.TokenType = mto.TokenType
 	claims.Image = mto.Image
 	claims.ImageName, claims.ImageTag, err = imageParse(mto.Image)
+	if err != nil {
+		return "", err
+	}
 	claims.Request = mto.Request
 	claims.Commands = mto.Commands
 
