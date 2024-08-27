@@ -41,8 +41,8 @@ const (
     "actor_scm_id",
     "commands",
     "image",
-	"image_name",
-	"image_tag",
+    "image_name",
+    "image_tag",
     "request"
   ],
   "id_token_signing_alg_values_supported": [
