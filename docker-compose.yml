@@ -50,7 +50,7 @@ services:
       VELA_OTEL_TRACING_SERVICE_NAME: vela-server
       VELA_OTEL_TRACING_RESOURCE_ATTRIBUTES: "process.runtime.name=go"
       VELA_OTEL_TRACING_RESOURCE_ENV_ATTRIBUTES: "deployment.environment=CLOUD_ENVIRONMENT"
-      VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND: 5
+      VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND: 0.2
     env_file:
       - .env
     restart: always
