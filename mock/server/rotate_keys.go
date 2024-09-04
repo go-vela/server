@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/types"
 )
