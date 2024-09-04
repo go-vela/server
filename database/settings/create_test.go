@@ -14,7 +14,7 @@ func TestSettings_Engine_CreateSettings(t *testing.T) {
 	// setup types
 	_settings := testSettings()
 	_settings.SetID(1)
-	_settings.SetCloneImage("target/vela-git:latest")
+	_settings.SetCloneImage("target/vela-git-slim:latest")
 	_settings.SetTemplateDepth(10)
 	_settings.SetStarlarkExecLimit(100)
 	_settings.SetRoutes([]string{"vela"})
@@ -32,7 +32,7 @@ func TestSettings_Engine_CreateSettings(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "settings" ("compiler","queue","repo_allowlist","schedule_allowlist","created_at","updated_at","updated_by","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
-		WithArgs(`{"clone_image":{"String":"target/vela-git:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
+		WithArgs(`{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
 			`{"routes":["vela"]}`, `{"octocat/hello-world"}`, `{"*"}`, 1, 1, ``, 1).
 		WillReturnRows(_rows)
 

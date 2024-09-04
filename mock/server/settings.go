@@ -17,7 +17,7 @@ const (
 		{
 			"id": 1,
 			"compiler": {
-				"clone_image": "target/vela-git",
+				"clone_image": "target/vela-git-slim",
 				"template_depth": 3,
 				"starlark_exec_limit": 100
 			},
@@ -42,7 +42,7 @@ const (
 		{
 			"id": 1,
 			"compiler": {
-				"clone_image": "target/vela-git:latest",
+				"clone_image": "target/vela-git-slim:latest",
 				"template_depth": 5,
 				"starlark_exec_limit": 123
 			},
@@ -67,7 +67,7 @@ const (
 	{
 		"id": 1,
 		"compiler": {
-			"clone_image": "target/vela-git:latest",
+			"clone_image": "target/vela-git-slim:latest",
 			"template_depth": 5,
 			"starlark_exec_limit": 123
 		},
