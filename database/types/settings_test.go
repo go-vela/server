@@ -58,7 +58,7 @@ func TestTypes_Platform_ToAPI(t *testing.T) {
 	want.SetUpdatedBy("")
 
 	want.Compiler = new(api.Compiler)
-	want.SetCloneImage("target/vela-git:latest")
+	want.SetCloneImage("target/vela-git-slim:latest")
 	want.SetTemplateDepth(10)
 	want.SetStarlarkExecLimit(100)
 
@@ -98,7 +98,7 @@ func TestTypes_Platform_Validate(t *testing.T) {
 			settings: &Platform{
 				ID: sql.NullInt64{Int64: 1, Valid: true},
 				Compiler: Compiler{
-					CloneImage:        sql.NullString{String: "target/vela-git:latest", Valid: true},
+					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
 				},
 			},
@@ -108,7 +108,7 @@ func TestTypes_Platform_Validate(t *testing.T) {
 			settings: &Platform{
 				ID: sql.NullInt64{Int64: 1, Valid: true},
 				Compiler: Compiler{
-					CloneImage:    sql.NullString{String: "target/vela-git:latest", Valid: true},
+					CloneImage:    sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 					TemplateDepth: sql.NullInt64{Int64: 10, Valid: true},
 				},
 			},
@@ -118,7 +118,7 @@ func TestTypes_Platform_Validate(t *testing.T) {
 			settings: &Platform{
 				ID: sql.NullInt64{Int64: 1, Valid: true},
 				Compiler: Compiler{
-					CloneImage:        sql.NullString{String: "target/vela-git:latest", Valid: true},
+					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
 					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
 				},
@@ -156,7 +156,7 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 	s.SetUpdatedBy("")
 
 	s.Compiler = new(api.Compiler)
-	s.SetCloneImage("target/vela-git:latest")
+	s.SetCloneImage("target/vela-git-slim:latest")
 	s.SetTemplateDepth(10)
 	s.SetStarlarkExecLimit(100)
 
@@ -179,7 +179,7 @@ func testPlatform() *Platform {
 	return &Platform{
 		ID: sql.NullInt64{Int64: 1, Valid: true},
 		Compiler: Compiler{
-			CloneImage:        sql.NullString{String: "target/vela-git:latest", Valid: true},
+			CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 			TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
 			StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
 		},

@@ -20,8 +20,8 @@ import (
 
 func TestMiddleware_CompilerNative(t *testing.T) {
 	// setup types
-	defaultCloneImage := "target/vela-git"
-	wantCloneImage := "target/vela-git:latest"
+	defaultCloneImage := "target/vela-git-slim"
+	wantCloneImage := "target/vela-git-slim:latest"
 
 	set := flag.NewFlagSet("", flag.ExitOnError)
 	set.String("clone-image", defaultCloneImage, "doc")
