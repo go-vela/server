@@ -151,6 +151,7 @@ func FakeHandler() http.Handler {
 	// mock endpoints for oidc calls
 	e.GET("/_services/token/.well-known/openid-configuration", openIDConfig)
 	e.GET("/_services/token/.well-known/jwks", getJWKS)
+	e.POST("/api/v1/admin/rotate_oidc_keys", rotateKeys)
 
 	// mock endpoint for queue credentials
 	e.GET("/api/v1/queue/info", getQueueCreds)
