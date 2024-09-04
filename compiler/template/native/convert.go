@@ -5,7 +5,7 @@ package native
 import (
 	"strings"
 
-	"github.com/buildkite/yaml"
+	"gopkg.in/yaml.v3"
 
 	"github.com/go-vela/types/raw"
 )

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/buildkite/yaml"
 	"github.com/drone/envsubst"
+	"gopkg.in/yaml.v3"
 
 	types "github.com/go-vela/types/yaml"
 )

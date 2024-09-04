@@ -581,7 +581,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 				Secrets: yaml.StepSecretSlice{
 					{
 						Source: "vault_token",
-						Target: "vault_token",
+						Target: "VAULT_TOKEN",
 					},
 				},
 				Parameters: map[string]interface{}{
@@ -589,7 +589,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
+						map[string]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
@@ -602,7 +602,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 				Secrets: yaml.StepSecretSlice{
 					{
 						Source: "vault_token",
-						Target: "vault_token",
+						Target: "VAULT_TOKEN",
 					},
 				},
 				Parameters: map[string]interface{}{
@@ -610,7 +610,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
+						map[string]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
