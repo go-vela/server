@@ -32,6 +32,7 @@ const (
     "iat",
     "iss",
     "aud",
+    "branch",
     "build_number",
     "build_id",
     "repo",
@@ -40,6 +41,8 @@ const (
     "actor_scm_id",
     "commands",
     "image",
+    "image_name",
+    "image_tag",
     "request"
   ],
   "id_token_signing_alg_values_supported": [
