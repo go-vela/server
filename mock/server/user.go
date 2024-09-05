@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore duplicate with user code
 package server
 
 import (
@@ -12,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/types"
 )
 
@@ -70,6 +70,28 @@ func getUser(c *gin.Context) {
 		msg := fmt.Sprintf("User %s does not exist", u)
 
 		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+
+		return
+	}
+
+	data := []byte(UserResp)
+
+	var body api.User
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}
+
+// currentUser returns mock JSON for a http GET and http PUT.
+//
+// Pass "invalid" to auth header to test receiving 401 response.
+func currentUser(c *gin.Context) {
+	tkn, _ := auth.RetrieveAccessToken(c.Request)
+
+	if strings.Contains(tkn, "invalid") {
+		msg := "unauthorized"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &msg})
 
 		return
 	}
