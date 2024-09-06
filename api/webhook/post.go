@@ -239,35 +239,74 @@ func PostWebhook(c *gin.Context) {
 	b.SetRepo(repo)
 	h.SetRepoID(repo.GetID())
 
-	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).LastHookForRepo(ctx, repo)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", repo.GetFullName(), err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+	// number of times to retry
+	retryLimit := 3
+	// implement a loop to process asynchronous operations with a retry limit
+	//
+	// Some operations taken during the webhook workflow can lead to race conditions
+	// failing to successfully process the request. This logic ensures we attempt our
+	// best efforts to handle these cases gracefully.
+	for i := 0; i < retryLimit; i++ {
+		// check if we're on the first iteration of the loop
+		if i > 0 {
+			// incrementally sleep in between retries
+			time.Sleep(time.Duration(i) * time.Second)
+		}
 
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
+		// send API call to capture the last hook for the repo
+		lastHook, err := database.FromContext(c).LastHookForRepo(ctx, repo)
+		if err != nil {
+			// format the error message with extra information
+			err = fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 
-		return
-	}
+			// log the error for traceability
+			logrus.Error(err.Error())
 
-	// set the Number field
-	if lastHook != nil {
-		h.SetNumber(
-			lastHook.GetNumber() + 1,
-		)
-	}
+			// check if the retry limit has been exceeded
+			if i < retryLimit {
+				// continue to the next iteration of the loop
+				continue
+			}
 
-	// send API call to create the webhook
-	h, err = database.FromContext(c).CreateHook(ctx, h)
-	if err != nil {
-		retErr := fmt.Errorf("unable to create webhook %s/%d: %w", repo.GetFullName(), h.GetNumber(), err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+			retErr := fmt.Errorf("%s: %w", baseErr, err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
 
-		return
+			return
+		}
+
+		// set the Number field
+		if lastHook != nil {
+			h.SetNumber(
+				lastHook.GetNumber() + 1,
+			)
+		}
+
+		// send API call to create the webhook
+		h, err = database.FromContext(c).CreateHook(ctx, h)
+		if err != nil {
+			// format the error message with extra information
+			err = fmt.Errorf("unable to create webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
+
+			// log the error for traceability
+			logrus.Error(err.Error())
+
+			// check if the retry limit has been exceeded
+			if i < retryLimit {
+				// continue to the next iteration of the loop
+				continue
+			}
+
+			retErr := fmt.Errorf("%s: %w", baseErr, err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
 	}
 
 	l.WithFields(logrus.Fields{
