@@ -1804,8 +1804,8 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	methods["ListServicesForBuild"] = true
 
 	expected := map[string]float64{
-		"#init":                  1,
-		"target/vela-git:v0.3.0": 1,
+		"#init":                        1,
+		"target/vela-git-slim:v0.12.0": 1,
 	}
 	images, err := db.ListServiceImageCount(context.TODO())
 	if err != nil {
@@ -1959,8 +1959,8 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["ListStepsForBuild"] = true
 
 	expected := map[string]float64{
-		"#init":                  1,
-		"target/vela-git:v0.3.0": 1,
+		"#init":                        1,
+		"target/vela-git-slim:v0.12.0": 1,
 	}
 	images, err := db.ListStepImageCount(ctx)
 	if err != nil {
@@ -2288,7 +2288,7 @@ func testSettings(t *testing.T, db Interface, resources *Resources) {
 
 	// update the settings
 	for _, s := range resources.Platform {
-		s.SetCloneImage("target/vela-git:abc123")
+		s.SetCloneImage("target/vela-git-slim:abc123")
 		got, err := db.UpdateSettings(context.TODO(), s)
 		if err != nil {
 			t.Errorf("unable to update settings %d: %v", s.GetID(), err)
@@ -2757,7 +2757,7 @@ func newResources() *Resources {
 	serviceTwo.SetRepoID(1)
 	serviceTwo.SetNumber(2)
 	serviceTwo.SetName("clone")
-	serviceTwo.SetImage("target/vela-git:v0.3.0")
+	serviceTwo.SetImage("target/vela-git-slim:v0.12.0")
 	serviceTwo.SetStatus("pending")
 	serviceTwo.SetError("")
 	serviceTwo.SetExitCode(0)
@@ -2793,7 +2793,7 @@ func newResources() *Resources {
 	stepTwo.SetRepoID(1)
 	stepTwo.SetNumber(2)
 	stepTwo.SetName("clone")
-	stepTwo.SetImage("target/vela-git:v0.3.0")
+	stepTwo.SetImage("target/vela-git-slim:v0.12.0")
 	stepTwo.SetStage("init")
 	stepTwo.SetStatus("pending")
 	stepTwo.SetError("")

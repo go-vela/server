@@ -108,7 +108,7 @@ func TestTypes_Compiler_String(t *testing.T) {
 func testCompilerSettings() *Compiler {
 	cs := new(Compiler)
 
-	cs.SetCloneImage("target/vela-git:latest")
+	cs.SetCloneImage("target/vela-git-slim:latest")
 	cs.SetTemplateDepth(1)
 	cs.SetStarlarkExecLimit(100)
 

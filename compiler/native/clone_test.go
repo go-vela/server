@@ -12,7 +12,7 @@ import (
 	"github.com/go-vela/types/yaml"
 )
 
-const defaultCloneImage = "target/vela-git:latest"
+const defaultCloneImage = "target/vela-git-slim:latest"
 
 func TestNative_CloneStage(t *testing.T) {
 	// setup types
