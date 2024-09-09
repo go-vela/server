@@ -1551,7 +1551,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: cloneEnv,
-				Image:       "target/vela-git:v0.5.1",
+				Image:       "target/vela-git-slim:v0.12.0",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "always",

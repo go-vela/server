@@ -13,7 +13,7 @@ import (
 func TestSettings_FromContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	cloneImage := "target/vela-git"
+	cloneImage := "target/vela-git-slim"
 
 	cs := settings.Compiler{
 		CloneImage: &cloneImage,
@@ -81,7 +81,7 @@ func TestSettings_FromContext_Empty(t *testing.T) {
 func TestSettings_ToContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	cloneImage := "target/vela-git"
+	cloneImage := "target/vela-git-slim"
 
 	cs := settings.Compiler{
 		CloneImage: &cloneImage,

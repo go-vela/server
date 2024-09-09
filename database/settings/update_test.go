@@ -16,7 +16,7 @@ func TestSettings_Engine_UpdateSettings(t *testing.T) {
 	// setup types
 	_settings := testSettings()
 	_settings.SetID(1)
-	_settings.SetCloneImage("target/vela-git:latest")
+	_settings.SetCloneImage("target/vela-git-slim:latest")
 	_settings.SetTemplateDepth(10)
 	_settings.SetStarlarkExecLimit(100)
 	_settings.SetRoutes([]string{"vela", "large"})
@@ -31,7 +31,7 @@ func TestSettings_Engine_UpdateSettings(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "settings" SET "compiler"=$1,"queue"=$2,"repo_allowlist"=$3,"schedule_allowlist"=$4,"created_at"=$5,"updated_at"=$6,"updated_by"=$7 WHERE "id" = $8`).
-		WithArgs(`{"clone_image":{"String":"target/vela-git:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
+		WithArgs(`{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
 			`{"routes":["vela","large"]}`, `{"octocat/hello-world"}`, `{"*"}`, 1, testutils.AnyArgument{}, "octocat", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
