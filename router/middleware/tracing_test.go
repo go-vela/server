@@ -10,9 +10,10 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/tracing"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/go-vela/server/tracing"
 )
 
 func TestMiddleware_TracingClient(t *testing.T) {
