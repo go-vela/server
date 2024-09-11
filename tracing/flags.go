@@ -22,7 +22,7 @@ var Flags = []cli.Flag{
 		EnvVars: []string{"VELA_OTEL_TRACING_SERVICE_NAME"},
 		Name:    "tracing.service.name",
 		Usage:   "set otel tracing service name",
-		Value:   "go-otel-server",
+		Value:   "vela-server",
 	},
 	&cli.StringFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_EXPORTER_SSL_CERT_PATH"},
