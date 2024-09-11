@@ -3,7 +3,7 @@
 package tracing
 
 import (
-	"fmt"
+	"maps"
 	"os"
 	"strings"
 
@@ -19,70 +19,58 @@ type Client struct {
 
 // Config represents the configurations for otel tracing.
 type Config struct {
-	EnableTracing      bool
-	ServiceName        string
-	ExporterURL        string
-	CertPath           string
-	TLSMinVersion      string
-	ResourceAttributes map[string]string
+	EnableTracing        bool
+	ServiceName          string
+	ExporterURL          string
+	CertPath             string
+	TLSMinVersion        string
+	ResourceAttributes   map[string]string
+	TraceStateAttributes map[string]string
+	SpanAttributes       map[string]string
 	Sampler
 }
 
 // Sampler represents the configurations for the otel sampler.
 // Used to determine if a trace should be sampled.
 type Sampler struct {
-	TraceStateAttributes map[string]string
-	SpanAttributes       map[string]string
-	Ratio                float64
-	PerSecond            float64
+	PerSecond float64
 }
 
 // FromCLIContext takes cli context and returns a tracing config to supply to traceable services.
 func FromCLIContext(c *cli.Context) (*Client, error) {
 	cfg := Config{
-		EnableTracing:      c.Bool("tracing.enable"),
-		ServiceName:        c.String("tracing.service.name"),
-		ExporterURL:        c.String("tracing.exporter.endpoint"),
-		CertPath:           c.String("tracing.exporter.cert_path"),
-		TLSMinVersion:      c.String("tracing.tls-min-version"),
-		ResourceAttributes: map[string]string{},
+		EnableTracing:        c.Bool("tracing.enable"),
+		ServiceName:          c.String("tracing.service.name"),
+		ExporterURL:          c.String("tracing.exporter.endpoint"),
+		CertPath:             c.String("tracing.exporter.cert_path"),
+		TLSMinVersion:        c.String("tracing.tls-min-version"),
+		ResourceAttributes:   map[string]string{},
+		TraceStateAttributes: map[string]string{},
+		SpanAttributes:       map[string]string{},
 		Sampler: Sampler{
-			TraceStateAttributes: map[string]string{
-				"sampler": c.String("tracing.sampler.tracestate"),
-			},
-			SpanAttributes: map[string]string{
-				"w3c.tracestate": fmt.Sprintf("sampler=%s", c.String("tracing.sampler.tracestate")),
-				"sampler.parent": c.String("tracing.sampler.parent"),
-				"sampler.type":   c.String("tracing.sampler.type"),
-			},
-			Ratio:     c.Float64("tracing.sampler.ratio"),
 			PerSecond: c.Float64("tracing.sampler.persecond"),
 		},
 	}
 
-	// add resource attributes
-	for _, attr := range c.StringSlice("tracing.resource.attributes") {
-		kv := strings.Split(attr, "=")
-		if len(kv) != 2 {
-			continue
-		}
-
-		cfg.ResourceAttributes[kv[0]] = kv[1]
+	// identity func used to map a string back to itself
+	identityFn := func(s string) string {
+		return s
 	}
 
-	// add resource attributes from environment
-	for _, attr := range c.StringSlice("tracing.resource.env_attributes") {
-		kv := strings.Split(attr, "=")
-		if len(kv) != 2 {
-			continue
-		}
+	// static span attributes
+	cfg.SpanAttributes = keyValueSliceToMap(c.StringSlice("tracing.span.attributes"), identityFn)
 
-		v, found := os.LookupEnv(kv[1])
-		if found {
-			cfg.ResourceAttributes[kv[0]] = v
-		}
-	}
+	// static tracestate attributes
+	cfg.TraceStateAttributes = keyValueSliceToMap(c.StringSlice("tracing.tracestate.attributes"), identityFn)
 
+	// static resource attributes
+	cfg.ResourceAttributes = keyValueSliceToMap(c.StringSlice("tracing.resource.attributes"), identityFn)
+
+	// merge static resource attributes with those fetched from the environment
+	m := keyValueSliceToMap(c.StringSlice("tracing.resource.env_attributes"), os.Getenv)
+	maps.Copy(cfg.ResourceAttributes, m)
+
+	// initialize the tracer provider and assign it to the client
 	tracer, err := initTracer(c.Context, cfg)
 	if err != nil {
 		return nil, err
@@ -92,4 +80,26 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 		Config:         cfg,
 		TracerProvider: tracer,
 	}, nil
+}
+
+// keyValueSliceToMap converts a slice of key=value strings to a map of key to value using the supplied map function.
+func keyValueSliceToMap(kv []string, fn func(string) string) map[string]string {
+	m := map[string]string{}
+	for _, attr := range kv {
+		parts := strings.SplitN(attr, "=", 2)
+
+		if len(parts) != 2 || len(parts[1]) == 0 {
+			continue
+		}
+
+		v := fn(parts[1])
+
+		if len(v) == 0 {
+			continue
+		}
+
+		m[parts[0]] = v
+	}
+
+	return m
 }
