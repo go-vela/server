@@ -307,6 +307,9 @@ func PostWebhook(c *gin.Context) {
 
 			return
 		}
+
+		// hook was created successfully
+		break
 	}
 
 	l.WithFields(logrus.Fields{
