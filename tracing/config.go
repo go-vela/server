@@ -91,13 +91,14 @@ func keyValueSliceToMap(kv []string, fn func(string) string) map[string]string {
 			continue
 		}
 
+		k := parts[0]
 		v := fn(parts[1])
 
 		if len(v) == 0 {
 			continue
 		}
 
-		m[parts[0]] = v
+		m[k] = v
 	}
 
 	return m
