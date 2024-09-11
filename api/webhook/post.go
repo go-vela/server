@@ -408,7 +408,14 @@ func PostWebhook(c *gin.Context) {
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(err.Error())
 
+		b.SetStatus(constants.StatusError)
+
 		util.HandleError(c, code, err)
+
+		err = scm.FromContext(c).Status(ctx, repo.GetOwner(), b, repo.GetOrg(), repo.GetName())
+		if err != nil {
+			l.Debugf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
+		}
 
 		return
 	}
