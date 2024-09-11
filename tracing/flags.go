@@ -25,9 +25,9 @@ var Flags = []cli.Flag{
 		Value:   "vela-server",
 	},
 	&cli.StringFlag{
-		EnvVars: []string{"VELA_OTEL_TRACING_ENDPOINT"},
+		EnvVars: []string{"VELA_OTEL_EXPORTER_OTLP_ENDPOINT"},
 		Name:    "tracing.exporter.endpoint",
-		Usage:   "set the otel exporter endpoint",
+		Usage:   "set the otel exporter endpoint (ex. scheme://host:port)",
 	},
 	&cli.StringFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_EXPORTER_SSL_CERT_PATH"},

@@ -7,8 +7,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"net/url"
 	"os"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -63,8 +65,26 @@ func initTracer(ctx context.Context, cfg Config) (*sdktrace.TracerProvider, erro
 		logrus.Warn("no otel cert path set, exporting traces insecurely")
 	}
 
+	if len(cfg.ExporterURL) == 0 {
+		return nil, errors.New("no otel exporter URL set (ex. scheme://host:port)")
+	}
+
+	exporterURL, err := url.Parse(cfg.ExporterURL)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("unable to parse otel exporter URL (ex. scheme://host:port): %s", cfg.ExporterURL))
+	}
+
+	if len(exporterURL.Hostname()) == 0 {
+		return nil, fmt.Errorf("unable to parse host from otel exporter URL (ex. scheme://host:port): %s", cfg.ExporterURL)
+	}
+
+	exporterEndpoint := exporterURL.Hostname()
+	if len(exporterURL.Port()) > 0 {
+		exporterEndpoint = fmt.Sprintf("%s:%s", exporterEndpoint, exporterURL.Port())
+	}
+
 	client := otlptracehttp.NewClient(
-		otlptracehttp.WithEndpoint(cfg.ExporterURL),
+		otlptracehttp.WithEndpoint(exporterEndpoint),
 		withTLS,
 	)
 
