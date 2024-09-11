@@ -36,7 +36,7 @@ var Flags = []cli.Flag{
 	},
 	&cli.StringFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_TLS_MIN_VERSION"},
-		Name:    "tracing.tls-min-version",
+		Name:    "tracing.exporter.tls-min-version",
 		Usage:   "optional TLS minimum version requirement to set when communicating with the otel exporter",
 		Value:   "1.2",
 	},
