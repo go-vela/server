@@ -46,13 +46,13 @@ var Flags = []cli.Flag{
 	&cli.StringSliceFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_RESOURCE_ATTRIBUTES"},
 		Name:    "tracing.resource.attributes",
-		Usage:   "set otel resource attributes as a list of key=value pairs. each one will be attached to each span as a 'process' attribute. see: https://opentelemetry.io/docs/languages/go/instrumentation/#span-attributes",
+		Usage:   "set otel resource (span) attributes as a list of key=value pairs. each one will be attached to each span as a 'process' attribute. see: https://opentelemetry.io/docs/languages/go/instrumentation/#span-attributes",
 		Value:   cli.NewStringSlice("process.runtime.name=go"),
 	},
 	&cli.StringSliceFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_RESOURCE_ENV_ATTRIBUTES"},
 		Name:    "tracing.resource.env_attributes",
-		Usage:   "set otel resource attributes as a list of key=env_variable_key pairs. each one will be attached to each span as a 'process' attribute where the value is retrieved from the environment using the pair value. see: https://opentelemetry.io/docs/languages/go/instrumentation/#span-attributes",
+		Usage:   "set otel resource (span) attributes as a list of key=env_variable_key pairs. each one will be attached to each span as a 'process' attribute where the value is retrieved from the environment using the pair value. see: https://opentelemetry.io/docs/languages/go/instrumentation/#span-attributes",
 	},
 	&cli.StringSliceFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_SPAN_ATTRIBUTES"},
@@ -62,7 +62,7 @@ var Flags = []cli.Flag{
 	&cli.StringSliceFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_TRACESTATE_ATTRIBUTES"},
 		Name:    "tracing.tracestate.attributes",
-		Usage:   "set otel tracestate attributes as a list of key=value pairs. each one will be inserted into the tracestate for each sampled span. see: https://www.w3.org/TR/trace-context",
+		Usage:   "set otel tracestate (span) attributes as a list of key=value pairs. each one will be inserted into the tracestate for each sampled span. see: https://www.w3.org/TR/trace-context",
 	},
 
 	// Sampler Flags
@@ -71,6 +71,6 @@ var Flags = []cli.Flag{
 		EnvVars: []string{"VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND"},
 		Name:    "tracing.sampler.persecond",
 		Usage:   "set otel tracing head-sampler rate-limiting to N per second. see: https://opentelemetry.io/docs/concepts/sampling/",
-		Value:   0.2,
+		Value:   100,
 	},
 }
