@@ -54,7 +54,6 @@ var Flags = []cli.Flag{
 		EnvVars: []string{"VELA_OTEL_TRACING_RESOURCE_ENV_ATTRIBUTES"},
 		Name:    "tracing.resource.env_attributes",
 		Usage:   "set otel resource attributes as a list of key=env_variable_key pairs. each one will be attached to each span as an attribute where the value is retrieved from the environment using the pair value",
-		Value:   cli.NewStringSlice("deployment.environment=CLOUD_ENVIRONMENT"),
 	},
 
 	// Sampler Flags
