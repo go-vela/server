@@ -85,6 +85,7 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 // keyValueSliceToMap converts a slice of key=value strings to a map of key to value using the supplied map function.
 func keyValueSliceToMap(kv []string, fn func(string) string) map[string]string {
 	m := map[string]string{}
+
 	for _, attr := range kv {
 		parts := strings.SplitN(attr, "=", 2)
 
