@@ -30,6 +30,12 @@ var Flags = []cli.Flag{
 		Usage:   "set the path to certs used for communicating with the otel exporter. if not set, will use insecure communication",
 	},
 	&cli.StringFlag{
+		EnvVars: []string{"VELA_OTEL_TRACING_TLS_MIN_VERSION"},
+		Name:    "tracing.tls-min-version",
+		Usage:   "optional TLS minimum version requirement to set when communicating with the otel exporter",
+		Value:   "1.2",
+	},
+	&cli.StringFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_ENDPOINT"},
 		Name:    "tracing.exporter.endpoint",
 		Usage:   "set the otel exporter endpoint",

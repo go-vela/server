@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -32,11 +33,32 @@ func initTracer(ctx context.Context, cfg Config) (*sdktrace.TracerProvider, erro
 		certs := x509.NewCertPool()
 		certs.AppendCertsFromPEM(pem)
 
-		withTLS = otlptracehttp.WithTLSClientConfig(
-			&tls.Config{
-				RootCAs:    certs,
-				MinVersion: tls.VersionTLS12,
-			})
+		tlsCfg := &tls.Config{
+			RootCAs:    certs,
+			MinVersion: tls.VersionTLS12,
+		}
+
+		// if a TLS minimum version is supplied, set that in the config
+		if len(cfg.TLSMinVersion) > 0 {
+			var tlsVersion uint16
+
+			switch cfg.TLSMinVersion {
+			case "1.0":
+				tlsVersion = tls.VersionTLS10
+			case "1.1":
+				tlsVersion = tls.VersionTLS11
+			case "1.2":
+				tlsVersion = tls.VersionTLS12
+			case "1.3":
+				tlsVersion = tls.VersionTLS13
+			default:
+				return nil, fmt.Errorf("invalid TLS minimum version supplied: %s", cfg.TLSMinVersion)
+			}
+
+			tlsCfg.MinVersion = tlsVersion
+		}
+
+		withTLS = otlptracehttp.WithTLSClientConfig(tlsCfg)
 	} else {
 		logrus.Warn("no otel cert path set, exporting traces insecurely")
 	}

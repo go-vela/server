@@ -23,6 +23,7 @@ type Config struct {
 	ServiceName        string
 	ExporterURL        string
 	CertPath           string
+	TLSMinVersion      string
 	ResourceAttributes map[string]string
 	Sampler
 }
@@ -43,6 +44,7 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 		ServiceName:        c.String("tracing.service.name"),
 		ExporterURL:        c.String("tracing.exporter.endpoint"),
 		CertPath:           c.String("tracing.exporter.cert_path"),
+		TLSMinVersion:      c.String("tracing.tls-min-version"),
 		ResourceAttributes: map[string]string{},
 		Sampler: Sampler{
 			TraceStateAttributes: map[string]string{
