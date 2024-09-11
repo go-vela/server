@@ -306,10 +306,10 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			return
-		} else {
-			// hook was created successfully
-			break
 		}
+
+		// hook was created successfully
+		break
 	}
 
 	l.WithFields(logrus.Fields{
