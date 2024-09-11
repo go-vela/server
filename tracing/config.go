@@ -57,16 +57,14 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 		return s
 	}
 
-	// static span attributes
+	// span attributes
 	cfg.SpanAttributes = keyValueSliceToMap(c.StringSlice("tracing.span.attributes"), identityFn)
 
-	// static tracestate attributes
+	// tracestate attributes
 	cfg.TraceStateAttributes = keyValueSliceToMap(c.StringSlice("tracing.tracestate.attributes"), identityFn)
 
-	// static resource attributes
+	// merge static resource attributes with those fetched from the environment using os.Getenv
 	cfg.ResourceAttributes = keyValueSliceToMap(c.StringSlice("tracing.resource.attributes"), identityFn)
-
-	// merge static resource attributes with those fetched from the environment
 	m := keyValueSliceToMap(c.StringSlice("tracing.resource.env_attributes"), os.Getenv)
 	maps.Copy(cfg.ResourceAttributes, m)
 
