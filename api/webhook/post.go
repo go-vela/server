@@ -306,6 +306,9 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			return
+		} else {
+			// hook was created successfully
+			break
 		}
 	}
 
