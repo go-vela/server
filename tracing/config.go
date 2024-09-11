@@ -53,9 +53,7 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 	}
 
 	// identity func used to map a string back to itself
-	identityFn := func(s string) string {
-		return s
-	}
+	identityFn := func(s string) string { return s }
 
 	// span attributes
 	cfg.SpanAttributes = keyValueSliceToMap(c.StringSlice("tracing.span.attributes"), identityFn)
