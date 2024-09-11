@@ -335,7 +335,14 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 		description = "build was skipped as no steps/stages found"
 	default:
 		state = "error"
-		description = "there was an error"
+
+		// if there is no build, then this status update is from a failed compilation
+		if b.GetID() == 0 {
+			description = "error compiling pipeline - check audit for more information"
+			url = fmt.Sprintf("%s/%s/%s/hooks", c.config.WebUIAddress, org, name)
+		} else {
+			description = "there was an error"
+		}
 	}
 
 	// check if the build event is deployment
