@@ -66,16 +66,21 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 	m := keyValueSliceToMap(c.StringSlice("tracing.resource.env_attributes"), os.Getenv)
 	maps.Copy(cfg.ResourceAttributes, m)
 
-	// initialize the tracer provider and assign it to the client
-	tracer, err := initTracer(c.Context, cfg)
-	if err != nil {
-		return nil, err
+	client := &Client{
+		Config: cfg,
 	}
 
-	return &Client{
-		Config:         cfg,
-		TracerProvider: tracer,
-	}, nil
+	if cfg.EnableTracing {
+		// initialize the tracer provider and assign it to the client
+		tracer, err := initTracer(c.Context, cfg)
+		if err != nil {
+			return nil, err
+		}
+
+		client.TracerProvider = tracer
+	}
+
+	return client, nil
 }
 
 // keyValueSliceToMap converts a slice of key=value strings to a map of key to value using the supplied map function.

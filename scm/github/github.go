@@ -13,6 +13,8 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
+
+	"github.com/go-vela/server/tracing"
 )
 
 const (
@@ -53,6 +55,7 @@ type client struct {
 	config  *config
 	OAuth   *oauth2.Config
 	AuthReq *github.AuthorizationRequest
+	Tracing *tracing.Client
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }
@@ -158,12 +161,14 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 	// 	}
 	// }
 
-	tc.Transport = otelhttp.NewTransport(
-		tc.Transport,
-		otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
-			return otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
-		}),
-	)
+	if c.Tracing.Config.EnableTracing {
+		tc.Transport = otelhttp.NewTransport(
+			tc.Transport,
+			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+				return otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
+			}),
+		)
+	}
 
 	// create the GitHub client from the OAuth client
 	github := github.NewClient(tc)

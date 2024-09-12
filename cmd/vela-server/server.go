@@ -108,7 +108,7 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	scm, err := setupSCM(c)
+	scm, err := setupSCM(c, tc)
 	if err != nil {
 		return err
 	}

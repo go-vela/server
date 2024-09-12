@@ -7,10 +7,11 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/go-vela/server/scm"
+	"github.com/go-vela/server/tracing"
 )
 
 // helper function to setup the scm from the CLI arguments.
-func setupSCM(c *cli.Context) (scm.Service, error) {
+func setupSCM(c *cli.Context, tc *tracing.Client) (scm.Service, error) {
 	logrus.Debug("creating scm client from CLI configuration")
 
 	// scm configuration
@@ -24,6 +25,7 @@ func setupSCM(c *cli.Context) (scm.Service, error) {
 		StatusContext:        c.String("scm.context"),
 		WebUIAddress:         c.String("webui-addr"),
 		Scopes:               c.StringSlice("scm.scopes"),
+		Tracing:              tc,
 	}
 
 	// setup the scm
