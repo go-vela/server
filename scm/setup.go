@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/scm/github"
+	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/types/constants"
 )
 
@@ -36,6 +37,8 @@ type Setup struct {
 	WebUIAddress string
 	// specifies the OAuth scopes to use for the scm client
 	Scopes []string
+	// specifies OTel tracing configurations
+	Tracing *tracing.Client
 }
 
 // Github creates and returns a Vela service capable of
@@ -55,6 +58,7 @@ func (s *Setup) Github() (Service, error) {
 		github.WithStatusContext(s.StatusContext),
 		github.WithWebUIAddress(s.WebUIAddress),
 		github.WithScopes(s.Scopes),
+		github.WithTracing(s.Tracing),
 	)
 }
 

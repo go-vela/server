@@ -3,6 +3,7 @@
 package build
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -110,7 +111,7 @@ func ApproveBuild(c *gin.Context) {
 
 	// publish the build to the queue
 	go Enqueue(
-		ctx,
+		context.WithoutCancel(ctx),
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		models.ToItem(b),

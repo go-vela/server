@@ -5,6 +5,8 @@ package github
 import (
 	"fmt"
 	"strings"
+
+	"github.com/go-vela/server/tracing"
 )
 
 // ClientOpt represents a configuration option to initialize the scm client for GitHub.
@@ -145,6 +147,15 @@ func WithScopes(scopes []string) ClientOpt {
 
 		// set the scopes in the github client
 		c.config.Scopes = scopes
+
+		return nil
+	}
+}
+
+// WithTracing sets the shared tracing config in the scm client for GitHub.
+func WithTracing(tracing *tracing.Client) ClientOpt {
+	return func(e *client) error {
+		e.Tracing = tracing
 
 		return nil
 	}
