@@ -489,8 +489,6 @@ func PostWebhook(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusCreated, b)
-
 	// regardless of whether the build is published to queue, we want to attempt to auto-cancel if no errors
 	defer func() {
 		if err == nil && build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
@@ -531,6 +529,10 @@ func PostWebhook(c *gin.Context) {
 		}
 	}()
 
+	// track if we have already responded to the http request
+	// helps prevent multiple responses to the same request in the event of errors
+	responded := false
+
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
 	if webhook.PullRequest.IsFromFork {
 		l.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), repo.GetFullName(), b.GetNumber())
@@ -540,7 +542,11 @@ func PostWebhook(c *gin.Context) {
 			err = gatekeepBuild(c, b, repo)
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
+			} else {
+				c.JSON(http.StatusCreated, b)
 			}
+
+			responded = true
 
 			return
 		case constants.ApproveForkNoWrite:
@@ -550,7 +556,11 @@ func PostWebhook(c *gin.Context) {
 				err = gatekeepBuild(c, b, repo)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
+				} else {
+					c.JSON(http.StatusCreated, b)
 				}
+
+				responded = true
 
 				return
 			}
@@ -564,13 +574,19 @@ func PostWebhook(c *gin.Context) {
 			contributor, err := scm.FromContext(c).RepoContributor(ctx, repo.GetOwner(), b.GetSender(), repo.GetOrg(), repo.GetName())
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
+
+				responded = true
 			}
 
 			if !contributor {
 				err = gatekeepBuild(c, b, repo)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
+				} else if !responded {
+					c.JSON(http.StatusCreated, b)
 				}
+
+				responded = true
 
 				return
 			}
@@ -597,6 +613,11 @@ func PostWebhook(c *gin.Context) {
 		item,
 		b.GetHost(),
 	)
+
+	// respond only when necessary
+	if !responded {
+		c.JSON(http.StatusCreated, b)
+	}
 }
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
