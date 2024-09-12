@@ -546,8 +546,6 @@ func PostWebhook(c *gin.Context) {
 				c.JSON(http.StatusCreated, b)
 			}
 
-			responded = true
-
 			return
 		case constants.ApproveForkNoWrite:
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
@@ -559,8 +557,6 @@ func PostWebhook(c *gin.Context) {
 				} else {
 					c.JSON(http.StatusCreated, b)
 				}
-
-				responded = true
 
 				return
 			}
@@ -585,8 +581,6 @@ func PostWebhook(c *gin.Context) {
 				} else if !responded {
 					c.JSON(http.StatusCreated, b)
 				}
-
-				responded = true
 
 				return
 			}
