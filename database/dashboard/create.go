@@ -26,7 +26,10 @@ func (e *engine) CreateDashboard(ctx context.Context, d *api.Dashboard) (*api.Da
 	}
 
 	// send query to the database
-	result := e.client.Table(constants.TableDashboard).Create(dashboard)
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableDashboard).
+		Create(dashboard)
 
 	return dashboard.ToAPI(), result.Error
 }

@@ -27,6 +27,7 @@ func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*library.Hoo
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Where("repo_id = ?", r.GetID()).
 		Order("number DESC").

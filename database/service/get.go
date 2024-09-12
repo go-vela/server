@@ -19,6 +19,7 @@ func (e *engine) GetService(ctx context.Context, id int64) (*library.Service, er
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableService).
 		Where("id = ?", id).
 		Take(s).

@@ -4,7 +4,6 @@ package types
 
 import (
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/lestrrat-go/jwx/v2/jwk"
 )
 
 // OpenIDConfig is a struct that represents the OpenID Connect configuration.
@@ -22,24 +21,35 @@ type OpenIDConfig struct {
 // OpenIDClaims struct is an extension of the JWT standard claims. It
 // includes information relevant to OIDC services.
 type OpenIDClaims struct {
-	BuildNumber int    `json:"build_number,omitempty"`
-	BuildID     int64  `json:"build_id,omitempty"`
 	Actor       string `json:"actor,omitempty"`
 	ActorSCMID  string `json:"actor_scm_id,omitempty"`
-	Repo        string `json:"repo,omitempty"`
-	TokenType   string `json:"token_type,omitempty"`
-	Image       string `json:"image,omitempty"`
-	Request     string `json:"request,omitempty"`
+	Branch      string `json:"branch,omitempty"`
+	BuildID     int64  `json:"build_id,omitempty"`
+	BuildNumber int    `json:"build_number,omitempty"`
 	Commands    bool   `json:"commands,omitempty"`
 	Event       string `json:"event,omitempty"`
+	Image       string `json:"image,omitempty"`
+	ImageName   string `json:"image_name,omitempty"`
+	ImageTag    string `json:"image_tag,omitempty"`
 	Ref         string `json:"ref,omitempty"`
+	Repo        string `json:"repo,omitempty"`
+	Request     string `json:"request,omitempty"`
 	SHA         string `json:"sha,omitempty"`
+	TokenType   string `json:"token_type,omitempty"`
 	jwt.RegisteredClaims
 }
 
-// JWKSet is a wrapper of lestrrat-go/jwx/jwk.Set for API Swagger gen.
+// JWKSet exists solely to provide proper swagger documentation.
+// It is not otherwise used in code.
 //
 // swagger:model JWKSet
 type JWKSet struct {
-	jwk.Set
+	Keys []JWK `json:"keys"`
+}
+
+type JWK struct {
+	Kty string `json:"kty"`
+	Kid string `json:"kid"`
+	E   string `json:"e"`
+	N   string `json:"n"`
 }

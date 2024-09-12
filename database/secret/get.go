@@ -19,6 +19,7 @@ func (e *engine) GetSecret(ctx context.Context, id int64) (*library.Secret, erro
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("id = ?", id).
 		Take(s).

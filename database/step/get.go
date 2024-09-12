@@ -19,6 +19,7 @@ func (e *engine) GetStep(ctx context.Context, id int64) (*library.Step, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableStep).
 		Where("id = ?", id).
 		Take(s).

@@ -20,5 +20,7 @@ func (e *engine) CreateWorkerIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for workers table")
 
 	// create the hostname and address columns index for the workers table
-	return e.client.Exec(CreateHostnameAddressIndex).Error
+	return e.client.
+		WithContext(ctx).
+		Exec(CreateHostnameAddressIndex).Error
 }

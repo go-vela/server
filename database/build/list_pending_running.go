@@ -20,6 +20,7 @@ func (e *engine) ListPendingAndRunningBuilds(ctx context.Context, after string) 
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Select("builds.created, builds.number, builds.status, repos.full_name").
 		InnerJoins("INNER JOIN repos ON builds.repo_id = repos.id").

@@ -23,6 +23,7 @@ func (e *engine) DeleteDeployment(ctx context.Context, d *library.Deployment) er
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableDeployment).
 		Delete(deployment).
 		Error

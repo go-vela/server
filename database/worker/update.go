@@ -32,7 +32,10 @@ func (e *engine) UpdateWorker(ctx context.Context, w *api.Worker) (*api.Worker, 
 	}
 
 	// send query to the database
-	result := e.client.Table(constants.TableWorker).Save(worker)
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableWorker).
+		Save(worker)
 
 	return worker.ToAPI(w.GetRunningBuilds()), result.Error
 }

@@ -37,7 +37,10 @@ func (e *engine) UpdateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error)
 	}
 
 	// send query to the database
-	err = e.client.Table(constants.TableRepo).Save(repo).Error
+	err = e.client.
+		WithContext(ctx).
+		Table(constants.TableRepo).
+		Save(repo).Error
 	if err != nil {
 		return nil, err
 	}

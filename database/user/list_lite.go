@@ -36,6 +36,7 @@ func (e *engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*api.U
 	offset := perPage * (page - 1)
 
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableUser).
 		Select("id", "name").
 		Limit(perPage).

@@ -19,6 +19,7 @@ func (e *engine) GetPipeline(ctx context.Context, id int64) (*library.Pipeline, 
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TablePipeline).
 		Where("id = ?", id).
 		Take(p).

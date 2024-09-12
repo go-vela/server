@@ -162,7 +162,7 @@ func testExecutor() *Executor {
 			{
 				ID:        "step_github_octocat_1_clone",
 				Directory: "/home/github/octocat",
-				Image:     "target/vela-git:v0.3.0",
+				Image:     "target/vela-git-slim:v0.12.0",
 				Name:      "clone",
 				Number:    2,
 				Pull:      "always",

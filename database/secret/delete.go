@@ -41,6 +41,7 @@ func (e *engine) DeleteSecret(ctx context.Context, s *library.Secret) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Delete(secret).
 		Error

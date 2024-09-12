@@ -23,6 +23,7 @@ func (e *engine) DeleteUser(ctx context.Context, u *api.User) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableUser).
 		Delete(user).
 		Error

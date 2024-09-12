@@ -25,6 +25,7 @@ func (e *engine) GetStepForBuild(ctx context.Context, b *api.Build, number int) 
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableStep).
 		Where("build_id = ?", b.GetID()).
 		Where("number = ?", number).

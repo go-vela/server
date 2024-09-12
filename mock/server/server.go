@@ -125,6 +125,8 @@ func FakeHandler() http.Handler {
 	e.POST("/api/v1/users", addUser)
 	e.PUT("/api/v1/users/:user", updateUser)
 	e.DELETE("/api/v1/users/:user", removeUser)
+	e.GET("/api/v1/user", currentUser)
+	e.PUT("/api/v1/user", currentUser)
 
 	// mock endpoints for worker calls
 	e.GET("/api/v1/workers", getWorkers)
@@ -151,6 +153,7 @@ func FakeHandler() http.Handler {
 	// mock endpoints for oidc calls
 	e.GET("/_services/token/.well-known/openid-configuration", openIDConfig)
 	e.GET("/_services/token/.well-known/jwks", getJWKS)
+	e.POST("/api/v1/admin/rotate_oidc_keys", rotateKeys)
 
 	// mock endpoint for queue credentials
 	e.GET("/api/v1/queue/info", getQueueCreds)

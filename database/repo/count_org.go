@@ -21,6 +21,7 @@ func (e *engine) CountReposForOrg(ctx context.Context, org string, filters map[s
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableRepo).
 		Where("org = ?", org).
 		Where(filters).

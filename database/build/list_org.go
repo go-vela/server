@@ -40,6 +40,7 @@ func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[s
 	offset := perPage * (page - 1)
 
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Preload("Repo").
 		Preload("Repo.Owner").

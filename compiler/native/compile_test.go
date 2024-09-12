@@ -13,11 +13,11 @@ import (
 	"testing"
 	"time"
 
-	yml "github.com/buildkite/yaml"
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-github/v63/github"
 	"github.com/urfave/cli/v2"
+	yml "gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
@@ -208,11 +208,11 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 						Secrets: pipeline.StepSecretSlice{
 							&pipeline.StepSecret{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							&pipeline.StepSecret{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 					},
@@ -590,11 +590,11 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Secrets: pipeline.StepSecretSlice{
 					&pipeline.StepSecret{
 						Source: "docker_username",
-						Target: "registry_username",
+						Target: "REGISTRY_USERNAME",
 					},
 					&pipeline.StepSecret{
 						Source: "docker_password",
-						Target: "registry_password",
+						Target: "REGISTRY_PASSWORD",
 					},
 				},
 			},
@@ -828,11 +828,11 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Secrets: pipeline.StepSecretSlice{
 							&pipeline.StepSecret{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							&pipeline.StepSecret{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 					},
@@ -1075,11 +1075,11 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Secrets: pipeline.StepSecretSlice{
 					&pipeline.StepSecret{
 						Source: "docker_username",
-						Target: "registry_username",
+						Target: "REGISTRY_USERNAME",
 					},
 					&pipeline.StepSecret{
 						Source: "docker_password",
-						Target: "registry_password",
+						Target: "REGISTRY_PASSWORD",
 					},
 				},
 			},
@@ -1593,7 +1593,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: cloneEnv,
-				Image:       "target/vela-git:v0.5.1",
+				Image:       "target/vela-git-slim:v0.12.0",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "always",
@@ -2056,7 +2056,7 @@ func Test_client_modifyConfig(t *testing.T) {
 				Name:        "docker",
 				Pull:        "always",
 				Parameters: map[string]interface{}{
-					"init_options": map[interface{}]interface{}{
+					"init_options": map[string]interface{}{
 						"get_plugins": "true",
 					},
 				},
@@ -2089,7 +2089,7 @@ func Test_client_modifyConfig(t *testing.T) {
 				Name:        "docker",
 				Pull:        "always",
 				Parameters: map[string]interface{}{
-					"init_options": map[interface{}]interface{}{
+					"init_options": map[string]interface{}{
 						"get_plugins": "true",
 					},
 				},
@@ -3667,11 +3667,11 @@ func Test_CompileLite(t *testing.T) {
 						Secrets: yaml.StepSecretSlice{
 							{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 						Image: "plugins/docker:18.09",
@@ -3783,11 +3783,11 @@ func Test_CompileLite(t *testing.T) {
 						Secrets: yaml.StepSecretSlice{
 							{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 						Image: "plugins/docker:18.09",

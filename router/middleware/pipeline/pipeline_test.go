@@ -285,7 +285,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	}
 
 	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", "target/vela-git:latest", "doc")
+	set.String("clone-image", "target/vela-git-slim:latest", "doc")
 
 	comp, err := native.FromCLIContext(cli.NewContext(nil, set, nil))
 	if err != nil {
