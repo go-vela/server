@@ -140,6 +140,7 @@ func NewTest(urls ...string) (*client, error) {
 		WithServerWebhookAddress(""),
 		WithStatusContext("continuous-integration/vela"),
 		WithWebUIAddress(address),
+		WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
 	)
 }
 
