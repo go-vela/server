@@ -16,7 +16,7 @@ import (
 func TestMiddleware_Settings(t *testing.T) {
 	// setup types
 	want := settings.PlatformMockEmpty()
-	want.SetCloneImage("target/vela-git")
+	want.SetCloneImage("target/vela-git-slim")
 
 	got := settings.PlatformMockEmpty()
 

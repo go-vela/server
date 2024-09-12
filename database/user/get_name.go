@@ -23,6 +23,7 @@ func (e *engine) GetUserForName(ctx context.Context, name string) (*api.User, er
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableUser).
 		Where("name = ?", name).
 		Take(u).

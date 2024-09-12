@@ -26,7 +26,7 @@ func (e *engine) CreateHook(ctx context.Context, h *api.Hook) (*api.Hook, error)
 	}
 
 	// send query to the database
-	err = e.client.Table(constants.TableHook).Create(hook).Error
+	err = e.client.WithContext(ctx).Table(constants.TableHook).Create(hook).Error
 	if err != nil {
 		return nil, err
 	}

@@ -22,6 +22,7 @@ func (e *engine) DeleteHook(ctx context.Context, h *api.Hook) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Delete(hook).
 		Error

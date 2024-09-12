@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	yml "github.com/buildkite/yaml"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
+	yml "gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
@@ -39,7 +39,7 @@ type ModifyResponse struct {
 }
 
 // Compile produces an executable pipeline from a yaml configuration.
-func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, error) {
+func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *library.Pipeline, error) {
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -63,19 +63,20 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 
 	// create the ruledata to purge steps
 	r := &pipeline.RuleData{
-		Branch:  c.build.GetBranch(),
-		Comment: c.comment,
-		Event:   event,
-		Path:    c.files,
-		Repo:    c.repo.GetFullName(),
-		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
-		Target:  c.build.GetDeploy(),
-		Label:   c.labels,
+		Branch:   c.build.GetBranch(),
+		Comment:  c.comment,
+		Event:    event,
+		Path:     c.files,
+		Repo:     c.repo.GetFullName(),
+		Tag:      strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
+		Target:   c.build.GetDeploy(),
+		Label:    c.labels,
+		Instance: c.metadata.Vela.Address,
 	}
 
 	switch {
 	case p.Metadata.RenderInline:
-		newPipeline, err := c.compileInline(p, c.GetTemplateDepth())
+		newPipeline, err := c.compileInline(ctx, p, c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -86,19 +87,19 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 		}
 
 		if len(newPipeline.Stages) > 0 {
-			return c.compileStages(newPipeline, _pipeline, map[string]*yaml.Template{}, r)
+			return c.compileStages(ctx, newPipeline, _pipeline, map[string]*yaml.Template{}, r)
 		}
 
-		return c.compileSteps(newPipeline, _pipeline, map[string]*yaml.Template{}, r)
+		return c.compileSteps(ctx, newPipeline, _pipeline, map[string]*yaml.Template{}, r)
 	case len(p.Stages) > 0:
-		return c.compileStages(p, _pipeline, templates, r)
+		return c.compileStages(ctx, p, _pipeline, templates, r)
 	default:
-		return c.compileSteps(p, _pipeline, templates, r)
+		return c.compileSteps(ctx, p, _pipeline, templates, r)
 	}
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *library.Pipeline, error) {
+func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *library.Pipeline, error) {
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -110,7 +111,7 @@ func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substit
 	_pipeline.SetType(c.repo.GetPipelineType())
 
 	if p.Metadata.RenderInline {
-		newPipeline, err := c.compileInline(p, c.GetTemplateDepth())
+		newPipeline, err := c.compileInline(ctx, p, c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -129,7 +130,7 @@ func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substit
 	switch {
 	case len(p.Stages) > 0:
 		// inject the templates into the steps
-		p, err = c.ExpandStages(p, templates, ruleData)
+		p, err = c.ExpandStages(ctx, p, templates, ruleData)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -167,7 +168,7 @@ func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substit
 
 	case len(p.Steps) > 0:
 		// inject the templates into the steps
-		p, err = c.ExpandSteps(p, templates, ruleData, c.GetTemplateDepth())
+		p, err = c.ExpandSteps(ctx, p, templates, ruleData, c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -204,7 +205,7 @@ func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substit
 }
 
 // compileInline parses and expands out inline pipelines.
-func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
+func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*yaml.Build, error) {
 	newPipeline := *p
 
 	// return if max template depth has been reached
@@ -215,7 +216,7 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 	}
 
 	for _, template := range p.Templates {
-		bytes, err := c.getTemplate(template, template.Name)
+		bytes, err := c.getTemplate(ctx, template, template.Name)
 		if err != nil {
 			return nil, err
 		}
@@ -242,7 +243,7 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 
 		// if template parsed contains a template reference, recurse with decremented depth
 		if len(parsed.Templates) > 0 && parsed.Metadata.RenderInline {
-			parsed, err = c.compileInline(parsed, depth-1)
+			parsed, err = c.compileInline(ctx, parsed, depth-1)
 			if err != nil {
 				return nil, err
 			}
@@ -299,7 +300,7 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 }
 
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
-func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
+func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
 	// check if the pipeline disabled the clone
@@ -318,7 +319,7 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 	}
 
 	// inject the templates into the steps
-	p, err = c.ExpandSteps(p, tmpls, r, c.GetTemplateDepth())
+	p, err = c.ExpandSteps(ctx, p, tmpls, r, c.GetTemplateDepth())
 	if err != nil {
 		return nil, _pipeline, err
 	}
@@ -394,7 +395,7 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 }
 
 // compileStages executes the workflow for converting a YAML pipeline into an executable struct.
-func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
+func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
 	// check if the pipeline disabled the clone
@@ -413,7 +414,7 @@ func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls
 	}
 
 	// inject the templates into the stages
-	p, err = c.ExpandStages(p, tmpls, r)
+	p, err = c.ExpandStages(ctx, p, tmpls, r)
 	if err != nil {
 		return nil, _pipeline, err
 	}

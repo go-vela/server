@@ -179,7 +179,7 @@ func testPlatformSettings() *Platform {
 	// setup compiler
 	cs := new(Compiler)
 
-	cs.SetCloneImage("target/vela-git:latest")
+	cs.SetCloneImage("target/vela-git-slim:latest")
 	cs.SetTemplateDepth(1)
 	cs.SetStarlarkExecLimit(100)
 

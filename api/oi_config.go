@@ -22,8 +22,6 @@ import (
 // produces:
 // - application/json
 // parameters:
-// security:
-//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the Vela OpenID Configuration
@@ -46,6 +44,7 @@ func GetOpenIDConfig(c *gin.Context) {
 			"iat",
 			"iss",
 			"aud",
+			"branch",
 			"build_number",
 			"build_id",
 			"repo",
@@ -54,6 +53,8 @@ func GetOpenIDConfig(c *gin.Context) {
 			"actor_scm_id",
 			"commands",
 			"image",
+			"image_name",
+			"image_tag",
 			"request",
 			"event",
 			"sha",

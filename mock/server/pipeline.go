@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	yml "github.com/buildkite/yaml"
 	"github.com/gin-gonic/gin"
+	yml "gopkg.in/yaml.v3"
 
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"

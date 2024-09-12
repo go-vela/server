@@ -19,6 +19,7 @@ func (e *engine) GetHookByWebhookID(ctx context.Context, webhookID int64) (*api.
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Preload("Repo").
 		Preload("Repo.Owner").

@@ -26,6 +26,7 @@ func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *api.R
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TablePipeline).
 		Where("repo_id = ?", r.GetID()).
 		Where("\"commit\" = ?", commit).

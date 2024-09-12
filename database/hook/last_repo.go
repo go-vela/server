@@ -26,6 +26,7 @@ func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*api.Hook, e
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Preload("Repo").
 		Preload("Repo.Owner").

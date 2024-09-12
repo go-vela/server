@@ -23,6 +23,7 @@ func (e *engine) CountBuildsForRepo(ctx context.Context, r *api.Repo, filters ma
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Where("repo_id = ?", r.GetID()).
 		Where(filters).

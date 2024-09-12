@@ -19,6 +19,7 @@ func (e *engine) GetLog(ctx context.Context, id int64) (*library.Log, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableLog).
 		Where("id = ?", id).
 		Take(l).

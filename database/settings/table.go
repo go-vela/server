@@ -43,18 +43,22 @@ settings (
 )
 
 // CreateSettingsTable creates the settings table in the database.
-func (e *engine) CreateSettingsTable(_ context.Context, driver string) error {
+func (e *engine) CreateSettingsTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating settings table")
 
 	// handle the driver provided to create the table
 	switch driver {
 	case constants.DriverPostgres:
 		// create the steps table for Postgres
-		return e.client.Exec(CreatePostgresTable).Error
+		return e.client.
+			WithContext(ctx).
+			Exec(CreatePostgresTable).Error
 	case constants.DriverSqlite:
 		fallthrough
 	default:
 		// create the steps table for Sqlite
-		return e.client.Exec(CreateSqliteTable).Error
+		return e.client.
+			WithContext(ctx).
+			Exec(CreateSqliteTable).Error
 	}
 }

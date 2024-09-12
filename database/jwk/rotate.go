@@ -11,13 +11,14 @@ import (
 )
 
 // RotateKeys removes all inactive keys and sets active keys to inactive.
-func (e *engine) RotateKeys(_ context.Context) error {
+func (e *engine) RotateKeys(ctx context.Context) error {
 	e.logger.Trace("rotating jwks")
 
 	k := types.JWK{}
 
 	// remove inactive keys
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableJWK).
 		Where("active = ?", false).
 		Delete(&k).
@@ -28,6 +29,7 @@ func (e *engine) RotateKeys(_ context.Context) error {
 
 	// set active keys to inactive
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableJWK).
 		Where("active = ?", true).
 		Update("active", sql.NullBool{Bool: false, Valid: true}).

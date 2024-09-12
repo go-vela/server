@@ -20,6 +20,7 @@ func (e *engine) GetDeployment(ctx context.Context, id int64) (*library.Deployme
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableDeployment).
 		Where("id = ?", id).
 		Take(d).
@@ -40,6 +41,7 @@ func (e *engine) GetDeployment(ctx context.Context, id int64) (*library.Deployme
 
 		// send query to the database and store result in variable
 		err = e.client.
+			WithContext(ctx).
 			Table(constants.TableBuild).
 			Where("id = ?", bID).
 			Take(b).

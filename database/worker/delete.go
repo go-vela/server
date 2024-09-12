@@ -25,6 +25,7 @@ func (e *engine) DeleteWorker(ctx context.Context, w *api.Worker) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableWorker).
 		Delete(worker).
 		Error

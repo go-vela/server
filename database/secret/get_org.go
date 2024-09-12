@@ -25,6 +25,7 @@ func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*librar
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretOrg).
 		Where("org = ?", org).

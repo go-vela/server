@@ -23,6 +23,7 @@ func (e *engine) GetWorkerForHostname(ctx context.Context, hostname string) (*ap
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableWorker).
 		Where("hostname = ?", hostname).
 		Take(w).

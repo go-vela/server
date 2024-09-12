@@ -22,6 +22,7 @@ func (e *engine) CountBuildsForDeployment(ctx context.Context, d *library.Deploy
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableBuild).
 		Where("source = ?", d.GetURL()).
 		Where(filters).

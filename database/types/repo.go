@@ -95,9 +95,15 @@ func (r *Repo) Decrypt(key string) error {
 	}
 
 	// decrypt owner
-	err = r.Owner.Decrypt(key)
-	if err != nil {
-		return err
+	// Note: In UpdateRepo() (database/repo/update.go), the incoming API repo object
+	// is cast to a database repo object. The owner object isn't set in this process
+	// resulting in a zero value for the owner object. A check is performed here
+	// before decrypting to prevent "unable to decrypt repo..." errors.
+	if r.Owner.ID.Valid {
+		err = r.Owner.Decrypt(key)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -32,7 +32,10 @@ func (e *engine) UpdateStep(ctx context.Context, s *library.Step) (*library.Step
 	}
 
 	// send query to the database
-	result := e.client.Table(constants.TableStep).Save(step)
+	result := e.client.
+		WithContext(ctx).
+		Table(constants.TableStep).
+		Save(step)
 
 	return step.ToLibrary(), result.Error
 }

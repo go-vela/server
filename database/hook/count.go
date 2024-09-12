@@ -17,6 +17,7 @@ func (e *engine) CountHooks(ctx context.Context) (int64, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableHook).
 		Count(&h).
 		Error

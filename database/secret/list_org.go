@@ -42,6 +42,7 @@ func (e *engine) ListSecretsForOrg(ctx context.Context, org string, filters map[
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretOrg).
 		Where("org = ?", org).

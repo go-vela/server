@@ -29,7 +29,7 @@ func (e *engine) UpdateHook(ctx context.Context, h *api.Hook) (*api.Hook, error)
 	}
 
 	// send query to the database
-	err = e.client.Table(constants.TableHook).Save(hook).Error
+	err = e.client.WithContext(ctx).Table(constants.TableHook).Save(hook).Error
 	if err != nil {
 		return nil, err
 	}

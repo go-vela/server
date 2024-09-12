@@ -50,6 +50,7 @@ func (e *engine) CreateBuildExecutable(ctx context.Context, b *library.BuildExec
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableBuildExecutable).
 		Create(executable).
 		Error

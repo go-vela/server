@@ -32,6 +32,7 @@ func (e *engine) ListServices(ctx context.Context) ([]*library.Service, error) {
 
 	// send query to the database and store result in variable
 	err = e.client.
+		WithContext(ctx).
 		Table(constants.TableService).
 		Find(&w).
 		Error

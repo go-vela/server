@@ -3,6 +3,7 @@
 package native
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net/http"
@@ -12,11 +13,11 @@ import (
 	"testing"
 	"time"
 
-	yml "github.com/buildkite/yaml"
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-github/v63/github"
 	"github.com/urfave/cli/v2"
+	yml "gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
@@ -207,11 +208,11 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 						Secrets: pipeline.StepSecretSlice{
 							&pipeline.StepSecret{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							&pipeline.StepSecret{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 					},
@@ -251,7 +252,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -293,6 +294,26 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	author := "author"
 	number := 1
 
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
 	// run test
 	yaml, err := os.ReadFile("testdata/stages_pipeline.yml")
 	if err != nil {
@@ -329,10 +350,11 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 					Timeout:  1 * time.Second,
 					Endpoint: tt.args.endpoint,
 				},
-				repo:  &api.Repo{Name: &author},
-				build: &api.Build{Author: &name, Number: &number},
+				metadata: m,
+				repo:     &api.Repo{Name: &author},
+				build:    &api.Build{Author: &name, Number: &number},
 			}
-			_, _, err := compiler.Compile(yaml)
+			_, _, err := compiler.Compile(context.Background(), yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -360,6 +382,26 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 	name := "foo"
 	author := "author"
 	number := 1
+
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
 
 	// run test
 	yaml, err := os.ReadFile("testdata/steps_pipeline.yml")
@@ -397,10 +439,11 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 					Timeout:  1 * time.Second,
 					Endpoint: tt.args.endpoint,
 				},
-				repo:  tt.args.repo,
-				build: tt.args.libraryBuild,
+				repo:     tt.args.repo,
+				build:    tt.args.libraryBuild,
+				metadata: m,
 			}
-			_, _, err := compiler.Compile(yaml)
+			_, _, err := compiler.Compile(context.Background(), yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -547,11 +590,11 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Secrets: pipeline.StepSecretSlice{
 					&pipeline.StepSecret{
 						Source: "docker_username",
-						Target: "registry_username",
+						Target: "REGISTRY_USERNAME",
 					},
 					&pipeline.StepSecret{
 						Source: "docker_password",
-						Target: "registry_password",
+						Target: "REGISTRY_PASSWORD",
 					},
 				},
 			},
@@ -589,7 +632,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -785,11 +828,11 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Secrets: pipeline.StepSecretSlice{
 							&pipeline.StepSecret{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							&pipeline.StepSecret{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 					},
@@ -848,7 +891,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1032,11 +1075,11 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Secrets: pipeline.StepSecretSlice{
 					&pipeline.StepSecret{
 						Source: "docker_username",
-						Target: "registry_username",
+						Target: "REGISTRY_USERNAME",
 					},
 					&pipeline.StepSecret{
 						Source: "docker_password",
-						Target: "registry_password",
+						Target: "REGISTRY_PASSWORD",
 					},
 				},
 			},
@@ -1093,7 +1136,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1214,7 +1257,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1335,7 +1378,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 
 	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1415,7 +1458,7 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	_, _, err = compiler.Compile(invalidYaml)
+	_, _, err = compiler.Compile(context.Background(), invalidYaml)
 	if err == nil {
 		t.Error("Compile should have returned an err")
 	}
@@ -1550,7 +1593,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: cloneEnv,
-				Image:       "target/vela-git:v0.5.1",
+				Image:       "target/vela-git-slim:v0.12.0",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "always",
@@ -1603,7 +1646,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 
 			compiler.WithMetadata(m)
 
-			got, _, err := compiler.Compile(yaml)
+			got, _, err := compiler.Compile(context.Background(), yaml)
 			if err != nil {
 				t.Errorf("Compile returned err: %v", err)
 			}
@@ -1814,7 +1857,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			pipelineType := tt.args.pipelineType
 			compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 
-			got, _, err := compiler.Compile(yaml)
+			got, _, err := compiler.Compile(context.Background(), yaml)
 			if err != nil {
 				t.Errorf("Compile returned err: %v", err)
 			}
@@ -1835,6 +1878,26 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	author := "author"
 	number := 1
 
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
 	// run test
 	yaml, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
@@ -1849,11 +1912,12 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	// todo: this needs to be fixed in compiler validation
 	// this is a dirty hack to make this test pass
 	compiler.SetCloneImage("")
+	compiler.WithMetadata(m)
 
 	compiler.repo = &api.Repo{Name: &author}
 	compiler.build = &api.Build{Author: &name, Number: &number}
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err == nil {
 		t.Errorf("Compile should have returned err")
 	}
@@ -1872,6 +1936,26 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	author := "author"
 	number := 1
 
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
 	// run test
 	yaml, err := os.ReadFile("testdata/steps_and_stages.yml")
 	if err != nil {
@@ -1885,8 +1969,9 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 
 	compiler.repo = &api.Repo{Name: &author}
 	compiler.build = &api.Build{Author: &name, Number: &number}
+	compiler.WithMetadata(m)
 
-	got, _, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err == nil {
 		t.Errorf("Compile should have returned err")
 	}
@@ -1971,7 +2056,7 @@ func Test_client_modifyConfig(t *testing.T) {
 				Name:        "docker",
 				Pull:        "always",
 				Parameters: map[string]interface{}{
-					"init_options": map[interface{}]interface{}{
+					"init_options": map[string]interface{}{
 						"get_plugins": "true",
 					},
 				},
@@ -2004,7 +2089,7 @@ func Test_client_modifyConfig(t *testing.T) {
 				Name:        "docker",
 				Pull:        "always",
 				Parameters: map[string]interface{}{
-					"init_options": map[interface{}]interface{}{
+					"init_options": map[string]interface{}{
 						"get_plugins": "true",
 					},
 				},
@@ -2971,7 +3056,7 @@ func Test_Compile_Inline(t *testing.T) {
 				compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 			}
 
-			got, _, err := compiler.Compile(yaml)
+			got, _, err := compiler.Compile(context.Background(), yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -3582,11 +3667,11 @@ func Test_CompileLite(t *testing.T) {
 						Secrets: yaml.StepSecretSlice{
 							{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 						Image: "plugins/docker:18.09",
@@ -3698,11 +3783,11 @@ func Test_CompileLite(t *testing.T) {
 						Secrets: yaml.StepSecretSlice{
 							{
 								Source: "docker_username",
-								Target: "registry_username",
+								Target: "REGISTRY_USERNAME",
 							},
 							{
 								Source: "docker_password",
-								Target: "registry_password",
+								Target: "REGISTRY_PASSWORD",
 							},
 						},
 						Image: "plugins/docker:18.09",
@@ -3847,7 +3932,7 @@ func Test_CompileLite(t *testing.T) {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
-			got, _, err := compiler.CompileLite(yaml, tt.args.ruleData, tt.args.substitute)
+			got, _, err := compiler.CompileLite(context.Background(), yaml, tt.args.ruleData, tt.args.substitute)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CompileLite() error = %v, wantErr %v", err, tt.wantErr)
 				return

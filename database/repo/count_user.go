@@ -22,6 +22,7 @@ func (e *engine) CountReposForUser(ctx context.Context, u *api.User, filters map
 
 	// send query to the database and store result in variable
 	err := e.client.
+		WithContext(ctx).
 		Table(constants.TableRepo).
 		Where("user_id = ?", u.GetID()).
 		Where(filters).

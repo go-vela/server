@@ -25,6 +25,7 @@ func (e *engine) DeletePipeline(ctx context.Context, p *library.Pipeline) error 
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TablePipeline).
 		Delete(pipeline).
 		Error

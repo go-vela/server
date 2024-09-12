@@ -4,11 +4,13 @@
 package log
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
@@ -86,9 +88,15 @@ func GetStepLog(c *gin.Context) {
 	// send API call to capture the step logs
 	sl, err := database.FromContext(c).GetLogForStep(ctx, s)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get logs for step %s: %w", entry, err)
+		var status int
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status = http.StatusNotFound
+		} else {
+			status = http.StatusInternalServerError
+		}
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+		retErr := fmt.Errorf("unable to get logs for step %s: %w", entry, err)
+		util.HandleError(c, status, retErr)
 
 		return
 	}
