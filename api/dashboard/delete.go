@@ -75,6 +75,7 @@ func DeleteDashboard(c *gin.Context) {
 	dashboards := u.GetDashboards()
 
 	updatedDashboards := []string{}
+
 	for _, id := range dashboards {
 		if id != d.GetID() {
 			updatedDashboards = append(updatedDashboards, id)
