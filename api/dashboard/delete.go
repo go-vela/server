@@ -59,6 +59,7 @@ func DeleteDashboard(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 	d := dashboard.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	l.Debugf("deleting dashboard %s", d.GetID())
 
@@ -70,7 +71,27 @@ func DeleteDashboard(c *gin.Context) {
 		return
 	}
 
-	err := database.FromContext(c).DeleteDashboard(c, d)
+	// Remove the dashboard ID from the user's dashboards
+	dashboards := u.GetDashboards()
+	updatedDashboards := []string{}
+	for _, id := range dashboards {
+		if id != d.GetID() {
+			updatedDashboards = append(updatedDashboards, id)
+		}
+	}
+	u.SetDashboards(updatedDashboards)
+
+	// send API call to update the user
+	u, err := database.FromContext(c).UpdateUser(ctx, u)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	err = database.FromContext(c).DeleteDashboard(c, d)
 	if err != nil {
 		retErr := fmt.Errorf("error while deleting dashboard %s: %w", d.GetID(), err)
 
