@@ -17,6 +17,7 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
+	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/server/version"
 	"github.com/go-vela/types/constants"
 )
@@ -278,6 +279,9 @@ func main() {
 
 	// Add Source Flags
 	app.Flags = append(app.Flags, scm.Flags...)
+
+	// Add Tracing Flags
+	app.Flags = append(app.Flags, tracing.Flags...)
 
 	if err = app.Run(os.Args); err != nil {
 		logrus.Fatal(err)

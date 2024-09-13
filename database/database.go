@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -28,6 +29,7 @@ import (
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
+	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/types/constants"
 )
 
@@ -70,6 +72,8 @@ type (
 		ctx context.Context
 		// sirupsen/logrus logger used in database functions
 		logger *logrus.Entry
+		// configurations related to telemetry/tracing
+		tracing *tracing.Client
 
 		settings.SettingsInterface
 		build.BuildInterface
@@ -105,7 +109,7 @@ func New(opts ...EngineOpt) (Interface, error) {
 	e.client = new(gorm.DB)
 	e.config = new(config)
 	e.logger = new(logrus.Entry)
-	e.ctx = context.TODO()
+	e.ctx = context.Background()
 
 	// apply all provided configuration options
 	for _, opt := range opts {
@@ -191,6 +195,19 @@ func New(opts ...EngineOpt) (Interface, error) {
 		return nil, err
 	}
 
+	// initialize otel tracing if enabled
+	if e.tracing.EnableTracing {
+		otelPlugin := otelgorm.NewPlugin(
+			otelgorm.WithTracerProvider(e.tracing.TracerProvider),
+			otelgorm.WithoutQueryVariables(),
+		)
+
+		err := e.client.Use(otelPlugin)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// set the maximum amount of time a connection may be reused
 	db.SetConnMaxLifetime(e.config.ConnectionLife)
 	// set the maximum number of connections in the idle connection pool
@@ -230,5 +247,6 @@ func NewTest() (Interface, error) {
 		WithLogShowSQL(false),
 		WithLogSkipNotFound(true),
 		WithLogSlowThreshold(200*time.Millisecond),
+		WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
 	)
 }
