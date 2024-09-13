@@ -73,12 +73,14 @@ func DeleteDashboard(c *gin.Context) {
 
 	// Remove the dashboard ID from the user's dashboards
 	dashboards := u.GetDashboards()
+
 	updatedDashboards := []string{}
 	for _, id := range dashboards {
 		if id != d.GetID() {
 			updatedDashboards = append(updatedDashboards, id)
 		}
 	}
+
 	u.SetDashboards(updatedDashboards)
 
 	// send API call to update the user
