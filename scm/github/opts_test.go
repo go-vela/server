@@ -5,6 +5,8 @@ package github
 import (
 	"reflect"
 	"testing"
+
+	"github.com/go-vela/server/tracing"
 )
 
 func TestGithub_ClientOpt_WithAddress(t *testing.T) {
@@ -345,6 +347,44 @@ func TestGithub_ClientOpt_WithScopes(t *testing.T) {
 
 		if !reflect.DeepEqual(_service.config.Scopes, test.want) {
 			t.Errorf("WithScopes is %v, want %v", _service.config.Scopes, test.want)
+		}
+	}
+}
+
+func TestGithub_ClientOpt_WithTracing(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure bool
+		tracing *tracing.Client
+		want    *tracing.Client
+	}{
+		{
+			failure: false,
+			tracing: &tracing.Client{},
+			want:    &tracing.Client{},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(
+			WithTracing(test.tracing),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithTracing should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithTracing returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(_service.Tracing, test.want) {
+			t.Errorf("WithTracing is %v, want %v", _service.Tracing, test.want)
 		}
 	}
 }

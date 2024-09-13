@@ -10,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/server/tracing"
 )
 
 func TestDatabase_FromContext(t *testing.T) {
@@ -132,7 +134,7 @@ func TestDatabase_FromCLIContext(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := FromCLIContext(test.context)
+			_, err := FromCLIContext(test.context, &tracing.Client{Config: tracing.Config{EnableTracing: false}})
 
 			if test.failure {
 				if err == nil {

@@ -11,6 +11,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"github.com/go-vela/server/tracing"
 )
 
 func TestDatabase_New(t *testing.T) {
@@ -110,6 +112,7 @@ func TestDatabase_New(t *testing.T) {
 				WithLogSlowThreshold(test.config.LogSlowThreshold),
 				WithEncryptionKey(test.config.EncryptionKey),
 				WithSkipCreation(test.config.SkipCreation),
+				WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
 			)
 
 			if test.failure {

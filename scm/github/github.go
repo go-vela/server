@@ -5,11 +5,16 @@ package github
 import (
 	"context"
 	"fmt"
+	"net/http/httptrace"
 	"net/url"
 
 	"github.com/google/go-github/v63/github"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
+
+	"github.com/go-vela/server/tracing"
 )
 
 const (
@@ -50,6 +55,7 @@ type client struct {
 	config  *config
 	OAuth   *oauth2.Config
 	AuthReq *github.AuthorizationRequest
+	Tracing *tracing.Client
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }
@@ -134,6 +140,7 @@ func NewTest(urls ...string) (*client, error) {
 		WithServerWebhookAddress(""),
 		WithStatusContext("continuous-integration/vela"),
 		WithWebUIAddress(address),
+		WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
 	)
 }
 
@@ -145,7 +152,7 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 	)
 
 	// create the OAuth client
-	tc := oauth2.NewClient(context.Background(), ts)
+	tc := oauth2.NewClient(ctx, ts)
 	// if c.SkipVerify {
 	// 	tc.Transport.(*oauth2.Transport).Base = &http.Transport{
 	// 		Proxy: http.ProxyFromEnvironment,
@@ -154,6 +161,15 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 	// 		},
 	// 	}
 	// }
+
+	if c.Tracing.Config.EnableTracing {
+		tc.Transport = otelhttp.NewTransport(
+			tc.Transport,
+			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+				return otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
+			}),
+		)
+	}
 
 	// create the GitHub client from the OAuth client
 	github := github.NewClient(tc)
