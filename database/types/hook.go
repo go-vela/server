@@ -33,7 +33,7 @@ type Hook struct {
 	ID          sql.NullInt64  `sql:"id"`
 	RepoID      sql.NullInt64  `sql:"repo_id"`
 	BuildID     sql.NullInt64  `sql:"build_id"`
-	Number      sql.NullInt32  `sql:"number"`
+	Number      sql.NullInt64  `sql:"number"`
 	SourceID    sql.NullString `sql:"source_id"`
 	Created     sql.NullInt64  `sql:"created"`
 	Host        sql.NullString `sql:"host"`
@@ -76,7 +76,7 @@ func (h *Hook) Nullify() *Hook {
 	}
 
 	// check if the Number field should be false
-	if h.Number.Int32 == 0 {
+	if h.Number.Int64 == 0 {
 		h.Number.Valid = false
 	}
 
@@ -151,7 +151,7 @@ func (h *Hook) ToAPI() *api.Hook {
 
 	hook.SetID(h.ID.Int64)
 	hook.SetRepo(h.Repo.ToAPI())
-	hook.SetNumber(int(h.Number.Int32))
+	hook.SetNumber(int(h.Number.Int64))
 	hook.SetSourceID(h.SourceID.String)
 	hook.SetCreated(h.Created.Int64)
 	hook.SetHost(h.Host.String)
@@ -175,7 +175,7 @@ func (h *Hook) Validate() error {
 	}
 
 	// verify the Number field is populated
-	if h.Number.Int32 <= 0 {
+	if h.Number.Int64 <= 0 {
 		return ErrEmptyHookNumber
 	}
 
@@ -211,7 +211,7 @@ func HookFromAPI(h *api.Hook) *Hook {
 		ID:          sql.NullInt64{Int64: h.GetID(), Valid: true},
 		RepoID:      sql.NullInt64{Int64: h.GetRepo().GetID(), Valid: true},
 		BuildID:     sql.NullInt64{Int64: h.GetBuild().GetID(), Valid: true},
-		Number:      sql.NullInt32{Int32: int32(h.GetNumber()), Valid: true},
+		Number:      sql.NullInt64{Int64: int64(h.GetNumber()), Valid: true},
 		SourceID:    sql.NullString{String: h.GetSourceID(), Valid: true},
 		Created:     sql.NullInt64{Int64: h.GetCreated(), Valid: true},
 		Host:        sql.NullString{String: h.GetHost(), Valid: true},
