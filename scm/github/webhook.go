@@ -29,7 +29,7 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*in
 	c.Logger.Tracef("processing GitHub webhook")
 
 	// create our own record of the hook and populate its fields
-	h := new(library.Hook)
+	h := new(api.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
 
@@ -99,18 +99,23 @@ func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *ap
 }
 
 // RedeliverWebhook redelivers webhooks from GitHub.
-func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, r *api.Repo, h *library.Hook) error {
+func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, h *api.Hook) error {
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newClientToken(ctx, u.GetToken())
 
 	// capture the delivery ID of the hook using GitHub API
-	deliveryID, err := c.getDeliveryID(ctx, client, r, h)
+	deliveryID, err := c.getDeliveryID(ctx, client, h)
 	if err != nil {
 		return err
 	}
 
 	// redeliver the webhook
-	_, _, err = client.Repositories.RedeliverHookDelivery(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), deliveryID)
+	_, _, err = client.Repositories.RedeliverHookDelivery(
+		ctx,
+		h.GetRepo().GetOrg(),
+		h.GetRepo().GetName(),
+		h.GetWebhookID(), deliveryID,
+	)
 
 	if err != nil {
 		var acceptedError *github.AcceptedError
@@ -127,7 +132,7 @@ func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, r *api.Repo,
 }
 
 // processPushEvent is a helper function to process the push event.
-func (c *client) processPushEvent(ctx context.Context, h *library.Hook, payload *github.PushEvent) (*internal.Webhook, error) {
+func (c *client) processPushEvent(ctx context.Context, h *api.Hook, payload *github.PushEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -233,7 +238,7 @@ func (c *client) processPushEvent(ctx context.Context, h *library.Hook, payload 
 }
 
 // processPREvent is a helper function to process the pull_request event.
-func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*internal.Webhook, error) {
+func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -342,7 +347,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 }
 
 // processDeploymentEvent is a helper function to process the deployment event.
-func (c *client) processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*internal.Webhook, error) {
+func (c *client) processDeploymentEvent(h *api.Hook, payload *github.DeploymentEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -446,7 +451,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 }
 
 // processIssueCommentEvent is a helper function to process the issue comment event.
-func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*internal.Webhook, error) {
+func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueCommentEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -507,7 +512,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 
 // processRepositoryEvent is a helper function to process the repository event.
 
-func (c *client) processRepositoryEvent(h *library.Hook, payload *github.RepositoryEvent) (*internal.Webhook, error) {
+func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryEvent) (*internal.Webhook, error) {
 	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
@@ -539,17 +544,23 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 
 // getDeliveryID gets the last 100 webhook deliveries for a repo and
 // finds the matching delivery id with the source id in the hook.
-func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, r *api.Repo, h *library.Hook) (int64, error) {
+func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, h *api.Hook) (int64, error) {
 	c.Logger.WithFields(logrus.Fields{
-		"org":  r.GetOrg(),
-		"repo": r.GetName(),
+		"org":  h.GetRepo().GetOrg(),
+		"repo": h.GetRepo().GetName(),
 	}).Tracef("searching for delivery id for hook: %s", h.GetSourceID())
 
 	// set per page to 100 to retrieve last 100 hook summaries
 	opt := &github.ListCursorOptions{PerPage: 100}
 
 	// send API call to capture delivery summaries that contain Delivery ID value
-	deliveries, resp, err := ghClient.Repositories.ListHookDeliveries(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), opt)
+	deliveries, resp, err := ghClient.Repositories.ListHookDeliveries(
+		ctx,
+		h.GetRepo().GetOrg(),
+		h.GetRepo().GetName(),
+		h.GetWebhookID(),
+		opt,
+	)
 
 	// version check: if GitHub API is older than version 3.2, this call will not work
 	if resp.StatusCode == 415 {

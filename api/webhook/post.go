@@ -237,7 +237,7 @@ func PostWebhook(c *gin.Context) {
 
 	// set the RepoID fields
 	b.SetRepo(repo)
-	h.SetRepoID(repo.GetID())
+	h.SetRepo(repo)
 
 	// number of times to retry
 	retryLimit := 3
@@ -423,8 +423,8 @@ func PostWebhook(c *gin.Context) {
 	// capture the build and repo from the items
 	b = item.Build
 
-	// set hook build_id to the generated build id
-	h.SetBuildID(b.GetID())
+	// set hook build
+	h.SetBuild(b)
 
 	// if event is deployment, update the deployment record to include this build
 	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
@@ -618,7 +618,7 @@ func PostWebhook(c *gin.Context) {
 // the database resources with any relevant changes resulting from the event, such as name changes, transfers, etc.
 //
 // the caller is responsible for returning errors to the client.
-func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *library.Hook, r *types.Repo) (*types.Repo, error) {
+func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *types.Hook, r *types.Repo) (*types.Repo, error) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	l = l.WithFields(logrus.Fields{
@@ -687,7 +687,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 			)
 		}
 
-		h.SetRepoID(dbRepo.GetID())
+		h.SetRepo(dbRepo)
 
 		// the only edits to a repo that impact Vela are to these three fields
 		if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
@@ -732,7 +732,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 // associated with that repo as well as build links for the UI.
 //
 // the caller is responsible for returning errors to the client.
-func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
+func RenameRepository(ctx context.Context, h *types.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	l = l.WithFields(logrus.Fields{
@@ -748,13 +748,13 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 	}
 
 	// get the repo from the database using repo id of matching hook
-	dbR, err := database.FromContext(c).GetRepo(ctx, hook.GetRepoID())
+	dbR, err := database.FromContext(c).GetRepo(ctx, hook.GetRepo().GetID())
 	if err != nil {
-		return nil, fmt.Errorf("%s: failed to get repo %d from database", baseErr, hook.GetRepoID())
+		return nil, fmt.Errorf("%s: failed to get repo %d from database", baseErr, hook.GetRepo().GetID())
 	}
 
 	// update hook object which will be added to DB upon reaching deferred function in PostWebhook
-	h.SetRepoID(r.GetID())
+	h.SetRepo(r)
 
 	// send API call to capture the last hook for the repo
 	lastHook, err := database.FromContext(c).LastHookForRepo(ctx, dbR)

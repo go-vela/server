@@ -10,25 +10,27 @@ import (
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // LastHookForRepo gets the last hook by repo ID from the database.
-func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*library.Hook, error) {
+func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*api.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 	}).Tracef("getting last hook for repo %s", r.GetFullName())
 
 	// variable to store query results
-	h := new(database.Hook)
+	h := new(types.Hook)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableHook).
+		Preload("Repo").
+		Preload("Repo.Owner").
+		Preload("Build").
 		Where("repo_id = ?", r.GetID()).
 		Order("number DESC").
 		Take(h).
@@ -43,8 +45,13 @@ func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*library.Hoo
 		return nil, err
 	}
 
+	err = h.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo for hook %d: %v", h.ID.Int64, err)
+	}
+
 	// return the hook
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Hook.ToLibrary
-	return h.ToLibrary(), nil
+	return h.ToAPI(), nil
 }

@@ -32,6 +32,16 @@ func WithLogger(logger *logrus.Entry) EngineOpt {
 	}
 }
 
+// WithEncryptionKey sets the encryption key in the database engine for Builds.
+func WithEncryptionKey(key string) EngineOpt {
+	return func(e *engine) error {
+		// set the encryption key in the build engine
+		e.config.EncryptionKey = key
+
+		return nil
+	}
+}
+
 // WithSkipCreation sets the skip creation logic in the database engine for Hooks.
 func WithSkipCreation(skipCreation bool) EngineOpt {
 	return func(e *engine) error {

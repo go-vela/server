@@ -3,6 +3,7 @@
 package hook
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -11,6 +12,10 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestHook_New(t *testing.T) {
@@ -160,4 +165,50 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	return _engine
+}
+
+// sqlitePopulateTables is a helper function to populate tables for testing.
+func sqlitePopulateTables(t *testing.T, e *engine, hooks []*api.Hook, users []*api.User, repos []*api.Repo, builds []*api.Build) {
+	for _, _hook := range hooks {
+		_, err := e.CreateHook(context.TODO(), _hook)
+		if err != nil {
+			t.Errorf("unable to create test hook for sqlite: %v", err)
+		}
+	}
+
+	err := e.client.AutoMigrate(&types.User{})
+	if err != nil {
+		t.Errorf("unable to create user table for sqlite: %v", err)
+	}
+
+	for _, _user := range users {
+		err = e.client.Table(constants.TableUser).Create(types.UserFromAPI(_user)).Error
+		if err != nil {
+			t.Errorf("unable to create test user for sqlite: %v", err)
+		}
+	}
+
+	err = e.client.AutoMigrate(&types.Repo{})
+	if err != nil {
+		t.Errorf("unable to create repo table for sqlite: %v", err)
+	}
+
+	for _, _repo := range repos {
+		err = e.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
+		if err != nil {
+			t.Errorf("unable to create test repo for sqlite: %v", err)
+		}
+	}
+
+	err = e.client.AutoMigrate(&types.Build{})
+	if err != nil {
+		t.Errorf("unable to create build table for sqlite: %v", err)
+	}
+
+	for _, _build := range builds {
+		err = e.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_build)).Error
+		if err != nil {
+			t.Errorf("unable to create test build for sqlite: %v", err)
+		}
+	}
 }

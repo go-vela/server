@@ -45,7 +45,7 @@ type Resources struct {
 	Dashboards  []*api.Dashboard
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
-	Hooks       []*library.Hook
+	Hooks       []*api.Hook
 	JWKs        jwk.Set
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
@@ -390,6 +390,8 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// update the builds
 	for _, build := range resources.Builds {
+		prevStatus := build.GetStatus()
+
 		build.SetStatus("success")
 		_, err = db.UpdateBuild(context.TODO(), build)
 		if err != nil {
@@ -404,6 +406,8 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		if diff := cmp.Diff(build, got); diff != "" {
 			t.Errorf("GetBuild() mismatch (-want +got):\n%s", diff)
 		}
+
+		build.SetStatus(prevStatus)
 	}
 	methods["UpdateBuild"] = true
 	methods["GetBuild"] = true
@@ -415,6 +419,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete build %d: %v", build.GetID(), err)
 		}
 	}
+
 	methods["DeleteBuild"] = true
 
 	// delete the repos for build related functions
@@ -566,12 +571,17 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["PopBuildExecutable"] = true
 
+	prevBuildStatus := resources.Builds[0].GetStatus()
+
 	resources.Builds[0].SetStatus(constants.StatusError)
 
 	_, err := db.UpdateBuild(context.TODO(), resources.Builds[0])
 	if err != nil {
 		t.Errorf("unable to update build for clean executables test")
 	}
+
+	// reset build status for other tests
+	resources.Builds[0].SetStatus(prevBuildStatus)
 
 	err = db.CreateBuildExecutable(context.TODO(), resources.Executables[0])
 	if err != nil {
@@ -593,6 +603,12 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 	}
 
 	methods["CleanBuildExecutables"] = true
+
+	// remove build used for clean executables test
+	err = db.DeleteBuild(context.TODO(), resources.Builds[0])
+	if err != nil {
+		t.Errorf("unable to delete build %d: %v", resources.Builds[0].GetID(), err)
+	}
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -739,6 +755,30 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	// create the users for hook related functions (owners of repos)
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
+	// create the repos for hook related functions
+	for _, repo := range resources.Repos {
+		_, err := db.CreateRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+		}
+	}
+
+	// create the builds for hook related functions
+	for _, build := range resources.Builds {
+		_, err := db.CreateBuild(context.TODO(), build)
+		if err != nil {
+			t.Errorf("unable to create build %d: %v", build.GetID(), err)
+		}
+	}
+
 	// create the hooks
 	for _, hook := range resources.Hooks {
 		_, err := db.CreateHook(context.TODO(), hook)
@@ -787,7 +827,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Hooks)-1 {
 		t.Errorf("ListHooksForRepo() is %v, want %v", count, len(resources.Hooks))
 	}
-	if diff := cmp.Diff([]*library.Hook{resources.Hooks[1], resources.Hooks[0]}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Hook{resources.Hooks[2], resources.Hooks[0]}, list); diff != "" {
 		t.Errorf("ListHooksForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListHooksForRepo"] = true
@@ -797,7 +837,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if diff := cmp.Diff(resources.Hooks[1], got); diff != "" {
+	if diff := cmp.Diff(resources.Hooks[2], got); diff != "" {
 		t.Errorf("LastHookForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["LastHookForRepo"] = true
@@ -814,10 +854,9 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the hooks by name
 	for _, hook := range resources.Hooks {
-		repo := resources.Repos[hook.GetRepoID()-1]
-		got, err = db.GetHookForRepo(context.TODO(), repo, hook.GetNumber())
+		got, err = db.GetHookForRepo(context.TODO(), hook.GetRepo(), hook.GetNumber())
 		if err != nil {
-			t.Errorf("unable to get hook %d for repo %d: %v", hook.GetID(), repo.GetID(), err)
+			t.Errorf("unable to get hook %d for repo %d: %v", hook.GetID(), hook.GetRepo().GetID(), err)
 		}
 		if diff := cmp.Diff(hook, got); diff != "" {
 			t.Errorf("GetHookForRepo() mismatch (-want +got):\n%s", diff)
@@ -853,6 +892,30 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["DeleteHook"] = true
+
+	// delete the builds
+	for _, build := range resources.Builds {
+		err = db.DeleteBuild(context.TODO(), build)
+		if err != nil {
+			t.Errorf("unable to delete build: %v", err)
+		}
+	}
+
+	// delete the repos for hook related functions
+	for _, repo := range resources.Repos {
+		err = db.DeleteRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to delete repo: %v", err)
+		}
+	}
+
+	// delete the users for the hook related functions
+	for _, user := range resources.Users {
+		err = db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user: %v", err)
+		}
+	}
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -2526,10 +2589,16 @@ func newResources() *Resources {
 	deploymentTwo.SetCreatedBy("octocat")
 	deploymentTwo.SetBuilds(builds)
 
-	hookOne := new(library.Hook)
+	hookBuildOne := *buildOne
+	hookBuildOne.Repo = &api.Repo{ID: repoOne.ID}
+
+	hookBuildTwo := *buildTwo
+	hookBuildTwo.Repo = &api.Repo{ID: repoOne.ID}
+
+	hookOne := new(api.Hook)
 	hookOne.SetID(1)
-	hookOne.SetRepoID(1)
-	hookOne.SetBuildID(1)
+	hookOne.SetRepo(repoOne)
+	hookOne.SetBuild(&hookBuildOne)
 	hookOne.SetNumber(1)
 	hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	hookOne.SetCreated(time.Now().UTC().Unix())
@@ -2542,10 +2611,9 @@ func newResources() *Resources {
 	hookOne.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookOne.SetWebhookID(123456)
 
-	hookTwo := new(library.Hook)
+	hookTwo := new(api.Hook)
 	hookTwo.SetID(2)
-	hookTwo.SetRepoID(1)
-	hookTwo.SetBuildID(1)
+	hookTwo.SetRepo(repoTwo)
 	hookTwo.SetNumber(2)
 	hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	hookTwo.SetCreated(time.Now().UTC().Unix())
@@ -2558,11 +2626,11 @@ func newResources() *Resources {
 	hookTwo.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookTwo.SetWebhookID(123456)
 
-	hookThree := new(library.Hook)
+	hookThree := new(api.Hook)
 	hookThree.SetID(3)
-	hookThree.SetRepoID(2)
-	hookThree.SetBuildID(5)
-	hookThree.SetNumber(1)
+	hookThree.SetRepo(repoOne)
+	hookThree.SetBuild(&hookBuildTwo)
+	hookThree.SetNumber(3)
 	hookThree.SetSourceID("c8da1302-07d6-11ea-882f-6793bca275b8")
 	hookThree.SetCreated(time.Now().UTC().Unix())
 	hookThree.SetHost("github.com")
@@ -2847,7 +2915,7 @@ func newResources() *Resources {
 		Dashboards:  []*api.Dashboard{dashboardOne, dashboardTwo},
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
-		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
+		Hooks:       []*api.Hook{hookOne, hookTwo, hookThree},
 		JWKs:        jwkSet,
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
