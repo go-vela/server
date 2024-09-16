@@ -3,10 +3,13 @@
 package tracing
 
 import (
+	"encoding/json"
+	"fmt"
 	"maps"
 	"os"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
@@ -34,6 +37,18 @@ type Config struct {
 // Used to determine if a trace should be sampled.
 type Sampler struct {
 	PerSecond float64
+	Tasks
+}
+
+// Tasks represents a map of task names to per-task configurations.
+// A 'task name' is the endpoint or instrumentation scope, depending on the task.
+// For example, database trace tasks could be 'gorm.query' and HTTP requests could be 'api/v1/:worker' depending on the endpoint.
+type Tasks map[string]Task
+
+// Task represents the sampler configurations on a per-task basis.
+// 'Active' will disable/enable the task. If tracing encounters a task name not present in the map, it is considered Active (true).
+type Task struct {
+	Active bool
 }
 
 // FromCLIContext takes cli context and returns a tracing config to supply to traceable services.
@@ -49,7 +64,22 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 		SpanAttributes:       map[string]string{},
 		Sampler: Sampler{
 			PerSecond: c.Float64("tracing.sampler.persecond"),
+			Tasks:     Tasks{},
 		},
+	}
+
+	// read per-endpoint configurations from file
+	endpointsConfigPath := c.String("tracing.sampler.endpoints")
+	if len(endpointsConfigPath) > 0 {
+		f, err := os.ReadFile(endpointsConfigPath)
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("unable to read tracing endpoints config file from path %s", endpointsConfigPath))
+		}
+
+		err = json.Unmarshal(f, &cfg.Sampler.Tasks)
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("unable to parse tracing endpoints config file from path %s", endpointsConfigPath))
+		}
 	}
 
 	// identity func used to map a string back to itself

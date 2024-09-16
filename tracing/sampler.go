@@ -4,6 +4,7 @@ package tracing
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
@@ -54,10 +55,28 @@ func (s *RateLimitSampler) ShouldSample(p sdktrace.SamplingParameters) sdktrace.
 		result.Decision = sdktrace.RecordAndSample
 	}
 
+	if !s.ShouldSampleTask(p) {
+		result.Decision = sdktrace.Drop
+	}
+
 	return result
 }
 
 // Description returns the description of the rate limit sampler.
 func (s *RateLimitSampler) Description() string {
 	return fmt.Sprintf("rate-limit-sampler{%v}", s.Config.PerSecond)
+}
+
+// ShouldSampleTask returns whether a task should be sampled.
+func (s *RateLimitSampler) ShouldSampleTask(p sdktrace.SamplingParameters) bool {
+	taskName := strings.ToLower(p.Name)
+
+	endpoint, ok := s.Config.Tasks[taskName]
+	if ok {
+		if !endpoint.Active {
+			return false
+		}
+	}
+
+	return true
 }

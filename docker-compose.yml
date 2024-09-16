@@ -47,11 +47,14 @@ services:
       VELA_OTEL_TRACING_ENABLE: true
       VELA_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
       VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND: 100
+      VELA_OTEL_TRACING_SAMPLER_TASKS_CONFIG_FILEPATH: tracing.json
     env_file:
       - .env
     restart: always
     ports:
       - '8080:8080'
+    volumes:
+      - './tracing.tasks.example.json:/tracing.json'
     depends_on:
       postgres:
         condition: service_healthy
