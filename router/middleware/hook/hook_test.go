@@ -6,22 +6,22 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/go-cmp/cmp"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/types/library"
 )
 
 func TestHook_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.Hook)
+	want := new(api.Hook)
 	want.SetID(1)
 
 	// setup context
@@ -39,10 +39,12 @@ func TestHook_Retrieve(t *testing.T) {
 
 func TestHook_Establish(t *testing.T) {
 	// setup types
-	owner := new(api.User)
+	owner := testutils.APIUser().Crop()
 	owner.SetID(1)
+	owner.SetName("octocat")
+	owner.SetToken("foo")
 
-	r := new(api.Repo)
+	r := testutils.APIRepo()
 	r.SetID(1)
 	r.SetOwner(owner)
 	r.SetHash("baz")
@@ -51,10 +53,9 @@ func TestHook_Establish(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	want := new(library.Hook)
+	want := new(api.Hook)
 	want.SetID(1)
-	want.SetRepoID(1)
-	want.SetBuildID(0)
+	want.SetRepo(r)
 	want.SetNumber(1)
 	want.SetSourceID("ok")
 	want.SetStatus("")
@@ -69,7 +70,7 @@ func TestHook_Establish(t *testing.T) {
 	want.SetLink("")
 	want.SetWebhookID(1)
 
-	got := new(library.Hook)
+	got := new(api.Hook)
 
 	// setup database
 	db, err := database.NewTest()
@@ -78,13 +79,26 @@ func TestHook_Establish(t *testing.T) {
 	}
 
 	defer func() {
+		_ = db.DeleteUser(context.TODO(), owner)
 		_ = db.DeleteRepo(context.TODO(), r)
 		_ = db.DeleteHook(context.TODO(), want)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(context.TODO(), r)
-	_, _ = db.CreateHook(context.TODO(), want)
+	_, err = db.CreateUser(context.TODO(), owner)
+	if err != nil {
+		t.Errorf("unable to create test user: %v", err)
+	}
+
+	_, err = db.CreateRepo(context.TODO(), r)
+	if err != nil {
+		t.Errorf("unable to create test repository: %v", err)
+	}
+
+	_, err = db.CreateHook(context.TODO(), want)
+	if err != nil {
+		t.Errorf("unable to create test hook: %v", err)
+	}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -112,8 +126,8 @@ func TestHook_Establish(t *testing.T) {
 		t.Errorf("Establish returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Establish is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Establish mismatch (-want +got):\n%s", diff)
 	}
 }
 

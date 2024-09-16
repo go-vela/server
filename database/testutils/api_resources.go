@@ -146,11 +146,11 @@ func APIUser() *api.User {
 	}
 }
 
-func APIHook() *library.Hook {
-	return &library.Hook{
+func APIHook() *api.Hook {
+	return &api.Hook{
 		ID:          new(int64),
-		RepoID:      new(int64),
-		BuildID:     new(int64),
+		Repo:        APIRepo(),
+		Build:       APIBuild(),
 		Number:      new(int),
 		SourceID:    new(string),
 		Created:     new(int64),
