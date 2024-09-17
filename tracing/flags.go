@@ -12,7 +12,7 @@ var Flags = []cli.Flag{
 	&cli.BoolFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_ENABLE"},
 		Name:    "tracing.enable",
-		Usage:   "enable otel tracing. see: https://opentelemetry.io/docs/concepts/signals/traces/",
+		Usage:   "enable otel tracing. see Vela installation docs and https://opentelemetry.io/docs/concepts/signals/traces/",
 		Value:   false,
 	},
 	&cli.StringFlag{
@@ -32,7 +32,7 @@ var Flags = []cli.Flag{
 	&cli.StringFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_EXPORTER_SSL_CERT_PATH"},
 		Name:    "tracing.exporter.cert_path",
-		Usage:   "set the path to certs used for communicating with the otel exporter. if not set, will use insecure communication. see: https://opentelemetry.io/docs/specs/otel/protocol/exporter/",
+		Usage:   "set the filepath to certificates that will be used for communicating with the otel exporter. when no path is provided the server will use insecure communication to export traces. see: https://opentelemetry.io/docs/specs/otel/protocol/exporter/",
 	},
 	&cli.StringFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_TLS_MIN_VERSION"},
@@ -77,6 +77,6 @@ var Flags = []cli.Flag{
 	&cli.StringFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_SAMPLER_TASKS_CONFIG_FILEPATH"},
 		Name:    "tracing.sampler.endpoints",
-		Usage:   "set otel tracing head-sampler endpoint configurations to alter how certain endpoints are sampled. no path indicates all endpoints are sampler using default parameters. see: https://opentelemetry.io/docs/concepts/sampling/",
+		Usage:   "set an (optional) filepath to the otel tracing head-sampler configurations json to alter how certain tasks (endpoints, queries, etc) are sampled. when no path is provided all tasks are recorded using default parameters. see: https://opentelemetry.io/docs/concepts/sampling/",
 	},
 }
