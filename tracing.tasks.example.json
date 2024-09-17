@@ -1,8 +1,0 @@
-{
-    "/health": {
-        "active": false
-    },
-    "gorm.query": {
-        "active": true
-    }
-}
