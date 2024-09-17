@@ -73,4 +73,10 @@ var Flags = []cli.Flag{
 		Usage:   "set otel tracing head-sampler rate-limiting to N per second. see: https://opentelemetry.io/docs/concepts/sampling/",
 		Value:   100,
 	},
+
+	&cli.StringFlag{
+		EnvVars: []string{"VELA_OTEL_TRACING_SAMPLER_TASKS_CONFIG_FILEPATH"},
+		Name:    "tracing.sampler.endpoints",
+		Usage:   "set otel tracing head-sampler endpoint configurations to alter how certain endpoints are sampled. no path indicates all endpoints are sampler using default parameters. see: https://opentelemetry.io/docs/concepts/sampling/",
+	},
 }
