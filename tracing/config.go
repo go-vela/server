@@ -69,7 +69,7 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 	}
 
 	// read per-endpoint configurations from file
-	endpointsConfigPath := c.String("tracing.sampler.endpoints")
+	endpointsConfigPath := c.String("tracing.sampler.tasks")
 	if len(endpointsConfigPath) > 0 {
 		f, err := os.ReadFile(endpointsConfigPath)
 		if err != nil {
