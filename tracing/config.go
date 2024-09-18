@@ -68,17 +68,17 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 		},
 	}
 
-	// read per-endpoint configurations from file
-	endpointsConfigPath := c.String("tracing.sampler.endpoints")
-	if len(endpointsConfigPath) > 0 {
-		f, err := os.ReadFile(endpointsConfigPath)
+	// read per-task configurations from file
+	tasksConfigPath := c.String("tracing.sampler.tasks")
+	if len(tasksConfigPath) > 0 {
+		f, err := os.ReadFile(tasksConfigPath)
 		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("unable to read tracing endpoints config file from path %s", endpointsConfigPath))
+			return nil, errors.Wrap(err, fmt.Sprintf("unable to read tracing tasks config file from path %s", tasksConfigPath))
 		}
 
 		err = json.Unmarshal(f, &cfg.Sampler.Tasks)
 		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("unable to parse tracing endpoints config file from path %s", endpointsConfigPath))
+			return nil, errors.Wrap(err, fmt.Sprintf("unable to parse tracing tasks config file from path %s", tasksConfigPath))
 		}
 	}
 

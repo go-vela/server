@@ -76,7 +76,7 @@ var Flags = []cli.Flag{
 
 	&cli.StringFlag{
 		EnvVars: []string{"VELA_OTEL_TRACING_SAMPLER_TASKS_CONFIG_FILEPATH"},
-		Name:    "tracing.sampler.endpoints",
+		Name:    "tracing.sampler.tasks",
 		Usage:   "set an (optional) filepath to the otel tracing head-sampler configurations json to alter how certain tasks (endpoints, queries, etc) are sampled. when no path is provided all tasks are recorded using default parameters. see: https://opentelemetry.io/docs/concepts/sampling/",
 	},
 }
