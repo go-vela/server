@@ -12,36 +12,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: clone
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: clone
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-    - name: install go
-      uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
-      with:
-        # use version from go.mod file
-        go-version-file: 'go.mod'
-        cache: true
-        check-latest: true
+      - name: install go
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
+        with:
+          # use version from go.mod file
+          go-version-file: "go.mod"
+          cache: true
+          check-latest: true
 
-    - name: tags
-      run: |
-        git fetch --tags
+      - name: tags
+        run: |
+          git fetch --tags
 
-    - name: validate
-      run: |
-        # Check that go mod tidy produces a zero diff; clean up any changes afterwards.
-        go mod tidy && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
-        # Check that go vet ./... produces a zero diff; clean up any changes afterwards.
-        go vet ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
-        # Check that go fmt ./... produces a zero diff; clean up any changes afterwards.
-        go fmt ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
-        # Check that go fix ./... produces a zero diff; clean up any changes afterwards.
-        #
-        # Renable this after https://github.com/golang/go/commit/7fd62ba821b1044e8e4077df052b0a1232672d57
-        # has been released.
-        # go fix ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
+      - name: validate
+        run: |
+          # Check that go mod tidy produces a zero diff; clean up any changes afterwards.
+          go mod tidy && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
+          # Check that go vet ./... produces a zero diff; clean up any changes afterwards.
+          go vet ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
+          # Check that go fmt ./... produces a zero diff; clean up any changes afterwards.
+          go fmt ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
+          # Check that go fix ./... produces a zero diff; clean up any changes afterwards.
+          go fix ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
 
-    - name: validate spec
-      run: |
-        make spec-install
-        make spec
+      - name: validate spec
+        run: |
+          make spec-install
+          make spec
