@@ -17,6 +17,7 @@ import (
 	yml "gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -59,6 +60,11 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 	// if the build has an event action, concatenate event and event action for matching
 	if !strings.EqualFold(action, "") {
 		event = event + ":" + action
+	}
+
+	// populate metadata when not provided using compiler.WithMetadata
+	if c.metadata == nil {
+		c.metadata = &internal.Metadata{Database: &internal.Database{}, Queue: &internal.Queue{}, Source: &internal.Source{}, Vela: &internal.Vela{}}
 	}
 
 	// create the ruledata to purge steps
