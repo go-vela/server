@@ -3,8 +3,9 @@
   "extends": [
     "local>go-vela/renovate-config"
   ],
-  "regexManagers": [
+  "customManagers": [
     {
+      "customType": "regex",
       "description": "Update docker images in go files",
       "fileMatch": [
         "^cmd/vela-server/.+\\.go$"
