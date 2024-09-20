@@ -55,7 +55,7 @@ func ListUserDashboards(c *gin.Context) {
 
 	l.Debugf("listing dashboards for user %s", u.GetName())
 
-	var dashCards []types.DashCard
+	dashCards := []types.DashCard{}
 
 	// iterate through user dashboards and build a list of DashCards
 	for _, dashboard := range u.GetDashboards() {

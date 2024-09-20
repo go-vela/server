@@ -112,7 +112,7 @@ func RepairRepo(c *gin.Context) {
 			return
 		}
 
-		hook.SetRepoID(r.GetID())
+		hook.SetRepo(r)
 
 		_, err = database.FromContext(c).CreateHook(ctx, hook)
 		if err != nil {

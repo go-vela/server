@@ -9,12 +9,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 type (
 	// config represents the settings required to create the engine that implements the HookInterface interface.
 	config struct {
+		// specifies the encryption key to use for the Hook engine
+		EncryptionKey string
 		// specifies to skip creating tables and indexes for the Hook engine
 		SkipCreation bool
 	}

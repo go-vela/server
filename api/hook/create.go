@@ -10,10 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/hooks/{org}/{repo} webhook CreateHook
@@ -74,7 +74,7 @@ func CreateHook(c *gin.Context) {
 	l.Debugf("creating new hook for repo %s", r.GetFullName())
 
 	// capture body from API request
-	input := new(library.Hook)
+	input := new(types.Hook)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -96,7 +96,7 @@ func CreateHook(c *gin.Context) {
 	}
 
 	// update fields in webhook object
-	input.SetRepoID(r.GetID())
+	input.SetRepo(r)
 	input.SetNumber(1)
 
 	if input.GetCreated() == 0 {

@@ -5,7 +5,7 @@ package hook
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // CountHooks gets the count of all hooks from the database.

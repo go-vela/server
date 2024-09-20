@@ -5,22 +5,25 @@ package hook
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // GetHook gets a hook by ID from the database.
-func (e *engine) GetHook(ctx context.Context, id int64) (*library.Hook, error) {
+func (e *engine) GetHook(ctx context.Context, id int64) (*api.Hook, error) {
 	e.logger.Tracef("getting hook %d", id)
 
 	// variable to store query results
-	h := new(database.Hook)
+	h := new(types.Hook)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableHook).
+		Preload("Repo").
+		Preload("Repo.Owner").
+		Preload("Build").
 		Where("id = ?", id).
 		Take(h).
 		Error
@@ -28,8 +31,10 @@ func (e *engine) GetHook(ctx context.Context, id int64) (*library.Hook, error) {
 		return nil, err
 	}
 
-	// return the hook
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Hook.ToLibrary
-	return h.ToLibrary(), nil
+	err = h.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo for hook %d: %v", h.ID.Int64, err)
+	}
+
+	return h.ToAPI(), nil
 }

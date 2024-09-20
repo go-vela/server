@@ -26,6 +26,7 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/tracing"
 )
 
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
@@ -78,7 +79,21 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	database, err := database.FromCLIContext(c)
+	tc, err := tracing.FromCLIContext(c)
+	if err != nil {
+		return err
+	}
+
+	if tc.EnableTracing {
+		defer func() {
+			err := tc.TracerProvider.Shutdown(context.Background())
+			if err != nil {
+				logrus.Errorf("unable to shutdown tracer provider: %v", err)
+			}
+		}()
+	}
+
+	database, err := database.FromCLIContext(c, tc)
 	if err != nil {
 		return err
 	}
@@ -93,7 +108,7 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	scm, err := setupSCM(c)
+	scm, err := setupSCM(c, tc)
 	if err != nil {
 		return err
 	}
@@ -189,6 +204,8 @@ func server(c *cli.Context) error {
 		middleware.DefaultRepoEventsMask(c.Int64("default-repo-events-mask")),
 		middleware.DefaultRepoApproveBuild(c.String("default-repo-approve-build")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
+		middleware.TracingClient(tc),
+		middleware.TracingInstrumentation(tc),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))

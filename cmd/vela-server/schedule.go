@@ -226,7 +226,7 @@ func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Pl
 
 	// publish the build to the queue
 	go build.Enqueue(
-		ctx,
+		context.WithoutCancel(ctx),
 		queue,
 		database,
 		item,

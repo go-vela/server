@@ -5,7 +5,7 @@ package hook
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const key = "hook"
@@ -15,14 +15,14 @@ type Setter interface {
 	Set(string, interface{})
 }
 
-// FromContext returns the Repo associated with this context.
-func FromContext(c context.Context) *library.Hook {
+// FromContext returns the hook associated with this context.
+func FromContext(c context.Context) *api.Hook {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	r, ok := value.(*library.Hook)
+	r, ok := value.(*api.Hook)
 	if !ok {
 		return nil
 	}
@@ -30,8 +30,8 @@ func FromContext(c context.Context) *library.Hook {
 	return r
 }
 
-// ToContext adds the Repo to this context if it supports
+// ToContext adds the hook to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, r *library.Hook) {
-	c.Set(key, r)
+func ToContext(c Setter, h *api.Hook) {
+	c.Set(key, h)
 }

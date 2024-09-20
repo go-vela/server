@@ -237,7 +237,7 @@ func PostWebhook(c *gin.Context) {
 
 	// set the RepoID fields
 	b.SetRepo(repo)
-	h.SetRepoID(repo.GetID())
+	h.SetRepo(repo)
 
 	// number of times to retry
 	retryLimit := 3
@@ -307,6 +307,9 @@ func PostWebhook(c *gin.Context) {
 
 			return
 		}
+
+		// hook was created successfully
+		break
 	}
 
 	l.WithFields(logrus.Fields{
@@ -405,7 +408,14 @@ func PostWebhook(c *gin.Context) {
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(err.Error())
 
+		b.SetStatus(constants.StatusError)
+
 		util.HandleError(c, code, err)
+
+		err = scm.FromContext(c).Status(ctx, repo.GetOwner(), b, repo.GetOrg(), repo.GetName())
+		if err != nil {
+			l.Debugf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
+		}
 
 		return
 	}
@@ -413,8 +423,8 @@ func PostWebhook(c *gin.Context) {
 	// capture the build and repo from the items
 	b = item.Build
 
-	// set hook build_id to the generated build id
-	h.SetBuildID(b.GetID())
+	// set hook build
+	h.SetBuild(b)
 
 	// if event is deployment, update the deployment record to include this build
 	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
@@ -479,8 +489,6 @@ func PostWebhook(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusCreated, b)
-
 	// regardless of whether the build is published to queue, we want to attempt to auto-cancel if no errors
 	defer func() {
 		if err == nil && build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
@@ -521,6 +529,10 @@ func PostWebhook(c *gin.Context) {
 		}
 	}()
 
+	// track if we have already responded to the http request
+	// helps prevent multiple responses to the same request in the event of errors
+	responded := false
+
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
 	if webhook.PullRequest.IsFromFork {
 		l.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), repo.GetFullName(), b.GetNumber())
@@ -530,6 +542,8 @@ func PostWebhook(c *gin.Context) {
 			err = gatekeepBuild(c, b, repo)
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
+			} else {
+				c.JSON(http.StatusCreated, b)
 			}
 
 			return
@@ -540,6 +554,8 @@ func PostWebhook(c *gin.Context) {
 				err = gatekeepBuild(c, b, repo)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
+				} else {
+					c.JSON(http.StatusCreated, b)
 				}
 
 				return
@@ -554,12 +570,16 @@ func PostWebhook(c *gin.Context) {
 			contributor, err := scm.FromContext(c).RepoContributor(ctx, repo.GetOwner(), b.GetSender(), repo.GetOrg(), repo.GetName())
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
+
+				responded = true
 			}
 
 			if !contributor {
 				err = gatekeepBuild(c, b, repo)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
+				} else if !responded {
+					c.JSON(http.StatusCreated, b)
 				}
 
 				return
@@ -581,19 +601,24 @@ func PostWebhook(c *gin.Context) {
 
 	// publish the build to the queue
 	go build.Enqueue(
-		ctx,
+		context.WithoutCancel(ctx),
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		item,
 		b.GetHost(),
 	)
+
+	// respond only when necessary
+	if !responded {
+		c.JSON(http.StatusCreated, b)
+	}
 }
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
 // the database resources with any relevant changes resulting from the event, such as name changes, transfers, etc.
 //
 // the caller is responsible for returning errors to the client.
-func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *library.Hook, r *types.Repo) (*types.Repo, error) {
+func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *types.Hook, r *types.Repo) (*types.Repo, error) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	l = l.WithFields(logrus.Fields{
@@ -662,7 +687,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 			)
 		}
 
-		h.SetRepoID(dbRepo.GetID())
+		h.SetRepo(dbRepo)
 
 		// the only edits to a repo that impact Vela are to these three fields
 		if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
@@ -707,7 +732,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 // associated with that repo as well as build links for the UI.
 //
 // the caller is responsible for returning errors to the client.
-func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
+func RenameRepository(ctx context.Context, h *types.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	l = l.WithFields(logrus.Fields{
@@ -723,13 +748,13 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 	}
 
 	// get the repo from the database using repo id of matching hook
-	dbR, err := database.FromContext(c).GetRepo(ctx, hook.GetRepoID())
+	dbR, err := database.FromContext(c).GetRepo(ctx, hook.GetRepo().GetID())
 	if err != nil {
-		return nil, fmt.Errorf("%s: failed to get repo %d from database", baseErr, hook.GetRepoID())
+		return nil, fmt.Errorf("%s: failed to get repo %d from database", baseErr, hook.GetRepo().GetID())
 	}
 
 	// update hook object which will be added to DB upon reaching deferred function in PostWebhook
-	h.SetRepoID(r.GetID())
+	h.SetRepo(r)
 
 	// send API call to capture the last hook for the repo
 	lastHook, err := database.FromContext(c).LastHookForRepo(ctx, dbR)

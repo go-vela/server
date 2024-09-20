@@ -150,7 +150,7 @@ func (c *client) Disable(ctx context.Context, u *api.User, org, name string) err
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *library.Hook) (*library.Hook, string, error) {
+func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -202,7 +202,7 @@ func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *librar
 	hookInfo, resp, err := client.Repositories.CreateHook(ctx, r.GetOrg(), r.GetName(), hook)
 
 	// create the first hook for the repo and record its ID from GitHub
-	webhook := new(library.Hook)
+	webhook := new(api.Hook)
 	webhook.SetWebhookID(hookInfo.GetID())
 	webhook.SetSourceID(r.GetName() + "-" + eventInitialize)
 	webhook.SetCreated(hookInfo.GetCreatedAt().Unix())
@@ -335,7 +335,14 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 		description = "build was skipped as no steps/stages found"
 	default:
 		state = "error"
-		description = "there was an error"
+
+		// if there is no build, then this status update is from a failed compilation
+		if b.GetID() == 0 {
+			description = "error compiling pipeline - check audit for more information"
+			url = fmt.Sprintf("%s/%s/%s/hooks", c.config.WebUIAddress, org, name)
+		} else {
+			description = "there was an error"
+		}
 	}
 
 	// check if the build event is deployment
