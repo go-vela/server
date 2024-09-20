@@ -1364,7 +1364,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the repos by name
 	for _, repo := range resources.Repos {
-		got, err := db.GetRepoForOrg(context.TODO(), repo.GetOrg(), repo.GetName())
+		got, err := db.GetRepoForOrg(context.TODO(), repo.GetFullName())
 		if err != nil {
 			t.Errorf("unable to get repo %d by org: %v", repo.GetID(), err)
 		}

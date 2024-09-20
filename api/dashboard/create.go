@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -173,14 +172,8 @@ func createAdminSet(c context.Context, caller *types.User, users []*types.User) 
 // in the database while also confirming the IDs match when saving.
 func validateRepoSet(c context.Context, repos []*types.DashboardRepo) error {
 	for _, repo := range repos {
-		// verify format (org/repo)
-		parts := strings.Split(repo.GetName(), "/")
-		if len(parts) != 2 {
-			return fmt.Errorf("unable to create dashboard: %s is not a valid repo", repo.GetName())
-		}
-
 		// fetch repo from database
-		dbRepo, err := database.FromContext(c).GetRepoForOrg(c, parts[0], parts[1])
+		dbRepo, err := database.FromContext(c).GetRepoForOrg(c, repo.GetName())
 		if err != nil || !dbRepo.GetActive() {
 			return fmt.Errorf("unable to create dashboard: could not get repo %s: %w", repo.GetName(), err)
 		}

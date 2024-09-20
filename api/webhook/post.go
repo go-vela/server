@@ -205,7 +205,7 @@ func PostWebhook(c *gin.Context) {
 	}()
 
 	// send API call to capture parsed repo from webhook
-	repo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
+	repo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetFullName())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -659,7 +659,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Meta
 	case "archived", "unarchived", constants.ActionEdited:
 		l.Debugf("repository action %s for %s", h.GetEventAction(), r.GetFullName())
 		// send call to get repository from database
-		dbRepo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
+		dbRepo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetFullName())
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
 

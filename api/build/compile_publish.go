@@ -216,7 +216,7 @@ func CompileAndPublish(
 		}
 
 		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
-		repo, err = database.GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
+		repo, err = database.GetRepoForOrg(ctx, r.GetFullName())
 		if err != nil {
 			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
 

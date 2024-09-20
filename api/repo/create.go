@@ -225,7 +225,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// send API call to capture the repo from the database
-	dbRepo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
+	dbRepo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetFullName())
 	if err == nil && dbRepo.GetActive() {
 		retErr := fmt.Errorf("unable to activate repo: %s is already active", r.GetFullName())
 

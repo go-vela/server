@@ -37,9 +37,12 @@ func Establish() gin.HandlerFunc {
 
 		l.Debugf("reading repo %s", rParam)
 
-		r, err := database.FromContext(c).GetRepoForOrg(ctx, o, rParam)
+		// construct full name
+		fullName := fmt.Sprintf("%s/%s", o, rParam)
+
+		r, err := database.FromContext(c).GetRepoForOrg(ctx, fullName)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read repo %s/%s: %w", o, rParam, err)
+			retErr := fmt.Errorf("unable to read repo %s: %w", fullName, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
