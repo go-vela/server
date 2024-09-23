@@ -67,6 +67,7 @@ func ListUserDashboards(c *gin.Context) {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				d = new(types.Dashboard)
 				d.SetID(dashboard)
+				d.SetName("(not found)")
 
 				dashCard.Dashboard = d
 				// if user dashboard has been deleted, append empty dashboard
