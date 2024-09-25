@@ -20,7 +20,7 @@ import (
 // PlanSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build.
-func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build) ([]*library.Step, error) {
+func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build, r *types.Repo) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}
 
@@ -29,7 +29,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 		// iterate through all steps for each pipeline stage
 		for _, step := range stage.Steps {
 			// create the step object
-			s, err := planStep(ctx, database, scm, b, step, stage.Name)
+			s, err := planStep(ctx, database, scm, b, r, step, stage.Name)
 			if err != nil {
 				return steps, err
 			}
@@ -40,7 +40,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 
 	// iterate through all pipeline steps
 	for _, step := range p.Steps {
-		s, err := planStep(ctx, database, scm, b, step, "")
+		s, err := planStep(ctx, database, scm, b, r, step, "")
 		if err != nil {
 			return steps, err
 		}
@@ -51,7 +51,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 	return steps, nil
 }
 
-func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *types.Build, c *pipeline.Container, stage string) (*library.Step, error) {
+func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *types.Build, r *types.Repo, c *pipeline.Container, stage string) (*library.Step, error) {
 	// create the step object
 	s := new(library.Step)
 	s.SetBuildID(b.GetID())
@@ -63,6 +63,16 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	s.SetStatus(constants.StatusPending)
 	s.SetReportAs(c.ReportAs)
 	s.SetCreated(time.Now().UTC().Unix())
+
+	if c.ReportStatus {
+		id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName(), b.GetEvent())
+		if err != nil {
+			// TODO: make this error more meaningful
+			return nil, err
+		}
+
+		s.SetCheckID(id)
+	}
 
 	// send API call to create the step
 	s, err := database.CreateStep(ctx, s)
