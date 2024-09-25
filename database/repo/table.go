@@ -35,6 +35,7 @@ repos (
 	pipeline_type TEXT,
 	previous_name VARCHAR(100),
 	approve_build VARCHAR(20),
+	install_id    INTEGER,
 	UNIQUE(full_name)
 );
 `
@@ -65,6 +66,7 @@ repos (
 	pipeline_type TEXT,
 	previous_name TEXT,
 	approve_build TEXT,
+	install_id    INTEGER,
 	UNIQUE(full_name)
 );
 `

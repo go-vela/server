@@ -39,6 +39,9 @@ type Setup struct {
 	Scopes []string
 	// specifies OTel tracing configurations
 	Tracing *tracing.Client
+	// specifies GitHub App installation configurations
+	GithubAppID         int64
+	GithubAppPrivateKey string
 }
 
 // Github creates and returns a Vela service capable of
@@ -59,6 +62,8 @@ func (s *Setup) Github() (Service, error) {
 		github.WithWebUIAddress(s.WebUIAddress),
 		github.WithScopes(s.Scopes),
 		github.WithTracing(s.Tracing),
+		github.WithGithubAppID(s.GithubAppID),
+		github.WithGithubPrivateKey(s.GithubAppPrivateKey),
 	)
 }
 
