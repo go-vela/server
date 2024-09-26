@@ -3293,6 +3293,123 @@ func Test_CompileLite(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "render_inline with stages and env in template",
+			args: args{
+				file:         "testdata/inline_with_stages_env.yml",
+				pipelineType: "",
+				substitute:   true,
+			},
+			want: &yaml.Build{
+				Version: "1",
+				Metadata: yaml.Metadata{
+					RenderInline: true,
+					Environment:  []string{"steps", "services", "secrets"},
+				},
+				Templates: []*yaml.Template{
+					{
+						Name:   "golang",
+						Source: "github.example.com/github/octocat/golang_inline_stages_env.yml",
+						Format: "golang",
+						Type:   "github",
+						Variables: map[string]any{
+							"image":              string("golang:latest"),
+							"VELA_TEMPLATE_NAME": string("golang"),
+						},
+					},
+				},
+				Environment: raw.StringSliceMap{"DONT": "break"},
+				Stages: []*yaml.Stage{
+					{
+						Name:  "test",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo from inline"},
+								Image:    "alpine",
+								Name:     "test",
+								Pull:     "not_present",
+							},
+							{
+								Commands: raw.StringSlice{"echo from inline ruleset"},
+								Image:    "alpine",
+								Name:     "ruleset",
+								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event:  []string{"push"},
+										Branch: []string{"main"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
+							},
+						},
+					},
+					{
+						Name:  "golang_foo",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from foo"},
+								Image:    "golang:latest",
+								Name:     "golang_foo",
+								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event: []string{"tag"},
+										Tag:   []string{"v*"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
+							},
+						},
+					},
+					{
+						Name:  "golang_bar",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from bar"},
+								Image:    "golang:latest",
+								Name:     "golang_bar",
+								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event: []string{"tag"},
+										Tag:   []string{"v*"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
+							},
+						},
+					},
+					{
+						Name:  "golang_star",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from star"},
+								Image:    "golang:latest",
+								Name:     "golang_star",
+								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event: []string{"tag"},
+										Tag:   []string{"v*"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
 			name: "render_inline with stages - ruleset",
 			args: args{
 				file:         "testdata/inline_with_stages.yml",
@@ -3827,6 +3944,7 @@ func Test_CompileLite(t *testing.T) {
 				Metadata: yaml.Metadata{
 					Environment: []string{"steps", "services", "secrets"},
 				},
+				Environment: raw.StringSliceMap{},
 				Stages: []*yaml.Stage{
 					{
 						Name:  "foo",
