@@ -589,7 +589,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[string]interface{}{"path": "docker", "source": "secret/docker"},
+						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
@@ -610,7 +610,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[string]interface{}{"path": "docker", "source": "secret/docker"},
+						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
