@@ -59,8 +59,6 @@ func APIBuild() *api.Build {
 }
 
 func APIDeployment() *api.Deployment {
-	builds := []*api.Build{}
-
 	return &api.Deployment{
 		ID:          new(int64),
 		Repo:        APIRepo(),
@@ -74,7 +72,6 @@ func APIDeployment() *api.Deployment {
 		Payload:     new(raw.StringSliceMap),
 		CreatedAt:   new(int64),
 		CreatedBy:   new(string),
-		Builds:      builds,
 	}
 }
 

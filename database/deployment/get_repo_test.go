@@ -33,8 +33,12 @@ func TestDeployment_Engine_GetDeploymentForRepo(t *testing.T) {
 	_repo.SetPipelineType(constants.PipelineTypeYAML)
 	_repo.SetTopics([]string{})
 
+	_repoBuild := new(api.Repo)
+	_repoBuild.SetID(1)
+
 	_build := testutils.APIBuild()
 	_build.SetID(1)
+	_build.SetRepo(_repoBuild)
 	_build.SetNumber(1)
 	_build.SetDeployNumber(0)
 	_build.SetDeployPayload(nil)

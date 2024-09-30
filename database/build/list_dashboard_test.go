@@ -15,12 +15,12 @@ import (
 
 func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 	// setup types
-	_repo := testutils.APIRepo()
-	_repo.SetID(1)
+	_repoBuild := new(api.Repo)
+	_repoBuild.SetID(1)
 
 	_buildOne := testutils.APIBuild()
 	_buildOne.SetID(1)
-	_buildOne.SetRepo(_repo)
+	_buildOne.SetRepo(_repoBuild)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
 	_buildOne.SetCreated(1)
@@ -29,21 +29,12 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 
 	_buildTwo := testutils.APIBuild()
 	_buildTwo.SetID(2)
-	_buildTwo.SetRepo(_repo)
+	_buildTwo.SetRepo(_repoBuild)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
 	_buildTwo.SetCreated(2)
 	_buildTwo.SetEvent("pull_request")
 	_buildTwo.SetBranch("main")
-
-	// ListBuildsForDashboardRepo does not return the repo object but the repo ID is needed to create builds
-	_wantBuildOne := *_buildOne
-	_wantBuildOne.Repo = testutils.APIRepo()
-	_wantBuildOne.Repo.Owner = testutils.APIUser().Crop()
-
-	_wantBuildTwo := *_buildTwo
-	_wantBuildTwo.Repo = testutils.APIRepo()
-	_wantBuildTwo.Repo.Owner = testutils.APIUser().Crop()
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -81,20 +72,20 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*api.Build{&_wantBuildTwo, &_wantBuildOne},
+			want:     []*api.Build{_buildTwo, _buildOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*api.Build{&_wantBuildTwo, &_wantBuildOne},
+			want:     []*api.Build{_buildTwo, _buildOne},
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListBuildsForDashboardRepo(context.TODO(), _repo, []string{"main"}, []string{"push", "pull_request"})
+			got, err := test.database.ListBuildsForDashboardRepo(context.TODO(), _repoBuild, []string{"main"}, []string{"push", "pull_request"})
 
 			if test.failure {
 				if err == nil {
