@@ -15,6 +15,7 @@ CREATE TABLE
 IF NOT EXISTS
 pipelines (
 	id               SERIAL PRIMARY KEY,
+	warnings                 VARCHAR(1000),
 	repo_id          INTEGER,
 	commit           VARCHAR(500),
 	flavor           VARCHAR(100),
