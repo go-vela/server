@@ -29,6 +29,7 @@ func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -57,6 +58,7 @@ func TestNative_Parse_Metadata_File(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -103,6 +105,7 @@ func TestNative_Parse_Metadata_Path(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -126,6 +129,7 @@ func TestNative_Parse_Metadata_Reader(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -154,6 +158,7 @@ func TestNative_Parse_Metadata_String(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -179,6 +184,7 @@ func TestNative_Parse_Parameters(t *testing.T) {
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Image: "plugins/docker:18.09",
@@ -457,6 +463,7 @@ func TestNative_Parse_Secrets(t *testing.T) {
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 		Secrets: yaml.SecretSlice{
 			&yaml.Secret{
 				Name:   "docker_username",
@@ -527,6 +534,7 @@ func TestNative_Parse_Stages(t *testing.T) {
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 		Stages: yaml.StageSlice{
 			&yaml.Stage{
 				Name:  "install",
@@ -603,6 +611,7 @@ func TestNative_Parse_Steps(t *testing.T) {
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Commands: []string{"./gradlew downloadDependencies"},
@@ -663,6 +672,7 @@ func TestNative_ParseBytes_Metadata(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -709,6 +719,7 @@ func TestNative_ParseFile_Metadata(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -759,6 +770,7 @@ func TestNative_ParsePath_Metadata(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -795,6 +807,7 @@ func TestNative_ParseReader_Metadata(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -836,6 +849,7 @@ func TestNative_ParseString_Metadata(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 	}
 
 	// run test
@@ -870,6 +884,7 @@ func Test_client_Parse(t *testing.T) {
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
 		},
+		Environment: raw.StringSliceMap{},
 		Steps: yaml.StepSlice{
 			{
 				Name:  "foo",

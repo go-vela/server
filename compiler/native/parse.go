@@ -7,11 +7,12 @@ import (
 	"io"
 	"os"
 
-	"gopkg.in/yaml.v3"
+	"github.com/buildkite/yaml"
 
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	"github.com/go-vela/types/constants"
+	typesRaw "github.com/go-vela/types/raw"
 	types "github.com/go-vela/types/yaml"
 )
 
@@ -100,6 +101,13 @@ func (c *client) Parse(v interface{}, pipelineType string, template *types.Templ
 		return nil, nil, fmt.Errorf("unable to parse config: unrecognized pipeline_type of %s", c.repo.GetPipelineType())
 	}
 
+	// initializing Environment to prevent nil error
+	// as it may be modified later via templates, if
+	// none are defined in the base pipeline
+	if p.Environment == nil {
+		p.Environment = typesRaw.StringSliceMap{}
+	}
+
 	return p, raw, nil
 }
 
@@ -111,6 +119,13 @@ func ParseBytes(data []byte) (*types.Build, []byte, error) {
 	err := yaml.Unmarshal(data, config)
 	if err != nil {
 		return nil, data, fmt.Errorf("unable to unmarshal yaml: %w", err)
+	}
+
+	// initializing Environment to prevent nil error
+	// as it may be modified later via templates, if
+	// none are defined in the base pipeline
+	if config.Environment == nil {
+		config.Environment = typesRaw.StringSliceMap{}
 	}
 
 	return config, data, nil

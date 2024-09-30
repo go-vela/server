@@ -1,0 +1,19 @@
+version: "1"
+
+environment:
+  DONT: break
+
+{{$stageList := list "foo" "bar" "star" -}}
+
+stages:
+  {{range $stage := $stageList -}}
+  {{ $stage }}:
+      steps:
+        - name: {{ $stage }}
+          image: {{ default "alpine" $.image }}
+          ruleset:
+            event: tag
+            tag: v*
+          commands:
+            - echo hello from {{ $stage }}
+  {{ end }}
