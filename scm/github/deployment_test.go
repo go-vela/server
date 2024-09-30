@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 func TestGithub_CreateDeployment(t *testing.T) {
@@ -42,9 +41,9 @@ func TestGithub_CreateDeployment(t *testing.T) {
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 
-	d := new(library.Deployment)
+	d := new(api.Deployment)
 	d.SetID(1)
-	d.SetRepoID(1)
+	d.SetRepo(r)
 	d.SetURL("https://api.github.com/repos/foo/bar/deployments/1")
 	d.SetCommit("a84d88e7554fc1fa21bcbc4efae3c782a70d2b9d")
 	d.SetRef("topic-branch")

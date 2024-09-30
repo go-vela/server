@@ -58,12 +58,12 @@ func APIBuild() *api.Build {
 	}
 }
 
-func APIDeployment() *library.Deployment {
-	builds := []*library.Build{}
+func APIDeployment() *api.Deployment {
+	builds := []*api.Build{}
 
-	return &library.Deployment{
+	return &api.Deployment{
 		ID:          new(int64),
-		RepoID:      new(int64),
+		Repo:        APIRepo(),
 		Number:      new(int64),
 		URL:         new(string),
 		Commit:      new(string),

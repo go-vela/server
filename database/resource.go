@@ -81,6 +81,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 		deployment.WithClient(e.client),
 		deployment.WithLogger(e.logger),
 		deployment.WithSkipCreation(e.config.SkipCreation),
+		deployment.WithEncryptionKey(e.config.EncryptionKey),
 	)
 	if err != nil {
 		return err

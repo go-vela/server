@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestDeployment_ActiveDeploymentResp(t *testing.T) {
-	testDeployment := library.Deployment{}
+	testDeployment := api.Deployment{}
 
 	err := json.Unmarshal([]byte(DeploymentResp), &testDeployment)
 	if err != nil {

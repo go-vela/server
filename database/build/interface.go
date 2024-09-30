@@ -6,7 +6,6 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 // BuildInterface represents the Vela interface for build
@@ -32,7 +31,7 @@ type BuildInterface interface {
 	// CountBuilds defines a function that gets the count of all builds.
 	CountBuilds(context.Context) (int64, error)
 	// CountBuildsForDeployment defines a function that gets the count of builds by deployment url.
-	CountBuildsForDeployment(context.Context, *library.Deployment, map[string]interface{}) (int64, error)
+	CountBuildsForDeployment(context.Context, *api.Deployment, map[string]interface{}) (int64, error)
 	// CountBuildsForOrg defines a function that gets the count of builds by org name.
 	CountBuildsForOrg(context.Context, string, map[string]interface{}) (int64, error)
 	// CountBuildsForRepo defines a function that gets the count of builds by repo ID.

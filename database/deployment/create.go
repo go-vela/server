@@ -7,19 +7,19 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // CreateDeployment creates a new deployment in the database.
-func (e *engine) CreateDeployment(ctx context.Context, d *library.Deployment) (*library.Deployment, error) {
+func (e *engine) CreateDeployment(ctx context.Context, d *api.Deployment) (*api.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetID(),
 	}).Tracef("creating deployment %d", d.GetID())
 
 	// cast the library type to database type
-	deployment := database.DeploymentFromLibrary(d)
+	deployment := types.DeploymentFromAPI(d)
 
 	// validate the necessary fields are populated
 	err := deployment.Validate()
@@ -33,5 +33,5 @@ func (e *engine) CreateDeployment(ctx context.Context, d *library.Deployment) (*
 		Create(deployment)
 
 	// send query to the database
-	return deployment.ToLibrary(d.Builds), result.Error
+	return deployment.ToAPI(d.Builds), result.Error
 }

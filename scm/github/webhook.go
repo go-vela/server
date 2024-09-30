@@ -19,7 +19,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // ProcessWebhook parses the webhook from a repo.
@@ -386,7 +385,7 @@ func (c *client) processDeploymentEvent(h *api.Hook, payload *github.DeploymentE
 	b.SetBranch(payload.GetDeployment().GetRef())
 	b.SetRef(payload.GetDeployment().GetRef())
 
-	d := new(library.Deployment)
+	d := new(api.Deployment)
 
 	d.SetNumber(payload.GetDeployment().GetID())
 	d.SetURL(payload.GetDeployment().GetURL())

@@ -138,15 +138,8 @@ func (h *Hook) Nullify() *Hook {
 func (h *Hook) ToAPI() *api.Hook {
 	hook := new(api.Hook)
 
-	// if there is a build, set the repo ID for the build and set the build in hook
-	build := h.Build.ToAPI()
-	if build.GetID() > 0 {
-		r := new(api.Repo)
-		r.SetID(h.RepoID.Int64)
-
-		build.SetRepo(r)
-
-		hook.SetBuild(build)
+	if h.BuildID.Int64 > 0 {
+		hook.SetBuild(h.Build.ToAPI())
 	}
 
 	hook.SetID(h.ID.Int64)

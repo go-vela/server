@@ -283,8 +283,17 @@ func (b *Build) Nullify() *Build {
 func (b *Build) ToAPI() *api.Build {
 	build := new(api.Build)
 
+	// set Repo based on presence of repo data
+	var repo *api.Repo
+	if b.Repo.ID.Valid {
+		repo = b.Repo.ToAPI()
+	} else {
+		repo = new(api.Repo)
+		repo.SetID(b.RepoID.Int64)
+	}
+
 	build.SetID(b.ID.Int64)
-	build.SetRepo(b.Repo.ToAPI())
+	build.SetRepo(repo)
 	build.SetPipelineID(b.PipelineID.Int64)
 	build.SetNumber(int(b.Number.Int32))
 	build.SetParent(int(b.Parent.Int32))

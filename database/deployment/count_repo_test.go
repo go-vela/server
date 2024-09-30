@@ -9,17 +9,29 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 
 	// setup types
+	_repoOne := testutils.APIRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+
+	_repoTwo := testutils.APIRepo()
+	_repoTwo.SetID(2)
+	_repoTwo.SetOrg("foo")
+	_repoTwo.SetName("baz")
+	_repoTwo.SetFullName("foo/baz")
+
 	_deploymentOne := testutils.APIDeployment()
 	_deploymentOne.SetID(1)
-	_deploymentOne.SetRepoID(1)
+	_deploymentOne.SetRepo(_repoOne)
 	_deploymentOne.SetNumber(1)
 	_deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
 	_deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
@@ -34,7 +46,7 @@ func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
 
 	_deploymentTwo := testutils.APIDeployment()
 	_deploymentTwo.SetID(2)
-	_deploymentTwo.SetRepoID(2)
+	_deploymentTwo.SetRepo(_repoTwo)
 	_deploymentTwo.SetNumber(2)
 	_deploymentTwo.SetURL("https://github.com/github/octocat/deployments/2")
 	_deploymentTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
@@ -46,13 +58,6 @@ func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
 	_deploymentTwo.SetCreatedAt(1)
 	_deploymentTwo.SetCreatedBy("octocat")
 	_deploymentTwo.SetBuilds(builds)
-
-	_repo := testutils.APIRepo()
-	_repo.SetID(1)
-	_repo.GetOwner().SetID(1)
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -100,7 +105,7 @@ func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountDeploymentsForRepo(context.TODO(), _repo)
+			got, err := test.database.CountDeploymentsForRepo(context.TODO(), _repoOne)
 
 			if test.failure {
 				if err == nil {
