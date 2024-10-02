@@ -433,8 +433,8 @@ func PostWebhook(c *gin.Context) {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				deployment := webhook.Deployment
 
-				deployment.SetRepoID(repo.GetID())
-				deployment.SetBuilds([]*library.Build{b.ToLibrary()})
+				deployment.SetRepo(repo)
+				deployment.SetBuilds([]*types.Build{b})
 
 				dr, err := database.FromContext(c).CreateDeployment(c, deployment)
 				if err != nil {
@@ -464,7 +464,7 @@ func PostWebhook(c *gin.Context) {
 				return
 			}
 		} else {
-			build := append(d.GetBuilds(), b.ToLibrary())
+			build := append(d.GetBuilds(), b)
 
 			d.SetBuilds(build)
 

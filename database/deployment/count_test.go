@@ -9,52 +9,21 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/raw"
 )
 
 func TestDeployment_Engine_CountDeployments(t *testing.T) {
-	buildOne := new(library.Build)
-	buildOne.SetID(1)
-	buildOne.SetRepoID(1)
-	buildOne.SetPipelineID(1)
-	buildOne.SetNumber(1)
-	buildOne.SetParent(1)
-	buildOne.SetEvent("push")
-	buildOne.SetEventAction("")
-	buildOne.SetStatus("running")
-	buildOne.SetError("")
-	buildOne.SetEnqueued(1563474077)
-	buildOne.SetCreated(1563474076)
-	buildOne.SetStarted(1563474078)
-	buildOne.SetFinished(1563474079)
-	buildOne.SetDeploy("")
-	buildOne.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
-	buildOne.SetClone("https://github.com/github/octocat.git")
-	buildOne.SetSource("https://github.com/github/octocat/deployments/1")
-	buildOne.SetTitle("push received from https://github.com/github/octocat")
-	buildOne.SetMessage("First commit...")
-	buildOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	buildOne.SetSender("OctoKitty")
-	buildOne.SetAuthor("OctoKitty")
-	buildOne.SetEmail("OctoKitty@github.com")
-	buildOne.SetLink("https://example.company.com/github/octocat/1")
-	buildOne.SetBranch("main")
-	buildOne.SetRef("refs/heads/main")
-	buildOne.SetBaseRef("")
-	buildOne.SetHeadRef("changes")
-	buildOne.SetHost("example.company.com")
-	buildOne.SetRuntime("docker")
-	buildOne.SetDistribution("linux")
-
-	builds := []*library.Build{}
-	builds = append(builds, buildOne)
-
 	// setup types
+	_repoOne := testutils.APIRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+
 	_deploymentOne := testutils.APIDeployment()
 	_deploymentOne.SetID(1)
-	_deploymentOne.SetRepoID(1)
+	_deploymentOne.SetRepo(_repoOne)
 	_deploymentOne.SetNumber(1)
 	_deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
 	_deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
@@ -65,11 +34,11 @@ func TestDeployment_Engine_CountDeployments(t *testing.T) {
 	_deploymentOne.SetPayload(map[string]string{"foo": "test1"})
 	_deploymentOne.SetCreatedAt(1)
 	_deploymentOne.SetCreatedBy("octocat")
-	_deploymentOne.SetBuilds(builds)
+	_deploymentOne.SetBuilds([]*api.Build{testutils.APIBuild()})
 
 	_deploymentTwo := testutils.APIDeployment()
 	_deploymentTwo.SetID(2)
-	_deploymentTwo.SetRepoID(2)
+	_deploymentTwo.SetRepo(_repoOne)
 	_deploymentTwo.SetNumber(2)
 	_deploymentTwo.SetURL("https://github.com/github/octocat/deployments/2")
 	_deploymentTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
@@ -80,7 +49,7 @@ func TestDeployment_Engine_CountDeployments(t *testing.T) {
 	_deploymentTwo.SetPayload(map[string]string{"foo": "test1"})
 	_deploymentTwo.SetCreatedAt(1)
 	_deploymentTwo.SetCreatedBy("octocat")
-	_deploymentTwo.SetBuilds(builds)
+	_deploymentTwo.SetBuilds([]*api.Build{testutils.APIBuild()})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

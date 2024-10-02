@@ -79,11 +79,7 @@ func TestTypes_Hook_ToAPI(t *testing.T) {
 	want.SetStatus("success")
 	want.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	want.SetWebhookID(123456)
-
-	wantBuild := *testBuild().ToAPI()
-	wantBuild.Repo = &api.Repo{ID: want.GetRepo().ID}
-
-	want.SetBuild(&wantBuild)
+	want.SetBuild(testBuild().ToAPI())
 
 	// run test
 	got := testHook().ToAPI()

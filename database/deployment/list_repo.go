@@ -9,21 +9,20 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListDeploymentsForRepo gets a list of deployments by repo ID from the database.
-func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*library.Deployment, error) {
+func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 	}).Tracef("listing deployments for repo %s", r.GetFullName())
 
 	// variables to store query results and return value
-	d := new([]database.Deployment)
-	deployments := []*library.Deployment{}
+	d := new([]types.Deployment)
+	deployments := []*api.Deployment{}
 
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
@@ -32,6 +31,8 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableDeployment).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Order("number DESC").
 		Limit(perPage).
@@ -47,7 +48,7 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := deployment
 
-		builds := []*library.Build{}
+		builds := []*api.Build{}
 
 		for _, a := range tmp.Builds {
 			bID, err := strconv.ParseInt(a, 10, 64)
@@ -55,7 +56,7 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 				return nil, err
 			}
 			// variable to store query results
-			b := new(database.Build)
+			b := new(types.Build)
 
 			// send query to the database and store result in variable
 			err = e.client.
@@ -68,11 +69,16 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 				return nil, err
 			}
 
-			builds = append(builds, b.ToLibrary())
+			builds = append(builds, b.ToAPI())
 		}
 
-		// convert query result to library type
-		deployments = append(deployments, tmp.ToLibrary(builds))
+		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
+		}
+
+		// convert query result to API type
+		deployments = append(deployments, tmp.ToAPI(builds))
 	}
 
 	return deployments, nil

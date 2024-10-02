@@ -8,17 +8,21 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestDeployment_Engine_DeleteDeployment(t *testing.T) {
-	builds := []*library.Build{}
-
 	// setup types
+	_repoOne := testutils.APIRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+
 	_deploymentOne := testutils.APIDeployment()
 	_deploymentOne.SetID(1)
-	_deploymentOne.SetRepoID(1)
+	_deploymentOne.SetRepo(_repoOne)
 	_deploymentOne.SetNumber(1)
 	_deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
 	_deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
@@ -29,7 +33,7 @@ func TestDeployment_Engine_DeleteDeployment(t *testing.T) {
 	_deploymentOne.SetPayload(map[string]string{"foo": "test1"})
 	_deploymentOne.SetCreatedAt(1)
 	_deploymentOne.SetCreatedBy("octocat")
-	_deploymentOne.SetBuilds(builds)
+	_deploymentOne.SetBuilds([]*api.Build{testutils.APIBuild()})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

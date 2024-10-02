@@ -58,12 +58,10 @@ func APIBuild() *api.Build {
 	}
 }
 
-func APIDeployment() *library.Deployment {
-	builds := []*library.Build{}
-
-	return &library.Deployment{
+func APIDeployment() *api.Deployment {
+	return &api.Deployment{
 		ID:          new(int64),
-		RepoID:      new(int64),
+		Repo:        APIRepo(),
 		Number:      new(int64),
 		URL:         new(string),
 		Commit:      new(string),
@@ -74,7 +72,6 @@ func APIDeployment() *library.Deployment {
 		Payload:     new(raw.StringSliceMap),
 		CreatedAt:   new(int64),
 		CreatedBy:   new(string),
-		Builds:      builds,
 	}
 }
 

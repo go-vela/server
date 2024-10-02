@@ -42,6 +42,16 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	}
 }
 
+// WithEncryptionKey sets the encryption key in the database engine for Deployments.
+func WithEncryptionKey(key string) EngineOpt {
+	return func(e *engine) error {
+		// set the encryption key in the build engine
+		e.config.EncryptionKey = key
+
+		return nil
+	}
+}
+
 // WithContext sets the context in the database engine for Deployments.
 func WithContext(ctx context.Context) EngineOpt {
 	return func(e *engine) error {

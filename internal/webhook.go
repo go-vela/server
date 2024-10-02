@@ -7,7 +7,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 var (
@@ -31,7 +30,7 @@ type Webhook struct {
 	Repo        *api.Repo
 	Build       *api.Build
 	PullRequest PullRequest
-	Deployment  *library.Deployment
+	Deployment  *api.Deployment
 }
 
 // ShouldSkip uses the build information

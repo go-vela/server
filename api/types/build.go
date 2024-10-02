@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
 )
 
@@ -1205,44 +1204,4 @@ func (b *Build) String() string {
 		b.GetStatus(),
 		b.GetTitle(),
 	)
-}
-
-// TODO: remove this when Deployment is moved from types and uses Build type instead of library type.
-func (b *Build) ToLibrary() *library.Build {
-	return &library.Build{
-		ID:            b.ID,
-		RepoID:        b.GetRepo().ID,
-		PipelineID:    b.PipelineID,
-		Number:        b.Number,
-		Parent:        b.Parent,
-		Event:         b.Event,
-		EventAction:   b.EventAction,
-		Status:        b.Status,
-		Error:         b.Error,
-		Enqueued:      b.Enqueued,
-		Created:       b.Created,
-		Started:       b.Started,
-		Finished:      b.Finished,
-		Deploy:        b.Deploy,
-		DeployNumber:  b.DeployNumber,
-		DeployPayload: b.DeployPayload,
-		Clone:         b.Clone,
-		Source:        b.Source,
-		Title:         b.Title,
-		Message:       b.Message,
-		Commit:        b.Commit,
-		Sender:        b.Sender,
-		Author:        b.Author,
-		Email:         b.Email,
-		Link:          b.Link,
-		Branch:        b.Branch,
-		Ref:           b.Ref,
-		BaseRef:       b.BaseRef,
-		HeadRef:       b.HeadRef,
-		Host:          b.Host,
-		Runtime:       b.Runtime,
-		Distribution:  b.Distribution,
-		ApprovedAt:    b.ApprovedAt,
-		ApprovedBy:    b.ApprovedBy,
-	}
 }
