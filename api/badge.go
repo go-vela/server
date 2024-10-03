@@ -32,6 +32,10 @@ import (
 //   description: Name of the repository
 //   required: true
 //   type: string
+// - in: query
+//   name: branch
+//   description: Name of the branch
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully retrieved the build status badge

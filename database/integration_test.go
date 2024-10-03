@@ -43,7 +43,7 @@ import (
 type Resources struct {
 	Builds      []*api.Build
 	Dashboards  []*api.Dashboard
-	Deployments []*library.Deployment
+	Deployments []*api.Deployment
 	Executables []*library.BuildExecutable
 	Hooks       []*api.Hook
 	JWKs        jwk.Set
@@ -322,12 +322,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("Number of results for ListBuildsForDashboardRepo() is %v, want %v", len(list), 1)
 	}
 
-	// ListBuildsForDashboardRepo does not contain nested repo
-	wantBuild := *resources.Builds[0]
-	wantBuild.Repo = testutils.APIRepo()
-	wantBuild.Repo.Owner = testutils.APIUser().Crop()
-
-	if diff := cmp.Diff([]*api.Build{&wantBuild}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Build{resources.Hooks[0].GetBuild()}, list); diff != "" {
 		t.Errorf("ListBuildsForDashboardRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListBuildsForDashboardRepo"] = true
@@ -636,6 +631,30 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	// create the users for deployment related functions (owners of repos)
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
+	// create the repos for deployment related functions
+	for _, repo := range resources.Repos {
+		_, err := db.CreateRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+		}
+	}
+
+	// create the builds for deployment related functions
+	for _, build := range resources.Builds {
+		_, err := db.CreateBuild(context.TODO(), build)
+		if err != nil {
+			t.Errorf("unable to create build %d: %v", build.GetID(), err)
+		}
+	}
+
 	// create the deployments
 	for _, deployment := range resources.Deployments {
 		_, err := db.CreateDeployment(context.TODO(), deployment)
@@ -683,14 +702,14 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Deployments) {
 		t.Errorf("ListDeploymentsForRepo() is %v, want %v", count, len(resources.Deployments))
 	}
-	if diff := cmp.Diff([]*library.Deployment{resources.Deployments[1], resources.Deployments[0]}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Deployment{resources.Deployments[1], resources.Deployments[0]}, list); diff != "" {
 		t.Errorf("ListDeploymentsForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListDeploymentsForRepo"] = true
 
 	// lookup the deployments by name
 	for _, deployment := range resources.Deployments {
-		repo := resources.Repos[deployment.GetRepoID()-1]
+		repo := resources.Repos[deployment.GetRepo().GetID()-1]
 		got, err := db.GetDeploymentForRepo(context.TODO(), repo, deployment.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get deployment %d for repo %d: %v", deployment.GetID(), repo.GetID(), err)
@@ -728,6 +747,30 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["DeleteDeployment"] = true
+
+	// delete the builds
+	for _, build := range resources.Builds {
+		err = db.DeleteBuild(context.TODO(), build)
+		if err != nil {
+			t.Errorf("unable to delete build: %v", err)
+		}
+	}
+
+	// delete the repos for hook related functions
+	for _, repo := range resources.Repos {
+		err = db.DeleteRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to delete repo: %v", err)
+		}
+	}
+
+	// delete the users for the hook related functions
+	for _, user := range resources.Users {
+		err = db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user: %v", err)
+		}
+	}
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -2558,11 +2601,16 @@ func newResources() *Resources {
 	executableTwo.SetBuildID(2)
 	executableTwo.SetData([]byte("foo"))
 
-	builds := []*library.Build{}
-	deploymentOne := new(library.Deployment)
+	trimmedBuildOne := *buildOne
+	trimmedBuildOne.Repo = &api.Repo{ID: repoOne.ID}
+
+	trimmedBuildTwo := *buildTwo
+	trimmedBuildTwo.Repo = &api.Repo{ID: repoOne.ID}
+
+	deploymentOne := new(api.Deployment)
 	deploymentOne.SetID(1)
 	deploymentOne.SetNumber(1)
-	deploymentOne.SetRepoID(1)
+	deploymentOne.SetRepo(repoOne)
 	deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
 	deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	deploymentOne.SetRef("refs/heads/main")
@@ -2572,12 +2620,12 @@ func newResources() *Resources {
 	deploymentOne.SetPayload(map[string]string{"foo": "test1"})
 	deploymentOne.SetCreatedAt(1)
 	deploymentOne.SetCreatedBy("octocat")
-	deploymentOne.SetBuilds(builds)
+	deploymentOne.SetBuilds([]*api.Build{&trimmedBuildOne})
 
-	deploymentTwo := new(library.Deployment)
+	deploymentTwo := new(api.Deployment)
 	deploymentTwo.SetID(2)
 	deploymentTwo.SetNumber(2)
-	deploymentTwo.SetRepoID(1)
+	deploymentTwo.SetRepo(repoOne)
 	deploymentTwo.SetURL("https://github.com/github/octocat/deployments/2")
 	deploymentTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
 	deploymentTwo.SetRef("refs/heads/main")
@@ -2587,18 +2635,11 @@ func newResources() *Resources {
 	deploymentTwo.SetPayload(map[string]string{"foo": "test1"})
 	deploymentTwo.SetCreatedAt(1)
 	deploymentTwo.SetCreatedBy("octocat")
-	deploymentTwo.SetBuilds(builds)
-
-	hookBuildOne := *buildOne
-	hookBuildOne.Repo = &api.Repo{ID: repoOne.ID}
-
-	hookBuildTwo := *buildTwo
-	hookBuildTwo.Repo = &api.Repo{ID: repoOne.ID}
 
 	hookOne := new(api.Hook)
 	hookOne.SetID(1)
 	hookOne.SetRepo(repoOne)
-	hookOne.SetBuild(&hookBuildOne)
+	hookOne.SetBuild(&trimmedBuildOne)
 	hookOne.SetNumber(1)
 	hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	hookOne.SetCreated(time.Now().UTC().Unix())
@@ -2629,7 +2670,7 @@ func newResources() *Resources {
 	hookThree := new(api.Hook)
 	hookThree.SetID(3)
 	hookThree.SetRepo(repoOne)
-	hookThree.SetBuild(&hookBuildTwo)
+	hookThree.SetBuild(&trimmedBuildTwo)
 	hookThree.SetNumber(3)
 	hookThree.SetSourceID("c8da1302-07d6-11ea-882f-6793bca275b8")
 	hookThree.SetCreated(time.Now().UTC().Unix())
@@ -2913,7 +2954,7 @@ func newResources() *Resources {
 	return &Resources{
 		Builds:      []*api.Build{buildOne, buildTwo},
 		Dashboards:  []*api.Dashboard{dashboardOne, dashboardTwo},
-		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
+		Deployments: []*api.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*api.Hook{hookOne, hookTwo, hookThree},
 		JWKs:        jwkSet,

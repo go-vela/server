@@ -49,7 +49,7 @@ func TestBuild_Engine_CountBuildsForDeployment(t *testing.T) {
 
 	_deployment := testutils.APIDeployment()
 	_deployment.SetID(1)
-	_deployment.SetRepoID(1)
+	_deployment.SetRepo(_repo)
 	_deployment.SetURL("https://github.com/github/octocat/deployments/1")
 
 	_postgres, _mock := testPostgres(t)

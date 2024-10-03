@@ -10,12 +10,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
 )
 
 // GetDeployment gets a deployment from the GitHub repo.
-func (c *client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id int64) (*library.Deployment, error) {
+func (c *client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id int64) (*api.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -40,9 +39,9 @@ func (c *client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id
 
 	createdAt := deployment.CreatedAt.Unix()
 
-	return &library.Deployment{
+	return &api.Deployment{
 		ID:          deployment.ID,
-		RepoID:      r.ID,
+		Repo:        r,
 		URL:         deployment.URL,
 		Commit:      deployment.SHA,
 		Ref:         deployment.Ref,
@@ -98,7 +97,7 @@ func (c *client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Rep
 }
 
 // GetDeploymentList gets a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo, page, perPage int) ([]*library.Deployment, error) {
+func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo, page, perPage int) ([]*api.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -123,7 +122,7 @@ func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 	}
 
 	// variable we want to return
-	deployments := []*library.Deployment{}
+	deployments := []*api.Deployment{}
 
 	// iterate through all API results
 	for _, deployment := range d {
@@ -137,9 +136,9 @@ func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 		createdAt := deployment.CreatedAt.Unix()
 
 		// convert query result to library type
-		deployments = append(deployments, &library.Deployment{
+		deployments = append(deployments, &api.Deployment{
 			ID:          deployment.ID,
-			RepoID:      r.ID,
+			Repo:        r,
 			URL:         deployment.URL,
 			Commit:      deployment.SHA,
 			Ref:         deployment.Ref,
@@ -156,7 +155,7 @@ func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 }
 
 // CreateDeployment creates a new deployment for the GitHub repo.
-func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo, d *library.Deployment) error {
+func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo, d *api.Deployment) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":     r.GetOrg(),
 		"repo":    r.GetName(),
@@ -192,7 +191,7 @@ func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	}
 
 	d.SetNumber(deploy.GetID())
-	d.SetRepoID(r.GetID())
+	d.SetRepo(r)
 	d.SetURL(deploy.GetURL())
 	d.SetCommit(deploy.GetSHA())
 	d.SetRef(deploy.GetRef())

@@ -6,22 +6,24 @@ import (
 	"context"
 	"strconv"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetDeployment gets a deployment by ID from the database.
-func (e *engine) GetDeployment(ctx context.Context, id int64) (*library.Deployment, error) {
+func (e *engine) GetDeployment(ctx context.Context, id int64) (*api.Deployment, error) {
 	e.logger.Tracef("getting deployment %d", id)
 
 	// variable to store query results
-	d := new(database.Deployment)
+	d := new(types.Deployment)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableDeployment).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("id = ?", id).
 		Take(d).
 		Error
@@ -29,7 +31,7 @@ func (e *engine) GetDeployment(ctx context.Context, id int64) (*library.Deployme
 		return nil, err
 	}
 
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 
 	for _, a := range d.Builds {
 		bID, err := strconv.ParseInt(a, 10, 64)
@@ -37,7 +39,7 @@ func (e *engine) GetDeployment(ctx context.Context, id int64) (*library.Deployme
 			return nil, err
 		}
 		// variable to store query results
-		b := new(database.Build)
+		b := new(types.Build)
 
 		// send query to the database and store result in variable
 		err = e.client.
@@ -50,9 +52,14 @@ func (e *engine) GetDeployment(ctx context.Context, id int64) (*library.Deployme
 			return nil, err
 		}
 
-		builds = append(builds, b.ToLibrary())
+		builds = append(builds, b.ToAPI())
+	}
+
+	err = d.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo: %v", err)
 	}
 
 	// return the deployment
-	return d.ToLibrary(builds), nil
+	return d.ToAPI(builds), nil
 }

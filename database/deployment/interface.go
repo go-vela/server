@@ -6,7 +6,6 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 // DeploymentInterface represents the Vela interface for deployment
@@ -32,17 +31,17 @@ type DeploymentInterface interface {
 	// CountDeploymentsForRepo defines a function that gets the count of deployments by repo ID.
 	CountDeploymentsForRepo(context.Context, *api.Repo) (int64, error)
 	// CreateDeployment defines a function that creates a new deployment.
-	CreateDeployment(context.Context, *library.Deployment) (*library.Deployment, error)
+	CreateDeployment(context.Context, *api.Deployment) (*api.Deployment, error)
 	// DeleteDeployment defines a function that deletes an existing deployment.
-	DeleteDeployment(context.Context, *library.Deployment) error
+	DeleteDeployment(context.Context, *api.Deployment) error
 	// GetDeployment defines a function that gets a deployment by ID.
-	GetDeployment(context.Context, int64) (*library.Deployment, error)
+	GetDeployment(context.Context, int64) (*api.Deployment, error)
 	// GetDeploymentForRepo defines a function that gets a deployment by repo ID and number.
-	GetDeploymentForRepo(context.Context, *api.Repo, int64) (*library.Deployment, error)
+	GetDeploymentForRepo(context.Context, *api.Repo, int64) (*api.Deployment, error)
 	// ListDeployments defines a function that gets a list of all deployments.
-	ListDeployments(context.Context) ([]*library.Deployment, error)
+	ListDeployments(context.Context) ([]*api.Deployment, error)
 	// ListDeploymentsForRepo defines a function that gets a list of deployments by repo ID.
-	ListDeploymentsForRepo(context.Context, *api.Repo, int, int) ([]*library.Deployment, error)
+	ListDeploymentsForRepo(context.Context, *api.Repo, int, int) ([]*api.Deployment, error)
 	// UpdateDeployment defines a function that updates an existing deployment.
-	UpdateDeployment(context.Context, *library.Deployment) (*library.Deployment, error)
+	UpdateDeployment(context.Context, *api.Deployment) (*api.Deployment, error)
 }

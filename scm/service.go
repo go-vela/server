@@ -85,16 +85,16 @@ type Service interface {
 
 	// GetDeployment defines a function that
 	// gets a deployment by number and repo.
-	GetDeployment(context.Context, *api.User, *api.Repo, int64) (*library.Deployment, error)
+	GetDeployment(context.Context, *api.User, *api.Repo, int64) (*api.Deployment, error)
 	// GetDeploymentCount defines a function that
 	// counts a list of all deployment for a repo.
 	GetDeploymentCount(context.Context, *api.User, *api.Repo) (int64, error)
 	// GetDeploymentList defines a function that gets
 	// a list of all deployments for a repo.
-	GetDeploymentList(context.Context, *api.User, *api.Repo, int, int) ([]*library.Deployment, error)
+	GetDeploymentList(context.Context, *api.User, *api.Repo, int, int) ([]*api.Deployment, error)
 	// CreateDeployment defines a function that
 	// creates a new deployment.
-	CreateDeployment(context.Context, *api.User, *api.Repo, *library.Deployment) error
+	CreateDeployment(context.Context, *api.User, *api.Repo, *api.Deployment) error
 
 	// Repo SCM Interface Functions
 

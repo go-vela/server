@@ -18,7 +18,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
 )
 
@@ -613,7 +612,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantBuild.SetBranch("main")
 	wantBuild.SetRef("refs/heads/main")
 
-	wantDeployment := new(library.Deployment)
+	wantDeployment := new(api.Deployment)
 	wantDeployment.SetNumber(145988746)
 	wantDeployment.SetURL("https://api.github.com/repos/Codertocat/Hello-World/deployments/145988746")
 	wantDeployment.SetCommit("f95f852bd8fca8fcc58a9a2d6c842781e32a215e")
@@ -630,7 +629,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 		repo              *api.Repo
 		build             *api.Build
 		deploymentPayload raw.StringSliceMap
-		deployment        *library.Deployment
+		deployment        *api.Deployment
 	}
 
 	tests := []struct {
@@ -749,7 +748,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantBuild.SetBranch("main")
 	wantBuild.SetRef("refs/heads/main")
 
-	wantDeployment := new(library.Deployment)
+	wantDeployment := new(api.Deployment)
 	wantDeployment.SetNumber(145988746)
 	wantDeployment.SetURL("https://api.github.com/repos/Codertocat/Hello-World/deployments/145988746")
 	wantDeployment.SetCommit("f95f852bd8fca8fcc58a9a2d6c842781e32a215e")

@@ -9,13 +9,12 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetDeploymentForRepo gets a deployment by repo ID and number from the database.
-func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number int64) (*library.Deployment, error) {
+func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number int64) (*api.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": number,
 		"org":        r.GetOrg(),
@@ -23,12 +22,14 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 	}).Tracef("getting deployment %s/%d", r.GetFullName(), number)
 
 	// variable to store query results
-	d := new(database.Deployment)
+	d := new(types.Deployment)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableDeployment).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("number = ?", number).
 		Take(d).
@@ -37,7 +38,7 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 		return nil, err
 	}
 
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 
 	for _, a := range d.Builds {
 		bID, err := strconv.ParseInt(a, 10, 64)
@@ -45,7 +46,7 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 			return nil, err
 		}
 		// variable to store query results
-		b := new(database.Build)
+		b := new(types.Build)
 
 		// send query to the database and store result in variable
 		err = e.client.
@@ -58,8 +59,13 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 			return nil, err
 		}
 
-		builds = append(builds, b.ToLibrary())
+		builds = append(builds, b.ToAPI())
 	}
 
-	return d.ToLibrary(builds), nil
+	err = d.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
+	}
+
+	return d.ToAPI(builds), nil
 }

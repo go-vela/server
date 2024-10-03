@@ -15,6 +15,8 @@ import (
 type (
 	// config represents the settings required to create the engine that implements the DeploymentInterface interface.
 	config struct {
+		// specifies the encryption key to use for the Hook engine
+		EncryptionKey string
 		// specifies to skip creating tables and indexes for the Deployment engine
 		SkipCreation bool
 	}

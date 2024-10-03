@@ -10,12 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/deployments/{org}/{repo} deployments CreateDeployment
@@ -72,7 +72,7 @@ func CreateDeployment(c *gin.Context) {
 	l.Debugf("creating new deployment for repo %s", r.GetFullName())
 
 	// capture body from API request
-	input := new(library.Deployment)
+	input := new(types.Deployment)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -84,7 +84,7 @@ func CreateDeployment(c *gin.Context) {
 	}
 
 	// update fields in deployment object
-	input.SetRepoID(r.GetID())
+	input.SetRepo(r)
 	input.SetCreatedBy(u.GetName())
 	input.SetCreatedAt(time.Now().Unix())
 
