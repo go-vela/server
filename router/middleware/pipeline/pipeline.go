@@ -17,11 +17,10 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // Retrieve gets the pipeline in the given context.
-func Retrieve(c *gin.Context) *library.Pipeline {
+func Retrieve(c *gin.Context) *api.Pipeline {
 	return FromContext(c)
 }
 

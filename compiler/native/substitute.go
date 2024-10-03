@@ -9,7 +9,7 @@ import (
 	"github.com/buildkite/yaml"
 	"github.com/drone/envsubst"
 
-	types "github.com/go-vela/types/yaml"
+	types "github.com/go-vela/server/compiler/types/yaml"
 )
 
 // SubstituteStages replaces every declared environment

@@ -15,6 +15,8 @@ import (
 type (
 	// config represents the settings required to create the engine that implements the PipelineInterface interface.
 	config struct {
+		// specifies the encryption key to use for the Hook engine
+		EncryptionKey string
 		// specifies the level of compression to use for the Pipeline engine
 		CompressionLevel int
 		// specifies to skip creating tables and indexes for the Pipeline engine

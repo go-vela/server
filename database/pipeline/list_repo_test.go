@@ -10,15 +10,32 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 	// setup types
+	_owner := testutils.APIUser().Crop()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+	_repo.SetOwner(_owner)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+	_repo.SetAllowEvents(api.NewEventsFromMask(1))
+	_repo.SetPipelineType(constants.PipelineTypeYAML)
+	_repo.SetTopics([]string{})
+
 	_pipelineOne := testutils.APIPipeline()
 	_pipelineOne.SetID(1)
-	_pipelineOne.SetRepoID(1)
+	_pipelineOne.SetRepo(_repo)
 	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_pipelineOne.SetRef("refs/heads/main")
 	_pipelineOne.SetType("yaml")
@@ -27,7 +44,7 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 
 	_pipelineTwo := testutils.APIPipeline()
 	_pipelineTwo.SetID(2)
-	_pipelineTwo.SetRepoID(1)
+	_pipelineTwo.SetRepo(_repo)
 	_pipelineTwo.SetCommit("a49aaf4afae6431a79239c95247a2b169fd9f067")
 	_pipelineTwo.SetRef("refs/heads/main")
 	_pipelineTwo.SetType("yaml")
@@ -55,41 +72,39 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreatePipeline(context.TODO(), _pipelineOne)
-	if err != nil {
-		t.Errorf("unable to create test pipeline for sqlite: %v", err)
-	}
-
-	_, err = _sqlite.CreatePipeline(context.TODO(), _pipelineTwo)
-	if err != nil {
-		t.Errorf("unable to create test pipeline for sqlite: %v", err)
-	}
+	sqlitePopulateTables(
+		t,
+		_sqlite,
+		[]*api.Pipeline{_pipelineOne, _pipelineTwo},
+		[]*api.User{},
+		[]*api.Repo{},
+	)
 
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Pipeline
+		want     []*api.Pipeline
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Pipeline{_pipelineOne, _pipelineTwo},
+			want:     []*api.Pipeline{_pipelineOne, _pipelineTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Pipeline{_pipelineOne, _pipelineTwo},
+			want:     []*api.Pipeline{_pipelineOne, _pipelineTwo},
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListPipelinesForRepo(context.TODO(), &api.Repo{ID: _pipelineOne.RepoID}, 1, 10)
+			got, _, err := test.database.ListPipelinesForRepo(context.TODO(), _repo, 1, 10)
 
 			if test.failure {
 				if err == nil {

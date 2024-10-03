@@ -11,9 +11,9 @@ import (
 
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
+	typesRaw "github.com/go-vela/server/compiler/types/raw"
+	types "github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/types/constants"
-	typesRaw "github.com/go-vela/types/raw"
-	types "github.com/go-vela/types/yaml"
 )
 
 // ParseRaw converts an object to a string.

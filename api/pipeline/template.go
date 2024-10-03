@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
@@ -20,7 +21,6 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/yaml"
 )
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/{pipeline}/templates pipelines GetTemplates

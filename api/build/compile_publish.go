@@ -15,14 +15,13 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/pipeline"
 )
 
 // CompileAndPublishConfig is a struct that contains information for the CompileAndPublish function.
@@ -181,7 +180,7 @@ func CompileAndPublish(
 		// variable to store executable pipeline
 		p *pipeline.Build
 		// variable to store pipeline configuration
-		pipeline *library.Pipeline
+		pipeline *types.Pipeline
 		// variable to store the pipeline type for the repository
 		pipelineType = r.GetPipelineType()
 		// variable to store updated repository record
@@ -257,7 +256,7 @@ func CompileAndPublish(
 			repo.SetPipelineType(pipeline.GetType())
 		}
 
-		var compiled *library.Pipeline
+		var compiled *types.Pipeline
 		// parse and compile the pipeline configuration file
 		p, compiled, err = compiler.
 			Duplicate().
@@ -311,7 +310,7 @@ func CompileAndPublish(
 		// check if the pipeline did not already exist in the database
 		if pipeline == nil {
 			pipeline = compiled
-			pipeline.SetRepoID(repo.GetID())
+			pipeline.SetRepo(repo)
 			pipeline.SetCommit(b.GetCommit())
 			pipeline.SetRef(b.GetRef())
 

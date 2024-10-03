@@ -127,6 +127,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 		pipeline.WithContext(e.ctx),
 		pipeline.WithClient(e.client),
 		pipeline.WithCompressionLevel(e.config.CompressionLevel),
+		pipeline.WithEncryptionKey(e.config.EncryptionKey),
 		pipeline.WithLogger(e.logger),
 		pipeline.WithSkipCreation(e.config.SkipCreation),
 	)

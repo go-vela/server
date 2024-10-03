@@ -11,8 +11,8 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
+	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/raw"
 )
 
 // API TEST RESOURCES
@@ -232,10 +232,10 @@ func APIStep() *library.Step {
 	}
 }
 
-func APIPipeline() *library.Pipeline {
-	return &library.Pipeline{
+func APIPipeline() *api.Pipeline {
+	return &api.Pipeline{
 		ID:              new(int64),
-		RepoID:          new(int64),
+		Repo:            APIRepo(),
 		Commit:          new(string),
 		Flavor:          new(string),
 		Platform:        new(string),

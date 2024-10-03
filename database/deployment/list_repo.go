@@ -31,8 +31,6 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableDeployment).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Order("number DESC").
 		Limit(perPage).
@@ -72,13 +70,11 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 			builds = append(builds, b.ToAPI())
 		}
 
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
-		if err != nil {
-			e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
-		}
+		result := tmp.ToAPI(builds)
+		result.SetRepo(r)
 
 		// convert query result to API type
-		deployments = append(deployments, tmp.ToAPI(builds))
+		deployments = append(deployments, result)
 	}
 
 	return deployments, nil

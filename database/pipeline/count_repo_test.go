@@ -9,15 +9,17 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 )
 
 func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	// setup types
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+
 	_pipelineOne := testutils.APIPipeline()
 	_pipelineOne.SetID(1)
-	_pipelineOne.SetRepoID(1)
+	_pipelineOne.SetRepo(_repo)
 	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_pipelineOne.SetRef("refs/heads/main")
 	_pipelineOne.SetType("yaml")
@@ -25,7 +27,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 
 	_pipelineTwo := testutils.APIPipeline()
 	_pipelineTwo.SetID(2)
-	_pipelineTwo.SetRepoID(1)
+	_pipelineTwo.SetRepo(_repo)
 	_pipelineTwo.SetCommit("a49aaf4afae6431a79239c95247a2b169fd9f067")
 	_pipelineTwo.SetRef("refs/heads/main")
 	_pipelineTwo.SetType("yaml")
@@ -77,7 +79,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountPipelinesForRepo(context.TODO(), &api.Repo{ID: _pipelineOne.RepoID})
+			got, err := test.database.CountPipelinesForRepo(context.TODO(), _repo)
 
 			if test.failure {
 				if err == nil {

@@ -2,7 +2,7 @@
 
 package template
 
-import "github.com/go-vela/types/yaml"
+import "github.com/go-vela/server/compiler/types/yaml"
 
 // Engine represents the interface for Vela integrating
 // with the different supported template engines.

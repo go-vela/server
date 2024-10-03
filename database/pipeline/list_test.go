@@ -4,20 +4,50 @@ package pipeline
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestPipeline_Engine_ListPipelines(t *testing.T) {
 	// setup types
+	_owner := testutils.APIUser().Crop()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+
+	_repoOne := testutils.APIRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetOwner(_owner)
+	_repoOne.SetHash("baz")
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+	_repoOne.SetVisibility("public")
+	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
+	_repoOne.SetPipelineType(constants.PipelineTypeYAML)
+	_repoOne.SetTopics([]string{})
+
+	_repoTwo := testutils.APIRepo()
+	_repoTwo.SetID(2)
+	_repoTwo.SetOwner(_owner)
+	_repoTwo.SetHash("bazey")
+	_repoTwo.SetOrg("fooey")
+	_repoTwo.SetName("barey")
+	_repoTwo.SetFullName("fooey/barey")
+	_repoTwo.SetVisibility("public")
+	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	_repoTwo.SetPipelineType(constants.PipelineTypeYAML)
+	_repoTwo.SetTopics([]string{})
+
 	_pipelineOne := testutils.APIPipeline()
 	_pipelineOne.SetID(1)
-	_pipelineOne.SetRepoID(1)
+	_pipelineOne.SetRepo(_repoOne)
 	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_pipelineOne.SetRef("refs/heads/main")
 	_pipelineOne.SetType("yaml")
@@ -26,7 +56,7 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 
 	_pipelineTwo := testutils.APIPipeline()
 	_pipelineTwo.SetID(2)
-	_pipelineTwo.SetRepoID(2)
+	_pipelineTwo.SetRepo(_repoTwo)
 	_pipelineTwo.SetCommit("a49aaf4afae6431a79239c95247a2b169fd9f067")
 	_pipelineTwo.SetRef("refs/heads/main")
 	_pipelineTwo.SetType("yaml")
@@ -48,40 +78,49 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 		AddRow(1, 1, "48afb5bdc41ad69bf22588491333f7cf71135163", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69}).
 		AddRow(2, 2, "a49aaf4afae6431a79239c95247a2b169fd9f067", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
 
+	_repoRows := sqlmock.NewRows(
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "").
+		AddRow(2, 1, "bazey", "fooey", "barey", "fooey/barey", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+
+	_userRows := sqlmock.NewRows(
+		[]string{"id", "name", "token", "hash", "active", "admin"}).
+		AddRow(1, "foo", "bar", "baz", false, false)
+
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "pipelines"`).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
+	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreatePipeline(context.TODO(), _pipelineOne)
-	if err != nil {
-		t.Errorf("unable to create test pipeline for sqlite: %v", err)
-	}
-
-	_, err = _sqlite.CreatePipeline(context.TODO(), _pipelineTwo)
-	if err != nil {
-		t.Errorf("unable to create test pipeline for sqlite: %v", err)
-	}
+	sqlitePopulateTables(
+		t,
+		_sqlite,
+		[]*api.Pipeline{_pipelineOne, _pipelineTwo},
+		[]*api.User{_owner},
+		[]*api.Repo{_repoOne, _repoTwo},
+	)
 
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Pipeline
+		want     []*api.Pipeline
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Pipeline{_pipelineOne, _pipelineTwo},
+			want:     []*api.Pipeline{_pipelineOne, _pipelineTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Pipeline{_pipelineOne, _pipelineTwo},
+			want:     []*api.Pipeline{_pipelineOne, _pipelineTwo},
 		},
 	}
 
@@ -102,8 +141,8 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 				t.Errorf("ListPipelines for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("ListPipelines for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("ListPipelines for %s mismatch (-want +got):\n%s", test.name, diff)
 			}
 		})
 	}

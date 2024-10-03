@@ -27,8 +27,6 @@ func (e *engine) GetScheduleForRepo(ctx context.Context, r *api.Repo, name strin
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableSchedule).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("name = ?", name).
 		Take(s).
@@ -37,11 +35,8 @@ func (e *engine) GetScheduleForRepo(ctx context.Context, r *api.Repo, name strin
 		return nil, err
 	}
 
-	// decrypt hash value for repo
-	err = s.Repo.Decrypt(e.config.EncryptionKey)
-	if err != nil {
-		e.logger.Errorf("unable to decrypt repo %d: %v", s.Repo.ID.Int64, err)
-	}
+	result := s.ToAPI()
+	result.SetRepo(r)
 
-	return s.ToAPI(), nil
+	return result, nil
 }

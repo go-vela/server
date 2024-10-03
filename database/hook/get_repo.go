@@ -27,8 +27,6 @@ func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int) (*
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableHook).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Preload("Build").
 		Where("repo_id = ?", r.GetID()).
 		Where("number = ?", number).
@@ -38,10 +36,8 @@ func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int) (*
 		return nil, err
 	}
 
-	err = h.Repo.Decrypt(e.config.EncryptionKey)
-	if err != nil {
-		e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
-	}
+	result := h.ToAPI()
+	result.SetRepo(r)
 
-	return h.ToAPI(), nil
+	return result, nil
 }

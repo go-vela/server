@@ -1,0 +1,12 @@
+---
+- name: docker_build
+  source: github.com/go-vela/atlas/stable/docker_create
+  type: github  
+- name: docker_build
+  source: github.com/go-vela/atlas/stable/docker_build
+  format: go
+  type: github
+- name: docker_publish
+  source: github.com/go-vela/atlas/stable/docker_publish
+  format: starlark
+  type: github

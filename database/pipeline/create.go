@@ -7,33 +7,24 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // CreatePipeline creates a new pipeline in the database.
-func (e *engine) CreatePipeline(ctx context.Context, p *library.Pipeline) (*library.Pipeline, error) {
+func (e *engine) CreatePipeline(ctx context.Context, p *api.Pipeline) (*api.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("creating pipeline %s in the database", p.GetCommit())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#PipelineFromLibrary
-	pipeline := database.PipelineFromLibrary(p)
+	pipeline := types.PipelineFromAPI(p)
 
-	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Validate
 	err := pipeline.Validate()
 	if err != nil {
 		return nil, err
 	}
 
-	// compress data for the pipeline
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Compress
 	err = pipeline.Compress(e.config.CompressionLevel)
 	if err != nil {
 		return nil, err
@@ -53,5 +44,8 @@ func (e *engine) CreatePipeline(ctx context.Context, p *library.Pipeline) (*libr
 		return nil, err
 	}
 
-	return pipeline.ToLibrary(), nil
+	result := pipeline.ToAPI()
+	result.SetRepo(p.GetRepo())
+
+	return result, nil
 }
