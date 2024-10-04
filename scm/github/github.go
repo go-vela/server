@@ -15,7 +15,6 @@ import (
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
 	api "github.com/go-vela/server/api/types"
-	"github.com/google/go-github/v62/github"
 	"github.com/google/go-github/v65/github"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
@@ -217,7 +216,7 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 }
 
 // helper function to return the GitHub App token.
-func (c *client) newGithubAppToken(r *api.Repo) (*github.Client, error) {
+func (c *client) newGithubAppToken(ctx context.Context, r *api.Repo) (*github.Client, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
 	if err != nil {
@@ -232,7 +231,7 @@ func (c *client) newGithubAppToken(r *api.Repo) (*github.Client, error) {
 			panic(err)
 		}
 
-		return c.newClientToken(t.GetToken()), nil
+		return c.newClientToken(ctx, t.GetToken()), nil
 	}
 
 	// list all installations (a.k.a. orgs) where the GitHub App is installed
@@ -261,5 +260,5 @@ func (c *client) newGithubAppToken(r *api.Repo) (*github.Client, error) {
 		panic(err)
 	}
 
-	return c.newClientToken(t.GetToken()), nil
+	return c.newClientToken(ctx, t.GetToken()), nil
 }

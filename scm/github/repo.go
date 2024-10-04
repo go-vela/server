@@ -671,7 +671,7 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 // CreateChecks defines a function that does stuff...
 func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, event string) (int64, error) {
 	// create client from GitHub App
-	client, err := c.newGithubAppToken(r)
+	client, err := c.newGithubAppToken(ctx, r)
 	if err != nil {
 		return 0, err
 	}
@@ -692,7 +692,7 @@ func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, ev
 // UpdateChecks defines a function that does stuff...
 func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step, commit, event string) error {
 	// create client from GitHub App
-	client, err := c.newGithubAppToken(r)
+	client, err := c.newGithubAppToken(ctx, r)
 	if err != nil {
 		return err
 	}
