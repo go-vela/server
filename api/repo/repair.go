@@ -72,6 +72,12 @@ func RepairRepo(c *gin.Context) {
 
 	l.Debugf("repairing repo %s", r.GetFullName())
 
+	// todo: get org app installation
+	// doesnt exist? redirect them and wait...
+
+	// todo: from org installation, check if this repo is visible/enabled
+	// no? use scm api to add the repo to the org
+
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to remove the webhook

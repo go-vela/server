@@ -4,6 +4,7 @@ package github
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -96,6 +97,14 @@ func (c *client) Config(ctx context.Context, u *api.User, r *api.Repo, ref strin
 
 // Disable deactivates a repo by deleting the webhook.
 func (c *client) Disable(ctx context.Context, u *api.User, org, name string) error {
+	// todo: remove repo from github app installation
+
+	// todo: if there are no other repos in the org github app installation, should we uninstall it from the org?
+	return c.DestroyWebhook(ctx, u, org, name)
+}
+
+// DestroyWebhook deletes a repo's webhook.
+func (c *client) DestroyWebhook(ctx context.Context, u *api.User, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,
@@ -151,6 +160,16 @@ func (c *client) Disable(ctx context.Context, u *api.User, org, name string) err
 
 // Enable activates a repo by creating the webhook.
 func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
+	// todo: check for org installation
+	// todo: if org installation does not exist, we need to redirec the user
+	//   todo: use cli vs web redirect logic
+	// todo: ensure repo is visible/enabled in org installation
+
+	return c.CreateWebhook(ctx, u, r, h)
+}
+
+// CreateWebhook creates a repo's webhook.
+func (c *client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -674,6 +693,10 @@ func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, ev
 	client, err := c.newGithubAppToken(ctx, r)
 	if err != nil {
 		return 0, err
+	}
+
+	if client == nil {
+		return 0, errors.New("unable to make github app token client")
 	}
 
 	opts := github.CreateCheckRunOptions{

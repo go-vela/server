@@ -126,6 +126,7 @@ func New(opts ...ClientOpt) (*client, error) {
 	}
 
 	if c.config.GithubAppID != 0 && len(c.config.GithubAppPrivateKey) > 0 {
+		// todo: this log isnt accurate, it reads it directly as a string
 		c.Logger.Infof("sourcing private key from path: %s", c.config.GithubAppPrivateKey)
 
 		decodedPEM, err := base64.StdEncoding.DecodeString(c.config.GithubAppPrivateKey)
@@ -234,6 +235,7 @@ func (c *client) newGithubAppToken(ctx context.Context, r *api.Repo) (*github.Cl
 		return c.newClientToken(ctx, t.GetToken()), nil
 	}
 
+	// todo: this panics internally?
 	// list all installations (a.k.a. orgs) where the GitHub App is installed
 	installations, _, err := client.Apps.ListInstallations(context.Background(), &github.ListOptions{})
 	if err != nil {
@@ -250,6 +252,8 @@ func (c *client) newGithubAppToken(ctx context.Context, r *api.Repo) (*github.Cl
 	}
 
 	// failsafe in case the repo does not belong to an org where the GitHub App is installed
+	// todo: should this be an error?
+	// in reality we should warn them that they should install this app to their org and add this repo
 	if id == 0 {
 		return nil, err
 	}

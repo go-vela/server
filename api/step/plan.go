@@ -64,14 +64,16 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	s.SetReportAs(c.ReportAs)
 	s.SetCreated(time.Now().UTC().Unix())
 
-	if c.ReportStatus {
+	if len(c.ReportAs) > 0 {
+		// todo: is this okay if checks already exist?
 		id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName(), b.GetEvent())
 		if err != nil {
-			// TODO: make this error more meaningful
-			return nil, err
+			// todo: need better error-handling
+			// in a perfect world we warn the user that they need to install the github app to get this to work
+			logrus.Warnf("unable to create checks for step: %v", err)
+		} else {
+			s.SetCheckID(id)
 		}
-
-		s.SetCheckID(id)
 	}
 
 	// send API call to create the step
