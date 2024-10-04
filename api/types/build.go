@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 )
 
@@ -1204,4 +1206,39 @@ func (b *Build) String() string {
 		b.GetStatus(),
 		b.GetTitle(),
 	)
+}
+
+// StepFromBuildContainer creates a new Step based on a Build and pipeline Container.
+func StepFromBuildContainer(build *Build, ctn *pipeline.Container) *library.Step {
+	// create new step type we want to return
+	s := new(library.Step)
+
+	// default status to Pending
+	s.SetStatus(constants.StatusPending)
+
+	// copy fields from build
+	if build != nil {
+		// set values from the build
+		s.SetHost(build.GetHost())
+		s.SetRuntime(build.GetRuntime())
+		s.SetDistribution(build.GetDistribution())
+	}
+
+	// copy fields from container
+	if ctn != nil && ctn.Name != "" {
+		// set values from the container
+		s.SetName(ctn.Name)
+		s.SetNumber(ctn.Number)
+		s.SetImage(ctn.Image)
+		s.SetReportAs(ctn.ReportAs)
+
+		// check if the VELA_STEP_STAGE environment variable exists
+		value, ok := ctn.Environment["VELA_STEP_STAGE"]
+		if ok {
+			// set the Stage field to the value from environment variable
+			s.SetStage(value)
+		}
+	}
+
+	return s
 }
