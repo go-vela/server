@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -62,22 +61,21 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 		event = event + ":" + action
 	}
 
-	// populate metadata when not provided using compiler.WithMetadata
-	if c.metadata == nil {
-		c.metadata = &internal.Metadata{Database: &internal.Database{}, Queue: &internal.Queue{}, Source: &internal.Source{}, Vela: &internal.Vela{}}
-	}
-
 	// create the ruledata to purge steps
 	r := &pipeline.RuleData{
-		Branch:   c.build.GetBranch(),
-		Comment:  c.comment,
-		Event:    event,
-		Path:     c.files,
-		Repo:     c.repo.GetFullName(),
-		Tag:      strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
-		Target:   c.build.GetDeploy(),
-		Label:    c.labels,
-		Instance: c.metadata.Vela.Address,
+		Branch:  c.build.GetBranch(),
+		Comment: c.comment,
+		Event:   event,
+		Path:    c.files,
+		Repo:    c.repo.GetFullName(),
+		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
+		Target:  c.build.GetDeploy(),
+		Label:   c.labels,
+	}
+
+	// add instance when we have the metadata (local exec will not)
+	if c.metadata != nil && c.metadata.Vela != nil {
+		r.Instance = c.metadata.Vela.Address
 	}
 
 	switch {
