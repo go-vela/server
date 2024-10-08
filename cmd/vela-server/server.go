@@ -132,7 +132,7 @@ func server(c *cli.Context) error {
 	metadata.Vela.OpenIDIssuer = oidcIssuer
 	tm.Issuer = oidcIssuer
 
-	jitter := wait.Jitter(5*time.Second, 2.0)
+	jitter := wait.Jitter(0*time.Second, 2.0)
 
 	logrus.Infof("retrieving initial platform settings after %v delay", jitter)
 

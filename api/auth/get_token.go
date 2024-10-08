@@ -9,8 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -37,6 +39,10 @@ import (
 //   name: redirect_uri
 //   description: The URL where the user will be sent after authorization
 //   type: string
+// - in: query
+//   name: setup_action
+//   description: The specific setup action callback identifier
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully authenticated
@@ -60,15 +66,34 @@ import (
 // process a user logging in to Vela from
 // the API or UI.
 func GetAuthToken(c *gin.Context) {
-	var err error
-
 	// capture middleware values
 	tm := c.MustGet("token-manager").(*token.Manager)
+	m := c.MustGet("metadata").(*internal.Metadata)
 	l := c.MustGet("logger").(*logrus.Entry)
+
 	ctx := c.Request.Context()
+
+	// GitHub App and OAuth share the same callback URL,
+	// so we need to differentiate between the two using setup_action
+	if c.Request.FormValue("setup_action") == "install" {
+		redirect, err := api.GetAppInstallRedirectURL(ctx, l, m, c.Request.URL.Query())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get app install redirect URL: %w", err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		c.Redirect(http.StatusTemporaryRedirect, redirect)
+
+		return
+	}
 
 	// capture the OAuth state if present
 	oAuthState := c.Request.FormValue("state")
+
+	var err error
 
 	// capture the OAuth code if present
 	code := c.Request.FormValue("code")

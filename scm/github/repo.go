@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -690,7 +691,7 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 // CreateChecks defines a function that does stuff...
 func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, event string) (int64, error) {
 	// create client from GitHub App
-	client, err := c.newGithubAppToken(ctx, r)
+	client, err := c.newGithubAppInstallationToken(ctx, r)
 	if err != nil {
 		return 0, err
 	}
@@ -715,7 +716,7 @@ func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, ev
 // UpdateChecks defines a function that does stuff...
 func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step, commit, event string) error {
 	// create client from GitHub App
-	client, err := c.newGithubAppToken(ctx, r)
+	client, err := c.newGithubAppInstallationToken(ctx, r)
 	if err != nil {
 		return err
 	}
@@ -795,4 +796,67 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step,
 	}
 
 	return nil
+}
+
+// GetRepoInstallInfo retrieves the repo information required for installation, such as org and repo ID for the given org and repo name.
+func (c *client) GetRepoInstallInfo(ctx context.Context, u *api.User, o string, r string) (*api.RepoInstall, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  o,
+		"user": u.GetName(),
+	}).Tracef("retrieving repo install information for %s", o)
+
+	client := c.newClientToken(ctx, u.GetToken())
+
+	// send an API call to get the org info
+	repoInfo, resp, err := client.Repositories.Get(ctx, o, r)
+
+	orgID := repoInfo.GetOwner().GetID()
+
+	// if org is not found, return the personal org
+	if resp.StatusCode == http.StatusNotFound {
+		user, _, err := client.Users.Get(ctx, "")
+		if err != nil {
+			return nil, err
+		}
+
+		orgID = user.GetID()
+	} else if err != nil {
+		return nil, err
+	}
+
+	ri := &api.RepoInstall{
+		OrgSCMID:  orgID,
+		RepoSCMID: repoInfo.GetID(),
+	}
+
+	return ri, nil
+}
+
+// GetRepoInstallURL takes RepoInstall configurations and returns the SCM URL for installing the application.
+func (c *client) GetRepoInstallURL(ctx context.Context, ri *api.RepoInstall) (string, error) {
+	client, err := c.newGithubAppClient(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	// retrieve the authenticated app information
+	// required for slug and HTML URL
+	app, _, err := client.Apps.Get(ctx, "")
+	if err != nil {
+		return "", err
+	}
+
+	path := fmt.Sprintf(
+		"%s/installations/new/permissions",
+		app.GetHTMLURL())
+
+	// stored as state to retrieve from the post-install callback
+	state := fmt.Sprintf("type=%s,port=%s", ri.Type, ri.Port)
+
+	v := &url.Values{}
+	v.Set("state", state)
+	v.Set("suggested_target_id", strconv.FormatInt(ri.OrgSCMID, 10))
+	v.Set("repository_ids", strconv.FormatInt(ri.RepoSCMID, 10))
+
+	return fmt.Sprintf("%s?%s", path, v.Encode()), nil
 }

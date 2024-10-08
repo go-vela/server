@@ -73,6 +73,7 @@ func RepoHandlers(base *gin.RouterGroup) {
 				_repo.DELETE("", perm.MustAdmin(), repo.DeleteRepo)
 				_repo.PATCH("/repair", perm.MustAdmin(), repo.RepairRepo)
 				_repo.PATCH("/chown", perm.MustAdmin(), repo.ChownRepo)
+				_repo.GET("/install/html_url", repo.GetInstallHTMLURL)
 
 				// Build endpoints
 				// * Service endpoints

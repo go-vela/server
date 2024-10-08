@@ -1,6 +1,6 @@
 module github.com/go-vela/server
 
-go 1.23.1
+go 1.23.2
 
 replace github.com/go-vela/types => ../types
 

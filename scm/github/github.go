@@ -216,8 +216,20 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 	return github
 }
 
-// helper function to return the GitHub App token.
-func (c *client) newGithubAppToken(ctx context.Context, r *api.Repo) (*github.Client, error) {
+// helper function to return the GitHub App client for authenticating as the GitHub App itself using the RoundTripper.
+func (c *client) newGithubAppClient(ctx context.Context) (*github.Client, error) {
+	// todo: create transport using context to apply tracing
+	// create a github client based off the existing GitHub App configuration
+	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
+// helper function to return the GitHub App installation token.
+func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo) (*github.Client, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
 	if err != nil {

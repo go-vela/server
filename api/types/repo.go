@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+// RepoInstall is the configuration for installing a repo into the SCM.
+//
+// swagger:model RepoInstall
+type RepoInstall struct {
+	Type      string
+	Port      string
+	OrgSCMID  int64
+	RepoSCMID int64
+}
+
 // Repo is the API representation of a repo.
 //
 // swagger:model Repo
