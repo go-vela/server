@@ -13,6 +13,10 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestPipeline_New(t *testing.T) {
@@ -170,6 +174,40 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	return _engine
+}
+
+// sqlitePopulateTables is a helper function to populate tables for testing.
+func sqlitePopulateTables(t *testing.T, e *engine, pipelines []*api.Pipeline, users []*api.User, repos []*api.Repo) {
+	for _, _pipeline := range pipelines {
+		_, err := e.CreatePipeline(context.TODO(), _pipeline)
+		if err != nil {
+			t.Errorf("unable to create test pipeline for sqlite: %v", err)
+		}
+	}
+
+	err := e.client.AutoMigrate(&types.User{})
+	if err != nil {
+		t.Errorf("unable to create user table for sqlite: %v", err)
+	}
+
+	for _, _user := range users {
+		err = e.client.Table(constants.TableUser).Create(types.UserFromAPI(_user)).Error
+		if err != nil {
+			t.Errorf("unable to create test user for sqlite: %v", err)
+		}
+	}
+
+	err = e.client.AutoMigrate(&types.Repo{})
+	if err != nil {
+		t.Errorf("unable to create repo table for sqlite: %v", err)
+	}
+
+	for _, _repo := range repos {
+		err = e.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
+		if err != nil {
+			t.Errorf("unable to create test repo for sqlite: %v", err)
+		}
+	}
 }
 
 // This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values

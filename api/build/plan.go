@@ -12,9 +12,9 @@ import (
 	"github.com/go-vela/server/api/service"
 	"github.com/go-vela/server/api/step"
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm"
-	"github.com/go-vela/types/pipeline"
 )
 
 // PlanBuild is a helper function to plan the build for

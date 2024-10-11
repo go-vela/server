@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/pipeline"
 )
 
 func Test_isCancelable(t *testing.T) {

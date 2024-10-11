@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/urfave/cli/v2"
 
-	"github.com/go-vela/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 )
 
 func TestNative_ScriptStages(t *testing.T) {

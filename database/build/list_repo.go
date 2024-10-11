@@ -43,8 +43,6 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map
 	err = e.client.
 		WithContext(ctx).
 		Table(constants.TableBuild).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("created < ?", before).
 		Where("created > ?", after).
@@ -63,12 +61,10 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
 
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
-		if err != nil {
-			e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
-		}
+		result := tmp.ToAPI()
+		result.SetRepo(r)
 
-		builds = append(builds, tmp.ToAPI())
+		builds = append(builds, result)
 	}
 
 	return builds, count, nil

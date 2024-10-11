@@ -4,19 +4,22 @@ package pipeline
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/go-vela/server/database/testutils"
 )
 
 func TestPipeline_Engine_CreatePipeline(t *testing.T) {
 	// setup types
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+
 	_pipeline := testutils.APIPipeline()
 	_pipeline.SetID(1)
-	_pipeline.SetRepoID(1)
+	_pipeline.SetRepo(_repo)
 	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_pipeline.SetRef("refs/heads/main")
 	_pipeline.SetType("yaml")
@@ -74,8 +77,8 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 				t.Errorf("CreatePipeline for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, _pipeline) {
-				t.Errorf("CreatePipeline for %s returned %s, want %s", test.name, got, _pipeline)
+			if diff := cmp.Diff(_pipeline, got); diff != "" {
+				t.Errorf("CreatePipeline for %s mismatch (-want +got):\n%s", test.name, diff)
 			}
 		})
 	}

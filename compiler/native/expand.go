@@ -13,10 +13,10 @@ import (
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
+	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/compiler/types/raw"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/pipeline"
-	"github.com/go-vela/types/raw"
-	"github.com/go-vela/types/yaml"
 )
 
 // ExpandStages injects the template for each

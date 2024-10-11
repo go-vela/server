@@ -7,11 +7,10 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/compiler/types/raw"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/pipeline"
-	"github.com/go-vela/types/raw"
-	"github.com/go-vela/types/yaml"
 )
 
 // Engine represents an interface for converting a yaml
@@ -22,12 +21,12 @@ type Engine interface {
 	// Compile defines a function that produces an executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	Compile(context.Context, interface{}) (*pipeline.Build, *library.Pipeline, error)
+	Compile(context.Context, interface{}) (*pipeline.Build, *api.Pipeline, error)
 
 	// CompileLite defines a function that produces an light executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	CompileLite(context.Context, interface{}, *pipeline.RuleData, bool) (*yaml.Build, *library.Pipeline, error)
+	CompileLite(context.Context, interface{}, *pipeline.RuleData, bool) (*yaml.Build, *api.Pipeline, error)
 
 	// Duplicate defines a function that
 	// creates a clone of the Engine.

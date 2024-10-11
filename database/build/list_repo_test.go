@@ -12,7 +12,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -64,18 +63,8 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 		AddRow(2, 1, nil, 2, 0, "", "", "", "", 0, 2, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
 		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
 
-	_repoRows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
-
-	_userRows := sqlmock.NewRows(
-		[]string{"id", "name", "token", "hash", "active", "admin"}).
-		AddRow(1, "foo", "bar", "baz", false, false)
-
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3 ORDER BY number DESC LIMIT $4`).WithArgs(1, AnyArgument{}, 0, 10).WillReturnRows(_rows)
-	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" = $1`).WithArgs(1).WillReturnRows(_repoRows)
-	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -88,26 +77,6 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 	_, err = _sqlite.CreateBuild(context.TODO(), _buildTwo)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.AutoMigrate(&types.Repo{})
-	if err != nil {
-		t.Errorf("unable to create build table for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
-	if err != nil {
-		t.Errorf("unable to create test user for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.AutoMigrate(&types.User{})
-	if err != nil {
-		t.Errorf("unable to create build table for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
-	if err != nil {
-		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
 
 	// setup tests

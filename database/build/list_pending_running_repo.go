@@ -22,8 +22,6 @@ func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *a
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableBuild).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Select("*").
 		Where("repo_id = ?", repo.GetID()).
 		Where("status = 'running' OR status = 'pending' OR status = 'pending approval'").
@@ -38,12 +36,10 @@ func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *a
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
 
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
-		if err != nil {
-			e.logger.Errorf("unable to decrypt repo %s/%s: %v", repo.GetOrg(), repo.GetName(), err)
-		}
+		result := tmp.ToAPI()
+		result.SetRepo(repo)
 
-		builds = append(builds, tmp.ToAPI())
+		builds = append(builds, result)
 	}
 
 	return builds, nil

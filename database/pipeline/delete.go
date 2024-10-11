@@ -7,21 +7,18 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // DeletePipeline deletes an existing pipeline from the database.
-func (e *engine) DeletePipeline(ctx context.Context, p *library.Pipeline) error {
+func (e *engine) DeletePipeline(ctx context.Context, p *api.Pipeline) error {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("deleting pipeline %s", p.GetCommit())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#PipelineFromLibrary
-	pipeline := database.PipelineFromLibrary(p)
+	pipeline := types.PipelineFromAPI(p)
 
 	// send query to the database
 	return e.client.

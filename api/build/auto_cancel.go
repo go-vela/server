@@ -15,10 +15,10 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/pipeline"
 )
 
 // AutoCancel is a helper function that checks to see if any pending or running

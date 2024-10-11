@@ -1,0 +1,48 @@
+---
+version: "1"
+
+metadata:
+  template: false
+
+step-anchor: &step-anchor
+  environment:
+    GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+    GRADLE_USER_HOME: .gradle
+  image: openjdk:latest
+
+steps:
+  - name: install
+    commands:
+      - ./gradlew downloadDependencies
+    <<: *step-anchor
+    pull: true
+    ruleset:
+      event: [ push, pull_request ]
+    volumes: [ /foo:/bar:ro ]
+    ulimits: [ foo=1024:2048 ]
+
+  - name: test
+    commands:
+      - ./gradlew check
+    <<: *step-anchor
+    pull: true
+    ruleset:
+      event: [ push, pull_request ]
+    volumes: [ /foo:/bar:ro ]
+    ulimits: [ foo=1024:2048 ]
+
+  - name: build
+    commands:
+      - ./gradlew build
+    <<: *step-anchor
+    pull: true
+    ruleset:
+      event: [ push, pull_request ]
+    volumes:
+      - source: /foo
+        destination: /bar
+        access_mode: ro
+    ulimits:
+      - name: foo
+        soft: 1024
+        hard: 2048

@@ -11,9 +11,9 @@ import (
 	yml "github.com/buildkite/yaml"
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/yaml"
 )
 
 const (
@@ -105,8 +105,60 @@ templates:
 	// PipelineResp represents a JSON return for a single pipeline.
 	PipelineResp = `{
   "id": 1,
-  "repo_id": 1,
-  "commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
+  "repo": {
+    "id": 1,
+    "owner": {
+      "id": 1,
+      "name": "Octocat",
+      "active": true
+    },
+    "org": "Octocat",
+    "name": "myvela",
+    "full_name": "Octocat/myvela",
+    "link": "https://github.com/Octocat/myvela",
+    "clone": "https://github.com/Octocat/myvela.git",
+    "branch": "main",
+    "topics": [
+      "example"
+    ],
+    "build_limit": 10,
+    "timeout": 30,
+    "counter": 1,
+    "visibility": "public",
+    "private": false,
+    "trusted": false,
+    "active": true,
+    "allow_events": {
+      "push": {
+        "branch": true,
+        "tag": false,
+        "delete_branch": false,
+        "delete_tag": false
+      },
+      "pull_request": {
+        "opened": false,
+        "edited": false,
+        "synchronize": false,
+        "reopened": false,
+        "labeled": false,
+        "unlabeled": false
+      },
+      "deployment": {
+        "created": false
+      },
+      "comment": {
+        "created": false,
+        "edited": false
+      },
+      "schedule": {
+        "run": false
+      }
+    },
+    "pipeline_type": "yaml",
+    "previous_name": "",
+    "approve_build": "first-time"
+  },
+  "commit": "8496deb0aeacd9d95078ac8d38edb447631ef369",
   "flavor": "",
   "platform": "",
   "ref": "refs/heads/main",
@@ -125,7 +177,59 @@ templates:
 	PipelinesResp = `[
   {
     "id": 2
-    "repo_id": 1,
+    "repo": {
+      "id": 1,
+      "owner": {
+        "id": 1,
+        "name": "Octocat",
+        "active": true
+      },
+      "org": "Octocat",
+      "name": "myvela",
+      "full_name": "Octocat/myvela",
+      "link": "https://github.com/Octocat/myvela",
+      "clone": "https://github.com/Octocat/myvela.git",
+      "branch": "main",
+      "topics": [
+        "example"
+      ],
+      "build_limit": 10,
+      "timeout": 30,
+      "counter": 1,
+      "visibility": "public",
+      "private": false,
+      "trusted": false,
+      "active": true,
+      "allow_events": {
+        "push": {
+          "branch": true,
+          "tag": false,
+          "delete_branch": false,
+          "delete_tag": false
+        },
+        "pull_request": {
+          "opened": false,
+          "edited": false,
+          "synchronize": false,
+          "reopened": false,
+          "labeled": false,
+          "unlabeled": false
+        },
+        "deployment": {
+          "created": false
+        },
+        "comment": {
+          "created": false,
+          "edited": false
+        },
+        "schedule": {
+          "run": false
+        }
+      },
+      "pipeline_type": "yaml",
+      "previous_name": "",
+      "approve_build": "first-time"
+    },
     "commit": "a49aaf4afae6431a79239c95247a2b169fd9f067",
     "flavor": "",
     "platform": "",
@@ -142,7 +246,59 @@ templates:
   },
   {
     "id": 1,
-    "repo_id": 1,
+    "repo": {
+      "id": 1,
+      "owner": {
+        "id": 1,
+        "name": "Octocat",
+        "active": true
+      },
+      "org": "Octocat",
+      "name": "myvela",
+      "full_name": "Octocat/myvela",
+      "link": "https://github.com/Octocat/myvela",
+      "clone": "https://github.com/Octocat/myvela.git",
+      "branch": "main",
+      "topics": [
+        "example"
+      ],
+      "build_limit": 10,
+      "timeout": 30,
+      "counter": 1,
+      "visibility": "public",
+      "private": false,
+      "trusted": false,
+      "active": true,
+      "allow_events": {
+        "push": {
+          "branch": true,
+          "tag": false,
+          "delete_branch": false,
+          "delete_tag": false
+        },
+        "pull_request": {
+          "opened": false,
+          "edited": false,
+          "synchronize": false,
+          "reopened": false,
+          "labeled": false,
+          "unlabeled": false
+        },
+        "deployment": {
+          "created": false
+        },
+        "comment": {
+          "created": false,
+          "edited": false
+        },
+        "schedule": {
+          "run": false
+        }
+      },
+      "pipeline_type": "yaml",
+      "previous_name": "",
+      "approve_build": "first-time"
+    },
     "commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
     "flavor": "",
     "platform": "",
@@ -172,7 +328,7 @@ sample:
 func getPipelines(c *gin.Context) {
 	data := []byte(PipelinesResp)
 
-	var body []library.Pipeline
+	var body []api.Pipeline
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -194,7 +350,7 @@ func getPipeline(c *gin.Context) {
 
 	data := []byte(PipelineResp)
 
-	var body library.Pipeline
+	var body api.Pipeline
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -204,7 +360,7 @@ func getPipeline(c *gin.Context) {
 func addPipeline(c *gin.Context) {
 	data := []byte(PipelineResp)
 
-	var body library.Pipeline
+	var body api.Pipeline
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -228,7 +384,7 @@ func updatePipeline(c *gin.Context) {
 
 	data := []byte(PipelineResp)
 
-	var body library.Pipeline
+	var body api.Pipeline
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

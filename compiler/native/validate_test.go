@@ -9,8 +9,8 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/go-vela/types/raw"
-	"github.com/go-vela/types/yaml"
+	"github.com/go-vela/server/compiler/types/raw"
+	"github.com/go-vela/server/compiler/types/yaml"
 )
 
 func TestNative_Validate_NoVersion(t *testing.T) {

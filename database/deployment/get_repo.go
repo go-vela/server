@@ -28,8 +28,6 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableDeployment).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("number = ?", number).
 		Take(d).
@@ -62,10 +60,8 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 		builds = append(builds, b.ToAPI())
 	}
 
-	err = d.Repo.Decrypt(e.config.EncryptionKey)
-	if err != nil {
-		e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
-	}
+	result := d.ToAPI(builds)
+	result.SetRepo(r)
 
-	return d.ToAPI(builds), nil
+	return result, nil
 }

@@ -27,8 +27,6 @@ func (e *engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int) (
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableBuild).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("number = ?", number).
 		Take(b).
@@ -37,10 +35,8 @@ func (e *engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int) (
 		return nil, err
 	}
 
-	err = b.Repo.Decrypt(e.config.EncryptionKey)
-	if err != nil {
-		e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
-	}
+	result := b.ToAPI()
+	result.SetRepo(r)
 
-	return b.ToAPI(), nil
+	return result, nil
 }

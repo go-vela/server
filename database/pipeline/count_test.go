@@ -14,9 +14,12 @@ import (
 
 func TestPipeline_Engine_CountPipelines(t *testing.T) {
 	// setup types
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+
 	_pipelineOne := testutils.APIPipeline()
 	_pipelineOne.SetID(1)
-	_pipelineOne.SetRepoID(1)
+	_pipelineOne.SetRepo(_repo)
 	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_pipelineOne.SetRef("refs/heads/main")
 	_pipelineOne.SetType("yaml")
@@ -24,7 +27,7 @@ func TestPipeline_Engine_CountPipelines(t *testing.T) {
 
 	_pipelineTwo := testutils.APIPipeline()
 	_pipelineTwo.SetID(2)
-	_pipelineTwo.SetRepoID(2)
+	_pipelineTwo.SetRepo(_repo)
 	_pipelineTwo.SetCommit("a49aaf4afae6431a79239c95247a2b169fd9f067")
 	_pipelineTwo.SetRef("refs/heads/main")
 	_pipelineTwo.SetType("yaml")

@@ -10,15 +10,32 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	// setup types
+	_owner := testutils.APIUser().Crop()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+	_repo.SetOwner(_owner)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+	_repo.SetAllowEvents(api.NewEventsFromMask(1))
+	_repo.SetPipelineType(constants.PipelineTypeYAML)
+	_repo.SetTopics([]string{})
+
 	_pipeline := testutils.APIPipeline()
 	_pipeline.SetID(1)
-	_pipeline.SetRepoID(1)
+	_pipeline.SetRepo(_repo)
 	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_pipeline.SetRef("refs/heads/main")
 	_pipeline.SetType("yaml")
@@ -39,17 +56,20 @@ func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreatePipeline(context.TODO(), _pipeline)
-	if err != nil {
-		t.Errorf("unable to create test pipeline for sqlite: %v", err)
-	}
+	sqlitePopulateTables(
+		t,
+		_sqlite,
+		[]*api.Pipeline{_pipeline},
+		[]*api.User{},
+		[]*api.Repo{},
+	)
 
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Pipeline
+		want     *api.Pipeline
 	}{
 		{
 			failure:  false,
@@ -68,7 +88,7 @@ func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetPipelineForRepo(context.TODO(), "48afb5bdc41ad69bf22588491333f7cf71135163", &api.Repo{ID: _pipeline.RepoID})
+			got, err := test.database.GetPipelineForRepo(context.TODO(), "48afb5bdc41ad69bf22588491333f7cf71135163", _repo)
 
 			if test.failure {
 				if err == nil {

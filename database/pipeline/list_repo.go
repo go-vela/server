@@ -8,15 +8,14 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListPipelinesForRepo gets a list of pipelines by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*library.Pipeline, int64, error) {
+func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Pipeline, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -24,8 +23,8 @@ func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, pe
 
 	// variables to store query results and return values
 	count := int64(0)
-	p := new([]database.Pipeline)
-	pipelines := []*library.Pipeline{}
+	p := new([]types.Pipeline)
+	pipelines := []*api.Pipeline{}
 
 	// count the results
 	count, err := e.CountPipelinesForRepo(ctx, r)
@@ -58,18 +57,15 @@ func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, pe
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := pipeline
 
-		// decompress data for the pipeline
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Decompress
 		err = tmp.Decompress()
 		if err != nil {
 			return nil, count, err
 		}
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.ToLibrary
-		pipelines = append(pipelines, tmp.ToLibrary())
+		result := tmp.ToAPI()
+		result.SetRepo(r)
+
+		pipelines = append(pipelines, result)
 	}
 
 	return pipelines, count, nil

@@ -11,8 +11,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/raw"
 )
 
 func TestTypes_Build_Crop(t *testing.T) {

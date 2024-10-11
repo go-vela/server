@@ -8,12 +8,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestPipeline_FromContext(t *testing.T) {
 	// setup types
-	_pipeline := new(library.Pipeline)
+	_pipeline := new(api.Pipeline)
 
 	gin.SetMode(gin.TestMode)
 	_context, _ := gin.CreateTestContext(nil)
@@ -31,7 +31,7 @@ func TestPipeline_FromContext(t *testing.T) {
 	tests := []struct {
 		name    string
 		context *gin.Context
-		want    *library.Pipeline
+		want    *api.Pipeline
 	}{
 		{
 			name:    "context",
@@ -69,7 +69,7 @@ func TestPipeline_FromContext(t *testing.T) {
 
 func TestPipeline_ToContext(t *testing.T) {
 	// setup types
-	_pipeline := new(library.Pipeline)
+	_pipeline := new(api.Pipeline)
 
 	gin.SetMode(gin.TestMode)
 	_context, _ := gin.CreateTestContext(nil)
@@ -78,7 +78,7 @@ func TestPipeline_ToContext(t *testing.T) {
 	tests := []struct {
 		name    string
 		context *gin.Context
-		want    *library.Pipeline
+		want    *api.Pipeline
 	}{
 		{
 			name:    "context",
