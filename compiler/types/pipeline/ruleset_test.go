@@ -79,6 +79,11 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 			data:    &RuleData{Branch: "dev", Comment: "ok to test", Event: "push", Repo: "octocat/hello-world", Status: "failure", Tag: "refs/heads/main", Target: ""},
 			want:    true,
 		},
+		{
+			ruleset: &Ruleset{If: Rules{Sender: []string{"octocat"}}, Operator: "and"},
+			data:    &RuleData{Branch: "dev", Comment: "ok to test", Event: "push", Repo: "octocat/hello-world", Sender: "octocat", Status: "pending", Tag: "refs/heads/main", Target: ""},
+			want:    true,
+		},
 		// If with or operator
 		{
 			ruleset: &Ruleset{If: Rules{Branch: []string{"main"}, Event: []string{"push"}}, Operator: "or"},
