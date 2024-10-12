@@ -16,6 +16,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -36,7 +37,6 @@ import (
 	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/raw"
 )
 
 // Resources represents the object containing test resources.
@@ -48,7 +48,7 @@ type Resources struct {
 	Hooks       []*api.Hook
 	JWKs        jwk.Set
 	Logs        []*library.Log
-	Pipelines   []*library.Pipeline
+	Pipelines   []*api.Pipeline
 	Repos       []*api.Repo
 	Schedules   []*api.Schedule
 	Secrets     []*library.Secret
@@ -1202,6 +1202,22 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	// create owners
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
+	// create the repos
+	for _, repo := range resources.Repos {
+		_, err := db.CreateRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+		}
+	}
+
 	// create the pipelines
 	for _, pipeline := range resources.Pipelines {
 		_, err := db.CreatePipeline(context.TODO(), pipeline)
@@ -1256,7 +1272,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the pipelines by name
 	for _, pipeline := range resources.Pipelines {
-		repo := resources.Repos[pipeline.GetRepoID()-1]
+		repo := resources.Repos[pipeline.GetRepo().GetID()-1]
 		got, err := db.GetPipelineForRepo(context.TODO(), pipeline.GetCommit(), repo)
 		if err != nil {
 			t.Errorf("unable to get pipeline %d for repo %d: %v", pipeline.GetID(), repo.GetID(), err)
@@ -1295,6 +1311,22 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["DeletePipeline"] = true
+
+	// delete the repos
+	for _, repo := range resources.Repos {
+		err = db.DeleteRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
+		}
+	}
+
+	// delete the owners
+	for _, user := range resources.Users {
+		err := db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
+		}
+	}
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -2724,9 +2756,9 @@ func newResources() *Resources {
 	logStepTwo.SetStepID(2)
 	logStepTwo.SetData([]byte("foo"))
 
-	pipelineOne := new(library.Pipeline)
+	pipelineOne := new(api.Pipeline)
 	pipelineOne.SetID(1)
-	pipelineOne.SetRepoID(1)
+	pipelineOne.SetRepo(repoOne)
 	pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	pipelineOne.SetFlavor("large")
 	pipelineOne.SetPlatform("docker")
@@ -2741,9 +2773,9 @@ func newResources() *Resources {
 	pipelineOne.SetTemplates(false)
 	pipelineOne.SetData([]byte("version: 1"))
 
-	pipelineTwo := new(library.Pipeline)
+	pipelineTwo := new(api.Pipeline)
 	pipelineTwo.SetID(2)
-	pipelineTwo.SetRepoID(1)
+	pipelineTwo.SetRepo(repoOne)
 	pipelineTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
 	pipelineTwo.SetFlavor("large")
 	pipelineTwo.SetPlatform("docker")
@@ -2959,7 +2991,7 @@ func newResources() *Resources {
 		Hooks:       []*api.Hook{hookOne, hookTwo, hookThree},
 		JWKs:        jwkSet,
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
-		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
+		Pipelines:   []*api.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},
 		Schedules:   []*api.Schedule{scheduleOne, scheduleTwo},
 		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},

@@ -10,7 +10,7 @@ import (
 	"github.com/lib/pq"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/raw"
+	"github.com/go-vela/server/compiler/types/raw"
 )
 
 func TestDatabase_Deployment_Nullify(t *testing.T) {

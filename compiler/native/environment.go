@@ -9,11 +9,11 @@ import (
 	"strings"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/raw"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/raw"
-	"github.com/go-vela/types/yaml"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,11 +36,13 @@ func (c *client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceM
 func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (*yaml.Stage, error) {
 	// make empty map of environment variables
 	env := make(map[string]string)
-	// gather set of default environment variables
-	t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+
+	t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
 	if err != nil {
-		logrus.Errorf("couldnt get clone token: %v", err)
+		logrus.Errorf("couldnt get netrc password: %v", err)
 	}
+
+	// gather set of default environment variables
 	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 	// inject the declared global environment
@@ -94,11 +96,13 @@ func (c *client) EnvironmentSteps(s yaml.StepSlice, stageEnv raw.StringSliceMap)
 func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*yaml.Step, error) {
 	// make empty map of environment variables
 	env := make(map[string]string)
-	// gather set of default environment variables
-	t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+
+	t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
 	if err != nil {
-		logrus.Errorf("couldnt get clone token: %v", err)
+		logrus.Errorf("couldnt get netrc password: %v", err)
 	}
+
+	// gather set of default environment variables
 	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 	// inject the declared stage environment
@@ -159,11 +163,13 @@ func (c *client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSl
 	for _, service := range s {
 		// make empty map of environment variables
 		env := make(map[string]string)
-		// gather set of default environment variables
-		t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+
+		t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
 		if err != nil {
-			logrus.Errorf("couldnt get clone token: %v", err)
+			logrus.Errorf("couldnt get netrc password: %v", err)
 		}
+
+		// gather set of default environment variables
 		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 		// inject the declared global environment
@@ -203,11 +209,13 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 
 		// make empty map of environment variables
 		env := make(map[string]string)
-		// gather set of default environment variables
-		t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+
+		t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
 		if err != nil {
-			logrus.Errorf("couldnt get clone token: %v", err)
+			logrus.Errorf("couldnt get netrc password: %v", err)
 		}
+
+		// gather set of default environment variables
 		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 		// inject the declared global environment
@@ -265,11 +273,13 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 func (c *client) EnvironmentBuild() map[string]string {
 	// make empty map of environment variables
 	env := make(map[string]string)
-	// gather set of default environment variables
-	t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+
+	t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
 	if err != nil {
-		logrus.Errorf("couldnt get clone token: %v", err)
+		logrus.Errorf("couldnt get netrc password: %v", err)
 	}
+
+	// gather set of default environment variables
 	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 	// inject the default environment

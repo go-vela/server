@@ -5,7 +5,7 @@ package pipeline
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const key = "pipeline"
@@ -16,13 +16,13 @@ type Setter interface {
 }
 
 // FromContext returns the Pipeline associated with this context.
-func FromContext(c context.Context) *library.Pipeline {
+func FromContext(c context.Context) *api.Pipeline {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	b, ok := value.(*library.Pipeline)
+	b, ok := value.(*api.Pipeline)
 	if !ok {
 		return nil
 	}
@@ -32,6 +32,6 @@ func FromContext(c context.Context) *library.Pipeline {
 
 // ToContext adds the Pipeline to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, b *library.Pipeline) {
+func ToContext(c Setter, b *api.Pipeline) {
 	c.Set(key, b)
 }

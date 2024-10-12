@@ -229,17 +229,23 @@ func (c *client) newGithubAppClient(ctx context.Context) (*github.Client, error)
 }
 
 // helper function to return the GitHub App installation token.
-func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo) (string, error) {
+func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo, repos []string, permissions []string) (string, error) {
 	// create a github client based off the existing GitHub App configuration
-	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
+	client, err := github.NewClient(
+		&http.Client{Transport: c.AppsTransport}).
+		WithEnterpriseURLs(c.config.API, c.config.API)
 	if err != nil {
 		return "", err
+	}
+
+	opts := &github.InstallationTokenOptions{
+		Repositories: repos,
 	}
 
 	// if repo has an install ID, use it to create an installation token
 	if r.GetInstallID() != 0 {
 		// create installation token for the repo
-		t, _, err := client.Apps.CreateInstallationToken(context.Background(), r.GetInstallID(), &github.InstallationTokenOptions{})
+		t, _, err := client.Apps.CreateInstallationToken(context.Background(), r.GetInstallID(), opts)
 		if err != nil {
 			return "", err
 		}
@@ -247,7 +253,7 @@ func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo)
 		return t.GetToken(), nil
 	}
 
-	// todo: this panics internally?
+	// todo: pagination?
 	// list all installations (a.k.a. orgs) where the GitHub App is installed
 	installations, _, err := client.Apps.ListInstallations(context.Background(), &github.ListOptions{})
 	if err != nil {
@@ -271,7 +277,7 @@ func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo)
 	}
 
 	// create installation token for the repo
-	t, _, err := client.Apps.CreateInstallationToken(context.Background(), id, &github.InstallationTokenOptions{})
+	t, _, err := client.Apps.CreateInstallationToken(context.Background(), id, opts)
 	if err != nil {
 		return "", err
 	}

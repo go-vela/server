@@ -13,9 +13,12 @@ import (
 
 func TestPipeline_Engine_DeletePipeline(t *testing.T) {
 	// setup types
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+
 	_pipeline := testutils.APIPipeline()
 	_pipeline.SetID(1)
-	_pipeline.SetRepoID(1)
+	_pipeline.SetRepo(_repo)
 	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_pipeline.SetRef("refs/heads/main")
 	_pipeline.SetType("yaml")

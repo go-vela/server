@@ -691,7 +691,7 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 // CreateChecks defines a function that does stuff...
 func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, event string) (int64, error) {
 	// create client from GitHub App
-	t, err := c.newGithubAppInstallationToken(ctx, r)
+	t, err := c.newGithubAppInstallationToken(ctx, r, []string{}, []string{})
 	if err != nil {
 		return 0, err
 	}
@@ -718,7 +718,7 @@ func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, ev
 // UpdateChecks defines a function that does stuff...
 func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step, commit, event string) error {
 	// create client from GitHub App
-	t, err := c.newGithubAppInstallationToken(ctx, r)
+	t, err := c.newGithubAppInstallationToken(ctx, r, []string{}, []string{})
 	if err != nil {
 		return err
 	}
@@ -806,15 +806,15 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step,
 	return nil
 }
 
-// GetCloneToken returns a clone token using the repo's github app installation if it exists.
+// GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
-func (c *client) GetCloneToken(ctx context.Context, u *api.User, r *api.Repo) (string, error) {
+func (c *client) GetNetrcPassword(ctx context.Context, u *api.User, r *api.Repo) (string, error) {
 	logrus.Infof("getting clone token")
 	// the app might not be installed
 	// todo: pass in THIS repo to only get access to that repo
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 	// maybe take an optional list of repos and permission set that is driven by yaml
-	t, err := c.newGithubAppInstallationToken(ctx, r)
+	t, err := c.newGithubAppInstallationToken(ctx, r, []string{}, []string{})
 	if err != nil {
 		logrus.Errorf("unable to get github app installation token: %v", err)
 	}
@@ -881,7 +881,7 @@ func (c *client) GetRepoInstallInfo(ctx context.Context, u *api.User, r *api.Rep
 		}
 	}
 
-	ghAppClient2, err := c.newGithubAppInstallationToken(ctx, r)
+	ghAppClient2, err := c.newGithubAppInstallationToken(ctx, r, []string{}, []string{})
 	if err != nil {
 		return nil, err
 	}

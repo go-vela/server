@@ -42,8 +42,6 @@ func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, pe
 	err = e.client.
 		WithContext(ctx).
 		Table(constants.TableSchedule).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Order("id DESC").
 		Limit(perPage).
@@ -59,14 +57,11 @@ func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, pe
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := schedule
 
-		// decrypt hash value for repo
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
-		if err != nil {
-			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.Repo.ID.Int64, err)
-		}
+		result := tmp.ToAPI()
+		result.SetRepo(r)
 
 		// convert query result to API type
-		schedules = append(schedules, tmp.ToAPI())
+		schedules = append(schedules, result)
 	}
 
 	return schedules, count, nil

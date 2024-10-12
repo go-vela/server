@@ -20,11 +20,11 @@ import (
 	"github.com/urfave/cli/v2"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/compiler/types/raw"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/pipeline"
-	"github.com/go-vela/types/raw"
-	"github.com/go-vela/types/yaml"
 )
 
 func TestNative_Compile_StagesPipeline(t *testing.T) {

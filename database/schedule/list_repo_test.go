@@ -13,7 +13,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -103,18 +102,8 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 		AddRow(1, 1, true, "nightly", "0 0 * * *", 1713476291, "octocat", 3013476291, "octokitty", 2013476291, "main", "no version: YAML property provided").
 		AddRow(2, 1, false, "hourly", "0 * * * *", 1713476291, "octocat", 3013476291, "octokitty", 2013476291, "main", "no version: YAML property provided")
 
-	_repoRows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy", "github", "octocat", "github/octocat", "https://github.com/github/octocat", "https://github.com/github/octocat.git", "main", "{cloud,security}", 10, 30, 0, "public", false, false, true, 1, "", "", constants.ApproveNever)
-
-	_userRows := sqlmock.NewRows(
-		[]string{"id", "name", "token", "refresh_token", "favorites", "active", "admin", "dashboards"}).
-		AddRow(1, "octocat", "superSecretToken", "superSecretRefreshToken", "{}", true, false, "{}")
-
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "schedules" WHERE repo_id = $1 ORDER BY id DESC LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
-	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" = $1`).WithArgs(1).WillReturnRows(_repoRows)
-	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -127,26 +116,6 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 	_, err = _sqlite.CreateSchedule(context.TODO(), _scheduleTwo)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.AutoMigrate(&types.Repo{})
-	if err != nil {
-		t.Errorf("unable to create build table for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
-	if err != nil {
-		t.Errorf("unable to create test repo for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.AutoMigrate(&types.User{})
-	if err != nil {
-		t.Errorf("unable to create build table for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
-	if err != nil {
-		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
 
 	// setup tests

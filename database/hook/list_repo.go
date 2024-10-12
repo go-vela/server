@@ -42,8 +42,6 @@ func (e *engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPag
 	err = e.client.
 		WithContext(ctx).
 		Table(constants.TableHook).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Preload("Build").
 		Where("repo_id = ?", r.GetID()).
 		Order("id DESC").
@@ -60,12 +58,10 @@ func (e *engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPag
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := hook
 
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
-		if err != nil {
-			e.logger.Errorf("unable to decrypt repo for hook %d: %v", tmp.ID.Int64, err)
-		}
+		result := tmp.ToAPI()
+		result.SetRepo(r)
 
-		hooks = append(hooks, tmp.ToAPI())
+		hooks = append(hooks, result)
 	}
 
 	return hooks, count, nil

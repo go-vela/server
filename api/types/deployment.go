@@ -5,7 +5,7 @@ package types
 import (
 	"fmt"
 
-	"github.com/go-vela/types/raw"
+	"github.com/go-vela/server/compiler/types/raw"
 )
 
 // Deployment is the API representation of a deployment.

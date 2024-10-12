@@ -17,11 +17,10 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/compiler/types/raw"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/pipeline"
-	"github.com/go-vela/types/raw"
-	"github.com/go-vela/types/yaml"
 )
 
 // ModifyRequest contains the payload passed to the modification endpoint.
@@ -39,14 +38,14 @@ type ModifyResponse struct {
 }
 
 // Compile produces an executable pipeline from a yaml configuration.
-func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *library.Pipeline, error) {
+func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *api.Pipeline, error) {
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// create the library pipeline object from the yaml configuration
-	_pipeline := p.ToPipelineLibrary()
+	// create the API pipeline object from the yaml configuration
+	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)
 	_pipeline.SetType(c.repo.GetPipelineType())
 
@@ -103,14 +102,14 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *library.Pipeline, error) {
+func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *api.Pipeline, error) {
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// create the library pipeline object from the yaml configuration
-	_pipeline := p.ToPipelineLibrary()
+	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)
 	_pipeline.SetType(c.repo.GetPipelineType())
 
@@ -304,7 +303,7 @@ func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 }
 
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
-func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
+func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
 	var err error
 
 	// check if the pipeline disabled the clone
@@ -399,7 +398,7 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *lib
 }
 
 // compileStages executes the workflow for converting a YAML pipeline into an executable struct.
-func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
+func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
 	var err error
 
 	// check if the pipeline disabled the clone

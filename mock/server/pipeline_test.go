@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestPipeline_ActivePipelineResp(t *testing.T) {
-	testPipeline := library.Pipeline{}
+	testPipeline := api.Pipeline{}
 
 	err := json.Unmarshal([]byte(PipelineResp), &testPipeline)
 	if err != nil {

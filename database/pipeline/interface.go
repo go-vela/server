@@ -6,7 +6,6 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 // PipelineInterface represents the Vela interface for pipeline
@@ -32,17 +31,17 @@ type PipelineInterface interface {
 	// CountPipelinesForRepo defines a function that gets the count of pipelines by repo ID.
 	CountPipelinesForRepo(context.Context, *api.Repo) (int64, error)
 	// CreatePipeline defines a function that creates a new pipeline.
-	CreatePipeline(context.Context, *library.Pipeline) (*library.Pipeline, error)
+	CreatePipeline(context.Context, *api.Pipeline) (*api.Pipeline, error)
 	// DeletePipeline defines a function that deletes an existing pipeline.
-	DeletePipeline(context.Context, *library.Pipeline) error
+	DeletePipeline(context.Context, *api.Pipeline) error
 	// GetPipeline defines a function that gets a pipeline by ID.
-	GetPipeline(context.Context, int64) (*library.Pipeline, error)
+	GetPipeline(context.Context, int64) (*api.Pipeline, error)
 	// GetPipelineForRepo defines a function that gets a pipeline by commit SHA and repo ID.
-	GetPipelineForRepo(context.Context, string, *api.Repo) (*library.Pipeline, error)
+	GetPipelineForRepo(context.Context, string, *api.Repo) (*api.Pipeline, error)
 	// ListPipelines defines a function that gets a list of all pipelines.
-	ListPipelines(context.Context) ([]*library.Pipeline, error)
+	ListPipelines(context.Context) ([]*api.Pipeline, error)
 	// ListPipelinesForRepo defines a function that gets a list of pipelines by repo ID.
-	ListPipelinesForRepo(context.Context, *api.Repo, int, int) ([]*library.Pipeline, int64, error)
+	ListPipelinesForRepo(context.Context, *api.Repo, int, int) ([]*api.Pipeline, int64, error)
 	// UpdatePipeline defines a function that updates an existing pipeline.
-	UpdatePipeline(context.Context, *library.Pipeline) (*library.Pipeline, error)
+	UpdatePipeline(context.Context, *api.Pipeline) (*api.Pipeline, error)
 }

@@ -8,13 +8,12 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetPipelineForRepo gets a pipeline by number and repo ID from the database.
-func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *api.Repo) (*library.Pipeline, error) {
+func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *api.Repo) (*api.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":      r.GetOrg(),
 		"pipeline": commit,
@@ -22,7 +21,7 @@ func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *api.R
 	}).Tracef("getting pipeline %s/%s", r.GetFullName(), commit)
 
 	// variable to store query results
-	p := new(database.Pipeline)
+	p := new(types.Pipeline)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -36,16 +35,13 @@ func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *api.R
 		return nil, err
 	}
 
-	// decompress data for the pipeline
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Decompress
 	err = p.Decompress()
 	if err != nil {
 		return nil, err
 	}
 
-	// return the decompressed pipeline
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.ToLibrary
-	return p.ToLibrary(), nil
+	result := p.ToAPI()
+	result.SetRepo(r)
+
+	return result, nil
 }

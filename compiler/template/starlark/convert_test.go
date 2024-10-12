@@ -8,7 +8,7 @@ import (
 
 	"go.starlark.net/starlark"
 
-	"github.com/go-vela/types/raw"
+	"github.com/go-vela/server/compiler/types/raw"
 )
 
 func TestStarlark_Render_convertTemplateVars(t *testing.T) {

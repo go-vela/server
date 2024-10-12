@@ -6,8 +6,8 @@ import (
 	"context"
 
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/queue/models"
-	"github.com/go-vela/types/pipeline"
 )
 
 // Service represents the interface for Vela integrating

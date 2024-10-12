@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/go-cmp/cmp"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -29,12 +31,11 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 func TestPipeline_Retrieve(t *testing.T) {
 	// setup types
-	_pipeline := new(library.Pipeline)
+	_pipeline := new(api.Pipeline)
 
 	gin.SetMode(gin.TestMode)
 	_context, _ := gin.CreateTestContext(nil)
@@ -43,7 +44,7 @@ func TestPipeline_Retrieve(t *testing.T) {
 	tests := []struct {
 		name    string
 		context *gin.Context
-		want    *library.Pipeline
+		want    *api.Pipeline
 	}{
 		{
 			name:    "context",
@@ -68,10 +69,12 @@ func TestPipeline_Retrieve(t *testing.T) {
 
 func TestPipeline_Establish(t *testing.T) {
 	// setup types
-	owner := new(api.User)
+	owner := testutils.APIUser().Crop()
 	owner.SetID(1)
+	owner.SetName("octocat")
+	owner.SetToken("foo")
 
-	r := new(api.Repo)
+	r := testutils.APIRepo()
 	r.SetID(1)
 	r.SetOwner(owner)
 	r.SetHash("baz")
@@ -80,9 +83,9 @@ func TestPipeline_Establish(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	want := new(library.Pipeline)
+	want := new(api.Pipeline)
 	want.SetID(1)
-	want.SetRepoID(1)
+	want.SetRepo(r)
 	want.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	want.SetFlavor("")
 	want.SetPlatform("")
@@ -97,7 +100,7 @@ func TestPipeline_Establish(t *testing.T) {
 	want.SetTemplates(false)
 	want.SetData([]byte{})
 
-	got := new(library.Pipeline)
+	got := new(api.Pipeline)
 
 	// setup database
 	db, err := database.NewTest()
@@ -106,11 +109,13 @@ func TestPipeline_Establish(t *testing.T) {
 	}
 
 	defer func() {
+		_ = db.DeleteUser(context.TODO(), owner)
 		_ = db.DeletePipeline(context.TODO(), want)
 		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
+	_, _ = db.CreateUser(context.TODO(), owner)
 	_, _ = db.CreateRepo(context.TODO(), r)
 	_, _ = db.CreatePipeline(context.TODO(), want)
 
@@ -140,8 +145,8 @@ func TestPipeline_Establish(t *testing.T) {
 		t.Errorf("Establish returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Establish is %v, want %v", got, want)
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("Establish mismatch (-got +want):\n%v", diff)
 	}
 }
 

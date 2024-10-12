@@ -11,12 +11,12 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/internal"
 	pMiddleware "github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/pipeline"
 )
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/{pipeline}/compile pipelines CompilePipeline

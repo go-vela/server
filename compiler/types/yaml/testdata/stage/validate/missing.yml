@@ -1,0 +1,5 @@
+stages:
+  hello:
+    steps:
+      - name: hello
+        image: alpine:latest

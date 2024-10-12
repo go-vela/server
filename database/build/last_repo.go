@@ -28,8 +28,6 @@ func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch strin
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableBuild).
-		Preload("Repo").
-		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("branch = ?", branch).
 		Order("number DESC").
@@ -45,10 +43,8 @@ func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch strin
 		return nil, err
 	}
 
-	err = b.Repo.Decrypt(e.config.EncryptionKey)
-	if err != nil {
-		e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
-	}
+	result := b.ToAPI()
+	result.SetRepo(r)
 
-	return b.ToAPI(), nil
+	return result, nil
 }

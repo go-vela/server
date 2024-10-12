@@ -57,3 +57,5 @@ func Establish() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// EstablishSlim sets the repo name in the given context

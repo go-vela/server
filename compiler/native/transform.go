@@ -5,8 +5,8 @@ package native
 import (
 	"fmt"
 
-	"github.com/go-vela/types/pipeline"
-	"github.com/go-vela/types/yaml"
+	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/compiler/types/yaml"
 )
 
 const (
