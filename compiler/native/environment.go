@@ -3,6 +3,7 @@
 package native
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
+	"github.com/sirupsen/logrus"
 )
 
 // EnvironmentStages injects environment variables
@@ -35,7 +37,11 @@ func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 	// make empty map of environment variables
 	env := make(map[string]string)
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+	t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+	if err != nil {
+		logrus.Errorf("couldnt get clone token: %v", err)
+	}
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 	// inject the declared global environment
 	// WARNING: local env can override global
@@ -89,7 +95,11 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 	// make empty map of environment variables
 	env := make(map[string]string)
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+	t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+	if err != nil {
+		logrus.Errorf("couldnt get clone token: %v", err)
+	}
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 	// inject the declared stage environment
 	// WARNING: local env can override global + stage
@@ -150,7 +160,11 @@ func (c *client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSl
 		// make empty map of environment variables
 		env := make(map[string]string)
 		// gather set of default environment variables
-		defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+		t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+		if err != nil {
+			logrus.Errorf("couldnt get clone token: %v", err)
+		}
+		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 		// inject the declared global environment
 		// WARNING: local env can override global
@@ -190,7 +204,11 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 		// make empty map of environment variables
 		env := make(map[string]string)
 		// gather set of default environment variables
-		defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+		t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+		if err != nil {
+			logrus.Errorf("couldnt get clone token: %v", err)
+		}
+		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 		// inject the declared global environment
 		// WARNING: local env can override global
@@ -248,7 +266,11 @@ func (c *client) EnvironmentBuild() map[string]string {
 	// make empty map of environment variables
 	env := make(map[string]string)
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+	t, err := c.scm.GetCloneToken(context.Background(), c.user, c.repo)
+	if err != nil {
+		logrus.Errorf("couldnt get clone token: %v", err)
+	}
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
 
 	// inject the default environment
 	// variables to the build
@@ -282,7 +304,7 @@ func appendMap(originalMap, otherMap map[string]string) map[string]string {
 }
 
 // helper function that creates the standard set of environment variables for a pipeline.
-func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) map[string]string {
+func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, netrcPassword string) map[string]string {
 	// set default workspace
 	workspace := constants.WorkspaceDefault
 	notImplemented := "TODO"
@@ -298,12 +320,14 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) m
 	env["VELA_DISTRIBUTION"] = notImplemented
 	env["VELA_HOST"] = notImplemented
 	env["VELA_NETRC_MACHINE"] = notImplemented
-	env["VELA_NETRC_PASSWORD"] = u.GetToken()
+	env["VELA_NETRC_PASSWORD"] = netrcPassword
+	logrus.Infof("using netrc password: %s", netrcPassword)
 	env["VELA_NETRC_USERNAME"] = "x-oauth-basic"
 	env["VELA_QUEUE"] = notImplemented
 	env["VELA_RUNTIME"] = notImplemented
 	env["VELA_SOURCE"] = notImplemented
 	env["VELA_VERSION"] = notImplemented
+	env["VELA_VADER"] = "yes"
 	env["CI"] = "true"
 
 	// populate environment variables from metadata

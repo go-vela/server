@@ -54,9 +54,9 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetInstallHTMLURL represents the API handler to retrieve the
+// GetInstallInfo represents the API handler to retrieve the
 // SCM installation HTML URL for a particular repo and Vela server.
-func GetInstallHTMLURL(c *gin.Context) {
+func GetInstallInfo(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
 	l := c.MustGet("logger").(*logrus.Entry)
@@ -64,9 +64,9 @@ func GetInstallHTMLURL(c *gin.Context) {
 	r := repo.Retrieve(c)
 	scm := scm.FromContext(c)
 
-	l.Debug("constructing repo install url")
+	l.Debug("retrieving repo install information")
 
-	ri, err := scm.GetRepoInstallInfo(c.Request.Context(), u, r.GetOrg(), r.GetName())
+	ri, err := scm.GetRepoInstallInfo(c.Request.Context(), u, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo scm install info %s: %w", u.GetName(), err)
 
@@ -76,11 +76,11 @@ func GetInstallHTMLURL(c *gin.Context) {
 	}
 
 	// todo: use url.values etc
-	appInstallURL := fmt.Sprintf(
+	ri.InstallURL = fmt.Sprintf(
 		"%s/install?org_scm_id=%d&repo_scm_id=%d",
 		m.Vela.Address,
 		ri.OrgSCMID, ri.RepoSCMID,
 	)
 
-	c.JSON(http.StatusOK, fmt.Sprintf("%s", appInstallURL))
+	c.JSON(http.StatusOK, ri)
 }

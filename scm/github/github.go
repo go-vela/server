@@ -229,11 +229,11 @@ func (c *client) newGithubAppClient(ctx context.Context) (*github.Client, error)
 }
 
 // helper function to return the GitHub App installation token.
-func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo) (*github.Client, error) {
+func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo) (string, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// if repo has an install ID, use it to create an installation token
@@ -241,17 +241,17 @@ func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo)
 		// create installation token for the repo
 		t, _, err := client.Apps.CreateInstallationToken(context.Background(), r.GetInstallID(), &github.InstallationTokenOptions{})
 		if err != nil {
-			panic(err)
+			return "", err
 		}
 
-		return c.newClientToken(ctx, t.GetToken()), nil
+		return t.GetToken(), nil
 	}
 
 	// todo: this panics internally?
 	// list all installations (a.k.a. orgs) where the GitHub App is installed
 	installations, _, err := client.Apps.ListInstallations(context.Background(), &github.ListOptions{})
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	var id int64
@@ -267,14 +267,14 @@ func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo)
 	// todo: should this be an error?
 	// in reality we should warn them that they should install this app to their org and add this repo
 	if id == 0 {
-		return nil, err
+		return "", nil
 	}
 
 	// create installation token for the repo
 	t, _, err := client.Apps.CreateInstallationToken(context.Background(), id, &github.InstallationTokenOptions{})
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-	return c.newClientToken(ctx, t.GetToken()), nil
+	return t.GetToken(), nil
 }

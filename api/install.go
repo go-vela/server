@@ -87,6 +87,11 @@ func Install(c *gin.Context) {
 		return
 	}
 
+	// first, check if the org installation exists.
+	// if it does, just add the repo manually using the api and be done with it
+	// if it doesn't, then we need to start the installation flow
+	// but this came from the browser... it has NO auth to contact github api
+
 	// type cannot be empty
 	t := util.FormParameter(c, "type")
 	if len(t) == 0 {
@@ -102,10 +107,12 @@ func Install(c *gin.Context) {
 
 	// capture query params
 	ri := &types.RepoInstall{
-		Type:      t,
-		Port:      p,
 		OrgSCMID:  int64(orgSCMID),
 		RepoSCMID: int64(repoSCMID),
+		InstallCallback: types.InstallCallback{
+			Type: t,
+			Port: p,
+		},
 	}
 
 	// construct the repo installation url
@@ -141,7 +148,8 @@ func GetAppInstallRedirectURL(ctx context.Context, l *logrus.Entry, m *internal.
 
 	// default redirect location if a user ended up here
 	// by providing an unsupported type
-	r := fmt.Sprintf("%s/install", m.Vela.Address)
+	// this is ignored when empty
+	r := ""
 
 	switch t {
 	// cli auth flow

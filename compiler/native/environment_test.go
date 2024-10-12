@@ -42,7 +42,7 @@ func TestNative_EnvironmentStages(t *testing.T) {
 		},
 	}
 
-	env := environment(nil, nil, nil, nil)
+	env := environment(nil, nil, nil, nil, "")
 	env["HELLO"] = "Hello, Global Message"
 
 	want := yaml.StageSlice{
@@ -629,7 +629,7 @@ func TestNative_environment(t *testing.T) {
 
 	// run test
 	for _, test := range tests {
-		got := environment(test.b, test.m, test.r, test.u)
+		got := environment(test.b, test.m, test.r, test.u, "")
 
 		if diff := cmp.Diff(got, test.want); diff != "" {
 			t.Errorf("environment mismatch (-want +got):\n%s", diff)

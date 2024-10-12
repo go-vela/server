@@ -3,6 +3,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -75,7 +76,24 @@ func GetAuthToken(c *gin.Context) {
 
 	// GitHub App and OAuth share the same callback URL,
 	// so we need to differentiate between the two using setup_action
-	if c.Request.FormValue("setup_action") == "install" {
+	setupAction := c.Request.FormValue("setup_action")
+	switch setupAction {
+	case "install":
+	case "update":
+		installID := c.Request.FormValue("installation_id")
+		if len(installID) == 0 {
+			retErr := errors.New("setup_action is install but installation_id is missing")
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// todo: if the repo is already added, then redirecting to the install url will try to add ALL repos...
+
+		// todo: on "install" we also need to check if it was just a regular github ui manual installation
+		// todo: on "update" this might just be a regular ui update to the github app
+		// todo: we need to capture the installation ID and sync all the vela repos for that installation
 		redirect, err := api.GetAppInstallRedirectURL(ctx, l, m, c.Request.URL.Query())
 		if err != nil {
 			retErr := fmt.Errorf("unable to get app install redirect URL: %w", err)
@@ -85,9 +103,17 @@ func GetAuthToken(c *gin.Context) {
 			return
 		}
 
+		if len(redirect) == 0 {
+			c.JSON(http.StatusOK, "installation completed")
+
+			return
+		}
+
 		c.Redirect(http.StatusTemporaryRedirect, redirect)
 
 		return
+	case "":
+		break
 	}
 
 	// capture the OAuth state if present

@@ -8,13 +8,19 @@ import (
 )
 
 // RepoInstall is the configuration for installing a repo into the SCM.
-//
-// swagger:model RepoInstall
 type RepoInstall struct {
-	Type      string
-	Port      string
-	OrgSCMID  int64
-	RepoSCMID int64
+	OrgSCMID     int64
+	RepoSCMID    int64
+	AppInstalled bool
+	RepoAdded    bool
+	InstallURL   string
+	InstallCallback
+}
+
+// InstallCallback is the callback configuration for the installation.
+type InstallCallback struct {
+	Type string
+	Port string
 }
 
 // Repo is the API representation of a repo.

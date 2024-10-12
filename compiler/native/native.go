@@ -17,6 +17,7 @@ import (
 	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/image"
+	"github.com/go-vela/server/scm"
 )
 
 type ModificationConfig struct {
@@ -27,9 +28,10 @@ type ModificationConfig struct {
 }
 
 type client struct {
-	Github              registry.Service
-	PrivateGithub       registry.Service
-	UsePrivateGithub    bool
+	Github           registry.Service
+	PrivateGithub    registry.Service
+	UsePrivateGithub bool
+
 	ModificationService ModificationConfig
 
 	settings.Compiler
@@ -44,6 +46,7 @@ type client struct {
 	repo           *api.Repo
 	user           *api.User
 	labels         []string
+	scm            scm.Service
 }
 
 // FromCLIContext returns a Pipeline implementation that integrates with the supported registries.
@@ -228,6 +231,13 @@ func (c *client) WithLabels(labels []string) compiler.Engine {
 	if len(labels) != 0 {
 		c.labels = labels
 	}
+
+	return c
+}
+
+// WithSCM sets the scm in the Engine.
+func (c *client) WithSCM(_scm scm.Service) compiler.Engine {
+	c.scm = _scm
 
 	return c
 }

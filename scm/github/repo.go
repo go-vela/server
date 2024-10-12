@@ -691,14 +691,16 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 // CreateChecks defines a function that does stuff...
 func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, event string) (int64, error) {
 	// create client from GitHub App
-	client, err := c.newGithubAppInstallationToken(ctx, r)
+	t, err := c.newGithubAppInstallationToken(ctx, r)
 	if err != nil {
 		return 0, err
 	}
 
-	if client == nil {
-		return 0, errors.New("unable to make github app token client")
+	if len(t) == 0 {
+		return 0, errors.New("unable to get github app installation token")
 	}
+
+	client := c.newClientToken(ctx, t)
 
 	opts := github.CreateCheckRunOptions{
 		Name:    fmt.Sprintf("vela-%s-%s", event, step),
@@ -716,10 +718,16 @@ func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, ev
 // UpdateChecks defines a function that does stuff...
 func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step, commit, event string) error {
 	// create client from GitHub App
-	client, err := c.newGithubAppInstallationToken(ctx, r)
+	t, err := c.newGithubAppInstallationToken(ctx, r)
 	if err != nil {
 		return err
 	}
+
+	if len(t) == 0 {
+		return errors.New("unable to get github app installation token")
+	}
+
+	client := c.newClientToken(ctx, t)
 
 	var (
 		conclusion string
@@ -798,18 +806,40 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step,
 	return nil
 }
 
+// GetCloneToken returns a clone token using the repo's github app installation if it exists.
+// If not, it defaults to the user OAuth token.
+func (c *client) GetCloneToken(ctx context.Context, u *api.User, r *api.Repo) (string, error) {
+	logrus.Infof("getting clone token")
+	// the app might not be installed
+	// todo: pass in THIS repo to only get access to that repo
+	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
+	// maybe take an optional list of repos and permission set that is driven by yaml
+	t, err := c.newGithubAppInstallationToken(ctx, r)
+	if err != nil {
+		logrus.Errorf("unable to get github app installation token: %v", err)
+	}
+	if len(t) != 0 {
+		logrus.Infof("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
+		return t, nil
+	}
+	logrus.Infof("using user oauth token for %s/%s", r.GetOrg(), r.GetName())
+
+	return u.GetToken(), nil
+}
+
 // GetRepoInstallInfo retrieves the repo information required for installation, such as org and repo ID for the given org and repo name.
-func (c *client) GetRepoInstallInfo(ctx context.Context, u *api.User, o string, r string) (*api.RepoInstall, error) {
+func (c *client) GetRepoInstallInfo(ctx context.Context, u *api.User, r *api.Repo) (*api.RepoInstall, error) {
 	c.Logger.WithFields(logrus.Fields{
-		"org":  o,
+		"org":  r.GetOrg(),
 		"user": u.GetName(),
-	}).Tracef("retrieving repo install information for %s", o)
+	}).Tracef("retrieving repo install information for %s", r.GetFullName())
 
 	client := c.newClientToken(ctx, u.GetToken())
 
 	// send an API call to get the org info
-	repoInfo, resp, err := client.Repositories.Get(ctx, o, r)
+	repoInfo, resp, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
 
+	// orgName := repoInfo.GetOwner().GetLogin()
 	orgID := repoInfo.GetOwner().GetID()
 
 	// if org is not found, return the personal org
@@ -819,6 +849,7 @@ func (c *client) GetRepoInstallInfo(ctx context.Context, u *api.User, o string, 
 			return nil, err
 		}
 
+		// orgName = user.GetLogin()
 		orgID = user.GetID()
 	} else if err != nil {
 		return nil, err
@@ -827,6 +858,39 @@ func (c *client) GetRepoInstallInfo(ctx context.Context, u *api.User, o string, 
 	ri := &api.RepoInstall{
 		OrgSCMID:  orgID,
 		RepoSCMID: repoInfo.GetID(),
+	}
+
+	ghAppClient, err := c.newGithubAppClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// todo: pagination...
+	installations, resp, err := ghAppClient.Apps.ListInstallations(ctx, &github.ListOptions{})
+	if err != nil && (resp == nil || resp.StatusCode != http.StatusNotFound) {
+		return nil, err
+	}
+
+	// check if the app is installed on the org
+	var id int64
+	for _, installation := range installations {
+		// app is installed to the org
+		if installation.GetAccount().GetID() == orgID {
+			ri.AppInstalled = true
+			id = installation.GetID()
+		}
+	}
+
+	ghAppClient2, err := c.newGithubAppInstallationToken(ctx, r)
+	if err != nil {
+		return nil, err
+	}
+
+	_ = ghAppClient2
+
+	_, _, err = client.Apps.AddRepository(ctx, id, repoInfo.GetID())
+	if err != nil {
+		return nil, err
 	}
 
 	return ri, nil
