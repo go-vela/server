@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/image"
 	"github.com/go-vela/server/scm"
@@ -47,6 +48,7 @@ type client struct {
 	user           *api.User
 	labels         []string
 	scm            scm.Service
+	git            *yaml.Git
 }
 
 // FromCLIContext returns a Pipeline implementation that integrates with the supported registries.
@@ -238,6 +240,13 @@ func (c *client) WithLabels(labels []string) compiler.Engine {
 // WithSCM sets the scm in the Engine.
 func (c *client) WithSCM(_scm scm.Service) compiler.Engine {
 	c.scm = _scm
+
+	return c
+}
+
+// WithGit sets the git access configurations in the Engine.
+func (c *client) WithGit(g *yaml.Git) compiler.Engine {
+	c.git = g
 
 	return c
 }

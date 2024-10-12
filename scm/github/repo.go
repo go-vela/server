@@ -808,13 +808,13 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step,
 
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
-func (c *client) GetNetrcPassword(ctx context.Context, u *api.User, r *api.Repo) (string, error) {
+func (c *client) GetNetrcPassword(ctx context.Context, u *api.User, r *api.Repo, repositories []string) (string, error) {
 	logrus.Infof("getting clone token")
 	// the app might not be installed
 	// todo: pass in THIS repo to only get access to that repo
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 	// maybe take an optional list of repos and permission set that is driven by yaml
-	t, err := c.newGithubAppInstallationToken(ctx, r, []string{}, []string{})
+	t, err := c.newGithubAppInstallationToken(ctx, r, repositories, []string{})
 	if err != nil {
 		logrus.Errorf("unable to get github app installation token: %v", err)
 	}
@@ -881,13 +881,7 @@ func (c *client) GetRepoInstallInfo(ctx context.Context, u *api.User, r *api.Rep
 		}
 	}
 
-	ghAppClient2, err := c.newGithubAppInstallationToken(ctx, r, []string{}, []string{})
-	if err != nil {
-		return nil, err
-	}
-
-	_ = ghAppClient2
-
+	// todo: remove all this, it doesnt work without a PAT, lol
 	_, _, err = client.Apps.AddRepository(ctx, id, repoInfo.GetID())
 	if err != nil {
 		return nil, err

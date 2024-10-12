@@ -37,7 +37,7 @@ func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 	// make empty map of environment variables
 	env := make(map[string]string)
 
-	t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
+	t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo, c.git.Repositories)
 	if err != nil {
 		logrus.Errorf("couldnt get netrc password: %v", err)
 	}
@@ -97,7 +97,7 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 	// make empty map of environment variables
 	env := make(map[string]string)
 
-	t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
+	t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo, c.git.Repositories)
 	if err != nil {
 		logrus.Errorf("couldnt get netrc password: %v", err)
 	}
@@ -164,7 +164,7 @@ func (c *client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSl
 		// make empty map of environment variables
 		env := make(map[string]string)
 
-		t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
+		t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo, c.git.Repositories)
 		if err != nil {
 			logrus.Errorf("couldnt get netrc password: %v", err)
 		}
@@ -210,7 +210,7 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 		// make empty map of environment variables
 		env := make(map[string]string)
 
-		t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
+		t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo, c.git.Repositories)
 		if err != nil {
 			logrus.Errorf("couldnt get netrc password: %v", err)
 		}
@@ -274,7 +274,7 @@ func (c *client) EnvironmentBuild() map[string]string {
 	// make empty map of environment variables
 	env := make(map[string]string)
 
-	t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo)
+	t, err := c.scm.GetNetrcPassword(context.Background(), c.user, c.repo, c.git.Repositories)
 	if err != nil {
 		logrus.Errorf("couldnt get netrc password: %v", err)
 	}

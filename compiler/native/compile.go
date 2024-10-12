@@ -306,6 +306,8 @@ func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
 	var err error
 
+	c.git = &p.Git
+
 	// check if the pipeline disabled the clone
 	if p.Metadata.Clone == nil || *p.Metadata.Clone {
 		// inject the clone step

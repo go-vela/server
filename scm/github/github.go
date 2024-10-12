@@ -237,7 +237,7 @@ func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo,
 	if err != nil {
 		return "", err
 	}
-
+	logrus.Warnf("getting token with repos: %v", repos)
 	opts := &github.InstallationTokenOptions{
 		Repositories: repos,
 	}
