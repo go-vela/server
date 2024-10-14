@@ -14,50 +14,64 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /install install Install
-//
-// Start SCM app installation flow and redirect to the external SCM destination
-//
-// ---
-// produces:
-// - application/json
-// parameters:
-// - in: query
-//   name: type
-//   description: The type of installation flow, either 'cli' or 'web'
-//   type: string
-// - in: query
-//   name: port
-//   description: The local server port used during 'cli' flow
-//   type: string
-// - in: query
-//   name: org_scm_id
-//   description: The SCM org id
-//   type: string
-// - in: query
-//   name: repo_scm_id
-//   description: The SCM repo id
-//   type: string
-// responses:
-//   '307':
-//     description: Redirected for installation
-//   '400':
-//     description: Invalid request payload
-//     schema:
-//       "$ref": "#/definitions/Error"
-//   '401':
-//     description: Unauthorized
-//     schema:
-//       "$ref": "#/definitions/Error"
-//   '503':
-//     description: Service unavailable
-//     schema:
-//       "$ref": "#/definitions/Error"
+// HandleInstallCallback represents the API handler to
+// process an SCM app installation for Vela.
+func HandleInstallCallback(c *gin.Context) {
+	// capture middleware values
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	ctx := c.Request.Context()
+
+	// GitHub App and OAuth share the same callback URL,
+	// so we need to differentiate between the two using setup_action
+	setupAction := c.Request.FormValue("setup_action")
+	switch setupAction {
+	case "install":
+	case "update":
+		installID := c.Request.FormValue("installation_id")
+		if len(installID) == 0 {
+			retErr := errors.New("setup_action is install but installation_id is missing")
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// todo: if the repo is already added, then redirecting to the install url will try to add ALL repos...
+
+		// todo: on "install" we also need to check if it was just a regular github ui manual installation
+		// todo: on "update" this might just be a regular ui update to the github app
+		// todo: we need to capture the installation ID and sync all the vela repos for that installation
+		redirect, err := GetAppInstallRedirectURL(ctx, l, m, c.Request.URL.Query())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get app install redirect URL: %w", err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		if len(redirect) == 0 {
+			c.JSON(http.StatusOK, "installation completed")
+
+			return
+		}
+
+		c.Redirect(http.StatusTemporaryRedirect, redirect)
+
+		return
+	case "":
+		break
+	}
+}
 
 // Install represents the API handler to
 // process an SCM app installation for Vela from
@@ -166,4 +180,73 @@ func GetAppInstallRedirectURL(ctx context.Context, l *logrus.Entry, m *internal.
 	l.Debug("redirecting for final app installation flow")
 
 	return r, nil
+}
+
+// swagger:operation GET /api/v1/repos/{org}/{repo}/install/html_url repos GetInstallHTMLURL
+//
+// Repair a hook for a repository in Vela and the configured SCM
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the organization
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repository
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully constructed the repo installation HTML URL
+//     schema:
+//       type: string
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Not found
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// GetInstallInfo represents the API handler to retrieve the
+// SCM installation HTML URL for a particular repo and Vela server.
+func GetInstallInfo(c *gin.Context) {
+	// capture middleware values
+	m := c.MustGet("metadata").(*internal.Metadata)
+	l := c.MustGet("logger").(*logrus.Entry)
+	u := user.Retrieve(c)
+	r := repo.Retrieve(c)
+	scm := scm.FromContext(c)
+
+	l.Debug("retrieving repo install information")
+
+	ri, err := scm.GetRepoInstallInfo(c.Request.Context(), u, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get repo scm install info %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// todo: use url.values etc
+	ri.InstallURL = fmt.Sprintf(
+		"%s/install?org_scm_id=%d&repo_scm_id=%d",
+		m.Vela.Address,
+		ri.OrgSCMID, ri.RepoSCMID,
+	)
+
+	c.JSON(http.StatusOK, ri)
 }
