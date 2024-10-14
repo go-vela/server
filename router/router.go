@@ -102,9 +102,6 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		authenticate.POST("/token", auth.PostAuthToken)
 	}
 
-	// Repo installation endpoint (GitHub App)
-	r.GET("/install", api.Install)
-
 	// API endpoints
 	baseAPI := r.Group(base, claims.Establish(), user.Establish())
 	{

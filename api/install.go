@@ -21,6 +21,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// RepoInstall is the configuration for installing a repo into the SCM.
+type RepoInstall struct {
+	OrgSCMID     int64
+	RepoSCMID    int64
+	AppInstalled bool
+	InstallID    int64
+	RepoAdded    bool
+	InstallURL   string
+	InstallCallback
+}
+
+// InstallCallback is the callback configuration for the installation.
+type InstallCallback struct {
+	Type string
+	Port string
+}
+
 // HandleInstallCallback represents the API handler to
 // process an SCM app installation for Vela.
 func HandleInstallCallback(c *gin.Context) {
@@ -120,10 +137,10 @@ func Install(c *gin.Context) {
 	p := util.FormParameter(c, "port")
 
 	// capture query params
-	ri := &types.RepoInstall{
+	ri := &RepoInstall{
 		OrgSCMID:  int64(orgSCMID),
 		RepoSCMID: int64(repoSCMID),
-		InstallCallback: types.InstallCallback{
+		InstallCallback: InstallCallback{
 			Type: t,
 			Port: p,
 		},
@@ -254,7 +271,7 @@ func GetInstallInfo(c *gin.Context) {
 }
 
 // GetRepoInstallInfo retrieves the repo information required for installation, such as org and repo ID for the given org and repo name.
-func GetRepoInstallInfo(ctx context.Context, userClient *github.Client, appClient *github.Client, u *types.User, r *types.Repo) (*types.RepoInstall, error) {
+func GetRepoInstallInfo(ctx context.Context, userClient *github.Client, appClient *github.Client, u *types.User, r *types.Repo) (*RepoInstall, error) {
 	// client := c.newClientToken(ctx, u.GetToken())
 
 	// send an API call to get the org info
@@ -273,7 +290,7 @@ func GetRepoInstallInfo(ctx context.Context, userClient *github.Client, appClien
 		return nil, err
 	}
 
-	ri := &types.RepoInstall{
+	ri := &RepoInstall{
 		OrgSCMID:  orgID,
 		RepoSCMID: repoInfo.GetID(),
 	}
@@ -304,7 +321,7 @@ func GetRepoInstallInfo(ctx context.Context, userClient *github.Client, appClien
 }
 
 // GetRepoInstallURL takes RepoInstall configurations and returns the SCM URL for installing the application.
-func GetRepoInstallURL(ctx context.Context, appClient *github.Client, ri *types.RepoInstall) (string, error) {
+func GetRepoInstallURL(ctx context.Context, appClient *github.Client, ri *RepoInstall) (string, error) {
 	// retrieve the authenticated app information
 	// required for slug and HTML URL
 	app, _, err := appClient.Apps.Get(ctx, "")

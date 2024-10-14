@@ -5,7 +5,6 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/api/repo"
 	"github.com/go-vela/server/router/middleware"
@@ -74,7 +73,6 @@ func RepoHandlers(base *gin.RouterGroup) {
 				_repo.DELETE("", perm.MustAdmin(), repo.DeleteRepo)
 				_repo.PATCH("/repair", perm.MustAdmin(), repo.RepairRepo)
 				_repo.PATCH("/chown", perm.MustAdmin(), repo.ChownRepo)
-				_repo.GET("/install/info", perm.MustRead(), api.GetInstallInfo)
 
 				// Build endpoints
 				// * Service endpoints
