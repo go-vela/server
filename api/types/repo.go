@@ -12,6 +12,7 @@ type RepoInstall struct {
 	OrgSCMID     int64
 	RepoSCMID    int64
 	AppInstalled bool
+	InstallID    int64
 	RepoAdded    bool
 	InstallURL   string
 	InstallCallback

@@ -16,8 +16,8 @@ import (
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"github.com/google/go-github/v62/github"
 	"github.com/sirupsen/logrus"
 )
 
@@ -79,7 +79,7 @@ func HandleInstallCallback(c *gin.Context) {
 func Install(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
-	scm := scm.FromContext(c)
+	// scm := scm.FromContext(c)
 
 	l.Debug("redirecting to SCM to complete app flow installation")
 
@@ -130,7 +130,8 @@ func Install(c *gin.Context) {
 	}
 
 	// construct the repo installation url
-	redirectURL, err := scm.GetRepoInstallURL(c.Request.Context(), ri)
+	// todo: this would need a github client
+	redirectURL, err := GetRepoInstallURL(c.Request.Context(), nil, ri)
 	if err != nil {
 		l.Errorf("unable to get repo install url: %v", err)
 
@@ -228,11 +229,12 @@ func GetInstallInfo(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 	u := user.Retrieve(c)
 	r := repo.Retrieve(c)
-	scm := scm.FromContext(c)
+	// scm := scm.FromContext(c)
 
 	l.Debug("retrieving repo install information")
 
-	ri, err := scm.GetRepoInstallInfo(c.Request.Context(), u, r)
+	// todo: this would need github clients
+	ri, err := GetRepoInstallInfo(c.Request.Context(), nil, nil, u, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo scm install info %s: %w", u.GetName(), err)
 
@@ -249,4 +251,78 @@ func GetInstallInfo(c *gin.Context) {
 	)
 
 	c.JSON(http.StatusOK, ri)
+}
+
+// GetRepoInstallInfo retrieves the repo information required for installation, such as org and repo ID for the given org and repo name.
+func GetRepoInstallInfo(ctx context.Context, userClient *github.Client, appClient *github.Client, u *types.User, r *types.Repo) (*types.RepoInstall, error) {
+	// client := c.newClientToken(ctx, u.GetToken())
+
+	// send an API call to get the org info
+	repoInfo, resp, err := userClient.Repositories.Get(ctx, r.GetOrg(), r.GetName())
+
+	orgID := repoInfo.GetOwner().GetID()
+
+	// if org is not found, return the personal org
+	if resp.StatusCode == http.StatusNotFound {
+		user, _, err := userClient.Users.Get(ctx, "")
+		if err != nil {
+			return nil, err
+		}
+		orgID = user.GetID()
+	} else if err != nil {
+		return nil, err
+	}
+
+	ri := &types.RepoInstall{
+		OrgSCMID:  orgID,
+		RepoSCMID: repoInfo.GetID(),
+	}
+
+	// todo: pagination...
+	installations, resp, err := appClient.Apps.ListInstallations(ctx, &github.ListOptions{})
+	if err != nil && (resp == nil || resp.StatusCode != http.StatusNotFound) {
+		return nil, err
+	}
+
+	// check if the app is installed on the org
+	var id int64
+	for _, installation := range installations {
+		// app is installed to the org
+		if installation.GetAccount().GetID() == orgID {
+			ri.AppInstalled = true
+			ri.InstallID = installation.GetID()
+		}
+	}
+
+	// todo: remove all this, it doesnt work without a PAT, lol
+	_, _, err = appClient.Apps.AddRepository(ctx, id, repoInfo.GetID())
+	if err != nil {
+		return nil, err
+	}
+
+	return ri, nil
+}
+
+// GetRepoInstallURL takes RepoInstall configurations and returns the SCM URL for installing the application.
+func GetRepoInstallURL(ctx context.Context, appClient *github.Client, ri *types.RepoInstall) (string, error) {
+	// retrieve the authenticated app information
+	// required for slug and HTML URL
+	app, _, err := appClient.Apps.Get(ctx, "")
+	if err != nil {
+		return "", err
+	}
+
+	path := fmt.Sprintf(
+		"%s/installations/new/permissions",
+		app.GetHTMLURL())
+
+	// stored as state to retrieve from the post-install callback
+	state := fmt.Sprintf("type=%s,port=%s", ri.Type, ri.Port)
+
+	v := &url.Values{}
+	v.Set("state", state)
+	v.Set("suggested_target_id", strconv.FormatInt(ri.OrgSCMID, 10))
+	v.Set("repository_ids", strconv.FormatInt(ri.RepoSCMID, 10))
+
+	return fmt.Sprintf("%s?%s", path, v.Encode()), nil
 }

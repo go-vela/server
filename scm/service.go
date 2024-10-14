@@ -142,9 +142,6 @@ type Service interface {
 	// a repository file's html_url.
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
 
-	GetRepoInstallInfo(context.Context, *api.User, *api.Repo) (*api.RepoInstall, error)
-	GetRepoInstallURL(context.Context, *api.RepoInstall) (string, error)
-
 	GetNetrcPassword(context.Context, *api.User, *api.Repo, []string) (string, error)
 	CreateChecks(context.Context, *api.Repo, string, string, string) (int64, error)
 	UpdateChecks(context.Context, *api.Repo, *library.Step, string, string) error

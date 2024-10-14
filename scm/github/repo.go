@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -809,7 +808,8 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step,
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
 func (c *client) GetNetrcPassword(ctx context.Context, u *api.User, r *api.Repo, repositories []string) (string, error) {
-	logrus.Infof("getting clone token")
+	logrus.Infof("getting netrc password")
+
 	// the app might not be installed
 	// todo: pass in THIS repo to only get access to that repo
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
@@ -825,96 +825,4 @@ func (c *client) GetNetrcPassword(ctx context.Context, u *api.User, r *api.Repo,
 	logrus.Infof("using user oauth token for %s/%s", r.GetOrg(), r.GetName())
 
 	return u.GetToken(), nil
-}
-
-// GetRepoInstallInfo retrieves the repo information required for installation, such as org and repo ID for the given org and repo name.
-func (c *client) GetRepoInstallInfo(ctx context.Context, u *api.User, r *api.Repo) (*api.RepoInstall, error) {
-	c.Logger.WithFields(logrus.Fields{
-		"org":  r.GetOrg(),
-		"user": u.GetName(),
-	}).Tracef("retrieving repo install information for %s", r.GetFullName())
-
-	client := c.newClientToken(ctx, u.GetToken())
-
-	// send an API call to get the org info
-	repoInfo, resp, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
-
-	// orgName := repoInfo.GetOwner().GetLogin()
-	orgID := repoInfo.GetOwner().GetID()
-
-	// if org is not found, return the personal org
-	if resp.StatusCode == http.StatusNotFound {
-		user, _, err := client.Users.Get(ctx, "")
-		if err != nil {
-			return nil, err
-		}
-
-		// orgName = user.GetLogin()
-		orgID = user.GetID()
-	} else if err != nil {
-		return nil, err
-	}
-
-	ri := &api.RepoInstall{
-		OrgSCMID:  orgID,
-		RepoSCMID: repoInfo.GetID(),
-	}
-
-	ghAppClient, err := c.newGithubAppClient(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// todo: pagination...
-	installations, resp, err := ghAppClient.Apps.ListInstallations(ctx, &github.ListOptions{})
-	if err != nil && (resp == nil || resp.StatusCode != http.StatusNotFound) {
-		return nil, err
-	}
-
-	// check if the app is installed on the org
-	var id int64
-	for _, installation := range installations {
-		// app is installed to the org
-		if installation.GetAccount().GetID() == orgID {
-			ri.AppInstalled = true
-			id = installation.GetID()
-		}
-	}
-
-	// todo: remove all this, it doesnt work without a PAT, lol
-	_, _, err = client.Apps.AddRepository(ctx, id, repoInfo.GetID())
-	if err != nil {
-		return nil, err
-	}
-
-	return ri, nil
-}
-
-// GetRepoInstallURL takes RepoInstall configurations and returns the SCM URL for installing the application.
-func (c *client) GetRepoInstallURL(ctx context.Context, ri *api.RepoInstall) (string, error) {
-	client, err := c.newGithubAppClient(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	// retrieve the authenticated app information
-	// required for slug and HTML URL
-	app, _, err := client.Apps.Get(ctx, "")
-	if err != nil {
-		return "", err
-	}
-
-	path := fmt.Sprintf(
-		"%s/installations/new/permissions",
-		app.GetHTMLURL())
-
-	// stored as state to retrieve from the post-install callback
-	state := fmt.Sprintf("type=%s,port=%s", ri.Type, ri.Port)
-
-	v := &url.Values{}
-	v.Set("state", state)
-	v.Set("suggested_target_id", strconv.FormatInt(ri.OrgSCMID, 10))
-	v.Set("repository_ids", strconv.FormatInt(ri.RepoSCMID, 10))
-
-	return fmt.Sprintf("%s?%s", path, v.Encode()), nil
 }
