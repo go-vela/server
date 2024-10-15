@@ -25,6 +25,15 @@ func Test_imageParse(t *testing.T) {
 			wantErr:  false,
 		},
 		{
+			name: "image with tag and sha",
+			args: args{
+				image: "alpine:1.20@sha:fc0d4410fd2343cf6f7a75d5819001a34ca3b549fbab0c231b7aab49b57e9e43",
+			},
+			wantName: "alpine",
+			wantTag:  "1.20",
+			wantErr:  false,
+		},
+		{
 			name: "image without latest tag",
 			args: args{
 				image: "alpine:latest",
@@ -45,16 +54,16 @@ func Test_imageParse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := imageParse(tt.args.image)
+			gotName, gotTag, err := imageParse(tt.args.image)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("imageParse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.wantName {
-				t.Errorf("imageParse() got = %v, wantName %v", got, tt.wantName)
+			if gotName != tt.wantName {
+				t.Errorf("imageParse() got = %v, wantName %v", gotName, tt.wantName)
 			}
-			if got1 != tt.wantTag {
-				t.Errorf("imageParse() got1 = %v, wantName %v", got1, tt.wantTag)
+			if gotTag != tt.wantTag {
+				t.Errorf("imageParse() got1 = %v, wantName %v", gotTag, tt.wantTag)
 			}
 		})
 	}
