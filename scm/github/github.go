@@ -240,6 +240,7 @@ func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo,
 	logrus.Warnf("getting token with repos: %v", repos)
 	opts := &github.InstallationTokenOptions{
 		Repositories: repos,
+		Permissions:  &github.InstallationPermissions{},
 	}
 
 	// if repo has an install ID, use it to create an installation token
