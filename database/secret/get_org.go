@@ -7,13 +7,13 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetSecretForOrg gets a secret by org name from the database.
-func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*library.Secret, error) {
+func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":    org,
 		"secret": name,
@@ -21,7 +21,7 @@ func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*librar
 	}).Tracef("getting org secret %s/%s", org, name)
 
 	// variable to store query results
-	s := new(database.Secret)
+	s := new(types.Secret)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -47,15 +47,7 @@ func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*librar
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted secrets
 		e.logger.Errorf("unable to decrypt org secret %s/%s: %v", org, name, err)
-
-		// return the unencrypted secret
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-		return s.ToLibrary(), nil
 	}
 
-	// return the decrypted secret
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-	return s.ToLibrary(), nil
+	return s.ToAPI(), nil
 }

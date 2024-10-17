@@ -51,7 +51,7 @@ type Resources struct {
 	Pipelines   []*api.Pipeline
 	Repos       []*api.Repo
 	Schedules   []*api.Schedule
-	Secrets     []*library.Secret
+	Secrets     []*api.Secret
 	Services    []*library.Service
 	Steps       []*library.Step
 	Users       []*api.User
@@ -1756,8 +1756,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForOrg() is %v, want %v", count, 1)
 			}
-			if !cmp.Equal(list, []*library.Secret{secret}) {
-				t.Errorf("ListSecretsForOrg() is %v, want %v", list, []*library.Secret{secret})
+			if !cmp.Equal(list, []*api.Secret{secret}) {
+				t.Errorf("ListSecretsForOrg() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForOrg"] = true
 		case constants.SecretRepo:
@@ -1769,8 +1769,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForRepo() is %v, want %v", count, 1)
 			}
-			if !cmp.Equal(list, []*library.Secret{secret}, CmpOptApproxUpdatedAt()) {
-				t.Errorf("ListSecretsForRepo() is %v, want %v", list, []*library.Secret{secret})
+			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
+				t.Errorf("ListSecretsForRepo() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForRepo"] = true
 		case constants.SecretShared:
@@ -1782,8 +1782,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForTeam() is %v, want %v", count, 1)
 			}
-			if !cmp.Equal(list, []*library.Secret{secret}, CmpOptApproxUpdatedAt()) {
-				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*library.Secret{secret})
+			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
+				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForTeam"] = true
 
@@ -1795,8 +1795,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForTeams() is %v, want %v", count, 1)
 			}
-			if !cmp.Equal(list, []*library.Secret{secret}, CmpOptApproxUpdatedAt()) {
-				t.Errorf("ListSecretsForTeams() is %v, want %v", list, []*library.Secret{secret})
+			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
+				t.Errorf("ListSecretsForTeams() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForTeams"] = true
 		default:
@@ -2826,7 +2826,7 @@ func newResources() *Resources {
 	scheduleTwo.SetError("no version: YAML property provided")
 	scheduleTwo.SetNextRun(nextTime.Unix())
 
-	secretOrg := new(library.Secret)
+	secretOrg := new(api.Secret)
 	secretOrg.SetID(1)
 	secretOrg.SetOrg("github")
 	secretOrg.SetRepo("*")
@@ -2835,7 +2835,7 @@ func newResources() *Resources {
 	secretOrg.SetValue("bar")
 	secretOrg.SetType("org")
 	secretOrg.SetImages([]string{"alpine"})
-	secretOrg.SetAllowEvents(library.NewEventsFromMask(1))
+	secretOrg.SetAllowEvents(api.NewEventsFromMask(1))
 	secretOrg.SetAllowCommand(true)
 	secretOrg.SetAllowSubstitution(true)
 	secretOrg.SetCreatedAt(time.Now().UTC().Unix())
@@ -2843,7 +2843,7 @@ func newResources() *Resources {
 	secretOrg.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretOrg.SetUpdatedBy("octokitty")
 
-	secretRepo := new(library.Secret)
+	secretRepo := new(api.Secret)
 	secretRepo.SetID(2)
 	secretRepo.SetOrg("github")
 	secretRepo.SetRepo("octocat")
@@ -2852,7 +2852,7 @@ func newResources() *Resources {
 	secretRepo.SetValue("bar")
 	secretRepo.SetType("repo")
 	secretRepo.SetImages([]string{"alpine"})
-	secretRepo.SetAllowEvents(library.NewEventsFromMask(1))
+	secretRepo.SetAllowEvents(api.NewEventsFromMask(1))
 	secretRepo.SetAllowCommand(true)
 	secretRepo.SetAllowSubstitution(true)
 	secretRepo.SetCreatedAt(time.Now().UTC().Unix())
@@ -2860,7 +2860,7 @@ func newResources() *Resources {
 	secretRepo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretRepo.SetUpdatedBy("octokitty")
 
-	secretShared := new(library.Secret)
+	secretShared := new(api.Secret)
 	secretShared.SetID(3)
 	secretShared.SetOrg("github")
 	secretShared.SetRepo("")
@@ -2871,7 +2871,7 @@ func newResources() *Resources {
 	secretShared.SetImages([]string{"alpine"})
 	secretShared.SetAllowCommand(true)
 	secretShared.SetAllowSubstitution(true)
-	secretShared.SetAllowEvents(library.NewEventsFromMask(1))
+	secretShared.SetAllowEvents(api.NewEventsFromMask(1))
 	secretShared.SetCreatedAt(time.Now().UTC().Unix())
 	secretShared.SetCreatedBy("octocat")
 	secretShared.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
@@ -2994,7 +2994,7 @@ func newResources() *Resources {
 		Pipelines:   []*api.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},
 		Schedules:   []*api.Schedule{scheduleOne, scheduleTwo},
-		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},
+		Secrets:     []*api.Secret{secretOrg, secretRepo, secretShared},
 		Services:    []*library.Service{serviceOne, serviceTwo},
 		Steps:       []*library.Step{stepOne, stepTwo},
 		Users:       []*api.User{userOne, userTwo},

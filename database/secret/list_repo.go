@@ -8,15 +8,14 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListSecretsForRepo gets a list of secrets by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
+func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, page, perPage int) ([]*api.Secret, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -25,8 +24,8 @@ func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 
 	// variables to store query results and return values
 	count := int64(0)
-	s := new([]database.Secret)
-	secrets := []*library.Secret{}
+	s := new([]types.Secret)
+	secrets := []*api.Secret{}
 
 	// count the results
 	count, err := e.CountSecretsForRepo(ctx, r, filters)
@@ -64,9 +63,6 @@ func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := secret
 
-		// decrypt the fields for the secret
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Decrypt
 		err = tmp.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
@@ -77,10 +73,7 @@ func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 			e.logger.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
 		}
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-		secrets = append(secrets, tmp.ToLibrary())
+		secrets = append(secrets, tmp.ToAPI())
 	}
 
 	return secrets, count, nil

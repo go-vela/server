@@ -10,12 +10,12 @@ import (
 	"github.com/hashicorp/vault/api"
 	"github.com/sirupsen/logrus"
 
+	velaAPI "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // Get captures a secret.
-func (c *client) Get(ctx context.Context, sType, org, name, path string) (s *library.Secret, err error) {
+func (c *client) Get(ctx context.Context, sType, org, name, path string) (s *velaAPI.Secret, err error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,

@@ -7,13 +7,13 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetSecretForTeam gets a secret by org and team name from the database.
-func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (*library.Secret, error) {
+func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":    org,
 		"team":   team,
@@ -22,7 +22,7 @@ func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (
 	}).Tracef("getting shared secret %s/%s/%s", org, team, name)
 
 	// variable to store query results
-	s := new(database.Secret)
+	s := new(types.Secret)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -53,11 +53,11 @@ func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (
 		// return the unencrypted secret
 		//
 		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-		return s.ToLibrary(), nil
+		return s.ToAPI(), nil
 	}
 
 	// return the decrypted secret
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-	return s.ToLibrary(), nil
+	return s.ToAPI(), nil
 }

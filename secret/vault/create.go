@@ -9,13 +9,13 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
+	database "github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // Create creates a new secret.
-func (c *client) Create(ctx context.Context, sType, org, name string, s *library.Secret) (*library.Secret, error) {
+func (c *client) Create(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
@@ -38,7 +38,7 @@ func (c *client) Create(ctx context.Context, sType, org, name string, s *library
 	c.Logger.WithFields(fields).Tracef("creating vault %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// validate the secret
-	err := database.SecretFromLibrary(s).Validate()
+	err := database.SecretFromAPI(s).Validate()
 	if err != nil {
 		return nil, err
 	}
@@ -61,25 +61,25 @@ func (c *client) Create(ctx context.Context, sType, org, name string, s *library
 
 // createOrg is a helper function to create
 // the org secret for the provided path.
-func (c *client) createOrg(org, path string, data map[string]interface{}) (*library.Secret, error) {
+func (c *client) createOrg(org, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.create(fmt.Sprintf("%s/org/%s/%s", c.config.Prefix, org, path), data)
 }
 
 // createRepo is a helper function to create
 // the repo secret for the provided path.
-func (c *client) createRepo(org, repo, path string, data map[string]interface{}) (*library.Secret, error) {
+func (c *client) createRepo(org, repo, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.create(fmt.Sprintf("%s/repo/%s/%s/%s", c.config.Prefix, org, repo, path), data)
 }
 
 // createShared is a helper function to create
 // the shared secret for the provided path.
-func (c *client) createShared(org, team, path string, data map[string]interface{}) (*library.Secret, error) {
+func (c *client) createShared(org, team, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.create(fmt.Sprintf("%s/shared/%s/%s/%s", c.config.Prefix, org, team, path), data)
 }
 
 // create is a helper function to create
 // the secret for the provided path.
-func (c *client) create(path string, data map[string]interface{}) (*library.Secret, error) {
+func (c *client) create(path string, data map[string]interface{}) (*api.Secret, error) {
 	if strings.HasPrefix("secret/data", c.config.Prefix) {
 		data = map[string]interface{}{
 			"data": data,

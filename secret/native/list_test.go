@@ -7,13 +7,13 @@ import (
 	"reflect"
 	"testing"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestNative_List(t *testing.T) {
 	// setup types
-	sOne := new(library.Secret)
+	sOne := new(api.Secret)
 	sOne.SetID(1)
 	sOne.SetOrg("foo")
 	sOne.SetRepo("bar")
@@ -22,7 +22,7 @@ func TestNative_List(t *testing.T) {
 	sOne.SetValue("foob")
 	sOne.SetType("repo")
 	sOne.SetImages([]string{"foo", "bar"})
-	sOne.SetAllowEvents(library.NewEventsFromMask(1))
+	sOne.SetAllowEvents(api.NewEventsFromMask(1))
 	sOne.SetAllowCommand(false)
 	sOne.SetAllowSubstitution(false)
 	sOne.SetCreatedAt(1)
@@ -30,7 +30,7 @@ func TestNative_List(t *testing.T) {
 	sOne.SetUpdatedAt(1)
 	sOne.SetUpdatedBy("user2")
 
-	sTwo := new(library.Secret)
+	sTwo := new(api.Secret)
 	sTwo.SetID(2)
 	sTwo.SetOrg("foo")
 	sTwo.SetRepo("bar")
@@ -39,7 +39,7 @@ func TestNative_List(t *testing.T) {
 	sTwo.SetValue("baz")
 	sTwo.SetType("repo")
 	sTwo.SetImages([]string{"foo", "bar"})
-	sTwo.SetAllowEvents(library.NewEventsFromMask(1))
+	sTwo.SetAllowEvents(api.NewEventsFromMask(1))
 	sTwo.SetAllowCommand(false)
 	sTwo.SetAllowSubstitution(false)
 	sTwo.SetCreatedAt(1)
@@ -47,7 +47,7 @@ func TestNative_List(t *testing.T) {
 	sTwo.SetUpdatedAt(1)
 	sTwo.SetUpdatedBy("user2")
 
-	want := []*library.Secret{sTwo, sOne}
+	want := []*api.Secret{sTwo, sOne}
 
 	// setup database
 	db, err := database.NewTest()
