@@ -27,6 +27,7 @@ type (
 		Event    []string `yaml:"event,omitempty,flow"    json:"event,omitempty" jsonschema:"description=Limits the execution of a step to matching build events.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Path     []string `yaml:"path,omitempty,flow"     json:"path,omitempty" jsonschema:"description=Limits the execution of a step to matching files changed in a repository.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Repo     []string `yaml:"repo,omitempty,flow"     json:"repo,omitempty" jsonschema:"description=Limits the execution of a step to matching repos.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Sender   []string `yaml:"sender,omitempty,flow"   json:"sender,omitempty" jsonschema:"description=Limits the execution of a step to matching build senders.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Status   []string `yaml:"status,omitempty,flow"   json:"status,omitempty" jsonschema:"enum=[failure],enum=[success],description=Limits the execution of a step to matching build statuses.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Tag      []string `yaml:"tag,omitempty,flow"      json:"tag,omitempty" jsonschema:"description=Limits the execution of a step to matching build tag references.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Target   []string `yaml:"target,omitempty,flow"   json:"target,omitempty" jsonschema:"description=Limits the execution of a step to matching build deployment targets.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
@@ -83,6 +84,7 @@ func (r *Ruleset) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	advanced.If.Event = append(advanced.If.Event, simple.Event...)
 	advanced.If.Path = append(advanced.If.Path, simple.Path...)
 	advanced.If.Repo = append(advanced.If.Repo, simple.Repo...)
+	advanced.If.Sender = append(advanced.If.Sender, simple.Sender...)
 	advanced.If.Status = append(advanced.If.Status, simple.Status...)
 	advanced.If.Tag = append(advanced.If.Tag, simple.Tag...)
 	advanced.If.Target = append(advanced.If.Target, simple.Target...)
@@ -114,6 +116,7 @@ func (r *Rules) ToPipeline() *pipeline.Rules {
 		Event:    r.Event,
 		Path:     r.Path,
 		Repo:     r.Repo,
+		Sender:   r.Sender,
 		Status:   r.Status,
 		Tag:      r.Tag,
 		Target:   r.Target,
@@ -131,6 +134,7 @@ func (r *Rules) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Event    raw.StringSlice
 		Path     raw.StringSlice
 		Repo     raw.StringSlice
+		Sender   raw.StringSlice
 		Status   raw.StringSlice
 		Tag      raw.StringSlice
 		Target   raw.StringSlice
@@ -145,6 +149,7 @@ func (r *Rules) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		r.Comment = rules.Comment
 		r.Path = rules.Path
 		r.Repo = rules.Repo
+		r.Sender = rules.Sender
 		r.Status = rules.Status
 		r.Tag = rules.Tag
 		r.Target = rules.Target

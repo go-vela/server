@@ -119,8 +119,14 @@ func prepareRuleData(c *gin.Context) *pipeline.RuleData {
 	comment := c.Query("comment")
 	// capture the event type parameter
 	event := c.Query("event")
+	// capture the instance parameter
+	instance := c.Query("instance")
+	// capture the label parameter
+	labelSet := c.QueryArray("label")
 	// capture the repo parameter
 	ruleDataRepo := c.Query("repo")
+	// capture the sender parameter
+	sender := c.Query("sender")
 	// capture the status type parameter
 	status := c.Query("status")
 	// capture the tag parameter
@@ -134,20 +140,26 @@ func prepareRuleData(c *gin.Context) *pipeline.RuleData {
 	if len(branch) > 0 ||
 		len(comment) > 0 ||
 		len(event) > 0 ||
+		len(instance) > 0 ||
+		len(labelSet) > 0 ||
 		len(pathSet) > 0 ||
 		len(ruleDataRepo) > 0 ||
+		len(sender) > 0 ||
 		len(status) > 0 ||
 		len(tag) > 0 ||
 		len(target) > 0 {
 		return &pipeline.RuleData{
-			Branch:  branch,
-			Comment: comment,
-			Event:   event,
-			Path:    pathSet,
-			Repo:    ruleDataRepo,
-			Status:  status,
-			Tag:     tag,
-			Target:  target,
+			Branch:   branch,
+			Comment:  comment,
+			Event:    event,
+			Instance: instance,
+			Label:    labelSet,
+			Path:     pathSet,
+			Repo:     ruleDataRepo,
+			Sender:   sender,
+			Status:   status,
+			Tag:      tag,
+			Target:   target,
 		}
 	}
 

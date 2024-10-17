@@ -34,6 +34,7 @@ type (
 		Event    Ruletype `json:"event,omitempty"    yaml:"event,omitempty"`
 		Path     Ruletype `json:"path,omitempty"     yaml:"path,omitempty"`
 		Repo     Ruletype `json:"repo,omitempty"     yaml:"repo,omitempty"`
+		Sender   Ruletype `json:"sender,omitempty"   yaml:"sender,omitempty"`
 		Status   Ruletype `json:"status,omitempty"   yaml:"status,omitempty"`
 		Tag      Ruletype `json:"tag,omitempty"      yaml:"tag,omitempty"`
 		Target   Ruletype `json:"target,omitempty"   yaml:"target,omitempty"`
@@ -56,6 +57,7 @@ type (
 		Event    string   `json:"event,omitempty"    yaml:"event,omitempty"`
 		Path     []string `json:"path,omitempty"     yaml:"path,omitempty"`
 		Repo     string   `json:"repo,omitempty"     yaml:"repo,omitempty"`
+		Sender   string   `json:"sender,omitempty"   yaml:"sender,omitempty"`
 		Status   string   `json:"status,omitempty"   yaml:"status,omitempty"`
 		Tag      string   `json:"tag,omitempty"      yaml:"tag,omitempty"`
 		Target   string   `json:"target,omitempty"   yaml:"target,omitempty"`
@@ -113,6 +115,7 @@ func (r *Rules) Empty() bool {
 		len(r.Event) == 0 &&
 		len(r.Path) == 0 &&
 		len(r.Repo) == 0 &&
+		len(r.Sender) == 0 &&
 		len(r.Status) == 0 &&
 		len(r.Tag) == 0 &&
 		len(r.Target) == 0 &&
@@ -168,6 +171,11 @@ func (r *Rules) Match(from *RuleData, matcher, op string) (bool, error) {
 		return false, err
 	}
 
+	matchSender, err := r.Sender.MatchSingle(from.Sender, matcher, op)
+	if err != nil {
+		return false, err
+	}
+
 	matchTag, err := r.Tag.MatchSingle(from.Tag, matcher, op)
 	if err != nil {
 		return false, err
@@ -190,9 +198,9 @@ func (r *Rules) Match(from *RuleData, matcher, op string) (bool, error) {
 
 	switch op {
 	case constants.OperatorOr:
-		return (matchBranch || matchComment || matchEvent || matchPath || matchRepo || matchTag || matchTarget || matchLabel || matchInstance || status), nil
+		return (matchBranch || matchComment || matchEvent || matchPath || matchRepo || matchSender || matchTag || matchTarget || matchLabel || matchInstance || status), nil
 	default:
-		return (matchBranch && matchComment && matchEvent && matchPath && matchRepo && matchTag && matchTarget && matchLabel && matchInstance && status), nil
+		return (matchBranch && matchComment && matchEvent && matchPath && matchRepo && matchSender && matchTag && matchTarget && matchLabel && matchInstance && status), nil
 	}
 }
 
