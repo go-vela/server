@@ -8,12 +8,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // Create creates a new secret.
-func (c *client) Create(ctx context.Context, sType, org, name string, s *library.Secret) (*library.Secret, error) {
+func (c *client) Create(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:

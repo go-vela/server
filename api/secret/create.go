@@ -11,13 +11,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/library/actions"
 )
 
 // swagger:operation POST /api/v1/secrets/{engine}/{type}/{org}/{name} secrets CreateSecret
@@ -175,7 +175,7 @@ func CreateSecret(c *gin.Context) {
 	logger.Debugf("creating new secret %s for %s service", entry, e)
 
 	// capture body from API request
-	input := new(library.Secret)
+	input := new(types.Secret)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -211,7 +211,7 @@ func CreateSecret(c *gin.Context) {
 
 	// default event set for secrets
 	if input.GetAllowEvents().ToDatabase() == 0 {
-		e := new(library.Events)
+		e := new(types.Events)
 
 		push := new(actions.Push)
 		push.SetBranch(true)

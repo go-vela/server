@@ -6,13 +6,13 @@ import (
 	"context"
 	"testing"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestNative_Delete(t *testing.T) {
 	// setup types
-	sec := new(library.Secret)
+	sec := new(api.Secret)
 	sec.SetID(1)
 	sec.SetOrg("foo")
 	sec.SetRepo("bar")

@@ -9,12 +9,13 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/constants"
 )
 
 func TestSecret_Engine_CountSecretsForOrg(t *testing.T) {
 	// setup types
-	_secretOne := testSecret()
+	_secretOne := testutils.APISecret()
 	_secretOne.SetID(1)
 	_secretOne.SetOrg("foo")
 	_secretOne.SetRepo("*")
@@ -26,7 +27,7 @@ func TestSecret_Engine_CountSecretsForOrg(t *testing.T) {
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
 
-	_secretTwo := testSecret()
+	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
 	_secretTwo.SetOrg("bar")
 	_secretTwo.SetRepo("*")

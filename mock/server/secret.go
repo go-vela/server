@@ -10,9 +10,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hashicorp/vault/api"
 
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 //nolint:gosec // these are mock responses
@@ -101,7 +101,7 @@ const (
 func getSecrets(c *gin.Context) {
 	data := []byte(SecretsResp)
 
-	var body []library.Secret
+	var body []api.Secret
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -123,7 +123,7 @@ func getSecret(c *gin.Context) {
 
 	data := []byte(SecretResp)
 
-	var body library.Secret
+	var body api.Secret
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -133,7 +133,7 @@ func getSecret(c *gin.Context) {
 func addSecret(c *gin.Context) {
 	data := []byte(SecretResp)
 
-	var body library.Secret
+	var body api.Secret
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -157,7 +157,7 @@ func updateSecret(c *gin.Context) {
 
 	data := []byte(SecretResp)
 
-	var body library.Secret
+	var body api.Secret
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

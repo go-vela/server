@@ -9,13 +9,13 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestSecret_Engine_CreateSecret(t *testing.T) {
 	// setup types
-	_secretRepo := testSecret()
+	_secretRepo := testutils.APISecret()
 	_secretRepo.SetID(1)
 	_secretRepo.SetOrg("foo")
 	_secretRepo.SetRepo("bar")
@@ -26,9 +26,9 @@ func TestSecret_Engine_CreateSecret(t *testing.T) {
 	_secretRepo.SetCreatedBy("user")
 	_secretRepo.SetUpdatedAt(1)
 	_secretRepo.SetUpdatedBy("user2")
-	_secretRepo.SetAllowEvents(library.NewEventsFromMask(1))
+	_secretRepo.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_secretOrg := testSecret()
+	_secretOrg := testutils.APISecret()
 	_secretOrg.SetID(2)
 	_secretOrg.SetOrg("foo")
 	_secretOrg.SetRepo("*")
@@ -39,9 +39,9 @@ func TestSecret_Engine_CreateSecret(t *testing.T) {
 	_secretOrg.SetCreatedBy("user")
 	_secretOrg.SetUpdatedAt(1)
 	_secretOrg.SetUpdatedBy("user2")
-	_secretOrg.SetAllowEvents(library.NewEventsFromMask(3))
+	_secretOrg.SetAllowEvents(api.NewEventsFromMask(3))
 
-	_secretShared := testSecret()
+	_secretShared := testutils.APISecret()
 	_secretShared.SetID(3)
 	_secretShared.SetOrg("foo")
 	_secretShared.SetTeam("bar")
@@ -52,7 +52,7 @@ func TestSecret_Engine_CreateSecret(t *testing.T) {
 	_secretShared.SetCreatedBy("user")
 	_secretShared.SetUpdatedAt(1)
 	_secretShared.SetUpdatedBy("user2")
-	_secretShared.SetAllowEvents(library.NewEventsFromMask(1))
+	_secretShared.SetAllowEvents(api.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -89,7 +89,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 		failure  bool
 		name     string
 		database *engine
-		secret   *library.Secret
+		secret   *api.Secret
 	}{
 		{
 			failure:  false,

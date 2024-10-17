@@ -9,13 +9,14 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	// setup types
-	_secretOne := testSecret()
+	_secretOne := testutils.APISecret()
 	_secretOne.SetID(1)
 	_secretOne.SetOrg("foo")
 	_secretOne.SetRepo("*")
@@ -26,9 +27,9 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
-	_secretOne.SetAllowEvents(library.NewEventsFromMask(1))
+	_secretOne.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_secretTwo := testSecret()
+	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
 	_secretTwo.SetOrg("foo")
 	_secretTwo.SetRepo("*")
@@ -39,7 +40,7 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy("user2")
-	_secretTwo.SetAllowEvents(library.NewEventsFromMask(1))
+	_secretTwo.SetAllowEvents(api.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -79,19 +80,19 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Secret
+		want     []*api.Secret
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Secret{_secretTwo, _secretOne},
+			want:     []*api.Secret{_secretTwo, _secretOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite",
 			database: _sqlite,
-			want:     []*library.Secret{_secretTwo, _secretOne},
+			want:     []*api.Secret{_secretTwo, _secretOne},
 		},
 	}
 

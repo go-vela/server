@@ -13,7 +13,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/vault/api"
 
-	"github.com/go-vela/types/library"
+	velaAPI "github.com/go-vela/server/api/types"
 )
 
 func TestVault_New(t *testing.T) {
@@ -127,14 +127,14 @@ func TestVault_secretFromVault(t *testing.T) {
 		},
 	}
 
-	want := new(library.Secret)
+	want := new(velaAPI.Secret)
 	want.SetOrg("foo")
 	want.SetRepo("*")
 	want.SetTeam("foob")
 	want.SetName("bar")
 	want.SetValue("baz")
 	want.SetType("org")
-	want.SetAllowEvents(library.NewEventsFromMask(8195))
+	want.SetAllowEvents(velaAPI.NewEventsFromMask(8195))
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(true)
 	want.SetAllowSubstitution(true)
@@ -169,14 +169,14 @@ func TestVault_secretFromVault(t *testing.T) {
 
 func TestVault_vaultFromSecret(t *testing.T) {
 	// setup types
-	s := new(library.Secret)
+	s := new(velaAPI.Secret)
 	s.SetOrg("foo")
 	s.SetRepo("*")
 	s.SetTeam("foob")
 	s.SetName("bar")
 	s.SetValue("baz")
 	s.SetType("org")
-	s.SetAllowEvents(library.NewEventsFromMask(1))
+	s.SetAllowEvents(velaAPI.NewEventsFromMask(1))
 	s.SetImages([]string{"foo", "bar"})
 	s.SetAllowCommand(true)
 	s.SetAllowSubstitution(true)
@@ -213,7 +213,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 }
 
 func TestVault_AccurateSecretFields(t *testing.T) {
-	testSecret := library.Secret{}
+	testSecret := velaAPI.Secret{}
 
 	tSecret := reflect.TypeOf(testSecret)
 

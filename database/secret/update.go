@@ -9,13 +9,13 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // UpdateSecret updates an existing secret in the database.
-func (e *engine) UpdateSecret(ctx context.Context, s *library.Secret) (*library.Secret, error) {
+func (e *engine) UpdateSecret(ctx context.Context, s *api.Secret) (*api.Secret, error) {
 	// handle the secret based off the type
 	switch s.GetType() {
 	case constants.SecretShared:
@@ -34,22 +34,13 @@ func (e *engine) UpdateSecret(ctx context.Context, s *library.Secret) (*library.
 		}).Tracef("updating secret %s/%s/%s/%s", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName())
 	}
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#SecretFromLibrary
-	secret := database.SecretFromLibrary(s)
+	secret := types.SecretFromAPI(s)
 
-	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Validate
 	err := secret.Validate()
 	if err != nil {
 		return nil, err
 	}
 
-	// encrypt the fields for the secret
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Encrypt
 	err = secret.Encrypt(e.config.EncryptionKey)
 	if err != nil {
 		switch s.GetType() {
@@ -78,5 +69,5 @@ func (e *engine) UpdateSecret(ctx context.Context, s *library.Secret) (*library.
 		}
 	}
 
-	return secret.ToLibrary(), nil
+	return secret.ToAPI(), nil
 }

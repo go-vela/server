@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	velaAPI "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 const (
@@ -134,8 +134,8 @@ func New(opts ...ClientOpt) (*client, error) {
 // secretFromVault is a helper function to convert a HashiCorp Vault secret to a Vela secret.
 //
 //nolint:gocyclo,funlen // ignore cyclomatic complexity and function length due to conditionals
-func secretFromVault(vault *api.Secret) *library.Secret {
-	s := new(library.Secret)
+func secretFromVault(vault *api.Secret) *velaAPI.Secret {
+	s := new(velaAPI.Secret)
 
 	var data map[string]interface{}
 	// handle k/v v2
@@ -152,7 +152,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 		if ok {
 			mask, err := maskJSON.Int64()
 			if err == nil {
-				s.SetAllowEvents(library.NewEventsFromMask(mask))
+				s.SetAllowEvents(velaAPI.NewEventsFromMask(mask))
 			}
 		}
 	} else {
@@ -182,7 +182,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 				}
 			}
 
-			s.SetAllowEvents(library.NewEventsFromMask(allowEventsMask))
+			s.SetAllowEvents(velaAPI.NewEventsFromMask(allowEventsMask))
 		}
 	}
 
@@ -327,7 +327,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 }
 
 // vaultFromSecret is a helper function to convert a Vela secret to a HashiCorp Vault secret.
-func vaultFromSecret(s *library.Secret) *api.Secret {
+func vaultFromSecret(s *velaAPI.Secret) *api.Secret {
 	data := make(map[string]interface{})
 	vault := new(api.Secret)
 	vault.Data = data

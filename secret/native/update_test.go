@@ -8,13 +8,13 @@ import (
 	"testing"
 	"time"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestNative_Update(t *testing.T) {
 	// setup types
-	original := new(library.Secret)
+	original := new(api.Secret)
 	original.SetID(1)
 	original.SetOrg("foo")
 	original.SetRepo("bar")
@@ -23,7 +23,7 @@ func TestNative_Update(t *testing.T) {
 	original.SetValue("secretValue")
 	original.SetType("repo")
 	original.SetImages([]string{"foo", "baz"})
-	original.SetAllowEvents(library.NewEventsFromMask(1))
+	original.SetAllowEvents(api.NewEventsFromMask(1))
 	original.SetAllowCommand(true)
 	original.SetAllowSubstitution(true)
 	original.SetCreatedAt(1)
@@ -31,7 +31,7 @@ func TestNative_Update(t *testing.T) {
 	original.SetUpdatedAt(time.Now().UTC().Unix())
 	original.SetUpdatedBy("user")
 
-	want := new(library.Secret)
+	want := new(api.Secret)
 	want.SetID(1)
 	want.SetOrg("foo")
 	want.SetRepo("bar")
@@ -40,7 +40,7 @@ func TestNative_Update(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("repo")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetAllowEvents(library.NewEventsFromMask(3))
+	want.SetAllowEvents(api.NewEventsFromMask(3))
 	want.SetAllowCommand(false)
 	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
@@ -81,7 +81,7 @@ func TestNative_Update(t *testing.T) {
 
 func TestNative_Update_Invalid(t *testing.T) {
 	// setup types
-	sec := new(library.Secret)
+	sec := new(api.Secret)
 	sec.SetName("baz")
 	sec.SetValue("foob")
 

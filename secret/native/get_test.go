@@ -7,13 +7,13 @@ import (
 	"reflect"
 	"testing"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestNative_Get(t *testing.T) {
 	// setup types
-	want := new(library.Secret)
+	want := new(api.Secret)
 	want.SetID(1)
 	want.SetOrg("foo")
 	want.SetRepo("bar")
@@ -22,7 +22,7 @@ func TestNative_Get(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("repo")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
 	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)

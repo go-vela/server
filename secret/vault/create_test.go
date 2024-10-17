@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestVault_Create_Org(t *testing.T) {
@@ -44,7 +44,7 @@ func TestVault_Create_Org(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	sec := new(library.Secret)
+	sec := new(api.Secret)
 	sec.SetOrg("foo")
 	sec.SetRepo("*")
 	sec.SetName("bar")
@@ -53,7 +53,7 @@ func TestVault_Create_Org(t *testing.T) {
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetAllowCommand(true)
 	sec.SetAllowSubstitution(true)
-	sec.SetAllowEvents(library.NewEventsFromMask(1))
+	sec.SetAllowEvents(api.NewEventsFromMask(1))
 	sec.SetCreatedAt(1563474077)
 	sec.SetCreatedBy("octocat")
 	sec.SetUpdatedAt(1563474079)
@@ -134,7 +134,7 @@ func TestVault_Create_Repo(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	sec := new(library.Secret)
+	sec := new(api.Secret)
 	sec.SetOrg("foo")
 	sec.SetRepo("bar")
 	sec.SetName("baz")
@@ -143,7 +143,7 @@ func TestVault_Create_Repo(t *testing.T) {
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetAllowCommand(true)
 	sec.SetAllowSubstitution(true)
-	sec.SetAllowEvents(library.NewEventsFromMask(3))
+	sec.SetAllowEvents(api.NewEventsFromMask(3))
 	sec.SetCreatedAt(1563474077)
 	sec.SetCreatedBy("octocat")
 	sec.SetUpdatedAt(1563474079)
@@ -225,7 +225,7 @@ func TestVault_Create_Shared(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	sec := new(library.Secret)
+	sec := new(api.Secret)
 	sec.SetOrg("foo")
 	sec.SetTeam("bar")
 	sec.SetName("baz")
@@ -234,7 +234,7 @@ func TestVault_Create_Shared(t *testing.T) {
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 	sec.SetAllowSubstitution(false)
-	sec.SetAllowEvents(library.NewEventsFromMask(1))
+	sec.SetAllowEvents(api.NewEventsFromMask(1))
 	sec.SetCreatedAt(1563474077)
 	sec.SetCreatedBy("octocat")
 	sec.SetUpdatedAt(1563474079)
@@ -310,7 +310,7 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	sec := new(library.Secret)
+	sec := new(api.Secret)
 	sec.SetOrg("foo")
 	sec.SetRepo("bar")
 	sec.SetTeam("")
@@ -364,7 +364,7 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 
 func TestVault_Create_InvalidType(t *testing.T) {
 	// setup types
-	sec := new(library.Secret)
+	sec := new(api.Secret)
 	sec.SetOrg("foo")
 	sec.SetRepo("bar")
 	sec.SetTeam("")
@@ -417,7 +417,7 @@ func TestVault_Create_InvalidType(t *testing.T) {
 
 func TestVault_Create_ClosedServer(t *testing.T) {
 	// setup types
-	sec := new(library.Secret)
+	sec := new(api.Secret)
 	sec.SetOrg("foo")
 	sec.SetRepo("bar")
 	sec.SetTeam("")

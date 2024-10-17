@@ -26,7 +26,6 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 var baseErr = "unable to process webhook"
@@ -780,7 +779,7 @@ func RenameRepository(ctx context.Context, h *types.Hook, r *types.Repo, c *gin.
 		return nil, fmt.Errorf("unable to get secret count for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
 	}
 
-	secrets := []*library.Secret{}
+	secrets := []*types.Secret{}
 	page := 1
 	// capture all secrets belonging to certain repo in database
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {

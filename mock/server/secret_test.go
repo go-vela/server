@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestSecret_ActiveSecretResp(t *testing.T) {
-	testSecret := library.Secret{}
+	testSecret := api.Secret{}
 
 	err := json.Unmarshal([]byte(SecretResp), &testSecret)
 	if err != nil {

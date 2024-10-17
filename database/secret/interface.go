@@ -6,7 +6,6 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 // SecretInterface represents the Vela interface for secret
@@ -38,27 +37,27 @@ type SecretInterface interface {
 	// CountSecretsForTeams defines a function that gets the count of secrets by teams within an org.
 	CountSecretsForTeams(context.Context, string, []string, map[string]interface{}) (int64, error)
 	// CreateSecret defines a function that creates a new secret.
-	CreateSecret(context.Context, *library.Secret) (*library.Secret, error)
+	CreateSecret(context.Context, *api.Secret) (*api.Secret, error)
 	// DeleteSecret defines a function that deletes an existing secret.
-	DeleteSecret(context.Context, *library.Secret) error
+	DeleteSecret(context.Context, *api.Secret) error
 	// GetSecret defines a function that gets a secret by ID.
-	GetSecret(context.Context, int64) (*library.Secret, error)
+	GetSecret(context.Context, int64) (*api.Secret, error)
 	// GetSecretForOrg defines a function that gets a secret by org name.
-	GetSecretForOrg(context.Context, string, string) (*library.Secret, error)
+	GetSecretForOrg(context.Context, string, string) (*api.Secret, error)
 	// GetSecretForRepo defines a function that gets a secret by org and repo name.
-	GetSecretForRepo(context.Context, string, *api.Repo) (*library.Secret, error)
+	GetSecretForRepo(context.Context, string, *api.Repo) (*api.Secret, error)
 	// GetSecretForTeam defines a function that gets a secret by org and team name.
-	GetSecretForTeam(context.Context, string, string, string) (*library.Secret, error)
+	GetSecretForTeam(context.Context, string, string, string) (*api.Secret, error)
 	// ListSecrets defines a function that gets a list of all secrets.
-	ListSecrets(context.Context) ([]*library.Secret, error)
+	ListSecrets(context.Context) ([]*api.Secret, error)
 	// ListSecretsForOrg defines a function that gets a list of secrets by org name.
-	ListSecretsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
+	ListSecretsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Secret, int64, error)
 	// ListSecretsForRepo defines a function that gets a list of secrets by org and repo name.
-	ListSecretsForRepo(context.Context, *api.Repo, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
+	ListSecretsForRepo(context.Context, *api.Repo, map[string]interface{}, int, int) ([]*api.Secret, int64, error)
 	// ListSecretsForTeam defines a function that gets a list of secrets by org and team name.
-	ListSecretsForTeam(context.Context, string, string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
+	ListSecretsForTeam(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Secret, int64, error)
 	// ListSecretsForTeams defines a function that gets a list of secrets by teams within an org.
-	ListSecretsForTeams(context.Context, string, []string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
+	ListSecretsForTeams(context.Context, string, []string, map[string]interface{}, int, int) ([]*api.Secret, int64, error)
 	// UpdateSecret defines a function that updates an existing secret.
-	UpdateSecret(context.Context, *library.Secret) (*library.Secret, error)
+	UpdateSecret(context.Context, *api.Secret) (*api.Secret, error)
 }

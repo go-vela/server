@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestVault_Get_Org(t *testing.T) {
@@ -44,7 +44,8 @@ func TestVault_Get_Org(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	want := new(library.Secret)
+
+	want := new(api.Secret)
 	want.SetOrg("foo")
 	want.SetRepo("*")
 	want.SetName("bar")
@@ -53,7 +54,7 @@ func TestVault_Get_Org(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(true)
 	want.SetAllowSubstitution(true)
-	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetCreatedAt(1563474077)
 	want.SetCreatedBy("octocat")
 	want.SetUpdatedAt(1563474079)
@@ -134,7 +135,7 @@ func TestVault_Get_Repo(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	want := new(library.Secret)
+	want := new(api.Secret)
 	want.SetOrg("foo")
 	want.SetRepo("bar")
 	want.SetName("baz")
@@ -143,7 +144,7 @@ func TestVault_Get_Repo(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(true)
 	want.SetAllowSubstitution(true)
-	want.SetAllowEvents(library.NewEventsFromMask(3))
+	want.SetAllowEvents(api.NewEventsFromMask(3))
 	want.SetCreatedAt(1563474077)
 	want.SetCreatedBy("octocat")
 	want.SetUpdatedAt(1563474079)
@@ -224,7 +225,7 @@ func TestVault_Get_Shared(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	want := new(library.Secret)
+	want := new(api.Secret)
 	want.SetOrg("foo")
 	want.SetTeam("bar")
 	want.SetName("baz")
@@ -233,7 +234,7 @@ func TestVault_Get_Shared(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 	want.SetAllowSubstitution(false)
-	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetCreatedAt(1563474077)
 	want.SetCreatedBy("octocat")
 	want.SetUpdatedAt(1563474079)

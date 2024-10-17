@@ -190,6 +190,26 @@ func APISchedule() *api.Schedule {
 	}
 }
 
+func APISecret() *api.Secret {
+	return &api.Secret{
+		ID:                new(int64),
+		Org:               new(string),
+		Repo:              new(string),
+		Team:              new(string),
+		Name:              new(string),
+		Value:             new(string),
+		Type:              new(string),
+		Images:            new([]string),
+		AllowEvents:       APIEvents(),
+		AllowCommand:      new(bool),
+		AllowSubstitution: new(bool),
+		CreatedAt:         new(int64),
+		CreatedBy:         new(string),
+		UpdatedAt:         new(int64),
+		UpdatedBy:         new(string),
+	}
+}
+
 func APIService() *library.Service {
 	return &library.Service{
 		ID:           new(int64),
