@@ -11,8 +11,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/go-vela/server/api/types/actions"
+	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/types/pipeline"
 )
 
 func TestTypes_Secret_Sanitize(t *testing.T) {
