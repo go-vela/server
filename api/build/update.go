@@ -10,13 +10,12 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build} builds UpdateBuild
@@ -191,7 +190,7 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) erro
 	l.Debug("updating component statuses")
 
 	// retrieve the steps for the build from the step table
-	steps := []*library.Step{}
+	steps := []*types.Step{}
 	page := 1
 	perPage := 100
 
@@ -230,7 +229,7 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) erro
 	}
 
 	// retrieve the services for the build from the service table
-	services := []*library.Service{}
+	services := []*types.Service{}
 	page = 1
 
 	for page > 0 {

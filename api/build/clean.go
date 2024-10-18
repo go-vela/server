@@ -10,15 +10,14 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // cleanBuild is a helper function to kill the build
 // without execution. This will kill all resources,
 // like steps and services, for the build.
-func CleanBuild(ctx context.Context, database database.Interface, b *types.Build, services []*library.Service, steps []*library.Step, e error) {
+func CleanBuild(ctx context.Context, database database.Interface, b *types.Build, services []*types.Service, steps []*types.Step, e error) {
 	l := logrus.WithFields(logrus.Fields{
 		"build":    b.GetNumber(),
 		"build_id": b.GetID(),

@@ -12,12 +12,12 @@ import (
 
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // swagger:operation GET /api/v1/repos/{org}/builds builds ListBuildsForOrg

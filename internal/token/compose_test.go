@@ -12,8 +12,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/constants"
 )
 
 func TestToken_Compose(t *testing.T) {

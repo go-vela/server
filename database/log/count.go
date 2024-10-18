@@ -5,7 +5,7 @@ package log
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // CountLogs gets the count of all logs from the database.

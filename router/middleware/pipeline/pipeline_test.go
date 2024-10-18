@@ -20,6 +20,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/native"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/internal"
@@ -30,7 +31,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
-	"github.com/go-vela/types/constants"
 )
 
 func TestPipeline_Retrieve(t *testing.T) {

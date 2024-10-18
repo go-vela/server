@@ -17,12 +17,11 @@ import (
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/types/library"
 )
 
 func TestStep_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.Step)
+	want := new(api.Step)
 	want.SetID(1)
 
 	// setup context
@@ -58,7 +57,7 @@ func TestStep_Establish(t *testing.T) {
 	b.SetRepo(r)
 	b.SetNumber(1)
 
-	want := new(library.Step)
+	want := new(api.Step)
 	want.SetID(1)
 	want.SetRepoID(1)
 	want.SetBuildID(1)
@@ -77,7 +76,7 @@ func TestStep_Establish(t *testing.T) {
 	want.SetDistribution("")
 	want.SetReportAs("")
 
-	got := new(library.Step)
+	got := new(api.Step)
 
 	// setup database
 	db, err := database.NewTest()

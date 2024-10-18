@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestStep_ActiveStepResp(t *testing.T) {
-	testStep := library.Step{}
+	testStep := api.Step{}
 
 	err := json.Unmarshal([]byte(StepResp), &testStep)
 	if err != nil {

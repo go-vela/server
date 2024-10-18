@@ -5,7 +5,7 @@ package pipeline
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // CountPipelines gets the count of all pipelines from the database.

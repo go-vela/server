@@ -11,22 +11,22 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 
 // PlanServices is a helper function to plan all services
 // in the build for execution. This creates the services
 // for the build.
-func PlanServices(ctx context.Context, database database.Interface, p *pipeline.Build, b *types.Build) ([]*library.Service, error) {
+func PlanServices(ctx context.Context, database database.Interface, p *pipeline.Build, b *types.Build) ([]*types.Service, error) {
 	// variable to store planned services
-	services := []*library.Service{}
+	services := []*types.Service{}
 
 	// iterate through all pipeline services
 	for _, service := range p.Services {
 		// create the service object
-		s := new(library.Service)
+		s := new(types.Service)
 		s.SetBuildID(b.GetID())
 		s.SetRepoID(b.GetRepo().GetID())
 		s.SetName(service.Name)

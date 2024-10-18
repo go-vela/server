@@ -9,8 +9,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestService_Engine_GetService(t *testing.T) {
@@ -47,7 +47,7 @@ func TestService_Engine_GetService(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Service
+		want     *api.Service
 	}{
 		{
 			failure:  false,

@@ -6,13 +6,14 @@ package log
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // GetLogForStep gets a log by step ID from the database.
-func (e *engine) GetLogForStep(ctx context.Context, s *library.Step) (*library.Log, error) {
+func (e *engine) GetLogForStep(ctx context.Context, s *api.Step) (*library.Log, error) {
 	e.logger.Tracef("getting log for step %d for build %d", s.GetID(), s.GetBuildID())
 
 	// variable to store query results

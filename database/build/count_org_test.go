@@ -9,9 +9,9 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {

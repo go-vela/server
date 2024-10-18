@@ -10,8 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	database "github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // Create creates a new secret.
