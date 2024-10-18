@@ -5,7 +5,7 @@ package service
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const key = "service"
@@ -16,13 +16,13 @@ type Setter interface {
 }
 
 // FromContext returns the Service associated with this context.
-func FromContext(c context.Context) *library.Service {
+func FromContext(c context.Context) *api.Service {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	s, ok := value.(*library.Service)
+	s, ok := value.(*api.Service)
 	if !ok {
 		return nil
 	}
@@ -32,6 +32,6 @@ func FromContext(c context.Context) *library.Service {
 
 // ToContext adds the Service to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, s *library.Service) {
+func ToContext(c Setter, s *api.Service) {
 	c.Set(key, s)
 }

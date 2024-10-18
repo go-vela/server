@@ -11,8 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
@@ -70,7 +70,7 @@ const (
 func getServices(c *gin.Context) {
 	data := []byte(ServicesResp)
 
-	var body []library.Service
+	var body []api.Service
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -92,7 +92,7 @@ func getService(c *gin.Context) {
 
 	data := []byte(ServiceResp)
 
-	var body library.Service
+	var body api.Service
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -102,7 +102,7 @@ func getService(c *gin.Context) {
 func addService(c *gin.Context) {
 	data := []byte(ServiceResp)
 
-	var body library.Service
+	var body api.Service
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -126,7 +126,7 @@ func updateService(c *gin.Context) {
 
 	data := []byte(ServiceResp)
 
-	var body library.Service
+	var body api.Service
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

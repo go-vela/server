@@ -13,11 +13,11 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // swagger:operation POST /api/v1/secrets/{engine}/{type}/{org}/{name} secrets CreateSecret

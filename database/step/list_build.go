@@ -8,21 +8,20 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // ListStepsForBuild gets a list of all steps from the database.
-func (e *engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Step, int64, error) {
+func (e *engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}, page int, perPage int) ([]*api.Step, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("listing steps for build %d", b.GetNumber())
 
 	// variables to store query results and return value
 	count := int64(0)
-	s := new([]database.Step)
-	steps := []*library.Step{}
+	s := new([]types.Step)
+	steps := []*api.Step{}
 
 	// count the results
 	count, err := e.CountStepsForBuild(ctx, b, filters)
@@ -58,10 +57,7 @@ func (e *engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters ma
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := step
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Step.ToLibrary
-		steps = append(steps, tmp.ToLibrary())
+		steps = append(steps, tmp.ToAPI())
 	}
 
 	return steps, count, nil

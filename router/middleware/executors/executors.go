@@ -14,11 +14,11 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // Retrieve gets the executors in the given context.

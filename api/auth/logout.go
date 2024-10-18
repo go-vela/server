@@ -10,11 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // swagger:operation GET /logout authenticate GetLogout

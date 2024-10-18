@@ -12,11 +12,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 

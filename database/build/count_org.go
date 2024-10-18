@@ -7,7 +7,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // CountBuildsForOrg gets the count of builds by org name from the database.

@@ -5,7 +5,7 @@ package step
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const key = "step"
@@ -16,13 +16,13 @@ type Setter interface {
 }
 
 // FromContext returns the Step associated with this context.
-func FromContext(c context.Context) *library.Step {
+func FromContext(c context.Context) *api.Step {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	s, ok := value.(*library.Step)
+	s, ok := value.(*api.Step)
 	if !ok {
 		return nil
 	}
@@ -32,6 +32,6 @@ func FromContext(c context.Context) *library.Step {
 
 // ToContext adds the Step to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, s *library.Step) {
+func ToContext(c Setter, s *api.Step) {
 	c.Set(key, s)
 }

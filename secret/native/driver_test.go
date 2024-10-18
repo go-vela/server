@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/constants"
 )
 
 func TestNative_Driver(t *testing.T) {

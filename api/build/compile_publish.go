@@ -16,12 +16,12 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/scm"
-	"github.com/go-vela/types/constants"
 )
 
 // CompileAndPublishConfig is a struct that contains information for the CompileAndPublish function.

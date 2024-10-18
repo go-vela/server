@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // FromCLIContext helper function to setup the queue from the CLI arguments.

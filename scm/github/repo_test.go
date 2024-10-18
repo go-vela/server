@@ -15,8 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/constants"
 )
 
 func TestGithub_Config_YML(t *testing.T) {
@@ -909,7 +908,7 @@ func TestGithub_Status_Running(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
-	step := new(library.Step)
+	step := new(api.Step)
 	step.SetID(1)
 	step.SetNumber(1)
 	step.SetName("test")
@@ -973,7 +972,7 @@ func TestGithub_Status_Success(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
-	step := new(library.Step)
+	step := new(api.Step)
 	step.SetID(1)
 	step.SetNumber(1)
 	step.SetName("test")
@@ -1037,7 +1036,7 @@ func TestGithub_Status_Failure(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
-	step := new(library.Step)
+	step := new(api.Step)
 	step.SetID(1)
 	step.SetNumber(1)
 	step.SetName("test")
@@ -1101,7 +1100,7 @@ func TestGithub_Status_Killed(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
-	step := new(library.Step)
+	step := new(api.Step)
 	step.SetID(1)
 	step.SetNumber(1)
 	step.SetName("test")
@@ -1165,7 +1164,7 @@ func TestGithub_Status_Skipped(t *testing.T) {
 	b.SetStatus(constants.StatusSkipped)
 	b.SetCommit("abcd1234")
 
-	step := new(library.Step)
+	step := new(api.Step)
 	step.SetID(1)
 	step.SetNumber(1)
 	step.SetName("test")
@@ -1229,7 +1228,7 @@ func TestGithub_Status_Error(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
-	step := new(library.Step)
+	step := new(api.Step)
 	step.SetID(1)
 	step.SetNumber(1)
 	step.SetName("test")

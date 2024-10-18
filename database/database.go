@@ -13,6 +13,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -30,7 +31,6 @@ import (
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/server/tracing"
-	"github.com/go-vela/types/constants"
 )
 
 type (

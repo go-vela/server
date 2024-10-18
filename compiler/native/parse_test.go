@@ -16,7 +16,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 func TestNative_Parse_Metadata_Bytes(t *testing.T) {

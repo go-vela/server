@@ -12,8 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/constants"
 )
 
 func TestTokenManager_Refresh(t *testing.T) {

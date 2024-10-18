@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/go-vela/server/api/types/actions"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/types/pipeline"
 )
 

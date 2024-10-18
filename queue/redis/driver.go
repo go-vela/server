@@ -2,7 +2,7 @@
 
 package redis
 
-import "github.com/go-vela/types/constants"
+import "github.com/go-vela/server/constants"
 
 // Driver outputs the configured queue driver.
 func (c *client) Driver() string {

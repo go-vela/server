@@ -10,8 +10,8 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/constants"
 )
 
 func TestSecret_Engine_GetSecretForOrg(t *testing.T) {

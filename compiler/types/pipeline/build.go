@@ -8,7 +8,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // Build is the pipeline representation of a build for a pipeline.

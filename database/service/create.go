@@ -7,25 +7,19 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // CreateService creates a new service in the database.
-func (e *engine) CreateService(ctx context.Context, s *library.Service) (*library.Service, error) {
+func (e *engine) CreateService(ctx context.Context, s *api.Service) (*api.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("creating service %s in the database", s.GetName())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#ServiceFromLibrary
-	service := database.ServiceFromLibrary(s)
+	service := types.ServiceFromAPI(s)
 
-	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Service.Validate
 	err := service.Validate()
 	if err != nil {
 		return nil, err
@@ -37,5 +31,5 @@ func (e *engine) CreateService(ctx context.Context, s *library.Service) (*librar
 		Table(constants.TableService).
 		Create(service)
 
-	return service.ToLibrary(), result.Error
+	return service.ToAPI(), result.Error
 }

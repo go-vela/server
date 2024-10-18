@@ -5,7 +5,7 @@ package deployment
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // CountDeployments gets the count of all deployments from the database.

@@ -5,17 +5,17 @@ package service
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // GetService gets a service by ID from the database.
-func (e *engine) GetService(ctx context.Context, id int64) (*library.Service, error) {
+func (e *engine) GetService(ctx context.Context, id int64) (*api.Service, error) {
 	e.logger.Tracef("getting service %d", id)
 
 	// variable to store query results
-	s := new(database.Service)
+	s := new(types.Service)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -28,8 +28,5 @@ func (e *engine) GetService(ctx context.Context, id int64) (*library.Service, er
 		return nil, err
 	}
 
-	// return the service
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Service.ToLibrary
-	return s.ToLibrary(), nil
+	return s.ToAPI(), nil
 }

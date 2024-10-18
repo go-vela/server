@@ -17,8 +17,8 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/constants"
 )
 
 func TestGithub_ProcessWebhook_Push(t *testing.T) {

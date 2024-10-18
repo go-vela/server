@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/types/pipeline"
 )
 

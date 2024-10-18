@@ -10,9 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // swagger:operation DELETE /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets DeleteSecret

@@ -10,16 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // Retrieve gets the step in the given context.
-func Retrieve(c *gin.Context) *library.Step {
+func Retrieve(c *gin.Context) *api.Step {
 	return FromContext(c)
 }
 

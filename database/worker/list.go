@@ -8,8 +8,8 @@ import (
 	"strconv"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // ListWorkers gets a list of all workers from the database.

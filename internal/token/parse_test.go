@@ -11,7 +11,7 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 func TestTokenManager_ParseToken(t *testing.T) {

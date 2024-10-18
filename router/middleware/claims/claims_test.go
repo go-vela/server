@@ -17,9 +17,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
-	"github.com/go-vela/types/constants"
 )
 
 func TestClaims_Retrieve(t *testing.T) {

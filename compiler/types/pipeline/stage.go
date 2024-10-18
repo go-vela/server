@@ -5,7 +5,7 @@ package pipeline
 import (
 	"fmt"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 type (

@@ -20,12 +20,12 @@ import (
 	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 var baseErr = "unable to process webhook"

@@ -5,7 +5,7 @@ package user
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // CountUsers gets the count of all users from the database.

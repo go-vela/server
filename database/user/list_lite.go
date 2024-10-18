@@ -6,8 +6,8 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // ListLiteUsers gets a lite (only: id, name) list of users from the database.

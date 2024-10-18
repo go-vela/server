@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 
 	"github.com/go-vela/server/compiler/types/yaml"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // Validate verifies the yaml configuration is valid.

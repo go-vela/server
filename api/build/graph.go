@@ -11,8 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/build"
@@ -20,8 +22,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // Graph contains nodes, and relationships between nodes, or edges.
@@ -46,10 +46,10 @@ type node struct {
 	Name    string `json:"name"`
 
 	// vela metadata
-	Status     string          `json:"status"`
-	StartedAt  int             `json:"started_at"`
-	FinishedAt int             `json:"finished_at"`
-	Steps      []*library.Step `json:"steps"`
+	Status     string        `json:"status"`
+	StartedAt  int           `json:"started_at"`
+	FinishedAt int           `json:"finished_at"`
+	Steps      []*types.Step `json:"steps"`
 
 	// unexported data used for building edges
 	Stage *pipeline.Stage `json:"-"`
@@ -67,7 +67,7 @@ type edge struct {
 
 // stg represents a stage's steps and some metadata for producing node/edge information.
 type stg struct {
-	steps []*library.Step
+	steps []*types.Step
 	// used for tracking stage status
 	success    int
 	running    int
@@ -241,7 +241,7 @@ func GetBuildGraph(c *gin.Context) {
 	}
 
 	// retrieve the steps for the build from the step table
-	steps := []*library.Step{}
+	steps := []*types.Step{}
 	page := 1
 	perPage := 100
 
@@ -279,7 +279,7 @@ func GetBuildGraph(c *gin.Context) {
 	}
 
 	// retrieve the services for the build from the service table
-	services := []*library.Service{}
+	services := []*types.Service{}
 	page = 1
 	perPage = 100
 
@@ -359,7 +359,7 @@ func GetBuildGraph(c *gin.Context) {
 		// initialize a stage tracker
 		if _, ok := stageMap[name]; !ok {
 			stageMap[name] = &stg{
-				steps: []*library.Step{},
+				steps: []*types.Step{},
 			}
 		}
 
@@ -615,13 +615,13 @@ func nodeFromStage(nodeID, cluster int, stage *pipeline.Stage, s *stg) *node {
 }
 
 // nodeFromService returns a new node from a service.
-func nodeFromService(nodeID int, service *library.Service) *node {
+func nodeFromService(nodeID int, service *types.Service) *node {
 	return &node{
 		ID:         nodeID,
 		Cluster:    ServiceCluster,
 		Name:       service.GetName(),
 		Stage:      nil,
-		Steps:      []*library.Step{},
+		Steps:      []*types.Step{},
 		Status:     service.GetStatus(),
 		StartedAt:  int(service.GetStarted()),
 		FinishedAt: int(service.GetFinished()),

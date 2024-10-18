@@ -13,13 +13,13 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/server/version"
-	"github.com/go-vela/types/constants"
 )
 
 //nolint:funlen // ignore line length

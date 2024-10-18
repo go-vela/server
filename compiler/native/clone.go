@@ -4,7 +4,7 @@ package native
 
 import (
 	"github.com/go-vela/server/compiler/types/yaml"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 const (

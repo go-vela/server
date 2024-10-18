@@ -10,10 +10,10 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // Retrieve gets the user in the given context.

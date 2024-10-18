@@ -14,12 +14,12 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // swagger:operation POST /api/v1/repos repos CreateRepo

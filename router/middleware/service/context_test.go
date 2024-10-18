@@ -7,13 +7,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestService_FromContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	want := &library.Service{ID: &num}
+	want := &api.Service{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -72,7 +72,7 @@ func TestService_FromContext_Empty(t *testing.T) {
 func TestService_ToContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	want := &library.Service{ID: &num}
+	want := &api.Service{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

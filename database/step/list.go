@@ -5,19 +5,19 @@ package step
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // ListSteps gets a list of all steps from the database.
-func (e *engine) ListSteps(ctx context.Context) ([]*library.Step, error) {
+func (e *engine) ListSteps(ctx context.Context) ([]*api.Step, error) {
 	e.logger.Trace("listing all steps")
 
 	// variables to store query results and return value
 	count := int64(0)
-	w := new([]database.Step)
-	steps := []*library.Step{}
+	w := new([]types.Step)
+	steps := []*api.Step{}
 
 	// count the results
 	count, err := e.CountSteps(ctx)
@@ -45,10 +45,7 @@ func (e *engine) ListSteps(ctx context.Context) ([]*library.Step, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := step
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Step.ToLibrary
-		steps = append(steps, tmp.ToLibrary())
+		steps = append(steps, tmp.ToAPI())
 	}
 
 	return steps, nil

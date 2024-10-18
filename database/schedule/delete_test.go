@@ -11,8 +11,8 @@ import (
 	"github.com/adhocore/gronx"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/constants"
 )
 
 func TestSchedule_Engine_DeleteSchedule(t *testing.T) {

@@ -3,7 +3,7 @@
 //nolint:dupl // similar code to deploy.go
 package actions
 
-import "github.com/go-vela/types/constants"
+import "github.com/go-vela/server/constants"
 
 // Schedule is the API representation of the various actions associated
 // with the schedule event.

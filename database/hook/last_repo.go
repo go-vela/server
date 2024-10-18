@@ -10,8 +10,8 @@ import (
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // LastHookForRepo gets the last hook by repo ID from the database.

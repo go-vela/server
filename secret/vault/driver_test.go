@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 func TestVault_Driver(t *testing.T) {

@@ -5,7 +5,7 @@ package deployment
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 const (

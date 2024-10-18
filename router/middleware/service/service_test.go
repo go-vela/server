@@ -17,12 +17,11 @@ import (
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/types/library"
 )
 
 func TestService_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.Service)
+	want := new(api.Service)
 	want.SetID(1)
 
 	// setup context
@@ -57,7 +56,7 @@ func TestService_Establish(t *testing.T) {
 	b.SetRepo(r)
 	b.SetNumber(1)
 
-	want := new(library.Service)
+	want := new(api.Service)
 	want.SetID(1)
 	want.SetRepoID(1)
 	want.SetBuildID(1)
@@ -74,7 +73,7 @@ func TestService_Establish(t *testing.T) {
 	want.SetRuntime("")
 	want.SetDistribution("")
 
-	got := new(library.Service)
+	got := new(api.Service)
 
 	// setup database
 	db, err := database.NewTest()

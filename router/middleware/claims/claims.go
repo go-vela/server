@@ -9,10 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // Retrieve gets the claims in the given context.

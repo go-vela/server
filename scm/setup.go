@@ -8,9 +8,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/server/tracing"
-	"github.com/go-vela/types/constants"
 )
 
 // Setup represents the configuration necessary for

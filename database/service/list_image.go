@@ -6,7 +6,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // ListServiceImageCount gets a list of all service images and the count of their occurrence from the database.

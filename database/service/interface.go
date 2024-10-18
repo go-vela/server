@@ -6,7 +6,6 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 // ServiceInterface represents the Vela interface for service
@@ -32,21 +31,21 @@ type ServiceInterface interface {
 	// CountServicesForBuild defines a function that gets the count of services by build ID.
 	CountServicesForBuild(context.Context, *api.Build, map[string]interface{}) (int64, error)
 	// CreateService defines a function that creates a new service.
-	CreateService(context.Context, *library.Service) (*library.Service, error)
+	CreateService(context.Context, *api.Service) (*api.Service, error)
 	// DeleteService defines a function that deletes an existing service.
-	DeleteService(context.Context, *library.Service) error
+	DeleteService(context.Context, *api.Service) error
 	// GetService defines a function that gets a service by ID.
-	GetService(context.Context, int64) (*library.Service, error)
+	GetService(context.Context, int64) (*api.Service, error)
 	// GetServiceForBuild defines a function that gets a service by number and build ID.
-	GetServiceForBuild(context.Context, *api.Build, int) (*library.Service, error)
+	GetServiceForBuild(context.Context, *api.Build, int) (*api.Service, error)
 	// ListServices defines a function that gets a list of all services.
-	ListServices(context.Context) ([]*library.Service, error)
+	ListServices(context.Context) ([]*api.Service, error)
 	// ListServicesForBuild defines a function that gets a list of services by build ID.
-	ListServicesForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*library.Service, int64, error)
+	ListServicesForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*api.Service, int64, error)
 	// ListServiceImageCount defines a function that gets a list of all service images and the count of their occurrence.
 	ListServiceImageCount(context.Context) (map[string]float64, error)
 	// ListServiceStatusCount defines a function that gets a list of all service statuses and the count of their occurrence.
 	ListServiceStatusCount(context.Context) (map[string]float64, error)
 	// UpdateService defines a function that updates an existing service.
-	UpdateService(context.Context, *library.Service) (*library.Service, error)
+	UpdateService(context.Context, *api.Service) (*api.Service, error)
 }

@@ -13,7 +13,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/types/library"
 )
 

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/dashboard"
@@ -21,7 +22,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 // This file, in part, reproduces portions of

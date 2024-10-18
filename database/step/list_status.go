@@ -6,7 +6,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // ListStepStatusCount gets a list of all step statuses and the count of their occurrence from the database.

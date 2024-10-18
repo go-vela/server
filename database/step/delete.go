@@ -7,13 +7,13 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // DeleteStep deletes an existing step from the database.
-func (e *engine) DeleteStep(ctx context.Context, s *library.Step) error {
+func (e *engine) DeleteStep(ctx context.Context, s *api.Step) error {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
 	}).Tracef("deleting step %s", s.GetName())
@@ -21,7 +21,7 @@ func (e *engine) DeleteStep(ctx context.Context, s *library.Step) error {
 	// cast the library type to database type
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#StepFromLibrary
-	step := database.StepFromLibrary(s)
+	step := types.StepFromAPI(s)
 
 	// send query to the database
 	return e.client.

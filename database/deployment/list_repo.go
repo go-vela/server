@@ -9,8 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // ListDeploymentsForRepo gets a list of deployments by repo ID from the database.

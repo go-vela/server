@@ -11,8 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
@@ -80,7 +80,7 @@ const (
 func getSteps(c *gin.Context) {
 	data := []byte(StepsResp)
 
-	var body []library.Step
+	var body []api.Step
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -102,7 +102,7 @@ func getStep(c *gin.Context) {
 
 	data := []byte(StepResp)
 
-	var body library.Step
+	var body api.Step
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -112,7 +112,7 @@ func getStep(c *gin.Context) {
 func addStep(c *gin.Context) {
 	data := []byte(StepResp)
 
-	var body library.Step
+	var body api.Step
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -136,7 +136,7 @@ func updateStep(c *gin.Context) {
 
 	data := []byte(StepResp)
 
-	var body library.Step
+	var body api.Step
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal/token"
-	"github.com/go-vela/types/constants"
 )
 
 func TestClaims_FromContext(t *testing.T) {
