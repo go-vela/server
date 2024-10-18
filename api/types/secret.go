@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/types/pipeline"
 )
 
 // Secret is the API representation of a secret.
