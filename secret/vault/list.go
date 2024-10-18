@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	velaAPI "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // List captures a list of secrets.

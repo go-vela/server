@@ -210,8 +210,8 @@ func APISecret() *api.Secret {
 	}
 }
 
-func APIService() *library.Service {
-	return &library.Service{
+func APIService() *api.Service {
+	return &api.Service{
 		ID:           new(int64),
 		BuildID:      new(int64),
 		RepoID:       new(int64),
@@ -230,8 +230,8 @@ func APIService() *library.Service {
 	}
 }
 
-func APIStep() *library.Step {
-	return &library.Step{
+func APIStep() *api.Step {
+	return &api.Step{
 		ID:           new(int64),
 		BuildID:      new(int64),
 		RepoID:       new(int64),

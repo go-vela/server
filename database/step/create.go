@@ -7,25 +7,19 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // CreateStep creates a new step in the database.
-func (e *engine) CreateStep(ctx context.Context, s *library.Step) (*library.Step, error) {
+func (e *engine) CreateStep(ctx context.Context, s *api.Step) (*api.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
 	}).Tracef("creating step %s in the database", s.GetName())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#StepFromLibrary
-	step := database.StepFromLibrary(s)
+	step := types.StepFromAPI(s)
 
-	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Step.Validate
 	err := step.Validate()
 	if err != nil {
 		return nil, err
@@ -37,5 +31,5 @@ func (e *engine) CreateStep(ctx context.Context, s *library.Step) (*library.Step
 		Table(constants.TableStep).
 		Create(step)
 
-	return step.ToLibrary(), result.Error
+	return step.ToAPI(), result.Error
 }

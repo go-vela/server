@@ -2,7 +2,7 @@
 
 package actions
 
-import "github.com/go-vela/types/constants"
+import "github.com/go-vela/server/constants"
 
 // Comment is the API representation of the various actions associated
 // with the comment event webhook from the SCM.

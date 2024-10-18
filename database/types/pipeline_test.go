@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 func TestDatabase_Pipeline_Compress(t *testing.T) {

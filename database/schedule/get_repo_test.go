@@ -12,8 +12,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/constants"
 )
 
 func TestSchedule_Engine_GetScheduleForRepo(t *testing.T) {

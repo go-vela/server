@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 type (

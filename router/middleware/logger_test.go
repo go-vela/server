@@ -24,7 +24,6 @@ import (
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
-	"github.com/go-vela/types/library"
 )
 
 func TestMiddleware_Logger(t *testing.T) {
@@ -41,14 +40,14 @@ func TestMiddleware_Logger(t *testing.T) {
 	b.SetRepo(r)
 	b.SetNumber(1)
 
-	svc := new(library.Service)
+	svc := new(api.Service)
 	svc.SetID(1)
 	svc.SetRepoID(1)
 	svc.SetBuildID(1)
 	svc.SetNumber(1)
 	svc.SetName("foo")
 
-	s := new(library.Step)
+	s := new(api.Step)
 	s.SetID(1)
 	s.SetRepoID(1)
 	s.SetBuildID(1)

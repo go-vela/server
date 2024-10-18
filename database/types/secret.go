@@ -11,8 +11,8 @@ import (
 	"github.com/lib/pq"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 var (

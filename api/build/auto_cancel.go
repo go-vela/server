@@ -16,9 +16,9 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
-	"github.com/go-vela/types/constants"
 )
 
 // AutoCancel is a helper function that checks to see if any pending or running

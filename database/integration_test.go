@@ -17,6 +17,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/types/raw"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -35,7 +36,6 @@ import (
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/server/tracing"
-	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 
@@ -52,8 +52,8 @@ type Resources struct {
 	Repos       []*api.Repo
 	Schedules   []*api.Schedule
 	Secrets     []*api.Secret
-	Services    []*library.Service
-	Steps       []*library.Step
+	Services    []*api.Service
+	Steps       []*api.Step
 	Users       []*api.User
 	Workers     []*api.Worker
 	Platform    []*settings.Platform
@@ -1935,8 +1935,8 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if !cmp.Equal(list, []*library.Service{resources.Services[1], resources.Services[0]}) {
-		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*library.Service{resources.Services[1], resources.Services[0]})
+	if !cmp.Equal(list, []*api.Service{resources.Services[1], resources.Services[0]}) {
+		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*api.Service{resources.Services[1], resources.Services[0]})
 	}
 	if int(count) != len(resources.Services) {
 		t.Errorf("ListServicesForBuild() is %v, want %v", count, len(resources.Services))
@@ -2090,8 +2090,8 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if !cmp.Equal(list, []*library.Step{resources.Steps[1], resources.Steps[0]}) {
-		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*library.Step{resources.Steps[1], resources.Steps[0]})
+	if !cmp.Equal(list, []*api.Step{resources.Steps[1], resources.Steps[0]}) {
+		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*api.Step{resources.Steps[1], resources.Steps[0]})
 	}
 	if int(count) != len(resources.Steps) {
 		t.Errorf("ListStepsForBuild() is %v, want %v", count, len(resources.Steps))
@@ -2877,7 +2877,7 @@ func newResources() *Resources {
 	secretShared.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretShared.SetUpdatedBy("octokitty")
 
-	serviceOne := new(library.Service)
+	serviceOne := new(api.Service)
 	serviceOne.SetID(1)
 	serviceOne.SetBuildID(1)
 	serviceOne.SetRepoID(1)
@@ -2894,7 +2894,7 @@ func newResources() *Resources {
 	serviceOne.SetRuntime("docker")
 	serviceOne.SetDistribution("linux")
 
-	serviceTwo := new(library.Service)
+	serviceTwo := new(api.Service)
 	serviceTwo.SetID(2)
 	serviceTwo.SetBuildID(1)
 	serviceTwo.SetRepoID(1)
@@ -2911,7 +2911,7 @@ func newResources() *Resources {
 	serviceTwo.SetRuntime("docker")
 	serviceTwo.SetDistribution("linux")
 
-	stepOne := new(library.Step)
+	stepOne := new(api.Step)
 	stepOne.SetID(1)
 	stepOne.SetBuildID(1)
 	stepOne.SetRepoID(1)
@@ -2930,7 +2930,7 @@ func newResources() *Resources {
 	stepOne.SetDistribution("linux")
 	stepOne.SetReportAs("")
 
-	stepTwo := new(library.Step)
+	stepTwo := new(api.Step)
 	stepTwo.SetID(2)
 	stepTwo.SetBuildID(1)
 	stepTwo.SetRepoID(1)
@@ -2995,8 +2995,8 @@ func newResources() *Resources {
 		Repos:       []*api.Repo{repoOne, repoTwo},
 		Schedules:   []*api.Schedule{scheduleOne, scheduleTwo},
 		Secrets:     []*api.Secret{secretOrg, secretRepo, secretShared},
-		Services:    []*library.Service{serviceOne, serviceTwo},
-		Steps:       []*library.Step{stepOne, stepTwo},
+		Services:    []*api.Service{serviceOne, serviceTwo},
+		Steps:       []*api.Step{stepOne, stepTwo},
 		Users:       []*api.User{userOne, userTwo},
 		Workers:     []*api.Worker{workerOne, workerTwo},
 	}

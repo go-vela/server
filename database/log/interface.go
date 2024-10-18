@@ -38,9 +38,9 @@ type LogInterface interface {
 	// GetLog defines a function that gets a log by ID.
 	GetLog(context.Context, int64) (*library.Log, error)
 	// GetLogForService defines a function that gets a log by service ID.
-	GetLogForService(context.Context, *library.Service) (*library.Log, error)
+	GetLogForService(context.Context, *api.Service) (*library.Log, error)
 	// GetLogForStep defines a function that gets a log by step ID.
-	GetLogForStep(context.Context, *library.Step) (*library.Log, error)
+	GetLogForStep(context.Context, *api.Step) (*library.Log, error)
 	// ListLogs defines a function that gets a list of all logs.
 	ListLogs(context.Context) ([]*library.Log, error)
 	// ListLogsForBuild defines a function that gets a list of logs by build ID.

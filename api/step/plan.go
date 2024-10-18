@@ -11,18 +11,18 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm"
-	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 
 // PlanSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build.
-func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build) ([]*library.Step, error) {
+func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build) ([]*types.Step, error) {
 	// variable to store planned steps
-	steps := []*library.Step{}
+	steps := []*types.Step{}
 
 	// iterate through all pipeline stages
 	for _, stage := range p.Stages {
@@ -51,9 +51,9 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 	return steps, nil
 }
 
-func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *types.Build, c *pipeline.Container, stage string) (*library.Step, error) {
+func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *types.Build, c *pipeline.Container, stage string) (*types.Step, error) {
 	// create the step object
-	s := new(library.Step)
+	s := new(types.Step)
 	s.SetBuildID(b.GetID())
 	s.SetRepoID(b.GetRepo().GetID())
 	s.SetNumber(c.Number)
