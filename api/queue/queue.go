@@ -6,8 +6,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api/types"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 )
 
 // swagger:operation POST /api/v1/queue/info queue Info

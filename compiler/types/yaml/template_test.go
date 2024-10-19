@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/buildkite/yaml"
+
 	api "github.com/go-vela/server/api/types"
 )
 
