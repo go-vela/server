@@ -485,7 +485,7 @@ func (c *client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Re
 		return nil, resp.StatusCode, err
 	}
 
-	return toLibraryRepo(*repo), resp.StatusCode, nil
+	return toAPIRepo(*repo), resp.StatusCode, nil
 }
 
 // GetOrgAndRepoName returns the name of the org and the repository in the SCM.
@@ -556,14 +556,14 @@ func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 			continue
 		}
 
-		f = append(f, toLibraryRepo(*repo))
+		f = append(f, toAPIRepo(*repo))
 	}
 
 	return f, nil
 }
 
-// toLibraryRepo does a partial conversion of a github repo to a library repo.
-func toLibraryRepo(gr github.Repository) *api.Repo {
+// toAPIRepo does a partial conversion of a github repo to a API repo.
+func toAPIRepo(gr github.Repository) *api.Repo {
 	// setting the visbility to match the SCM visbility
 	var visibility string
 	if *gr.Private {

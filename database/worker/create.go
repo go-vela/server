@@ -18,14 +18,10 @@ func (e *engine) CreateWorker(ctx context.Context, w *api.Worker) (*api.Worker, 
 		"worker": w.GetHostname(),
 	}).Tracef("creating worker %s", w.GetHostname())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#WorkerFromLibrary
+	// cast the API type to database type
 	worker := types.WorkerFromAPI(w)
 
 	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Worker.Validate
 	err := worker.Validate()
 	if err != nil {
 		return nil, err

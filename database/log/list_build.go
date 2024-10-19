@@ -7,18 +7,17 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/database/types"
 )
 
 // ListLogsForBuild gets a list of logs by build ID from the database.
-func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPage int) ([]*library.Log, int64, error) {
+func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPage int) ([]*api.Log, int64, error) {
 	e.logger.Tracef("listing logs for build %d", b.GetID())
 
 	// variables to store query results and return value
 	count := int64(0)
-	l := new([]database.Log)
-	logs := []*library.Log{}
+	l := new([]types.Log)
+	logs := []*api.Log{}
 
 	// count the results
 	count, err := e.CountLogsForBuild(ctx, b)
@@ -55,8 +54,6 @@ func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPa
 		tmp := log
 
 		// decompress log data for the build
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
 		err = tmp.Decompress()
 		if err != nil {
 			// ensures that the change is backwards compatible
@@ -65,10 +62,8 @@ func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPa
 			e.logger.Errorf("unable to decompress logs for build %d: %v", b.GetID(), err)
 		}
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Log.ToLibrary
-		logs = append(logs, tmp.ToLibrary())
+		// convert query result to API type
+		logs = append(logs, tmp.ToAPI())
 	}
 
 	return logs, count, nil

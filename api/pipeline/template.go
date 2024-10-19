@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/server/compiler/types/yaml"
@@ -20,7 +21,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/{pipeline}/templates pipelines GetTemplates
@@ -110,9 +110,9 @@ func GetTemplates(c *gin.Context) {
 
 	baseErr := fmt.Sprintf("unable to set template links for %s", entry)
 
-	templates := make(map[string]*library.Template)
+	templates := make(map[string]*types.Template)
 	for name, template := range pipeline.Templates.Map() {
-		templates[name] = template.ToLibrary()
+		templates[name] = template.ToAPI()
 
 		// create a compiler registry client for parsing (no address or token needed for Parse)
 		registry, err := github.New(ctx, "", "")

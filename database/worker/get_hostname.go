@@ -33,7 +33,5 @@ func (e *engine) GetWorkerForHostname(ctx context.Context, hostname string) (*ap
 	}
 
 	// return the worker
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Worker.ToLibrary
 	return w.ToAPI(convertToBuilds(w.RunningBuildIDs)), nil
 }

@@ -29,7 +29,5 @@ func (e *engine) GetWorker(ctx context.Context, id int64) (*api.Worker, error) {
 	}
 
 	// return the worker
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Worker.ToLibrary
 	return w.ToAPI(convertToBuilds(w.RunningBuildIDs)), nil
 }

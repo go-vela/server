@@ -65,7 +65,7 @@ func (e *engine) ListDeployments(ctx context.Context) ([]*api.Deployment, error)
 			e.logger.Errorf("unable to decrypt repo: %v", err)
 		}
 
-		// convert query result to library type
+		// convert query result to API type
 		deployments = append(deployments, tmp.ToAPI(builds))
 	}
 

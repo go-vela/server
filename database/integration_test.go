@@ -36,7 +36,6 @@ import (
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/server/tracing"
-	"github.com/go-vela/types/library"
 )
 
 // Resources represents the object containing test resources.
@@ -44,10 +43,10 @@ type Resources struct {
 	Builds      []*api.Build
 	Dashboards  []*api.Dashboard
 	Deployments []*api.Deployment
-	Executables []*library.BuildExecutable
+	Executables []*api.BuildExecutable
 	Hooks       []*api.Hook
 	JWKs        jwk.Set
-	Logs        []*library.Log
+	Logs        []*api.Log
 	Pipelines   []*api.Pipeline
 	Repos       []*api.Repo
 	Schedules   []*api.Schedule
@@ -1122,7 +1121,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["ListLogsForBuild"] = true
 
 	// lookup the logs by service
-	for _, log := range []*library.Log{resources.Logs[0], resources.Logs[1]} {
+	for _, log := range []*api.Log{resources.Logs[0], resources.Logs[1]} {
 		service := resources.Services[log.GetServiceID()-1]
 		got, err := db.GetLogForService(context.TODO(), service)
 		if err != nil {
@@ -1135,7 +1134,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["GetLogForService"] = true
 
 	// lookup the logs by service
-	for _, log := range []*library.Log{resources.Logs[2], resources.Logs[3]} {
+	for _, log := range []*api.Log{resources.Logs[2], resources.Logs[3]} {
 		step := resources.Steps[log.GetStepID()-1]
 		got, err := db.GetLogForStep(context.TODO(), step)
 		if err != nil {
@@ -2623,12 +2622,12 @@ func newResources() *Resources {
 	dashboardTwo.SetAdmins(dashboardAdmins)
 	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
-	executableOne := new(library.BuildExecutable)
+	executableOne := new(api.BuildExecutable)
 	executableOne.SetID(1)
 	executableOne.SetBuildID(1)
 	executableOne.SetData([]byte("foo"))
 
-	executableTwo := new(library.BuildExecutable)
+	executableTwo := new(api.BuildExecutable)
 	executableTwo.SetID(2)
 	executableTwo.SetBuildID(2)
 	executableTwo.SetData([]byte("foo"))
@@ -2724,7 +2723,7 @@ func newResources() *Resources {
 
 	_ = jwkSet.AddKey(jwkTwo)
 
-	logServiceOne := new(library.Log)
+	logServiceOne := new(api.Log)
 	logServiceOne.SetID(1)
 	logServiceOne.SetBuildID(1)
 	logServiceOne.SetRepoID(1)
@@ -2732,7 +2731,7 @@ func newResources() *Resources {
 	logServiceOne.SetStepID(0)
 	logServiceOne.SetData([]byte("foo"))
 
-	logServiceTwo := new(library.Log)
+	logServiceTwo := new(api.Log)
 	logServiceTwo.SetID(2)
 	logServiceTwo.SetBuildID(1)
 	logServiceTwo.SetRepoID(1)
@@ -2740,7 +2739,7 @@ func newResources() *Resources {
 	logServiceTwo.SetStepID(0)
 	logServiceTwo.SetData([]byte("foo"))
 
-	logStepOne := new(library.Log)
+	logStepOne := new(api.Log)
 	logStepOne.SetID(3)
 	logStepOne.SetBuildID(1)
 	logStepOne.SetRepoID(1)
@@ -2748,7 +2747,7 @@ func newResources() *Resources {
 	logStepOne.SetStepID(1)
 	logStepOne.SetData([]byte("foo"))
 
-	logStepTwo := new(library.Log)
+	logStepTwo := new(api.Log)
 	logStepTwo.SetID(4)
 	logStepTwo.SetBuildID(1)
 	logStepTwo.SetRepoID(1)
@@ -2987,10 +2986,10 @@ func newResources() *Resources {
 		Builds:      []*api.Build{buildOne, buildTwo},
 		Dashboards:  []*api.Dashboard{dashboardOne, dashboardTwo},
 		Deployments: []*api.Deployment{deploymentOne, deploymentTwo},
-		Executables: []*library.BuildExecutable{executableOne, executableTwo},
+		Executables: []*api.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*api.Hook{hookOne, hookTwo, hookThree},
 		JWKs:        jwkSet,
-		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
+		Logs:        []*api.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*api.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},
 		Schedules:   []*api.Schedule{scheduleOne, scheduleTwo},

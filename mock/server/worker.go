@@ -11,8 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
@@ -209,7 +207,7 @@ func getWorker(c *gin.Context) {
 	if strings.EqualFold(w, "0") {
 		msg := fmt.Sprintf("Worker %s does not exist", w)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -226,7 +224,7 @@ func getWorker(c *gin.Context) {
 func addWorker(c *gin.Context) {
 	data := []byte(AddWorkerResp)
 
-	var body library.Token
+	var body api.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -241,7 +239,7 @@ func updateWorker(c *gin.Context) {
 	if strings.EqualFold(w, "0") {
 		msg := fmt.Sprintf("Worker %s does not exist", w)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -263,14 +261,14 @@ func refreshWorkerAuth(c *gin.Context) {
 	if strings.EqualFold(w, "0") {
 		msg := fmt.Sprintf("Worker %s does not exist", w)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
 
 	data := []byte(RefreshWorkerAuthResp)
 
-	var body library.Token
+	var body api.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -285,7 +283,7 @@ func removeWorker(c *gin.Context) {
 	if strings.EqualFold(w, "0") {
 		msg := fmt.Sprintf("Worker %s does not exist", w)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -302,14 +300,14 @@ func registerToken(c *gin.Context) {
 	if strings.EqualFold(w, "0") {
 		msg := fmt.Sprintf("user %s is not a platform admin", w)
 
-		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &msg})
 
 		return
 	}
 
 	data := []byte(RegisterTokenResp)
 
-	var body library.Token
+	var body api.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -324,14 +322,14 @@ func getQueueCreds(c *gin.Context) {
 	if token == "" {
 		msg := "unable get queue credentials; invalid registration token"
 
-		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &msg})
 
 		return
 	}
 
 	data := []byte(QueueInfoResp)
 
-	var body library.QueueInfo
+	var body api.QueueInfo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)

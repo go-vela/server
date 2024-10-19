@@ -206,7 +206,7 @@ func testSqlite(t *testing.T) *engine {
 	return _engine
 }
 
-// testWorker is a test helper function to create a library
+// testWorker is a test helper function to create a API
 // Worker type with all fields set to their zero values.
 func testWorker() *api.Worker {
 	b := new(api.Build)

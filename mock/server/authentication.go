@@ -11,8 +11,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
@@ -67,7 +65,7 @@ const (
 func getTokenRefresh(c *gin.Context) {
 	data := []byte(TokenRefreshResp)
 
-	var body library.Token
+	var body api.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -84,12 +82,12 @@ func getAuthenticate(c *gin.Context) {
 	err := "error"
 
 	if len(state) == 0 && len(code) == 0 {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &err})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &err})
 
 		return
 	}
 
-	var body library.Token
+	var body api.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.SetCookie(constants.RefreshTokenName, "refresh", 2, "/", "", true, true)
@@ -106,10 +104,10 @@ func getAuthenticateFromToken(c *gin.Context) {
 
 	token := c.Request.Header.Get("Token")
 	if len(token) == 0 {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &err})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &err})
 	}
 
-	var body library.Token
+	var body api.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -123,7 +121,7 @@ func validateToken(c *gin.Context) {
 
 	token := c.Request.Header.Get("Authorization")
 	if len(token) == 0 {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &err})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &err})
 	}
 
 	c.JSON(http.StatusOK, "vela-server")
@@ -137,7 +135,7 @@ func validateOAuthToken(c *gin.Context) {
 
 	token := c.Request.Header.Get("Authorization")
 	if len(token) == 0 {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &err})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &err})
 	}
 
 	c.JSON(http.StatusOK, "oauth token was created by vela")

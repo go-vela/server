@@ -21,7 +21,7 @@ func (e *engine) CreateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error)
 		"repo": r.GetName(),
 	}).Tracef("creating repo %s", r.GetFullName())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	repo := types.RepoFromAPI(r)
 
 	// validate the necessary fields are populated

@@ -7,13 +7,13 @@ import (
 	"context"
 	"fmt"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/database/types"
 )
 
 // CreateLog creates a new log in the database.
-func (e *engine) CreateLog(ctx context.Context, l *library.Log) error {
+func (e *engine) CreateLog(ctx context.Context, l *api.Log) error {
 	// check what the log entry is for
 	switch {
 	case l.GetServiceID() > 0:
@@ -22,22 +22,15 @@ func (e *engine) CreateLog(ctx context.Context, l *library.Log) error {
 		e.logger.Tracef("creating log for step %d for build %d", l.GetStepID(), l.GetBuildID())
 	}
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#LogFromLibrary
-	log := database.LogFromLibrary(l)
+	// cast the API type to database type
+	log := types.LogFromAPI(l)
 
-	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Validate
 	err := log.Validate()
 	if err != nil {
 		return err
 	}
 
 	// compress log data for the resource
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
 	err = log.Compress(e.config.CompressionLevel)
 	if err != nil {
 		switch {

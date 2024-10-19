@@ -8,8 +8,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
@@ -43,7 +42,7 @@ func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.BuildExecutable
+		want     *api.BuildExecutable
 	}{
 		{
 			failure:  false,

@@ -9,10 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/admin/workers/{worker}/register admin RegisterToken
@@ -72,5 +72,5 @@ func RegisterToken(c *gin.Context) {
 
 	l.Infof("platform admin: generated worker registration token for %s", host)
 
-	c.JSON(http.StatusOK, library.Token{Token: &rt})
+	c.JSON(http.StatusOK, types.Token{Token: &rt})
 }

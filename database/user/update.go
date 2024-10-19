@@ -20,7 +20,7 @@ func (e *engine) UpdateUser(ctx context.Context, u *api.User) (*api.User, error)
 		"user": u.GetName(),
 	}).Tracef("updating user %s", u.GetName())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	user := types.UserFromAPI(u)
 
 	// validate the necessary fields are populated

@@ -39,8 +39,6 @@ func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (
 	}
 
 	// decrypt the fields for the secret
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Decrypt
 	err = s.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		// TODO: remove backwards compatibility before 1.x.x release
@@ -51,13 +49,9 @@ func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (
 		e.logger.Errorf("unable to decrypt shared secret %s/%s/%s: %v", org, team, name, err)
 
 		// return the unencrypted secret
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
 		return s.ToAPI(), nil
 	}
 
 	// return the decrypted secret
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
 	return s.ToAPI(), nil
 }

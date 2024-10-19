@@ -10,23 +10,23 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestExecutable_Engine_CleanExecutables(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
+	_buildOne := testutils.APIBuild()
 	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
+	_buildOne.SetRepo(testutils.APIRepo())
 	_buildOne.SetNumber(1)
 	_buildOne.SetStatus("pending")
 	_buildOne.SetCreated(1)
 	_buildOne.SetDeployPayload(nil)
 
-	_buildTwo := testBuild()
+	_buildTwo := testutils.APIBuild()
 	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
+	_buildTwo.SetRepo(testutils.APIRepo())
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetStatus("error")
 	_buildTwo.SetCreated(1)
@@ -63,17 +63,17 @@ func TestExecutable_Engine_CleanExecutables(t *testing.T) {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.Build{})
+	err = _sqlite.client.AutoMigrate(&types.Build{})
 	if err != nil {
 		t.Errorf("unable to create repo table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableBuild).Create(database.BuildFromLibrary(_buildOne)).Error
+	err = _sqlite.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_buildOne)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableBuild).Create(database.BuildFromLibrary(_buildTwo)).Error
+	err = _sqlite.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_buildTwo)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -122,42 +122,5 @@ func TestExecutable_Engine_CleanExecutables(t *testing.T) {
 				t.Errorf("CleanExecutables for %s should have returned an error", test.name)
 			}
 		})
-	}
-}
-
-// testBuild is a test helper function to create a library
-// Build type with all fields set to their zero values.
-func testBuild() *library.Build {
-	return &library.Build{
-		ID:           new(int64),
-		RepoID:       new(int64),
-		PipelineID:   new(int64),
-		Number:       new(int),
-		Parent:       new(int),
-		Event:        new(string),
-		EventAction:  new(string),
-		Status:       new(string),
-		Error:        new(string),
-		Enqueued:     new(int64),
-		Created:      new(int64),
-		Started:      new(int64),
-		Finished:     new(int64),
-		Deploy:       new(string),
-		Clone:        new(string),
-		Source:       new(string),
-		Title:        new(string),
-		Message:      new(string),
-		Commit:       new(string),
-		Sender:       new(string),
-		Author:       new(string),
-		Email:        new(string),
-		Link:         new(string),
-		Branch:       new(string),
-		Ref:          new(string),
-		BaseRef:      new(string),
-		HeadRef:      new(string),
-		Host:         new(string),
-		Runtime:      new(string),
-		Distribution: new(string),
 	}
 }

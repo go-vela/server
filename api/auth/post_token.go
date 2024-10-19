@@ -9,12 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /authenticate/token authenticate PostAuthToken
@@ -98,5 +98,5 @@ func PostAuthToken(c *gin.Context) {
 	}
 
 	// return jwt access token
-	c.JSON(http.StatusOK, library.Token{Token: &at})
+	c.JSON(http.StatusOK, types.Token{Token: &at})
 }

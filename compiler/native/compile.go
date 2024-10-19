@@ -108,7 +108,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 		return nil, nil, err
 	}
 
-	// create the library pipeline object from the yaml configuration
+	// create the API pipeline object from the yaml configuration
 	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)
 	_pipeline.SetType(c.repo.GetPipelineType())
@@ -502,7 +502,7 @@ func errorHandler(resp *http.Response, err error, attempts int) (*http.Response,
 }
 
 // modifyConfig sends the configuration to external http endpoint for modification.
-func (c *client) modifyConfig(build *yaml.Build, libraryBuild *api.Build, repo *api.Repo) (*yaml.Build, error) {
+func (c *client) modifyConfig(build *yaml.Build, apiBuild *api.Build, repo *api.Repo) (*yaml.Build, error) {
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
 	if err != nil {
@@ -511,10 +511,10 @@ func (c *client) modifyConfig(build *yaml.Build, libraryBuild *api.Build, repo *
 
 	modReq := &ModifyRequest{
 		Pipeline: string(data),
-		Build:    libraryBuild.GetNumber(),
+		Build:    apiBuild.GetNumber(),
 		Repo:     repo.GetName(),
 		Org:      repo.GetOrg(),
-		User:     libraryBuild.GetAuthor(),
+		User:     apiBuild.GetAuthor(),
 	}
 
 	// marshal json to send in request

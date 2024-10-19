@@ -11,13 +11,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/workers/{worker}/refresh workers RefreshWorkerAuth
@@ -98,7 +98,7 @@ func Refresh(c *gin.Context) {
 	// if symmetric token configured, send back symmetric token
 	case constants.ServerWorkerTokenType:
 		if secret, ok := c.Value("secret").(string); ok {
-			tkn := new(library.Token)
+			tkn := new(types.Token)
 			tkn.SetToken(secret)
 
 			c.JSON(http.StatusOK, tkn)
@@ -120,7 +120,7 @@ func Refresh(c *gin.Context) {
 			Hostname:      cl.Subject,
 		}
 
-		tkn := new(library.Token)
+		tkn := new(types.Token)
 
 		wt, err := tm.MintToken(wmto)
 		if err != nil {

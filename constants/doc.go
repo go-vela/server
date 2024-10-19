@@ -4,5 +4,5 @@
 //
 // Usage:
 //
-//	import "github.com/go-vela/types/constants"
+//	import "github.com/go-vela/server/constants"
 package constants
