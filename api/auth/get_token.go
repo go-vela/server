@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -66,6 +67,7 @@ import (
 func GetAuthToken(c *gin.Context) {
 	// capture middleware values
 	tm := c.MustGet("token-manager").(*token.Manager)
+	m := c.MustGet("metadata").(*internal.Metadata)
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	ctx := c.Request.Context()
@@ -76,12 +78,7 @@ func GetAuthToken(c *gin.Context) {
 	var err error
 
 	if c.Request.FormValue("setup_action") == "install" {
-		// todo: make this better...
-		// random todos:
-		// what if a repo is added to the installation before it exists in vela
-		// then we need to sync repo installID all the time.
-		// sadly, installID might change if it gets re-installed.
-		c.Redirect(http.StatusTemporaryRedirect, "https://git.target.com/")
+		c.Redirect(http.StatusTemporaryRedirect, "https://"+m.Source.Host)
 
 		return
 	}

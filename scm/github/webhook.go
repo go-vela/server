@@ -554,8 +554,16 @@ func (c *client) processInstallationEvent(ctx context.Context, h *api.Hook, payl
 	install.ID = payload.GetInstallation().GetID()
 	install.Org = payload.GetInstallation().GetAccount().GetLogin()
 
-	for _, repo := range payload.Repositories {
-		install.RepositoriesAdded = append(install.RepositoriesAdded, repo.GetName())
+	switch payload.GetAction() {
+	case "created":
+		for _, repo := range payload.Repositories {
+			install.RepositoriesAdded = append(install.RepositoriesAdded, repo.GetName())
+		}
+		break
+	case "deleted":
+		for _, repo := range payload.Repositories {
+			install.RepositoriesRemoved = append(install.RepositoriesRemoved, repo.GetName())
+		}
 	}
 
 	return &internal.Webhook{

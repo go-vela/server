@@ -22,9 +22,6 @@ func (c *client) ProcessInstallation(ctx context.Context, request *http.Request,
 
 	errs := []error{}
 
-	// if action is "deleted" then the RepositoriesAdded field will indicate the repositories that
-	// need to have install_id set to zero
-
 	// set install_id for repos added to the installation
 	for _, repo := range webhook.Installation.RepositoriesAdded {
 		r, err := db.GetRepoForOrg(ctx, webhook.Installation.Org, repo)
@@ -37,14 +34,7 @@ func (c *client) ProcessInstallation(ctx context.Context, request *http.Request,
 			continue
 		}
 
-		installID := webhook.Installation.ID
-
-		// clear install_id if the installation is deleted
-		if webhook.Installation.Action == "deleted" {
-			installID = 0
-		}
-
-		err = updateRepoInstallationID(ctx, webhook, r, db, installID)
+		err = updateRepoInstallationID(ctx, webhook, r, db, webhook.Installation.ID)
 		if err != nil {
 			errs = append(errs, err)
 		}
