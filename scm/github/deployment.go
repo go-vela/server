@@ -135,7 +135,7 @@ func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 
 		createdAt := deployment.CreatedAt.Unix()
 
-		// convert query result to library type
+		// convert query result to API type
 		deployments = append(deployments, &api.Deployment{
 			ID:          deployment.ID,
 			Repo:        r,

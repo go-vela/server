@@ -14,7 +14,6 @@ import (
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm"
-	"github.com/go-vela/types/library"
 )
 
 // PlanSteps is a helper function to plan all steps
@@ -78,16 +77,14 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 		"repo_id": b.GetRepo().GetID(),
 	}).Info("step created")
 
-	// populate environment variables from step library
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/library#step.Environment
+	// populate environment variables from step
 	err = c.MergeEnv(s.Environment())
 	if err != nil {
 		return nil, err
 	}
 
 	// create the log object
-	l := new(library.Log)
+	l := new(types.Log)
 	l.SetStepID(s.GetID())
 	l.SetBuildID(b.GetID())
 	l.SetRepoID(b.GetRepo().GetID())

@@ -89,7 +89,7 @@ func TestDatabase_Step_ToAPI(t *testing.T) {
 	got := testStep().ToAPI()
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ToLibrary is %v, want %v", got, want)
+		t.Errorf("ToAPI is %v, want %v", got, want)
 	}
 }
 
@@ -201,7 +201,7 @@ func TestDatabase_StepFromAPI(t *testing.T) {
 	got := StepFromAPI(s)
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("StepFromLibrary is %v, want %v", got, want)
+		t.Errorf("StepFromAPI is %v, want %v", got, want)
 	}
 }
 

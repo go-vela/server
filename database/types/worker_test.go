@@ -171,7 +171,7 @@ func TestTypes_Worker_WorkerFromAPI(t *testing.T) {
 	got := WorkerFromAPI(w)
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("WorkerFromLibrary is %v, want %v", got, want)
+		t.Errorf("WorkerFromAPI is %v, want %v", got, want)
 	}
 }
 

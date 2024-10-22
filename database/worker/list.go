@@ -49,9 +49,7 @@ func (e *engine) ListWorkers(ctx context.Context, active string, before, after i
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := worker
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Worker.ToLibrary
+		// convert query result to API type
 		workers = append(workers, tmp.ToAPI(convertToBuilds(tmp.RunningBuildIDs)))
 	}
 

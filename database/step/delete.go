@@ -18,9 +18,7 @@ func (e *engine) DeleteStep(ctx context.Context, s *api.Step) error {
 		"step": s.GetNumber(),
 	}).Tracef("deleting step %s", s.GetName())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#StepFromLibrary
+	// cast the API type to database type
 	step := types.StepFromAPI(s)
 
 	// send query to the database

@@ -7,17 +7,17 @@ import (
 
 	"gorm.io/gorm/clause"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/database/types"
 )
 
 // PopBuildExecutable pops a build executable by build_id from the database.
-func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.BuildExecutable, error) {
+func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*api.BuildExecutable, error) {
 	e.logger.Tracef("popping build executable for build %d", id)
 
 	// variable to store query results
-	b := new(database.BuildExecutable)
+	b := new(types.BuildExecutable)
 
 	// at the time of coding, GORM does not implement a version of Sqlite3 that supports RETURNING.
 	// so we have to select and delete for the Sqlite driver.
@@ -59,23 +59,16 @@ func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.Bui
 	}
 
 	// decrypt the fields for the build executable
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
 	err := b.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		return nil, err
 	}
 
 	// decompress data for the build executable
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#BuildExecutable.Decompress
 	err = b.Decompress()
 	if err != nil {
 		return nil, err
 	}
 
-	// return the decompressed build executable
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#BuildExecutable.ToLibrary
-	return b.ToLibrary(), nil
+	return b.ToAPI(), nil
 }

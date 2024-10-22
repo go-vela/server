@@ -57,7 +57,7 @@ func (e *engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
 			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
 		}
 
-		// convert query result to library type
+		// convert query result to API type
 		repos = append(repos, tmp.ToAPI())
 	}
 

@@ -18,7 +18,7 @@ func (e *engine) DeleteDeployment(ctx context.Context, d *api.Deployment) error 
 		"deployment": d.GetID(),
 	}).Tracef("deleting deployment %d", d.GetID())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	deployment := types.DeploymentFromAPI(d)
 
 	// send query to the database

@@ -13,8 +13,8 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/types/library"
 )
 
 func TestExecutable_New(t *testing.T) {
@@ -188,10 +188,10 @@ func testSqlite(t *testing.T) *engine {
 	return _engine
 }
 
-// testBuildExecutable is a test helper function to create a library
+// testBuildExecutable is a test helper function to create a API
 // BuildExecutable type with all fields set to their zero values.
-func testBuildExecutable() *library.BuildExecutable {
-	return &library.BuildExecutable{
+func testBuildExecutable() *api.BuildExecutable {
+	return &api.BuildExecutable{
 		ID:      new(int64),
 		BuildID: new(int64),
 		Data:    new([]byte),

@@ -12,7 +12,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/router/middleware/auth"
-	"github.com/go-vela/types"
 )
 
 const (
@@ -69,7 +68,7 @@ func getUser(c *gin.Context) {
 	if strings.Contains(u, "not-found") {
 		msg := fmt.Sprintf("User %s does not exist", u)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -91,7 +90,7 @@ func currentUser(c *gin.Context) {
 	if strings.Contains(tkn, "invalid") {
 		msg := "unauthorized"
 
-		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &msg})
 
 		return
 	}
@@ -124,7 +123,7 @@ func updateUser(c *gin.Context) {
 		if strings.Contains(u, "not-found") {
 			msg := fmt.Sprintf("User %s does not exist", u)
 
-			c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+			c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 			return
 		}
@@ -147,7 +146,7 @@ func removeUser(c *gin.Context) {
 	if strings.Contains(u, "not-found") {
 		msg := fmt.Sprintf("User %s does not exist", u)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}

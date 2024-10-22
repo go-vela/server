@@ -11,10 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 )
 
 // swagger:operation PUT /api/v1/admin/clean admin AdminCleanResources

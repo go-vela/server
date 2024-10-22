@@ -30,8 +30,6 @@ func (e *engine) GetRepo(ctx context.Context, id int64) (*api.Repo, error) {
 	}
 
 	// decrypt the fields for the repo
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
 	err = r.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		// TODO: remove backwards compatibility before 1.x.x release
@@ -42,13 +40,9 @@ func (e *engine) GetRepo(ctx context.Context, id int64) (*api.Repo, error) {
 		e.logger.Errorf("unable to decrypt repo %d: %v", id, err)
 
 		// return the unencrypted repo
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.ToLibrary
 		return r.ToAPI(), nil
 	}
 
 	// return the decrypted repo
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.ToLibrary
 	return r.ToAPI(), nil
 }

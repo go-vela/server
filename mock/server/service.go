@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types"
 )
 
 const (
@@ -85,7 +84,7 @@ func getService(c *gin.Context) {
 	if strings.EqualFold(s, "0") {
 		msg := fmt.Sprintf("Service %s does not exist", s)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -118,7 +117,7 @@ func updateService(c *gin.Context) {
 		if strings.EqualFold(s, "0") {
 			msg := fmt.Sprintf("Service %s does not exist", s)
 
-			c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+			c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 			return
 		}
@@ -141,7 +140,7 @@ func removeService(c *gin.Context) {
 	if strings.EqualFold(s, "0") {
 		msg := fmt.Sprintf("Service %s does not exist", s)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}

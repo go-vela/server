@@ -10,12 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps CreateStepLog
@@ -90,7 +90,7 @@ func CreateStepLog(c *gin.Context) {
 	l.Debugf("creating logs for step %s", entry)
 
 	// capture body from API request
-	input := new(library.Log)
+	input := new(types.Log)
 
 	err := c.Bind(input)
 	if err != nil {

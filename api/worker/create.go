@@ -17,7 +17,6 @@ import (
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/workers workers CreateWorker
@@ -105,7 +104,7 @@ func CreateWorker(c *gin.Context) {
 	// if symmetric token configured, send back symmetric token
 	case constants.ServerWorkerTokenType:
 		if secret, ok := c.Value("secret").(string); ok {
-			tkn := new(library.Token)
+			tkn := new(types.Token)
 			tkn.SetToken(secret)
 
 			c.JSON(http.StatusCreated, tkn)
@@ -127,7 +126,7 @@ func CreateWorker(c *gin.Context) {
 			Hostname:      cl.Subject,
 		}
 
-		tkn := new(library.Token)
+		tkn := new(types.Token)
 
 		wt, err := tm.MintToken(wmto)
 		if err != nil {

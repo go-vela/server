@@ -12,7 +12,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/types/library"
 )
 
 // API TEST RESOURCES
@@ -162,8 +161,8 @@ func APIHook() *api.Hook {
 	}
 }
 
-func APILog() *library.Log {
-	return &library.Log{
+func APILog() *api.Log {
+	return &api.Log{
 		ID:        new(int64),
 		RepoID:    new(int64),
 		BuildID:   new(int64),

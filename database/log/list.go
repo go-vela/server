@@ -5,19 +5,19 @@ package log
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/database/types"
 )
 
 // ListLogs gets a list of all logs from the database.
-func (e *engine) ListLogs(ctx context.Context) ([]*library.Log, error) {
+func (e *engine) ListLogs(ctx context.Context) ([]*api.Log, error) {
 	e.logger.Trace("listing all logs")
 
 	// variables to store query results and return value
 	count := int64(0)
-	l := new([]database.Log)
-	logs := []*library.Log{}
+	l := new([]types.Log)
+	logs := []*api.Log{}
 
 	// count the results
 	count, err := e.CountLogs(ctx)
@@ -46,8 +46,6 @@ func (e *engine) ListLogs(ctx context.Context) ([]*library.Log, error) {
 		tmp := log
 
 		// decompress log data
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
 		err = tmp.Decompress()
 		if err != nil {
 			// ensures that the change is backwards compatible
@@ -56,10 +54,8 @@ func (e *engine) ListLogs(ctx context.Context) ([]*library.Log, error) {
 			e.logger.Errorf("unable to decompress logs: %v", err)
 		}
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Log.ToLibrary
-		logs = append(logs, tmp.ToLibrary())
+		// convert query result to API type
+		logs = append(logs, tmp.ToAPI())
 	}
 
 	return logs, nil

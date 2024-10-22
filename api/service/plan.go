@@ -13,7 +13,6 @@ import (
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 // PlanServices is a helper function to plan all services
@@ -49,16 +48,13 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 			"repo_id":    b.GetRepo().GetID(),
 		}).Info("service created")
 
-		// populate environment variables from service library
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/library#Service.Environment
 		err = service.MergeEnv(s.Environment())
 		if err != nil {
 			return services, err
 		}
 
 		// create the log object
-		l := new(library.Log)
+		l := new(types.Log)
 		l.SetServiceID(s.GetID())
 		l.SetBuildID(b.GetID())
 		l.SetRepoID(b.GetRepo().GetID())

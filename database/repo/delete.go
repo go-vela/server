@@ -19,7 +19,7 @@ func (e *engine) DeleteRepo(ctx context.Context, r *api.Repo) error {
 		"repo": r.GetName(),
 	}).Tracef("deleting repo %s", r.GetFullName())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	repo := types.RepoFromAPI(r)
 
 	// send query to the database

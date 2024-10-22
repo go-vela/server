@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types"
 )
 
 const (
@@ -219,7 +218,7 @@ func getSchedule(c *gin.Context) {
 	if strings.Contains(s, "not-found") {
 		msg := fmt.Sprintf("Schedule %s does not exist", s)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -252,7 +251,7 @@ func updateSchedule(c *gin.Context) {
 		if strings.Contains(s, "not-found") {
 			msg := fmt.Sprintf("Schedule %s does not exist", s)
 
-			c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+			c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 			return
 		}
@@ -275,7 +274,7 @@ func removeSchedule(c *gin.Context) {
 	if strings.Contains(s, "not-found") {
 		msg := fmt.Sprintf("Schedule %s does not exist", s)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}

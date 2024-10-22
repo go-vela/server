@@ -135,7 +135,7 @@ func (c *client) Duplicate() compiler.Engine {
 	return cc
 }
 
-// WithBuild sets the library build type in the Engine.
+// WithBuild sets the API build type in the Engine.
 func (c *client) WithBuild(b *api.Build) compiler.Engine {
 	if b != nil {
 		c.build = b
@@ -205,7 +205,7 @@ func (c *client) WithPrivateGitHub(ctx context.Context, url, token string) compi
 	return c
 }
 
-// WithRepo sets the library repo type in the Engine.
+// WithRepo sets the API repo type in the Engine.
 func (c *client) WithRepo(r *api.Repo) compiler.Engine {
 	if r != nil {
 		c.repo = r
@@ -214,7 +214,7 @@ func (c *client) WithRepo(r *api.Repo) compiler.Engine {
 	return c
 }
 
-// WithUser sets the library user type in the Engine.
+// WithUser sets the API user type in the Engine.
 func (c *client) WithUser(u *api.User) compiler.Engine {
 	if u != nil {
 		c.user = u

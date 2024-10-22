@@ -18,9 +18,7 @@ func (e *engine) DeleteWorker(ctx context.Context, w *api.Worker) error {
 		"worker": w.GetHostname(),
 	}).Tracef("deleting worker %s", w.GetHostname())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#WorkerFromLibrary
+	// cast the API type to database type
 	worker := types.WorkerFromAPI(w)
 
 	// send query to the database

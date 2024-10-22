@@ -18,7 +18,7 @@ func (e *engine) CreateDeployment(ctx context.Context, d *api.Deployment) (*api.
 		"deployment": d.GetID(),
 	}).Tracef("creating deployment %d", d.GetID())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	deployment := types.DeploymentFromAPI(d)
 
 	// validate the necessary fields are populated

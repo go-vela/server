@@ -37,8 +37,6 @@ func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*api.Se
 	}
 
 	// decrypt the fields for the secret
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Decrypt
 	err = s.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		// TODO: remove backwards compatibility before 1.x.x release
