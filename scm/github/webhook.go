@@ -543,6 +543,7 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 	}, nil
 }
 
+// processInstallationEvent is a helper function to process the installation event.
 func (c *client) processInstallationEvent(ctx context.Context, h *api.Hook, payload *github.InstallationEvent) (*internal.Webhook, error) {
 	h.SetEvent(constants.EventRepository)
 	h.SetEventAction(payload.GetAction())
@@ -563,6 +564,7 @@ func (c *client) processInstallationEvent(ctx context.Context, h *api.Hook, payl
 	}, nil
 }
 
+// processInstallationRepositoriesEvent is a helper function to process the installation repositories event.
 func (c *client) processInstallationRepositoriesEvent(ctx context.Context, h *api.Hook, payload *github.InstallationRepositoriesEvent) (*internal.Webhook, error) {
 	install := new(internal.Installation)
 
