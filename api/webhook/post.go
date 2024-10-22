@@ -85,6 +85,7 @@ func PostWebhook(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
 	l := c.MustGet("logger").(*logrus.Entry)
+	db := database.FromContext(c)
 	ctx := c.Request.Context()
 
 	l.Debug("webhook received")
@@ -130,6 +131,20 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %w", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	if webhook.Installation != nil {
+		err = scm.FromContext(c).ProcessInstallation(ctx, c.Request, webhook, db)
+		if err != nil {
+			retErr := fmt.Errorf("unable to process installation: %w", err)
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		c.JSON(http.StatusOK, "handled installation event!")
 
 		return
 	}

@@ -75,6 +75,17 @@ func GetAuthToken(c *gin.Context) {
 
 	var err error
 
+	if c.Request.FormValue("setup_action") == "install" {
+		// todo: make this better...
+		// random todos:
+		// what if a repo is added to the installation before it exists in vela
+		// then we need to sync repo installID all the time.
+		// sadly, installID might change if it gets re-installed.
+		c.Redirect(http.StatusTemporaryRedirect, "https://git.target.com/")
+
+		return
+	}
+
 	// capture the OAuth code if present
 	code := c.Request.FormValue("code")
 	if len(code) == 0 {

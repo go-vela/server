@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/library"
 )
@@ -157,6 +158,9 @@ type Service interface {
 	// RedeliverWebhook defines a function that
 	// redelivers the webhook from the SCM.
 	RedeliverWebhook(context.Context, *api.User, *api.Hook) error
+	// ProcessInstallation defines a function that
+	// processes an installation event.
+	ProcessInstallation(context.Context, *http.Request, *internal.Webhook, database.Interface) error
 
 	// TODO: Add convert functions to interface?
 }

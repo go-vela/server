@@ -26,11 +26,20 @@ type PullRequest struct {
 // the required data when processing webhook event
 // a for a source provider event.
 type Webhook struct {
-	Hook        *api.Hook
-	Repo        *api.Repo
-	Build       *api.Build
-	PullRequest PullRequest
-	Deployment  *api.Deployment
+	Hook         *api.Hook
+	Repo         *api.Repo
+	Build        *api.Build
+	PullRequest  PullRequest
+	Deployment   *api.Deployment
+	Installation *Installation
+}
+
+type Installation struct {
+	Action              string
+	ID                  int64
+	Org                 string
+	RepositoriesAdded   []string
+	RepositoriesRemoved []string
 }
 
 // ShouldSkip uses the build information

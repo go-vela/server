@@ -60,7 +60,6 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*in
 
 	// parse the payload from the webhook
 	event, err := github.ParseWebHook(github.WebHookType(request), payload)
-
 	if err != nil {
 		return &internal.Webhook{Hook: h}, nil
 	}
@@ -77,6 +76,10 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*in
 		return c.processIssueCommentEvent(h, event)
 	case *github.RepositoryEvent:
 		return c.processRepositoryEvent(h, event)
+	case *github.InstallationEvent:
+		return c.processInstallationEvent(ctx, h, event)
+	case *github.InstallationRepositoriesEvent:
+		return c.processInstallationRepositoriesEvent(ctx, h, event)
 	}
 
 	return &internal.Webhook{Hook: h}, nil
@@ -510,7 +513,6 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 }
 
 // processRepositoryEvent is a helper function to process the repository event.
-
 func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryEvent) (*internal.Webhook, error) {
 	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
 
@@ -538,6 +540,47 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 	return &internal.Webhook{
 		Hook: h,
 		Repo: r,
+	}, nil
+}
+
+func (c *client) processInstallationEvent(ctx context.Context, h *api.Hook, payload *github.InstallationEvent) (*internal.Webhook, error) {
+	h.SetEvent(constants.EventRepository)
+	h.SetEventAction(payload.GetAction())
+
+	install := new(internal.Installation)
+
+	install.Action = payload.GetAction()
+	install.ID = payload.GetInstallation().GetID()
+	install.Org = payload.GetInstallation().GetAccount().GetLogin()
+
+	for _, repo := range payload.Repositories {
+		install.RepositoriesAdded = append(install.RepositoriesAdded, repo.GetName())
+	}
+
+	return &internal.Webhook{
+		Hook:         h,
+		Installation: install,
+	}, nil
+}
+
+func (c *client) processInstallationRepositoriesEvent(ctx context.Context, h *api.Hook, payload *github.InstallationRepositoriesEvent) (*internal.Webhook, error) {
+	install := new(internal.Installation)
+
+	install.Action = payload.GetAction()
+	install.ID = payload.GetInstallation().GetID()
+	install.Org = payload.GetInstallation().GetAccount().GetLogin()
+
+	for _, repo := range payload.RepositoriesAdded {
+		install.RepositoriesAdded = append(install.RepositoriesAdded, repo.GetName())
+	}
+
+	for _, repo := range payload.RepositoriesRemoved {
+		install.RepositoriesRemoved = append(install.RepositoriesRemoved, repo.GetName())
+	}
+
+	return &internal.Webhook{
+		Hook:         h,
+		Installation: install,
 	}, nil
 }
 
