@@ -9,13 +9,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 // ProcessInstallation takes a GitHub installation and processes the changes.

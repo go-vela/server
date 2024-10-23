@@ -14,13 +14,13 @@ import (
 	"strings"
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
-	api "github.com/go-vela/server/api/types"
 	"github.com/google/go-github/v65/github"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/tracing"
 )
 
@@ -230,7 +230,7 @@ func (c *client) newGithubAppClient(ctx context.Context) (*github.Client, error)
 }
 
 // helper function to return the GitHub App installation token.
-func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions []string) (string, error) {
+func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions map[string]string) (string, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(
 		&http.Client{Transport: c.AppsTransport}).
@@ -239,9 +239,27 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 		return "", err
 	}
 
+	// todo: we want to support passing nothing to get the full permission set
+	// so move this outside of this function
+	// make the yaml provide a default when not provided, not the function
+
+	// convert raw permissions to GitHub InstallationPermissions
+	perms := &github.InstallationPermissions{
+		Contents: github.String("read"),
+		Checks:   github.String("write"),
+	}
+
+	for resource, perm := range permissions {
+		perms, err = WithGitHubInstallationPermission(perms, resource, perm)
+	}
+
+	if repos == nil || len(repos) == 0 {
+		repos = []string{r.GetFullName()}
+	}
+
 	opts := &github.InstallationTokenOptions{
 		Repositories: repos,
-		Permissions:  &github.InstallationPermissions{},
+		Permissions:  perms,
 	}
 
 	// if repo has an install ID, use it to create an installation token
@@ -285,4 +303,29 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 	}
 
 	return t.GetToken(), nil
+}
+
+// WithGitHubInstallationPermission takes permissions and applies a new permission if valid.
+func WithGitHubInstallationPermission(perms *github.InstallationPermissions, resource, perm string) (*github.InstallationPermissions, error) {
+	switch strings.ToLower(perm) {
+	case "read":
+	case "write":
+	case "none":
+		break
+	default:
+		return perms, fmt.Errorf("invalid permission value given for %s: %s", resource, perm)
+	}
+
+	switch strings.ToLower(resource) {
+	case "contents":
+		perms.Contents = github.String(resource)
+		break
+	case "checks":
+		perms.Checks = github.String(resource)
+		break
+	default:
+		return perms, fmt.Errorf("invalid permission key given: %s", perm)
+	}
+
+	return perms, nil
 }

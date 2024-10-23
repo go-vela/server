@@ -682,7 +682,7 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 // CreateChecks defines a function that does stuff...
 func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, event string) (int64, error) {
 	// create client from GitHub App
-	t, err := c.newGithubAppInstallationRepoToken(ctx, r, []string{}, []string{})
+	t, err := c.newGithubAppInstallationRepoToken(ctx, r, []string{}, map[string]string{})
 	if err != nil {
 		return 0, err
 	}
@@ -709,7 +709,7 @@ func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, ev
 // UpdateChecks defines a function that does stuff...
 func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step, commit, event string) error {
 	// create client from GitHub App
-	t, err := c.newGithubAppInstallationRepoToken(ctx, r, []string{}, []string{})
+	t, err := c.newGithubAppInstallationRepoToken(ctx, r, []string{}, map[string]string{})
 	if err != nil {
 		return err
 	}
@@ -806,7 +806,7 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 	// todo: pass in THIS repo to only get access to that repo
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 	// maybe take an optional list of repos and permission set that is driven by yaml
-	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repositories, []string{})
+	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repositories, map[string]string{})
 	if err != nil {
 		logrus.Errorf("unable to get github app installation token: %v", err)
 	}

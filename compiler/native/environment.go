@@ -8,13 +8,14 @@ import (
 	"os"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // EnvironmentStages injects environment variables
