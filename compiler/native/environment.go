@@ -331,13 +331,11 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, n
 	env["VELA_HOST"] = notImplemented
 	env["VELA_NETRC_MACHINE"] = notImplemented
 	env["VELA_NETRC_PASSWORD"] = netrcPassword
-	logrus.Infof("using netrc password: %s", netrcPassword)
 	env["VELA_NETRC_USERNAME"] = "x-oauth-basic"
 	env["VELA_QUEUE"] = notImplemented
 	env["VELA_RUNTIME"] = notImplemented
 	env["VELA_SOURCE"] = notImplemented
 	env["VELA_VERSION"] = notImplemented
-	env["VELA_VADER"] = "yes"
 	env["CI"] = "true"
 
 	// populate environment variables from metadata

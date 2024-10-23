@@ -161,6 +161,9 @@ type Service interface {
 	// ProcessInstallation defines a function that
 	// processes an installation event.
 	ProcessInstallation(context.Context, *http.Request, *internal.Webhook, database.Interface) error
+	// ProcessInstallation defines a function that
+	// finishes an installation event and returns a web redirect.
+	FinishInstallation(context.Context, *http.Request, int64) (string, error)
 
 	// TODO: Add convert functions to interface?
 }

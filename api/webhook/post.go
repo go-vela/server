@@ -144,7 +144,7 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, "handled installation event!")
+		c.JSON(http.StatusOK, "installation processed successfully")
 
 		return
 	}

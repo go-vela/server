@@ -229,7 +229,7 @@ func (c *client) newGithubAppClient(ctx context.Context) (*github.Client, error)
 }
 
 // helper function to return the GitHub App installation token.
-func (c *client) newGithubAppInstallationToken(ctx context.Context, r *api.Repo, repos []string, permissions []string) (string, error) {
+func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions []string) (string, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(
 		&http.Client{Transport: c.AppsTransport}).

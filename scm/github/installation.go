@@ -4,7 +4,9 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-vela/server/api/types"
@@ -20,14 +22,14 @@ import (
 func (c *client) ProcessInstallation(ctx context.Context, request *http.Request, webhook *internal.Webhook, db database.Interface) error {
 	c.Logger.Tracef("processing GitHub App installation")
 
-	errs := []error{}
+	errs := []string{}
 
 	// set install_id for repos added to the installation
 	for _, repo := range webhook.Installation.RepositoriesAdded {
 		r, err := db.GetRepoForOrg(ctx, webhook.Installation.Org, repo)
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				errs = append(errs, err)
+				errs = append(errs, fmt.Sprintf("%s:%s", repo, err.Error()))
 			}
 
 			// skip repos that dont exist in vela
@@ -36,7 +38,7 @@ func (c *client) ProcessInstallation(ctx context.Context, request *http.Request,
 
 		err = updateRepoInstallationID(ctx, webhook, r, db, webhook.Installation.ID)
 		if err != nil {
-			errs = append(errs, err)
+			errs = append(errs, fmt.Sprintf("%s:%s", repo, err.Error()))
 		}
 	}
 
@@ -45,7 +47,7 @@ func (c *client) ProcessInstallation(ctx context.Context, request *http.Request,
 		r, err := db.GetRepoForOrg(ctx, webhook.Installation.Org, repo)
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				errs = append(errs, err)
+				errs = append(errs, fmt.Sprintf("%s:%s", repo, err.Error()))
 			}
 
 			// skip repos that dont exist in vela
@@ -54,21 +56,13 @@ func (c *client) ProcessInstallation(ctx context.Context, request *http.Request,
 
 		err = updateRepoInstallationID(ctx, webhook, r, db, 0)
 		if err != nil {
-			errs = append(errs, err)
+			errs = append(errs, fmt.Sprintf("%s:%s", repo, err.Error()))
 		}
 	}
 
 	// combine all errors
 	if len(errs) > 0 {
-		var combined error
-		for _, e := range errs {
-			if combined == nil {
-				combined = e
-			} else {
-				combined = errors.Wrap(combined, e.Error())
-			}
-		}
-		return combined
+		return errors.New(strings.Join(errs, ", "))
 	}
 
 	return nil
@@ -141,4 +135,23 @@ func updateRepoInstallationID(ctx context.Context, webhook *internal.Webhook, r 
 	}
 
 	return nil
+}
+
+// FinishInstallation completes the web flow for a GitHub App installation, returning a redirect to the app installation page.
+func (c *client) FinishInstallation(ctx context.Context, request *http.Request, installID int64) (string, error) {
+	c.Logger.Tracef("finishing GitHub App installation")
+
+	githubAppClient, err := c.newGithubAppClient(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	install, _, err := githubAppClient.Apps.GetInstallation(ctx, installID)
+	if err != nil {
+		return "", err
+	}
+
+	r := install.GetHTMLURL()
+
+	return r, nil
 }

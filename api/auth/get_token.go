@@ -5,13 +5,13 @@ package auth
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -67,7 +67,6 @@ import (
 func GetAuthToken(c *gin.Context) {
 	// capture middleware values
 	tm := c.MustGet("token-manager").(*token.Manager)
-	m := c.MustGet("metadata").(*internal.Metadata)
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	ctx := c.Request.Context()
@@ -77,8 +76,28 @@ func GetAuthToken(c *gin.Context) {
 
 	var err error
 
+	// handle scm setup events
+	// setup_action==install represents the GitHub App installation callback redirect
 	if c.Request.FormValue("setup_action") == "install" {
-		c.Redirect(http.StatusTemporaryRedirect, "https://"+m.Source.Host)
+		installID, err := strconv.ParseInt(c.Request.FormValue("installation_id"), 10, 0)
+		if err != nil {
+			retErr := fmt.Errorf("unable to parse installation_id: %w", err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		r, err := scm.FromContext(c).FinishInstallation(ctx, c.Request, installID)
+		if err != nil {
+			retErr := fmt.Errorf("unable to finish installation: %w", err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		c.Redirect(http.StatusTemporaryRedirect, r)
 
 		return
 	}
