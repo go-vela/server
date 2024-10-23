@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // CreateDeployment creates a new deployment in the database.
@@ -18,7 +18,7 @@ func (e *engine) CreateDeployment(ctx context.Context, d *api.Deployment) (*api.
 		"deployment": d.GetID(),
 	}).Tracef("creating deployment %d", d.GetID())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	deployment := types.DeploymentFromAPI(d)
 
 	// validate the necessary fields are populated

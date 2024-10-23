@@ -9,12 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 //
@@ -91,7 +91,7 @@ func UpdateService(c *gin.Context) {
 	l.Debugf("updating service %s", entry)
 
 	// capture body from API request
-	input := new(library.Service)
+	input := new(types.Service)
 
 	err := c.Bind(input)
 	if err != nil {

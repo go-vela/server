@@ -11,10 +11,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/library/actions"
 )
 
 func TestSecret_New(t *testing.T) {
@@ -173,79 +169,4 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	return _engine
-}
-
-// testRepo is a test helper function to create a library
-// Repo type with all fields set to their zero values.
-func testRepo() *api.Repo {
-	return &api.Repo{
-		ID:           new(int64),
-		BuildLimit:   new(int64),
-		Timeout:      new(int64),
-		Counter:      new(int),
-		PipelineType: new(string),
-		Hash:         new(string),
-		Org:          new(string),
-		Name:         new(string),
-		FullName:     new(string),
-		Link:         new(string),
-		Clone:        new(string),
-		Branch:       new(string),
-		Visibility:   new(string),
-		PreviousName: new(string),
-		Private:      new(bool),
-		Trusted:      new(bool),
-		Active:       new(bool),
-	}
-}
-
-// testSecret is a test helper function to create a library
-// Secret type with all fields set to their zero values.
-func testSecret() *library.Secret {
-	return &library.Secret{
-		ID:                new(int64),
-		Org:               new(string),
-		Repo:              new(string),
-		Team:              new(string),
-		Name:              new(string),
-		Value:             new(string),
-		Type:              new(string),
-		Images:            new([]string),
-		AllowEvents:       testEvents(),
-		AllowCommand:      new(bool),
-		AllowSubstitution: new(bool),
-		CreatedAt:         new(int64),
-		CreatedBy:         new(string),
-		UpdatedAt:         new(int64),
-		UpdatedBy:         new(string),
-	}
-}
-
-func testEvents() *library.Events {
-	return &library.Events{
-		Push: &actions.Push{
-			Branch:       new(bool),
-			Tag:          new(bool),
-			DeleteBranch: new(bool),
-			DeleteTag:    new(bool),
-		},
-		PullRequest: &actions.Pull{
-			Opened:      new(bool),
-			Edited:      new(bool),
-			Synchronize: new(bool),
-			Reopened:    new(bool),
-			Labeled:     new(bool),
-			Unlabeled:   new(bool),
-		},
-		Deployment: &actions.Deploy{
-			Created: new(bool),
-		},
-		Comment: &actions.Comment{
-			Created: new(bool),
-			Edited:  new(bool),
-		},
-		Schedule: &actions.Schedule{
-			Run: new(bool),
-		},
-	}
 }

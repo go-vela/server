@@ -20,9 +20,6 @@ func (e *engine) UpdateHook(ctx context.Context, h *api.Hook) (*api.Hook, error)
 
 	hook := types.HookFromAPI(h)
 
-	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Hook.Validate
 	err := hook.Validate()
 	if err != nil {
 		return nil, err

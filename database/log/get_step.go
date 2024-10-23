@@ -6,17 +6,17 @@ package log
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // GetLogForStep gets a log by step ID from the database.
-func (e *engine) GetLogForStep(ctx context.Context, s *library.Step) (*library.Log, error) {
+func (e *engine) GetLogForStep(ctx context.Context, s *api.Step) (*api.Log, error) {
 	e.logger.Tracef("getting log for step %d for build %d", s.GetID(), s.GetBuildID())
 
 	// variable to store query results
-	l := new(database.Log)
+	l := new(types.Log)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -30,8 +30,6 @@ func (e *engine) GetLogForStep(ctx context.Context, s *library.Step) (*library.L
 	}
 
 	// decompress log data for the step
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
 	err = l.Decompress()
 	if err != nil {
 		// ensures that the change is backwards compatible
@@ -40,11 +38,9 @@ func (e *engine) GetLogForStep(ctx context.Context, s *library.Step) (*library.L
 		e.logger.Errorf("unable to decompress log for step %d for build %d: %v", s.GetID(), s.GetBuildID(), err)
 
 		// return the uncompressed log
-		return l.ToLibrary(), nil
+		return l.ToAPI(), nil
 	}
 
 	// return the log
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Log.ToLibrary
-	return l.ToLibrary(), nil
+	return l.ToAPI(), nil
 }

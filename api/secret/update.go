@@ -11,11 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 //
@@ -118,7 +118,7 @@ func UpdateSecret(c *gin.Context) {
 	l.WithFields(fields).Debugf("updating secret %s for %s service", entry, e)
 
 	// capture body from API request
-	input := new(library.Secret)
+	input := new(types.Secret)
 
 	err := c.Bind(input)
 	if err != nil {

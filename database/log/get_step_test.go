@@ -9,8 +9,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestLog_Engine_GetLogForStep(t *testing.T) {
@@ -53,7 +53,7 @@ func TestLog_Engine_GetLogForStep(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Log
+		want     *api.Log
 	}{
 		{
 			failure:  false,

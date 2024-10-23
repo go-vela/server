@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestLibrary_Pipeline_Getters(t *testing.T) {
+func TestAPI_Pipeline_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		pipeline *Pipeline
@@ -88,7 +88,7 @@ func TestLibrary_Pipeline_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Pipeline_Setters(t *testing.T) {
+func TestAPI_Pipeline_Setters(t *testing.T) {
 	// setup types
 	var p *Pipeline
 
@@ -187,7 +187,7 @@ func TestLibrary_Pipeline_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Pipeline_String(t *testing.T) {
+func TestAPI_Pipeline_String(t *testing.T) {
 	// setup types
 	p := testPipeline()
 

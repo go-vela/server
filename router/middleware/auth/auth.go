@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5/request"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // RetrieveAccessToken gets the passed in access token from the header in the request.

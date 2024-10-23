@@ -12,12 +12,12 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name} secrets ListSecrets
@@ -195,7 +195,7 @@ func ListSecrets(c *gin.Context) {
 	pagination.SetHeaderLink(c)
 
 	// variable we want to return
-	secrets := []*library.Secret{}
+	secrets := []*types.Secret{}
 	// iterate through all secrets
 	for _, secret := range s {
 		// https://golang.org/doc/faq#closures_and_goroutines

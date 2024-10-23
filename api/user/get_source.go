@@ -71,7 +71,7 @@ func GetSourceRepos(c *gin.Context) {
 		name := srepo.Name
 		active := false
 
-		// library struct to omit optional fields
+		// API struct to omit optional fields
 		repo := types.Repo{
 			Org:    org,
 			Name:   name,

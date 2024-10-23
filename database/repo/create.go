@@ -10,8 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // CreateRepo creates a new repo in the database.
@@ -21,7 +21,7 @@ func (e *engine) CreateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error)
 		"repo": r.GetName(),
 	}).Tracef("creating repo %s", r.GetFullName())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	repo := types.RepoFromAPI(r)
 
 	// validate the necessary fields are populated

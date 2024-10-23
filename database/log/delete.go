@@ -5,13 +5,13 @@ package log
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // DeleteLog deletes an existing log from the database.
-func (e *engine) DeleteLog(ctx context.Context, l *library.Log) error {
+func (e *engine) DeleteLog(ctx context.Context, l *api.Log) error {
 	// check what the log entry is for
 	switch {
 	case l.GetServiceID() > 0:
@@ -20,10 +20,8 @@ func (e *engine) DeleteLog(ctx context.Context, l *library.Log) error {
 		e.logger.Tracef("deleting log for step %d for build %d", l.GetStepID(), l.GetBuildID())
 	}
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#LogFromLibrary
-	log := database.LogFromLibrary(l)
+	// cast the API type to database type
+	log := types.LogFromAPI(l)
 
 	// send query to the database
 	return e.client.

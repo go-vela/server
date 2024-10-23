@@ -9,13 +9,13 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	database "github.com/go-vela/server/database/types"
 )
 
 // Update updates a secret.
-func (c *client) Update(ctx context.Context, sType, org, name string, s *library.Secret) (*library.Secret, error) {
+func (c *client) Update(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
@@ -67,7 +67,7 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 	}
 
 	// validate the secret
-	err = database.SecretFromLibrary(secretFromVault(vault)).Validate()
+	err = database.SecretFromAPI(secretFromVault(vault)).Validate()
 	if err != nil {
 		return nil, err
 	}
@@ -87,25 +87,25 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 
 // updateOrg is a helper function to update
 // the org secret for the provided path.
-func (c *client) updateOrg(org, path string, data map[string]interface{}) (*library.Secret, error) {
+func (c *client) updateOrg(org, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.update(fmt.Sprintf("%s/%s/%s/%s", c.config.Prefix, constants.SecretOrg, org, path), data)
 }
 
 // updateRepo is a helper function to update
 // the repo secret for the provided path.
-func (c *client) updateRepo(org, repo, path string, data map[string]interface{}) (*library.Secret, error) {
+func (c *client) updateRepo(org, repo, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretRepo, org, repo, path), data)
 }
 
 // updateShared is a helper function to update
 // the shared secret for the provided path.
-func (c *client) updateShared(org, team, path string, data map[string]interface{}) (*library.Secret, error) {
+func (c *client) updateShared(org, team, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretShared, org, team, path), data)
 }
 
 // update is a helper function to update
 // the secret for the provided path.
-func (c *client) update(path string, data map[string]interface{}) (*library.Secret, error) {
+func (c *client) update(path string, data map[string]interface{}) (*api.Secret, error) {
 	if strings.HasPrefix("secret/data", c.config.Prefix) {
 		data = map[string]interface{}{
 			"data": data,

@@ -11,8 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
@@ -245,7 +243,7 @@ func getBuild(c *gin.Context) {
 	if strings.EqualFold(b, "0") {
 		msg := fmt.Sprintf("Build %s does not exist", b)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -267,14 +265,14 @@ func getLogs(c *gin.Context) {
 	if strings.EqualFold(b, "0") {
 		msg := fmt.Sprintf("Build %s does not exist", b)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
 
 	data := []byte(BuildLogsResp)
 
-	var body []library.Log
+	var body []api.Log
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -300,7 +298,7 @@ func updateBuild(c *gin.Context) {
 		if strings.EqualFold(b, "0") {
 			msg := fmt.Sprintf("Build %s does not exist", b)
 
-			c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+			c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 			return
 		}
@@ -323,7 +321,7 @@ func removeBuild(c *gin.Context) {
 	if strings.EqualFold(b, "0") {
 		msg := fmt.Sprintf("Build %s does not exist", b)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -340,7 +338,7 @@ func restartBuild(c *gin.Context) {
 	if strings.EqualFold(b, "0") {
 		msg := fmt.Sprintf("Build %s does not exist", b)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -362,7 +360,7 @@ func cancelBuild(c *gin.Context) {
 	if strings.EqualFold(b, "0") {
 		msg := fmt.Sprintf("Build %s does not exist", b)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -379,7 +377,7 @@ func approveBuild(c *gin.Context) {
 	if strings.EqualFold(b, "0") {
 		msg := "user does not have admin permissions for the repo"
 
-		c.AbortWithStatusJSON(http.StatusForbidden, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusForbidden, api.Error{Message: &msg})
 
 		return
 	}
@@ -428,7 +426,7 @@ func buildToken(c *gin.Context) {
 
 	data := []byte(BuildTokenResp)
 
-	var body library.Token
+	var body api.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -448,7 +446,7 @@ func idToken(c *gin.Context) {
 
 	data := []byte(IDTokenResp)
 
-	var body library.Token
+	var body api.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -468,7 +466,7 @@ func idTokenRequestToken(c *gin.Context) {
 
 	data := []byte(IDTokenRequestTokenResp)
 
-	var body library.Token
+	var body api.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -483,14 +481,14 @@ func buildExecutable(c *gin.Context) {
 	if strings.EqualFold(b, "0") {
 		msg := fmt.Sprintf("unable to get build executable for build %s", b)
 
-		c.AbortWithStatusJSON(http.StatusInternalServerError, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, api.Error{Message: &msg})
 
 		return
 	}
 
 	data := []byte(BuildExecutableResp)
 
-	var body library.BuildExecutable
+	var body api.BuildExecutable
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

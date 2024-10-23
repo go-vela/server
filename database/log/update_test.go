@@ -8,8 +8,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestLog_Engine_UpdateLog(t *testing.T) {
@@ -63,19 +63,19 @@ WHERE "id" = $6`).
 		failure  bool
 		name     string
 		database *engine
-		logs     []*library.Log
+		logs     []*api.Log
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			logs:     []*library.Log{_service, _step},
+			logs:     []*api.Log{_service, _step},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			logs:     []*library.Log{_service, _step},
+			logs:     []*api.Log{_service, _step},
 		},
 	}
 

@@ -11,22 +11,21 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // PlanServices is a helper function to plan all services
 // in the build for execution. This creates the services
 // for the build.
-func PlanServices(ctx context.Context, database database.Interface, p *pipeline.Build, b *types.Build) ([]*library.Service, error) {
+func PlanServices(ctx context.Context, database database.Interface, p *pipeline.Build, b *types.Build) ([]*types.Service, error) {
 	// variable to store planned services
-	services := []*library.Service{}
+	services := []*types.Service{}
 
 	// iterate through all pipeline services
 	for _, service := range p.Services {
 		// create the service object
-		s := new(library.Service)
+		s := new(types.Service)
 		s.SetBuildID(b.GetID())
 		s.SetRepoID(b.GetRepo().GetID())
 		s.SetName(service.Name)
@@ -49,16 +48,13 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 			"repo_id":    b.GetRepo().GetID(),
 		}).Info("service created")
 
-		// populate environment variables from service library
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/library#Service.Environment
 		err = service.MergeEnv(s.Environment())
 		if err != nil {
 			return services, err
 		}
 
 		// create the log object
-		l := new(library.Log)
+		l := new(types.Log)
 		l.SetServiceID(s.GetID())
 		l.SetBuildID(b.GetID())
 		l.SetRepoID(b.GetRepo().GetID())

@@ -23,8 +23,8 @@ import (
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/constants"
 )
 
 func TestNative_Compile_StagesPipeline(t *testing.T) {
@@ -321,9 +321,9 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	}
 
 	type args struct {
-		endpoint     string
-		libraryBuild *api.Build
-		repo         *api.Repo
+		endpoint string
+		apiBuild *api.Build
+		repo     *api.Repo
 	}
 
 	tests := []struct {
@@ -332,14 +332,14 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 		wantErr bool
 	}{
 		{"bad url", args{
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     "bad",
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: "bad",
 		}, true},
 		{"invalid return", args{
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/bad"),
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: fmt.Sprintf("%s/%s", s.URL, "config/bad"),
 		}, true},
 	}
 
@@ -410,9 +410,9 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 	}
 
 	type args struct {
-		endpoint     string
-		libraryBuild *api.Build
-		repo         *api.Repo
+		endpoint string
+		apiBuild *api.Build
+		repo     *api.Repo
 	}
 
 	tests := []struct {
@@ -421,14 +421,14 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 		wantErr bool
 	}{
 		{"bad url", args{
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     "bad",
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: "bad",
 		}, true},
 		{"invalid return", args{
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/bad"),
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: fmt.Sprintf("%s/%s", s.URL, "config/bad"),
 		}, true},
 	}
 
@@ -440,7 +440,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 					Endpoint: tt.args.endpoint,
 				},
 				repo:     tt.args.repo,
-				build:    tt.args.libraryBuild,
+				build:    tt.args.apiBuild,
 				metadata: m,
 			}
 			_, _, err := compiler.Compile(context.Background(), yaml)
@@ -2168,10 +2168,10 @@ func Test_client_modifyConfig(t *testing.T) {
 	number := 1
 
 	type args struct {
-		endpoint     string
-		build        *yaml.Build
-		libraryBuild *api.Build
-		repo         *api.Repo
+		endpoint string
+		build    *yaml.Build
+		apiBuild *api.Build
+		repo     *api.Repo
 	}
 
 	tests := []struct {
@@ -2181,40 +2181,40 @@ func Test_client_modifyConfig(t *testing.T) {
 		wantErr bool
 	}{
 		{"unmodified", args{
-			build:        want,
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/unmodified"),
+			build:    want,
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: fmt.Sprintf("%s/%s", s.URL, "config/unmodified"),
 		}, want, false},
 		{"modified", args{
-			build:        want,
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/modified"),
+			build:    want,
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: fmt.Sprintf("%s/%s", s.URL, "config/modified"),
 		}, want2, false},
 		{"invalid endpoint", args{
-			build:        want,
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     "bad",
+			build:    want,
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: "bad",
 		}, nil, true},
 		{"unauthorized endpoint", args{
-			build:        want,
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/unauthorized"),
+			build:    want,
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: fmt.Sprintf("%s/%s", s.URL, "config/unauthorized"),
 		}, nil, true},
 		{"timeout endpoint", args{
-			build:        want,
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/timeout"),
+			build:    want,
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: fmt.Sprintf("%s/%s", s.URL, "config/timeout"),
 		}, nil, true},
 		{"empty payload", args{
-			build:        want,
-			libraryBuild: &api.Build{Number: &number, Author: &author},
-			repo:         &api.Repo{Name: &name},
-			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/empty"),
+			build:    want,
+			apiBuild: &api.Build{Number: &number, Author: &author},
+			repo:     &api.Repo{Name: &name},
+			endpoint: fmt.Sprintf("%s/%s", s.URL, "config/empty"),
 		}, nil, true},
 	}
 
@@ -2227,7 +2227,7 @@ func Test_client_modifyConfig(t *testing.T) {
 					Endpoint: tt.args.endpoint,
 				},
 			}
-			got, err := compiler.modifyConfig(tt.args.build, tt.args.libraryBuild, tt.args.repo)
+			got, err := compiler.modifyConfig(tt.args.build, tt.args.apiBuild, tt.args.repo)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("modifyConfig() error = %v, wantErr %v", err, tt.wantErr)
 				return

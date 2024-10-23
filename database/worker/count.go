@@ -5,7 +5,7 @@ package worker
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // CountWorkers gets the count of all workers from the database.

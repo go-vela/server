@@ -14,8 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/constants"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -401,7 +400,7 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 }
 
 // StepStatus sends the commit status for the given SHA to the GitHub repo with the step as the context.
-func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *library.Step, org, name string) error {
+func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *api.Step, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
@@ -486,7 +485,7 @@ func (c *client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Re
 		return nil, resp.StatusCode, err
 	}
 
-	return toLibraryRepo(*repo), resp.StatusCode, nil
+	return toAPIRepo(*repo), resp.StatusCode, nil
 }
 
 // GetOrgAndRepoName returns the name of the org and the repository in the SCM.
@@ -557,14 +556,14 @@ func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 			continue
 		}
 
-		f = append(f, toLibraryRepo(*repo))
+		f = append(f, toAPIRepo(*repo))
 	}
 
 	return f, nil
 }
 
-// toLibraryRepo does a partial conversion of a github repo to a library repo.
-func toLibraryRepo(gr github.Repository) *api.Repo {
+// toAPIRepo does a partial conversion of a github repo to a API repo.
+func toAPIRepo(gr github.Repository) *api.Repo {
 	// setting the visbility to match the SCM visbility
 	var visibility string
 	if *gr.Private {

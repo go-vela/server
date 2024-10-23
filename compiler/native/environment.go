@@ -10,9 +10,8 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // EnvironmentStages injects environment variables
@@ -133,7 +132,7 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 
 		// parameter values are passed to the image
 		// as string environment variables
-		env[k] = library.ToString(v)
+		env[k] = api.ToString(v)
 	}
 
 	// overwrite existing build step environment
@@ -234,7 +233,7 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 
 			// parameter values are passed to the image
 			// as string environment variables
-			env[k] = library.ToString(v)
+			env[k] = api.ToString(v)
 		}
 
 		// overwrite existing build secret environment
@@ -291,7 +290,7 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) m
 	env := make(map[string]string)
 
 	// vela specific environment variables
-	env["VELA"] = library.ToString(true)
+	env["VELA"] = api.ToString(true)
 	env["VELA_ADDR"] = notImplemented
 	env["VELA_CHANNEL"] = notImplemented
 	env["VELA_DATABASE"] = notImplemented
@@ -324,11 +323,11 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) m
 
 	env["VELA_WORKSPACE"] = workspace
 
-	// populate environment variables from repo library
+	// populate environment variables from repo api
 	env = appendMap(env, r.Environment())
-	// populate environment variables from build library
+	// populate environment variables from build api
 	env = appendMap(env, b.Environment(workspace, channel))
-	// populate environment variables from user library
+	// populate environment variables from user api
 	env = appendMap(env, u.Environment())
 
 	return env

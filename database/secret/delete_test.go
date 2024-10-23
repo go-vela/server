@@ -8,12 +8,13 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	// setup types
-	_secretRepo := testSecret()
+	_secretRepo := testutils.APISecret()
 	_secretRepo.SetID(1)
 	_secretRepo.SetOrg("foo")
 	_secretRepo.SetRepo("bar")
@@ -25,7 +26,7 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_secretRepo.SetUpdatedAt(1)
 	_secretRepo.SetUpdatedBy("user2")
 
-	_secretOrg := testSecret()
+	_secretOrg := testutils.APISecret()
 	_secretOrg.SetID(2)
 	_secretOrg.SetOrg("foo")
 	_secretOrg.SetRepo("*")
@@ -37,7 +38,7 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_secretOrg.SetUpdatedAt(1)
 	_secretOrg.SetUpdatedBy("user2")
 
-	_secretShared := testSecret()
+	_secretShared := testutils.APISecret()
 	_secretShared.SetID(3)
 	_secretShared.SetOrg("foo")
 	_secretShared.SetTeam("bar")
@@ -90,7 +91,7 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		secret   *library.Secret
+		secret   *api.Secret
 	}{
 		{
 			failure:  false,

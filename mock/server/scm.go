@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types"
+	api "github.com/go-vela/server/api/types"
 )
 
 // syncRepo has a param :repo returns mock JSON for a http PATCH.
@@ -20,7 +20,7 @@ func syncRepo(c *gin.Context) {
 	if strings.Contains(r, "not-found") {
 		msg := fmt.Sprintf("Repo %s does not exist", r)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -36,7 +36,7 @@ func syncRepos(c *gin.Context) {
 	if strings.Contains(o, "not-found") {
 		msg := fmt.Sprintf("Repo %s does not exist", o)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}

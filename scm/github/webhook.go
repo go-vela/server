@@ -17,8 +17,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/constants"
 )
 
 // ProcessWebhook parses the webhook from a repo.
@@ -139,7 +139,7 @@ func (c *client) processPushEvent(ctx context.Context, h *api.Hook, payload *git
 
 	repo := payload.GetRepo()
 
-	// convert payload to library repo
+	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
@@ -150,7 +150,7 @@ func (c *client) processPushEvent(ctx context.Context, h *api.Hook, payload *git
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
 
-	// convert payload to library build
+	// convert payload to API build
 	b := new(api.Build)
 	b.SetEvent(constants.EventPush)
 	b.SetClone(repo.GetCloneURL())
@@ -268,7 +268,7 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 	// capture the repo from the payload
 	repo := payload.GetRepo()
 
-	// convert payload to library repo
+	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
@@ -355,7 +355,7 @@ func (c *client) processDeploymentEvent(h *api.Hook, payload *github.DeploymentE
 	// capture the repo from the payload
 	repo := payload.GetRepo()
 
-	// convert payload to library repo
+	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
@@ -473,7 +473,7 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 	// capture the repo from the payload
 	repo := payload.GetRepo()
 
-	// convert payload to library repo
+	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
@@ -484,7 +484,7 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
 
-	// convert payload to library build
+	// convert payload to API build
 	b := new(api.Build)
 	b.SetEvent(constants.EventComment)
 	b.SetEventAction(payload.GetAction())
@@ -516,7 +516,7 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 
 	repo := payload.GetRepo()
 
-	// convert payload to library repo
+	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())

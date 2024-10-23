@@ -3,7 +3,7 @@
 package yaml
 
 import (
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 type (
@@ -46,10 +46,10 @@ func (t *TemplateSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-// ToLibrary converts the Template type
-// to a library Template type.
-func (t *Template) ToLibrary() *library.Template {
-	template := new(library.Template)
+// ToAPI converts the Template type
+// to an API Template type.
+func (t *Template) ToAPI() *api.Template {
+	template := new(api.Template)
 
 	template.SetName(t.Name)
 	template.SetSource(t.Source)
@@ -58,9 +58,9 @@ func (t *Template) ToLibrary() *library.Template {
 	return template
 }
 
-// TemplateFromLibrary converts the library Template type
+// TemplateFromAPI converts the API Template type
 // to a yaml Template type.
-func TemplateFromLibrary(t *library.Template) *Template {
+func TemplateFromAPI(t *api.Template) *Template {
 	template := &Template{
 		Name:   t.GetName(),
 		Source: t.GetSource(),

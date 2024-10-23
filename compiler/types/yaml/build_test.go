@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/compiler/types/raw"
 )
 
-func TestYaml_Build_ToLibrary(t *testing.T) {
+func TestYaml_Build_ToAPI(t *testing.T) {
 	build := new(api.Pipeline)
 	build.SetFlavor("16cpu8gb")
 	build.SetPlatform("gcp")
@@ -87,7 +87,7 @@ func TestYaml_Build_ToLibrary(t *testing.T) {
 		got := b.ToPipelineAPI()
 
 		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("ToPipelineLibrary for %s is %v, want %v", test.name, got, test.want)
+			t.Errorf("ToPipelineAPI for %s is %v, want %v", test.name, got, test.want)
 		}
 	}
 }

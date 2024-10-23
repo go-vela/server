@@ -7,13 +7,13 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // DeleteSecret deletes an existing secret from the database.
-func (e *engine) DeleteSecret(ctx context.Context, s *library.Secret) error {
+func (e *engine) DeleteSecret(ctx context.Context, s *api.Secret) error {
 	// handle the secret based off the type
 	//
 	//nolint:dupl // ignore similar code with update.go
@@ -34,10 +34,7 @@ func (e *engine) DeleteSecret(ctx context.Context, s *library.Secret) error {
 		}).Tracef("deleting secret %s/%s/%s/%s", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName())
 	}
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#SecretFromLibrary
-	secret := database.SecretFromLibrary(s)
+	secret := types.SecretFromAPI(s)
 
 	// send query to the database
 	return e.client.

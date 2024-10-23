@@ -5,7 +5,7 @@ package pipeline
 import (
 	"testing"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 func TestPipeline_Ruleset_Match(t *testing.T) {

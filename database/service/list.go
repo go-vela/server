@@ -5,19 +5,19 @@ package service
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // ListServices gets a list of all services from the database.
-func (e *engine) ListServices(ctx context.Context) ([]*library.Service, error) {
+func (e *engine) ListServices(ctx context.Context) ([]*api.Service, error) {
 	e.logger.Trace("listing all services")
 
 	// variables to store query results and return value
 	count := int64(0)
-	w := new([]database.Service)
-	services := []*library.Service{}
+	w := new([]types.Service)
+	services := []*api.Service{}
 
 	// count the results
 	count, err := e.CountServices(ctx)
@@ -45,10 +45,7 @@ func (e *engine) ListServices(ctx context.Context) ([]*library.Service, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := service
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Service.ToLibrary
-		services = append(services, tmp.ToLibrary())
+		services = append(services, tmp.ToAPI())
 	}
 
 	return services, nil

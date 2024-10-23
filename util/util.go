@@ -12,7 +12,6 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types"
 )
 
 // HandleError appends the error to the handler chain for logging and outputs it.
@@ -23,7 +22,7 @@ func HandleError(c context.Context, status int, err error) {
 	case *gin.Context:
 		//nolint:errcheck // ignore checking error
 		ctx.Error(err)
-		ctx.AbortWithStatusJSON(status, types.Error{Message: &msg})
+		ctx.AbortWithStatusJSON(status, api.Error{Message: &msg})
 
 		return
 	default:

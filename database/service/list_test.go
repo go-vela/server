@@ -9,8 +9,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/types/library"
 )
 
 func TestService_Engine_ListServices(t *testing.T) {
@@ -67,19 +67,19 @@ func TestService_Engine_ListServices(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Service
+		want     []*api.Service
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Service{_serviceOne, _serviceTwo},
+			want:     []*api.Service{_serviceOne, _serviceTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Service{_serviceOne, _serviceTwo},
+			want:     []*api.Service{_serviceOne, _serviceTwo},
 		},
 	}
 
