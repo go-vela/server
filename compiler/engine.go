@@ -147,6 +147,8 @@ type Engine interface {
 	// WithLabel defines a function that sets
 	// the label(s) in the Engine.
 	WithLabels([]string) Engine
+	// WithSCM defines a function that sets
+	// the scm in the Engine.
 	WithSCM(scm.Service) Engine
 	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.

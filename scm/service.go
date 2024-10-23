@@ -142,10 +142,9 @@ type Service interface {
 	// GetHTMLURL defines a function that retrieves
 	// a repository file's html_url.
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
-
-	GetNetrcPassword(context.Context, *api.User, *api.Repo, []string) (string, error)
-	CreateChecks(context.Context, *api.Repo, string, string, string) (int64, error)
-	UpdateChecks(context.Context, *api.Repo, *library.Step, string, string) error
+	// GetNetrc defines a function that returns the netrc
+	// password injected into build steps.
+	GetNetrcPassword(context.Context, *api.Repo, *api.User, []string) (string, error)
 
 	// Webhook SCM Interface Functions
 
@@ -158,6 +157,15 @@ type Service interface {
 	// RedeliverWebhook defines a function that
 	// redelivers the webhook from the SCM.
 	RedeliverWebhook(context.Context, *api.User, *api.Hook) error
+
+	// App Integration SCM Interface Functions
+
+	// CreateChecks defines a function that creates
+	// a check for a given repo and check id.
+	CreateChecks(context.Context, *api.Repo, string, string, string) (int64, error)
+	// UpdateChecks defines a function that updates
+	// a check for a given repo and check id.
+	UpdateChecks(context.Context, *api.Repo, *library.Step, string, string) error
 	// ProcessInstallation defines a function that
 	// processes an installation event.
 	ProcessInstallation(context.Context, *http.Request, *internal.Webhook, database.Interface) error

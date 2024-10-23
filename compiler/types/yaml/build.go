@@ -7,18 +7,10 @@ import (
 	"github.com/go-vela/server/compiler/types/raw"
 )
 
-type Git struct {
-	Access `yaml:"access,omitempty" json:"access,omitempty" jsonschema:"description=Provide the git token specifications.\nReference: https://go-vela.github.io/docs/reference/yaml/git/#access"`
-}
-
-type Access struct {
-	Repositories []string `yaml:"repositories,omitempty" json:"repositories,omitempty" jsonschema:"description=Provide a list of repositories to clone.\nReference: https://go-vela.github.io/docs/reference/yaml/git/#repositories"`
-}
-
 // Build is the yaml representation of a build for a pipeline.
 type Build struct {
-	Git         Git                `yaml:"git,omitempty"       json:"git,omitempty"      jsonschema:"description=Provide the git access specifications.\nReference: https://go-vela.github.io/docs/reference/yaml/git/"`
 	Version     string             `yaml:"version,omitempty"   json:"version,omitempty"  jsonschema:"required,minLength=1,description=Provide syntax version used to evaluate the pipeline.\nReference: https://go-vela.github.io/docs/reference/yaml/version/"`
+	Git         Git                `yaml:"git,omitempty"       json:"git,omitempty"      jsonschema:"description=Provide the git access specifications.\nReference: https://go-vela.github.io/docs/reference/yaml/git/"`
 	Metadata    Metadata           `yaml:"metadata,omitempty"  json:"metadata,omitempty" jsonschema:"description=Pass extra information.\nReference: https://go-vela.github.io/docs/reference/yaml/metadata/"`
 	Environment raw.StringSliceMap `yaml:"environment,omitempty" json:"environment,omitempty" jsonschema:"description=Provide global environment variables injected into the container environment.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-environment-key"`
 	Worker      Worker             `yaml:"worker,omitempty"    json:"worker,omitempty" jsonschema:"description=Limit the pipeline to certain types of workers.\nReference: https://go-vela.github.io/docs/reference/yaml/worker/"`

@@ -71,12 +71,12 @@ var Flags = []cli.Flag{
 		EnvVars:  []string{"VELA_SCM_APP_ID", "SCM_APP_ID"},
 		FilePath: "/vela/scm/app_id",
 		Name:     "scm.app.id",
-		Usage:    "(optional & experimental) ID for the GitHub App",
+		Usage:    "set ID for the SCM App integration (GitHub App)",
 	},
 	&cli.StringFlag{
 		EnvVars:  []string{"VELA_SCM_APP_PRIVATE_KEY", "SCM_APP_PRIVATE_KEY"},
 		FilePath: "/vela/scm/app_private_key",
 		Name:     "scm.app.private_key",
-		Usage:    "(optional & experimental) path to private key for the GitHub App",
+		Usage:    "set value of base64 encoded SCM App integration (GitHub App) private key",
 	},
 }

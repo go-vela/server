@@ -244,7 +244,7 @@ func (c *client) WithSCM(_scm scm.Service) compiler.Engine {
 	return c
 }
 
-// WithGit sets the git access configurations in the Engine.
+// WithGit sets the git configurations in the Engine.
 func (c *client) WithGit(g *yaml.Git) compiler.Engine {
 	c.git = g
 

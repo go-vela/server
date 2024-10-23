@@ -20,14 +20,14 @@ func setupSCM(c *cli.Context, tc *tracing.Client) (scm.Service, error) {
 		Address:              c.String("scm.addr"),
 		ClientID:             c.String("scm.client"),
 		ClientSecret:         c.String("scm.secret"),
+		AppID:                c.Int64("scm.app.id"),
+		AppPrivateKey:        c.String("scm.app.private_key"),
 		ServerAddress:        c.String("server-addr"),
 		ServerWebhookAddress: c.String("scm.webhook.addr"),
 		StatusContext:        c.String("scm.context"),
 		WebUIAddress:         c.String("webui-addr"),
 		Scopes:               c.StringSlice("scm.scopes"),
 		Tracing:              tc,
-		GithubAppID:          c.Int64("scm.app.id"),
-		GithubAppPrivateKey:  c.String("scm.app.private_key"),
 	}
 
 	// setup the scm

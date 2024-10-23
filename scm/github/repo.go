@@ -799,7 +799,7 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step,
 
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
-func (c *client) GetNetrcPassword(ctx context.Context, u *api.User, r *api.Repo, repositories []string) (string, error) {
+func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User, repositories []string) (string, error) {
 	logrus.Infof("getting netrc password")
 
 	// the app might not be installed

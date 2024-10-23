@@ -46,6 +46,10 @@ type config struct {
 	ClientID string
 	// specifies the OAuth client secret from GitHub to use for the GitHub client
 	ClientSecret string
+	// specifies the ID for the Vela GitHub App
+	AppID int64
+	// specifies the App private key to use for the GitHub client when interacting with App resources
+	AppPrivateKey string
 	// specifies the Vela server address to use for the GitHub client
 	ServerAddress string
 	// specifies the Vela server address that the scm provider should use to send Vela webhooks
@@ -56,9 +60,6 @@ type config struct {
 	WebUIAddress string
 	// specifies the OAuth scopes to use for the GitHub client
 	Scopes []string
-	// optional and experimental
-	GithubAppID         int64
-	GithubAppPrivateKey string
 }
 
 type client struct {
@@ -125,11 +126,11 @@ func New(opts ...ClientOpt) (*client, error) {
 		Scopes:       githubScopes,
 	}
 
-	if c.config.GithubAppID != 0 && len(c.config.GithubAppPrivateKey) > 0 {
+	if c.config.AppID != 0 && len(c.config.AppPrivateKey) > 0 {
 		// todo: this log isnt accurate, it reads it directly as a string
-		c.Logger.Infof("sourcing private key from path: %s", c.config.GithubAppPrivateKey)
+		c.Logger.Infof("sourcing private key from path: %s", c.config.AppPrivateKey)
 
-		decodedPEM, err := base64.StdEncoding.DecodeString(c.config.GithubAppPrivateKey)
+		decodedPEM, err := base64.StdEncoding.DecodeString(c.config.AppPrivateKey)
 		if err != nil {
 			return nil, fmt.Errorf("error decoding base64: %w", err)
 		}
@@ -144,7 +145,7 @@ func New(opts ...ClientOpt) (*client, error) {
 			return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
 		}
 
-		transport := ghinstallation.NewAppsTransportFromPrivateKey(http.DefaultTransport, c.config.GithubAppID, privateKey)
+		transport := ghinstallation.NewAppsTransportFromPrivateKey(http.DefaultTransport, c.config.AppID, privateKey)
 
 		transport.BaseURL = c.config.API
 		c.AppsTransport = transport

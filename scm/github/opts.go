@@ -167,7 +167,7 @@ func WithGithubAppID(id int64) ClientOpt {
 		c.Logger.Trace("configuring ID for GitHub App in github scm client")
 
 		// set the ID for the GitHub App in the github client
-		c.config.GithubAppID = id
+		c.config.AppID = id
 
 		return nil
 	}
@@ -179,7 +179,7 @@ func WithGithubPrivateKey(key string) ClientOpt {
 		c.Logger.Trace("configuring private key for GitHub App in github scm client")
 
 		// set the private key for the GitHub App in the github client
-		c.config.GithubAppPrivateKey = key
+		c.config.AppPrivateKey = key
 
 		return nil
 	}

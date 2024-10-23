@@ -159,11 +159,7 @@ func UpdateStep(c *gin.Context) {
 
 		err = scm.FromContext(c).UpdateChecks(ctx, r, s, b.GetCommit(), b.GetEvent())
 		if err != nil {
-			retErr := fmt.Errorf("unable to set step check %s: %w", entry, err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
+			l.Warnf("checks skipped for step %s: %v", entry, err)
 		}
 	}
 

@@ -44,6 +44,9 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 		return nil, nil, err
 	}
 
+	// set git configurations after parsing them from the yaml configuration
+	c.WithGit(&p.Git)
+
 	// create the API pipeline object from the yaml configuration
 	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)
@@ -305,8 +308,6 @@ func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
 func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
 	var err error
-
-	c.git = &p.Git
 
 	// check if the pipeline disabled the clone
 	if p.Metadata.Clone == nil || *p.Metadata.Clone {

@@ -27,6 +27,10 @@ type Setup struct {
 	ClientID string
 	// specifies the OAuth client secret from the scm system to use for the scm client
 	ClientSecret string
+	// specifies App integration id
+	AppID int64
+	// specifies App integration private key
+	AppPrivateKey string
 	// specifies the Vela server address to use for the scm client
 	ServerAddress string
 	// specifies the Vela server address that the scm provider should use to send Vela webhooks
@@ -39,9 +43,6 @@ type Setup struct {
 	Scopes []string
 	// specifies OTel tracing configurations
 	Tracing *tracing.Client
-	// specifies GitHub App installation configurations
-	GithubAppID         int64
-	GithubAppPrivateKey string
 }
 
 // Github creates and returns a Vela service capable of
@@ -62,8 +63,8 @@ func (s *Setup) Github() (Service, error) {
 		github.WithWebUIAddress(s.WebUIAddress),
 		github.WithScopes(s.Scopes),
 		github.WithTracing(s.Tracing),
-		github.WithGithubAppID(s.GithubAppID),
-		github.WithGithubPrivateKey(s.GithubAppPrivateKey),
+		github.WithGithubAppID(s.AppID),
+		github.WithGithubPrivateKey(s.AppPrivateKey),
 	)
 }
 

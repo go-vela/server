@@ -52,6 +52,10 @@ import (
 //       "$ref": "#/definitions/Token"
 //   '307':
 //     description: Redirected for authentication
+//   '400':
+//     description: Bad Request
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '401':
 //     description: Unauthorized
 //     schema:
@@ -65,16 +69,15 @@ import (
 // process a user logging in to Vela from
 // the API or UI.
 func GetAuthToken(c *gin.Context) {
+	var err error
+
 	// capture middleware values
 	tm := c.MustGet("token-manager").(*token.Manager)
 	l := c.MustGet("logger").(*logrus.Entry)
-
 	ctx := c.Request.Context()
 
 	// capture the OAuth state if present
 	oAuthState := c.Request.FormValue("state")
-
-	var err error
 
 	// handle scm setup events
 	// setup_action==install represents the GitHub App installation callback redirect
