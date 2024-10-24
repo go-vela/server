@@ -706,7 +706,7 @@ func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, ev
 }
 
 // UpdateChecks defines a function that does stuff...
-func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *library.Step, commit, event string) error {
+func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *api.Step, commit, event string) error {
 	// create client from GitHub App
 	t, err := c.newGithubAppInstallationRepoToken(ctx, r, []string{}, map[string]string{})
 	if err != nil {

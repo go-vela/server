@@ -164,7 +164,7 @@ type Service interface {
 	CreateChecks(context.Context, *api.Repo, string, string, string) (int64, error)
 	// UpdateChecks defines a function that updates
 	// a check for a given repo and check id.
-	UpdateChecks(context.Context, *api.Repo, *library.Step, string, string) error
+	UpdateChecks(context.Context, *api.Repo, *api.Step, string, string) error
 	// ProcessInstallation defines a function that
 	// processes an installation event.
 	ProcessInstallation(context.Context, *http.Request, *internal.Webhook, database.Interface) error
