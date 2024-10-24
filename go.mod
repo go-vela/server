@@ -1,8 +1,6 @@
 module github.com/go-vela/server
 
-go 1.23.2
-
-replace github.com/go-vela/types => ../types
+go 1.23.1
 
 require (
 	github.com/Bose/minisentinel v0.0.0-20200130220412-917c5a9223bb
