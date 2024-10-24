@@ -79,7 +79,7 @@ func updateRepoInstallationID(ctx context.Context, webhook *internal.Webhook, r 
 	h.SetWebhookID(webhook.Hook.GetWebhookID())
 	h.SetCreated(webhook.Hook.GetCreated())
 	h.SetHost(webhook.Hook.GetHost())
-	h.SetEvent("installation")
+	h.SetEvent(constants.EventInstallation)
 	h.SetStatus(webhook.Hook.GetStatus())
 
 	r, err := db.UpdateRepo(ctx, r)
@@ -140,7 +140,7 @@ func updateRepoInstallationID(ctx context.Context, webhook *internal.Webhook, r 
 
 // FinishInstallation completes the web flow for a GitHub App installation, returning a redirect to the app installation page.
 func (c *client) FinishInstallation(ctx context.Context, request *http.Request, installID int64) (string, error) {
-	c.Logger.Tracef("finishing GitHub App installation")
+	c.Logger.Tracef("finishing GitHub App installation for ID %d", installID)
 
 	githubAppClient, err := c.newGithubAppClient(ctx)
 	if err != nil {
@@ -152,7 +152,5 @@ func (c *client) FinishInstallation(ctx context.Context, request *http.Request, 
 		return "", err
 	}
 
-	r := install.GetHTMLURL()
-
-	return r, nil
+	return install.GetHTMLURL(), nil
 }
