@@ -144,7 +144,6 @@ func New(opts ...ClientOpt) (*client, error) {
 			return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
 		}
 
-		fmt.Println("using custom round tripper")
 		transport := NewAppsTransportFromPrivateKey(http.DefaultTransport, c.config.AppID, privateKey)
 
 		transport.BaseURL = c.config.API
@@ -274,7 +273,6 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 		return t.GetToken(), nil
 	}
 
-	// todo: pagination?
 	// list all installations (a.k.a. orgs) where the GitHub App is installed
 	installations, _, err := client.Apps.ListInstallations(context.Background(), &github.ListOptions{})
 	if err != nil {

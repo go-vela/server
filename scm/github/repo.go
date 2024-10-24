@@ -802,7 +802,6 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 	logrus.Infof("getting netrc password")
 
 	// the app might not be installed
-	// todo: pass in THIS repo to only get access to that repo
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 	// maybe take an optional list of repos and permission set that is driven by yaml
 	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repositories, map[string]string{})
