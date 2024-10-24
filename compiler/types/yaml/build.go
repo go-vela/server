@@ -88,10 +88,6 @@ func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		build.Metadata.Environment = []string{"steps", "services", "secrets"}
 	}
 
-	if build.Git.Repositories == nil || len(build.Git.Repositories) == 0 {
-		build.Git.Repositories = []string{}
-	}
-
 	// override the values
 	b.Git = build.Git
 	b.Version = build.Version

@@ -42,7 +42,7 @@ func TestNative_EnvironmentStages(t *testing.T) {
 		},
 	}
 
-	env := environment(nil, nil, nil, nil, "")
+	env := environment(nil, nil, nil, nil, nil)
 	env["HELLO"] = "Hello, Global Message"
 
 	want := yaml.StageSlice{
@@ -582,12 +582,13 @@ func TestNative_environment(t *testing.T) {
 	target := "production"
 
 	tests := []struct {
-		w    string
-		b    *api.Build
-		m    *internal.Metadata
-		r    *api.Repo
-		u    *api.User
-		want map[string]string
+		w     string
+		b     *api.Build
+		m     *internal.Metadata
+		r     *api.Repo
+		u     *api.User
+		netrc *string
+		want  map[string]string
 	}{
 		// push
 		{
@@ -629,7 +630,7 @@ func TestNative_environment(t *testing.T) {
 
 	// run test
 	for _, test := range tests {
-		got := environment(test.b, test.m, test.r, test.u, "")
+		got := environment(test.b, test.m, test.r, test.u, test.netrc)
 
 		if diff := cmp.Diff(got, test.want); diff != "" {
 			t.Errorf("environment mismatch (-want +got):\n%s", diff)

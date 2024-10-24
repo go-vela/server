@@ -3,12 +3,9 @@
 package native
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
@@ -37,13 +34,8 @@ func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 	// make empty map of environment variables
 	env := make(map[string]string)
 
-	t, err := c.scm.GetNetrcPassword(context.Background(), c.repo, c.user, c.git.Repositories)
-	if err != nil {
-		logrus.Errorf("couldnt get netrc password: %v", err)
-	}
-
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 	// inject the declared global environment
 	// WARNING: local env can override global
@@ -97,13 +89,8 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 	// make empty map of environment variables
 	env := make(map[string]string)
 
-	t, err := c.scm.GetNetrcPassword(context.Background(), c.repo, c.user, c.git.Repositories)
-	if err != nil {
-		logrus.Errorf("couldnt get netrc password: %v", err)
-	}
-
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 	// inject the declared stage environment
 	// WARNING: local env can override global + stage
@@ -164,13 +151,8 @@ func (c *client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSl
 		// make empty map of environment variables
 		env := make(map[string]string)
 
-		t, err := c.scm.GetNetrcPassword(context.Background(), c.repo, c.user, c.git.Repositories)
-		if err != nil {
-			logrus.Errorf("couldnt get netrc password: %v", err)
-		}
-
 		// gather set of default environment variables
-		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
+		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 		// inject the declared global environment
 		// WARNING: local env can override global
@@ -210,13 +192,8 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 		// make empty map of environment variables
 		env := make(map[string]string)
 
-		t, err := c.scm.GetNetrcPassword(context.Background(), c.repo, c.user, c.git.Repositories)
-		if err != nil {
-			logrus.Errorf("couldnt get netrc password: %v", err)
-		}
-
 		// gather set of default environment variables
-		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
+		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 		// inject the declared global environment
 		// WARNING: local env can override global
@@ -276,13 +253,8 @@ func (c *client) EnvironmentBuild() map[string]string {
 	// make empty map of environment variables
 	env := make(map[string]string)
 
-	t, err := c.scm.GetNetrcPassword(context.Background(), c.repo, c.user, c.git.Repositories)
-	if err != nil {
-		logrus.Errorf("couldnt get netrc password: %v", err)
-	}
-
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, t)
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 	// inject the default environment
 	// variables to the build
@@ -316,7 +288,7 @@ func appendMap(originalMap, otherMap map[string]string) map[string]string {
 }
 
 // helper function that creates the standard set of environment variables for a pipeline.
-func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, netrcPassword string) map[string]string {
+func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, netrc *string) map[string]string {
 	// set default workspace
 	workspace := constants.WorkspaceDefault
 	notImplemented := "TODO"
@@ -332,7 +304,7 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, n
 	env["VELA_DISTRIBUTION"] = notImplemented
 	env["VELA_HOST"] = notImplemented
 	env["VELA_NETRC_MACHINE"] = notImplemented
-	env["VELA_NETRC_PASSWORD"] = netrcPassword
+	env["VELA_NETRC_PASSWORD"] = notImplemented
 	env["VELA_NETRC_USERNAME"] = "x-oauth-basic"
 	env["VELA_QUEUE"] = notImplemented
 	env["VELA_RUNTIME"] = notImplemented
@@ -354,6 +326,10 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, n
 		env["VELA_ID_TOKEN_REQUEST_URL"] = fmt.Sprintf("%s/api/v1/repos/%s/builds/%d/id_token", m.Vela.Address, r.GetFullName(), b.GetNumber())
 		channel = m.Queue.Channel
 		workspace = fmt.Sprintf("%s/%s/%s/%s", workspace, m.Source.Host, r.GetOrg(), r.GetName())
+	}
+
+	if netrc != nil {
+		env["VELA_NETRC_PASSWORD"] = *netrc
 	}
 
 	env["VELA_WORKSPACE"] = workspace

@@ -44,8 +44,30 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 		return nil, nil, err
 	}
 
-	// set git configurations after parsing them from the yaml configuration
-	c.WithGit(&p.Git)
+	// create the netrc using the scm
+	// this has to occur after Parse because the scm configurations might be set in yaml
+	// netrc can be provided directly using WithNetrc for situations like local exec
+	if c.netrc == nil && c.scm != nil {
+		// ensure restrictive defaults for the netrc for scms that support granular permissions
+		if p.Git.Repositories == nil {
+			p.Git.Repositories = []string{c.repo.GetName()}
+		}
+
+		if p.Git.Permissions == nil {
+			p.Git.Permissions = map[string]string{
+				"contents": "read",
+				"checks":   "write",
+			}
+		}
+
+		// get the netrc password from the scm
+		netrc, err := c.scm.GetNetrcPassword(context.Background(), c.repo, c.user, p.Git.Repositories, p.Git.Permissions)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		c.WithNetrc(netrc)
+	}
 
 	// create the API pipeline object from the yaml configuration
 	_pipeline := p.ToPipelineAPI()

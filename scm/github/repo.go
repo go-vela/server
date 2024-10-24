@@ -678,10 +678,97 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 	return data.GetName(), data.GetCommit().GetSHA(), nil
 }
 
+// GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
+// If not, it defaults to the user OAuth token.
+func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User, repos []string, perms map[string]string) (string, error) {
+	l := c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	})
+
+	l.Tracef("getting netrc password for %s/%s", r.GetOrg(), r.GetName())
+
+	var err error
+
+	// repos that the token has access to
+	// providing no repos, nil, or empty slice will default the token permissions to the list
+	// of repos added to the installation
+	//
+	// the compiler will set restrictive defaults with access to the triggering repo
+	if repos == nil {
+		repos = []string{}
+	}
+
+	// convert repo fullname org/name to just name for usability
+	for i, repo := range repos {
+		split := strings.Split(repo, "/")
+		if len(split) == 2 {
+			repos[i] = split[1]
+		}
+	}
+
+	// permissions that are applied to the token for every repo provided
+	// providing no permissions, nil, or empty map will default to the permissions
+	// of the GitHub App installation
+	//
+	// the Vela compiler follows a least-privileged-defaults model where
+	// the list contains only the triggering repo, unless provided in the git yaml block
+	//
+	// the default is contents:read and checks:write
+	ghPerms := &github.InstallationPermissions{
+		Contents: github.String("read"),
+		Checks:   github.String("write"),
+	}
+
+	l.Info("using manual permissions set")
+	for resource, perm := range perms {
+		ghPerms, err = WithGitHubInstallationPermission(ghPerms, resource, perm)
+		if err != nil {
+			l.Errorf("unable to create github app installation token with permission %s:%s: %v", resource, perm, err)
+
+			// return the legacy token along with no error for backwards compatibility
+			// todo: return an error based based on app installation requirements
+			return u.GetToken(), nil
+		}
+	}
+
+	// the app might not be installed
+	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
+	// maybe take an optional list of repos and permission set that is driven by yaml
+	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, ghPerms)
+	if err != nil {
+		l.Errorf("unable to create github app installation token for repos %v with permissions %v: %v", repos, perms, err)
+
+		// return the legacy token along with no error for backwards compatibility
+		// todo: return an error based based on app installation requirements
+		return u.GetToken(), nil
+	}
+
+	if len(t) != 0 {
+		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
+
+		return t, nil
+	}
+
+	l.Tracef("using user oauth token for %s/%s", r.GetOrg(), r.GetName())
+
+	return u.GetToken(), nil
+}
+
 // CreateChecks authenticates with the GitHub App and creates a check run for the repo.
 func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, event string) (int64, error) {
-	// create client from GitHub App
-	t, err := c.newGithubAppInstallationRepoToken(ctx, r, []string{}, map[string]string{})
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("creating checks for %s/%s@%s", r.GetOrg(), r.GetName(), commit)
+
+	repos := []string{r.GetFullName()}
+	perms := &github.InstallationPermissions{
+		Contents: github.String("read"),
+		Checks:   github.String("write"),
+	}
+
+	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, perms)
 	if err != nil {
 		return 0, err
 	}
@@ -707,8 +794,18 @@ func (c *client) CreateChecks(ctx context.Context, r *api.Repo, commit, step, ev
 
 // UpdateChecks authenticates with the GitHub App and updates a check run for the repo.
 func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *api.Step, commit, event string) error {
-	// create client from GitHub App
-	t, err := c.newGithubAppInstallationRepoToken(ctx, r, []string{}, map[string]string{})
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("updating checks for %s/%s@%s", r.GetOrg(), r.GetName(), commit)
+
+	repos := []string{r.GetFullName()}
+	perms := &github.InstallationPermissions{
+		Contents: github.String("read"),
+		Checks:   github.String("write"),
+	}
+
+	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, perms)
 	if err != nil {
 		return err
 	}
@@ -794,25 +891,4 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *api.Step, com
 	}
 
 	return nil
-}
-
-// GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
-// If not, it defaults to the user OAuth token.
-func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User, repositories []string) (string, error) {
-	logrus.Infof("getting netrc password")
-
-	// the app might not be installed
-	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
-	// maybe take an optional list of repos and permission set that is driven by yaml
-	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repositories, map[string]string{})
-	if err != nil {
-		logrus.Errorf("unable to get github app installation token: %v", err)
-	}
-	if len(t) != 0 {
-		logrus.Infof("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
-		return t, nil
-	}
-	logrus.Infof("using user oauth token for %s/%s", r.GetOrg(), r.GetName())
-
-	return u.GetToken(), nil
 }

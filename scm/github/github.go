@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptrace"
@@ -126,8 +127,7 @@ func New(opts ...ClientOpt) (*client, error) {
 	}
 
 	if c.config.AppID != 0 && len(c.config.AppPrivateKey) > 0 {
-		// todo: this log isnt accurate, it reads it directly as a string
-		c.Logger.Infof("sourcing private key from path: %s", c.config.AppPrivateKey)
+		c.Logger.Infof("reading github app private key with length %d", len(c.config.AppPrivateKey))
 
 		decodedPEM, err := base64.StdEncoding.DecodeString(c.config.AppPrivateKey)
 		if err != nil {
@@ -148,6 +148,27 @@ func New(opts ...ClientOpt) (*client, error) {
 
 		transport.BaseURL = c.config.API
 		c.AppsTransport = transport
+
+		// ensure the github app that was provided is valid
+		ccc, err := c.newGithubAppClient(context.Background())
+		if err != nil {
+			return nil, fmt.Errorf("error creating github app client: %w", err)
+		}
+
+		app, _, err := ccc.Apps.Get(context.Background(), "")
+		if err != nil {
+			return nil, fmt.Errorf("error getting github app: %w", err)
+		}
+
+		perms := app.GetPermissions()
+
+		if len(perms.GetContents()) == 0 || (perms.GetContents() != "read" && perms.GetContents() != "write") {
+			return nil, fmt.Errorf("github app requires contents:read permissions, found: %s", perms.GetContents())
+		}
+
+		if len(perms.GetChecks()) == 0 || perms.GetChecks() != "write" {
+			return nil, fmt.Errorf("github app requires checks:write permissions, found: %s", perms.GetChecks())
+		}
 	}
 
 	return c, nil
@@ -229,7 +250,8 @@ func (c *client) newGithubAppClient(ctx context.Context) (*github.Client, error)
 }
 
 // helper function to return the GitHub App installation token.
-func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions map[string]string) (string, error) {
+func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions *github.InstallationPermissions) (string, error) {
+	// todo: create transport using context to apply tracing
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(
 		&http.Client{Transport: c.AppsTransport}).
@@ -238,28 +260,9 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 		return "", err
 	}
 
-	// todo: we want to support passing nothing to get the full permission set
-	// so move this outside of this function
-	// make the yaml provide a default when not provided, not the function
-	// but also, only if the repo.InstallID is non-empty, for UX on /expand
-
-	// convert raw permissions to GitHub InstallationPermissions
-	perms := &github.InstallationPermissions{
-		Contents: github.String("read"),
-		Checks:   github.String("write"),
-	}
-
-	for resource, perm := range permissions {
-		perms, err = WithGitHubInstallationPermission(perms, resource, perm)
-	}
-
-	if repos == nil || len(repos) == 0 {
-		repos = []string{r.GetFullName()}
-	}
-
 	opts := &github.InstallationTokenOptions{
 		Repositories: repos,
-		Permissions:  perms,
+		Permissions:  permissions,
 	}
 
 	// if repo has an install ID, use it to create an installation token
@@ -289,10 +292,8 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 	}
 
 	// failsafe in case the repo does not belong to an org where the GitHub App is installed
-	// todo: should this be an error?
-	// in reality we should warn them that they should install this app to their org and add this repo
 	if id == 0 {
-		return "", nil
+		return "", errors.New("unable to find installation ID for repo")
 	}
 
 	// create installation token for the repo
@@ -306,6 +307,7 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 
 // WithGitHubInstallationPermission takes permissions and applies a new permission if valid.
 func WithGitHubInstallationPermission(perms *github.InstallationPermissions, resource, perm string) (*github.InstallationPermissions, error) {
+	// convert permissions from yaml string
 	switch strings.ToLower(perm) {
 	case "read":
 	case "write":
@@ -315,13 +317,12 @@ func WithGitHubInstallationPermission(perms *github.InstallationPermissions, res
 		return perms, fmt.Errorf("invalid permission value given for %s: %s", resource, perm)
 	}
 
+	// convert resource from yaml string
 	switch strings.ToLower(resource) {
 	case "contents":
-		perms.Contents = github.String(resource)
-		break
+		perms.Contents = github.String(perm)
 	case "checks":
-		perms.Checks = github.String(resource)
-		break
+		perms.Checks = github.String(perm)
 	default:
 		return perms, fmt.Errorf("invalid permission key given: %s", perm)
 	}
