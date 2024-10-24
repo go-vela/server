@@ -391,6 +391,111 @@ func TestNative_ExpandSteps(t *testing.T) {
 	}
 }
 
+func TestNative_ExpandDeployment(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	testRepo := new(api.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "GitHub",
+			tmpls: map[string]*yaml.Template{
+				"deploy": {
+					Name:   "deploy",
+					Source: "github.example.com/foo/bar/deploy_template.yml",
+					Type:   "github",
+				},
+			},
+		},
+	}
+
+	deployCfg := yaml.Deployment{
+		Template: yaml.StepTemplate{
+			Name: "deploy",
+			Variables: map[string]interface{}{
+				"regions": []string{"us-east-1", "us-west-1"},
+			},
+		},
+	}
+
+	wantDeployCfg := yaml.Deployment{
+		Targets: []string{"dev", "prod", "stage"},
+		Parameters: yaml.ParameterMap{
+			"region": {
+				Description: "cluster region to deploy",
+				Type:        "string",
+				Required:    true,
+				Options:     []string{"us-east-1", "us-west-1"},
+			},
+			"cluster_count": {
+				Description: "number of clusters to deploy to",
+				Type:        "integer",
+				Required:    false,
+				Min:         1,
+				Max:         10,
+			},
+		},
+	}
+
+	// run test
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Creating new compiler returned err: %v", err)
+	}
+
+	compiler.WithCommit("123abc456def").WithRepo(testRepo)
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			build, err := compiler.ExpandDeployment(
+				context.Background(),
+				&yaml.Build{
+					Deployment: deployCfg,
+				},
+				test.tmpls)
+			if err != nil {
+				t.Errorf("ExpandDeployment_Type%s returned err: %v", test.name, err)
+			}
+
+			if diff := cmp.Diff(wantDeployCfg, build.Deployment); diff != "" {
+				t.Errorf("ExpandDeployment()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+		})
+	}
+}
+
 func TestNative_ExpandStepsMulti(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
