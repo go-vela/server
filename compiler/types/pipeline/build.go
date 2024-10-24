@@ -20,6 +20,7 @@ type Build struct {
 	Metadata    Metadata           `json:"metadata,omitempty" yaml:"metadata,omitempty"`
 	Environment raw.StringSliceMap `json:"environment,omitempty" yaml:"environment,omitempty"`
 	Worker      Worker             `json:"worker,omitempty"   yaml:"worker,omitempty"`
+	Deployment  Deployment         `json:"deployment,omitempty" yaml:"deployment,omitempty"`
 	Secrets     SecretSlice        `json:"secrets,omitempty"  yaml:"secrets,omitempty"`
 	Services    ContainerSlice     `json:"services,omitempty" yaml:"services,omitempty"`
 	Stages      StageSlice         `json:"stages,omitempty"   yaml:"stages,omitempty"`

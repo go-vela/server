@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/buildkite/yaml"
+	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
@@ -597,6 +598,52 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 			},
 		},
 		{
+			file: "testdata/build_with_deploy_config.yml",
+			want: &Build{
+				Version: "1",
+				Metadata: Metadata{
+					Template:    false,
+					Clone:       nil,
+					Environment: []string{"steps", "services", "secrets"},
+				},
+				Deployment: Deployment{
+					Targets: []string{"dev", "stage", "production"},
+					Parameters: ParameterMap{
+						"alpha": {
+							Description: "primary node name",
+							Required:    true,
+							Type:        "string",
+							Options:     []string{"north", "south"},
+						},
+						"beta": {
+							Description: "secondary node name",
+							Required:    false,
+							Type:        "string",
+							Options:     []string{"east", "west"},
+						},
+						"cluster_count": {
+							Description: "number of clusters to deploy",
+							Required:    false,
+							Type:        "integer",
+						},
+						"canary": {
+							Description: "deploy with canary strategy",
+							Required:    true,
+							Type:        "boolean",
+						},
+					},
+				},
+				Steps: StepSlice{
+					{
+						Commands: raw.StringSlice{"./deploy.sh"},
+						Name:     "deploy plugin",
+						Pull:     "not_present",
+						Image:    "awesome-plugin:latest",
+					},
+				},
+			},
+		},
+		{
 			file: "testdata/merge_anchor.yml",
 			want: &Build{
 				Version: "1",
@@ -679,8 +726,8 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 			t.Errorf("UnmarshalYAML returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("UnmarshalYAML is %v, want %v", got, test.want)
+		if diff := cmp.Diff(test.want, got); diff != "" {
+			t.Errorf("UnmarshalYAML mismatch (-want +got):\n%s", diff)
 		}
 	}
 }

@@ -416,6 +416,8 @@ func (c *client) processDeploymentEvent(h *api.Hook, payload *github.DeploymentE
 		if len(deployPayload) != 0 {
 			// set the payload info on the build
 			b.SetDeployPayload(deployPayload)
+			// set payload info on the deployment
+			d.SetPayload(deployPayload)
 		}
 	}
 
