@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // GetWorkerForHostname gets a worker by hostname from the database.
@@ -33,7 +33,5 @@ func (e *engine) GetWorkerForHostname(ctx context.Context, hostname string) (*ap
 	}
 
 	// return the worker
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Worker.ToLibrary
 	return w.ToAPI(convertToBuilds(w.RunningBuildIDs)), nil
 }

@@ -6,7 +6,6 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 // LogInterface represents the Vela interface for log
@@ -32,19 +31,19 @@ type LogInterface interface {
 	// CountLogsForBuild defines a function that gets the count of logs by build ID.
 	CountLogsForBuild(context.Context, *api.Build) (int64, error)
 	// CreateLog defines a function that creates a new log.
-	CreateLog(context.Context, *library.Log) error
+	CreateLog(context.Context, *api.Log) error
 	// DeleteLog defines a function that deletes an existing log.
-	DeleteLog(context.Context, *library.Log) error
+	DeleteLog(context.Context, *api.Log) error
 	// GetLog defines a function that gets a log by ID.
-	GetLog(context.Context, int64) (*library.Log, error)
+	GetLog(context.Context, int64) (*api.Log, error)
 	// GetLogForService defines a function that gets a log by service ID.
-	GetLogForService(context.Context, *library.Service) (*library.Log, error)
+	GetLogForService(context.Context, *api.Service) (*api.Log, error)
 	// GetLogForStep defines a function that gets a log by step ID.
-	GetLogForStep(context.Context, *library.Step) (*library.Log, error)
+	GetLogForStep(context.Context, *api.Step) (*api.Log, error)
 	// ListLogs defines a function that gets a list of all logs.
-	ListLogs(context.Context) ([]*library.Log, error)
+	ListLogs(context.Context) ([]*api.Log, error)
 	// ListLogsForBuild defines a function that gets a list of logs by build ID.
-	ListLogsForBuild(context.Context, *api.Build, int, int) ([]*library.Log, int64, error)
+	ListLogsForBuild(context.Context, *api.Build, int, int) ([]*api.Log, int64, error)
 	// UpdateLog defines a function that updates an existing log.
-	UpdateLog(context.Context, *library.Log) error
+	UpdateLog(context.Context, *api.Log) error
 }

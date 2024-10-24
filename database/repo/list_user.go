@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // ListReposForUser gets a list of repos by user ID from the database.
@@ -98,7 +98,7 @@ func (e *engine) ListReposForUser(ctx context.Context, u *api.User, sortBy strin
 			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
 		}
 
-		// convert query result to library type
+		// convert query result to API type
 		repos = append(repos, tmp.ToAPI())
 	}
 

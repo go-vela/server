@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types"
 )
 
 const (
@@ -119,7 +118,7 @@ func getRepo(c *gin.Context) {
 	if strings.Contains(r, "not-found") {
 		msg := fmt.Sprintf("Repo %s does not exist", r)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -152,7 +151,7 @@ func updateRepo(c *gin.Context) {
 		if strings.Contains(r, "not-found") {
 			msg := fmt.Sprintf("Repo %s does not exist", r)
 
-			c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+			c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 			return
 		}
@@ -175,7 +174,7 @@ func removeRepo(c *gin.Context) {
 	if strings.Contains(r, "not-found") {
 		msg := fmt.Sprintf("Repo %s does not exist", r)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -192,7 +191,7 @@ func repairRepo(c *gin.Context) {
 	if strings.Contains(r, "not-found") {
 		msg := fmt.Sprintf("Repo %s does not exist", r)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -209,7 +208,7 @@ func chownRepo(c *gin.Context) {
 	if strings.Contains(r, "not-found") {
 		msg := fmt.Sprintf("Repo %s does not exist", r)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}

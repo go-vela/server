@@ -12,11 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/id_request_token builds GetIDRequestToken
@@ -145,5 +145,5 @@ func GetIDRequestToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, library.Token{Token: &idrt})
+	c.JSON(http.StatusOK, types.Token{Token: &idrt})
 }

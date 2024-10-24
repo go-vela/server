@@ -7,13 +7,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestStep_FromContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	want := &library.Step{ID: &num}
+	want := &api.Step{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -72,7 +72,7 @@ func TestStep_FromContext_Empty(t *testing.T) {
 func TestStep_ToContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	want := &library.Step{ID: &num}
+	want := &api.Step{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

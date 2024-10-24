@@ -15,7 +15,6 @@ import (
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation GET /authenticate authenticate GetAuthToken
@@ -175,7 +174,7 @@ func GetAuthToken(c *gin.Context) {
 		}).Info("new user created")
 
 		// return the jwt access token
-		c.JSON(http.StatusOK, library.Token{Token: &at})
+		c.JSON(http.StatusOK, types.Token{Token: &at})
 
 		return
 	}
@@ -213,5 +212,5 @@ func GetAuthToken(c *gin.Context) {
 	}).Info("user updated - new token")
 
 	// return the user with their jwt access token
-	c.JSON(http.StatusOK, library.Token{Token: &at})
+	c.JSON(http.StatusOK, types.Token{Token: &at})
 }

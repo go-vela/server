@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/api/types"
 )
 
 // swagger:operation POST /api/v1/queue/info queue Info
@@ -43,7 +43,7 @@ func Info(c *gin.Context) {
 	// extract the queue-address that was packed into gin context
 	a := c.MustGet("queue-address").(string)
 
-	wr := library.QueueInfo{
+	wr := types.QueueInfo{
 		QueuePublicKey: &k,
 		QueueAddress:   &a,
 	}

@@ -11,8 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const (
@@ -70,7 +69,7 @@ const (
 func getServices(c *gin.Context) {
 	data := []byte(ServicesResp)
 
-	var body []library.Service
+	var body []api.Service
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -85,14 +84,14 @@ func getService(c *gin.Context) {
 	if strings.EqualFold(s, "0") {
 		msg := fmt.Sprintf("Service %s does not exist", s)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
 
 	data := []byte(ServiceResp)
 
-	var body library.Service
+	var body api.Service
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -102,7 +101,7 @@ func getService(c *gin.Context) {
 func addService(c *gin.Context) {
 	data := []byte(ServiceResp)
 
-	var body library.Service
+	var body api.Service
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -118,7 +117,7 @@ func updateService(c *gin.Context) {
 		if strings.EqualFold(s, "0") {
 			msg := fmt.Sprintf("Service %s does not exist", s)
 
-			c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+			c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 			return
 		}
@@ -126,7 +125,7 @@ func updateService(c *gin.Context) {
 
 	data := []byte(ServiceResp)
 
-	var body library.Service
+	var body api.Service
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -141,7 +140,7 @@ func removeService(c *gin.Context) {
 	if strings.EqualFold(s, "0") {
 		msg := fmt.Sprintf("Service %s does not exist", s)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}

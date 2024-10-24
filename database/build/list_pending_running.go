@@ -6,8 +6,8 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // ListPendingAndRunningBuilds gets a list of all pending and running builds in the provided timeframe from the database.

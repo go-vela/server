@@ -7,13 +7,13 @@ import (
 	"reflect"
 	"testing"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestNative_Create_Org(t *testing.T) {
 	// setup types
-	want := new(library.Secret)
+	want := new(api.Secret)
 	want.SetID(1)
 	want.SetOrg("foo")
 	want.SetRepo("*")
@@ -22,7 +22,7 @@ func TestNative_Create_Org(t *testing.T) {
 	want.SetValue("baz")
 	want.SetType("org")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
 	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
@@ -61,7 +61,7 @@ func TestNative_Create_Org(t *testing.T) {
 
 func TestNative_Create_Repo(t *testing.T) {
 	// setup types
-	want := new(library.Secret)
+	want := new(api.Secret)
 	want.SetID(1)
 	want.SetOrg("foo")
 	want.SetRepo("bar")
@@ -70,7 +70,7 @@ func TestNative_Create_Repo(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("repo")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
 	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
@@ -109,7 +109,7 @@ func TestNative_Create_Repo(t *testing.T) {
 
 func TestNative_Create_Shared(t *testing.T) {
 	// setup types
-	want := new(library.Secret)
+	want := new(api.Secret)
 	want.SetID(1)
 	want.SetOrg("foo")
 	want.SetRepo("")
@@ -118,7 +118,7 @@ func TestNative_Create_Shared(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("shared")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
 	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
@@ -157,7 +157,7 @@ func TestNative_Create_Shared(t *testing.T) {
 
 func TestNative_Create_Invalid(t *testing.T) {
 	// setup types
-	sec := new(library.Secret)
+	sec := new(api.Secret)
 	sec.SetID(1)
 	sec.SetOrg("foo")
 	sec.SetRepo("bar")
@@ -166,7 +166,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("invalid")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetAllowEvents(library.NewEventsFromMask(1))
+	sec.SetAllowEvents(api.NewEventsFromMask(1))
 	sec.SetAllowCommand(false)
 	sec.SetAllowSubstitution(false)
 	sec.SetCreatedAt(1)

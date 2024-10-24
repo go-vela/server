@@ -6,7 +6,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // ListServiceStatusCount gets a list of all service statuses and the count of their occurrence from the database.

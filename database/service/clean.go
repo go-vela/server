@@ -8,21 +8,21 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // CleanServices updates services to an error with a created timestamp prior to a defined moment.
 func (e *engine) CleanServices(ctx context.Context, msg string, before int64) (int64, error) {
 	logrus.Tracef("cleaning pending or running steps in the database created prior to %d", before)
 
-	s := new(library.Service)
+	s := new(api.Service)
 	s.SetStatus(constants.StatusError)
 	s.SetError(msg)
 	s.SetFinished(time.Now().UTC().Unix())
 
-	service := database.ServiceFromLibrary(s)
+	service := types.ServiceFromAPI(s)
 
 	// send query to the database
 	result := e.client.

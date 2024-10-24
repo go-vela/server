@@ -118,7 +118,7 @@ type Engine interface {
 	// With Compiler Interface Functions
 
 	// WithBuild defines a function that sets
-	// the library build type in the Engine.
+	// the API build type in the Engine.
 	WithBuild(*api.Build) Engine
 	// WithComment defines a function that sets
 	// the comment in the Engine.
@@ -139,10 +139,10 @@ type Engine interface {
 	// the compiler Metadata type in the Engine.
 	WithMetadata(*internal.Metadata) Engine
 	// WithRepo defines a function that sets
-	// the library repo type in the Engine.
+	// the API repo type in the Engine.
 	WithRepo(*api.Repo) Engine
 	// WithUser defines a function that sets
-	// the library user type in the Engine.
+	// the API user type in the Engine.
 	WithUser(*api.User) Engine
 	// WithLabel defines a function that sets
 	// the label(s) in the Engine.

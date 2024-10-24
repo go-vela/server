@@ -13,7 +13,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/yaml"
-	"github.com/go-vela/types"
 )
 
 const (
@@ -343,7 +342,7 @@ func getPipeline(c *gin.Context) {
 	if strings.EqualFold(p, "0") {
 		msg := fmt.Sprintf("Pipeline %s does not exist", p)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -376,7 +375,7 @@ func updatePipeline(c *gin.Context) {
 		if strings.EqualFold(p, "0") {
 			msg := fmt.Sprintf("Pipeline %s does not exist", p)
 
-			c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+			c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 			return
 		}
@@ -399,7 +398,7 @@ func removePipeline(c *gin.Context) {
 	if strings.EqualFold(p, "0") {
 		msg := fmt.Sprintf("Pipeline %s does not exist", p)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -416,7 +415,7 @@ func compilePipeline(c *gin.Context) {
 	if strings.EqualFold(p, "0") {
 		msg := fmt.Sprintf("Pipeline %s does not exist", p)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -438,7 +437,7 @@ func expandPipeline(c *gin.Context) {
 	if strings.EqualFold(p, "0") {
 		msg := fmt.Sprintf("Pipeline %s does not exist", p)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -460,7 +459,7 @@ func getTemplates(c *gin.Context) {
 	if strings.EqualFold(p, "0") {
 		msg := fmt.Sprintf("Pipeline %s does not exist", p)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
@@ -482,7 +481,7 @@ func validatePipeline(c *gin.Context) {
 	if strings.EqualFold(p, "0") {
 		msg := fmt.Sprintf("Pipeline %s does not exist", p)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}

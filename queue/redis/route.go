@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // Route decides which route a build gets placed within the queue.
@@ -19,8 +19,6 @@ func (c *client) Route(w *pipeline.Worker) (string, error) {
 	buf := bytes.Buffer{}
 
 	// if pipline does not specify route information return default
-	//
-	// https://github.com/go-vela/types/blob/main/constants/queue.go#L10
 	if w.Empty() {
 		return constants.DefaultRoute, nil
 	}

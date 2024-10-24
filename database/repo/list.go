@@ -6,8 +6,8 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // ListRepos gets a list of all repos from the database.
@@ -57,7 +57,7 @@ func (e *engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
 			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
 		}
 
-		// convert query result to library type
+		// convert query result to API type
 		repos = append(repos, tmp.ToAPI())
 	}
 

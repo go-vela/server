@@ -8,13 +8,12 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // GetSecretForRepo gets a secret by org and repo name from the database.
-func (e *engine) GetSecretForRepo(ctx context.Context, name string, r *api.Repo) (*library.Secret, error) {
+func (e *engine) GetSecretForRepo(ctx context.Context, name string, r *api.Repo) (*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":    r.GetOrg(),
 		"repo":   r.GetName(),
@@ -23,7 +22,7 @@ func (e *engine) GetSecretForRepo(ctx context.Context, name string, r *api.Repo)
 	}).Tracef("getting repo secret %s/%s", r.GetFullName(), name)
 
 	// variable to store query results
-	s := new(database.Secret)
+	s := new(types.Secret)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -39,9 +38,6 @@ func (e *engine) GetSecretForRepo(ctx context.Context, name string, r *api.Repo)
 		return nil, err
 	}
 
-	// decrypt the fields for the secret
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Decrypt
 	err = s.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		// TODO: remove backwards compatibility before 1.x.x release
@@ -50,15 +46,7 @@ func (e *engine) GetSecretForRepo(ctx context.Context, name string, r *api.Repo)
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted secrets
 		e.logger.Errorf("unable to decrypt repo secret %s/%s: %v", r.GetFullName(), name, err)
-
-		// return the unencrypted secret
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-		return s.ToLibrary(), nil
 	}
 
-	// return the decrypted secret
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-	return s.ToLibrary(), nil
+	return s.ToAPI(), nil
 }

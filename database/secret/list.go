@@ -5,19 +5,19 @@ package secret
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // ListSecrets gets a list of all secrets from the database.
-func (e *engine) ListSecrets(ctx context.Context) ([]*library.Secret, error) {
+func (e *engine) ListSecrets(ctx context.Context) ([]*api.Secret, error) {
 	e.logger.Trace("listing all secrets")
 
 	// variables to store query results and return value
 	count := int64(0)
-	s := new([]database.Secret)
-	secrets := []*library.Secret{}
+	s := new([]types.Secret)
+	secrets := []*api.Secret{}
 
 	// count the results
 	count, err := e.CountSecrets(ctx)
@@ -45,9 +45,6 @@ func (e *engine) ListSecrets(ctx context.Context) ([]*library.Secret, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := secret
 
-		// decrypt the fields for the secret
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Decrypt
 		err = tmp.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
@@ -58,10 +55,7 @@ func (e *engine) ListSecrets(ctx context.Context) ([]*library.Secret, error) {
 			e.logger.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
 		}
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-		secrets = append(secrets, tmp.ToLibrary())
+		secrets = append(secrets, tmp.ToAPI())
 	}
 
 	return secrets, nil

@@ -9,12 +9,13 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestSecret_Engine_CountSecretsForRepo(t *testing.T) {
 	// setup types
-	_repo := testRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
 	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
@@ -24,7 +25,7 @@ func TestSecret_Engine_CountSecretsForRepo(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
 
-	_secretOne := testSecret()
+	_secretOne := testutils.APISecret()
 	_secretOne.SetID(1)
 	_secretOne.SetOrg("foo")
 	_secretOne.SetRepo("bar")
@@ -36,7 +37,7 @@ func TestSecret_Engine_CountSecretsForRepo(t *testing.T) {
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
 
-	_secretTwo := testSecret()
+	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
 	_secretTwo.SetOrg("bar")
 	_secretTwo.SetRepo("foo")

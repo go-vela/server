@@ -12,7 +12,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/types/library"
 )
 
 // API TEST RESOURCES
@@ -162,8 +161,8 @@ func APIHook() *api.Hook {
 	}
 }
 
-func APILog() *library.Log {
-	return &library.Log{
+func APILog() *api.Log {
+	return &api.Log{
 		ID:        new(int64),
 		RepoID:    new(int64),
 		BuildID:   new(int64),
@@ -190,8 +189,28 @@ func APISchedule() *api.Schedule {
 	}
 }
 
-func APIService() *library.Service {
-	return &library.Service{
+func APISecret() *api.Secret {
+	return &api.Secret{
+		ID:                new(int64),
+		Org:               new(string),
+		Repo:              new(string),
+		Team:              new(string),
+		Name:              new(string),
+		Value:             new(string),
+		Type:              new(string),
+		Images:            new([]string),
+		AllowEvents:       APIEvents(),
+		AllowCommand:      new(bool),
+		AllowSubstitution: new(bool),
+		CreatedAt:         new(int64),
+		CreatedBy:         new(string),
+		UpdatedAt:         new(int64),
+		UpdatedBy:         new(string),
+	}
+}
+
+func APIService() *api.Service {
+	return &api.Service{
 		ID:           new(int64),
 		BuildID:      new(int64),
 		RepoID:       new(int64),
@@ -210,8 +229,8 @@ func APIService() *library.Service {
 	}
 }
 
-func APIStep() *library.Step {
-	return &library.Step{
+func APIStep() *api.Step {
+	return &api.Step{
 		ID:           new(int64),
 		BuildID:      new(int64),
 		RepoID:       new(int64),

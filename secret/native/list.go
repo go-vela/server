@@ -9,12 +9,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/constants"
 )
 
 // List captures a list of secrets.
-func (c *client) List(ctx context.Context, sType, org, name string, page, perPage int, teams []string) ([]*library.Secret, error) {
+func (c *client) List(ctx context.Context, sType, org, name string, page, perPage int, teams []string) ([]*api.Secret, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:

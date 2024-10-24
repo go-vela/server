@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // DeleteDeployment deletes an existing deployment from the database.
@@ -18,7 +18,7 @@ func (e *engine) DeleteDeployment(ctx context.Context, d *api.Deployment) error 
 		"deployment": d.GetID(),
 	}).Tracef("deleting deployment %d", d.GetID())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	deployment := types.DeploymentFromAPI(d)
 
 	// send query to the database

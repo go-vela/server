@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/router/middleware/auth"
-	"github.com/go-vela/types"
 )
 
 // rotateKeys returns success message. Pass `invalid` to auth header to test 401 error.
@@ -18,7 +18,7 @@ func rotateKeys(c *gin.Context) {
 
 	if strings.EqualFold(tkn, "invalid") {
 		data := "unauthorized"
-		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &data})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &data})
 
 		return
 	}

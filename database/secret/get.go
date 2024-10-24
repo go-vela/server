@@ -5,17 +5,17 @@ package secret
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // GetSecret gets a secret by ID from the database.
-func (e *engine) GetSecret(ctx context.Context, id int64) (*library.Secret, error) {
+func (e *engine) GetSecret(ctx context.Context, id int64) (*api.Secret, error) {
 	e.logger.Tracef("getting secret %d", id)
 
 	// variable to store query results
-	s := new(database.Secret)
+	s := new(types.Secret)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -28,9 +28,6 @@ func (e *engine) GetSecret(ctx context.Context, id int64) (*library.Secret, erro
 		return nil, err
 	}
 
-	// decrypt the fields for the secret
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Decrypt
 	err = s.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		// TODO: remove backwards compatibility before 1.x.x release
@@ -39,15 +36,7 @@ func (e *engine) GetSecret(ctx context.Context, id int64) (*library.Secret, erro
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted secrets
 		e.logger.Errorf("unable to decrypt secret %d: %v", id, err)
-
-		// return the unencrypted secret
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-		return s.ToLibrary(), nil
 	}
 
-	// return the decrypted secret
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.ToLibrary
-	return s.ToLibrary(), nil
+	return s.ToAPI(), nil
 }

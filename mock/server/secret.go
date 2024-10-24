@@ -11,8 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 //nolint:gosec // these are mock responses
@@ -101,7 +100,7 @@ const (
 func getSecrets(c *gin.Context) {
 	data := []byte(SecretsResp)
 
-	var body []library.Secret
+	var body []api.Secret
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -116,14 +115,14 @@ func getSecret(c *gin.Context) {
 	if strings.Contains(n, "not-found") {
 		msg := fmt.Sprintf("Secret %s does not exist", n)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}
 
 	data := []byte(SecretResp)
 
-	var body library.Secret
+	var body api.Secret
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -133,7 +132,7 @@ func getSecret(c *gin.Context) {
 func addSecret(c *gin.Context) {
 	data := []byte(SecretResp)
 
-	var body library.Secret
+	var body api.Secret
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -149,7 +148,7 @@ func updateSecret(c *gin.Context) {
 		if strings.Contains(n, "not-found") {
 			msg := fmt.Sprintf("Repo or team %s does not exist for secret", n)
 
-			c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+			c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 			return
 		}
@@ -157,7 +156,7 @@ func updateSecret(c *gin.Context) {
 
 	data := []byte(SecretResp)
 
-	var body library.Secret
+	var body api.Secret
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -172,7 +171,7 @@ func removeSecret(c *gin.Context) {
 	if strings.Contains(n, "not-found") {
 		msg := fmt.Sprintf("Secret %s does not exist", n)
 
-		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+		c.AbortWithStatusJSON(http.StatusNotFound, api.Error{Message: &msg})
 
 		return
 	}

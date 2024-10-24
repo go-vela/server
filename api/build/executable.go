@@ -17,7 +17,6 @@ import (
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/executable builds GetBuildExecutable
@@ -106,7 +105,7 @@ func PublishBuildExecutable(ctx context.Context, db database.Interface, p *pipel
 	}
 
 	// create build executable to push to database
-	bExecutable := new(library.BuildExecutable)
+	bExecutable := new(types.BuildExecutable)
 	bExecutable.SetBuildID(b.GetID())
 	bExecutable.SetData(byteExecutable)
 

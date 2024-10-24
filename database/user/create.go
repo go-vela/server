@@ -10,8 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/go-vela/types/constants"
 )
 
 // CreateUser creates a new user in the database.
@@ -24,16 +24,12 @@ func (e *engine) CreateUser(ctx context.Context, u *api.User) (*api.User, error)
 	user := types.UserFromAPI(u)
 
 	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.Validate
 	err := user.Validate()
 	if err != nil {
 		return nil, err
 	}
 
 	// encrypt the fields for the user
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.Encrypt
 	err = user.Encrypt(e.config.EncryptionKey)
 	if err != nil {
 		return nil, fmt.Errorf("unable to encrypt user %s: %w", u.GetName(), err)

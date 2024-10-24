@@ -17,6 +17,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/types/raw"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -35,8 +36,6 @@ import (
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/server/tracing"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // Resources represents the object containing test resources.
@@ -44,16 +43,16 @@ type Resources struct {
 	Builds      []*api.Build
 	Dashboards  []*api.Dashboard
 	Deployments []*api.Deployment
-	Executables []*library.BuildExecutable
+	Executables []*api.BuildExecutable
 	Hooks       []*api.Hook
 	JWKs        jwk.Set
-	Logs        []*library.Log
+	Logs        []*api.Log
 	Pipelines   []*api.Pipeline
 	Repos       []*api.Repo
 	Schedules   []*api.Schedule
-	Secrets     []*library.Secret
-	Services    []*library.Service
-	Steps       []*library.Step
+	Secrets     []*api.Secret
+	Services    []*api.Service
+	Steps       []*api.Step
 	Users       []*api.User
 	Workers     []*api.Worker
 	Platform    []*settings.Platform
@@ -1122,7 +1121,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["ListLogsForBuild"] = true
 
 	// lookup the logs by service
-	for _, log := range []*library.Log{resources.Logs[0], resources.Logs[1]} {
+	for _, log := range []*api.Log{resources.Logs[0], resources.Logs[1]} {
 		service := resources.Services[log.GetServiceID()-1]
 		got, err := db.GetLogForService(context.TODO(), service)
 		if err != nil {
@@ -1135,7 +1134,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["GetLogForService"] = true
 
 	// lookup the logs by service
-	for _, log := range []*library.Log{resources.Logs[2], resources.Logs[3]} {
+	for _, log := range []*api.Log{resources.Logs[2], resources.Logs[3]} {
 		step := resources.Steps[log.GetStepID()-1]
 		got, err := db.GetLogForStep(context.TODO(), step)
 		if err != nil {
@@ -1756,8 +1755,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForOrg() is %v, want %v", count, 1)
 			}
-			if !cmp.Equal(list, []*library.Secret{secret}) {
-				t.Errorf("ListSecretsForOrg() is %v, want %v", list, []*library.Secret{secret})
+			if !cmp.Equal(list, []*api.Secret{secret}) {
+				t.Errorf("ListSecretsForOrg() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForOrg"] = true
 		case constants.SecretRepo:
@@ -1769,8 +1768,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForRepo() is %v, want %v", count, 1)
 			}
-			if !cmp.Equal(list, []*library.Secret{secret}, CmpOptApproxUpdatedAt()) {
-				t.Errorf("ListSecretsForRepo() is %v, want %v", list, []*library.Secret{secret})
+			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
+				t.Errorf("ListSecretsForRepo() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForRepo"] = true
 		case constants.SecretShared:
@@ -1782,8 +1781,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForTeam() is %v, want %v", count, 1)
 			}
-			if !cmp.Equal(list, []*library.Secret{secret}, CmpOptApproxUpdatedAt()) {
-				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*library.Secret{secret})
+			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
+				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForTeam"] = true
 
@@ -1795,8 +1794,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForTeams() is %v, want %v", count, 1)
 			}
-			if !cmp.Equal(list, []*library.Secret{secret}, CmpOptApproxUpdatedAt()) {
-				t.Errorf("ListSecretsForTeams() is %v, want %v", list, []*library.Secret{secret})
+			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
+				t.Errorf("ListSecretsForTeams() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForTeams"] = true
 		default:
@@ -1935,8 +1934,8 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if !cmp.Equal(list, []*library.Service{resources.Services[1], resources.Services[0]}) {
-		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*library.Service{resources.Services[1], resources.Services[0]})
+	if !cmp.Equal(list, []*api.Service{resources.Services[1], resources.Services[0]}) {
+		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*api.Service{resources.Services[1], resources.Services[0]})
 	}
 	if int(count) != len(resources.Services) {
 		t.Errorf("ListServicesForBuild() is %v, want %v", count, len(resources.Services))
@@ -2090,8 +2089,8 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if !cmp.Equal(list, []*library.Step{resources.Steps[1], resources.Steps[0]}) {
-		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*library.Step{resources.Steps[1], resources.Steps[0]})
+	if !cmp.Equal(list, []*api.Step{resources.Steps[1], resources.Steps[0]}) {
+		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*api.Step{resources.Steps[1], resources.Steps[0]})
 	}
 	if int(count) != len(resources.Steps) {
 		t.Errorf("ListStepsForBuild() is %v, want %v", count, len(resources.Steps))
@@ -2623,12 +2622,12 @@ func newResources() *Resources {
 	dashboardTwo.SetAdmins(dashboardAdmins)
 	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
-	executableOne := new(library.BuildExecutable)
+	executableOne := new(api.BuildExecutable)
 	executableOne.SetID(1)
 	executableOne.SetBuildID(1)
 	executableOne.SetData([]byte("foo"))
 
-	executableTwo := new(library.BuildExecutable)
+	executableTwo := new(api.BuildExecutable)
 	executableTwo.SetID(2)
 	executableTwo.SetBuildID(2)
 	executableTwo.SetData([]byte("foo"))
@@ -2724,7 +2723,7 @@ func newResources() *Resources {
 
 	_ = jwkSet.AddKey(jwkTwo)
 
-	logServiceOne := new(library.Log)
+	logServiceOne := new(api.Log)
 	logServiceOne.SetID(1)
 	logServiceOne.SetBuildID(1)
 	logServiceOne.SetRepoID(1)
@@ -2732,7 +2731,7 @@ func newResources() *Resources {
 	logServiceOne.SetStepID(0)
 	logServiceOne.SetData([]byte("foo"))
 
-	logServiceTwo := new(library.Log)
+	logServiceTwo := new(api.Log)
 	logServiceTwo.SetID(2)
 	logServiceTwo.SetBuildID(1)
 	logServiceTwo.SetRepoID(1)
@@ -2740,7 +2739,7 @@ func newResources() *Resources {
 	logServiceTwo.SetStepID(0)
 	logServiceTwo.SetData([]byte("foo"))
 
-	logStepOne := new(library.Log)
+	logStepOne := new(api.Log)
 	logStepOne.SetID(3)
 	logStepOne.SetBuildID(1)
 	logStepOne.SetRepoID(1)
@@ -2748,7 +2747,7 @@ func newResources() *Resources {
 	logStepOne.SetStepID(1)
 	logStepOne.SetData([]byte("foo"))
 
-	logStepTwo := new(library.Log)
+	logStepTwo := new(api.Log)
 	logStepTwo.SetID(4)
 	logStepTwo.SetBuildID(1)
 	logStepTwo.SetRepoID(1)
@@ -2826,7 +2825,7 @@ func newResources() *Resources {
 	scheduleTwo.SetError("no version: YAML property provided")
 	scheduleTwo.SetNextRun(nextTime.Unix())
 
-	secretOrg := new(library.Secret)
+	secretOrg := new(api.Secret)
 	secretOrg.SetID(1)
 	secretOrg.SetOrg("github")
 	secretOrg.SetRepo("*")
@@ -2835,7 +2834,7 @@ func newResources() *Resources {
 	secretOrg.SetValue("bar")
 	secretOrg.SetType("org")
 	secretOrg.SetImages([]string{"alpine"})
-	secretOrg.SetAllowEvents(library.NewEventsFromMask(1))
+	secretOrg.SetAllowEvents(api.NewEventsFromMask(1))
 	secretOrg.SetAllowCommand(true)
 	secretOrg.SetAllowSubstitution(true)
 	secretOrg.SetCreatedAt(time.Now().UTC().Unix())
@@ -2843,7 +2842,7 @@ func newResources() *Resources {
 	secretOrg.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretOrg.SetUpdatedBy("octokitty")
 
-	secretRepo := new(library.Secret)
+	secretRepo := new(api.Secret)
 	secretRepo.SetID(2)
 	secretRepo.SetOrg("github")
 	secretRepo.SetRepo("octocat")
@@ -2852,7 +2851,7 @@ func newResources() *Resources {
 	secretRepo.SetValue("bar")
 	secretRepo.SetType("repo")
 	secretRepo.SetImages([]string{"alpine"})
-	secretRepo.SetAllowEvents(library.NewEventsFromMask(1))
+	secretRepo.SetAllowEvents(api.NewEventsFromMask(1))
 	secretRepo.SetAllowCommand(true)
 	secretRepo.SetAllowSubstitution(true)
 	secretRepo.SetCreatedAt(time.Now().UTC().Unix())
@@ -2860,7 +2859,7 @@ func newResources() *Resources {
 	secretRepo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretRepo.SetUpdatedBy("octokitty")
 
-	secretShared := new(library.Secret)
+	secretShared := new(api.Secret)
 	secretShared.SetID(3)
 	secretShared.SetOrg("github")
 	secretShared.SetRepo("")
@@ -2871,13 +2870,13 @@ func newResources() *Resources {
 	secretShared.SetImages([]string{"alpine"})
 	secretShared.SetAllowCommand(true)
 	secretShared.SetAllowSubstitution(true)
-	secretShared.SetAllowEvents(library.NewEventsFromMask(1))
+	secretShared.SetAllowEvents(api.NewEventsFromMask(1))
 	secretShared.SetCreatedAt(time.Now().UTC().Unix())
 	secretShared.SetCreatedBy("octocat")
 	secretShared.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretShared.SetUpdatedBy("octokitty")
 
-	serviceOne := new(library.Service)
+	serviceOne := new(api.Service)
 	serviceOne.SetID(1)
 	serviceOne.SetBuildID(1)
 	serviceOne.SetRepoID(1)
@@ -2894,7 +2893,7 @@ func newResources() *Resources {
 	serviceOne.SetRuntime("docker")
 	serviceOne.SetDistribution("linux")
 
-	serviceTwo := new(library.Service)
+	serviceTwo := new(api.Service)
 	serviceTwo.SetID(2)
 	serviceTwo.SetBuildID(1)
 	serviceTwo.SetRepoID(1)
@@ -2911,7 +2910,7 @@ func newResources() *Resources {
 	serviceTwo.SetRuntime("docker")
 	serviceTwo.SetDistribution("linux")
 
-	stepOne := new(library.Step)
+	stepOne := new(api.Step)
 	stepOne.SetID(1)
 	stepOne.SetBuildID(1)
 	stepOne.SetRepoID(1)
@@ -2930,7 +2929,7 @@ func newResources() *Resources {
 	stepOne.SetDistribution("linux")
 	stepOne.SetReportAs("")
 
-	stepTwo := new(library.Step)
+	stepTwo := new(api.Step)
 	stepTwo.SetID(2)
 	stepTwo.SetBuildID(1)
 	stepTwo.SetRepoID(1)
@@ -2987,16 +2986,16 @@ func newResources() *Resources {
 		Builds:      []*api.Build{buildOne, buildTwo},
 		Dashboards:  []*api.Dashboard{dashboardOne, dashboardTwo},
 		Deployments: []*api.Deployment{deploymentOne, deploymentTwo},
-		Executables: []*library.BuildExecutable{executableOne, executableTwo},
+		Executables: []*api.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*api.Hook{hookOne, hookTwo, hookThree},
 		JWKs:        jwkSet,
-		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
+		Logs:        []*api.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*api.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},
 		Schedules:   []*api.Schedule{scheduleOne, scheduleTwo},
-		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},
-		Services:    []*library.Service{serviceOne, serviceTwo},
-		Steps:       []*library.Step{stepOne, stepTwo},
+		Secrets:     []*api.Secret{secretOrg, secretRepo, secretShared},
+		Services:    []*api.Service{serviceOne, serviceTwo},
+		Steps:       []*api.Step{stepOne, stepTwo},
 		Users:       []*api.User{userOne, userTwo},
 		Workers:     []*api.Worker{workerOne, workerTwo},
 	}

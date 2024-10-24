@@ -9,7 +9,7 @@ import (
 
 	"github.com/buildkite/yaml"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestBuild_TemplateSlice_UnmarshalYAML(t *testing.T) {
@@ -78,9 +78,9 @@ func TestBuild_TemplateSlice_UnmarshalYAML(t *testing.T) {
 	}
 }
 
-func TestYAML_Template_ToLibrary(t *testing.T) {
+func TestYAML_Template_ToAPI(t *testing.T) {
 	// setup types
-	want := new(library.Template)
+	want := new(api.Template)
 	want.SetName("docker_build")
 	want.SetSource("github.com/go-vela/atlas/stable/docker_build")
 	want.SetType("github")
@@ -92,14 +92,14 @@ func TestYAML_Template_ToLibrary(t *testing.T) {
 	}
 
 	// run test
-	got := tmpl.ToLibrary()
+	got := tmpl.ToAPI()
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ToLibrary is %v, want %v", got, want)
+		t.Errorf("ToAPI is %v, want %v", got, want)
 	}
 }
 
-func TestYAML_TemplateFromLibrary(t *testing.T) {
+func TestYAML_TemplateFromAPI(t *testing.T) {
 	// setup types
 	want := &Template{
 		Name:   "docker_build",
@@ -107,15 +107,15 @@ func TestYAML_TemplateFromLibrary(t *testing.T) {
 		Type:   "github",
 	}
 
-	tmpl := new(library.Template)
+	tmpl := new(api.Template)
 	tmpl.SetName("docker_build")
 	tmpl.SetSource("github.com/go-vela/atlas/stable/docker_build")
 	tmpl.SetType("github")
 
 	// run test
-	got := TemplateFromLibrary(tmpl)
+	got := TemplateFromAPI(tmpl)
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("TemplateFromLibrary is %v, want %v", got, want)
+		t.Errorf("TemplateFromAPI is %v, want %v", got, want)
 	}
 }

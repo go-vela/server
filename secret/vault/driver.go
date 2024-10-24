@@ -2,7 +2,7 @@
 
 package vault
 
-import "github.com/go-vela/types/constants"
+import "github.com/go-vela/server/constants"
 
 // Driver outputs the configured secret driver.
 func (c *client) Driver() string {

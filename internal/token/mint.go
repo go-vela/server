@@ -223,6 +223,10 @@ func imageParse(image string) (string, string, error) {
 		return image, "latest", nil
 	case 2:
 		return parts[0], parts[1], nil
+	case 3:
+		_parts := strings.Split(parts[1]+parts[2], "@")
+
+		return parts[0], _parts[0], nil
 	default:
 		return "", "", fmt.Errorf("invalid image format: %s", image)
 	}

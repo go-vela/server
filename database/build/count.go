@@ -5,7 +5,7 @@ package build
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 // CountBuilds gets the count of all builds from the database.
