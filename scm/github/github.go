@@ -13,7 +13,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/google/go-github/v65/github"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
@@ -67,7 +66,7 @@ type client struct {
 	OAuth         *oauth2.Config
 	AuthReq       *github.AuthorizationRequest
 	Tracing       *tracing.Client
-	AppsTransport *ghinstallation.AppsTransport
+	AppsTransport *AppsTransport
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }
@@ -145,7 +144,8 @@ func New(opts ...ClientOpt) (*client, error) {
 			return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
 		}
 
-		transport := ghinstallation.NewAppsTransportFromPrivateKey(http.DefaultTransport, c.config.AppID, privateKey)
+		fmt.Println("using custom round tripper")
+		transport := NewAppsTransportFromPrivateKey(http.DefaultTransport, c.config.AppID, privateKey)
 
 		transport.BaseURL = c.config.API
 		c.AppsTransport = transport
@@ -242,6 +242,7 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 	// todo: we want to support passing nothing to get the full permission set
 	// so move this outside of this function
 	// make the yaml provide a default when not provided, not the function
+	// but also, only if the repo.InstallID is non-empty, for UX on /expand
 
 	// convert raw permissions to GitHub InstallationPermissions
 	perms := &github.InstallationPermissions{
