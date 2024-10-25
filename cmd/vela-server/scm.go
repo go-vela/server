@@ -33,5 +33,5 @@ func setupSCM(c *cli.Context, tc *tracing.Client) (scm.Service, error) {
 	// setup the scm
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/scm?tab=doc#New
-	return scm.New(_setup)
+	return scm.New(c.Context, _setup)
 }

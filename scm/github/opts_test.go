@@ -3,6 +3,7 @@
 package github
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -33,7 +34,7 @@ func TestGithub_ClientOpt_WithAddress(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithAddress(test.address),
 		)
 
@@ -72,7 +73,7 @@ func TestGithub_ClientOpt_WithClientID(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithClientID(test.id),
 		)
 
@@ -115,7 +116,7 @@ func TestGithub_ClientOpt_WithClientSecret(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithClientSecret(test.secret),
 		)
 
@@ -158,7 +159,7 @@ func TestGithub_ClientOpt_WithServerAddress(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithServerAddress(test.address),
 		)
 
@@ -210,7 +211,7 @@ func TestGithub_ClientOpt_WithServerWebhookAddress(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithServerAddress(test.address),
 			WithServerWebhookAddress(test.webhookAddress),
 		)
@@ -254,7 +255,7 @@ func TestGithub_ClientOpt_WithStatusContext(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithStatusContext(test.context),
 		)
 
@@ -294,7 +295,7 @@ func TestGithub_ClientOpt_WithWebUIAddress(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithWebUIAddress(test.address),
 		)
 
@@ -329,7 +330,7 @@ func TestGithub_ClientOpt_WithScopes(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithScopes(test.scopes),
 		)
 
@@ -367,7 +368,7 @@ func TestGithub_ClientOpt_WithTracing(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithTracing(test.tracing),
 		)
 

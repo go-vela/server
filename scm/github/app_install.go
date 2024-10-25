@@ -142,12 +142,12 @@ func updateRepoInstallationID(ctx context.Context, webhook *internal.Webhook, r 
 func (c *client) FinishInstallation(ctx context.Context, request *http.Request, installID int64) (string, error) {
 	c.Logger.Tracef("finishing GitHub App installation for ID %d", installID)
 
-	githubAppClient, err := c.newGithubAppClient(ctx)
+	client, err := c.newGithubAppClient()
 	if err != nil {
 		return "", err
 	}
 
-	install, _, err := githubAppClient.Apps.GetInstallation(ctx, installID)
+	install, _, err := client.Apps.GetInstallation(ctx, installID)
 	if err != nil {
 		return "", err
 	}

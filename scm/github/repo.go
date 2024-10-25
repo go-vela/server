@@ -720,7 +720,6 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 		Checks:   github.String("write"),
 	}
 
-	l.Info("using manual permissions set")
 	for resource, perm := range perms {
 		ghPerms, err = WithGitHubInstallationPermission(ghPerms, resource, perm)
 		if err != nil {
@@ -891,4 +890,29 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *api.Step, com
 	}
 
 	return nil
+}
+
+// WithGitHubInstallationPermission takes permissions and applies a new permission if valid.
+func WithGitHubInstallationPermission(perms *github.InstallationPermissions, resource, perm string) (*github.InstallationPermissions, error) {
+	// convert permissions from yaml string
+	switch strings.ToLower(perm) {
+	case "read":
+	case "write":
+	case "none":
+		break
+	default:
+		return perms, fmt.Errorf("invalid permission value given for %s: %s", resource, perm)
+	}
+
+	// convert resource from yaml string
+	switch strings.ToLower(resource) {
+	case "contents":
+		perms.Contents = github.String(perm)
+	case "checks":
+		perms.Checks = github.String(perm)
+	default:
+		return perms, fmt.Errorf("invalid permission key given: %s", perm)
+	}
+
+	return perms, nil
 }

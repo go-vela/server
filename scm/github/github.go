@@ -4,15 +4,9 @@ package github
 
 import (
 	"context"
-	"crypto/x509"
-	"encoding/base64"
-	"encoding/pem"
-	"errors"
 	"fmt"
-	"net/http"
 	"net/http/httptrace"
 	"net/url"
-	"strings"
 
 	"github.com/google/go-github/v65/github"
 	"github.com/sirupsen/logrus"
@@ -20,7 +14,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/tracing"
 )
 
@@ -76,7 +69,7 @@ type client struct {
 // a GitHub or a GitHub Enterprise instance.
 //
 //nolint:revive // ignore returning unexported client
-func New(opts ...ClientOpt) (*client, error) {
+func New(ctx context.Context, opts ...ClientOpt) (*client, error) {
 	// create new GitHub client
 	c := new(client)
 
@@ -127,47 +120,18 @@ func New(opts ...ClientOpt) (*client, error) {
 	}
 
 	if c.config.AppID != 0 && len(c.config.AppPrivateKey) > 0 {
-		c.Logger.Infof("reading github app private key with length %d", len(c.config.AppPrivateKey))
+		c.Logger.Infof("setting up GitHub App integration for App ID %d", c.config.AppID)
 
-		decodedPEM, err := base64.StdEncoding.DecodeString(c.config.AppPrivateKey)
+		transport, err := NewGitHubAppTransport(c.config.AppID, c.config.AppPrivateKey, c.config.API)
 		if err != nil {
-			return nil, fmt.Errorf("error decoding base64: %w", err)
+			return nil, err
 		}
 
-		block, _ := pem.Decode(decodedPEM)
-		if block == nil {
-			return nil, fmt.Errorf("failed to parse PEM block containing the key")
-		}
-
-		privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
-		}
-
-		transport := NewAppsTransportFromPrivateKey(http.DefaultTransport, c.config.AppID, privateKey)
-
-		transport.BaseURL = c.config.API
 		c.AppsTransport = transport
 
-		// ensure the github app that was provided is valid
-		ccc, err := c.newGithubAppClient(context.Background())
+		err = c.ValidateGitHubApp(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("error creating github app client: %w", err)
-		}
-
-		app, _, err := ccc.Apps.Get(context.Background(), "")
-		if err != nil {
-			return nil, fmt.Errorf("error getting github app: %w", err)
-		}
-
-		perms := app.GetPermissions()
-
-		if len(perms.GetContents()) == 0 || (perms.GetContents() != "read" && perms.GetContents() != "write") {
-			return nil, fmt.Errorf("github app requires contents:read permissions, found: %s", perms.GetContents())
-		}
-
-		if len(perms.GetChecks()) == 0 || perms.GetChecks() != "write" {
-			return nil, fmt.Errorf("github app requires checks:write permissions, found: %s", perms.GetChecks())
+			return nil, err
 		}
 	}
 
@@ -190,6 +154,7 @@ func NewTest(urls ...string) (*client, error) {
 	}
 
 	return New(
+		context.Background(),
 		WithAddress(address),
 		WithClientID("foo"),
 		WithClientSecret("bar"),
@@ -201,7 +166,7 @@ func NewTest(urls ...string) (*client, error) {
 	)
 }
 
-// helper function to return the GitHub OAuth client.
+// newClientToken returns the GitHub OAuth client.
 func (c *client) newClientToken(ctx context.Context, token string) *github.Client {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(
@@ -235,97 +200,4 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 	github.BaseURL, _ = url.Parse(c.config.API)
 
 	return github
-}
-
-// helper function to return the GitHub App client for authenticating as the GitHub App itself using the RoundTripper.
-func (c *client) newGithubAppClient(ctx context.Context) (*github.Client, error) {
-	// todo: create transport using context to apply tracing
-	// create a github client based off the existing GitHub App configuration
-	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
-}
-
-// helper function to return the GitHub App installation token.
-func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions *github.InstallationPermissions) (string, error) {
-	// todo: create transport using context to apply tracing
-	// create a github client based off the existing GitHub App configuration
-	client, err := github.NewClient(
-		&http.Client{Transport: c.AppsTransport}).
-		WithEnterpriseURLs(c.config.API, c.config.API)
-	if err != nil {
-		return "", err
-	}
-
-	opts := &github.InstallationTokenOptions{
-		Repositories: repos,
-		Permissions:  permissions,
-	}
-
-	// if repo has an install ID, use it to create an installation token
-	if r.GetInstallID() != 0 {
-		// create installation token for the repo
-		t, _, err := client.Apps.CreateInstallationToken(context.Background(), r.GetInstallID(), opts)
-		if err != nil {
-			return "", err
-		}
-
-		return t.GetToken(), nil
-	}
-
-	// list all installations (a.k.a. orgs) where the GitHub App is installed
-	installations, _, err := client.Apps.ListInstallations(context.Background(), &github.ListOptions{})
-	if err != nil {
-		return "", err
-	}
-
-	var id int64
-	// iterate through the list of installations
-	for _, install := range installations {
-		// find the installation that matches the org for the repo
-		if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
-			id = install.GetID()
-		}
-	}
-
-	// failsafe in case the repo does not belong to an org where the GitHub App is installed
-	if id == 0 {
-		return "", errors.New("unable to find installation ID for repo")
-	}
-
-	// create installation token for the repo
-	t, _, err := client.Apps.CreateInstallationToken(context.Background(), id, opts)
-	if err != nil {
-		return "", err
-	}
-
-	return t.GetToken(), nil
-}
-
-// WithGitHubInstallationPermission takes permissions and applies a new permission if valid.
-func WithGitHubInstallationPermission(perms *github.InstallationPermissions, resource, perm string) (*github.InstallationPermissions, error) {
-	// convert permissions from yaml string
-	switch strings.ToLower(perm) {
-	case "read":
-	case "write":
-	case "none":
-		break
-	default:
-		return perms, fmt.Errorf("invalid permission value given for %s: %s", resource, perm)
-	}
-
-	// convert resource from yaml string
-	switch strings.ToLower(resource) {
-	case "contents":
-		perms.Contents = github.String(perm)
-	case "checks":
-		perms.Checks = github.String(perm)
-	default:
-		return perms, fmt.Errorf("invalid permission key given: %s", perm)
-	}
-
-	return perms, nil
 }

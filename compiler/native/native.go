@@ -236,6 +236,7 @@ func (c *client) WithLabels(labels []string) compiler.Engine {
 	return c
 }
 
+// WithNetrc sets the netrc in the Engine.
 func (c *client) WithNetrc(n string) compiler.Engine {
 	c.netrc = &n
 
@@ -248,10 +249,3 @@ func (c *client) WithSCM(_scm scm.Service) compiler.Engine {
 
 	return c
 }
-
-// // WithGit sets the git configurations in the Engine.
-// func (c *client) WithGit(g *yaml.Git) compiler.Engine {
-// 	c.git = g
-
-// 	return c
-// }

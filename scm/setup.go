@@ -3,6 +3,7 @@
 package scm
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -47,13 +48,14 @@ type Setup struct {
 
 // Github creates and returns a Vela service capable of
 // integrating with a Github scm system.
-func (s *Setup) Github() (Service, error) {
+func (s *Setup) Github(ctx context.Context) (Service, error) {
 	logrus.Trace("creating github scm client from setup")
 
 	// create new Github scm service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/scm/github?tab=doc#New
 	return github.New(
+		ctx,
 		github.WithAddress(s.Address),
 		github.WithClientID(s.ClientID),
 		github.WithClientSecret(s.ClientSecret),
@@ -70,7 +72,7 @@ func (s *Setup) Github() (Service, error) {
 
 // Gitlab creates and returns a Vela service capable of
 // integrating with a Gitlab scm system.
-func (s *Setup) Gitlab() (Service, error) {
+func (s *Setup) Gitlab(ctx context.Context) (Service, error) {
 	logrus.Trace("creating gitlab scm client from setup")
 
 	return nil, fmt.Errorf("unsupported scm driver: %s", constants.DriverGitlab)

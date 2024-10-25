@@ -32,7 +32,7 @@ func TestGithub_New(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_, err := New(
+		_, err := New(context.Background(),
 			WithAddress("https://github.com/"),
 			WithClientID(test.id),
 			WithClientSecret("bar"),
