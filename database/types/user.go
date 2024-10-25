@@ -51,10 +51,10 @@ type User struct {
 	Name         sql.NullString `sql:"name"`
 	RefreshToken sql.NullString `sql:"refresh_token"`
 	Token        sql.NullString `sql:"token"`
-	Favorites    pq.StringArray `sql:"favorites" gorm:"type:varchar(5000)"`
+	Favorites    pq.StringArray `sql:"favorites"     gorm:"type:varchar(5000)"`
 	Active       sql.NullBool   `sql:"active"`
 	Admin        sql.NullBool   `sql:"admin"`
-	Dashboards   pq.StringArray `sql:"dashboards" gorm:"type:varchar(5000)"`
+	Dashboards   pq.StringArray `sql:"dashboards"    gorm:"type:varchar(5000)"`
 }
 
 // Decrypt will manipulate the existing user tokens by
