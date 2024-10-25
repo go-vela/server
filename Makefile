@@ -326,6 +326,16 @@ spec-version-update:
 .PHONY: spec
 spec: spec-gen spec-version-update spec-validate
 
+# The `jsonschema` target is intended to create
+# a jsonschema for a Vela pipeline.
+#
+# Usage: `make jsonschema`
+.PHONY: jsonschema
+jsonschema:
+	@echo
+	@echo "### Generating JSON schema"
+	@go run cmd/jsonschema-gen/main.go > schema.json
+
 # The `lint` target is intended to lint the
 # Go source code with golangci-lint.
 #

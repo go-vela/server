@@ -130,14 +130,14 @@ func (s StageSlice) MarshalYAML() (interface{}, error) {
 // Stages are not really a slice of stages to the user. This change
 // supports the map they really are.
 func (StageSlice) JSONSchemaExtend(schema *jsonschema.Schema) {
-	schema.Type = "object"
+	schema.AdditionalProperties = jsonschema.FalseSchema
 	schema.Items = nil
 	schema.PatternProperties = map[string]*jsonschema.Schema{
 		".*": {
 			Ref: "#/$defs/Stage",
 		},
 	}
-	schema.AdditionalProperties = jsonschema.FalseSchema
+	schema.Type = "object"
 }
 
 // MergeEnv takes a list of environment variables and attempts

@@ -139,14 +139,11 @@ func (u *UlimitSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 // Without these changes it would only allow an object per the struct,
 // but we do some special handling to allow specially formatted strings.
 func (Ulimit) JSONSchemaExtend(schema *jsonschema.Schema) {
+	oldAddProps := schema.AdditionalProperties
 	oldProps := schema.Properties
 	oldReq := schema.Required
-	oldAddProps := schema.AdditionalProperties
 
-	schema.Type = ""
-	schema.Properties = nil
 	schema.AdditionalProperties = nil
-	schema.Required = nil
 	schema.OneOf = []*jsonschema.Schema{
 		{
 			Type:                 "string",
@@ -160,4 +157,7 @@ func (Ulimit) JSONSchemaExtend(schema *jsonschema.Schema) {
 			AdditionalProperties: oldAddProps,
 		},
 	}
+	schema.Properties = nil
+	schema.Required = nil
+	schema.Type = ""
 }

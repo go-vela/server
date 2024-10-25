@@ -285,8 +285,8 @@ func (StepSecret) JSONSchemaExtend(schema *jsonschema.Schema) {
 		},
 		&old,
 	}
-	schema.Type = ""
-	schema.Required = nil
 	schema.AdditionalProperties = nil
 	schema.Properties = nil
+	schema.Required = nil
+	schema.Type = ""
 }
