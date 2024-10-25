@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/invopop/jsonschema"
+
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 )
@@ -129,4 +131,33 @@ func (u *UlimitSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	*u = UlimitSlice(*ulimits)
 
 	return nil
+}
+
+// JSONSchemaExtend handles some overrides that need to be in place
+// for this type for the jsonschema generation.
+//
+// Without these changes it would only allow an object per the struct,
+// but we do some special handling to allow specially formatted strings.
+func (Ulimit) JSONSchemaExtend(schema *jsonschema.Schema) {
+	oldProps := schema.Properties
+	oldReq := schema.Required
+	oldAddProps := schema.AdditionalProperties
+
+	schema.Type = ""
+	schema.Properties = nil
+	schema.AdditionalProperties = nil
+	schema.Required = nil
+	schema.OneOf = []*jsonschema.Schema{
+		{
+			Type:                 "string",
+			Pattern:              "[a-z]+=[0-9]+:[0-9]+",
+			AdditionalProperties: oldAddProps,
+		},
+		{
+			Type:                 "object",
+			Properties:           oldProps,
+			Required:             oldReq,
+			AdditionalProperties: oldAddProps,
+		},
+	}
 }

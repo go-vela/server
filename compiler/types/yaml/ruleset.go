@@ -3,6 +3,8 @@
 package yaml
 
 import (
+	"github.com/invopop/jsonschema"
+
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/constants"
@@ -22,13 +24,15 @@ type (
 	// Rules is the yaml representation of the ruletypes
 	// from a ruleset block for a step in a pipeline.
 	Rules struct {
-		Branch   []string `yaml:"branch,omitempty,flow"   json:"branch,omitempty"   jsonschema:"description=Limits the execution of a step to matching build branches.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
-		Comment  []string `yaml:"comment,omitempty,flow"  json:"comment,omitempty"  jsonschema:"description=Limits the execution of a step to matching a pull request comment.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
-		Event    []string `yaml:"event,omitempty,flow"    json:"event,omitempty"    jsonschema:"description=Limits the execution of a step to matching build events.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
-		Path     []string `yaml:"path,omitempty,flow"     json:"path,omitempty"     jsonschema:"description=Limits the execution of a step to matching files changed in a repository.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
-		Repo     []string `yaml:"repo,omitempty,flow"     json:"repo,omitempty"     jsonschema:"description=Limits the execution of a step to matching repos.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
-		Sender   []string `yaml:"sender,omitempty,flow"   json:"sender,omitempty"   jsonschema:"description=Limits the execution of a step to matching build senders.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
-		Status   []string `yaml:"status,omitempty,flow"   json:"status,omitempty"   jsonschema:"enum=[failure],enum=[success],description=Limits the execution of a step to matching build statuses.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Branch  []string `yaml:"branch,omitempty,flow"  json:"branch,omitempty"  jsonschema:"description=Limits the execution of a step to matching build branches.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Comment []string `yaml:"comment,omitempty,flow" json:"comment,omitempty" jsonschema:"description=Limits the execution of a step to matching a pull request comment.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		// enums for 'event' jsonschema are set in JSONSchemaExtend() method below
+		Event  []string `yaml:"event,omitempty,flow"  json:"event,omitempty"  jsonschema:"description=Limits the execution of a step to matching build events.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Path   []string `yaml:"path,omitempty,flow"   json:"path,omitempty"   jsonschema:"description=Limits the execution of a step to matching files changed in a repository.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Repo   []string `yaml:"repo,omitempty,flow"   json:"repo,omitempty"   jsonschema:"description=Limits the execution of a step to matching repos.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Sender []string `yaml:"sender,omitempty,flow" json:"sender,omitempty" jsonschema:"description=Limits the execution of a step to matching build senders.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		// enums for 'status' jsonschema are set in JSONSchemaExtend() method below
+		Status   []string `yaml:"status,omitempty,flow"   json:"status,omitempty"   jsonschema:"description=Limits the execution of a step to matching build statuses.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Tag      []string `yaml:"tag,omitempty,flow"      json:"tag,omitempty"      jsonschema:"description=Limits the execution of a step to matching build tag references.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Target   []string `yaml:"target,omitempty,flow"   json:"target,omitempty"   jsonschema:"description=Limits the execution of a step to matching build deployment targets.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Label    []string `yaml:"label,omitempty,flow"    json:"label,omitempty"    jsonschema:"description=Limits step execution to match on pull requests labels.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
@@ -185,4 +189,90 @@ func (r *Rules) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	return err
+}
+
+// JSONSchemaExtend handles some overrides that need to be in place
+// for this type for the jsonschema generation.
+//
+// Mainly it handles the fact that all Rules fields are raw.StringSlice
+// but also handles adding enums to select fields as they would be too
+// cumbersome to maintain in the jsonschema struct tag.
+func (Rules) JSONSchemaExtend(schema *jsonschema.Schema) {
+	for item := schema.Properties.Newest(); item != nil; item = item.Prev() {
+		currSchema := *item.Value
+
+		// store the current description so we can lift it to top level
+		currDescription := currSchema.Description
+		currSchema.Description = ""
+
+		// handle each field as needed
+		switch item.Key {
+		case "status":
+			// possible values for 'status'
+			enums := []string{
+				"success",
+				"failure",
+			}
+
+			for _, str := range enums {
+				currSchema.Items.Enum = append(currSchema.Items.Enum, str)
+			}
+
+			schema.Properties.Set(item.Key, &jsonschema.Schema{
+				OneOf: []*jsonschema.Schema{
+					&currSchema,
+					{
+						Type: "string",
+						Enum: currSchema.Items.Enum,
+					},
+				},
+				Description: currDescription,
+			})
+		case "event":
+			// possible values for 'event'
+			enums := []string{
+				"comment",
+				"comment:created",
+				"comment:edited",
+				"delete:branch",
+				"delete:tag",
+				"deployment",
+				"pull_request",
+				"pull_request*",
+				"pull_request:edited",
+				"pull_request:labeled",
+				"pull_request:opened",
+				"pull_request:reopened",
+				"pull_request:synchronize",
+				"pull_request:unlabeled",
+				"push",
+				"schedule",
+				"tag",
+			}
+
+			for _, str := range enums {
+				currSchema.Items.Enum = append(currSchema.Items.Enum, str)
+			}
+
+			schema.Properties.Set(item.Key, &jsonschema.Schema{
+				OneOf: []*jsonschema.Schema{
+					&currSchema,
+					{
+						Type: "string",
+						Enum: currSchema.Items.Enum,
+					},
+				},
+				Description: currDescription,
+			})
+		default:
+			// all other fields are raw.StringSlice
+			schema.Properties.Set(item.Key, &jsonschema.Schema{
+				OneOf: []*jsonschema.Schema{
+					&currSchema,
+					{Type: "string"},
+				},
+				Description: currDescription,
+			})
+		}
+	}
 }

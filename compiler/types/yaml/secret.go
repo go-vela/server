@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/invopop/jsonschema"
+
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/constants"
@@ -203,8 +205,8 @@ type (
 	// StepSecret is the yaml representation of a secret
 	// from a secrets block for a step in a pipeline.
 	StepSecret struct {
-		Source string `yaml:"source,omitempty"`
-		Target string `yaml:"target,omitempty"`
+		Source string `yaml:"source,omitempty" json:"source"`
+		Target string `yaml:"target,omitempty" json:"target"`
 	}
 )
 
@@ -268,4 +270,23 @@ func (s *StepSecretSlice) UnmarshalYAML(unmarshal func(interface{}) error) error
 	}
 
 	return errors.New("failed to unmarshal StepSecretSlice")
+}
+
+// JSONSchemaExtend handles some overrides that need to be in place
+// for this type for the jsonschema generation.
+//
+// Allows using simple strings or objects.
+func (StepSecret) JSONSchemaExtend(schema *jsonschema.Schema) {
+	old := *schema
+	schema.OneOf = []*jsonschema.Schema{
+		{
+			Type:                 "string",
+			AdditionalProperties: jsonschema.FalseSchema,
+		},
+		&old,
+	}
+	schema.Type = ""
+	schema.Required = nil
+	schema.AdditionalProperties = nil
+	schema.Properties = nil
 }
