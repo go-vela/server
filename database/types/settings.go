@@ -28,7 +28,7 @@ type (
 		Compiler
 		Queue
 
-		RepoAllowlist     pq.StringArray `json:"repo_allowlist" sql:"repo_allowlist" gorm:"type:varchar(1000)"`
+		RepoAllowlist     pq.StringArray `json:"repo_allowlist"     sql:"repo_allowlist"     gorm:"type:varchar(1000)"`
 		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist" sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
 
 		CreatedAt sql.NullInt64  `sql:"created_at"`
@@ -38,8 +38,8 @@ type (
 
 	// Compiler is the database representation of compiler settings.
 	Compiler struct {
-		CloneImage        sql.NullString `json:"clone_image" sql:"clone_image"`
-		TemplateDepth     sql.NullInt64  `json:"template_depth" sql:"template_depth"`
+		CloneImage        sql.NullString `json:"clone_image"         sql:"clone_image"`
+		TemplateDepth     sql.NullInt64  `json:"template_depth"      sql:"template_depth"`
 		StarlarkExecLimit sql.NullInt64  `json:"starlark_exec_limit" sql:"starlark_exec_limit"`
 	}
 

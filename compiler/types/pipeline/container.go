@@ -51,8 +51,8 @@ type (
 		Ulimits     UlimitSlice       `json:"ulimits,omitempty"     yaml:"ulimits,omitempty"`
 		Volumes     VolumeSlice       `json:"volumes,omitempty"     yaml:"volumes,omitempty"`
 		User        string            `json:"user,omitempty"        yaml:"user,omitempty"`
-		ReportAs    string            `json:"report_as,omitempty" yaml:"report_as,omitempty"`
-		IDRequest   string            `json:"id_request,omitempty" yaml:"id_request,omitempty"`
+		ReportAs    string            `json:"report_as,omitempty"   yaml:"report_as,omitempty"`
+		IDRequest   string            `json:"id_request,omitempty"  yaml:"id_request,omitempty"`
 	}
 )
 
