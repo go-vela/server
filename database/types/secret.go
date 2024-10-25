@@ -50,7 +50,7 @@ type Secret struct {
 	Name              sql.NullString `sql:"name"`
 	Value             sql.NullString `sql:"value"`
 	Type              sql.NullString `sql:"type"`
-	Images            pq.StringArray `sql:"images" gorm:"type:varchar(1000)"`
+	Images            pq.StringArray `sql:"images"             gorm:"type:varchar(1000)"`
 	AllowEvents       sql.NullInt64  `sql:"allow_events"`
 	AllowCommand      sql.NullBool   `sql:"allow_command"`
 	AllowSubstitution sql.NullBool   `sql:"allow_substitution"`

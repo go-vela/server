@@ -55,7 +55,7 @@ type Repo struct {
 	Link         sql.NullString `sql:"link"`
 	Clone        sql.NullString `sql:"clone"`
 	Branch       sql.NullString `sql:"branch"`
-	Topics       pq.StringArray `sql:"topics" gorm:"type:varchar(1020)"`
+	Topics       pq.StringArray `sql:"topics"        gorm:"type:varchar(1020)"`
 	BuildLimit   sql.NullInt64  `sql:"build_limit"`
 	Timeout      sql.NullInt64  `sql:"timeout"`
 	Counter      sql.NullInt32  `sql:"counter"`
