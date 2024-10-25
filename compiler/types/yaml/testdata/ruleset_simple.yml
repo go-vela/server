@@ -3,8 +3,11 @@ branch: main
 comment: "test comment"
 continue: true
 event: push
+instance: vela-server
+label: bug
 path: foo.txt
 repo: github/octocat
+sender: octocat
 status: success
 stage_status: failure
 tag: v0.1.0
