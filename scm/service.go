@@ -144,6 +144,9 @@ type Service interface {
 	// GetNetrc defines a function that returns the netrc
 	// password injected into build steps.
 	GetNetrcPassword(context.Context, *api.Repo, *api.User, []string, map[string]string) (string, error)
+	// SyncRepoWithInstallation defines a function that syncs
+	// a repo with the installation, if it exists.
+	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)
 	// CreateChecks defines a function that creates
 	// a check for a given repo and check id.
 	CreateChecks(context.Context, *api.Repo, string, string, string) (int64, error)

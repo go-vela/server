@@ -892,6 +892,68 @@ func (c *client) UpdateChecks(ctx context.Context, r *api.Repo, s *api.Step, com
 	return nil
 }
 
+// SyncRepoWithInstallation ensures the repo is synchronized with the scm installation, if it exists.
+func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*api.Repo, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("syncing app installation for repo %s/%s", r.GetOrg(), r.GetName())
+
+	client, err := c.newGithubAppClient()
+	if err != nil {
+		return r, err
+	}
+
+	installations, _, err := client.Apps.ListInstallations(ctx, &github.ListOptions{})
+	if err != nil {
+		return r, err
+	}
+
+	var installation *github.Installation
+	for _, install := range installations {
+		if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
+			installation = install
+		}
+	}
+
+	if installation == nil {
+		return nil, nil
+	}
+
+	installationCanReadRepo := false
+	if installation.GetRepositorySelection() != "all" {
+		client, err := c.newGithubAppClient()
+		if err != nil {
+			return r, err
+		}
+
+		t, _, err := client.Apps.CreateInstallationToken(ctx, installation.GetID(), &github.InstallationTokenOptions{})
+		if err != nil {
+			return r, err
+		}
+
+		client = c.newClientToken(ctx, t.GetToken())
+
+		repos, _, err := client.Apps.ListRepos(ctx, &github.ListOptions{})
+		if err != nil {
+			return r, err
+		}
+
+		for _, repo := range repos.Repositories {
+			if strings.EqualFold(repo.GetFullName(), r.GetFullName()) {
+				installationCanReadRepo = true
+				break
+			}
+		}
+	}
+
+	if installationCanReadRepo {
+		r.SetInstallID(installation.GetID())
+	}
+
+	return r, nil
+}
+
 // WithGitHubInstallationPermission takes permissions and applies a new permission if valid.
 func WithGitHubInstallationPermission(perms *github.InstallationPermissions, resource, perm string) (*github.InstallationPermissions, error) {
 	// convert permissions from yaml string

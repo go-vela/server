@@ -82,7 +82,7 @@ func (c *client) newGithubAppClient() (*github.Client, error) {
 	return client, nil
 }
 
-// newGithubAppInstallationRepoToken returns the GitHub App installation token.
+// newGithubAppInstallationRepoToken returns the GitHub App installation token for a particular repo with granular permissions.
 func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions *github.InstallationPermissions) (string, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := c.newGithubAppClient()
