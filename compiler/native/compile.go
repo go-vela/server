@@ -61,7 +61,7 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 		}
 
 		// get the netrc password from the scm
-		netrc, err := c.scm.GetNetrcPassword(context.Background(), c.repo, c.user, p.Git.Repositories, p.Git.Permissions)
+		netrc, err := c.scm.GetNetrcPassword(ctx, c.repo, c.user, p.Git.Repositories, p.Git.Permissions)
 		if err != nil {
 			return nil, nil, err
 		}

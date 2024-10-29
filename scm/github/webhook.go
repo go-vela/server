@@ -555,11 +555,11 @@ func (c *client) processInstallationEvent(_ context.Context, h *api.Hook, payloa
 	install.Org = payload.GetInstallation().GetAccount().GetLogin()
 
 	switch payload.GetAction() {
-	case "created":
+	case constants.AppInstallCreated:
 		for _, repo := range payload.Repositories {
 			install.RepositoriesAdded = append(install.RepositoriesAdded, repo.GetName())
 		}
-	case "deleted":
+	case constants.AppInstallDeleted:
 		for _, repo := range payload.Repositories {
 			install.RepositoriesRemoved = append(install.RepositoriesRemoved, repo.GetName())
 		}

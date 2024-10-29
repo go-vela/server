@@ -19,7 +19,7 @@ type Token struct {
 
 // Empty returns true if the provided struct is empty.
 func (g *Git) Empty() bool {
-	// return true if every field is empty
+	// return false if any of the fields are provided
 	if g.Token != nil {
 		if g.Token.Repositories != nil {
 			return false
@@ -30,6 +30,6 @@ func (g *Git) Empty() bool {
 		}
 	}
 
-	// return false if any of the fields are provided
+	// return true if all fields are empty
 	return true
 }

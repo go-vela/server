@@ -54,14 +54,65 @@ func (c *client) ValidateGitHubApp(ctx context.Context) error {
 	}
 
 	perms := app.GetPermissions()
-	if len(perms.GetContents()) == 0 ||
-		(perms.GetContents() != constants.AppInstallPermissionRead && perms.GetContents() != constants.AppInstallPermissionWrite) {
-		return fmt.Errorf("github app requires contents:read permissions, found: %s", perms.GetContents())
+
+	type perm struct {
+		resource           string
+		requiredPermission string
+		actualPermission   string
 	}
 
-	if len(perms.GetChecks()) == 0 ||
-		perms.GetChecks() != constants.AppInstallPermissionWrite {
-		return fmt.Errorf("github app requires checks:write permissions, found: %s", perms.GetChecks())
+	// GitHub App installation requires the following permissions
+	// - contents:read
+	// - checks:write
+	requiredPermissions := []perm{
+		{
+			resource:           constants.AppInstallResourceContents,
+			requiredPermission: constants.AppInstallPermissionRead,
+			actualPermission:   perms.GetContents(),
+		},
+		{
+			resource:           constants.AppInstallResourceChecks,
+			requiredPermission: constants.AppInstallPermissionWrite,
+			actualPermission:   perms.GetChecks(),
+		},
+	}
+
+	for _, p := range requiredPermissions {
+		err := hasPermission(p.resource, p.requiredPermission, p.actualPermission)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// hasPermission takes a resource:perm pair and checks if the actual permission matches the expected permission or is supersceded by a higher permission.
+func hasPermission(resource, requiredPerm, actualPerm string) error {
+	if len(actualPerm) == 0 {
+		return fmt.Errorf("github app missing permission %s:%s", resource, requiredPerm)
+	}
+
+	permitted := false
+
+	switch requiredPerm {
+	case constants.AppInstallPermissionNone:
+		permitted = true
+	case constants.AppInstallPermissionRead:
+		if actualPerm == constants.AppInstallPermissionRead ||
+			actualPerm == constants.AppInstallPermissionWrite {
+			permitted = true
+		}
+	case constants.AppInstallPermissionWrite:
+		if actualPerm == constants.AppInstallPermissionWrite {
+			permitted = true
+		}
+	default:
+		return fmt.Errorf("invalid required permission type: %s", requiredPerm)
+	}
+
+	if !permitted {
+		return fmt.Errorf("github app requires permission %s:%s, found: %s", constants.AppInstallResourceContents, constants.AppInstallPermissionRead, actualPerm)
 	}
 
 	return nil
@@ -69,7 +120,6 @@ func (c *client) ValidateGitHubApp(ctx context.Context) error {
 
 // newGithubAppClient returns the GitHub App client for authenticating as the GitHub App itself using the RoundTripper.
 func (c *client) newGithubAppClient() (*github.Client, error) {
-	// todo: create transport using context to apply tracing
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(
 		&http.Client{

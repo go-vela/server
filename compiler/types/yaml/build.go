@@ -65,7 +65,6 @@ func (b *Build) ToPipelineAPI() *api.Pipeline {
 func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	// build we try unmarshalling to
 	build := new(struct {
-		Git         Git
 		Version     string
 		Metadata    Metadata
 		Environment raw.StringSliceMap
@@ -75,6 +74,7 @@ func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Stages      StageSlice
 		Steps       StepSlice
 		Templates   TemplateSlice
+		Git         Git
 	})
 
 	// attempt to unmarshal as a build type

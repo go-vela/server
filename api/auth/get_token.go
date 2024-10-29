@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
@@ -80,7 +81,7 @@ func GetAuthToken(c *gin.Context) {
 
 	// handle scm setup events
 	// setup_action==install represents the GitHub App installation callback redirect
-	if c.Request.FormValue("setup_action") == "install" {
+	if c.Request.FormValue("setup_action") == constants.AppInstallSetupActionInstall {
 		installID, err := strconv.ParseInt(c.Request.FormValue("installation_id"), 10, 0)
 		if err != nil {
 			retErr := fmt.Errorf("unable to parse installation_id: %w", err)

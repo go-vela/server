@@ -784,7 +784,7 @@ func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 
 	installationCanReadRepo := false
 
-	if installation.GetRepositorySelection() != "all" {
+	if installation.GetRepositorySelection() != constants.AppInstallRepositoriesSelectionAll {
 		client, err := c.newGithubAppClient()
 		if err != nil {
 			return r, err
@@ -821,9 +821,9 @@ func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 func WithGitHubInstallationPermission(perms *github.InstallationPermissions, resource, perm string) (*github.InstallationPermissions, error) {
 	// convert permissions from yaml string
 	switch strings.ToLower(perm) {
-	case "read":
-	case "write":
-	case "none":
+	case constants.AppInstallPermissionNone:
+	case constants.AppInstallPermissionRead:
+	case constants.AppInstallPermissionWrite:
 		break
 	default:
 		return perms, fmt.Errorf("invalid permission value given for %s: %s", resource, perm)
@@ -831,9 +831,9 @@ func WithGitHubInstallationPermission(perms *github.InstallationPermissions, res
 
 	// convert resource from yaml string
 	switch strings.ToLower(resource) {
-	case "contents":
+	case constants.AppInstallResourceContents:
 		perms.Contents = github.String(perm)
-	case "checks":
+	case constants.AppInstallResourceChecks:
 		perms.Checks = github.String(perm)
 	default:
 		return perms, fmt.Errorf("invalid permission key given: %s", perm)
