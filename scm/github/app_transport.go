@@ -6,11 +6,15 @@ import (
 	"bytes"
 	"context"
 	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptrace"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,6 +22,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/go-github/v65/github"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const (
@@ -40,8 +46,41 @@ type AppsTransport struct {
 	appID   int64             // appID is the GitHub App's ID
 }
 
-// NewAppsTransportFromPrivateKey returns an AppsTransport using a crypto/rsa.(*PrivateKey).
-func NewAppsTransportFromPrivateKey(tr http.RoundTripper, appID int64, key *rsa.PrivateKey) *AppsTransport {
+// newGitHubAppTransport creates a new GitHub App transport for authenticating as the GitHub App.
+func (c *client) newGitHubAppTransport(appID int64, privateKey, baseURL string) (*AppsTransport, error) {
+	decodedPEM, err := base64.StdEncoding.DecodeString(privateKey)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding base64: %w", err)
+	}
+
+	block, _ := pem.Decode(decodedPEM)
+	if block == nil {
+		return nil, fmt.Errorf("failed to parse PEM block containing the key")
+	}
+
+	_privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
+	}
+
+	transport := c.newAppsTransportFromPrivateKey(http.DefaultTransport, appID, _privateKey)
+	transport.BaseURL = baseURL
+
+	// apply tracing to the transport
+	if c.Tracing.Config.EnableTracing {
+		transport.tr = otelhttp.NewTransport(
+			transport.tr,
+			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+				return otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
+			}),
+		)
+	}
+
+	return transport, nil
+}
+
+// newAppsTransportFromPrivateKey returns an AppsTransport using a crypto/rsa.(*PrivateKey).
+func (c *client) newAppsTransportFromPrivateKey(tr http.RoundTripper, appID int64, key *rsa.PrivateKey) *AppsTransport {
 	return &AppsTransport{
 		BaseURL: apiBaseURL,
 		Client:  &http.Client{Transport: tr},

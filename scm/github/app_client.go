@@ -4,118 +4,54 @@ package github
 
 import (
 	"context"
-	"crypto/x509"
-	"encoding/base64"
-	"encoding/pem"
 	"errors"
-	"fmt"
 	"net/http"
+	"net/http/httptrace"
+	"net/url"
 	"strings"
 
 	"github.com/google/go-github/v65/github"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"golang.org/x/oauth2"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/constants"
 )
 
-// NewGitHubAppTransport creates a new GitHub App transport for authenticating as the GitHub App.
-func NewGitHubAppTransport(appID int64, privateKey, baseURL string) (*AppsTransport, error) {
-	decodedPEM, err := base64.StdEncoding.DecodeString(privateKey)
-	if err != nil {
-		return nil, fmt.Errorf("error decoding base64: %w", err)
+// newOAuthTokenClient returns the GitHub OAuth client.
+func (c *client) newOAuthTokenClient(ctx context.Context, token string) *github.Client {
+	// create the token object for the client
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+
+	// create the OAuth client
+	tc := oauth2.NewClient(ctx, ts)
+	// if c.SkipVerify {
+	// 	tc.Transport.(*oauth2.Transport).Base = &http.Transport{
+	// 		Proxy: http.ProxyFromEnvironment,
+	// 		TLSClientConfig: &tls.Config{
+	// 			InsecureSkipVerify: true,
+	// 		},
+	// 	}
+	// }
+
+	if c.Tracing.Config.EnableTracing {
+		tc.Transport = otelhttp.NewTransport(
+			tc.Transport,
+			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+				return otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
+			}),
+		)
 	}
 
-	block, _ := pem.Decode(decodedPEM)
-	if block == nil {
-		return nil, fmt.Errorf("failed to parse PEM block containing the key")
-	}
+	// create the GitHub client from the OAuth client
+	github := github.NewClient(tc)
 
-	_privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
-	}
+	// ensure the proper URL is set in the GitHub client
+	github.BaseURL, _ = url.Parse(c.config.API)
 
-	transport := NewAppsTransportFromPrivateKey(http.DefaultTransport, appID, _privateKey)
-	transport.BaseURL = baseURL
-
-	return transport, nil
-}
-
-// ValidateGitHubApp ensures the GitHub App configuration is valid.
-func (c *client) ValidateGitHubApp(ctx context.Context) error {
-	client, err := c.newGithubAppClient()
-	if err != nil {
-		return fmt.Errorf("error creating github app client: %w", err)
-	}
-
-	app, _, err := client.Apps.Get(ctx, "")
-	if err != nil {
-		return fmt.Errorf("error getting github app: %w", err)
-	}
-
-	perms := app.GetPermissions()
-
-	type perm struct {
-		resource           string
-		requiredPermission string
-		actualPermission   string
-	}
-
-	// GitHub App installation requires the following permissions
-	// - contents:read
-	// - checks:write
-	requiredPermissions := []perm{
-		{
-			resource:           constants.AppInstallResourceContents,
-			requiredPermission: constants.AppInstallPermissionRead,
-			actualPermission:   perms.GetContents(),
-		},
-		{
-			resource:           constants.AppInstallResourceChecks,
-			requiredPermission: constants.AppInstallPermissionWrite,
-			actualPermission:   perms.GetChecks(),
-		},
-	}
-
-	for _, p := range requiredPermissions {
-		err := hasPermission(p.resource, p.requiredPermission, p.actualPermission)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// hasPermission takes a resource:perm pair and checks if the actual permission matches the expected permission or is supersceded by a higher permission.
-func hasPermission(resource, requiredPerm, actualPerm string) error {
-	if len(actualPerm) == 0 {
-		return fmt.Errorf("github app missing permission %s:%s", resource, requiredPerm)
-	}
-
-	permitted := false
-
-	switch requiredPerm {
-	case constants.AppInstallPermissionNone:
-		permitted = true
-	case constants.AppInstallPermissionRead:
-		if actualPerm == constants.AppInstallPermissionRead ||
-			actualPerm == constants.AppInstallPermissionWrite {
-			permitted = true
-		}
-	case constants.AppInstallPermissionWrite:
-		if actualPerm == constants.AppInstallPermissionWrite {
-			permitted = true
-		}
-	default:
-		return fmt.Errorf("invalid required permission type: %s", requiredPerm)
-	}
-
-	if !permitted {
-		return fmt.Errorf("github app requires permission %s:%s, found: %s", constants.AppInstallResourceContents, constants.AppInstallPermissionRead, actualPerm)
-	}
-
-	return nil
+	return github
 }
 
 // newGithubAppClient returns the GitHub App client for authenticating as the GitHub App itself using the RoundTripper.
