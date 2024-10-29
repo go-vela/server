@@ -63,16 +63,6 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	s.SetReportAs(c.ReportAs)
 	s.SetCreated(time.Now().UTC().Unix())
 
-	if len(c.ReportAs) > 0 {
-		id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName(), b.GetEvent())
-		if err != nil {
-			// todo: warn the user that they need to install the github app
-			logrus.Warnf("report_as checks skipped for step: %v", err)
-		} else {
-			s.SetCheckID(id)
-		}
-	}
-
 	// send API call to create the step
 	s, err := database.CreateStep(ctx, s)
 	if err != nil {

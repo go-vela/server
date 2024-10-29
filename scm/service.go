@@ -147,12 +147,6 @@ type Service interface {
 	// SyncRepoWithInstallation defines a function that syncs
 	// a repo with the installation, if it exists.
 	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)
-	// CreateChecks defines a function that creates
-	// a check for a given repo and check id.
-	CreateChecks(context.Context, *api.Repo, string, string, string) (int64, error)
-	// UpdateChecks defines a function that updates
-	// a check for a given repo and check id.
-	UpdateChecks(context.Context, *api.Repo, *api.Step, string, string) error
 
 	// Webhook SCM Interface Functions
 

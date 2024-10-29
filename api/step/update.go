@@ -154,15 +154,6 @@ func UpdateStep(c *gin.Context) {
 		return
 	}
 
-	if s.GetCheckID() != 0 {
-		s.SetReport(input.GetReport())
-
-		err = scm.FromContext(c).UpdateChecks(ctx, r, s, b.GetCommit(), b.GetEvent())
-		if err != nil {
-			l.Warnf("checks skipped for step %s: %v", entry, err)
-		}
-	}
-
 	c.JSON(http.StatusOK, s)
 
 	// check if the build is in a "final" state

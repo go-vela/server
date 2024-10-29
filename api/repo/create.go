@@ -285,8 +285,6 @@ func CreateRepo(c *gin.Context) {
 		}
 	}
 
-	logrus.Warnf("repo %s has been synced with installation %d", r.GetFullName(), r.GetInstallID())
-
 	// if the repo exists but is inactive
 	if len(dbRepo.GetOrg()) > 0 && !dbRepo.GetActive() {
 		// update the repo owner
