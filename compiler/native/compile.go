@@ -92,6 +92,7 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 		Event:   event,
 		Path:    c.files,
 		Repo:    c.repo.GetFullName(),
+		Sender:  c.build.GetSender(),
 		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
 		Target:  c.build.GetDeploy(),
 		Label:   c.labels,

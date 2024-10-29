@@ -22,7 +22,7 @@ type Secret struct {
 	Value             *string   `json:"value,omitempty"`
 	Type              *string   `json:"type,omitempty"`
 	Images            *[]string `json:"images,omitempty"`
-	AllowEvents       *Events   `json:"allow_events,omitempty" yaml:"allow_events"`
+	AllowEvents       *Events   `json:"allow_events,omitempty"       yaml:"allow_events"`
 	AllowCommand      *bool     `json:"allow_command,omitempty"`
 	AllowSubstitution *bool     `json:"allow_substitution,omitempty"`
 	CreatedAt         *int64    `json:"created_at,omitempty"`

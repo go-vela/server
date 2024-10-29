@@ -47,6 +47,12 @@ linters-settings:
       - dot
       - prefix(github.com/go-vela)
 
+  # https://golangci-lint.run/usage/linters/#tagalign
+  # ensure struct tags are aligned
+  # will auto fix with `make lintfix`  
+  tagalign:
+    sort: false
+
   # https://github.com/denis-tingaikin/go-header
   goheader:
     template: |-
@@ -100,6 +106,7 @@ linters:
     - revive # linter for go
     - staticcheck # applies static analysis checks, go vet on steroids
     - stylecheck # replacement for golint
+    - tagalign # finds maligned struct tags
     - tenv # analyzer that detects using os.Setenv instead of t.Setenv since Go1.17
     - typecheck # parses and type-checks go code, like the front-end of a go compiler
     - unconvert # remove unnecessary type conversions
