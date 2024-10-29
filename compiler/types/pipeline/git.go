@@ -14,7 +14,7 @@ type Git struct {
 // swagger:model PipelineGitToken
 type Token struct {
 	Repositories []string          `json:"repositories,omitempty" yaml:"repositories,omitempty"`
-	Permissions  map[string]string `json:"permissions,omitempty" yaml:"permissions,omitempty"`
+	Permissions  map[string]string `json:"permissions,omitempty"  yaml:"permissions,omitempty"`
 }
 
 // Empty returns true if the provided struct is empty.
