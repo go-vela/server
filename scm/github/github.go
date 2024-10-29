@@ -117,7 +117,7 @@ func New(ctx context.Context, opts ...ClientOpt) (*client, error) {
 	}
 
 	if c.config.AppID != 0 && len(c.config.AppPrivateKey) > 0 {
-		c.Logger.Infof("setting up GitHub App integration for App ID %d", c.config.AppID)
+		c.Logger.Infof("configurating github app integration for app_id %d", c.config.AppID)
 
 		transport, err := c.newGitHubAppTransport(c.config.AppID, c.config.AppPrivateKey, c.config.API)
 		if err != nil {

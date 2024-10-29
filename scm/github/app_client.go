@@ -48,6 +48,10 @@ func (c *client) newOAuthTokenClient(ctx context.Context, token string) *github.
 
 // newGithubAppClient returns the GitHub App client for authenticating as the GitHub App itself using the RoundTripper.
 func (c *client) newGithubAppClient() (*github.Client, error) {
+	if c.AppsTransport == nil {
+		return nil, errors.New("unable to create github app client: no AppsTransport configured")
+	}
+
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(
 		&http.Client{
@@ -75,6 +79,8 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 	}
 
 	// if repo has an install ID, use it to create an installation token
+	// todo: fix this: its fine but return the installation token object and
+	// update the repo when you can find a token for it...
 	if r.GetInstallID() != 0 {
 		// create installation token for the repo
 		t, _, err := client.Apps.CreateInstallationToken(ctx, r.GetInstallID(), opts)
@@ -96,6 +102,8 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 	for _, install := range installations {
 		// find the installation that matches the org for the repo
 		if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
+			// todo: right here... what if we're using this function to generate a netrc and the
+			// installation doesnt have access to that particular repo
 			id = install.GetID()
 		}
 	}

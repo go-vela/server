@@ -13,8 +13,11 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-github/v65/github"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 )
 
@@ -1619,5 +1622,289 @@ func TestGithub_GetBranch(t *testing.T) {
 
 	if !strings.EqualFold(gotCommit, wantCommit) {
 		t.Errorf("Commit is %v, want %v", gotCommit, wantCommit)
+	}
+}
+
+func TestGithub_SyncRepoWithInstallation(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/app/installations", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations.json")
+	})
+	engine.POST("/api/v3/app/installations/:id/access_tokens", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations_access_tokens.json")
+	})
+	engine.GET("/api/v3/installation/repositories", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installation_repositories.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	tests := []struct {
+		name           string
+		org            string
+		repo           string
+		wantInstallID  int64
+		wantStatusCode int
+	}{
+		{
+			name:           "match",
+			org:            "octocat",
+			repo:           "Hello-World",
+			wantInstallID:  1,
+			wantStatusCode: http.StatusOK,
+		},
+		{
+			name:           "no match",
+			repo:           "octocat/Hello-World2",
+			wantInstallID:  0,
+			wantStatusCode: http.StatusOK,
+		},
+	}
+	for _, test := range tests {
+		// setup types
+		r := new(api.Repo)
+		r.SetOrg(test.org)
+		r.SetName(test.repo)
+		r.SetFullName(fmt.Sprintf("%s/%s", test.org, test.repo))
+
+		client, _ := NewTest(s.URL)
+		client.AppsTransport = NewTestAppsTransport(s.URL)
+
+		// run test
+		got, err := client.SyncRepoWithInstallation(context.TODO(), r)
+
+		if resp.Code != test.wantStatusCode {
+			t.Errorf("SyncRepoWithInstallation %s returned %v, want %v", test.name, resp.Code, http.StatusOK)
+		}
+
+		if err != nil {
+			t.Errorf("SyncRepoWithInstallation %s returned err: %v", test.name, err)
+		}
+
+		if got.GetInstallID() != test.wantInstallID {
+			t.Errorf("SyncRepoWithInstallation %s returned %v, want %v", test.name, got.GetInstallID(), test.wantInstallID)
+		}
+	}
+}
+
+func TestGithub_applyGitHubInstallationPermission(t *testing.T) {
+	tests := []struct {
+		name      string
+		perms     *github.InstallationPermissions
+		resource  string
+		perm      string
+		wantPerms *github.InstallationPermissions
+		wantErr   bool
+	}{
+		{
+			name: "valid read permission for contents",
+			perms: &github.InstallationPermissions{
+				Contents: github.String(constants.AppInstallPermissionNone),
+			},
+			resource: constants.AppInstallResourceContents,
+			perm:     constants.AppInstallPermissionRead,
+			wantPerms: &github.InstallationPermissions{
+				Contents: github.String(constants.AppInstallPermissionRead),
+			},
+			wantErr: false,
+		},
+		{
+			name: "valid write permission for checks",
+			perms: &github.InstallationPermissions{
+				Checks: github.String(constants.AppInstallPermissionNone),
+			},
+			resource: constants.AppInstallResourceChecks,
+			perm:     constants.AppInstallPermissionWrite,
+			wantPerms: &github.InstallationPermissions{
+				Checks: github.String(constants.AppInstallPermissionWrite),
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid permission value",
+			perms: &github.InstallationPermissions{
+				Contents: github.String(constants.AppInstallPermissionNone),
+			},
+			resource: constants.AppInstallResourceContents,
+			perm:     "invalid",
+			wantPerms: &github.InstallationPermissions{
+				Contents: github.String(constants.AppInstallPermissionNone),
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid permission key",
+			perms: &github.InstallationPermissions{
+				Contents: github.String(constants.AppInstallPermissionNone),
+			},
+			resource: "invalid",
+			perm:     constants.AppInstallPermissionRead,
+			wantPerms: &github.InstallationPermissions{
+				Contents: github.String(constants.AppInstallPermissionNone),
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := applyGitHubInstallationPermission(tt.perms, tt.resource, tt.perm)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("applyGitHubInstallationPermission() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(tt.wantPerms, got); diff != "" {
+				t.Errorf("applyGitHubInstallationPermission() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestGithub_GetNetrcPassword(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/app/installations", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations.json")
+	})
+	engine.POST("/api/v3/app/installations/:id/access_tokens", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations_access_tokens.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	installedRepo := new(api.Repo)
+	installedRepo.SetOrg("octocat")
+	installedRepo.SetName("Hello-World")
+	installedRepo.SetInstallID(1)
+
+	oauthRepo := new(api.Repo)
+	oauthRepo.SetOrg("octocat")
+	oauthRepo.SetName("Hello-World2")
+	oauthRepo.SetInstallID(0)
+
+	u := new(api.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	tests := []struct {
+		name         string
+		repo         *api.Repo
+		user         *api.User
+		git          yaml.Git
+		appTransport bool
+		wantToken    string
+		wantErr      bool
+	}{
+		{
+			name: "installation token",
+			repo: installedRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"contents": "read"},
+				},
+			},
+			appTransport: true,
+			wantToken:    "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+			wantErr:      false,
+		},
+		{
+			name: "no app configured returns user oauth token",
+			repo: installedRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"contents": "read"},
+				},
+			},
+			appTransport: false,
+			wantToken:    "bar",
+			wantErr:      false,
+		},
+		{
+			name: "repo not installed returns user oauth token",
+			repo: oauthRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"contents": "read"},
+				},
+			},
+			appTransport: true,
+			wantToken:    "bar",
+			wantErr:      false,
+		},
+		{
+			name: "invalid permission resource",
+			repo: installedRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"invalid": "read"},
+				},
+			},
+			appTransport: true,
+			wantToken:    "bar",
+			wantErr:      true,
+		},
+		{
+			name: "invalid permission level",
+			repo: installedRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"contents": "invalid"},
+				},
+			},
+			appTransport: true,
+			wantToken:    "bar",
+			wantErr:      true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			client, _ := NewTest(s.URL)
+			if test.appTransport {
+				client.AppsTransport = NewTestAppsTransport(s.URL)
+			}
+
+			got, err := client.GetNetrcPassword(context.TODO(), test.repo, test.user, test.git)
+			if (err != nil) != test.wantErr {
+				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
+				return
+			}
+			if got != test.wantToken {
+				t.Errorf("GetNetrcPassword() = %v, want %v", got, test.wantToken)
+			}
+		})
 	}
 }

@@ -5,6 +5,7 @@ package github
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/base64"
@@ -328,5 +329,20 @@ type AppsTransportOption func(*AppsTransport)
 func WithSigner(signer Signer) AppsTransportOption {
 	return func(at *AppsTransport) {
 		at.signer = signer
+	}
+}
+
+// NewTestAppsTransport creates a new AppsTransport for testing purposes.
+func NewTestAppsTransport(baseURL string) *AppsTransport {
+	pk, _ := rsa.GenerateKey(rand.Reader, 2048)
+	return &AppsTransport{
+		BaseURL: baseURL,
+		Client:  &http.Client{Transport: http.DefaultTransport},
+		tr:      http.DefaultTransport,
+		signer: &RSASigner{
+			method: jwt.SigningMethodRS256,
+			key:    pk,
+		},
+		appID: 1,
 	}
 }

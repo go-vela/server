@@ -729,11 +729,7 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 	for resource, perm := range permissions {
 		ghPerms, err = applyGitHubInstallationPermission(ghPerms, resource, perm)
 		if err != nil {
-			l.Errorf("unable to create github app installation token with permission %s:%s: %v", resource, perm, err)
-
-			// return the legacy token along with no error for backwards compatibility
-			// todo: return an error based based on app installation requirements
-			return u.GetToken(), nil
+			return u.GetToken(), err
 		}
 	}
 
@@ -742,10 +738,10 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 	// maybe take an optional list of repos and permission set that is driven by yaml
 	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, ghPerms)
 	if err != nil {
-		l.Errorf("unable to create github app installation token for repos %v with permissions %v: %v", repos, permissions, err)
-
 		// return the legacy token along with no error for backwards compatibility
 		// todo: return an error based based on app installation requirements
+		l.Tracef("unable to create github app installation token for repos %v with permissions %v: %v", repos, permissions, err)
+
 		return u.GetToken(), nil
 	}
 
@@ -833,7 +829,7 @@ func applyGitHubInstallationPermission(perms *github.InstallationPermissions, re
 	case constants.AppInstallPermissionWrite:
 		break
 	default:
-		return perms, fmt.Errorf("invalid permission value given for %s: %s", resource, perm)
+		return perms, fmt.Errorf("invalid permission level given for <resource>:<level> in %s:%s", resource, perm)
 	}
 
 	// convert resource from yaml string
@@ -843,7 +839,7 @@ func applyGitHubInstallationPermission(perms *github.InstallationPermissions, re
 	case constants.AppInstallResourceChecks:
 		perms.Checks = github.String(perm)
 	default:
-		return perms, fmt.Errorf("invalid permission key given: %s", perm)
+		return perms, fmt.Errorf("invalid permission resource given for <resource>:<level> in %s:%s", resource, perm)
 	}
 
 	return perms, nil
