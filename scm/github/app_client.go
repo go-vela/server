@@ -19,7 +19,7 @@ import (
 )
 
 // NewGitHubAppTransport creates a new GitHub App transport for authenticating as the GitHub App.
-func NewGitHubAppTransport(appID int64, privateKey, baseUrl string) (*AppsTransport, error) {
+func NewGitHubAppTransport(appID int64, privateKey, baseURL string) (*AppsTransport, error) {
 	decodedPEM, err := base64.StdEncoding.DecodeString(privateKey)
 	if err != nil {
 		return nil, fmt.Errorf("error decoding base64: %w", err)
@@ -36,7 +36,7 @@ func NewGitHubAppTransport(appID int64, privateKey, baseUrl string) (*AppsTransp
 	}
 
 	transport := NewAppsTransportFromPrivateKey(http.DefaultTransport, appID, _privateKey)
-	transport.BaseURL = baseUrl
+	transport.BaseURL = baseURL
 
 	return transport, nil
 }

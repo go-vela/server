@@ -37,7 +37,8 @@ type AppsTransport struct {
 	Client  Client            // Client to use to refresh tokens, defaults to http.Client with provided transport
 	tr      http.RoundTripper // tr is the underlying roundtripper being wrapped
 	signer  Signer            // signer signs JWT tokens.
-	appID   int64             // appID is the GitHub App's ID
+	//nolint:unused // ignore false positive
+	appID int64 // appID is the GitHub App's ID
 }
 
 // NewAppsTransportFromPrivateKey returns an AppsTransport using a crypto/rsa.(*PrivateKey).
@@ -174,6 +175,7 @@ func (t *Transport) Expiry() (expiresAt time.Time, refreshAt time.Time, err erro
 	if t.token == nil {
 		return time.Time{}, time.Time{}, errors.New("Expiry() = unknown, err: nil token")
 	}
+
 	return t.token.ExpiresAt, t.token.getRefreshTime(), nil
 }
 
@@ -207,7 +209,7 @@ func (t *Transport) refreshToken(ctx context.Context) error {
 
 	resp, err := t.appsTransport.RoundTrip(req)
 	if err != nil {
-		return fmt.Errorf("could not get access_tokens from GitHub API for installation ID %v: %v", t.installationID, err)
+		return fmt.Errorf("could not get access_tokens from GitHub API for installation ID %v: %w", t.installationID, err)
 	}
 
 	if resp.StatusCode/100 != 2 {

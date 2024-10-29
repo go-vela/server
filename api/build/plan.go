@@ -57,7 +57,7 @@ func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service
 	}
 
 	// plan all steps for the build
-	steps, err := step.PlanSteps(ctx, database, scm, p, b, r)
+	steps, err := step.PlanSteps(ctx, database, scm, p, b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
 		CleanBuild(ctx, database, b, services, steps, err)
