@@ -18,7 +18,7 @@ type Build struct {
 	Stages      StageSlice         `yaml:"stages,omitempty"      json:"stages,omitempty"      jsonschema:"oneof_required=stages,description=Provide parallel execution instructions.\nReference: https://go-vela.github.io/docs/reference/yaml/stages/"`
 	Steps       StepSlice          `yaml:"steps,omitempty"       json:"steps,omitempty"       jsonschema:"oneof_required=steps,description=Provide sequential execution instructions.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/"`
 	Templates   TemplateSlice      `yaml:"templates,omitempty"   json:"templates,omitempty"   jsonschema:"description=Provide the name of templates to expand.\nReference: https://go-vela.github.io/docs/reference/yaml/templates/"`
-	Git         Git                `yaml:"git,omitempty"       json:"git,omitempty"      jsonschema:"description=Provide the git access specifications.\nReference: https://go-vela.github.io/docs/reference/yaml/git/"`
+	Git         Git                `yaml:"git,omitempty"         json:"git,omitempty"         jsonschema:"description=Provide the git access specifications.\nReference: https://go-vela.github.io/docs/reference/yaml/git/"`
 }
 
 // ToPipelineAPI converts the Build type to an API Pipeline type.

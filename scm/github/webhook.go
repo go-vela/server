@@ -544,7 +544,7 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 }
 
 // processInstallationEvent is a helper function to process the installation event.
-func (c *client) processInstallationEvent(ctx context.Context, h *api.Hook, payload *github.InstallationEvent) (*internal.Webhook, error) {
+func (c *client) processInstallationEvent(_ context.Context, h *api.Hook, payload *github.InstallationEvent) (*internal.Webhook, error) {
 	h.SetEvent(constants.EventRepository)
 	h.SetEventAction(payload.GetAction())
 
@@ -559,7 +559,6 @@ func (c *client) processInstallationEvent(ctx context.Context, h *api.Hook, payl
 		for _, repo := range payload.Repositories {
 			install.RepositoriesAdded = append(install.RepositoriesAdded, repo.GetName())
 		}
-		break
 	case "deleted":
 		for _, repo := range payload.Repositories {
 			install.RepositoriesRemoved = append(install.RepositoriesRemoved, repo.GetName())
@@ -573,7 +572,7 @@ func (c *client) processInstallationEvent(ctx context.Context, h *api.Hook, payl
 }
 
 // processInstallationRepositoriesEvent is a helper function to process the installation repositories event.
-func (c *client) processInstallationRepositoriesEvent(ctx context.Context, h *api.Hook, payload *github.InstallationRepositoriesEvent) (*internal.Webhook, error) {
+func (c *client) processInstallationRepositoriesEvent(_ context.Context, h *api.Hook, payload *github.InstallationRepositoriesEvent) (*internal.Webhook, error) {
 	install := new(internal.Installation)
 
 	install.Action = payload.GetAction()

@@ -37,8 +37,7 @@ type AppsTransport struct {
 	Client  Client            // Client to use to refresh tokens, defaults to http.Client with provided transport
 	tr      http.RoundTripper // tr is the underlying roundtripper being wrapped
 	signer  Signer            // signer signs JWT tokens.
-	//nolint:unused // ignore false positive
-	appID int64 // appID is the GitHub App's ID
+	appID   int64             // appID is the GitHub App's ID
 }
 
 // NewAppsTransportFromPrivateKey returns an AppsTransport using a crypto/rsa.(*PrivateKey).
@@ -67,7 +66,7 @@ func (t *AppsTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	ss, err := t.signer.Sign(claims)
 	if err != nil {
-		return nil, fmt.Errorf("could not sign jwt: %s", err)
+		return nil, fmt.Errorf("could not sign jwt: %w", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+ss)
@@ -87,7 +86,6 @@ type Transport struct {
 	BaseURL                  string                           // BaseURL is the scheme and host for GitHub API, defaults to https://api.github.com
 	Client                   Client                           // Client to use to refresh tokens, defaults to http.Client with provided transport
 	tr                       http.RoundTripper                // tr is the underlying roundtripper being wrapped
-	appID                    int64                            // appID is the GitHub App's ID
 	installationID           int64                            // installationID is the GitHub App Installation ID
 	InstallationTokenOptions *github.InstallationTokenOptions // parameters restrict a token's access
 	appsTransport            *AppsTransport
@@ -137,8 +135,8 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	reqBodyClosed = true
-	resp, err := t.tr.RoundTrip(creq)
-	return resp, err
+
+	return t.tr.RoundTrip(creq)
 }
 
 // getRefreshTime returns the time when the token should be refreshed.
