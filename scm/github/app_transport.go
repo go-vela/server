@@ -28,7 +28,6 @@ import (
 
 const (
 	acceptHeader = "application/vnd.github.v3+json"
-	apiBaseURL   = "https://api.github.com"
 )
 
 // AppsTransport provides a http.RoundTripper by wrapping an existing
@@ -58,12 +57,12 @@ func (c *client) newGitHubAppTransport(appID int64, privateKey, baseURL string) 
 		return nil, fmt.Errorf("failed to parse PEM block containing the key")
 	}
 
-	_privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	parsedPrivateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
 	}
 
-	transport := c.newAppsTransportFromPrivateKey(http.DefaultTransport, appID, _privateKey)
+	transport := c.newAppsTransportFromPrivateKey(http.DefaultTransport, appID, parsedPrivateKey)
 	transport.BaseURL = baseURL
 
 	// apply tracing to the transport
@@ -82,7 +81,7 @@ func (c *client) newGitHubAppTransport(appID int64, privateKey, baseURL string) 
 // newAppsTransportFromPrivateKey returns an AppsTransport using a crypto/rsa.(*PrivateKey).
 func (c *client) newAppsTransportFromPrivateKey(tr http.RoundTripper, appID int64, key *rsa.PrivateKey) *AppsTransport {
 	return &AppsTransport{
-		BaseURL: apiBaseURL,
+		BaseURL: defaultAPI,
 		Client:  &http.Client{Transport: tr},
 		tr:      tr,
 		signer:  NewRSASigner(jwt.SigningMethodRS256, key),

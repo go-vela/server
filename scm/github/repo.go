@@ -720,7 +720,7 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 	}
 
 	for resource, perm := range perms {
-		ghPerms, err = WithGitHubInstallationPermission(ghPerms, resource, perm)
+		ghPerms, err = applyGitHubInstallationPermission(ghPerms, resource, perm)
 		if err != nil {
 			l.Errorf("unable to create github app installation token with permission %s:%s: %v", resource, perm, err)
 
@@ -817,8 +817,8 @@ func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 	return r, nil
 }
 
-// WithGitHubInstallationPermission takes permissions and applies a new permission if valid.
-func WithGitHubInstallationPermission(perms *github.InstallationPermissions, resource, perm string) (*github.InstallationPermissions, error) {
+// applyGitHubInstallationPermission takes permissions and applies a new permission if valid.
+func applyGitHubInstallationPermission(perms *github.InstallationPermissions, resource, perm string) (*github.InstallationPermissions, error) {
 	// convert permissions from yaml string
 	switch strings.ToLower(perm) {
 	case constants.AppInstallPermissionNone:
