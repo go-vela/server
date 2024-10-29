@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/adhocore/gronx"
+	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
@@ -94,6 +95,7 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	repo.SetPipelineType("yaml")
 	repo.SetPreviousName("oldName")
 	repo.SetApproveBuild(constants.ApproveNever)
+	repo.SetInstallID(0)
 
 	currTime := time.Now().UTC()
 	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)
@@ -116,8 +118,8 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	// run test
 	got := testSchedule().ToAPI()
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ToAPI is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("RepoFromAPI() mismatch (-want +got):\n%s", diff)
 	}
 }
 

@@ -33,6 +33,7 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetTopics([]string{})
 	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
+	_repoOne.SetInstallID(0)
 
 	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
@@ -45,6 +46,7 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetTopics([]string{})
 	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	_repoTwo.SetInstallID(0)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

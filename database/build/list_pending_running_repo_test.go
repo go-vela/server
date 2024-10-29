@@ -31,6 +31,7 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 	_repoOne.SetTopics([]string{})
+	_repoOne.SetInstallID(0)
 
 	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
@@ -43,6 +44,7 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 	_repoTwo.SetTopics([]string{})
+	_repoTwo.SetInstallID(0)
 
 	_buildOne := testutils.APIBuild()
 	_buildOne.SetID(1)

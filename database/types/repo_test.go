@@ -193,6 +193,7 @@ func TestTypes_Repo_ToAPI(t *testing.T) {
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("oldName")
 	want.SetApproveBuild(constants.ApproveNever)
+	want.SetInstallID(0)
 
 	// run test
 	got := testRepo().ToAPI()
@@ -320,37 +321,38 @@ func TestTypes_Repo_Validate(t *testing.T) {
 
 func TestTypes_RepoFromAPI(t *testing.T) {
 	// setup types
-	r := new(api.Repo)
+	repo := new(api.Repo)
 	owner := testutils.APIUser()
 	owner.SetID(1)
 
-	r.SetID(1)
-	r.SetOwner(owner)
-	r.SetHash("superSecretHash")
-	r.SetOrg("github")
-	r.SetName("octocat")
-	r.SetFullName("github/octocat")
-	r.SetLink("https://github.com/github/octocat")
-	r.SetClone("https://github.com/github/octocat.git")
-	r.SetBranch("main")
-	r.SetTopics([]string{"cloud", "security"})
-	r.SetBuildLimit(10)
-	r.SetTimeout(30)
-	r.SetCounter(0)
-	r.SetVisibility("public")
-	r.SetPrivate(false)
-	r.SetTrusted(false)
-	r.SetActive(true)
-	r.SetAllowEvents(api.NewEventsFromMask(1))
-	r.SetPipelineType("yaml")
-	r.SetPreviousName("oldName")
-	r.SetApproveBuild(constants.ApproveNever)
+	repo.SetID(1)
+	repo.SetOwner(owner)
+	repo.SetHash("superSecretHash")
+	repo.SetOrg("github")
+	repo.SetName("octocat")
+	repo.SetFullName("github/octocat")
+	repo.SetLink("https://github.com/github/octocat")
+	repo.SetClone("https://github.com/github/octocat.git")
+	repo.SetBranch("main")
+	repo.SetTopics([]string{"cloud", "security"})
+	repo.SetBuildLimit(10)
+	repo.SetTimeout(30)
+	repo.SetCounter(0)
+	repo.SetVisibility("public")
+	repo.SetPrivate(false)
+	repo.SetTrusted(false)
+	repo.SetActive(true)
+	repo.SetAllowEvents(api.NewEventsFromMask(1))
+	repo.SetPipelineType("yaml")
+	repo.SetPreviousName("oldName")
+	repo.SetApproveBuild(constants.ApproveNever)
+	repo.SetInstallID(0)
 
 	want := testRepo()
 	want.Owner = User{}
 
 	// run test
-	got := RepoFromAPI(r)
+	got := RepoFromAPI(repo)
 
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("RepoFromAPI() mismatch (-want +got):\n%s", diff)
@@ -382,6 +384,7 @@ func testRepo() *Repo {
 		PipelineType: sql.NullString{String: "yaml", Valid: true},
 		PreviousName: sql.NullString{String: "oldName", Valid: true},
 		ApproveBuild: sql.NullString{String: constants.ApproveNever, Valid: true},
+		InstallID:    sql.NullInt64{Int64: 0, Valid: true},
 
 		Owner: *testUser(),
 	}

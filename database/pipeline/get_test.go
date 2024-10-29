@@ -32,6 +32,7 @@ func TestPipeline_Engine_GetPipeline(t *testing.T) {
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 	_repo.SetPipelineType(constants.PipelineTypeYAML)
 	_repo.SetTopics([]string{})
+	_repo.SetInstallID(0)
 
 	_pipeline := testutils.APIPipeline()
 	_pipeline.SetID(1)

@@ -32,6 +32,7 @@ func TestDeployment_Engine_ListDeployments(t *testing.T) {
 	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 	_repoOne.SetPipelineType(constants.PipelineTypeYAML)
 	_repoOne.SetTopics([]string{})
+	_repoOne.SetInstallID(0)
 
 	_repoBuild := new(api.Repo)
 	_repoBuild.SetID(1)

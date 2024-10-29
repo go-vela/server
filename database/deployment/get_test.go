@@ -32,6 +32,7 @@ func TestDeployment_Engine_GetDeployment(t *testing.T) {
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 	_repo.SetPipelineType(constants.PipelineTypeYAML)
 	_repo.SetTopics([]string{})
+	_repo.SetInstallID(0)
 
 	_deploymentOne := testutils.APIDeployment()
 	_deploymentOne.SetID(1)

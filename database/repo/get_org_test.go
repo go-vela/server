@@ -26,6 +26,7 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
 	_repo.SetTopics([]string{})
+	_repo.SetInstallID(0)
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 
 	_owner := testutils.APIUser().Crop()

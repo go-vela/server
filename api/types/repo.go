@@ -657,7 +657,6 @@ func (r *Repo) String() string {
   Counter: %d,
   FullName: %s,
   ID: %d,
-  InstallID: %d,
   Link: %s,
   Name: %s,
   Org: %s,
@@ -668,7 +667,8 @@ func (r *Repo) String() string {
   Timeout: %d,
   Topics: %s,
   Trusted: %t,
-  Visibility: %s
+  Visibility: %s,
+  InstallID: %d
 }`,
 		r.GetActive(),
 		r.GetAllowEvents().List(),
@@ -679,7 +679,6 @@ func (r *Repo) String() string {
 		r.GetCounter(),
 		r.GetFullName(),
 		r.GetID(),
-		r.GetInstallID(),
 		r.GetLink(),
 		r.GetName(),
 		r.GetOrg(),
@@ -691,5 +690,6 @@ func (r *Repo) String() string {
 		r.GetTopics(),
 		r.GetTrusted(),
 		r.GetVisibility(),
+		r.GetInstallID(),
 	)
 }

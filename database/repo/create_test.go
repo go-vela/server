@@ -25,6 +25,7 @@ func TestRepo_Engine_CreateRepo(t *testing.T) {
 	_repo.SetPipelineType("yaml")
 	_repo.SetPreviousName("oldName")
 	_repo.SetTopics([]string{})
+	_repo.SetInstallID(0)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -34,9 +35,9 @@ func TestRepo_Engine_CreateRepo(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "repos"
-("user_id","hash","org","name","full_name","link","clone","branch","topics","build_limit","timeout","counter","visibility","private","trusted","active","allow_events","pipeline_type","previous_name","approve_build","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21) RETURNING "id"`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, nil, "yaml", "oldName", nil, 1).
+("user_id","hash","org","name","full_name","link","clone","branch","topics","build_limit","timeout","counter","visibility","private","trusted","active","allow_events","pipeline_type","previous_name","approve_build","install_id","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22) RETURNING "id"`).
+		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, nil, "yaml", "oldName", nil, 0, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
