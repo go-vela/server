@@ -119,7 +119,7 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	got := testSchedule().ToAPI()
 
 	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("RepoFromAPI() mismatch (-want +got):\n%s", diff)
+		t.Errorf("ScheduleToAPI() mismatch (-want +got):\n%s", diff)
 	}
 }
 

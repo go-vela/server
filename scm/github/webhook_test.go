@@ -1197,8 +1197,8 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -1260,8 +1260,8 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -1323,8 +1323,8 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -1386,8 +1386,8 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -1449,8 +1449,8 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
