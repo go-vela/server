@@ -28,7 +28,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 		// iterate through all steps for each pipeline stage
 		for _, step := range stage.Steps {
 			// create the step object
-			s, err := planStep(ctx, database, scm, b, r, step, stage.Name)
+			s, err := planStep(ctx, database, scm, b, step, stage.Name)
 			if err != nil {
 				return steps, err
 			}
@@ -39,7 +39,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 
 	// iterate through all pipeline steps
 	for _, step := range p.Steps {
-		s, err := planStep(ctx, database, scm, b, r, step, "")
+		s, err := planStep(ctx, database, scm, b, step, "")
 		if err != nil {
 			return steps, err
 		}
@@ -50,7 +50,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 	return steps, nil
 }
 
-func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *types.Build, r *types.Repo, c *pipeline.Container, stage string) (*types.Step, error) {
+func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *types.Build, c *pipeline.Container, stage string) (*types.Step, error) {
 	// create the step object
 	s := new(types.Step)
 	s.SetBuildID(b.GetID())

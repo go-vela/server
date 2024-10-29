@@ -72,8 +72,7 @@ func (t *AppsTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Authorization", "Bearer "+ss)
 	req.Header.Add("Accept", acceptHeader)
 
-	resp, err := t.tr.RoundTrip(req)
-	return resp, err
+	return t.tr.RoundTrip(req)
 }
 
 // Transport provides a http.RoundTripper by wrapping an existing
@@ -182,13 +181,14 @@ func (t *Transport) refreshToken(ctx context.Context) error {
 	// convert InstallationTokenOptions into a ReadWriter to pass as an argument to http.NewRequest
 	body, err := GetReadWriter(t.InstallationTokenOptions)
 	if err != nil {
-		return fmt.Errorf("could not convert installation token parameters into json: %s", err)
+		return fmt.Errorf("could not convert installation token parameters into json: %w", err)
 	}
 
 	requestURL := fmt.Sprintf("%s/app/installations/%v/access_tokens", strings.TrimRight(t.BaseURL, "/"), t.installationID)
+
 	req, err := http.NewRequest("POST", requestURL, body)
 	if err != nil {
-		return fmt.Errorf("could not create request: %s", err)
+		return fmt.Errorf("could not create request: %w", err)
 	}
 
 	// set Content and Accept headers
@@ -223,14 +223,18 @@ func (t *Transport) refreshToken(ctx context.Context) error {
 // GetReadWriter converts a body interface into an io.ReadWriter object.
 func GetReadWriter(i interface{}) (io.ReadWriter, error) {
 	var buf io.ReadWriter
+
 	if i != nil {
 		buf = new(bytes.Buffer)
+
 		enc := json.NewEncoder(buf)
+
 		err := enc.Encode(i)
 		if err != nil {
 			return nil, err
 		}
 	}
+
 	return buf, nil
 }
 
@@ -238,14 +242,18 @@ func GetReadWriter(i interface{}) (io.ReadWriter, error) {
 // The clone is a shallow copy of the struct and its Header map.
 func cloneRequest(r *http.Request) *http.Request {
 	// shallow copy of the struct
-	r2 := new(http.Request)
-	*r2 = *r
+	_r := new(http.Request)
+
+	*_r = *r
+
 	// deep copy of the Header
-	r2.Header = make(http.Header, len(r.Header))
+	_r.Header = make(http.Header, len(r.Header))
+
 	for k, s := range r.Header {
-		r2.Header[k] = append([]string(nil), s...)
+		_r.Header[k] = append([]string(nil), s...)
 	}
-	return r2
+
+	return _r
 }
 
 // Signer is a JWT token signer. This is a wrapper around [jwt.SigningMethod] with predetermined

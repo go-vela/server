@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+
+// App Install vars.
 package constants
 
 // see: https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28
