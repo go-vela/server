@@ -636,10 +636,6 @@ func (c *client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, r
 	if data != nil {
 		URL := data.GetHTMLURL()
 
-		if err != nil {
-			return "", err
-		}
-
 		return URL, nil
 	}
 

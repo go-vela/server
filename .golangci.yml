@@ -80,10 +80,9 @@ linters:
     - bidichk # checks for dangerous unicode character sequences
     - bodyclose # checks whether HTTP response body is closed successfully
     - contextcheck # check the function whether use a non-inherited context
-    - dupl # code clone detection
+    - copyloopvar # checks for loop variables
     - errcheck # checks for unchecked errors
     - errorlint # find misuses of errors
-    - exportloopref # check for exported loop vars
     - funlen # detects long functions
     - gci # consistent import ordering
     - goconst # finds repeated strings that could be replaced by a constant

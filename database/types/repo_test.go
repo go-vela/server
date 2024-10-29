@@ -373,7 +373,7 @@ func testRepo() *Repo {
 		Topics:       []string{"cloud", "security"},
 		BuildLimit:   sql.NullInt64{Int64: 10, Valid: true},
 		Timeout:      sql.NullInt64{Int64: 30, Valid: true},
-		Counter:      sql.NullInt32{Int32: 0, Valid: true},
+		Counter:      sql.NullInt64{Int64: 0, Valid: true},
 		Visibility:   sql.NullString{String: "public", Valid: true},
 		Private:      sql.NullBool{Bool: false, Valid: true},
 		Trusted:      sql.NullBool{Bool: false, Valid: true},

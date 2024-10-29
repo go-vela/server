@@ -83,7 +83,7 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*in
 }
 
 // VerifyWebhook verifies the webhook from a repo.
-func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *api.Repo) error {
+func (c *client) VerifyWebhook(_ context.Context, request *http.Request, r *api.Repo) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -131,7 +131,7 @@ func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, h *api.Hook)
 }
 
 // processPushEvent is a helper function to process the push event.
-func (c *client) processPushEvent(ctx context.Context, h *api.Hook, payload *github.PushEvent) (*internal.Webhook, error) {
+func (c *client) processPushEvent(_ context.Context, h *api.Hook, payload *github.PushEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),

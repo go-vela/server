@@ -7,7 +7,7 @@ import "fmt"
 type Compiler struct {
 	CloneImage        *string `json:"clone_image,omitempty"         yaml:"clone_image,omitempty"`
 	TemplateDepth     *int    `json:"template_depth,omitempty"      yaml:"template_depth,omitempty"`
-	StarlarkExecLimit *uint64 `json:"starlark_exec_limit,omitempty" yaml:"starlark_exec_limit,omitempty"`
+	StarlarkExecLimit *int64  `json:"starlark_exec_limit,omitempty" yaml:"starlark_exec_limit,omitempty"`
 }
 
 // GetCloneImage returns the CloneImage field.
@@ -40,7 +40,7 @@ func (cs *Compiler) GetTemplateDepth() int {
 //
 // When the provided Compiler type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (cs *Compiler) GetStarlarkExecLimit() uint64 {
+func (cs *Compiler) GetStarlarkExecLimit() int64 {
 	// return zero value if Compiler type or StarlarkExecLimit field is nil
 	if cs == nil || cs.StarlarkExecLimit == nil {
 		return 0
@@ -79,7 +79,7 @@ func (cs *Compiler) SetTemplateDepth(v int) {
 //
 // When the provided Compiler type is nil, it
 // will set nothing and immediately return.
-func (cs *Compiler) SetStarlarkExecLimit(v uint64) {
+func (cs *Compiler) SetStarlarkExecLimit(v int64) {
 	// return if Compiler type is nil
 	if cs == nil {
 		return

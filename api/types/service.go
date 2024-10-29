@@ -37,7 +37,7 @@ type Service struct {
 func (s *Service) Duration() string {
 	// check if the service doesn't have a started timestamp
 	if s.GetStarted() == 0 {
-		return "..."
+		return constants.ErrorEmptyDuration
 	}
 
 	// capture started unix timestamp from the service

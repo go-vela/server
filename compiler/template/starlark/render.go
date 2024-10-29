@@ -10,6 +10,7 @@ import (
 	yaml "github.com/buildkite/yaml"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+	"go.starlark.net/syntax"
 
 	"github.com/go-vela/server/compiler/types/raw"
 	types "github.com/go-vela/server/compiler/types/yaml"
@@ -30,19 +31,20 @@ var (
 )
 
 // Render combines the template with the step in the yaml pipeline.
-func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}, limit uint64) (*types.Build, error) {
+func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}, limit int64) (*types.Build, error) {
 	config := new(types.Build)
 
 	thread := &starlark.Thread{Name: name}
-	// arbitrarily limiting the steps of the thread to 5000 to help prevent infinite loops
-	// may need to further investigate spawning a separate POSIX process if user input is problematic
-	// see https://github.com/google/starlark-go/issues/160#issuecomment-466794230 for further details
-	thread.SetMaxExecutionSteps(limit)
+
+	if limit < 0 {
+		return nil, fmt.Errorf("starlark exec limit must be non-negative")
+	}
+
+	thread.SetMaxExecutionSteps(uint64(limit))
 
 	predeclared := starlark.StringDict{"struct": starlark.NewBuiltin("struct", starlarkstruct.Make)}
 
-	globals, err := starlark.ExecFile(thread, tName, tmpl, predeclared)
-
+	globals, err := starlark.ExecFileOptions(syntax.LegacyFileOptions(), thread, "templated-base", tmpl, predeclared)
 	if err != nil {
 		return nil, err
 	}
@@ -138,18 +140,20 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 // RenderBuild renders the templated build.
 //
 //nolint:lll // ignore function length due to input args
-func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}, limit uint64) (*types.Build, error) {
+func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}, limit int64) (*types.Build, error) {
 	config := new(types.Build)
 
 	thread := &starlark.Thread{Name: "templated-base"}
-	// arbitrarily limiting the steps of the thread to 5000 to help prevent infinite loops
-	// may need to further investigate spawning a separate POSIX process if user input is problematic
-	// see https://github.com/google/starlark-go/issues/160#issuecomment-466794230 for further details
-	thread.SetMaxExecutionSteps(limit)
+
+	if limit < 0 {
+		return nil, fmt.Errorf("starlark exec limit must be non-negative")
+	}
+
+	thread.SetMaxExecutionSteps(uint64(limit))
 
 	predeclared := starlark.StringDict{"struct": starlark.NewBuiltin("struct", starlarkstruct.Make)}
 
-	globals, err := starlark.ExecFile(thread, "templated-base", b, predeclared)
+	globals, err := starlark.ExecFileOptions(syntax.LegacyFileOptions(), thread, "templated-base", b, predeclared)
 	if err != nil {
 		return nil, err
 	}

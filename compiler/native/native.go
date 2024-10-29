@@ -88,7 +88,7 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 	c.SetTemplateDepth(ctx.Int("max-template-depth"))
 
 	// set the starlark execution step limit for compiling starlark pipelines
-	c.SetStarlarkExecLimit(ctx.Uint64("compiler-starlark-exec-limit"))
+	c.SetStarlarkExecLimit(ctx.Int64("compiler-starlark-exec-limit"))
 
 	if ctx.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))

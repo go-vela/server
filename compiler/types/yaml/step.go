@@ -71,8 +71,6 @@ func (s *StepSlice) ToPipeline() *pipeline.ContainerSlice {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the StepSlice type.
-//
-//nolint:dupl // accepting duplicative code that exits in service.go as well
 func (s *StepSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	// step slice we try unmarshalling to
 	stepSlice := new([]*Step)

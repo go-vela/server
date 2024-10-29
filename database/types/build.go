@@ -35,8 +35,8 @@ type Build struct {
 	ID            sql.NullInt64      `sql:"id"`
 	RepoID        sql.NullInt64      `sql:"repo_id"`
 	PipelineID    sql.NullInt64      `sql:"pipeline_id"`
-	Number        sql.NullInt32      `sql:"number"`
-	Parent        sql.NullInt32      `sql:"parent"`
+	Number        sql.NullInt64      `sql:"number"`
+	Parent        sql.NullInt64      `sql:"parent"`
 	Event         sql.NullString     `sql:"event"`
 	EventAction   sql.NullString     `sql:"event_action"`
 	Status        sql.NullString     `sql:"status"`
@@ -121,12 +121,12 @@ func (b *Build) Nullify() *Build {
 	}
 
 	// check if the Number field should be false
-	if b.Number.Int32 == 0 {
+	if b.Number.Int64 == 0 {
 		b.Number.Valid = false
 	}
 
 	// check if the Parent field should be false
-	if b.Parent.Int32 == 0 {
+	if b.Parent.Int64 == 0 {
 		b.Parent.Valid = false
 	}
 
@@ -295,8 +295,8 @@ func (b *Build) ToAPI() *api.Build {
 	build.SetID(b.ID.Int64)
 	build.SetRepo(repo)
 	build.SetPipelineID(b.PipelineID.Int64)
-	build.SetNumber(int(b.Number.Int32))
-	build.SetParent(int(b.Parent.Int32))
+	build.SetNumber(int(b.Number.Int64))
+	build.SetParent(int(b.Parent.Int64))
 	build.SetEvent(b.Event.String)
 	build.SetEventAction(b.EventAction.String)
 	build.SetStatus(b.Status.String)
@@ -340,7 +340,7 @@ func (b *Build) Validate() error {
 	}
 
 	// verify the Number field is populated
-	if b.Number.Int32 <= 0 {
+	if b.Number.Int64 <= 0 {
 		return ErrEmptyBuildNumber
 	}
 
@@ -381,8 +381,8 @@ func BuildFromAPI(b *api.Build) *Build {
 		ID:            sql.NullInt64{Int64: b.GetID(), Valid: true},
 		RepoID:        sql.NullInt64{Int64: b.GetRepo().GetID(), Valid: true},
 		PipelineID:    sql.NullInt64{Int64: b.GetPipelineID(), Valid: true},
-		Number:        sql.NullInt32{Int32: int32(b.GetNumber()), Valid: true},
-		Parent:        sql.NullInt32{Int32: int32(b.GetParent()), Valid: true},
+		Number:        sql.NullInt64{Int64: int64(b.GetNumber()), Valid: true},
+		Parent:        sql.NullInt64{Int64: int64(b.GetParent()), Valid: true},
 		Event:         sql.NullString{String: b.GetEvent(), Valid: true},
 		EventAction:   sql.NullString{String: b.GetEventAction(), Valid: true},
 		Status:        sql.NullString{String: b.GetStatus(), Valid: true},
