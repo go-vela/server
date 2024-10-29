@@ -31,6 +31,9 @@ const (
 	// EventInstallation defines the event type for scm installation events.
 	EventInstallation = "installation"
 
+	// EventInstallationRepositories defines the event type for scm installation_repositories events.
+	EventInstallationRepositories = "installation_repositories"
+
 	// Alternates for common user inputs that do not match our set constants.
 
 	// EventPullAlternate defines the alternate event type for build and repo pull_request events.

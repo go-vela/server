@@ -25,6 +25,10 @@ const (
 	AppInstallRepositoriesSelectionAll = "all"
 	// GitHub App install repositories selection when a subset of repositories are selected.
 	AppInstallRepositoriesSelectionSelected = "selected"
+	// GitHub App install event type 'added'.
+	AppInstallRepositoriesAdded = "added"
+	// GitHub App install event type 'removed'.
+	AppInstallRepositoriesRemoved = "removed"
 )
 
 const (

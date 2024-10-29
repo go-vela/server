@@ -1555,3 +1555,173 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 		t.Errorf("getDeliveryID returned: %v; want: %v", got, want)
 	}
 }
+
+func TestGitHub_ProcessWebhook_Installation(t *testing.T) {
+	// setup tests
+	var createdHook api.Hook
+	createdHook.SetNumber(1)
+	createdHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	createdHook.SetWebhookID(123456)
+	createdHook.SetCreated(time.Now().UTC().Unix())
+	createdHook.SetHost("github.com")
+	createdHook.SetEvent(constants.EventInstallation)
+	createdHook.SetEventAction(constants.AppInstallCreated)
+	createdHook.SetStatus(constants.StatusSuccess)
+
+	deletedHook := createdHook
+	deletedHook.SetEventAction(constants.AppInstallDeleted)
+
+	tests := []struct {
+		name        string
+		file        string
+		wantHook    *api.Hook
+		wantInstall *internal.Installation
+	}{
+		{
+			name:     "installation created",
+			file:     "testdata/hooks/installation_created.json",
+			wantHook: &createdHook,
+			wantInstall: &internal.Installation{
+				Action:            constants.AppInstallCreated,
+				ID:                1,
+				RepositoriesAdded: []string{"Hello-World", "Hello-World2"},
+				Org:               "Codertocat",
+			},
+		},
+		{
+			name:     "installation deleted",
+			file:     "testdata/hooks/installation_deleted.json",
+			wantHook: &deletedHook,
+			wantInstall: &internal.Installation{
+				Action:              constants.AppInstallDeleted,
+				ID:                  1,
+				RepositoriesRemoved: []string{"Hello-World", "Hello-World2"},
+				Org:                 "Codertocat",
+			},
+		},
+	}
+
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	for _, tt := range tests {
+		// setup request
+		body, err := os.Open(tt.file)
+		if err != nil {
+			t.Errorf("unable to open file: %v", err)
+		}
+
+		defer body.Close()
+
+		request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+		request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+		request.Header.Set("X-GitHub-Hook-ID", "123456")
+		request.Header.Set("X-GitHub-Event", "installation")
+
+		// setup client
+		client, _ := NewTest(s.URL)
+
+		want := &internal.Webhook{
+			Hook:         tt.wantHook,
+			Installation: tt.wantInstall,
+		}
+
+		got, err := client.ProcessWebhook(context.TODO(), request)
+
+		if err != nil {
+			t.Errorf("ProcessWebhook returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
+		}
+	}
+}
+
+func TestGitHub_ProcessWebhook_InstallationRepositories(t *testing.T) {
+	// setup tests
+	var reposAddedHook api.Hook
+	reposAddedHook.SetNumber(1)
+	reposAddedHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	reposAddedHook.SetWebhookID(123456)
+	reposAddedHook.SetCreated(time.Now().UTC().Unix())
+	reposAddedHook.SetHost("github.com")
+	reposAddedHook.SetEvent(constants.EventInstallationRepositories)
+	reposAddedHook.SetEventAction(constants.AppInstallRepositoriesAdded)
+	reposAddedHook.SetStatus(constants.StatusSuccess)
+
+	reposRemovedHook := reposAddedHook
+	reposRemovedHook.SetEventAction(constants.AppInstallRepositoriesRemoved)
+
+	tests := []struct {
+		name        string
+		file        string
+		wantHook    *api.Hook
+		wantInstall *internal.Installation
+	}{
+		{
+			name:     "installation_repositories repos added",
+			file:     "testdata/hooks/installation_repositories_added.json",
+			wantHook: &reposAddedHook,
+			wantInstall: &internal.Installation{
+				Action:            constants.AppInstallRepositoriesAdded,
+				ID:                1,
+				RepositoriesAdded: []string{"Hello-World", "Hello-World2"},
+				Org:               "Codertocat",
+			},
+		},
+		{
+			name:     "installation_repositories repos removed",
+			file:     "testdata/hooks/installation_repositories_removed.json",
+			wantHook: &reposRemovedHook,
+			wantInstall: &internal.Installation{
+				Action:              constants.AppInstallRepositoriesRemoved,
+				ID:                  1,
+				RepositoriesRemoved: []string{"Hello-World", "Hello-World2"},
+				Org:                 "Codertocat",
+			},
+		},
+	}
+
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	for _, tt := range tests {
+		// setup request
+		body, err := os.Open(tt.file)
+		if err != nil {
+			t.Errorf("unable to open file: %v", err)
+		}
+
+		defer body.Close()
+
+		request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+		request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+		request.Header.Set("X-GitHub-Hook-ID", "123456")
+		request.Header.Set("X-GitHub-Event", "installation_repositories")
+
+		// setup client
+		client, _ := NewTest(s.URL)
+
+		want := &internal.Webhook{
+			Hook:         tt.wantHook,
+			Installation: tt.wantInstall,
+		}
+
+		got, err := client.ProcessWebhook(context.TODO(), request)
+
+		if err != nil {
+			t.Errorf("ProcessWebhook returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
+		}
+	}
+}
