@@ -68,14 +68,6 @@ func (c *client) newOAuthTokenClient(ctx context.Context, token string) *github.
 
 	// create the OAuth client
 	tc := oauth2.NewClient(ctx, ts)
-	// if c.SkipVerify {
-	// 	tc.Transport.(*oauth2.Transport).Base = &http.Transport{
-	// 		Proxy: http.ProxyFromEnvironment,
-	// 		TLSClientConfig: &tls.Config{
-	// 			InsecureSkipVerify: true,
-	// 		},
-	// 	}
-	// }
 
 	// create the GitHub client from the OAuth client
 	github := github.NewClient(tc)

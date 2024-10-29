@@ -80,7 +80,7 @@ const (
     "private": false,
     "trusted": true,
     "active": true,
-  	"install_id": 0
+    "install_id": 0
   },
   {
     "id": 2,
@@ -97,7 +97,7 @@ const (
     "private": false,
     "trusted": true,
     "active": true,
-  	"install_id": 0
+    "install_id": 0
   }
 ]`
 )
