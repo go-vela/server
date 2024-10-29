@@ -2491,6 +2491,7 @@ func newResources() *Resources {
 	repoOne.SetPreviousName("")
 	repoOne.SetApproveBuild(constants.ApproveNever)
 	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
+	repoOne.SetInstallID(0)
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
@@ -2514,6 +2515,7 @@ func newResources() *Resources {
 	repoTwo.SetPreviousName("")
 	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
 	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	repoTwo.SetInstallID(0)
 
 	buildOne := new(api.Build)
 	buildOne.SetID(1)
