@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 )
@@ -143,7 +144,7 @@ type Service interface {
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
 	// GetNetrc defines a function that returns the netrc
 	// password injected into build steps.
-	GetNetrcPassword(context.Context, *api.Repo, *api.User, []string, map[string]string) (string, error)
+	GetNetrcPassword(context.Context, *api.Repo, *api.User, yaml.Git) (string, error)
 	// SyncRepoWithInstallation defines a function that syncs
 	// a repo with the installation, if it exists.
 	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)

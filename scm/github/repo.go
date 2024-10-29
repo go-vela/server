@@ -14,6 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 )
 
@@ -679,7 +680,7 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
-func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User, repos []string, perms map[string]string) (string, error) {
+func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User, g yaml.Git) (string, error) {
 	l := c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -692,10 +693,11 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 	// repos that the token has access to
 	// providing no repos, nil, or empty slice will default the token permissions to the list
 	// of repos added to the installation
-	//
-	// the compiler will set restrictive defaults with access to the triggering repo
+	repos := g.Repositories
+
+	// use triggering repo as a restrictive default
 	if repos == nil {
-		repos = []string{}
+		repos = []string{r.GetName()}
 	}
 
 	// convert repo fullname org/name to just name for usability
@@ -719,7 +721,12 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 		Checks:   github.String(constants.AppInstallPermissionWrite),
 	}
 
-	for resource, perm := range perms {
+	permissions := g.Permissions
+	if permissions == nil {
+		permissions = map[string]string{}
+	}
+
+	for resource, perm := range permissions {
 		ghPerms, err = applyGitHubInstallationPermission(ghPerms, resource, perm)
 		if err != nil {
 			l.Errorf("unable to create github app installation token with permission %s:%s: %v", resource, perm, err)
@@ -735,7 +742,7 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 	// maybe take an optional list of repos and permission set that is driven by yaml
 	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, ghPerms)
 	if err != nil {
-		l.Errorf("unable to create github app installation token for repos %v with permissions %v: %v", repos, perms, err)
+		l.Errorf("unable to create github app installation token for repos %v with permissions %v: %v", repos, permissions, err)
 
 		// return the legacy token along with no error for backwards compatibility
 		// todo: return an error based based on app installation requirements

@@ -48,20 +48,8 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 	// this has to occur after Parse because the scm configurations might be set in yaml
 	// netrc can be provided directly using WithNetrc for situations like local exec
 	if c.netrc == nil && c.scm != nil {
-		// ensure restrictive defaults for the netrc for scms that support granular permissions
-		if p.Git.Repositories == nil {
-			p.Git.Repositories = []string{c.repo.GetName()}
-		}
-
-		if p.Git.Permissions == nil {
-			p.Git.Permissions = map[string]string{
-				constants.AppInstallResourceContents: constants.AppInstallPermissionRead,
-				constants.AppInstallResourceChecks:   constants.AppInstallPermissionWrite,
-			}
-		}
-
 		// get the netrc password from the scm
-		netrc, err := c.scm.GetNetrcPassword(ctx, c.repo, c.user, p.Git.Repositories, p.Git.Permissions)
+		netrc, err := c.scm.GetNetrcPassword(ctx, c.repo, c.user, p.Git)
 		if err != nil {
 			return nil, nil, err
 		}
