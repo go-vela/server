@@ -715,8 +715,8 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 	//
 	// the default is contents:read and checks:write
 	ghPerms := &github.InstallationPermissions{
-		Contents: github.String("read"),
-		Checks:   github.String("write"),
+		Contents: github.String(constants.AppInstallPermissionRead),
+		Checks:   github.String(constants.AppInstallPermissionWrite),
 	}
 
 	for resource, perm := range perms {
@@ -771,6 +771,7 @@ func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 	}
 
 	var installation *github.Installation
+
 	for _, install := range installations {
 		if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
 			installation = install
@@ -782,6 +783,7 @@ func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 	}
 
 	installationCanReadRepo := false
+
 	if installation.GetRepositorySelection() != "all" {
 		client, err := c.newGithubAppClient()
 		if err != nil {

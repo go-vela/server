@@ -55,8 +55,8 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 
 		if p.Git.Permissions == nil {
 			p.Git.Permissions = map[string]string{
-				"contents": "read",
-				"checks":   "write",
+				constants.AppInstallResourceContents: constants.AppInstallPermissionRead,
+				constants.AppInstallResourceChecks:   constants.AppInstallPermissionWrite,
 			}
 		}
 

@@ -15,6 +15,7 @@ import (
 	"github.com/google/go-github/v65/github"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 )
 
 // NewGitHubAppTransport creates a new GitHub App transport for authenticating as the GitHub App.
@@ -54,12 +55,12 @@ func (c *client) ValidateGitHubApp(ctx context.Context) error {
 
 	perms := app.GetPermissions()
 	if len(perms.GetContents()) == 0 ||
-		(perms.GetContents() != "read" && perms.GetContents() != "write") {
+		(perms.GetContents() != constants.AppInstallPermissionRead && perms.GetContents() != constants.AppInstallPermissionWrite) {
 		return fmt.Errorf("github app requires contents:read permissions, found: %s", perms.GetContents())
 	}
 
 	if len(perms.GetChecks()) == 0 ||
-		perms.GetChecks() != "write" {
+		perms.GetChecks() != constants.AppInstallPermissionWrite {
 		return fmt.Errorf("github app requires checks:write permissions, found: %s", perms.GetChecks())
 	}
 

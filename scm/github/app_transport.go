@@ -96,7 +96,7 @@ type Transport struct {
 	token *accessToken // the installation's access token
 }
 
-// accessToken is an installation access token response from GitHub
+// accessToken is an installation access token response from GitHub.
 type accessToken struct {
 	Token        string                         `json:"token"`
 	ExpiresAt    time.Time                      `json:"expires_at"`
@@ -115,6 +115,7 @@ type Client interface {
 // RoundTrip implements http.RoundTripper interface.
 func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	reqBodyClosed := false
+
 	if req.Body != nil {
 		defer func() {
 			if !reqBodyClosed {
@@ -154,7 +155,9 @@ func (at *accessToken) isExpired() bool {
 // a valid access token. If renewal fails an error is returned.
 func (t *Transport) Token(ctx context.Context) (string, error) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
+
 	if t.token.isExpired() {
 		// token is not set or expired/nearly expired, so refresh
 		if err := t.refreshToken(ctx); err != nil {
@@ -201,6 +204,7 @@ func (t *Transport) refreshToken(ctx context.Context) error {
 
 	t.appsTransport.BaseURL = t.BaseURL
 	t.appsTransport.Client = t.Client
+
 	resp, err := t.appsTransport.RoundTrip(req)
 	if err != nil {
 		return fmt.Errorf("could not get access_tokens from GitHub API for installation ID %v: %v", t.installationID, err)
