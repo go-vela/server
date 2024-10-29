@@ -39,7 +39,7 @@ type Deployment struct {
 	Payload     raw.StringSliceMap `sql:"payload"`
 	CreatedAt   sql.NullInt64      `sql:"created_at"`
 	CreatedBy   sql.NullString     `sql:"created_by"`
-	Builds      pq.StringArray     `sql:"builds" gorm:"type:varchar(50)"`
+	Builds      pq.StringArray     `sql:"builds"      gorm:"type:varchar(50)"`
 
 	Repo Repo `gorm:"foreignKey:RepoID"`
 }

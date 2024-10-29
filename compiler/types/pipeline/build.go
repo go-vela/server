@@ -15,16 +15,16 @@ import (
 //
 // swagger:model PipelineBuild
 type Build struct {
-	ID          string             `json:"id,omitempty"       yaml:"id,omitempty"`
-	Version     string             `json:"version,omitempty"  yaml:"version,omitempty"`
-	Metadata    Metadata           `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	ID          string             `json:"id,omitempty"          yaml:"id,omitempty"`
+	Version     string             `json:"version,omitempty"     yaml:"version,omitempty"`
+	Metadata    Metadata           `json:"metadata,omitempty"    yaml:"metadata,omitempty"`
 	Environment raw.StringSliceMap `json:"environment,omitempty" yaml:"environment,omitempty"`
-	Worker      Worker             `json:"worker,omitempty"   yaml:"worker,omitempty"`
-	Deployment  Deployment         `json:"deployment,omitempty" yaml:"deployment,omitempty"`
-	Secrets     SecretSlice        `json:"secrets,omitempty"  yaml:"secrets,omitempty"`
-	Services    ContainerSlice     `json:"services,omitempty" yaml:"services,omitempty"`
-	Stages      StageSlice         `json:"stages,omitempty"   yaml:"stages,omitempty"`
-	Steps       ContainerSlice     `json:"steps,omitempty"    yaml:"steps,omitempty"`
+	Worker      Worker             `json:"worker,omitempty"      yaml:"worker,omitempty"`
+	Deployment  Deployment         `json:"deployment,omitempty"  yaml:"deployment,omitempty"`
+	Secrets     SecretSlice        `json:"secrets,omitempty"     yaml:"secrets,omitempty"`
+	Services    ContainerSlice     `json:"services,omitempty"    yaml:"services,omitempty"`
+	Stages      StageSlice         `json:"stages,omitempty"      yaml:"stages,omitempty"`
+	Steps       ContainerSlice     `json:"steps,omitempty"       yaml:"steps,omitempty"`
 }
 
 // Purge removes the steps, in every stage, that contain a ruleset

@@ -33,11 +33,11 @@ type Worker struct {
 	ID                  sql.NullInt64  `sql:"id"`
 	Hostname            sql.NullString `sql:"hostname"`
 	Address             sql.NullString `sql:"address"`
-	Routes              pq.StringArray `sql:"routes" gorm:"type:varchar(1000)"`
+	Routes              pq.StringArray `sql:"routes"                 gorm:"type:varchar(1000)"`
 	Active              sql.NullBool   `sql:"active"`
 	Status              sql.NullString `sql:"status"`
 	LastStatusUpdateAt  sql.NullInt64  `sql:"last_status_update_at"`
-	RunningBuildIDs     pq.StringArray `sql:"running_build_ids" gorm:"type:varchar(500)"`
+	RunningBuildIDs     pq.StringArray `sql:"running_build_ids"      gorm:"type:varchar(500)"`
 	LastBuildStartedAt  sql.NullInt64  `sql:"last_build_started_at"`
 	LastBuildFinishedAt sql.NullInt64  `sql:"last_build_finished_at"`
 	LastCheckedIn       sql.NullInt64  `sql:"last_checked_in"`

@@ -13,7 +13,7 @@ type (
 	//
 	// swagger:model PipelineDeployment
 	Deployment struct {
-		Targets    []string     `json:"targets,omitempty" yaml:"targets,omitempty"`
+		Targets    []string     `json:"targets,omitempty"    yaml:"targets,omitempty"`
 		Parameters ParameterMap `json:"parameters,omitempty" yaml:"parameters,omitempty"`
 	}
 
@@ -25,11 +25,11 @@ type (
 	// swagger:model PipelineParameters
 	Parameter struct {
 		Description string   `json:"description,omitempty" yaml:"description,omitempty"`
-		Type        string   `json:"type,omitempty" yaml:"type,omitempty"`
-		Required    bool     `json:"required,omitempty" yaml:"required,omitempty"`
-		Options     []string `json:"options,omitempty" yaml:"options,omitempty"`
-		Min         int      `json:"min,omitempty" yaml:"min,omitempty"`
-		Max         int      `json:"max,omitempty" yaml:"max,omitempty"`
+		Type        string   `json:"type,omitempty"        yaml:"type,omitempty"`
+		Required    bool     `json:"required,omitempty"    yaml:"required,omitempty"`
+		Options     []string `json:"options,omitempty"     yaml:"options,omitempty"`
+		Min         int      `json:"min,omitempty"         yaml:"min,omitempty"`
+		Max         int      `json:"max,omitempty"         yaml:"max,omitempty"`
 	}
 )
 
