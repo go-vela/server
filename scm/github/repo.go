@@ -681,7 +681,7 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
-func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User, g yaml.Git) (string, error) {
+func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r *api.Repo, u *api.User, g yaml.Git) (string, error) {
 	l := c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -749,12 +749,14 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 	if installToken != nil && len(installToken.GetToken()) != 0 {
 		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
 
-		// sync the install ID with the repo
-		r.SetInstallID(installID)
+		// (optional) sync the install ID with the repo
+		if db != nil {
+			r.SetInstallID(installID)
 
-		_, err = database.FromContext(ctx).UpdateRepo(ctx, r)
-		if err != nil {
-			c.Logger.Tracef("unable to update repo with install ID %d: %v", installID, err)
+			_, err = db.UpdateRepo(ctx, r)
+			if err != nil {
+				c.Logger.Tracef("unable to update repo with install ID %d: %v", installID, err)
+			}
 		}
 
 		return installToken.GetToken(), nil

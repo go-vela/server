@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/image"
 	"github.com/go-vela/server/scm"
@@ -46,6 +47,7 @@ type client struct {
 	repo           *api.Repo
 	user           *api.User
 	labels         []string
+	db             database.Interface
 	scm            scm.Service
 	netrc          *string
 }
@@ -246,6 +248,13 @@ func (c *client) WithNetrc(n string) compiler.Engine {
 // WithSCM sets the scm in the Engine.
 func (c *client) WithSCM(_scm scm.Service) compiler.Engine {
 	c.scm = _scm
+
+	return c
+}
+
+// WithDatabase sets the database in the Engine.
+func (c *client) WithDatabase(db database.Interface) compiler.Engine {
+	c.db = db
 
 	return c
 }

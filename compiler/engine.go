@@ -10,6 +10,7 @@ import (
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/scm"
 )
@@ -150,6 +151,9 @@ type Engine interface {
 	// WithSCM defines a function that sets
 	// the scm in the Engine.
 	WithSCM(scm.Service) Engine
+	// WithDatabase defines a function that sets
+	// the database in the Engine.
+	WithDatabase(database.Interface) Engine
 	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(context.Context, string, string) Engine

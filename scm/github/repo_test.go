@@ -1749,7 +1749,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 				client.AppsTransport = NewTestAppsTransport(s.URL)
 			}
 
-			got, err := client.GetNetrcPassword(context.TODO(), test.repo, test.user, test.git)
+			got, err := client.GetNetrcPassword(context.TODO(), nil, test.repo, test.user, test.git)
 			if (err != nil) != test.wantErr {
 				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
 				return
