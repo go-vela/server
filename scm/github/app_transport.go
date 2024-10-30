@@ -335,6 +335,7 @@ func WithSigner(signer Signer) AppsTransportOption {
 // NewTestAppsTransport creates a new AppsTransport for testing purposes.
 func NewTestAppsTransport(baseURL string) *AppsTransport {
 	pk, _ := rsa.GenerateKey(rand.Reader, 2048)
+
 	return &AppsTransport{
 		BaseURL: baseURL,
 		Client:  &http.Client{Transport: http.DefaultTransport},

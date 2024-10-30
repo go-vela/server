@@ -1810,13 +1810,13 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 	u.SetToken("bar")
 
 	tests := []struct {
-		name         string
-		repo         *api.Repo
-		user         *api.User
-		git          yaml.Git
-		appTransport bool
-		wantToken    string
-		wantErr      bool
+		name          string
+		repo          *api.Repo
+		user          *api.User
+		git           yaml.Git
+		appsTransport bool
+		wantToken     string
+		wantErr       bool
 	}{
 		{
 			name: "installation token",
@@ -1828,9 +1828,9 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 					Permissions:  map[string]string{"contents": "read"},
 				},
 			},
-			appTransport: true,
-			wantToken:    "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
-			wantErr:      false,
+			appsTransport: true,
+			wantToken:     "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+			wantErr:       false,
 		},
 		{
 			name: "no app configured returns user oauth token",
@@ -1842,9 +1842,9 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 					Permissions:  map[string]string{"contents": "read"},
 				},
 			},
-			appTransport: false,
-			wantToken:    "bar",
-			wantErr:      false,
+			appsTransport: false,
+			wantToken:     "bar",
+			wantErr:       false,
 		},
 		{
 			name: "repo not installed returns user oauth token",
@@ -1856,9 +1856,9 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 					Permissions:  map[string]string{"contents": "read"},
 				},
 			},
-			appTransport: true,
-			wantToken:    "bar",
-			wantErr:      false,
+			appsTransport: true,
+			wantToken:     "bar",
+			wantErr:       false,
 		},
 		{
 			name: "invalid permission resource",
@@ -1870,9 +1870,9 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 					Permissions:  map[string]string{"invalid": "read"},
 				},
 			},
-			appTransport: true,
-			wantToken:    "bar",
-			wantErr:      true,
+			appsTransport: true,
+			wantToken:     "bar",
+			wantErr:       true,
 		},
 		{
 			name: "invalid permission level",
@@ -1884,16 +1884,16 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 					Permissions:  map[string]string{"contents": "invalid"},
 				},
 			},
-			appTransport: true,
-			wantToken:    "bar",
-			wantErr:      true,
+			appsTransport: true,
+			wantToken:     "bar",
+			wantErr:       true,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			client, _ := NewTest(s.URL)
-			if test.appTransport {
+			if test.appsTransport {
 				client.AppsTransport = NewTestAppsTransport(s.URL)
 			}
 
