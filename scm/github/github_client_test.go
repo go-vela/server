@@ -28,6 +28,8 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 	inaccessibleRepo.SetFullName("octocat/Hello-World2")
 	inaccessibleRepo.SetInstallID(4)
 
+	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
