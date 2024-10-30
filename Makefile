@@ -336,6 +336,40 @@ jsonschema:
 	@echo "### Generating JSON schema"
 	@go run cmd/jsonschema-gen/main.go > schema.json
 
+# The `test-jsonschema` target is intended to test
+# the created jsonschema against a set of failing
+# and passing example vela templates located in
+# schema/testdata/pipeline.
+#
+# The test relies on the `jv` command line tool,
+# which can be installed via:
+#
+# go install github.com/santhosh-tekuri/jsonschema/cmd/jv@latest
+#
+# Usage: `make test-jsonschema`
+.PHONY: test-jsonschema
+test-jsonschema: jsonschema
+	@echo
+	@echo "### Testing Pipelines against JSON Schema"
+	@echo
+	@echo "=== Expected Failing Tests"
+	@for file in schema/testdata/pipeline/fail/*.yml; do \
+		echo "› Test: $$file"; \
+		if jv schema.json $$file >/dev/null 2>&1; then \
+			echo "Unexpected success for $$file"; \
+			exit 1; \
+		fi; \
+	done
+	@echo
+	@echo "=== Expected Passing Tests"
+	@for file in schema/testdata/pipeline/pass/*.yml; do \
+		echo "› Test: $$file"; \
+		if ! jv schema.json $$file >/dev/null 2>&1; then \
+			echo "Unexpected failure for $$file"; \
+			exit 1; \
+		fi; \
+	done
+
 # The `lint` target is intended to lint the
 # Go source code with golangci-lint.
 #
