@@ -750,7 +750,7 @@ func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
 
 		// (optional) sync the install ID with the repo
-		if db != nil {
+		if db != nil && r.GetInstallID() != installID {
 			r.SetInstallID(installID)
 
 			_, err = db.UpdateRepo(ctx, r)

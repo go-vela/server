@@ -49,6 +49,9 @@
       "suspended_at": null
     },
     "repositories_added": [
+
+    ],
+    "repositories_removed": [
       {
         "id": 1,
         "node_id": "MDEwOlJlcG9zaXRvcnkxMTg=",
@@ -63,9 +66,6 @@
         "full_name": "Codertocat/Hello-World2",
         "private": false
       }
-    ],
-    "repositories_removed": [
-
     ],
     "requester": null,
     "enterprise": {
