@@ -16,6 +16,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -733,10 +734,10 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 		}
 	}
 
-	// the app might not be installed
+	// the app might not be installedm therefore we retain backwords compatibility via the user oauth token
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
-	// maybe take an optional list of repos and permission set that is driven by yaml
-	t, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, ghPerms)
+	// the optional list of repos and permissions are driven by yaml
+	installToken, installID, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, ghPerms)
 	if err != nil {
 		// return the legacy token along with no error for backwards compatibility
 		// todo: return an error based based on app installation requirements
@@ -745,10 +746,18 @@ func (c *client) GetNetrcPassword(ctx context.Context, r *api.Repo, u *api.User,
 		return u.GetToken(), nil
 	}
 
-	if len(t) != 0 {
+	if installToken != nil && len(installToken.GetToken()) != 0 {
 		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
 
-		return t, nil
+		// sync the install ID with the repo
+		r.SetInstallID(installID)
+
+		_, err = database.FromContext(ctx).UpdateRepo(ctx, r)
+		if err != nil {
+			c.Logger.Tracef("unable to update repo with install ID %d: %v", installID, err)
+		}
+
+		return installToken.GetToken(), nil
 	}
 
 	l.Tracef("using user oauth token for %s/%s", r.GetOrg(), r.GetName())
@@ -785,32 +794,9 @@ func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 		return nil, nil
 	}
 
-	installationCanReadRepo := false
-
-	if installation.GetRepositorySelection() != constants.AppInstallRepositoriesSelectionAll {
-		client, err := c.newGithubAppClient()
-		if err != nil {
-			return r, err
-		}
-
-		t, _, err := client.Apps.CreateInstallationToken(ctx, installation.GetID(), &github.InstallationTokenOptions{})
-		if err != nil {
-			return r, err
-		}
-
-		client = c.newOAuthTokenClient(ctx, t.GetToken())
-
-		repos, _, err := client.Apps.ListRepos(ctx, &github.ListOptions{})
-		if err != nil {
-			return r, err
-		}
-
-		for _, repo := range repos.Repositories {
-			if strings.EqualFold(repo.GetFullName(), r.GetFullName()) {
-				installationCanReadRepo = true
-				break
-			}
-		}
+	installationCanReadRepo, err := c.installationCanReadRepo(ctx, r, installation)
+	if err != nil {
+		return r, err
 	}
 
 	if installationCanReadRepo {
