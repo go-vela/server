@@ -793,7 +793,7 @@ func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 	}
 
 	if installation == nil {
-		return nil, nil
+		return r, nil
 	}
 
 	installationCanReadRepo, err := c.installationCanReadRepo(ctx, r, installation)
