@@ -444,11 +444,11 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteRepo(ctx, r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
@@ -537,14 +537,14 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
-		_ = db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(ctx, r)
+		_ = db.DeleteUser(ctx, u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
-	_, _ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(ctx, u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -631,11 +631,11 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteRepo(ctx, r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
@@ -725,11 +725,11 @@ func TestPerm_MustIDRequestToken(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteRepo(ctx, r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
@@ -822,14 +822,14 @@ func TestPerm_MustIDRequestToken_NotRunning(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
-		_ = db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(ctx, r)
+		_ = db.DeleteUser(ctx, u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
-	_, _ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(ctx, u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -916,11 +916,11 @@ func TestPerm_MustIDRequestToken_WrongBuild(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteRepo(ctx, r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
@@ -1005,11 +1005,11 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteRepo(ctx, r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/repo/foo/bar/baz", nil)
@@ -1091,11 +1091,11 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteRepo(ctx, r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/org/foo/*/baz", nil)
@@ -1177,11 +1177,11 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteRepo(ctx, r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/shared/foo/*/*", nil)
@@ -2163,12 +2163,12 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteBuild(ctx, b)
-		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteRepo(ctx, r)
 		db.Close()
 	}()
 
 	_, _ = db.CreateBuild(ctx, b)
-	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateRepo(ctx, r)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))

@@ -57,7 +57,7 @@ type Build struct {
 func (b *Build) Duration() string {
 	// check if the build doesn't have a started timestamp
 	if b.GetStarted() == 0 {
-		return "..."
+		return constants.ErrorEmptyDuration
 	}
 
 	// capture started unix timestamp from the build
@@ -1128,8 +1128,6 @@ func (b *Build) SetApprovedBy(v string) {
 }
 
 // String implements the Stringer interface for the Build type.
-//
-//nolint:dupl // this is duplicated in the test
 func (b *Build) String() string {
 	return fmt.Sprintf(`{
   ApprovedAt: %d,
