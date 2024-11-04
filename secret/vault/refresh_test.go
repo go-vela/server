@@ -42,7 +42,7 @@ func Test_client_initialize(t *testing.T) {
 	// run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 				data, err := os.ReadFile(fmt.Sprintf("testdata/refresh/%s", tt.responseFile))
 				if err != nil {
 					t.Error(err)
@@ -68,7 +68,7 @@ func Test_client_initialize(t *testing.T) {
 
 			c.config.AuthMethod = tt.vaultAuthMethod
 			c.AWS.StsClient = &mockSTSClient{
-				mockGetCallerIdentityRequest: func(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
+				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
 					return &request.Request{
 						HTTPRequest: &http.Request{
 							Host: "sts.amazonaws.com",
@@ -105,7 +105,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			responseFile: "auth-response-success.json",
 			responseCode: 200,
 			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
+				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
 					return &request.Request{
 						HTTPRequest: &http.Request{
 							Host: "sts.amazonaws.com",
@@ -125,7 +125,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			responseFile: "auth-response-error-role-not-found.json",
 			responseCode: 400,
 			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
+				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
 					return &request.Request{
 						HTTPRequest: &http.Request{
 							Host: "sts.amazonaws.com",
@@ -143,7 +143,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			responseFile: "auth-response-error-no-auth-values.json",
 			responseCode: 400,
 			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
+				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
 					return &request.Request{
 						HTTPRequest: &http.Request{
 							Host: "sts.amazonaws.com",
@@ -161,7 +161,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			responseFile: "auth-response-error-nil-secret.json",
 			responseCode: 200,
 			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
+				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
 					return &request.Request{
 						HTTPRequest: &http.Request{
 							Host: "sts.amazonaws.com",
@@ -179,7 +179,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			responseFile: "testdata/auth-response-error-no-auth-values.json",
 			responseCode: 400,
 			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
+				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
 					return &request.Request{
 						HTTPRequest: &http.Request{
 							Host: "sts.amazonaws.com",
@@ -198,7 +198,7 @@ func Test_client_getAwsToken(t *testing.T) {
 	// run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(*testing.T) {
-			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 				data, err := os.ReadFile(fmt.Sprintf("testdata/refresh/%s", tt.responseFile))
 				if err != nil {
 					t.Error(err)

@@ -42,7 +42,7 @@ func (tm *Manager) GenerateRSA(ctx context.Context, db database.Interface) error
 		}
 
 		// create the JWK in the database
-		err = db.CreateJWK(context.TODO(), j)
+		err = db.CreateJWK(ctx, j)
 		if err != nil {
 			return err
 		}

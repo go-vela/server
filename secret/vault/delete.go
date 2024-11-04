@@ -13,7 +13,7 @@ import (
 )
 
 // Delete deletes a secret.
-func (c *client) Delete(ctx context.Context, sType, org, name, path string) error {
+func (c *client) Delete(_ context.Context, sType, org, name, path string) error {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,

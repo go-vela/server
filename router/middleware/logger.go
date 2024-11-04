@@ -45,7 +45,7 @@ type ECSFormatter struct {
 //
 // It receives:
 //  1. A time package format string (e.g. time.RFC3339).
-func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
+func Logger(logger *logrus.Logger, _ string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		// some evil middlewares modify this values

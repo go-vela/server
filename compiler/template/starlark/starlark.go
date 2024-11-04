@@ -127,6 +127,7 @@ func toStarlark(value interface{}) (starlark.Value, error) {
 			}
 
 			var m map[string]interface{}
+
 			err = json.Unmarshal(data, &m)
 			if err != nil {
 				return nil, err

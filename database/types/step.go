@@ -37,13 +37,13 @@ type Step struct {
 	ID           sql.NullInt64  `sql:"id"`
 	BuildID      sql.NullInt64  `sql:"build_id"`
 	RepoID       sql.NullInt64  `sql:"repo_id"`
-	Number       sql.NullInt32  `sql:"number"`
+	Number       sql.NullInt64  `sql:"number"`
 	Name         sql.NullString `sql:"name"`
 	Image        sql.NullString `sql:"image"`
 	Stage        sql.NullString `sql:"stage"`
 	Status       sql.NullString `sql:"status"`
 	Error        sql.NullString `sql:"error"`
-	ExitCode     sql.NullInt32  `sql:"exit_code"`
+	ExitCode     sql.NullInt64  `sql:"exit_code"`
 	Created      sql.NullInt64  `sql:"created"`
 	Started      sql.NullInt64  `sql:"started"`
 	Finished     sql.NullInt64  `sql:"finished"`
@@ -80,7 +80,7 @@ func (s *Step) Nullify() *Step {
 	}
 
 	// check if the Number field should be false
-	if s.Number.Int32 == 0 {
+	if s.Number.Int64 == 0 {
 		s.Number.Valid = false
 	}
 
@@ -110,7 +110,7 @@ func (s *Step) Nullify() *Step {
 	}
 
 	// check if the ExitCode field should be false
-	if s.ExitCode.Int32 == 0 {
+	if s.ExitCode.Int64 == 0 {
 		s.ExitCode.Valid = false
 	}
 
@@ -160,13 +160,13 @@ func (s *Step) ToAPI() *api.Step {
 	step.SetID(s.ID.Int64)
 	step.SetBuildID(s.BuildID.Int64)
 	step.SetRepoID(s.RepoID.Int64)
-	step.SetNumber(int(s.Number.Int32))
+	step.SetNumber(int(s.Number.Int64))
 	step.SetName(s.Name.String)
 	step.SetImage(s.Image.String)
 	step.SetStage(s.Stage.String)
 	step.SetStatus(s.Status.String)
 	step.SetError(s.Error.String)
-	step.SetExitCode(int(s.ExitCode.Int32))
+	step.SetExitCode(int(s.ExitCode.Int64))
 	step.SetCreated(s.Created.Int64)
 	step.SetStarted(s.Started.Int64)
 	step.SetFinished(s.Finished.Int64)
@@ -192,7 +192,7 @@ func (s *Step) Validate() error {
 	}
 
 	// verify the Number field is populated
-	if s.Number.Int32 <= 0 {
+	if s.Number.Int64 <= 0 {
 		return ErrEmptyStepNumber
 	}
 
@@ -229,13 +229,13 @@ func StepFromAPI(s *api.Step) *Step {
 		ID:           sql.NullInt64{Int64: s.GetID(), Valid: true},
 		BuildID:      sql.NullInt64{Int64: s.GetBuildID(), Valid: true},
 		RepoID:       sql.NullInt64{Int64: s.GetRepoID(), Valid: true},
-		Number:       sql.NullInt32{Int32: int32(s.GetNumber()), Valid: true},
+		Number:       sql.NullInt64{Int64: int64(s.GetNumber()), Valid: true},
 		Name:         sql.NullString{String: s.GetName(), Valid: true},
 		Image:        sql.NullString{String: s.GetImage(), Valid: true},
 		Stage:        sql.NullString{String: s.GetStage(), Valid: true},
 		Status:       sql.NullString{String: s.GetStatus(), Valid: true},
 		Error:        sql.NullString{String: s.GetError(), Valid: true},
-		ExitCode:     sql.NullInt32{Int32: int32(s.GetExitCode()), Valid: true},
+		ExitCode:     sql.NullInt64{Int64: int64(s.GetExitCode()), Valid: true},
 		Created:      sql.NullInt64{Int64: s.GetCreated(), Valid: true},
 		Started:      sql.NullInt64{Int64: s.GetStarted(), Valid: true},
 		Finished:     sql.NullInt64{Int64: s.GetFinished(), Valid: true},

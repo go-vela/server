@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code with step
 package log
 
 import (
