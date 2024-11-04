@@ -31,7 +31,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for settings
 	e.SettingsInterface, err = settings.New(
-		settings.WithContext(e.ctx),
+		settings.WithContext(ctx),
 		settings.WithClient(e.client),
 		settings.WithLogger(e.logger),
 		settings.WithSkipCreation(e.config.SkipCreation),
@@ -42,7 +42,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for builds
 	e.BuildInterface, err = build.New(
-		build.WithContext(e.ctx),
+		build.WithContext(ctx),
 		build.WithClient(e.client),
 		build.WithLogger(e.logger),
 		build.WithSkipCreation(e.config.SkipCreation),
@@ -53,7 +53,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 	}
 
 	e.DashboardInterface, err = dashboard.New(
-		dashboard.WithContext(e.ctx),
+		dashboard.WithContext(ctx),
 		dashboard.WithClient(e.client),
 		dashboard.WithLogger(e.logger),
 		dashboard.WithSkipCreation(e.config.SkipCreation),
@@ -64,7 +64,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for build_executables
 	e.BuildExecutableInterface, err = executable.New(
-		executable.WithContext(e.ctx),
+		executable.WithContext(ctx),
 		executable.WithClient(e.client),
 		executable.WithLogger(e.logger),
 		executable.WithSkipCreation(e.config.SkipCreation),
@@ -77,7 +77,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for deployments
 	e.DeploymentInterface, err = deployment.New(
-		deployment.WithContext(e.ctx),
+		deployment.WithContext(ctx),
 		deployment.WithClient(e.client),
 		deployment.WithLogger(e.logger),
 		deployment.WithSkipCreation(e.config.SkipCreation),
@@ -89,7 +89,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for hooks
 	e.HookInterface, err = hook.New(
-		hook.WithContext(e.ctx),
+		hook.WithContext(ctx),
 		hook.WithClient(e.client),
 		hook.WithLogger(e.logger),
 		hook.WithEncryptionKey(e.config.EncryptionKey),
@@ -101,7 +101,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for JWKs
 	e.JWKInterface, err = jwk.New(
-		jwk.WithContext(e.ctx),
+		jwk.WithContext(ctx),
 		jwk.WithClient(e.client),
 		jwk.WithLogger(e.logger),
 		jwk.WithSkipCreation(e.config.SkipCreation),
@@ -112,7 +112,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for logs
 	e.LogInterface, err = log.New(
-		log.WithContext(e.ctx),
+		log.WithContext(ctx),
 		log.WithClient(e.client),
 		log.WithCompressionLevel(e.config.CompressionLevel),
 		log.WithLogger(e.logger),
@@ -124,7 +124,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for pipelines
 	e.PipelineInterface, err = pipeline.New(
-		pipeline.WithContext(e.ctx),
+		pipeline.WithContext(ctx),
 		pipeline.WithClient(e.client),
 		pipeline.WithCompressionLevel(e.config.CompressionLevel),
 		pipeline.WithEncryptionKey(e.config.EncryptionKey),
@@ -137,7 +137,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for repos
 	e.RepoInterface, err = repo.New(
-		repo.WithContext(e.ctx),
+		repo.WithContext(ctx),
 		repo.WithClient(e.client),
 		repo.WithEncryptionKey(e.config.EncryptionKey),
 		repo.WithLogger(e.logger),
@@ -149,7 +149,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for schedules
 	e.ScheduleInterface, err = schedule.New(
-		schedule.WithContext(e.ctx),
+		schedule.WithContext(ctx),
 		schedule.WithClient(e.client),
 		schedule.WithEncryptionKey(e.config.EncryptionKey),
 		schedule.WithLogger(e.logger),
@@ -163,7 +163,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/secret#New
 	e.SecretInterface, err = secret.New(
-		secret.WithContext(e.ctx),
+		secret.WithContext(ctx),
 		secret.WithClient(e.client),
 		secret.WithEncryptionKey(e.config.EncryptionKey),
 		secret.WithLogger(e.logger),
@@ -185,7 +185,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for steps
 	e.StepInterface, err = step.New(
-		step.WithContext(e.ctx),
+		step.WithContext(ctx),
 		step.WithClient(e.client),
 		step.WithLogger(e.logger),
 		step.WithSkipCreation(e.config.SkipCreation),
@@ -196,7 +196,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for users
 	e.UserInterface, err = user.New(
-		user.WithContext(e.ctx),
+		user.WithContext(ctx),
 		user.WithClient(e.client),
 		user.WithEncryptionKey(e.config.EncryptionKey),
 		user.WithLogger(e.logger),
@@ -208,7 +208,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for workers
 	e.WorkerInterface, err = worker.New(
-		worker.WithContext(e.ctx),
+		worker.WithContext(ctx),
 		worker.WithClient(e.client),
 		worker.WithLogger(e.logger),
 		worker.WithSkipCreation(e.config.SkipCreation),
