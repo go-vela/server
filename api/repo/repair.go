@@ -62,6 +62,8 @@ import (
 
 // RepairRepo represents the API handler to remove
 // and then create a webhook for a repo.
+//
+//nolint:funlen // ignore statement count
 func RepairRepo(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
