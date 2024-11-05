@@ -79,7 +79,7 @@ func getAuthenticate(c *gin.Context) {
 
 	state := c.Request.FormValue("state")
 	code := c.Request.FormValue("code")
-	err := "error"
+	err := constants.ErrorMock
 
 	if len(state) == 0 && len(code) == 0 {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &err})
@@ -100,7 +100,7 @@ func getAuthenticate(c *gin.Context) {
 // Don't pass "Token" in header to receive an error message.
 func getAuthenticateFromToken(c *gin.Context) {
 	data := []byte(TokenRefreshResp)
-	err := "error"
+	err := constants.ErrorMock
 
 	token := c.Request.Header.Get("Token")
 	if len(token) == 0 {
@@ -117,7 +117,7 @@ func getAuthenticateFromToken(c *gin.Context) {
 //
 // Don't pass "Authorization" in header to receive an unauthorized error message.
 func validateToken(c *gin.Context) {
-	err := "error"
+	err := constants.ErrorMock
 
 	token := c.Request.Header.Get("Authorization")
 	if len(token) == 0 {
@@ -131,7 +131,7 @@ func validateToken(c *gin.Context) {
 //
 // Don't pass "Authorization" in header to receive an unauthorized error message.
 func validateOAuthToken(c *gin.Context) {
-	err := "error"
+	err := constants.ErrorMock
 
 	token := c.Request.Header.Get("Authorization")
 	if len(token) == 0 {

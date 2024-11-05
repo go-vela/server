@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-//
-//nolint:dupl // similar code to deploy.go
 package actions
 
 import "github.com/go-vela/server/constants"

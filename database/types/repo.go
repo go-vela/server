@@ -58,7 +58,7 @@ type Repo struct {
 	Topics       pq.StringArray `sql:"topics"        gorm:"type:varchar(1020)"`
 	BuildLimit   sql.NullInt64  `sql:"build_limit"`
 	Timeout      sql.NullInt64  `sql:"timeout"`
-	Counter      sql.NullInt32  `sql:"counter"`
+	Counter      sql.NullInt64  `sql:"counter"`
 	Visibility   sql.NullString `sql:"visibility"`
 	Private      sql.NullBool   `sql:"private"`
 	Trusted      sql.NullBool   `sql:"trusted"`
@@ -242,7 +242,7 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetTopics(r.Topics)
 	repo.SetBuildLimit(r.BuildLimit.Int64)
 	repo.SetTimeout(r.Timeout.Int64)
-	repo.SetCounter(int(r.Counter.Int32))
+	repo.SetCounter(int(r.Counter.Int64))
 	repo.SetVisibility(r.Visibility.String)
 	repo.SetPrivate(r.Private.Bool)
 	repo.SetTrusted(r.Trusted.Bool)
@@ -335,7 +335,7 @@ func RepoFromAPI(r *api.Repo) *Repo {
 		Topics:       pq.StringArray(r.GetTopics()),
 		BuildLimit:   sql.NullInt64{Int64: r.GetBuildLimit(), Valid: true},
 		Timeout:      sql.NullInt64{Int64: r.GetTimeout(), Valid: true},
-		Counter:      sql.NullInt32{Int32: int32(r.GetCounter()), Valid: true},
+		Counter:      sql.NullInt64{Int64: int64(r.GetCounter()), Valid: true},
 		Visibility:   sql.NullString{String: r.GetVisibility(), Valid: true},
 		Private:      sql.NullBool{Bool: r.GetPrivate(), Valid: true},
 		Trusted:      sql.NullBool{Bool: r.GetTrusted(), Valid: true},

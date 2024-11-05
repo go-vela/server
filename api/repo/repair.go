@@ -156,7 +156,7 @@ func RepairRepo(c *gin.Context) {
 			sourceRepo.SetPreviousName(r.GetName())
 		}
 
-		r, err = wh.RenameRepository(ctx, h, sourceRepo, c, m)
+		r, err = wh.RenameRepository(ctx, l, database.FromContext(c), h, sourceRepo, m)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
 			return

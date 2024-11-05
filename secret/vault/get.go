@@ -15,7 +15,7 @@ import (
 )
 
 // Get captures a secret.
-func (c *client) Get(ctx context.Context, sType, org, name, path string) (s *velaAPI.Secret, err error) {
+func (c *client) Get(_ context.Context, sType, org, name, path string) (s *velaAPI.Secret, err error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
@@ -37,8 +37,7 @@ func (c *client) Get(ctx context.Context, sType, org, name, path string) (s *vel
 
 	c.Logger.WithFields(fields).Tracef("getting vault %s secret %s for %s/%s", sType, path, org, name)
 
-	//nolint:ineffassign,staticcheck // ignore false positive
-	vault := new(api.Secret)
+	var vault *api.Secret
 
 	// capture the secret from the Vault service
 	switch sType {

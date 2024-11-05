@@ -33,7 +33,7 @@ func (c *client) Authorize(ctx context.Context, token string) (string, error) {
 }
 
 // Login begins the authentication workflow for the session.
-func (c *client) Login(ctx context.Context, w http.ResponseWriter, r *http.Request) (string, error) {
+func (c *client) Login(_ context.Context, w http.ResponseWriter, r *http.Request) (string, error) {
 	c.Logger.Trace("processing login request")
 
 	// generate a random string for creating the OAuth state
@@ -78,7 +78,7 @@ func (c *client) Authenticate(ctx context.Context, _ http.ResponseWriter, r *htt
 	}
 
 	// exchange OAuth code for token
-	token, err := c.OAuth.Exchange(context.Background(), code)
+	token, err := c.OAuth.Exchange(ctx, code)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func (c *client) ValidateOAuthToken(ctx context.Context, token string) (bool, er
 		client.UploadURL = enterpriseURL
 	}
 	// check if the provided token was created by Vela
-	_, resp, err := client.Authorizations.Check(context.Background(), c.config.ClientID, token)
+	_, resp, err := client.Authorizations.Check(ctx, c.config.ClientID, token)
 	// check if the error is of type ErrorResponse
 	var gerr *github.ErrorResponse
 	if errors.As(err, &gerr) {

@@ -34,9 +34,7 @@ func (c *client) Template(ctx context.Context, u *api.User, s *registry.Source) 
 	}
 
 	// send API call to capture the templated pipeline configuration
-	//
-
-	data, _, resp, err := cli.Repositories.GetContents(context.Background(), s.Org, s.Repo, s.Name, opts)
+	data, _, resp, err := cli.Repositories.GetContents(ctx, s.Org, s.Repo, s.Name, opts)
 	if err != nil {
 		if resp != nil && resp.StatusCode != http.StatusNotFound {
 			// return different error message depending on if a branch was provided

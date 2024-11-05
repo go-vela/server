@@ -131,7 +131,7 @@ func (ps *Platform) ToAPI() *settings.Platform {
 	psAPI.Compiler = &settings.Compiler{}
 	psAPI.SetCloneImage(ps.CloneImage.String)
 	psAPI.SetTemplateDepth(int(ps.TemplateDepth.Int64))
-	psAPI.SetStarlarkExecLimit(uint64(ps.StarlarkExecLimit.Int64))
+	psAPI.SetStarlarkExecLimit(ps.StarlarkExecLimit.Int64)
 
 	psAPI.Queue = &settings.Queue{}
 	psAPI.SetRoutes(ps.Routes)
@@ -202,7 +202,7 @@ func SettingsFromAPI(s *settings.Platform) *Platform {
 		Compiler: Compiler{
 			CloneImage:        sql.NullString{String: s.GetCloneImage(), Valid: true},
 			TemplateDepth:     sql.NullInt64{Int64: int64(s.GetTemplateDepth()), Valid: true},
-			StarlarkExecLimit: sql.NullInt64{Int64: int64(s.GetStarlarkExecLimit()), Valid: true},
+			StarlarkExecLimit: sql.NullInt64{Int64: s.GetStarlarkExecLimit(), Valid: true},
 		},
 		Queue: Queue{
 			Routes: pq.StringArray(s.GetRoutes()),

@@ -71,8 +71,6 @@ func WithTimeout(timeout time.Duration) ClientOpt {
 }
 
 // WithPrivateKey sets the private key in the queue client for Redis.
-//
-//nolint:dupl // ignore similar code
 func WithPrivateKey(key string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Trace("configuring private key in redis queue client")
@@ -111,8 +109,6 @@ func WithPrivateKey(key string) ClientOpt {
 }
 
 // WithPublicKey sets the public key in the queue client for Redis.
-//
-//nolint:dupl // ignore similar code
 func WithPublicKey(key string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Tracef("configuring public key in redis queue client")

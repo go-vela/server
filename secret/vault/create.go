@@ -15,7 +15,7 @@ import (
 )
 
 // Create creates a new secret.
-func (c *client) Create(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
+func (c *client) Create(_ context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
