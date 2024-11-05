@@ -160,8 +160,6 @@ func PostWebhook(c *gin.Context) {
 	l.Debugf("hook generated from SCM: %v", h)
 	l.Debugf("repo generated from SCM: %v", r)
 
-	db := database.FromContext(c)
-
 	// if event is repository event, handle separately and return
 	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {
 		r, err = handleRepositoryEvent(ctx, l, db, m, h, r)
