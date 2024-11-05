@@ -7,13 +7,12 @@ import (
 	"io"
 	"os"
 
-	"github.com/buildkite/yaml"
-
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	typesRaw "github.com/go-vela/server/compiler/types/raw"
-	types "github.com/go-vela/server/compiler/types/yaml"
+	types "github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/internal"
 )
 
 // ParseRaw converts an object to a string.
@@ -113,12 +112,9 @@ func (c *client) Parse(v interface{}, pipelineType string, template *types.Templ
 
 // ParseBytes converts a byte slice to a yaml configuration.
 func ParseBytes(data []byte) (*types.Build, []byte, error) {
-	config := new(types.Build)
-
-	// unmarshal the bytes into the yaml configuration
-	err := yaml.Unmarshal(data, config)
+	config, err := internal.ParseYAML(data)
 	if err != nil {
-		return nil, data, fmt.Errorf("unable to unmarshal yaml: %w", err)
+		return nil, nil, err
 	}
 
 	// initializing Environment to prevent nil error

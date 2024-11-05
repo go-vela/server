@@ -8,16 +8,15 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
-	"github.com/buildkite/yaml"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	types "github.com/go-vela/server/compiler/types/yaml"
+	types "github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/internal"
 )
 
 // Render combines the template with the step in the yaml pipeline.
 func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
-	config := new(types.Build)
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(environment, name)}
 	templateFuncMap := map[string]interface{}{
@@ -47,7 +46,7 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	}
 
 	// unmarshal the template to the pipeline
-	err = yaml.Unmarshal(buffer.Bytes(), config)
+	config, err := internal.ParseYAML(buffer.Bytes())
 	if err != nil {
 		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
@@ -63,7 +62,6 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 // RenderBuild renders the templated build.
 func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
-	config := new(types.Build)
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(envs, tmpl)}
 	templateFuncMap := map[string]interface{}{
@@ -93,7 +91,7 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 	}
 
 	// unmarshal the template to the pipeline
-	err = yaml.Unmarshal(buffer.Bytes(), config)
+	config, err := internal.ParseYAML(buffer.Bytes())
 	if err != nil {
 		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}

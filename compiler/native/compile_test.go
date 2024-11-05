@@ -13,16 +13,16 @@ import (
 	"testing"
 	"time"
 
-	yml "github.com/buildkite/yaml"
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-github/v65/github"
 	"github.com/urfave/cli/v2"
+	yml "gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal"
 )
@@ -1981,6 +1981,203 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	}
 }
 
+func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+	name := "foo"
+	author := "author"
+	event := "push"
+	number := 1
+
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	compiler.repo = &api.Repo{Name: &author}
+	compiler.build = &api.Build{Author: &name, Number: &number, Event: &event}
+	compiler.WithMetadata(m)
+
+	testEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil)
+
+	serviceEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil)
+	serviceEnv["REGION"] = "dev"
+
+	alphaEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil)
+	alphaEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo alpha"})
+	alphaEnv["HOME"] = "/root"
+	alphaEnv["SHELL"] = "/bin/sh"
+
+	betaEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil)
+	betaEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo beta"})
+	betaEnv["HOME"] = "/root"
+	betaEnv["SHELL"] = "/bin/sh"
+
+	gammaEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil)
+	gammaEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo gamma"})
+	gammaEnv["HOME"] = "/root"
+	gammaEnv["SHELL"] = "/bin/sh"
+	gammaEnv["REGION"] = "dev"
+
+	want := &pipeline.Build{
+		Version: "legacy",
+		ID:      "_author_1",
+		Metadata: pipeline.Metadata{
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel: &pipeline.CancelOptions{
+				Running:       false,
+				Pending:       false,
+				DefaultBranch: false,
+			},
+		},
+		Worker: pipeline.Worker{
+			Flavor:   "",
+			Platform: "",
+		},
+		Services: pipeline.ContainerSlice{
+			&pipeline.Container{
+				ID:          "service__author_1_service-a",
+				Detach:      true,
+				Directory:   "",
+				Environment: serviceEnv,
+				Image:       "postgres",
+				Name:        "service-a",
+				Number:      1,
+				Pull:        "not_present",
+				Ports:       []string{"5432:5432"},
+			},
+		},
+		Steps: pipeline.ContainerSlice{
+			&pipeline.Container{
+				ID:          "step__author_1_init",
+				Directory:   "/vela/src/foo//author",
+				Environment: testEnv,
+				Image:       "#init",
+				Name:        "init",
+				Number:      1,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step__author_1_clone",
+				Directory:   "/vela/src/foo//author",
+				Environment: testEnv,
+				Image:       defaultCloneImage,
+				Name:        "clone",
+				Number:      2,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step__author_1_alpha",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//author",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: alphaEnv,
+				Image:       "alpine:latest",
+				Name:        "alpha",
+				Number:      3,
+				Pull:        "not_present",
+				Ruleset: pipeline.Ruleset{
+					If: pipeline.Rules{
+						Event: []string{"push"},
+					},
+					Matcher:  "filepath",
+					Operator: "and",
+				},
+			},
+			&pipeline.Container{
+				ID:          "step__author_1_beta",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//author",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: betaEnv,
+				Image:       "alpine:latest",
+				Name:        "beta",
+				Number:      4,
+				Pull:        "not_present",
+				Ruleset: pipeline.Ruleset{
+					If: pipeline.Rules{
+						Event: []string{"push"},
+					},
+					Matcher:  "filepath",
+					Operator: "and",
+				},
+			},
+			&pipeline.Container{
+				ID:          "step__author_1_gamma",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//author",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: gammaEnv,
+				Image:       "alpine:latest",
+				Name:        "gamma",
+				Number:      5,
+				Pull:        "not_present",
+				Ruleset: pipeline.Ruleset{
+					If: pipeline.Rules{
+						Event: []string{"push"},
+					},
+					Matcher:  "filepath",
+					Operator: "and",
+				},
+			},
+		},
+	}
+
+	// run test on legacy version
+	yaml, err := os.ReadFile("testdata/steps_merge_anchor.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	got, _, err := compiler.Compile(context.Background(), yaml)
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
+	}
+
+	// run test on current version (should fail)
+	yaml, err = os.ReadFile("../types/yaml/buildkite/testdata/merge_anchor.yml") // has `version: "1"` instead of `version: "legacy"`
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	got, _, err = compiler.Compile(context.Background(), yaml)
+	if err == nil {
+		t.Errorf("Compile should have returned err")
+	}
+
+	if got != nil {
+		t.Errorf("Compile is %v, want %v", got, nil)
+	}
+}
+
 // convertResponse converts the build to the ModifyResponse.
 func convertResponse(build *yaml.Build) (*ModifyResponse, error) {
 	data, err := yml.Marshal(build)
@@ -2056,7 +2253,7 @@ func Test_client_modifyConfig(t *testing.T) {
 				Name:        "docker",
 				Pull:        "always",
 				Parameters: map[string]interface{}{
-					"init_options": map[interface{}]interface{}{
+					"init_options": map[string]interface{}{
 						"get_plugins": "true",
 					},
 				},
@@ -2089,7 +2286,7 @@ func Test_client_modifyConfig(t *testing.T) {
 				Name:        "docker",
 				Pull:        "always",
 				Parameters: map[string]interface{}{
-					"init_options": map[interface{}]interface{}{
+					"init_options": map[string]interface{}{
 						"get_plugins": "true",
 					},
 				},

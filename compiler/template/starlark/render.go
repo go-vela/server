@@ -7,13 +7,13 @@ import (
 	"errors"
 	"fmt"
 
-	yaml "github.com/buildkite/yaml"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 	"go.starlark.net/syntax"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	types "github.com/go-vela/server/compiler/types/yaml"
+	types "github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/internal"
 )
 
 var (
@@ -32,8 +32,6 @@ var (
 
 // Render combines the template with the step in the yaml pipeline.
 func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}, limit int64) (*types.Build, error) {
-	config := new(types.Build)
-
 	thread := &starlark.Thread{Name: name}
 
 	if limit < 0 {
@@ -124,7 +122,7 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	}
 
 	// unmarshal the template to the pipeline
-	err = yaml.Unmarshal(buf.Bytes(), config)
+	config, err := internal.ParseYAML(buf.Bytes())
 	if err != nil {
 		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
@@ -141,8 +139,6 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 //
 //nolint:lll // ignore function length due to input args
 func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}, limit int64) (*types.Build, error) {
-	config := new(types.Build)
-
 	thread := &starlark.Thread{Name: "templated-base"}
 
 	if limit < 0 {
@@ -233,7 +229,7 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 	}
 
 	// unmarshal the template to the pipeline
-	err = yaml.Unmarshal(buf.Bytes(), config)
+	config, err := internal.ParseYAML(buf.Bytes())
 	if err != nil {
 		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
