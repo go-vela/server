@@ -72,7 +72,7 @@ func (s *Setup) Github(ctx context.Context) (Service, error) {
 
 // Gitlab creates and returns a Vela service capable of
 // integrating with a Gitlab scm system.
-func (s *Setup) Gitlab(ctx context.Context) (Service, error) {
+func (s *Setup) Gitlab(_ context.Context) (Service, error) {
 	logrus.Trace("creating gitlab scm client from setup")
 
 	return nil, fmt.Errorf("unsupported scm driver: %s", constants.DriverGitlab)
