@@ -405,7 +405,7 @@ func TestGithub_ClientOpt_WithGitHubAppPermissions(t *testing.T) {
 			want:        []string{"contents:read"},
 		},
 		{
-			failure:     true,
+			failure:     false,
 			permissions: []string{},
 			want:        []string{},
 		},
