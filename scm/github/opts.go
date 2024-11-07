@@ -190,10 +190,6 @@ func WithGitHubAppPermissions(permissions []string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Trace("configuring app permissions in github scm client")
 
-		if len(permissions) == 0 {
-			return fmt.Errorf("no GitHub App permissions provided")
-		}
-
 		c.config.AppPermissions = permissions
 
 		return nil
