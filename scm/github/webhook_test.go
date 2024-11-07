@@ -1641,6 +1641,13 @@ func TestGitHub_ProcessWebhook_Installation(t *testing.T) {
 	}
 }
 
+const (
+	// GitHub App install event type 'added'.
+	AppInstallRepositoriesAdded = "added"
+	// GitHub App install event type 'removed'.
+	AppInstallRepositoriesRemoved = "removed"
+)
+
 func TestGitHub_ProcessWebhook_InstallationRepositories(t *testing.T) {
 	// setup tests
 	var reposAddedHook api.Hook
@@ -1650,11 +1657,11 @@ func TestGitHub_ProcessWebhook_InstallationRepositories(t *testing.T) {
 	reposAddedHook.SetCreated(time.Now().UTC().Unix())
 	reposAddedHook.SetHost("github.com")
 	reposAddedHook.SetEvent(constants.EventInstallationRepositories)
-	reposAddedHook.SetEventAction(constants.AppInstallRepositoriesAdded)
+	reposAddedHook.SetEventAction(AppInstallRepositoriesAdded)
 	reposAddedHook.SetStatus(constants.StatusSuccess)
 
 	reposRemovedHook := reposAddedHook
-	reposRemovedHook.SetEventAction(constants.AppInstallRepositoriesRemoved)
+	reposRemovedHook.SetEventAction(AppInstallRepositoriesRemoved)
 
 	tests := []struct {
 		name        string
@@ -1667,7 +1674,7 @@ func TestGitHub_ProcessWebhook_InstallationRepositories(t *testing.T) {
 			file:     "testdata/hooks/installation_repositories_added.json",
 			wantHook: &reposAddedHook,
 			wantInstall: &internal.Installation{
-				Action:            constants.AppInstallRepositoriesAdded,
+				Action:            AppInstallRepositoriesAdded,
 				ID:                1,
 				RepositoriesAdded: []string{"Hello-World", "Hello-World2"},
 				Org:               "Codertocat",
@@ -1678,7 +1685,7 @@ func TestGitHub_ProcessWebhook_InstallationRepositories(t *testing.T) {
 			file:     "testdata/hooks/installation_repositories_removed.json",
 			wantHook: &reposRemovedHook,
 			wantInstall: &internal.Installation{
-				Action:              constants.AppInstallRepositoriesRemoved,
+				Action:              AppInstallRepositoriesRemoved,
 				ID:                  1,
 				RepositoriesRemoved: []string{"Hello-World", "Hello-World2"},
 				Org:                 "Codertocat",

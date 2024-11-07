@@ -713,9 +713,9 @@ func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 	// the list contains only the triggering repo, unless provided in the git yaml block
 	//
 	// the default is contents:read and checks:write
-	ghPerms := &github.InstallationPermissions{
-		Contents: github.String(constants.AppInstallPermissionRead),
-		Checks:   github.String(constants.AppInstallPermissionWrite),
+	ghPermissions := &github.InstallationPermissions{
+		Contents: github.String(AppInstallPermissionRead),
+		Checks:   github.String(AppInstallPermissionWrite),
 	}
 
 	permissions := g.Permissions
@@ -724,7 +724,7 @@ func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 	}
 
 	for resource, perm := range permissions {
-		ghPerms, err = applyGitHubInstallationPermission(ghPerms, resource, perm)
+		ghPermissions, err = ApplyInstallationPermissions(resource, perm, ghPermissions)
 		if err != nil {
 			return u.GetToken(), err
 		}
@@ -733,7 +733,7 @@ func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 	// the app might not be installedm therefore we retain backwords compatibility via the user oauth token
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 	// the optional list of repos and permissions are driven by yaml
-	installToken, installID, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, ghPerms)
+	installToken, installID, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, ghPermissions)
 	if err != nil {
 		// return the legacy token along with no error for backwards compatibility
 		// todo: return an error based based on app installation requirements
@@ -802,29 +802,4 @@ func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 	}
 
 	return r, nil
-}
-
-// applyGitHubInstallationPermission takes permissions and applies a new permission if valid.
-func applyGitHubInstallationPermission(perms *github.InstallationPermissions, resource, perm string) (*github.InstallationPermissions, error) {
-	// convert permissions from yaml string
-	switch strings.ToLower(perm) {
-	case constants.AppInstallPermissionNone:
-	case constants.AppInstallPermissionRead:
-	case constants.AppInstallPermissionWrite:
-		break
-	default:
-		return perms, fmt.Errorf("invalid permission level given for <resource>:<level> in %s:%s", resource, perm)
-	}
-
-	// convert resource from yaml string
-	switch strings.ToLower(resource) {
-	case constants.AppInstallResourceContents:
-		perms.Contents = github.String(perm)
-	case constants.AppInstallResourceChecks:
-		perms.Checks = github.String(perm)
-	default:
-		return perms, fmt.Errorf("invalid permission resource given for <resource>:<level> in %s:%s", resource, perm)
-	}
-
-	return perms, nil
 }

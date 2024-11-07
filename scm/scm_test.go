@@ -24,7 +24,7 @@ func TestSCM_New(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -38,7 +38,7 @@ func TestSCM_New(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -52,7 +52,7 @@ func TestSCM_New(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -66,7 +66,7 @@ func TestSCM_New(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 	}

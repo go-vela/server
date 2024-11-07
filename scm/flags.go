@@ -79,4 +79,11 @@ var Flags = []cli.Flag{
 		Name:     "scm.app.private_key",
 		Usage:    "set value of base64 encoded SCM App integration (GitHub App) private key",
 	},
+	&cli.StringSliceFlag{
+		EnvVars:  []string{"VELA_SCM_APP_PERMISSIONS", "SCM_APP_PERMISSIONS", "VELA_SOURCE_APP_PERMISSIONS", "SOURCE_APP_PERMISSIONS"},
+		FilePath: "/vela/scm/app/permissions",
+		Name:     "scm.app.permissions",
+		Usage:    "SCM App integration (GitHub App) permissions to be used as the allowed set of possible installation token permissions",
+		Value:    cli.NewStringSlice("contents:read", "checks:write"),
+	},
 }

@@ -32,6 +32,8 @@ type Setup struct {
 	AppID int64
 	// specifies App integration private key
 	AppPrivateKey string
+	// specifies App integration permissions set
+	AppPermissions []string
 	// specifies the Vela server address to use for the scm client
 	ServerAddress string
 	// specifies the Vela server address that the scm provider should use to send Vela webhooks
@@ -41,7 +43,7 @@ type Setup struct {
 	// specifies the Vela web UI address to use for the scm client
 	WebUIAddress string
 	// specifies the OAuth scopes to use for the scm client
-	Scopes []string
+	OAuthScopes []string
 	// specifies OTel tracing configurations
 	Tracing *tracing.Client
 }
@@ -63,10 +65,11 @@ func (s *Setup) Github(ctx context.Context) (Service, error) {
 		github.WithServerWebhookAddress(s.ServerWebhookAddress),
 		github.WithStatusContext(s.StatusContext),
 		github.WithWebUIAddress(s.WebUIAddress),
-		github.WithScopes(s.Scopes),
+		github.WithOAuthScopes(s.OAuthScopes),
 		github.WithTracing(s.Tracing),
 		github.WithGithubAppID(s.AppID),
 		github.WithGithubPrivateKey(s.AppPrivateKey),
+		github.WithGitHubAppPermissions(s.AppPermissions),
 	)
 }
 
@@ -118,7 +121,7 @@ func (s *Setup) Validate() error {
 		return fmt.Errorf("no scm status context provided")
 	}
 
-	if len(s.Scopes) == 0 {
+	if len(s.OAuthScopes) == 0 {
 		return fmt.Errorf("no scm scopes provided")
 	}
 

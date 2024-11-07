@@ -5,12 +5,12 @@ package github
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/google/go-github/v65/github"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 
-	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/tracing"
 )
 
@@ -40,6 +40,8 @@ type config struct {
 	AppID int64
 	// specifies the App private key to use for the GitHub client when interacting with App resources
 	AppPrivateKey string
+	// specifics the App permissions set
+	AppPermissions []string
 	// specifies the Vela server address to use for the GitHub client
 	ServerAddress string
 	// specifies the Vela server address that the scm provider should use to send Vela webhooks
@@ -49,7 +51,7 @@ type config struct {
 	// specifies the Vela web UI address to use for the GitHub client
 	WebUIAddress string
 	// specifies the OAuth scopes to use for the GitHub client
-	Scopes []string
+	OAuthScopes []string
 }
 
 type client struct {
@@ -97,23 +99,23 @@ func New(ctx context.Context, opts ...ClientOpt) (*client, error) {
 	c.OAuth = &oauth2.Config{
 		ClientID:     c.config.ClientID,
 		ClientSecret: c.config.ClientSecret,
-		Scopes:       c.config.Scopes,
+		Scopes:       c.config.OAuthScopes,
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", c.config.Address),
 			TokenURL: fmt.Sprintf("%s/login/oauth/access_token", c.config.Address),
 		},
 	}
 
-	var githubScopes []github.Scope
-	for _, scope := range c.config.Scopes {
-		githubScopes = append(githubScopes, github.Scope(scope))
+	var oauthScopes []github.Scope
+	for _, scope := range c.config.OAuthScopes {
+		oauthScopes = append(oauthScopes, github.Scope(scope))
 	}
 
 	// create the GitHub authorization object
 	c.AuthReq = &github.AuthorizationRequest{
 		ClientID:     &c.config.ClientID,
 		ClientSecret: &c.config.ClientSecret,
-		Scopes:       githubScopes,
+		Scopes:       oauthScopes,
 	}
 
 	if c.config.AppID != 0 && len(c.config.AppPrivateKey) > 0 {
@@ -147,7 +149,7 @@ func (c *client) ValidateGitHubApp(ctx context.Context) error {
 		return fmt.Errorf("error getting github app: %w", err)
 	}
 
-	perms := app.GetPermissions()
+	appPermissions := app.GetPermissions()
 
 	type perm struct {
 		resource           string
@@ -155,58 +157,38 @@ func (c *client) ValidateGitHubApp(ctx context.Context) error {
 		actualPermission   string
 	}
 
-	// GitHub App installation requires the following permissions
-	// - contents:read
-	// - checks:write
-	requiredPermissions := []perm{
-		{
-			resource:           constants.AppInstallResourceContents,
-			requiredPermission: constants.AppInstallPermissionRead,
-			actualPermission:   perms.GetContents(),
-		},
-		{
-			resource:           constants.AppInstallResourceChecks,
-			requiredPermission: constants.AppInstallPermissionWrite,
-			actualPermission:   perms.GetChecks(),
-		},
-	}
+	// the GitHub App installation requires the same permissions as provided at runtime
+	requiredPermissions := []perm{}
 
-	for _, p := range requiredPermissions {
-		err := hasPermission(p.resource, p.requiredPermission, p.actualPermission)
+	// retrieve the required permissions for checking
+	for _, permission := range c.config.AppPermissions {
+		splitPerm := strings.Split(permission, ":")
+		if len(splitPerm) != 2 {
+			return fmt.Errorf("invalid app permission format %s, expected resource:permission", permission)
+		}
+
+		resource := splitPerm[0]
+		requiredPermission := splitPerm[1]
+
+		actual, err := GetInstallationPermission(resource, appPermissions)
 		if err != nil {
 			return err
 		}
-	}
 
-	return nil
-}
-
-// hasPermission takes a resource:perm pair and checks if the actual permission matches the expected permission or is supersceded by a higher permission.
-func hasPermission(resource, requiredPerm, actualPerm string) error {
-	if len(actualPerm) == 0 {
-		return fmt.Errorf("github app missing permission %s:%s", resource, requiredPerm)
-	}
-
-	permitted := false
-
-	switch requiredPerm {
-	case constants.AppInstallPermissionNone:
-		permitted = true
-	case constants.AppInstallPermissionRead:
-		if actualPerm == constants.AppInstallPermissionRead ||
-			actualPerm == constants.AppInstallPermissionWrite {
-			permitted = true
+		perm := perm{
+			resource:           resource,
+			requiredPermission: requiredPermission,
+			actualPermission:   actual,
 		}
-	case constants.AppInstallPermissionWrite:
-		if actualPerm == constants.AppInstallPermissionWrite {
-			permitted = true
-		}
-	default:
-		return fmt.Errorf("invalid required permission type: %s", requiredPerm)
+		requiredPermissions = append(requiredPermissions, perm)
 	}
 
-	if !permitted {
-		return fmt.Errorf("github app requires permission %s:%s, found: %s", constants.AppInstallResourceContents, constants.AppInstallPermissionRead, actualPerm)
+	// verify the app permissions
+	for _, p := range requiredPermissions {
+		err := InstallationHasPermission(p.resource, p.requiredPermission, p.actualPermission)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

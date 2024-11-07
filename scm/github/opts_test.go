@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/go-vela/server/tracing"
 )
 
@@ -309,7 +311,7 @@ func TestGithub_ClientOpt_WithWebUIAddress(t *testing.T) {
 	}
 }
 
-func TestGithub_ClientOpt_WithScopes(t *testing.T) {
+func TestGithub_ClientOpt_WithOAuthScopes(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool
@@ -331,23 +333,23 @@ func TestGithub_ClientOpt_WithScopes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		_service, err := New(context.Background(),
-			WithScopes(test.scopes),
+			WithOAuthScopes(test.scopes),
 		)
 
 		if test.failure {
 			if err == nil {
-				t.Errorf("WithScopes should have returned err")
+				t.Errorf("WithOAuthScopes should have returned err")
 			}
 
 			continue
 		}
 
 		if err != nil {
-			t.Errorf("WithScopes returned err: %v", err)
+			t.Errorf("WithOAuthScopes returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(_service.config.Scopes, test.want) {
-			t.Errorf("WithScopes is %v, want %v", _service.config.Scopes, test.want)
+		if !reflect.DeepEqual(_service.config.OAuthScopes, test.want) {
+			t.Errorf("WithOAuthScopes is %v, want %v", _service.config.OAuthScopes, test.want)
 		}
 	}
 }
@@ -386,6 +388,49 @@ func TestGithub_ClientOpt_WithTracing(t *testing.T) {
 
 		if !reflect.DeepEqual(_service.Tracing, test.want) {
 			t.Errorf("WithTracing is %v, want %v", _service.Tracing, test.want)
+		}
+	}
+}
+
+func TestGithub_ClientOpt_WithGitHubAppPermissions(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure     bool
+		permissions []string
+		want        []string
+	}{
+		{
+			failure:     false,
+			permissions: []string{"contents:read"},
+			want:        []string{"contents:read"},
+		},
+		{
+			failure:     true,
+			permissions: []string{},
+			want:        []string{},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(context.Background(),
+			WithGitHubAppPermissions(test.permissions),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithGitHubAppPermissions should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithGitHubAppPermissions returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(test.want, _service.config.AppPermissions); diff != "" {
+			t.Errorf("WithGitHubAppPermissions mismatch (-want +got):\n%s", diff)
 		}
 	}
 }

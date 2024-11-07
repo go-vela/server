@@ -1848,48 +1848,48 @@ func TestGithub_applyGitHubInstallationPermission(t *testing.T) {
 		{
 			name: "valid read permission for contents",
 			perms: &github.InstallationPermissions{
-				Contents: github.String(constants.AppInstallPermissionNone),
+				Contents: github.String(AppInstallPermissionNone),
 			},
-			resource: constants.AppInstallResourceContents,
-			perm:     constants.AppInstallPermissionRead,
+			resource: AppInstallResourceContents,
+			perm:     AppInstallPermissionRead,
 			wantPerms: &github.InstallationPermissions{
-				Contents: github.String(constants.AppInstallPermissionRead),
+				Contents: github.String(AppInstallPermissionRead),
 			},
 			wantErr: false,
 		},
 		{
 			name: "valid write permission for checks",
 			perms: &github.InstallationPermissions{
-				Checks: github.String(constants.AppInstallPermissionNone),
+				Checks: github.String(AppInstallPermissionNone),
 			},
-			resource: constants.AppInstallResourceChecks,
-			perm:     constants.AppInstallPermissionWrite,
+			resource: AppInstallResourceChecks,
+			perm:     AppInstallPermissionWrite,
 			wantPerms: &github.InstallationPermissions{
-				Checks: github.String(constants.AppInstallPermissionWrite),
+				Checks: github.String(AppInstallPermissionWrite),
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid permission value",
 			perms: &github.InstallationPermissions{
-				Contents: github.String(constants.AppInstallPermissionNone),
+				Contents: github.String(AppInstallPermissionNone),
 			},
-			resource: constants.AppInstallResourceContents,
+			resource: AppInstallResourceContents,
 			perm:     "invalid",
 			wantPerms: &github.InstallationPermissions{
-				Contents: github.String(constants.AppInstallPermissionNone),
+				Contents: github.String(AppInstallPermissionNone),
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid permission key",
 			perms: &github.InstallationPermissions{
-				Contents: github.String(constants.AppInstallPermissionNone),
+				Contents: github.String(AppInstallPermissionNone),
 			},
 			resource: "invalid",
-			perm:     constants.AppInstallPermissionRead,
+			perm:     AppInstallPermissionRead,
 			wantPerms: &github.InstallationPermissions{
-				Contents: github.String(constants.AppInstallPermissionNone),
+				Contents: github.String(AppInstallPermissionNone),
 			},
 			wantErr: true,
 		},
@@ -1897,13 +1897,13 @@ func TestGithub_applyGitHubInstallationPermission(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := applyGitHubInstallationPermission(tt.perms, tt.resource, tt.perm)
+			got, err := ApplyInstallationPermissions(tt.resource, tt.perm, tt.perms)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("applyGitHubInstallationPermission() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("ToGitHubAppInstallationPermissions() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if diff := cmp.Diff(tt.wantPerms, got); diff != "" {
-				t.Errorf("applyGitHubInstallationPermission() mismatch (-want +got):\n%s", diff)
+				t.Errorf("ToGitHubAppInstallationPermissions() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

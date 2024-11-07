@@ -19,7 +19,7 @@ func TestSCM_Setup_Github(t *testing.T) {
 		ServerWebhookAddress: "",
 		StatusContext:        "continuous-integration/vela",
 		WebUIAddress:         "https://vela.example.com",
-		Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+		OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 	}
 
 	_github, err := _setup.Github(context.Background())
@@ -108,7 +108,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -122,7 +122,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -136,7 +136,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -150,7 +150,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -164,7 +164,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -178,7 +178,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -192,7 +192,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -206,7 +206,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -220,7 +220,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -234,7 +234,7 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				Scopes:               []string{},
+				OAuthScopes:          []string{},
 			},
 		},
 	}
