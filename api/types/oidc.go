@@ -31,6 +31,7 @@ type OpenIDClaims struct {
 	Image       string `json:"image,omitempty"`
 	ImageName   string `json:"image_name,omitempty"`
 	ImageTag    string `json:"image_tag,omitempty"`
+	PullFork    bool   `json:"pull_fork,omitempty"`
 	Ref         string `json:"ref,omitempty"`
 	Repo        string `json:"repo,omitempty"`
 	Request     string `json:"request,omitempty"`
