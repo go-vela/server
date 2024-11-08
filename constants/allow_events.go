@@ -24,4 +24,7 @@ const (
 	AllowPushDeleteBranch
 	AllowPushDeleteTag
 	AllowPullUnlabel
+	AllowPullReviewSubmit
+	AllowPullReviewEdit
+	AllowPullReviewDismiss
 )
