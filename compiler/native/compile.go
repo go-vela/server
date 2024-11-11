@@ -342,6 +342,8 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 
 	if c.ModificationService.Endpoint != "" {
 		// send config to external endpoint for modification
+		//
+		//nolint:contextcheck // modification service has its own context with a set timeout
 		p, err = c.modifyConfig(p, c.build, c.repo)
 		if err != nil {
 			return nil, _pipeline, err
@@ -437,6 +439,8 @@ func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 
 	if c.ModificationService.Endpoint != "" {
 		// send config to external endpoint for modification
+		//
+		//nolint:contextcheck // modification service has its own context with a set timeout
 		p, err = c.modifyConfig(p, c.build, c.repo)
 		if err != nil {
 			return nil, _pipeline, err

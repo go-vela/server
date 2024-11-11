@@ -142,7 +142,7 @@ func TestNative_RenderBuild(t *testing.T) {
 		args      args
 		wantFile  string
 		wantErr   bool
-		execLimit uint64
+		execLimit int64
 	}{
 		{
 			name: "steps",

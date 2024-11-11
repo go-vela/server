@@ -135,15 +135,9 @@ func (r *Rules) Empty() bool {
 // both operators, when none of the ruletypes from the rules
 // match the provided ruledata, the function returns false.
 func (r *Rules) Match(from *RuleData, matcher, op string) (bool, error) {
-	status := true
-
-	var err error
-
-	if len(from.Status) != 0 {
-		status, err = r.Status.MatchSingle(from.Status, matcher, op)
-		if err != nil {
-			return false, err
-		}
+	status, err := r.matchStatus(from, matcher, op)
+	if err != nil {
+		return false, err
 	}
 
 	matchBranch, err := r.Branch.MatchSingle(from.Branch, matcher, op)
@@ -196,11 +190,35 @@ func (r *Rules) Match(from *RuleData, matcher, op string) (bool, error) {
 		return false, err
 	}
 
+	return r.evaluateMatches(op, status, matchBranch, matchComment, matchEvent, matchPath, matchRepo, matchSender, matchTag, matchTarget, matchLabel, matchInstance), nil
+}
+
+func (r *Rules) matchStatus(from *RuleData, matcher, op string) (bool, error) {
+	if len(from.Status) == 0 {
+		return true, nil
+	}
+
+	return r.Status.MatchSingle(from.Status, matcher, op)
+}
+
+func (r *Rules) evaluateMatches(op string, matches ...bool) bool {
 	switch op {
 	case constants.OperatorOr:
-		return (matchBranch || matchComment || matchEvent || matchPath || matchRepo || matchSender || matchTag || matchTarget || matchLabel || matchInstance || status), nil
+		for _, match := range matches {
+			if match {
+				return true
+			}
+		}
+
+		return false
 	default:
-		return (matchBranch && matchComment && matchEvent && matchPath && matchRepo && matchSender && matchTag && matchTarget && matchLabel && matchInstance && status), nil
+		for _, match := range matches {
+			if !match {
+				return false
+			}
+		}
+
+		return true
 	}
 }
 

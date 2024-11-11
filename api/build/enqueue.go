@@ -39,11 +39,11 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 	l.Debugf("pushing item for build to queue route %s", route)
 
 	// push item on to the queue
-	err = queue.Push(context.Background(), route, byteItem)
+	err = queue.Push(ctx, route, byteItem)
 	if err != nil {
 		l.Errorf("retrying; failed to publish build: %v", err)
 
-		err = queue.Push(context.Background(), route, byteItem)
+		err = queue.Push(ctx, route, byteItem)
 		if err != nil {
 			l.Errorf("failed to publish build: %v", err)
 

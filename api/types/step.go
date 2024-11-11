@@ -39,7 +39,7 @@ type Step struct {
 func (s *Step) Duration() string {
 	// check if the step doesn't have a started timestamp
 	if s.GetStarted() == 0 {
-		return "..."
+		return constants.ErrorEmptyDuration
 	}
 
 	// capture started unix timestamp from the step
