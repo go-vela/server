@@ -142,7 +142,7 @@ type Service interface {
 	// GetHTMLURL defines a function that retrieves
 	// a repository file's html_url.
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
-	// GetNetrc defines a function that returns the netrc
+	// GetNetrcPassword defines a function that returns the netrc
 	// password injected into build steps.
 	GetNetrcPassword(context.Context, database.Interface, *api.Repo, *api.User, yaml.Git) (string, error)
 	// SyncRepoWithInstallation defines a function that syncs
