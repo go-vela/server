@@ -32,14 +32,14 @@ func TestGithub_New(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_, err := New(
+		_, err := New(context.Background(),
 			WithAddress("https://github.com/"),
 			WithClientID(test.id),
 			WithClientSecret("bar"),
 			WithServerAddress("https://vela-server.example.com"),
 			WithStatusContext("continuous-integration/vela"),
 			WithWebUIAddress("https://vela.example.com"),
-			WithScopes([]string{"repo", "repo:status", "user:email", "read:user", "read:org"}),
+			WithOAuthScopes([]string{"repo", "repo:status", "user:email", "read:user", "read:org"}),
 		)
 
 		if test.failure {
@@ -72,7 +72,7 @@ func TestGithub_newClientToken(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got := client.newClientToken(context.Background(), "foobar")
+	got := client.newOAuthTokenClient(context.Background(), "foobar")
 
 	//nolint:staticcheck // ignore false positive
 	if got == nil {

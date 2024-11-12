@@ -268,6 +268,8 @@ func CompileAndPublish(
 			WithRepo(repo).
 			WithUser(u).
 			WithLabels(cfg.Labels).
+			WithSCM(scm).
+			WithDatabase(database).
 			Compile(ctx, pipelineFile)
 		if err != nil {
 			// format the error message with extra information
