@@ -34,7 +34,6 @@ func TestRepo_Engine_ListReposForOrg(t *testing.T) {
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetTopics([]string{})
 	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
-	_repoOne.SetInstallID(0)
 
 	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
@@ -47,7 +46,6 @@ func TestRepo_Engine_ListReposForOrg(t *testing.T) {
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetTopics([]string{})
 	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
-	_repoTwo.SetInstallID(0)
 
 	_buildOne := new(api.Build)
 	_buildOne.SetID(1)

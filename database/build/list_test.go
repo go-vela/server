@@ -33,7 +33,6 @@ func TestBuild_Engine_ListBuilds(t *testing.T) {
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 	_repo.SetPipelineType(constants.PipelineTypeYAML)
 	_repo.SetTopics([]string{})
-	_repo.SetInstallID(0)
 
 	_buildOne := testutils.APIBuild()
 	_buildOne.SetID(1)

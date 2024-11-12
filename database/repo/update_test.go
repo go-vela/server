@@ -28,7 +28,6 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	_repo.SetPreviousName("oldName")
 	_repo.SetApproveBuild(constants.ApproveForkAlways)
 	_repo.SetTopics([]string{})
-	_repo.SetInstallID(0)
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)

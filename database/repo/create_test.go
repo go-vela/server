@@ -25,7 +25,6 @@ func TestRepo_Engine_CreateRepo(t *testing.T) {
 	_repo.SetPipelineType("yaml")
 	_repo.SetPreviousName("oldName")
 	_repo.SetTopics([]string{})
-	_repo.SetInstallID(0)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

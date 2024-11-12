@@ -50,7 +50,6 @@ func TestSchedule_Engine_UpdateSchedule_Config(t *testing.T) {
 	_repo.SetPipelineType("")
 	_repo.SetPreviousName("")
 	_repo.SetApproveBuild(constants.ApproveNever)
-	_repo.SetInstallID(0)
 
 	currTime := time.Now().UTC()
 	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)
@@ -165,7 +164,6 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	_repo.SetPipelineType("")
 	_repo.SetPreviousName("")
 	_repo.SetApproveBuild(constants.ApproveNever)
-	_repo.SetInstallID(0)
 
 	currTime := time.Now().UTC()
 	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)

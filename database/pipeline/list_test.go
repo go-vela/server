@@ -32,7 +32,6 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 	_repoOne.SetPipelineType(constants.PipelineTypeYAML)
 	_repoOne.SetTopics([]string{})
-	_repoOne.SetInstallID(0)
 
 	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
@@ -45,7 +44,6 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 	_repoTwo.SetPipelineType(constants.PipelineTypeYAML)
 	_repoTwo.SetTopics([]string{})
-	_repoTwo.SetInstallID(0)
 
 	_pipelineOne := testutils.APIPipeline()
 	_pipelineOne.SetID(1)

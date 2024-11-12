@@ -95,7 +95,6 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	repo.SetPipelineType("yaml")
 	repo.SetPreviousName("oldName")
 	repo.SetApproveBuild(constants.ApproveNever)
-	repo.SetInstallID(0)
 
 	currTime := time.Now().UTC()
 	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)
