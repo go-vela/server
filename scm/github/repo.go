@@ -730,7 +730,7 @@ func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 		}
 	}
 
-	// the app might not be installedm therefore we retain backwords compatibility via the user oauth token
+	// the app might not be installed therefore we retain backwards compatibility via the user oauth token
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 	// the optional list of repos and permissions are driven by yaml
 	installToken, installID, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, ghPermissions)
