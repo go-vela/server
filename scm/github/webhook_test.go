@@ -370,12 +370,17 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetSenderSCMID("21031067")
+	wantBuild.SetFork(false)
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
 	wantBuild.SetBranch("main")
 	wantBuild.SetRef("refs/pull/1/head")
 	wantBuild.SetBaseRef("main")
 	wantBuild.SetHeadRef("changes")
+
+	wantBuildFork := *wantBuild
+	tBool := true
+	wantBuildFork.Fork = &tBool
 
 	wantBuild2 := new(api.Build)
 	wantBuild2.SetEvent("pull_request")
@@ -387,6 +392,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild2.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
 	wantBuild2.SetSender("Codertocat")
 	wantBuild2.SetSenderSCMID("21031067")
+	wantBuild2.SetFork(false)
 	wantBuild2.SetAuthor("Codertocat")
 	wantBuild2.SetEmail("")
 	wantBuild2.SetBranch("main")
@@ -404,6 +410,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild3.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
 	wantBuild3.SetSender("Codertocat")
 	wantBuild3.SetSenderSCMID("21031067")
+	wantBuild3.SetFork(false)
 	wantBuild3.SetAuthor("Codertocat")
 	wantBuild3.SetEmail("")
 	wantBuild3.SetBranch("main")
@@ -421,6 +428,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild4.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
 	wantBuild4.SetSender("Codertocat")
 	wantBuild4.SetSenderSCMID("21031067")
+	wantBuild4.SetFork(false)
 	wantBuild4.SetAuthor("Codertocat")
 	wantBuild4.SetEmail("")
 	wantBuild4.SetBranch("main")
@@ -439,8 +447,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 			testData: "testdata/hooks/pull_request.json",
 			want: &internal.Webhook{
 				PullRequest: internal.PullRequest{
-					Number:     wantHook.GetNumber(),
-					IsFromFork: false,
+					Number: wantHook.GetNumber(),
 				},
 				Hook:  wantHook,
 				Repo:  wantRepo,
@@ -452,12 +459,11 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 			testData: "testdata/hooks/pull_request_fork.json",
 			want: &internal.Webhook{
 				PullRequest: internal.PullRequest{
-					Number:     wantHook.GetNumber(),
-					IsFromFork: true,
+					Number: wantHook.GetNumber(),
 				},
 				Hook:  wantHook,
 				Repo:  wantRepo,
-				Build: wantBuild,
+				Build: &wantBuildFork,
 			},
 		},
 		{
@@ -465,8 +471,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 			testData: "testdata/hooks/pull_request_fork_same-repo.json",
 			want: &internal.Webhook{
 				PullRequest: internal.PullRequest{
-					Number:     wantHook.GetNumber(),
-					IsFromFork: false,
+					Number: wantHook.GetNumber(),
 				},
 				Hook:  wantHook,
 				Repo:  wantRepo,
@@ -496,9 +501,8 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 			testData: "testdata/hooks/pull_request_labeled.json",
 			want: &internal.Webhook{
 				PullRequest: internal.PullRequest{
-					Number:     wantHook.GetNumber(),
-					IsFromFork: false,
-					Labels:     []string{"documentation"},
+					Number: wantHook.GetNumber(),
+					Labels: []string{"documentation"},
 				},
 				Hook:  wantHook,
 				Repo:  wantRepo,
@@ -510,9 +514,8 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 			testData: "testdata/hooks/pull_request_unlabeled.json",
 			want: &internal.Webhook{
 				PullRequest: internal.PullRequest{
-					Number:     wantHook.GetNumber(),
-					IsFromFork: false,
-					Labels:     []string{"documentation"},
+					Number: wantHook.GetNumber(),
+					Labels: []string{"documentation"},
 				},
 				Hook:  wantHook,
 				Repo:  wantRepo,
@@ -524,9 +527,8 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 			testData: "testdata/hooks/pull_request_edited_while_labeled.json",
 			want: &internal.Webhook{
 				PullRequest: internal.PullRequest{
-					Number:     wantHook.GetNumber(),
-					IsFromFork: false,
-					Labels:     []string{"documentation", "enhancement"},
+					Number: wantHook.GetNumber(),
+					Labels: []string{"documentation", "enhancement"},
 				},
 				Hook:  wantHook,
 				Repo:  wantRepo,

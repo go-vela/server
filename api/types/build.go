@@ -38,6 +38,7 @@ type Build struct {
 	Commit        *string             `json:"commit,omitempty"`
 	Sender        *string             `json:"sender,omitempty"`
 	SenderSCMID   *string             `json:"sender_scm_id,omitempty"`
+	Fork          *bool               `json:"fork,omitempty"`
 	Author        *string             `json:"author,omitempty"`
 	Email         *string             `json:"email,omitempty"`
 	Link          *string             `json:"link,omitempty"`
@@ -191,6 +192,7 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 		envs["VELA_PULL_REQUEST"] = number
 		envs["VELA_PULL_REQUEST_SOURCE"] = b.GetHeadRef()
 		envs["VELA_PULL_REQUEST_TARGET"] = b.GetBaseRef()
+		envs["VELA_PULL_REQUEST_FORK"] = ToString(b.GetFork())
 	}
 
 	// check if the Build event is tag
@@ -514,6 +516,19 @@ func (b *Build) GetSenderSCMID() string {
 	}
 
 	return *b.SenderSCMID
+}
+
+// GetFork returns the Fork field.
+//
+// When the provided Build type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (b *Build) GetFork() bool {
+	// return zero value if Build type or Fork field is nil
+	if b == nil || b.Fork == nil {
+		return false
+	}
+
+	return *b.Fork
 }
 
 // GetAuthor returns the Author field.
@@ -971,6 +986,19 @@ func (b *Build) SetSenderSCMID(v string) {
 	b.SenderSCMID = &v
 }
 
+// SetFork sets the Fork field.
+//
+// When the provided Build type is nil, it
+// will set nothing and immediately return.
+func (b *Build) SetFork(v bool) {
+	// return if Build type is nil
+	if b == nil {
+		return
+	}
+
+	b.Fork = &v
+}
+
 // SetAuthor sets the Author field.
 //
 // When the provided Build type is nil, it
@@ -1148,6 +1176,7 @@ func (b *Build) String() string {
   Event: %s,
   EventAction: %s,
   Finished: %d,
+  Fork: %t,
   HeadRef: %s,
   Host: %s,
   ID: %d,
@@ -1184,6 +1213,7 @@ func (b *Build) String() string {
 		b.GetEvent(),
 		b.GetEventAction(),
 		b.GetFinished(),
+		b.GetFork(),
 		b.GetHeadRef(),
 		b.GetHost(),
 		b.GetID(),
