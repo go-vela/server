@@ -48,6 +48,7 @@ func GetOpenIDConfig(c *gin.Context) {
 			"build_number",
 			"build_id",
 			"repo",
+			"pull_fork",
 			"token_type",
 			"actor",
 			"actor_scm_id",
