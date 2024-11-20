@@ -66,8 +66,8 @@ func TestBuild_Engine_CleanBuilds(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the name query
-	_mock.ExpectExec(`UPDATE "builds" SET "status"=$1,"error"=$2,"finished"=$3,"deploy_payload"=$4 WHERE created < $5 AND (status = 'running' OR status = 'pending')`).
-		WithArgs("error", "msg", NowTimestamp{}, AnyArgument{}, 3).
+	_mock.ExpectExec(`UPDATE "builds" SET "error"=$1,"finished"=$2,"status"=$3 WHERE created < $4 AND (status = 'running' OR status = 'pending')`).
+		WithArgs("msg", NowTimestamp{}, "error", 3).
 		WillReturnResult(sqlmock.NewResult(1, 2))
 
 	_sqlite := testSqlite(t)
