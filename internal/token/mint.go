@@ -27,6 +27,7 @@ type Claims struct {
 	IsActive    bool   `json:"is_active,omitempty"`
 	IsAdmin     bool   `json:"is_admin,omitempty"`
 	Repo        string `json:"repo,omitempty"`
+	PullFork    bool   `json:"pull_fork,omitempty"`
 	TokenType   string `json:"token_type,omitempty"`
 	Image       string `json:"image,omitempty"`
 	Request     string `json:"request,omitempty"`
@@ -103,6 +104,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 		}
 
 		claims.Repo = mto.Repo
+		claims.PullFork = mto.Build.GetFork()
 		claims.Subject = fmt.Sprintf("repo:%s:ref:%s:event:%s", mto.Repo, mto.Build.GetRef(), mto.Build.GetEvent())
 		claims.BuildID = mto.Build.GetID()
 		claims.BuildNumber = mto.Build.GetNumber()
@@ -162,6 +164,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.BuildID = mto.Build.GetID()
 	claims.Repo = mto.Repo
 	claims.Event = fmt.Sprintf("%s:%s", mto.Build.GetEvent(), mto.Build.GetEventAction())
+	claims.PullFork = mto.Build.GetFork()
 	claims.SHA = mto.Build.GetCommit()
 	claims.Ref = mto.Build.GetRef()
 	claims.Subject = fmt.Sprintf("repo:%s:ref:%s:event:%s", mto.Repo, mto.Build.GetRef(), mto.Build.GetEvent())

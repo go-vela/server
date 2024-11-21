@@ -8,21 +8,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/server/database/types"
 )
 
 // CleanBuilds updates builds to an error with a provided message with a created timestamp prior to a defined moment.
 func (e *engine) CleanBuilds(ctx context.Context, msg string, before int64) (int64, error) {
 	logrus.Tracef("cleaning pending or running builds created prior to %d", before)
-
-	b := new(api.Build)
-	b.SetStatus(constants.StatusError)
-	b.SetError(msg)
-	b.SetFinished(time.Now().UTC().Unix())
-
-	build := types.BuildFromAPI(b)
 
 	// send query to the database
 	result := e.client.
@@ -30,7 +21,11 @@ func (e *engine) CleanBuilds(ctx context.Context, msg string, before int64) (int
 		Table(constants.TableBuild).
 		Where("created < ?", before).
 		Where("status = 'running' OR status = 'pending'").
-		Updates(build)
+		Updates(map[string]interface{}{
+			"status":   constants.StatusError,
+			"error":    msg,
+			"finished": time.Now().UTC().Unix(),
+		})
 
 	return result.RowsAffected, result.Error
 }

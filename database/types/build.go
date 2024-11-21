@@ -55,6 +55,7 @@ type Build struct {
 	Commit        sql.NullString     `sql:"commit"`
 	Sender        sql.NullString     `sql:"sender"`
 	SenderSCMID   sql.NullString     `sql:"sender_scm_id"`
+	Fork          sql.NullBool       `sql:"fork"`
 	Author        sql.NullString     `sql:"author"`
 	Email         sql.NullString     `sql:"email"`
 	Link          sql.NullString     `sql:"link"`
@@ -315,6 +316,7 @@ func (b *Build) ToAPI() *api.Build {
 	build.SetCommit(b.Commit.String)
 	build.SetSender(b.Sender.String)
 	build.SetSenderSCMID(b.SenderSCMID.String)
+	build.SetFork(b.Fork.Bool)
 	build.SetAuthor(b.Author.String)
 	build.SetEmail(b.Email.String)
 	build.SetLink(b.Link.String)
@@ -401,6 +403,7 @@ func BuildFromAPI(b *api.Build) *Build {
 		Commit:        sql.NullString{String: b.GetCommit(), Valid: true},
 		Sender:        sql.NullString{String: b.GetSender(), Valid: true},
 		SenderSCMID:   sql.NullString{String: b.GetSenderSCMID(), Valid: true},
+		Fork:          sql.NullBool{Bool: b.GetFork(), Valid: true},
 		Author:        sql.NullString{String: b.GetAuthor(), Valid: true},
 		Email:         sql.NullString{String: b.GetEmail(), Valid: true},
 		Link:          sql.NullString{String: b.GetLink(), Valid: true},
