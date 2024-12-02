@@ -23,8 +23,9 @@ func TestNative_New(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 	public, _ := github.New(context.Background(), "", "")
 	want := &client{
-		Github:   public,
-		Compiler: settings.CompilerMockEmpty(),
+		Github:        public,
+		Compiler:      settings.CompilerMockEmpty(),
+		TemplateCache: make(map[string][]byte),
 	}
 	want.SetCloneImage(defaultCloneImage)
 
@@ -56,6 +57,7 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 		Github:           public,
 		PrivateGithub:    private,
 		UsePrivateGithub: true,
+		TemplateCache:    make(map[string][]byte),
 		Compiler:         settings.CompilerMockEmpty(),
 	}
 	want.SetCloneImage(defaultCloneImage)
@@ -88,6 +90,7 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 		Github:           public,
 		PrivateGithub:    private,
 		UsePrivateGithub: true,
+		TemplateCache:    make(map[string][]byte),
 		Compiler:         settings.CompilerMockEmpty(),
 	}
 	want.SetCloneImage(defaultCloneImage)
