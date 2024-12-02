@@ -79,6 +79,7 @@ func TestTypes_Build_Environment(t *testing.T) {
 	_pull.SetEvent("pull_request")
 	_pull.SetEventAction("opened")
 	_pull.SetRef("refs/pulls/1/head")
+	_pull.SetFork(false)
 
 	_tag := testBuild()
 	_tag.SetEvent("tag")
@@ -363,6 +364,7 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_PULL_REQUEST":         "1",
 				"VELA_PULL_REQUEST_SOURCE":  "changes",
 				"VELA_PULL_REQUEST_TARGET":  "",
+				"VELA_PULL_REQUEST_FORK":    "false",
 				"BUILD_AUTHOR":              "OctoKitty",
 				"BUILD_AUTHOR_EMAIL":        "OctoKitty@github.com",
 				"BUILD_BASE_REF":            "",
@@ -563,6 +565,14 @@ func TestTypes_Build_Getters(t *testing.T) {
 			t.Errorf("GetSender is %v, want %v", test.build.GetSender(), test.want.GetSender())
 		}
 
+		if test.build.GetSenderSCMID() != test.want.GetSenderSCMID() {
+			t.Errorf("GetSenderSCMID is %v, want %v", test.build.GetSenderSCMID(), test.want.GetSenderSCMID())
+		}
+
+		if test.build.GetFork() != test.want.GetFork() {
+			t.Errorf("GetFork is %v, want %v", test.build.GetFork(), test.want.GetFork())
+		}
+
 		if test.build.GetAuthor() != test.want.GetAuthor() {
 			t.Errorf("GetAuthor is %v, want %v", test.build.GetAuthor(), test.want.GetAuthor())
 		}
@@ -657,6 +667,7 @@ func TestTypes_Build_Setters(t *testing.T) {
 		test.build.SetCommit(test.want.GetCommit())
 		test.build.SetSender(test.want.GetSender())
 		test.build.SetSenderSCMID(test.want.GetSenderSCMID())
+		test.build.SetFork(test.want.GetFork())
 		test.build.SetAuthor(test.want.GetAuthor())
 		test.build.SetEmail(test.want.GetEmail())
 		test.build.SetLink(test.want.GetLink())
@@ -762,6 +773,10 @@ func TestTypes_Build_Setters(t *testing.T) {
 			t.Errorf("SetSenderSCMID is %v, want %v", test.build.GetSenderSCMID(), test.want.GetSenderSCMID())
 		}
 
+		if test.build.GetFork() != test.want.GetFork() {
+			t.Errorf("SetFork is %v, want %v", test.build.GetFork(), test.want.GetFork())
+		}
+
 		if test.build.GetAuthor() != test.want.GetAuthor() {
 			t.Errorf("SetAuthor is %v, want %v", test.build.GetAuthor(), test.want.GetAuthor())
 		}
@@ -835,6 +850,7 @@ func TestTypes_Build_String(t *testing.T) {
   Event: %s,
   EventAction: %s,
   Finished: %d,
+  Fork: %t,
   HeadRef: %s,
   Host: %s,
   ID: %d,
@@ -871,6 +887,7 @@ func TestTypes_Build_String(t *testing.T) {
 		b.GetEvent(),
 		b.GetEventAction(),
 		b.GetFinished(),
+		b.GetFork(),
 		b.GetHeadRef(),
 		b.GetHost(),
 		b.GetID(),
@@ -925,6 +942,7 @@ func testBuild() *Build {
 	b.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	b.SetSender("OctoKitty")
 	b.SetSenderSCMID("123")
+	b.SetFork(false)
 	b.SetAuthor("OctoKitty")
 	b.SetEmail("OctoKitty@github.com")
 	b.SetLink("https://example.company.com/github/octocat/1")
