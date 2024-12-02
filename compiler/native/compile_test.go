@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
 
@@ -2153,7 +2154,7 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	got, _, err := compiler.Compile(context.Background(), yaml)
+	got, gotPipeline, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -2162,19 +2163,35 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
 	}
 
-	// run test on current version (should fail)
+	if !reflect.DeepEqual(gotPipeline.GetWarnings(), []string{"using legacy version. Upgrade to go-yaml v3"}) {
+		t.Errorf("Compile() returned warnings %v, want %v", gotPipeline.GetWarnings(), "blah")
+	}
+
+	// run test on current version
 	yaml, err = os.ReadFile("../types/yaml/buildkite/testdata/merge_anchor.yml") // has `version: "1"` instead of `version: "legacy"`
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	got, _, err = compiler.Compile(context.Background(), yaml)
-	if err == nil {
-		t.Errorf("Compile should have returned err")
+	got, gotPipeline, err = compiler.Compile(context.Background(), yaml)
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
 	}
 
-	if got != nil {
-		t.Errorf("Compile is %v, want %v", got, nil)
+	// update version
+	want.Version = "1"
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
+	}
+
+	if !reflect.DeepEqual(gotPipeline.GetWarnings(), []string{
+		"25:duplicate << keys in single YAML map",
+		"32:duplicate << keys in single YAML map",
+		"44:duplicate << keys in single YAML map",
+		"43:duplicate << keys in single YAML map",
+	}) {
+		t.Errorf("Compile() returned warnings %v, want %v", gotPipeline.GetWarnings(), "blah")
 	}
 }
 

@@ -101,7 +101,7 @@ func GetTemplates(c *gin.Context) {
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
 	// parse the pipeline configuration
-	pipeline, _, err := compiler.Parse(p.GetData(), p.GetType(), new(yaml.Template))
+	pipeline, _, _, err := compiler.Parse(p.GetData(), p.GetType(), new(yaml.Template))
 	if err != nil {
 		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("unable to parse pipeline %s: %w", entry, err))
 

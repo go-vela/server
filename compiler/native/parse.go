@@ -40,10 +40,11 @@ func (c *client) ParseRaw(v interface{}) (string, error) {
 }
 
 // Parse converts an object to a yaml configuration.
-func (c *client) Parse(v interface{}, pipelineType string, template *types.Template) (*types.Build, []byte, error) {
+func (c *client) Parse(v interface{}, pipelineType string, template *types.Template) (*types.Build, []byte, []string, error) {
 	var (
-		p   *types.Build
-		raw []byte
+		p        *types.Build
+		warnings []string
+		raw      []byte
 	)
 
 	switch pipelineType {
@@ -51,29 +52,29 @@ func (c *client) Parse(v interface{}, pipelineType string, template *types.Templ
 		// expand the base configuration
 		parsedRaw, err := c.ParseRaw(v)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 
 		// capture the raw pipeline configuration
 		raw = []byte(parsedRaw)
 
-		p, err = native.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables)
+		p, warnings, err = native.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables)
 		if err != nil {
-			return nil, raw, err
+			return nil, raw, nil, err
 		}
 	case constants.PipelineTypeStarlark:
 		// expand the base configuration
 		parsedRaw, err := c.ParseRaw(v)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 
 		// capture the raw pipeline configuration
 		raw = []byte(parsedRaw)
 
-		p, err = starlark.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables, c.GetStarlarkExecLimit())
+		p, warnings, err = starlark.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables, c.GetStarlarkExecLimit())
 		if err != nil {
-			return nil, raw, err
+			return nil, raw, nil, err
 		}
 	case constants.PipelineTypeYAML, "":
 		switch v := v.(type) {
@@ -94,10 +95,10 @@ func (c *client) Parse(v interface{}, pipelineType string, template *types.Templ
 			// parse string as yaml configuration
 			return ParseString(v)
 		default:
-			return nil, nil, fmt.Errorf("unable to parse yaml: unrecognized type %T", v)
+			return nil, nil, nil, fmt.Errorf("unable to parse yaml: unrecognized type %T", v)
 		}
 	default:
-		return nil, nil, fmt.Errorf("unable to parse config: unrecognized pipeline_type of %s", c.repo.GetPipelineType())
+		return nil, nil, nil, fmt.Errorf("unable to parse config: unrecognized pipeline_type of %s", c.repo.GetPipelineType())
 	}
 
 	// initializing Environment to prevent nil error
@@ -107,14 +108,14 @@ func (c *client) Parse(v interface{}, pipelineType string, template *types.Templ
 		p.Environment = typesRaw.StringSliceMap{}
 	}
 
-	return p, raw, nil
+	return p, raw, warnings, nil
 }
 
 // ParseBytes converts a byte slice to a yaml configuration.
-func ParseBytes(data []byte) (*types.Build, []byte, error) {
-	config, err := internal.ParseYAML(data)
+func ParseBytes(data []byte) (*types.Build, []byte, []string, error) {
+	config, warnings, err := internal.ParseYAML(data)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	// initializing Environment to prevent nil error
@@ -124,11 +125,11 @@ func ParseBytes(data []byte) (*types.Build, []byte, error) {
 		config.Environment = typesRaw.StringSliceMap{}
 	}
 
-	return config, data, nil
+	return config, data, warnings, nil
 }
 
 // ParseFile converts an os.File into a yaml configuration.
-func ParseFile(f *os.File) (*types.Build, []byte, error) {
+func ParseFile(f *os.File) (*types.Build, []byte, []string, error) {
 	return ParseReader(f)
 }
 
@@ -138,11 +139,11 @@ func ParseFileRaw(f *os.File) (string, error) {
 }
 
 // ParsePath converts a file path into a yaml configuration.
-func ParsePath(p string) (*types.Build, []byte, error) {
+func ParsePath(p string) (*types.Build, []byte, []string, error) {
 	// open the file for reading
 	f, err := os.Open(p)
 	if err != nil {
-		return nil, nil, fmt.Errorf("unable to open yaml file %s: %w", p, err)
+		return nil, nil, nil, fmt.Errorf("unable to open yaml file %s: %w", p, err)
 	}
 
 	defer f.Close()
@@ -164,11 +165,11 @@ func ParsePathRaw(p string) (string, error) {
 }
 
 // ParseReader converts an io.Reader into a yaml configuration.
-func ParseReader(r io.Reader) (*types.Build, []byte, error) {
+func ParseReader(r io.Reader) (*types.Build, []byte, []string, error) {
 	// read all the bytes from the reader
 	data, err := io.ReadAll(r)
 	if err != nil {
-		return nil, nil, fmt.Errorf("unable to read bytes for yaml: %w", err)
+		return nil, nil, nil, fmt.Errorf("unable to read bytes for yaml: %w", err)
 	}
 
 	return ParseBytes(data)
@@ -186,6 +187,6 @@ func ParseReaderRaw(r io.Reader) (string, error) {
 }
 
 // ParseString converts a string into a yaml configuration.
-func ParseString(s string) (*types.Build, []byte, error) {
+func ParseString(s string) (*types.Build, []byte, []string, error) {
 	return ParseBytes([]byte(s))
 }

@@ -131,7 +131,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		// inject template name into variables
 		step.Template.Variables["VELA_TEMPLATE_NAME"] = step.Template.Name
 
-		tmplBuild, err := c.mergeTemplate(bytes, tmpl, step)
+		tmplBuild, _, err := c.mergeTemplate(bytes, tmpl, step)
 		if err != nil {
 			return s, err
 		}
@@ -345,7 +345,7 @@ func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 }
 
 //nolint:lll // ignore long line length due to input arguments
-func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, error) {
+func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, []string, error) {
 	switch tmpl.Format {
 	case constants.PipelineTypeGo, "golang", "":
 		//nolint:lll // ignore long line length due to return
@@ -355,7 +355,7 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.GetStarlarkExecLimit())
 	default:
 		//nolint:lll // ignore long line length due to return
-		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)
+		return &yaml.Build{}, nil, fmt.Errorf("format of %s is unsupported", tmpl.Format)
 	}
 }
 
