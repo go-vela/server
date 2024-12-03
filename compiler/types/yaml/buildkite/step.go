@@ -167,6 +167,7 @@ func (s *Step) ToYAML() *yaml.Step {
 		Template:    s.Template.ToYAML(),
 		Ulimits:     *s.Ulimits.ToYAML(),
 		Volumes:     *s.Volumes.ToYAML(),
+		Parameters:  s.Parameters,
 		User:        s.User,
 		ReportAs:    s.ReportAs,
 		IDRequest:   s.IDRequest,

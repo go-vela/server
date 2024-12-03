@@ -7,12 +7,14 @@ import (
 	"io"
 	"os"
 
+	bkYaml "github.com/buildkite/yaml"
+
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	typesRaw "github.com/go-vela/server/compiler/types/raw"
-	types "github.com/go-vela/server/compiler/types/yaml/yaml"
+	bkYamlTypes "github.com/go-vela/server/compiler/types/yaml/buildkite"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/server/internal"
 )
 
 // ParseRaw converts an object to a string.
@@ -40,9 +42,9 @@ func (c *client) ParseRaw(v interface{}) (string, error) {
 }
 
 // Parse converts an object to a yaml configuration.
-func (c *client) Parse(v interface{}, pipelineType string, template *types.Template) (*types.Build, []byte, error) {
+func (c *client) Parse(v interface{}, pipelineType string, template *yaml.Template) (*yaml.Build, []byte, error) {
 	var (
-		p   *types.Build
+		p   *yaml.Build
 		raw []byte
 	)
 
@@ -111,10 +113,13 @@ func (c *client) Parse(v interface{}, pipelineType string, template *types.Templ
 }
 
 // ParseBytes converts a byte slice to a yaml configuration.
-func ParseBytes(data []byte) (*types.Build, []byte, error) {
-	config, err := internal.ParseYAML(data)
+func ParseBytes(data []byte) (*yaml.Build, []byte, error) {
+	config := new(bkYamlTypes.Build)
+
+	// unmarshal the bytes into the yaml configuration
+	err := bkYaml.Unmarshal(data, config)
 	if err != nil {
-		return nil, nil, err
+		return nil, data, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
 	// initializing Environment to prevent nil error
@@ -124,11 +129,11 @@ func ParseBytes(data []byte) (*types.Build, []byte, error) {
 		config.Environment = typesRaw.StringSliceMap{}
 	}
 
-	return config, data, nil
+	return config.ToYAML(), data, nil
 }
 
 // ParseFile converts an os.File into a yaml configuration.
-func ParseFile(f *os.File) (*types.Build, []byte, error) {
+func ParseFile(f *os.File) (*yaml.Build, []byte, error) {
 	return ParseReader(f)
 }
 
@@ -138,7 +143,7 @@ func ParseFileRaw(f *os.File) (string, error) {
 }
 
 // ParsePath converts a file path into a yaml configuration.
-func ParsePath(p string) (*types.Build, []byte, error) {
+func ParsePath(p string) (*yaml.Build, []byte, error) {
 	// open the file for reading
 	f, err := os.Open(p)
 	if err != nil {
@@ -164,7 +169,7 @@ func ParsePathRaw(p string) (string, error) {
 }
 
 // ParseReader converts an io.Reader into a yaml configuration.
-func ParseReader(r io.Reader) (*types.Build, []byte, error) {
+func ParseReader(r io.Reader) (*yaml.Build, []byte, error) {
 	// read all the bytes from the reader
 	data, err := io.ReadAll(r)
 	if err != nil {
@@ -186,6 +191,6 @@ func ParseReaderRaw(r io.Reader) (string, error) {
 }
 
 // ParseString converts a string into a yaml configuration.
-func ParseString(s string) (*types.Build, []byte, error) {
+func ParseString(s string) (*yaml.Build, []byte, error) {
 	return ParseBytes([]byte(s))
 }
