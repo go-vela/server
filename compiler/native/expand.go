@@ -220,6 +220,43 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 	return s, nil
 }
 
+// ExpandDeployment injects the template for a
+// templated deployment config in a yaml configuration.
+func (c *client) ExpandDeployment(ctx context.Context, b *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+	if len(tmpls) == 0 {
+		return b, nil
+	}
+
+	if len(b.Deployment.Template.Name) == 0 {
+		return b, nil
+	}
+
+	// lookup step template name
+	tmpl, ok := tmpls[b.Deployment.Template.Name]
+	if !ok {
+		return b, fmt.Errorf("missing template source for template %s in pipeline for deployment config", b.Deployment.Template.Name)
+	}
+
+	bytes, err := c.getTemplate(ctx, tmpl, b.Deployment.Template.Name)
+	if err != nil {
+		return b, err
+	}
+
+	// initialize variable map if not parsed from config
+	if len(b.Deployment.Template.Variables) == 0 {
+		b.Deployment.Template.Variables = make(map[string]interface{})
+	}
+
+	tmplBuild, err := c.mergeDeployTemplate(bytes, tmpl, &b.Deployment)
+	if err != nil {
+		return b, err
+	}
+
+	b.Deployment = tmplBuild.Deployment
+
+	return b, nil
+}
+
 func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name string) ([]byte, error) {
 	var (
 		bytes []byte
@@ -362,6 +399,20 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 	case constants.PipelineTypeStarlark:
 		//nolint:lll // ignore long line length due to return
 		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.GetStarlarkExecLimit())
+	default:
+		//nolint:lll // ignore long line length due to return
+		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)
+	}
+}
+
+func (c *client) mergeDeployTemplate(bytes []byte, tmpl *yaml.Template, d *yaml.Deployment) (*yaml.Build, error) {
+	switch tmpl.Format {
+	case constants.PipelineTypeGo, "golang", "":
+		//nolint:lll // ignore long line length due to return
+		return native.Render(string(bytes), "", d.Template.Name, make(raw.StringSliceMap), d.Template.Variables)
+	case constants.PipelineTypeStarlark:
+		//nolint:lll // ignore long line length due to return
+		return starlark.Render(string(bytes), "", d.Template.Name, make(raw.StringSliceMap), d.Template.Variables, c.GetStarlarkExecLimit())
 	default:
 		//nolint:lll // ignore long line length due to return
 		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)

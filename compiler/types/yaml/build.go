@@ -18,6 +18,7 @@ type Build struct {
 	Stages      StageSlice         `yaml:"stages,omitempty"      json:"stages,omitempty"      jsonschema:"oneof_required=stages,description=Provide parallel execution instructions.\nReference: https://go-vela.github.io/docs/reference/yaml/stages/"`
 	Steps       StepSlice          `yaml:"steps,omitempty"       json:"steps,omitempty"       jsonschema:"oneof_required=steps,description=Provide sequential execution instructions.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/"`
 	Templates   TemplateSlice      `yaml:"templates,omitempty"   json:"templates,omitempty"   jsonschema:"description=Provide the name of templates to expand.\nReference: https://go-vela.github.io/docs/reference/yaml/templates/"`
+	Deployment  Deployment         `yaml:"deployment,omitempty"  json:"deployment,omitempty"  jsonschema:"description=Provide deployment configuration.\nReference: https://go-vela.github.io/docs/reference/yaml/deployments/"`
 }
 
 // ToPipelineAPI converts the Build type to an API Pipeline type.
@@ -73,6 +74,7 @@ func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Stages      StageSlice
 		Steps       StepSlice
 		Templates   TemplateSlice
+		Deployment  Deployment
 	})
 
 	// attempt to unmarshal as a build type
@@ -96,6 +98,7 @@ func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	b.Stages = build.Stages
 	b.Steps = build.Steps
 	b.Templates = build.Templates
+	b.Deployment = build.Deployment
 
 	return nil
 }

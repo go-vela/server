@@ -622,6 +622,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantDeployment.SetTask("deploy")
 	wantDeployment.SetTarget("production")
 	wantDeployment.SetDescription("")
+	wantDeployment.SetPayload(raw.StringSliceMap{"foo": "test1", "bar": "test2"})
 	wantDeployment.SetCreatedAt(time.Now().UTC().Unix())
 	wantDeployment.SetCreatedBy("Codertocat")
 

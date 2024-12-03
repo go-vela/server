@@ -378,13 +378,14 @@ func PostWebhook(c *gin.Context) {
 
 	// construct CompileAndPublishConfig
 	config := build.CompileAndPublishConfig{
-		Build:    b,
-		Metadata: m,
-		BaseErr:  baseErr,
-		Source:   "webhook",
-		Comment:  prComment,
-		Labels:   prLabels,
-		Retries:  3,
+		Build:      b,
+		Deployment: webhook.Deployment,
+		Metadata:   m,
+		BaseErr:    baseErr,
+		Source:     "webhook",
+		Comment:    prComment,
+		Labels:     prLabels,
+		Retries:    3,
 	}
 
 	// generate the queue item

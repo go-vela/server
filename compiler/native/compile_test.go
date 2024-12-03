@@ -637,7 +637,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 		t.Errorf("Compile returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(got, want); diff != "" {
+	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("Compile mismatch (-want +got):\n%s", diff)
 	}
 }
