@@ -1059,6 +1059,237 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 	}
 }
 
+func TestNative_ExpandStepsDuplicateCalls(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	testCallsMap := make(map[string]bool)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		testCallKey := c.Param("path")
+
+		if refQuery, exists := c.GetQuery("ref"); exists {
+			testCallKey += refQuery
+		}
+
+		// this is the real test
+		if testCallsMap[testCallKey] {
+			t.Errorf("ExpandSteps() called the same template %s twice", c.Param("path"))
+		}
+
+		testCallsMap[c.Param("path")] = true
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	testRepo := new(api.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "GitHub",
+			tmpls: map[string]*yaml.Template{
+				"gradle": {
+					Name:   "gradle",
+					Source: "github.example.com/foo/bar/long_template.yml",
+					Type:   "github",
+				},
+			},
+		},
+	}
+
+	steps := yaml.StepSlice{
+		&yaml.Step{
+			Name: "sample",
+			Template: yaml.StepTemplate{
+				Name: "gradle",
+				Variables: map[string]interface{}{
+					"image":       "openjdk:latest",
+					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
+					"pull_policy": "pull: true",
+				},
+			},
+		},
+		&yaml.Step{
+			Name: "sample-dup",
+			Template: yaml.StepTemplate{
+				Name: "gradle",
+				Variables: map[string]interface{}{
+					"image":       "openjdk:latest",
+					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
+					"pull_policy": "pull: true",
+				},
+			},
+		},
+	}
+
+	globalEnvironment := raw.StringSliceMap{
+		"foo": "test1",
+		"bar": "test2",
+	}
+
+	wantSteps := yaml.StepSlice{
+		&yaml.Step{
+			Commands: []string{"./gradlew downloadDependencies"},
+			Environment: raw.StringSliceMap{
+				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+				"GRADLE_USER_HOME": ".gradle",
+			},
+			Image: "openjdk:latest",
+			Name:  "sample_install",
+			Pull:  "always",
+		},
+		&yaml.Step{
+			Commands: []string{"./gradlew check"},
+			Environment: raw.StringSliceMap{
+				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+				"GRADLE_USER_HOME": ".gradle",
+			},
+			Image: "openjdk:latest",
+			Name:  "sample_test",
+			Pull:  "always",
+		},
+		&yaml.Step{
+			Commands: []string{"./gradlew build", "echo gradle"},
+			Environment: raw.StringSliceMap{
+				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+				"GRADLE_USER_HOME": ".gradle",
+			},
+			Image: "openjdk:latest",
+			Name:  "sample_build",
+			Pull:  "always",
+		},
+		&yaml.Step{
+			Commands: []string{"./gradlew downloadDependencies"},
+			Environment: raw.StringSliceMap{
+				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+				"GRADLE_USER_HOME": ".gradle",
+			},
+			Image: "openjdk:latest",
+			Name:  "sample-dup_install",
+			Pull:  "always",
+		},
+		&yaml.Step{
+			Commands: []string{"./gradlew check"},
+			Environment: raw.StringSliceMap{
+				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+				"GRADLE_USER_HOME": ".gradle",
+			},
+			Image: "openjdk:latest",
+			Name:  "sample-dup_test",
+			Pull:  "always",
+		},
+		&yaml.Step{
+			Commands: []string{"./gradlew build", "echo gradle"},
+			Environment: raw.StringSliceMap{
+				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+				"GRADLE_USER_HOME": ".gradle",
+			},
+			Image: "openjdk:latest",
+			Name:  "sample-dup_build",
+			Pull:  "always",
+		},
+	}
+
+	wantSecrets := yaml.SecretSlice{
+		&yaml.Secret{
+			Name:   "docker_username",
+			Key:    "org/repo/foo/bar",
+			Engine: "native",
+			Type:   "repo",
+			Origin: yaml.Origin{},
+			Pull:   "build_start",
+		},
+		&yaml.Secret{
+			Name:   "foo_password",
+			Key:    "org/repo/foo/password",
+			Engine: "vault",
+			Type:   "repo",
+			Origin: yaml.Origin{},
+			Pull:   "build_start",
+		},
+	}
+
+	wantServices := yaml.ServiceSlice{
+		&yaml.Service{
+			Image: "postgres:12",
+			Name:  "postgres",
+			Pull:  "not_present",
+		},
+	}
+
+	wantEnvironment := raw.StringSliceMap{
+		"foo":  "test1",
+		"bar":  "test2",
+		"star": "test3",
+	}
+
+	// run test
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Creating new compiler returned err: %v", err)
+	}
+
+	compiler.WithCommit("123abc456def").WithRepo(testRepo)
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			build, err := compiler.ExpandSteps(
+				context.Background(),
+				&yaml.Build{
+					Steps:       steps,
+					Services:    yaml.ServiceSlice{},
+					Environment: globalEnvironment,
+				},
+				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+			if err != nil {
+				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
+			}
+
+			if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+
+			if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+
+			if diff := cmp.Diff(build.Services, wantServices); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+
+			if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+		})
+	}
+}
+
 func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)

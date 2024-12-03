@@ -226,9 +226,17 @@ func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 	}
 
 	for _, template := range p.Templates {
-		bytes, err := c.getTemplate(ctx, template, template.Name)
-		if err != nil {
-			return nil, err
+		var (
+			bytes []byte
+			found bool
+			err   error
+		)
+
+		if bytes, found = c.TemplateCache[template.Source]; !found {
+			bytes, err = c.getTemplate(ctx, template, template.Name)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		format := template.Format

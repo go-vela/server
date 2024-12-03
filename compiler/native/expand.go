@@ -118,9 +118,16 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 			return s, err
 		}
 
-		bytes, err := c.getTemplate(ctx, tmpl, step.Template.Name)
-		if err != nil {
-			return s, err
+		var (
+			bytes []byte
+			found bool
+		)
+
+		if bytes, found = c.TemplateCache[tmpl.Source]; !found {
+			bytes, err = c.getTemplate(ctx, tmpl, step.Template.Name)
+			if err != nil {
+				return s, err
+			}
 		}
 
 		// initialize variable map if not parsed from config
@@ -377,6 +384,8 @@ func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 	default:
 		return bytes, fmt.Errorf("unsupported template type: %v", tmpl.Type)
 	}
+
+	c.TemplateCache[tmpl.Source] = bytes
 
 	return bytes, nil
 }
