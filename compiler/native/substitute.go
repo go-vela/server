@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/buildkite/yaml"
 	"github.com/drone/envsubst"
+	"gopkg.in/yaml.v3"
 
-	types "github.com/go-vela/server/compiler/types/yaml"
+	types "github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 // SubstituteStages replaces every declared environment

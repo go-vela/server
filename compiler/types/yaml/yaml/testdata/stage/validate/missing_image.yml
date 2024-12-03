@@ -1,0 +1,6 @@
+stages:
+  hello:
+    steps:
+      - name: hello
+        commands:
+          - echo "hello vela"  

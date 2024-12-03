@@ -6,11 +6,11 @@ import (
 	"os"
 	"testing"
 
-	goyaml "github.com/buildkite/yaml"
 	"github.com/google/go-cmp/cmp"
+	goyaml "gopkg.in/yaml.v3"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 func TestNative_Render(t *testing.T) {
