@@ -31,6 +31,7 @@ type client struct {
 	PrivateGithub       registry.Service
 	UsePrivateGithub    bool
 	ModificationService ModificationConfig
+	TemplateCache       map[string][]byte
 
 	settings.Compiler
 
@@ -102,6 +103,8 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 		c.UsePrivateGithub = true
 	}
 
+	c.TemplateCache = make(map[string][]byte)
+
 	return c, nil
 }
 
@@ -131,6 +134,7 @@ func (c *client) Duplicate() compiler.Engine {
 	cc.CloneImage = c.CloneImage
 	cc.TemplateDepth = c.TemplateDepth
 	cc.StarlarkExecLimit = c.StarlarkExecLimit
+	cc.TemplateCache = c.TemplateCache
 
 	return cc
 }
