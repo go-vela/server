@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/buildkite/yaml"
-
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 	"go.starlark.net/syntax"
