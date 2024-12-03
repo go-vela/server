@@ -285,6 +285,7 @@ func TestDatabase_Pipeline_ToAPI(t *testing.T) {
 	want.SetStages(false)
 	want.SetSteps(true)
 	want.SetTemplates(false)
+	want.SetWarnings([]string{"42:this is a warning"})
 	want.SetData(testPipelineData())
 
 	// run test
@@ -393,6 +394,7 @@ func TestDatabase_PipelineFromAPI(t *testing.T) {
 		Stages:          sql.NullBool{Bool: false, Valid: true},
 		Steps:           sql.NullBool{Bool: true, Valid: true},
 		Templates:       sql.NullBool{Bool: false, Valid: true},
+		Warnings:        []string{"42:this is a warning"},
 		Data:            testPipelineData(),
 	}
 
@@ -412,6 +414,7 @@ func TestDatabase_PipelineFromAPI(t *testing.T) {
 	p.SetStages(false)
 	p.SetSteps(true)
 	p.SetTemplates(false)
+	p.SetWarnings([]string{"42:this is a warning"})
 	p.SetData(testPipelineData())
 
 	// run test
@@ -440,6 +443,7 @@ func testPipeline() *Pipeline {
 		Stages:          sql.NullBool{Bool: false, Valid: true},
 		Steps:           sql.NullBool{Bool: true, Valid: true},
 		Templates:       sql.NullBool{Bool: false, Valid: true},
+		Warnings:        []string{"42:this is a warning"},
 		Data:            testPipelineData(),
 
 		Repo: *testRepo(),

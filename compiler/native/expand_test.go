@@ -17,7 +17,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 func TestNative_ExpandStages(t *testing.T) {
@@ -589,7 +589,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
+						map[string]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
@@ -610,7 +610,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
+						map[string]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},

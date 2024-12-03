@@ -1,0 +1,47 @@
+---
+version: 1
+steps:
+  - name: install
+    commands:
+      - ./gradlew downloadDependencies
+    environment:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+      GRADLE_USER_HOME: .gradle
+    image: openjdk:latest
+    pull: true
+
+  - name: test
+    commands:
+      - ./gradlew check
+    environment:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+      GRADLE_USER_HOME: .gradle
+    image: openjdk:latest
+    pull: true
+
+  - name: build
+    commands:
+      - ./gradlew build
+    environment:
+      - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+      - GRADLE_USER_HOME=.gradle
+    image: openjdk:latest
+    pull: true
+
+  - name: docker_build
+    image: plugins/docker:18.09
+    parameters:
+      registry: index.docker.io
+      repo: github/octocat
+      tags:
+        - latest
+        - dev
+    pull: true
+
+  - name: templated_publish
+    template:
+      name: docker_publish
+      vars:
+        registry: index.docker.io
+        repo: github/octocat
+        tags: [ latest, dev ]

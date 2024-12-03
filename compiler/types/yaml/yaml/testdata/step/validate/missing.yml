@@ -1,0 +1,3 @@
+steps:
+  - name: hello
+    image: alpine:latest

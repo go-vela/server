@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
@@ -101,7 +101,7 @@ func GetTemplates(c *gin.Context) {
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
 	// parse the pipeline configuration
-	pipeline, _, err := compiler.Parse(p.GetData(), p.GetType(), new(yaml.Template))
+	pipeline, _, _, err := compiler.Parse(p.GetData(), p.GetType(), new(yaml.Template))
 	if err != nil {
 		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("unable to parse pipeline %s: %w", entry, err))
 

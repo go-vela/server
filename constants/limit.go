@@ -45,4 +45,7 @@ const (
 
 	// DashboardAdminMaxSize defines the maximum size in characters for dashboard admins.
 	DashboardAdminMaxSize = 5000
+
+	// PipelineWarningsMaxSize defines the maximum size in characters for the pipeline warnings.
+	PipelineWarningsMaxSize = 5000
 )

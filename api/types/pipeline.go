@@ -10,20 +10,21 @@ import (
 //
 // swagger:model Pipeline
 type Pipeline struct {
-	ID              *int64  `json:"id,omitempty"`
-	Repo            *Repo   `json:"repo,omitempty"`
-	Commit          *string `json:"commit,omitempty"`
-	Flavor          *string `json:"flavor,omitempty"`
-	Platform        *string `json:"platform,omitempty"`
-	Ref             *string `json:"ref,omitempty"`
-	Type            *string `json:"type,omitempty"`
-	Version         *string `json:"version,omitempty"`
-	ExternalSecrets *bool   `json:"external_secrets,omitempty"`
-	InternalSecrets *bool   `json:"internal_secrets,omitempty"`
-	Services        *bool   `json:"services,omitempty"`
-	Stages          *bool   `json:"stages,omitempty"`
-	Steps           *bool   `json:"steps,omitempty"`
-	Templates       *bool   `json:"templates,omitempty"`
+	ID              *int64    `json:"id,omitempty"`
+	Repo            *Repo     `json:"repo,omitempty"`
+	Commit          *string   `json:"commit,omitempty"`
+	Flavor          *string   `json:"flavor,omitempty"`
+	Platform        *string   `json:"platform,omitempty"`
+	Ref             *string   `json:"ref,omitempty"`
+	Type            *string   `json:"type,omitempty"`
+	Version         *string   `json:"version,omitempty"`
+	ExternalSecrets *bool     `json:"external_secrets,omitempty"`
+	InternalSecrets *bool     `json:"internal_secrets,omitempty"`
+	Services        *bool     `json:"services,omitempty"`
+	Stages          *bool     `json:"stages,omitempty"`
+	Steps           *bool     `json:"steps,omitempty"`
+	Templates       *bool     `json:"templates,omitempty"`
+	Warnings        *[]string `json:"warnings,omitempty"`
 	// swagger:strfmt base64
 	Data *[]byte `json:"data,omitempty"`
 }
@@ -208,6 +209,19 @@ func (p *Pipeline) GetTemplates() bool {
 	}
 
 	return *p.Templates
+}
+
+// GetWarnings returns the Warnings field.
+//
+// When the provided Pipeline type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (p *Pipeline) GetWarnings() []string {
+	// return zero value if Pipeline type or Warnings field is nil
+	if p == nil || p.Warnings == nil {
+		return []string{}
+	}
+
+	return *p.Warnings
 }
 
 // GetData returns the Data field.
@@ -405,6 +419,19 @@ func (p *Pipeline) SetTemplates(v bool) {
 	p.Templates = &v
 }
 
+// SetWarnings sets the Warnings field.
+//
+// When the provided Pipeline type is nil, it
+// will set nothing and immediately return.
+func (p *Pipeline) SetWarnings(v []string) {
+	// return if Pipeline type is nil
+	if p == nil {
+		return
+	}
+
+	p.Warnings = &v
+}
+
 // SetData sets the Data field.
 //
 // When the provided Pipeline type is nil, it
@@ -436,6 +463,7 @@ func (p *Pipeline) String() string {
   Templates: %t,
   Type: %s,
   Version: %s,
+  Warnings: %v,
 }`,
 		p.GetCommit(),
 		p.GetData(),
@@ -452,5 +480,6 @@ func (p *Pipeline) String() string {
 		p.GetTemplates(),
 		p.GetType(),
 		p.GetVersion(),
+		p.GetWarnings(),
 	)
 }

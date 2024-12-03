@@ -1,0 +1,14 @@
+---
+- name: postgres
+  image: postgres:latest
+  environment:
+    POSTGRES_DB: foo
+  ports:
+    - "5432:5432"
+
+- name: mysql
+  image: mysql:latest
+  environment:
+    MYSQL_DATABASE: foo
+  ports:
+    - "3061:3061"          

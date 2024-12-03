@@ -9,7 +9,7 @@ import (
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/internal"
 )
 
@@ -34,7 +34,7 @@ type Engine interface {
 
 	// Parse defines a function that converts
 	// an object to a yaml configuration.
-	Parse(interface{}, string, *yaml.Template) (*yaml.Build, []byte, error)
+	Parse(interface{}, string, *yaml.Template) (*yaml.Build, []byte, []string, error)
 
 	// ParseRaw defines a function that converts
 	// an object to a string.

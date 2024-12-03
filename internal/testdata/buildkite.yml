@@ -1,0 +1,18 @@
+version: "legacy"
+
+aliases:
+  images:
+    alpine: &alpine-image
+      image: alpine:latest
+
+  env:
+    dev-env: &dev-environment
+      environment:
+        REGION: dev 
+
+steps:
+  - name: example
+    <<: *alpine-image
+    <<: *dev-environment
+    commands:
+      - echo $REGION

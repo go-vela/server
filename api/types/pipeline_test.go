@@ -82,6 +82,10 @@ func TestAPI_Pipeline_Getters(t *testing.T) {
 			t.Errorf("GetTemplates is %v, want %v", test.pipeline.GetTemplates(), test.want.GetTemplates())
 		}
 
+		if !reflect.DeepEqual(test.pipeline.GetWarnings(), test.want.GetWarnings()) {
+			t.Errorf("GetWarnings is %v, want %v", test.pipeline.GetWarnings(), test.want.GetWarnings())
+		}
+
 		if !reflect.DeepEqual(test.pipeline.GetData(), test.want.GetData()) {
 			t.Errorf("GetData is %v, want %v", test.pipeline.GetData(), test.want.GetData())
 		}
@@ -123,6 +127,7 @@ func TestAPI_Pipeline_Setters(t *testing.T) {
 		test.pipeline.SetStages(test.want.GetStages())
 		test.pipeline.SetSteps(test.want.GetSteps())
 		test.pipeline.SetTemplates(test.want.GetTemplates())
+		test.pipeline.SetWarnings(test.want.GetWarnings())
 		test.pipeline.SetData(test.want.GetData())
 
 		if test.pipeline.GetID() != test.want.GetID() {
@@ -181,6 +186,10 @@ func TestAPI_Pipeline_Setters(t *testing.T) {
 			t.Errorf("SetTemplates is %v, want %v", test.pipeline.GetTemplates(), test.want.GetTemplates())
 		}
 
+		if !reflect.DeepEqual(test.pipeline.GetWarnings(), test.want.GetWarnings()) {
+			t.Errorf("SetWarnings is %v, want %v", test.pipeline.GetWarnings(), test.want.GetWarnings())
+		}
+
 		if !reflect.DeepEqual(test.pipeline.GetData(), test.want.GetData()) {
 			t.Errorf("SetData is %v, want %v", test.pipeline.GetData(), test.want.GetData())
 		}
@@ -207,6 +216,7 @@ func TestAPI_Pipeline_String(t *testing.T) {
   Templates: %t,
   Type: %s,
   Version: %s,
+  Warnings: %v,
 }`,
 		p.GetCommit(),
 		p.GetData(),
@@ -223,6 +233,7 @@ func TestAPI_Pipeline_String(t *testing.T) {
 		p.GetTemplates(),
 		p.GetType(),
 		p.GetVersion(),
+		p.GetWarnings(),
 	)
 
 	// run test
@@ -252,6 +263,7 @@ func testPipeline() *Pipeline {
 	p.SetStages(false)
 	p.SetSteps(true)
 	p.SetTemplates(false)
+	p.SetWarnings([]string{"42:this is a warning"})
 	p.SetData(testPipelineData())
 
 	return p
