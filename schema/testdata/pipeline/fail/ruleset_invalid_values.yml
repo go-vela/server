@@ -1,0 +1,9 @@
+version: "1"
+
+steps:
+  - name: build
+    image: node
+    ruleset:
+      if:
+        event: invalid_event
+        operator: invalid

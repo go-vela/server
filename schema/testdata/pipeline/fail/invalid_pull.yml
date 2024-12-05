@@ -1,0 +1,8 @@
+version: "1"
+
+steps:
+  - name: build
+    pull: sometimes
+    image: alpine
+    commands:
+      - echo "Hello World"

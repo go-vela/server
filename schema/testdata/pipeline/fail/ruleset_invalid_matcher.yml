@@ -1,0 +1,8 @@
+version: "1"
+
+steps:
+  - name: test
+    image: python
+    ruleset:
+      matcher: invalid_matcher
+      branch: [main]

@@ -1,0 +1,11 @@
+version: "1"
+
+metadata:
+  auto_cancel:
+    invalid_key: true
+
+steps:
+  - name: test
+    image: alpine
+    commands:
+      - echo "Hello World"

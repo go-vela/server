@@ -1,14 +1,14 @@
 # name of the action
-name: test
+name: jsonschema
 
-# trigger on pull_request or push events
+# trigger on release events
 on:
-  pull_request:
-  push:
+  release:
+    types: [created]
 
 # pipeline to execute
 jobs:
-  test:
+  schema:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,18 +23,13 @@ jobs:
           cache: true
           check-latest: true
 
-      - name: test
+      - name: build
         run: |
-          make test
+          make jsonschema
 
-      - name: test jsonschema
-        run: |
-          go install github.com/santhosh-tekuri/jsonschema/cmd/jv@v0.7.0
-          make test-jsonschema
-
-      - name: coverage
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+      - name: upload
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: coverage.out
-
+          args: "schema.json"

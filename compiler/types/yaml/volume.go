@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/invopop/jsonschema"
+
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 )
@@ -118,4 +120,33 @@ func (v *VolumeSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	*v = VolumeSlice(*volumes)
 
 	return nil
+}
+
+// JSONSchemaExtend handles some overrides that need to be in place
+// for this type for the jsonschema generation.
+//
+// Without these changes it would only allow an object per the struct,
+// but we do some special handling to allow specially formatted strings.
+func (Volume) JSONSchemaExtend(schema *jsonschema.Schema) {
+	oldAddProps := schema.AdditionalProperties
+	oldProps := schema.Properties
+	oldReq := schema.Required
+
+	schema.AdditionalProperties = nil
+	schema.OneOf = []*jsonschema.Schema{
+		{
+			Type:                 "string",
+			Pattern:              "[a-z\\/]+:[a-z\\/]+:[row]+",
+			AdditionalProperties: oldAddProps,
+		},
+		{
+			Type:                 "object",
+			Properties:           oldProps,
+			Required:             oldReq,
+			AdditionalProperties: oldAddProps,
+		},
+	}
+	schema.Properties = nil
+	schema.Required = nil
+	schema.Type = ""
 }

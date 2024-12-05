@@ -1,0 +1,7 @@
+version: "1"
+
+steps:
+  - name: deploy
+    image: alpine
+    template:
+      name: deploy-template

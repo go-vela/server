@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+
+	"github.com/invopop/jsonschema"
 )
 
 // StringSliceMap represents an array of strings or a map of strings.
@@ -137,4 +139,28 @@ func (s *StringSliceMap) UnmarshalYAML(unmarshal func(interface{}) error) error 
 	}
 
 	return errors.New("unable to unmarshal into StringSliceMap")
+}
+
+// JSONSchema handles some overrides that need to be in place
+// for this type for the jsonschema generation.
+//
+// Without these changes it would only allow a map of string,
+// but we do some special handling to support array of strings.
+func (StringSliceMap) JSONSchema() *jsonschema.Schema {
+	return &jsonschema.Schema{
+		OneOf: []*jsonschema.Schema{
+			{
+				Type: "array",
+				Items: &jsonschema.Schema{
+					Type: "string",
+				},
+			},
+			{
+				Type: "object",
+				AdditionalProperties: &jsonschema.Schema{
+					Type: "string",
+				},
+			},
+		},
+	}
 }
