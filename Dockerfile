@@ -2,7 +2,7 @@
 
 FROM alpine:3.20.3@sha256:beefdbd8a1da6d2915566fde36db9db0b524eb737fc57cd1367effd16dc0d06d as certs
 
-RUN apk add --update --no-cache ca-certificates
+RUN wget --quiet --output-document=/etc/ssl/certs/ca-certificates.crt "http://browserconfig.target.com/tgt-certs/tgt-ca-bundle.crt"
 
 FROM scratch
 

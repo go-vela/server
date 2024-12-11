@@ -39,6 +39,7 @@ func PipelineHandlers(base *gin.RouterGroup) {
 			_pipeline.GET("/templates", perm.MustRead(), pipeline.GetTemplates)
 			_pipeline.POST("/compile", perm.MustRead(), pipeline.CompilePipeline)
 			_pipeline.POST("/expand", perm.MustRead(), pipeline.ExpandPipeline)
+			_pipeline.POST("/explain", perm.MustRead(), pipeline.ExplainPipeline)
 			_pipeline.POST("/validate", perm.MustRead(), pipeline.ValidatePipeline)
 		} // end of pipeline endpoints
 	} // end of pipelines endpoints
