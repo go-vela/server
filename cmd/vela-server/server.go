@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-vela/server/ex-storage"
 	"net/http"
 	"net/url"
 	"os"
@@ -91,6 +92,11 @@ func server(c *cli.Context) error {
 				logrus.Errorf("unable to shutdown tracer provider: %v", err)
 			}
 		}()
+	}
+
+	st, err := ex_storage.FromCLIContext(c)
+	if err != nil {
+		return err
 	}
 
 	database, err := database.FromCLIContext(c, tc)

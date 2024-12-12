@@ -179,5 +179,15 @@ services:
       - '16686:16686'
       - '4318:4318'
 
+  objectstorage:
+    image: bitnami/minio:2020.12.29-debian-10-r17
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./minio:/data
+    environment:
+      MINIO_ACCESS_KEY: minio_access_key
+      MINIO_SECRET_KEY: minio_secret_key
+
 networks:
   vela:

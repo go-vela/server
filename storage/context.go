@@ -1,0 +1,59 @@
+// SPDX-License-Identifier: Apache-2.0
+
+package storage
+
+import (
+	"context"
+	"github.com/gin-gonic/gin"
+)
+
+// key is the key used to store minio service in context
+const key = "minio"
+
+// FromContext retrieves minio service from the context
+func FromContext(ctx context.Context) Storage {
+	// get minio value from context.Context
+	v := ctx.Value(key)
+	if v == nil {
+		return nil
+	}
+
+	// cast minio value to expected Storage type
+	s, ok := v.(Storage)
+	if !ok {
+		return nil
+	}
+	return s
+}
+
+// FromGinContext retrieves the S3 Service from the gin.Context.
+func FromGinContext(c *gin.Context) Storage {
+	// get minio value from gin.Context
+	//
+	// https://pkg.go.dev/github.com/gin-gonic/gin?tab=doc#Context.Get
+	v, ok := c.Get(key)
+	if !ok {
+		return nil
+	}
+
+	// cast minio value to expected Service type
+	s, ok := v.(Storage)
+	if !ok {
+		return nil
+	}
+
+	return s
+}
+
+// WithContext adds the minio Storage to the context
+func WithContext(ctx context.Context, storage Storage) context.Context {
+	return context.WithValue(ctx, key, storage)
+}
+
+// WithGinContext inserts the minio Storage into the gin.Context.
+func WithGinContext(c *gin.Context, s Storage) {
+	// set the minio Storage in the gin.Context
+	//
+	// https://pkg.go.dev/github.com/gin-gonic/gin?tab=doc#Context.Set
+	c.Set(key, s)
+}
