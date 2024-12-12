@@ -5,7 +5,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-vela/server/ex-storage"
+	"github.com/go-vela/server/storage"
 	"os"
 	"time"
 
@@ -285,7 +285,7 @@ func main() {
 	app.Flags = append(app.Flags, tracing.Flags...)
 
 	// Add S3 Flags
-	app.Flags = append(app.Flags, ex_storage.Flags...)
+	app.Flags = append(app.Flags, storage.Flags...)
 
 	if err = app.Run(os.Args); err != nil {
 		logrus.Fatal(err)

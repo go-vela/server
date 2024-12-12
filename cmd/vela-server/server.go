@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-vela/server/ex-storage"
+	"github.com/go-vela/server/storage"
 	"net/http"
 	"net/url"
 	"os"
@@ -94,7 +94,7 @@ func server(c *cli.Context) error {
 		}()
 	}
 
-	st, err := ex_storage.FromCLIContext(c)
+	st, err := storage.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
