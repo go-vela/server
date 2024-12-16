@@ -3,7 +3,6 @@
 package build
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -149,19 +148,18 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
+	// determine whether or not to send compiled build to queue
+	err = TrafficBuild(c, l, item.Build, r, item)
+	if err != nil {
+		util.HandleError(c, http.StatusInternalServerError, err)
+
+		return
+	}
+
 	l.WithFields(logrus.Fields{
 		"new_build":    item.Build.GetNumber(),
 		"new_build_id": item.Build.GetID(),
 	}).Info("build created via restart")
 
 	c.JSON(http.StatusCreated, item.Build)
-
-	// publish the build to the queue
-	go Enqueue(
-		context.WithoutCancel(ctx),
-		queue.FromGinContext(c),
-		database.FromContext(c),
-		item,
-		item.Build.GetHost(),
-	)
 }
