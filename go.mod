@@ -10,9 +10,6 @@ require (
 	github.com/adhocore/gronx v1.19.1
 	github.com/alicebob/miniredis/v2 v2.33.0
 	github.com/aws/aws-sdk-go v1.55.5
-	github.com/aws/aws-sdk-go-v2/config v1.28.6
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.47
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.71.0
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/distribution/reference v0.6.0
 	github.com/drone/envsubst v1.0.3
@@ -38,6 +35,7 @@ require (
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.11.0
+	github.com/stretchr/testify v1.9.0
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2
 	github.com/urfave/cli/v2 v2.27.4
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.55.0
@@ -65,21 +63,6 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
-	github.com/aws/aws-sdk-go-v2 v1.32.6 // indirect
-	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.7 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.21 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.25 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.25 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.1 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.25 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.12.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.4.6 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.6 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.18.6 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.24.7 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.6 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.33.2 // indirect
-	github.com/aws/smithy-go v1.22.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bytedance/sonic v1.12.2 // indirect
@@ -89,6 +72,7 @@ require (
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -145,6 +129,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect

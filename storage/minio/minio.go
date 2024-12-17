@@ -3,6 +3,8 @@ package minio
 import (
 	"context"
 	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -44,7 +46,9 @@ func New(endpoint string, opts ...ClientOpt) (*MinioClient, error) {
 			return nil, err
 		}
 	}
-
+	c.Options.Creds = credentials.NewStaticV4(c.config.AccessKey, c.config.SecretKey, "")
+	c.Options.Secure = c.config.Secure
+	logrus.Debugf("secure: %v", c.config.Secure)
 	// create the Minio client from the provided endpoint and options
 	minioClient, err := minio.New(endpoint, c.Options)
 	if err != nil {
@@ -77,6 +81,35 @@ func pingBucket(c *MinioClient, bucket string) error {
 	}
 
 	return nil
+}
+
+// NewTest returns a Storage implementation that
+// integrates with a local MinIO instance.
+//
+// This function is intended for running tests only.
+//
+//nolint:revive // ignore returning unexported client
+func NewTest(endpoint, accessKey, secretKey string) (*MinioClient, error) {
+	// create a local fake MinIO instance
+	//
+	// https://pkg.go.dev/github.com/minio/minio-go/v7#New
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure: false,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &MinioClient{
+		client: minioClient,
+		config: &config{
+			Endpoint:  endpoint,
+			AccessKey: accessKey,
+			SecretKey: secretKey,
+			Secure:    false,
+		},
+	}, nil
 }
 
 //// UploadArtifact uploads an artifact to storage.

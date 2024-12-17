@@ -10,6 +10,11 @@ import (
 // key is the key used to store minio service in context
 const key = "minio"
 
+// Setter defines a context that enables setting values.
+type Setter interface {
+	Set(string, interface{})
+}
+
 // FromContext retrieves minio service from the context
 func FromContext(ctx context.Context) Storage {
 	// get minio value from context.Context
@@ -43,6 +48,12 @@ func FromGinContext(c *gin.Context) Storage {
 	}
 
 	return s
+}
+
+// ToContext adds the secret Service to this
+// context if it supports the Setter interface.
+func ToContext(c Setter, s Storage) {
+	c.Set(key, s)
 }
 
 // WithContext adds the minio Storage to the context

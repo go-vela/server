@@ -60,6 +60,12 @@ func AdminHandlers(base *gin.RouterGroup) {
 		// Admin step endpoint
 		_admin.PUT("/step", admin.UpdateStep)
 
+		// Admin storage endpoints
+		//_admin.GET("/storage/bucket", admin.)
+		_admin.POST("/storage/bucket", admin.CreateBucket)
+		_admin.PUT("/storage/bucket", admin.SetBucketLifecycle)
+		_admin.DELETE("/storage/bucket", admin.DeleteBucket)
+
 		// Admin user endpoint
 		_admin.PUT("/user", admin.UpdateUser)
 

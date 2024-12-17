@@ -44,6 +44,6 @@ var Flags = []cli.Flag{
 		EnvVars: []string{"VELA_STORAGE_USE_SSL"},
 		Name:    "storage.use.ssl",
 		Usage:   "enable storage to use SSL",
-		Value:   true,
+		Value:   false,
 	},
 }

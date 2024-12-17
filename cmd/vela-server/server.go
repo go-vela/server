@@ -94,11 +94,6 @@ func server(c *cli.Context) error {
 		}()
 	}
 
-	st, err := storage.FromCLIContext(c)
-	if err != nil {
-		return err
-	}
-
 	database, err := database.FromCLIContext(c, tc)
 	if err != nil {
 		return err
@@ -115,6 +110,11 @@ func server(c *cli.Context) error {
 	}
 
 	scm, err := setupSCM(c, tc)
+	if err != nil {
+		return err
+	}
+
+	st, err := storage.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
@@ -193,10 +193,12 @@ func server(c *cli.Context) error {
 		middleware.Metadata(metadata),
 		middleware.TokenManager(tm),
 		middleware.Queue(queue),
+		middleware.Storage(st),
 		middleware.RequestVersion,
 		middleware.Secret(c.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
+		middleware.Storage(st),
 		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(c.String("queue.public-key")),
 		middleware.QueueAddress(c.String("queue.addr")),

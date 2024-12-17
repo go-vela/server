@@ -2,19 +2,19 @@ package minio
 
 import (
 	"context"
-	"encoding/xml"
+	api "github.com/go-vela/server/api/types"
 )
 
 // GetBucketLifecycle retrieves the lifecycle configuration for a bucket.
-func (c *MinioClient) GetBucketLifecycle(ctx context.Context, bucketName string) (string, error) {
-	c.Logger.Tracef("getting lifecycle configuration for bucket %s", bucketName)
-
-	lifecycleConfig, err := c.client.GetBucketLifecycle(ctx, bucketName)
+func (c *MinioClient) GetBucketLifecycle(ctx context.Context, bucket *api.Bucket) (*api.Bucket, error) {
+	c.Logger.Tracef("getting lifecycle configuration for bucket %s", bucket.BucketName)
+	var lifecycleConfig *api.Bucket
+	lifeCycle, err := c.client.GetBucketLifecycle(ctx, bucket.BucketName)
 	if err != nil {
-		return "", err
+		return lifecycleConfig, err
 	}
 
-	lifecycleBytes, err := xml.MarshalIndent(lifecycleConfig, "", "  ")
+	lifecycleConfig = &api.Bucket{BucketName: bucket.BucketName, LifecycleConfig: *lifeCycle}
 
-	return string(lifecycleBytes), nil
+	return lifecycleConfig, nil
 }

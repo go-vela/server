@@ -10,7 +10,8 @@ import (
 // FromCLIContext helper function to setup Minio Client from the CLI arguments.
 func FromCLIContext(c *cli.Context) (Storage, error) {
 	logrus.Debug("creating Minio client from CLI configuration")
-
+	logrus.Debugf("STORAGE Key: %s", c.String("storage.access.key"))
+	logrus.Debugf("STORAGE Secret: %s", c.String("storage.secret.key"))
 	// S3 configuration
 	_setup := &Setup{
 		Enable:    c.Bool("storage.enable"),

@@ -2,19 +2,12 @@ package minio
 
 import (
 	"context"
-	"encoding/xml"
-	"github.com/minio/minio-go/v7/pkg/lifecycle"
+	api "github.com/go-vela/server/api/types"
 )
 
 // SetBucketLifecycle sets the lifecycle configuration for a bucket.
-func (c *MinioClient) SetBucketLifecycle(ctx context.Context, bucketName string, lifecycleConfig string) error {
-	c.Logger.Tracef("setting lifecycle configuration for bucket %s", bucketName)
+func (c *MinioClient) SetBucketLifecycle(ctx context.Context, bucket *api.Bucket) error {
+	c.Logger.Tracef("setting lifecycle configuration for bucket %s", bucket.BucketName)
 
-	var config lifecycle.Configuration
-	if err := xml.Unmarshal([]byte(lifecycleConfig), &config); err != nil {
-		c.Logger.Errorf("failed to unmarshal lifecycle configuration: %s", err)
-		return err
-	}
-
-	return c.client.SetBucketLifecycle(ctx, bucketName, &config)
+	return c.client.SetBucketLifecycle(ctx, bucket.BucketName, &bucket.LifecycleConfig)
 }
