@@ -21,7 +21,7 @@ import (
 
 // swagger:operation GET /api/v1/deployments/{org}/{repo}/config deployments GetDeploymentConfig
 //
-// Get a deployment
+// Get a deployment config
 //
 // ---
 // produces:
@@ -36,6 +36,10 @@ import (
 //   name: repo
 //   description: Name of the repository
 //   required: true
+//   type: string
+// - in: query
+//   name: ref
+//   description: Ref to target for the deployment config
 //   type: string
 // security:
 //   - ApiKeyAuth: []
