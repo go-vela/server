@@ -15,35 +15,36 @@ import (
 func TestTypes_Repo_Environment(t *testing.T) {
 	// setup types
 	want := map[string]string{
-		"VELA_REPO_ACTIVE":        "true",
-		"VELA_REPO_ALLOW_EVENTS":  "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,tag,comment:created,schedule,delete:branch",
-		"VELA_REPO_BRANCH":        "main",
-		"VELA_REPO_TOPICS":        "cloud,security",
-		"VELA_REPO_BUILD_LIMIT":   "10",
-		"VELA_REPO_CLONE":         "https://github.com/github/octocat.git",
-		"VELA_REPO_FULL_NAME":     "github/octocat",
-		"VELA_REPO_LINK":          "https://github.com/github/octocat",
-		"VELA_REPO_NAME":          "octocat",
-		"VELA_REPO_ORG":           "github",
-		"VELA_REPO_PRIVATE":       "false",
-		"VELA_REPO_TIMEOUT":       "30",
-		"VELA_REPO_TRUSTED":       "false",
-		"VELA_REPO_VISIBILITY":    "public",
-		"VELA_REPO_PIPELINE_TYPE": "",
-		"VELA_REPO_APPROVE_BUILD": "never",
-		"VELA_REPO_OWNER":         "octocat",
-		"REPOSITORY_ACTIVE":       "true",
-		"REPOSITORY_ALLOW_EVENTS": "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,tag,comment:created,schedule,delete:branch",
-		"REPOSITORY_BRANCH":       "main",
-		"REPOSITORY_CLONE":        "https://github.com/github/octocat.git",
-		"REPOSITORY_FULL_NAME":    "github/octocat",
-		"REPOSITORY_LINK":         "https://github.com/github/octocat",
-		"REPOSITORY_NAME":         "octocat",
-		"REPOSITORY_ORG":          "github",
-		"REPOSITORY_PRIVATE":      "false",
-		"REPOSITORY_TIMEOUT":      "30",
-		"REPOSITORY_TRUSTED":      "false",
-		"REPOSITORY_VISIBILITY":   "public",
+		"VELA_REPO_ACTIVE":           "true",
+		"VELA_REPO_ALLOW_EVENTS":     "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,tag,comment:created,schedule,delete:branch",
+		"VELA_REPO_BRANCH":           "main",
+		"VELA_REPO_TOPICS":           "cloud,security",
+		"VELA_REPO_BUILD_LIMIT":      "10",
+		"VELA_REPO_CLONE":            "https://github.com/github/octocat.git",
+		"VELA_REPO_FULL_NAME":        "github/octocat",
+		"VELA_REPO_LINK":             "https://github.com/github/octocat",
+		"VELA_REPO_NAME":             "octocat",
+		"VELA_REPO_ORG":              "github",
+		"VELA_REPO_PRIVATE":          "false",
+		"VELA_REPO_TIMEOUT":          "30",
+		"VELA_REPO_TRUSTED":          "false",
+		"VELA_REPO_VISIBILITY":       "public",
+		"VELA_REPO_PIPELINE_TYPE":    "",
+		"VELA_REPO_APPROVE_BUILD":    "never",
+		"VELA_REPO_APPROVAL_TIMEOUT": "7",
+		"VELA_REPO_OWNER":            "octocat",
+		"REPOSITORY_ACTIVE":          "true",
+		"REPOSITORY_ALLOW_EVENTS":    "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,tag,comment:created,schedule,delete:branch",
+		"REPOSITORY_BRANCH":          "main",
+		"REPOSITORY_CLONE":           "https://github.com/github/octocat.git",
+		"REPOSITORY_FULL_NAME":       "github/octocat",
+		"REPOSITORY_LINK":            "https://github.com/github/octocat",
+		"REPOSITORY_NAME":            "octocat",
+		"REPOSITORY_ORG":             "github",
+		"REPOSITORY_PRIVATE":         "false",
+		"REPOSITORY_TIMEOUT":         "30",
+		"REPOSITORY_TRUSTED":         "false",
+		"REPOSITORY_VISIBILITY":      "public",
 	}
 
 	// run test
@@ -151,6 +152,10 @@ func TestTypes_Repo_Getters(t *testing.T) {
 		if test.repo.GetApproveBuild() != test.want.GetApproveBuild() {
 			t.Errorf("GetApproveForkBuild is %v, want %v", test.repo.GetApproveBuild(), test.want.GetApproveBuild())
 		}
+
+		if test.repo.GetApprovalTimeout() != test.want.GetApprovalTimeout() {
+			t.Errorf("GetApprovalTimeout is %v, want %v", test.repo.GetApprovalTimeout(), test.want.GetApprovalTimeout())
+		}
 	}
 }
 
@@ -196,6 +201,7 @@ func TestTypes_Repo_Setters(t *testing.T) {
 		test.repo.SetPipelineType(test.want.GetPipelineType())
 		test.repo.SetPreviousName(test.want.GetPreviousName())
 		test.repo.SetApproveBuild(test.want.GetApproveBuild())
+		test.repo.SetApprovalTimeout(test.want.GetApprovalTimeout())
 
 		if test.repo.GetID() != test.want.GetID() {
 			t.Errorf("SetID is %v, want %v", test.repo.GetID(), test.want.GetID())
@@ -276,6 +282,10 @@ func TestTypes_Repo_Setters(t *testing.T) {
 		if test.repo.GetApproveBuild() != test.want.GetApproveBuild() {
 			t.Errorf("SetApproveForkBuild is %v, want %v", test.repo.GetApproveBuild(), test.want.GetApproveBuild())
 		}
+
+		if test.repo.GetApprovalTimeout() != test.want.GetApprovalTimeout() {
+			t.Errorf("SetApprovalTimeout is %v, want %v", test.repo.GetApprovalTimeout(), test.want.GetApprovalTimeout())
+		}
 	}
 }
 
@@ -286,6 +296,7 @@ func TestTypes_Repo_String(t *testing.T) {
 	want := fmt.Sprintf(`{
   Active: %t,
   AllowEvents: %s,
+  ApprovalTimeout: %d,
   ApproveBuild: %s,
   Branch: %s,
   BuildLimit: %d,
@@ -307,6 +318,7 @@ func TestTypes_Repo_String(t *testing.T) {
 }`,
 		r.GetActive(),
 		r.GetAllowEvents().List(),
+		r.GetApprovalTimeout(),
 		r.GetApproveBuild(),
 		r.GetBranch(),
 		r.GetBuildLimit(),
@@ -362,6 +374,7 @@ func testRepo() *Repo {
 	r.SetPipelineType("")
 	r.SetPreviousName("")
 	r.SetApproveBuild(constants.ApproveNever)
+	r.SetApprovalTimeout(7)
 
 	return r
 }

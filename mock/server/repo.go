@@ -59,6 +59,7 @@ const (
 	}
   },
   "approve_build": "fork-always",
+  "approval_timeout": 7,
   "previous_name": ""
 }`
 

@@ -60,6 +60,8 @@ type BuildInterface interface {
 	ListPendingAndRunningBuilds(context.Context, string) ([]*api.QueueBuild, error)
 	// ListPendingAndRunningBuildsForRepo defines a function that gets a list of pending and running builds for a repo.
 	ListPendingAndRunningBuildsForRepo(context.Context, *api.Repo) ([]*api.Build, error)
+	// ListPendingApprovalBuilds defines a function that gets a list of pending approval builds that were created before a given time.
+	ListPendingApprovalBuilds(context.Context, string) ([]*api.Build, error)
 	// UpdateBuild defines a function that updates an existing build.
 	UpdateBuild(context.Context, *api.Build) (*api.Build, error)
 }

@@ -79,6 +79,7 @@ func CreateRepo(c *gin.Context) {
 
 	defaultBuildLimit := c.Value("defaultBuildLimit").(int64)
 	defaultTimeout := c.Value("defaultTimeout").(int64)
+	defaultApprovalTimeout := c.Value("defaultApprovalTimeout").(int64)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
 	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
@@ -138,8 +139,24 @@ func CreateRepo(c *gin.Context) {
 		r.SetTimeout(constants.BuildTimeoutDefault)
 	} else if input.GetTimeout() == 0 {
 		r.SetTimeout(defaultTimeout)
+	} else if input.GetTimeout() > constants.BuildTimeoutMax {
+		// set build timeout to max value to prevent timeout from exceeding max
+		r.SetTimeout(constants.BuildTimeoutMax)
 	} else {
 		r.SetTimeout(input.GetTimeout())
+	}
+
+	// set the approval timeout field based of the input provided
+	if input.GetApprovalTimeout() == 0 && defaultApprovalTimeout == 0 {
+		// default approval timeout to 7d
+		r.SetApprovalTimeout(constants.ApprovalTimeoutDefault)
+	} else if input.GetApprovalTimeout() == 0 {
+		r.SetApprovalTimeout(defaultApprovalTimeout)
+	} else if input.GetApprovalTimeout() > constants.ApprovalTimeoutMax {
+		// set approval timeout to max value to prevent timeout from exceeding max
+		r.SetApprovalTimeout(constants.ApprovalTimeoutMax)
+	} else {
+		r.SetApprovalTimeout(input.GetApprovalTimeout())
 	}
 
 	// set the visibility field based off the input provided

@@ -91,7 +91,7 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 		}).Info("build updated - build canceled")
 	}
 
-	return true, nil
+	return false, nil
 }
 
 // cancelRunning is a helper function that determines the executor currently running a build and sends an API call
@@ -220,7 +220,8 @@ func isCancelable(target *types.Build, current *types.Build) bool {
 		// target is cancelable if current build is also a push event and the branches are the same
 		return strings.EqualFold(current.GetEvent(), constants.EventPush) && strings.EqualFold(current.GetBranch(), target.GetBranch())
 	case constants.EventPull:
-		cancelableAction := strings.EqualFold(target.GetEventAction(), constants.ActionOpened) || strings.EqualFold(target.GetEventAction(), constants.ActionSynchronize)
+		cancelableAction := strings.EqualFold(target.GetEventAction(), constants.ActionOpened) ||
+			strings.EqualFold(target.GetEventAction(), constants.ActionSynchronize)
 
 		// target is cancelable if current build is also a pull event, target is an opened / synchronize action, and the current head ref matches target head ref
 		return strings.EqualFold(current.GetEvent(), constants.EventPull) && cancelableAction && strings.EqualFold(current.GetHeadRef(), target.GetHeadRef())

@@ -117,6 +117,12 @@ func UpdateRepo(c *gin.Context) {
 		r.SetTimeout(limit)
 	}
 
+	if input.GetApprovalTimeout() > 0 {
+		// update build approval timeout if set
+		limit := max(constants.ApprovalTimeoutMin, min(input.GetApprovalTimeout(), constants.ApprovalTimeoutMax))
+		r.SetApprovalTimeout(limit)
+	}
+
 	if input.GetCounter() > 0 {
 		if input.GetCounter() <= r.GetCounter() {
 			retErr := fmt.Errorf("unable to set counter for repo %s: must be greater than current %d",

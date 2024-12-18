@@ -196,6 +196,7 @@ func server(c *cli.Context) error {
 		middleware.QueueAddress(c.String("queue.addr")),
 		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
 		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
+		middleware.DefaultApprovalTimeout(c.Int64("default-approval-timeout")),
 		middleware.MaxBuildLimit(c.Int64("max-build-limit")),
 		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
 		middleware.SecureCookie(c.Bool("vela-enable-secure-cookie")),
@@ -294,6 +295,23 @@ func server(c *cli.Context) error {
 		}
 
 		return err
+	})
+
+	// spawn go routine for cleaning up pending approval builds
+	g.Go(func() error {
+		logrus.Info("starting pending approval cleanup routine")
+
+		ticker := time.NewTicker(1 * time.Hour)
+		defer ticker.Stop()
+
+		for {
+			err := cleanupPendingApproval(c, database)
+			if err != nil {
+				logrus.WithError(err).Warn("unable to cleanup pending approval builds")
+			}
+
+			<-ticker.C
+		}
 	})
 
 	// spawn goroutine for starting the scheduler
