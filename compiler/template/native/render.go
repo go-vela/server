@@ -57,7 +57,7 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 		config.Steps[index].Name = fmt.Sprintf("%s_%s", name, newStep.Name)
 	}
 
-	return &types.Build{Metadata: config.Metadata, Steps: config.Steps, Secrets: config.Secrets, Services: config.Services, Environment: config.Environment, Templates: config.Templates}, nil
+	return &types.Build{Metadata: config.Metadata, Deployment: config.Deployment, Steps: config.Steps, Secrets: config.Secrets, Services: config.Services, Environment: config.Environment, Templates: config.Templates}, nil
 }
 
 // RenderBuild renders the templated build.

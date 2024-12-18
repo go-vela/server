@@ -1,0 +1,15 @@
+version: "1"
+
+stages:
+  test:
+    steps:
+      - name: test
+        image: alpine:latest
+        commands:
+          - echo "hello world"
+
+steps:
+  - name: test
+    image: alpine:latest
+    commands:
+      - echo "hello world"

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/buildkite/yaml"
+	"github.com/invopop/jsonschema"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
@@ -123,6 +124,22 @@ func (s StageSlice) MarshalYAML() (interface{}, error) {
 	}
 
 	return output, nil
+}
+
+// JSONSchemaExtend handles some overrides that need to be in place
+// for this type for the jsonschema generation.
+//
+// Stages are not really a slice of stages to the user. This change
+// supports the map they really are.
+func (StageSlice) JSONSchemaExtend(schema *jsonschema.Schema) {
+	schema.AdditionalProperties = jsonschema.FalseSchema
+	schema.Items = nil
+	schema.PatternProperties = map[string]*jsonschema.Schema{
+		".*": {
+			Ref: "#/$defs/Stage",
+		},
+	}
+	schema.Type = "object"
 }
 
 // MergeEnv takes a list of environment variables and attempts

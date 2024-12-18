@@ -144,6 +144,12 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 	// create map of templates for easy lookup
 	templates := mapFromTemplates(p.Templates)
 
+	// expand deployment config
+	p, err = c.ExpandDeployment(ctx, p, templates)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
 	switch {
 	case len(p.Stages) > 0:
 		// inject the templates into the steps
@@ -339,6 +345,12 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 
 	// inject the init step
 	p, err = c.InitStep(p)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
+	// inject the template for deploy config if exists
+	p, err = c.ExpandDeployment(ctx, p, tmpls)
 	if err != nil {
 		return nil, _pipeline, err
 	}
