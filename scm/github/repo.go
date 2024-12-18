@@ -685,6 +685,11 @@ func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 
 	l.Tracef("getting netrc password for %s/%s", r.GetOrg(), r.GetName())
 
+	// no GitHub App configured, use legacy oauth token
+	if c.AppsTransport == nil {
+		return u.GetToken(), nil
+	}
+
 	var err error
 
 	// repos that the token has access to
@@ -769,6 +774,11 @@ func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 	}).Tracef("syncing app installation for repo %s/%s", r.GetOrg(), r.GetName())
+
+	// no GitHub App configured, skip
+	if c.AppsTransport == nil {
+		return r, nil
+	}
 
 	client, err := c.newGithubAppClient()
 	if err != nil {
