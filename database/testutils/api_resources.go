@@ -127,6 +127,7 @@ func APIRepo() *api.Repo {
 		AllowEvents:  APIEvents(),
 		Topics:       new([]string),
 		ApproveBuild: new(string),
+		InstallID:    new(int64),
 	}
 }
 

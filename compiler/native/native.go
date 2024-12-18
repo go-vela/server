@@ -15,8 +15,10 @@ import (
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/image"
+	"github.com/go-vela/server/scm"
 )
 
 type ModificationConfig struct {
@@ -27,9 +29,10 @@ type ModificationConfig struct {
 }
 
 type client struct {
-	Github              registry.Service
-	PrivateGithub       registry.Service
-	UsePrivateGithub    bool
+	Github           registry.Service
+	PrivateGithub    registry.Service
+	UsePrivateGithub bool
+
 	ModificationService ModificationConfig
 	TemplateCache       map[string][]byte
 
@@ -45,6 +48,9 @@ type client struct {
 	repo           *api.Repo
 	user           *api.User
 	labels         []string
+	db             database.Interface
+	scm            scm.Service
+	netrc          *string
 }
 
 // FromCLIContext returns a Pipeline implementation that integrates with the supported registries.
@@ -232,6 +238,27 @@ func (c *client) WithLabels(labels []string) compiler.Engine {
 	if len(labels) != 0 {
 		c.labels = labels
 	}
+
+	return c
+}
+
+// WithNetrc sets the netrc in the Engine.
+func (c *client) WithNetrc(n string) compiler.Engine {
+	c.netrc = &n
+
+	return c
+}
+
+// WithSCM sets the scm in the Engine.
+func (c *client) WithSCM(_scm scm.Service) compiler.Engine {
+	c.scm = _scm
+
+	return c
+}
+
+// WithDatabase sets the database in the Engine.
+func (c *client) WithDatabase(db database.Interface) compiler.Engine {
+	c.db = db
 
 	return c
 }

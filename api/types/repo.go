@@ -32,6 +32,7 @@ type Repo struct {
 	PipelineType *string   `json:"pipeline_type,omitempty"`
 	PreviousName *string   `json:"previous_name,omitempty"`
 	ApproveBuild *string   `json:"approve_build,omitempty"`
+	InstallID    *int64    `json:"install_id,omitempty"`
 }
 
 // Environment returns a list of environment variables
@@ -345,6 +346,19 @@ func (r *Repo) GetApproveBuild() string {
 	return *r.ApproveBuild
 }
 
+// GetInstallID returns the InstallID field.
+//
+// When the provided Repo type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (r *Repo) GetInstallID() int64 {
+	// return zero value if Repo type or InstallID field is nil
+	if r == nil || r.InstallID == nil {
+		return 0
+	}
+
+	return *r.InstallID
+}
+
 // SetID sets the ID field.
 //
 // When the provided Repo type is nil, it
@@ -618,6 +632,19 @@ func (r *Repo) SetApproveBuild(v string) {
 	r.ApproveBuild = &v
 }
 
+// SetInstallID sets the InstallID field.
+//
+// When the provided Repo type is nil, it
+// will set nothing and immediately return.
+func (r *Repo) SetInstallID(v int64) {
+	// return if Repo type is nil
+	if r == nil {
+		return
+	}
+
+	r.InstallID = &v
+}
+
 // String implements the Stringer interface for the Repo type.
 func (r *Repo) String() string {
 	return fmt.Sprintf(`{
@@ -640,7 +667,8 @@ func (r *Repo) String() string {
   Timeout: %d,
   Topics: %s,
   Trusted: %t,
-  Visibility: %s
+  Visibility: %s,
+  InstallID: %d
 }`,
 		r.GetActive(),
 		r.GetAllowEvents().List(),
@@ -662,5 +690,6 @@ func (r *Repo) String() string {
 		r.GetTopics(),
 		r.GetTrusted(),
 		r.GetVisibility(),
+		r.GetInstallID(),
 	)
 }

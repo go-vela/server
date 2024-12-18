@@ -273,6 +273,18 @@ func CreateRepo(c *gin.Context) {
 		}
 	}
 
+	// map this repo to an installation if possible
+	if r.GetInstallID() == 0 {
+		r, err = scm.FromContext(c).SyncRepoWithInstallation(ctx, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to sync repo %s with installation: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+
 	// if the repo exists but is inactive
 	if len(dbRepo.GetOrg()) > 0 && !dbRepo.GetActive() {
 		// update the repo owner
@@ -281,6 +293,8 @@ func CreateRepo(c *gin.Context) {
 		dbRepo.SetBranch(r.GetBranch())
 		// activate the repo
 		dbRepo.SetActive(true)
+		// update the install_id
+		dbRepo.SetInstallID(r.GetInstallID())
 
 		// send API call to update the repo
 		// NOTE: not logging modification out separately
