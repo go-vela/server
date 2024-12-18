@@ -151,12 +151,13 @@ func (c *client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.
 
 	// create new executable pipeline
 	pipeline := &pipeline.Build{
-		Version:  p.Version,
-		Metadata: *p.Metadata.ToPipeline(),
-		Steps:    *p.Steps.ToPipeline(),
-		Secrets:  *p.Secrets.ToPipeline(),
-		Services: *p.Services.ToPipeline(),
-		Worker:   *p.Worker.ToPipeline(),
+		Version:    p.Version,
+		Metadata:   *p.Metadata.ToPipeline(),
+		Deployment: *p.Deployment.ToPipeline(),
+		Steps:      *p.Steps.ToPipeline(),
+		Secrets:    *p.Secrets.ToPipeline(),
+		Services:   *p.Services.ToPipeline(),
+		Worker:     *p.Worker.ToPipeline(),
 	}
 
 	// set the unique ID for the executable pipeline
