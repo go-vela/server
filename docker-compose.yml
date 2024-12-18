@@ -49,9 +49,12 @@ services:
       VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND: 100
       VELA_STORAGE_ENABLE: 'true'
       VELA_STORAGE_DRIVER: minio
-      VELA_STORAGE_ENDPOINT: objectstorage:9000
-      VELA_STORAGE_ACCESS_KEY: minio_access_user
-      VELA_STORAGE_SECRET_KEY: minio_secret_key
+#      VELA_STORAGE_ENDPOINT: objectstorage:9000
+#      VELA_STORAGE_ACCESS_KEY: minio_access_user
+#      VELA_STORAGE_SECRET_KEY: minio_secret_key
+      VELA_STORAGE_ENDPOINT: stage.ttc.toss.target.com
+      VELA_STORAGE_ACCESS_KEY:
+      VELA_STORAGE_SECRET_KEY:
       VELA_STORAGE_USE_SSL: 'false'
       VELA_STORAGE_BUCKET: vela
     env_file:

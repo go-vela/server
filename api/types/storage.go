@@ -15,3 +15,9 @@ type BucketOptions struct {
 	Region        string `json:"region,omitempty"`
 	ObjectLocking bool   `json:"object_locking,omitempty"`
 }
+
+type Object struct {
+	ObjectName string `json:"object_name,omitempty"`
+	BucketName string `json:"bucket_name,omitempty"`
+	FilePath   string `json:"file_path,omitempty"`
+}

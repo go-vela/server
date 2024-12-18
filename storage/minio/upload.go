@@ -1,16 +1,15 @@
 package minio
 
 import (
-	"bytes"
 	"context"
+	api "github.com/go-vela/server/api/types"
 	"github.com/minio/minio-go/v7"
 )
 
-// Helper methods for uploading objects
-func (c *MinioClient) Upload(ctx context.Context, bucketName, objectName string, data []byte, contentType string) error {
-	c.Logger.Tracef("uploading data to bucket %s", bucketName)
+// Upload uploads an object to a bucket in MinIO.ts
+func (c *MinioClient) Upload(ctx context.Context, object *api.Object) error {
+	c.Logger.Tracef("uploading data to bucket %s", object.ObjectName)
 
-	reader := bytes.NewReader(data)
-	_, err := c.client.PutObject(ctx, bucketName, objectName, reader, int64(len(data)), minio.PutObjectOptions{ContentType: contentType})
+	_, err := c.client.FPutObject(ctx, object.BucketName, object.ObjectName, object.FilePath, minio.PutObjectOptions{})
 	return err
 }

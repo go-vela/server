@@ -13,12 +13,13 @@ type Storage interface {
 	BucketExists(ctx context.Context, bucket *api.Bucket) (bool, error)
 	ListBuckets(ctx context.Context) ([]string, error)
 	// Object Operations
-	Upload(ctx context.Context, bucketName string, objectName string, data []byte, contentType string) error
-	Download(ctx context.Context, bucketName string, objectName string) ([]byte, error)
-	Delete(ctx context.Context, bucketName string, objectName string) error
+	Upload(ctx context.Context, object *api.Object) error
+	Download(ctx context.Context, object *api.Object) error
+	Delete(ctx context.Context, object *api.Object) error
 	ListObjects(ctx context.Context, bucketName string) ([]string, error)
-	//// Presigned URLs
+	// Presigned URLs
 	//GeneratePresignedURL(ctx context.Context, bucket string, key string, expiry int64) (string, error)
+	PresignedGetObject(ctx context.Context, object *api.Object) (string, error)
 	// Object Lifecycle
 	SetBucketLifecycle(ctx context.Context, bucketName *api.Bucket) error
 	GetBucketLifecycle(ctx context.Context, bucket *api.Bucket) (*api.Bucket, error)

@@ -2,15 +2,29 @@ package minio
 
 import (
 	"context"
+	api "github.com/go-vela/server/api/types"
 	"github.com/minio/minio-go/v7"
-	"io"
 )
 
-func (c *MinioClient) Download(ctx context.Context, bucketName, key string) ([]byte, error) {
-	object, err := c.client.GetObject(ctx, bucketName, key, minio.GetObjectOptions{})
+func (c *MinioClient) Download(ctx context.Context, object *api.Object) error {
+
+	// Check if the directory exists
+	//_, err := os.Stat(object.FilePath)
+	//if os.IsNotExist(err) {
+	//	// Create the directory if it does not exist
+	//	err = os.MkdirAll(object.FilePath, 0755)
+	//	if err != nil {
+	//		return fmt.Errorf("failed to create directory: %w", err)
+	//	}
+	//} else if err != nil {
+	//	return fmt.Errorf("failed to check directory: %w", err)
+	//}
+	err := c.client.FGetObject(ctx, object.BucketName, object.ObjectName, object.FilePath, minio.GetObjectOptions{})
 	if err != nil {
-		return nil, err
+		c.Logger.Errorf("unable to retrive object %s", object.ObjectName)
+		return err
 	}
-	defer object.Close()
-	return io.ReadAll(object)
+
+	c.Logger.Tracef("successfully downloaded object %s to %s", object.ObjectName, object.FilePath)
+	return nil
 }
