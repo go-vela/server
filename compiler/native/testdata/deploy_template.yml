@@ -1,0 +1,25 @@
+metadata:
+  template: true
+
+deployment:
+  targets:
+    - dev
+    - prod
+    - stage
+
+  parameters:
+    region:
+      description: cluster region to deploy
+      required: true
+      type: string
+      options: 
+        {{- range .regions }}
+        - {{ . }}
+        {{- end }}
+    
+    cluster_count:
+      description: number of clusters to deploy to
+      required: false
+      type: integer
+      min: 1
+      max: 10

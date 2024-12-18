@@ -1,0 +1,8 @@
+version: "1"
+
+stages:
+  test:
+    steps:
+      - image: alpine
+        commands:
+          - npm test
