@@ -1,0 +1,10 @@
+version: "1"
+
+steps:
+  - name: deploy
+    image: alpine
+    ruleset:
+      if:
+        status: [pending]
+      unless:
+        branch: main
