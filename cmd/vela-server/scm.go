@@ -21,7 +21,7 @@ func setupSCM(c *cli.Context, tc *tracing.Client) (scm.Service, error) {
 		ClientID:             c.String("scm.client"),
 		ClientSecret:         c.String("scm.secret"),
 		AppID:                c.Int64("scm.app.id"),
-		AppPrivateKey:        c.String("scm.app.private_key"),
+		AppPrivateKey:        c.String("scm.app.private-key"),
 		AppPermissions:       c.StringSlice("scm.app.permissions"),
 		ServerAddress:        c.String("server-addr"),
 		ServerWebhookAddress: c.String("scm.webhook.addr"),
