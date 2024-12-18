@@ -550,7 +550,7 @@ func PostWebhook(c *gin.Context) {
 	responded := false
 
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
-	if webhook.PullRequest.IsFromFork {
+	if b.GetFork() {
 		l.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), repo.GetFullName(), b.GetNumber())
 
 		switch repo.GetApproveBuild() {

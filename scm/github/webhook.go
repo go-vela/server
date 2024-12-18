@@ -333,14 +333,14 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 	}
 
 	// determine if pull request head is a fork and does not match the repo name of base
-	fromFork := payload.GetPullRequest().GetHead().GetRepo().GetFork() &&
-		!strings.EqualFold(payload.GetPullRequest().GetBase().GetRepo().GetFullName(), payload.GetPullRequest().GetHead().GetRepo().GetFullName())
+
+	b.SetFork(payload.GetPullRequest().GetHead().GetRepo().GetFork() &&
+		!strings.EqualFold(payload.GetPullRequest().GetBase().GetRepo().GetFullName(), payload.GetPullRequest().GetHead().GetRepo().GetFullName()))
 
 	return &internal.Webhook{
 		PullRequest: internal.PullRequest{
-			Number:     payload.GetNumber(),
-			IsFromFork: fromFork,
-			Labels:     prLabels,
+			Number: payload.GetNumber(),
+			Labels: prLabels,
 		},
 		Hook:  h,
 		Repo:  r,
