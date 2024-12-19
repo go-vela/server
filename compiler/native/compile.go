@@ -44,6 +44,19 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 		return nil, nil, err
 	}
 
+	// create the netrc using the scm
+	// this has to occur after Parse because the scm configurations might be set in yaml
+	// netrc can be provided directly using WithNetrc for situations like local exec
+	if c.netrc == nil && c.scm != nil {
+		// get the netrc password from the scm
+		netrc, err := c.scm.GetNetrcPassword(ctx, c.db, c.repo, c.user, p.Git)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		c.WithNetrc(netrc)
+	}
+
 	// create the API pipeline object from the yaml configuration
 	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)

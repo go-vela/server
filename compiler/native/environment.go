@@ -33,8 +33,9 @@ func (c *client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceM
 func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (*yaml.Stage, error) {
 	// make empty map of environment variables
 	env := make(map[string]string)
+
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 	// inject the declared global environment
 	// WARNING: local env can override global
@@ -87,8 +88,9 @@ func (c *client) EnvironmentSteps(s yaml.StepSlice, stageEnv raw.StringSliceMap)
 func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*yaml.Step, error) {
 	// make empty map of environment variables
 	env := make(map[string]string)
+
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 	// inject the declared stage environment
 	// WARNING: local env can override global + stage
@@ -148,8 +150,9 @@ func (c *client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSl
 	for _, service := range s {
 		// make empty map of environment variables
 		env := make(map[string]string)
+
 		// gather set of default environment variables
-		defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 		// inject the declared global environment
 		// WARNING: local env can override global
@@ -188,8 +191,9 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 
 		// make empty map of environment variables
 		env := make(map[string]string)
+
 		// gather set of default environment variables
-		defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 		// inject the declared global environment
 		// WARNING: local env can override global
@@ -243,11 +247,14 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 	return s, nil
 }
 
+// EnvironmentBuild injects environment variables
+// for the build in a yaml configuration.
 func (c *client) EnvironmentBuild() map[string]string {
 	// make empty map of environment variables
 	env := make(map[string]string)
+
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
 
 	// inject the default environment
 	// variables to the build
@@ -281,7 +288,7 @@ func appendMap(originalMap, otherMap map[string]string) map[string]string {
 }
 
 // helper function that creates the standard set of environment variables for a pipeline.
-func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) map[string]string {
+func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, netrc *string) map[string]string {
 	// set default workspace
 	workspace := constants.WorkspaceDefault
 	notImplemented := "TODO"
@@ -297,7 +304,7 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) m
 	env["VELA_DISTRIBUTION"] = notImplemented
 	env["VELA_HOST"] = notImplemented
 	env["VELA_NETRC_MACHINE"] = notImplemented
-	env["VELA_NETRC_PASSWORD"] = u.GetToken()
+	env["VELA_NETRC_PASSWORD"] = notImplemented
 	env["VELA_NETRC_USERNAME"] = "x-oauth-basic"
 	env["VELA_QUEUE"] = notImplemented
 	env["VELA_RUNTIME"] = notImplemented
@@ -319,6 +326,10 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) m
 		env["VELA_ID_TOKEN_REQUEST_URL"] = fmt.Sprintf("%s/api/v1/repos/%s/builds/%d/id_token", m.Vela.Address, r.GetFullName(), b.GetNumber())
 		channel = m.Queue.Channel
 		workspace = fmt.Sprintf("%s/%s/%s/%s", workspace, m.Source.Host, r.GetOrg(), r.GetName())
+	}
+
+	if netrc != nil {
+		env["VELA_NETRC_PASSWORD"] = *netrc
 	}
 
 	env["VELA_WORKSPACE"] = workspace

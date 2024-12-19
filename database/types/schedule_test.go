@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/adhocore/gronx"
+	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
@@ -116,8 +117,8 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	// run test
 	got := testSchedule().ToAPI()
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ToAPI is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ScheduleToAPI() mismatch (-want +got):\n%s", diff)
 	}
 }
 

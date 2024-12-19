@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 )
 
@@ -140,6 +142,12 @@ type Service interface {
 	// GetHTMLURL defines a function that retrieves
 	// a repository file's html_url.
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
+	// GetNetrcPassword defines a function that returns the netrc
+	// password injected into build steps.
+	GetNetrcPassword(context.Context, database.Interface, *api.Repo, *api.User, yaml.Git) (string, error)
+	// SyncRepoWithInstallation defines a function that syncs
+	// a repo with the installation, if it exists.
+	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)
 
 	// Webhook SCM Interface Functions
 
@@ -152,6 +160,15 @@ type Service interface {
 	// RedeliverWebhook defines a function that
 	// redelivers the webhook from the SCM.
 	RedeliverWebhook(context.Context, *api.User, *api.Hook) error
+
+	// App Integration SCM Interface Functions
+
+	// ProcessInstallation defines a function that
+	// processes an installation event.
+	ProcessInstallation(context.Context, *http.Request, *internal.Webhook, database.Interface) error
+	// FinishInstallation defines a function that
+	// finishes an installation event and returns a web redirect.
+	FinishInstallation(context.Context, *http.Request, int64) (string, error)
 
 	// TODO: Add convert functions to interface?
 }

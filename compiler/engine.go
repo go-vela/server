@@ -10,7 +10,9 @@ import (
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/scm"
 )
 
 // Engine represents an interface for converting a yaml
@@ -146,6 +148,12 @@ type Engine interface {
 	// WithLabel defines a function that sets
 	// the label(s) in the Engine.
 	WithLabels([]string) Engine
+	// WithSCM defines a function that sets
+	// the scm in the Engine.
+	WithSCM(scm.Service) Engine
+	// WithDatabase defines a function that sets
+	// the database in the Engine.
+	WithDatabase(database.Interface) Engine
 	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(context.Context, string, string) Engine
