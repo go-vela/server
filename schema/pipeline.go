@@ -16,7 +16,7 @@ import (
 
 	"github.com/invopop/jsonschema"
 
-	types "github.com/go-vela/server/compiler/types/yaml"
+	types "github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 // NewPipelineSchema generates the JSON schema object for a Vela pipeline configuration.

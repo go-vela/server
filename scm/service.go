@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 )

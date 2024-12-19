@@ -7,13 +7,14 @@ import (
 	"errors"
 	"fmt"
 
-	yaml "github.com/buildkite/yaml"
+	"github.com/buildkite/yaml"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 	"go.starlark.net/syntax"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	types "github.com/go-vela/server/compiler/types/yaml"
+	bkTypes "github.com/go-vela/server/compiler/types/yaml/buildkite"
+	types "github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 var (
@@ -32,7 +33,7 @@ var (
 
 // Render combines the template with the step in the yaml pipeline.
 func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}, limit int64) (*types.Build, error) {
-	config := new(types.Build)
+	config := new(bkTypes.Build)
 
 	thread := &starlark.Thread{Name: name}
 
@@ -134,14 +135,14 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 		config.Steps[index].Name = fmt.Sprintf("%s_%s", name, newStep.Name)
 	}
 
-	return &types.Build{Steps: config.Steps, Secrets: config.Secrets, Services: config.Services, Environment: config.Environment}, nil
+	return &types.Build{Steps: *config.Steps.ToYAML(), Secrets: *config.Secrets.ToYAML(), Services: *config.Services.ToYAML(), Environment: config.Environment}, nil
 }
 
 // RenderBuild renders the templated build.
 //
 //nolint:lll // ignore function length due to input args
 func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}, limit int64) (*types.Build, error) {
-	config := new(types.Build)
+	config := new(bkTypes.Build)
 
 	thread := &starlark.Thread{Name: "templated-base"}
 
@@ -238,5 +239,5 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
-	return config, nil
+	return config.ToYAML(), nil
 }

@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 const (
@@ -65,12 +65,13 @@ func (c *client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline
 
 	// create new executable pipeline
 	pipeline := &pipeline.Build{
-		Version:  p.Version,
-		Metadata: *p.Metadata.ToPipeline(),
-		Stages:   *p.Stages.ToPipeline(),
-		Secrets:  *p.Secrets.ToPipeline(),
-		Services: *p.Services.ToPipeline(),
-		Worker:   *p.Worker.ToPipeline(),
+		Version:    p.Version,
+		Metadata:   *p.Metadata.ToPipeline(),
+		Stages:     *p.Stages.ToPipeline(),
+		Secrets:    *p.Secrets.ToPipeline(),
+		Services:   *p.Services.ToPipeline(),
+		Worker:     *p.Worker.ToPipeline(),
+		Deployment: *p.Deployment.ToPipeline(),
 	}
 
 	// set the unique ID for the executable pipeline
