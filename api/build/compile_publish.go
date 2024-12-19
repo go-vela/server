@@ -26,13 +26,14 @@ import (
 
 // CompileAndPublishConfig is a struct that contains information for the CompileAndPublish function.
 type CompileAndPublishConfig struct {
-	Build    *types.Build
-	Metadata *internal.Metadata
-	BaseErr  string
-	Source   string
-	Comment  string
-	Labels   []string
-	Retries  int
+	Build      *types.Build
+	Deployment *types.Deployment
+	Metadata   *internal.Metadata
+	BaseErr    string
+	Source     string
+	Comment    string
+	Labels     []string
+	Retries    int
 }
 
 // CompileAndPublish is a helper function to generate the queue items for a build. It takes a form
@@ -305,6 +306,15 @@ func CompileAndPublish(
 				},
 				http.StatusOK,
 				errors.New(skip)
+		}
+
+		// validate deployment config
+		if (b.GetEvent() == constants.EventDeploy) && cfg.Deployment != nil {
+			if err := p.Deployment.Validate(cfg.Deployment.GetTarget(), cfg.Deployment.GetPayload()); err != nil {
+				retErr := fmt.Errorf("%s: failed to validate deployment for %s: %w", baseErr, repo.GetFullName(), err)
+
+				return nil, nil, http.StatusBadRequest, retErr
+			}
 		}
 
 		// check if the pipeline did not already exist in the database

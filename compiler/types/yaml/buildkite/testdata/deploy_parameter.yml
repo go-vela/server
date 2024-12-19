@@ -1,0 +1,11 @@
+---
+foo:
+  description: bar
+  required: true
+  type: string
+  options:
+    - baz
+hello:
+  description: baz
+  required: false
+  type: string

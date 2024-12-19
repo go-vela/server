@@ -16,7 +16,8 @@ import (
 //
 // POST   /api/v1/deployments/:org/:repo
 // GET    /api/v1/deployments/:org/:repo
-// GET    /api/v1/deployments/:org/:repo/:deployment .
+// GET    /api/v1/deployments/:org/:repo/:deployment
+// GET    /api/v1/deployments/:org/:repo/config  .
 func DeploymentHandlers(base *gin.RouterGroup) {
 	// Deployments endpoints
 	deployments := base.Group("/deployments/:org/:repo", org.Establish(), repo.Establish())
@@ -24,5 +25,6 @@ func DeploymentHandlers(base *gin.RouterGroup) {
 		deployments.POST("", perm.MustWrite(), deployment.CreateDeployment)
 		deployments.GET("", perm.MustRead(), deployment.ListDeployments)
 		deployments.GET("/:deployment", perm.MustRead(), deployment.GetDeployment)
+		deployments.GET("/config", perm.MustRead(), deployment.GetDeploymentConfig)
 	} // end of deployments endpoints
 }
