@@ -84,6 +84,7 @@ func PostWebhook(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
 	l := c.MustGet("logger").(*logrus.Entry)
+	db := database.FromContext(c)
 	ctx := c.Request.Context()
 
 	l.Debug("webhook received")
@@ -133,6 +134,20 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	if webhook.Installation != nil {
+		err = scm.FromContext(c).ProcessInstallation(ctx, c.Request, webhook, db)
+		if err != nil {
+			retErr := fmt.Errorf("unable to process installation: %w", err)
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		c.JSON(http.StatusOK, "installation processed successfully")
+
+		return
+	}
+
 	// check if the hook should be skipped
 	if skip, skipReason := webhook.ShouldSkip(); skip {
 		c.JSON(http.StatusOK, fmt.Sprintf("skipping build: %s", skipReason))
@@ -144,8 +159,6 @@ func PostWebhook(c *gin.Context) {
 
 	l.Debugf("hook generated from SCM: %v", h)
 	l.Debugf("repo generated from SCM: %v", r)
-
-	db := database.FromContext(c)
 
 	// if event is repository event, handle separately and return
 	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {

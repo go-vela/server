@@ -5,11 +5,13 @@ package auth
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
@@ -36,6 +38,14 @@ import (
 //   name: redirect_uri
 //   description: The URL where the user will be sent after authorization
 //   type: string
+// - in: query
+//   name: setup_action
+//   description: The specific setup action callback identifier
+//   type: string
+// - in: query
+//   name: installation_id
+//   description: The specific installation identifier for a GitHub App integration
+//   type: integer
 // responses:
 //   '200':
 //     description: Successfully authenticated
@@ -46,6 +56,10 @@ import (
 //       "$ref": "#/definitions/Token"
 //   '307':
 //     description: Redirected for authentication
+//   '400':
+//     description: Bad Request
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '401':
 //     description: Unauthorized
 //     schema:
@@ -68,6 +82,32 @@ func GetAuthToken(c *gin.Context) {
 
 	// capture the OAuth state if present
 	oAuthState := c.Request.FormValue("state")
+
+	// handle scm setup events
+	// setup_action==install represents the GitHub App installation callback redirect
+	if c.Request.FormValue("setup_action") == constants.AppInstallSetupActionInstall {
+		installID, err := strconv.ParseInt(c.Request.FormValue("installation_id"), 10, 0)
+		if err != nil {
+			retErr := fmt.Errorf("unable to parse installation_id: %w", err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		r, err := scm.FromContext(c).FinishInstallation(ctx, c.Request, installID)
+		if err != nil {
+			retErr := fmt.Errorf("unable to finish installation: %w", err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		c.Redirect(http.StatusTemporaryRedirect, r)
+
+		return
+	}
 
 	// capture the OAuth code if present
 	code := c.Request.FormValue("code")
