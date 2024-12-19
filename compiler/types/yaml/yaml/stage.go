@@ -5,11 +5,11 @@ package yaml
 import (
 	"fmt"
 
+	"github.com/invopop/jsonschema"
 	"gopkg.in/yaml.v3"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/invopop/jsonschema"
 )
 
 type (
