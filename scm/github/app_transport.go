@@ -7,10 +7,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/x509"
-	"encoding/base64"
 	"encoding/json"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"io"
@@ -47,23 +44,8 @@ type AppsTransport struct {
 }
 
 // newGitHubAppTransport creates a new GitHub App transport for authenticating as the GitHub App.
-func (c *client) newGitHubAppTransport(appID int64, privateKey, baseURL string) (*AppsTransport, error) {
-	decodedPEM, err := base64.StdEncoding.DecodeString(privateKey)
-	if err != nil {
-		return nil, fmt.Errorf("error decoding base64: %w", err)
-	}
-
-	block, _ := pem.Decode(decodedPEM)
-	if block == nil {
-		return nil, fmt.Errorf("failed to parse PEM block containing the key")
-	}
-
-	parsedPrivateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
-	}
-
-	transport := c.newAppsTransportFromPrivateKey(http.DefaultTransport, appID, parsedPrivateKey)
+func (c *client) newGitHubAppTransport(appID int64, baseURL string, privateKey *rsa.PrivateKey) (*AppsTransport, error) {
+	transport := c.newAppsTransportFromPrivateKey(http.DefaultTransport, appID, privateKey)
 	transport.BaseURL = baseURL
 
 	// apply tracing to the transport

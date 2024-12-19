@@ -32,6 +32,8 @@ type Setup struct {
 	AppID int64
 	// specifies App integration private key
 	AppPrivateKey string
+	// specifies App integration path to private key
+	AppPrivateKeyPath string
 	// specifies App integration permissions set
 	AppPermissions []string
 	// specifies the Vela server address to use for the scm client
@@ -69,6 +71,7 @@ func (s *Setup) Github(ctx context.Context) (Service, error) {
 		github.WithTracing(s.Tracing),
 		github.WithGithubAppID(s.AppID),
 		github.WithGithubPrivateKey(s.AppPrivateKey),
+		github.WithGithubPrivateKeyPath(s.AppPrivateKeyPath),
 		github.WithGitHubAppPermissions(s.AppPermissions),
 	)
 }

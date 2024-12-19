@@ -4,7 +4,12 @@ package github
 
 import (
 	"context"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
+	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/google/go-github/v65/github"
@@ -40,6 +45,8 @@ type config struct {
 	AppID int64
 	// specifies the App private key to use for the GitHub client when interacting with App resources
 	AppPrivateKey string
+	// specifies the App private key to use for the GitHub client when interacting with App resources
+	AppPrivateKeyPath string
 	// specifics the App permissions set
 	AppPermissions []string
 	// specifies the Vela server address to use for the GitHub client
@@ -118,10 +125,47 @@ func New(ctx context.Context, opts ...ClientOpt) (*client, error) {
 		Scopes:       oauthScopes,
 	}
 
-	if c.config.AppID != 0 && len(c.config.AppPrivateKey) > 0 {
+	var err error
+
+	if c.config.AppID != 0 {
 		c.Logger.Infof("configurating github app integration for app_id %d", c.config.AppID)
 
-		transport, err := c.newGitHubAppTransport(c.config.AppID, c.config.AppPrivateKey, c.config.API)
+		var privateKeyPEM []byte
+
+		if len(c.config.AppPrivateKey) == 0 && len(c.config.AppPrivateKeyPath) == 0 {
+			return nil, errors.New("GitHub App ID provided but no valid private key was provided in either VELA_SCM_APP_PRIVATE_KEY or VELA_SCM_APP_PRIVATE_KEY_PATH")
+		}
+
+		if len(c.config.AppPrivateKey) > 0 {
+			privateKeyPEM, err = base64.StdEncoding.DecodeString(c.config.AppPrivateKey)
+			if err != nil {
+				return nil, fmt.Errorf("error decoding base64: %w", err)
+			}
+		} else {
+			// try reading from path if necessary
+			c.Logger.Infof("no VELA_SCM_APP_PRIVATE_KEY provided, reading github app private key from path %s", c.config.AppPrivateKeyPath)
+
+			privateKeyPEM, err = os.ReadFile(c.config.AppPrivateKeyPath)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if len(privateKeyPEM) == 0 {
+			return nil, errors.New("GitHub App ID provided but no valid private key was provided in either VELA_SCM_APP_PRIVATE_KEY or VELA_SCM_APP_PRIVATE_KEY_PATH")
+		}
+
+		block, _ := pem.Decode(privateKeyPEM)
+		if block == nil {
+			return nil, fmt.Errorf("failed to parse GitHub App private key PEM block containing the key")
+		}
+
+		parsedPrivateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse GitHub App RSA private key: %w", err)
+		}
+
+		transport, err := c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey)
 		if err != nil {
 			return nil, err
 		}

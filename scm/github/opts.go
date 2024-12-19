@@ -185,6 +185,18 @@ func WithGithubPrivateKey(key string) ClientOpt {
 	}
 }
 
+// WithGithubPrivateKeyPath sets the private key path for the GitHub App in the scm client.
+func WithGithubPrivateKeyPath(path string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring private key path for GitHub App in github scm client")
+
+		// set the private key for the GitHub App in the github client
+		c.config.AppPrivateKeyPath = path
+
+		return nil
+	}
+}
+
 // WithGitHubAppPermissions sets the App permissions in the scm client for GitHub.
 func WithGitHubAppPermissions(permissions []string) ClientOpt {
 	return func(c *client) error {
