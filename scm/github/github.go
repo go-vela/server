@@ -165,12 +165,7 @@ func New(ctx context.Context, opts ...ClientOpt) (*client, error) {
 			return nil, fmt.Errorf("failed to parse GitHub App RSA private key: %w", err)
 		}
 
-		transport, err := c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey)
-		if err != nil {
-			return nil, err
-		}
-
-		c.AppsTransport = transport
+		c.AppsTransport = c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey)
 
 		err = c.ValidateGitHubApp(ctx)
 		if err != nil {

@@ -44,7 +44,7 @@ type AppsTransport struct {
 }
 
 // newGitHubAppTransport creates a new GitHub App transport for authenticating as the GitHub App.
-func (c *client) newGitHubAppTransport(appID int64, baseURL string, privateKey *rsa.PrivateKey) (*AppsTransport, error) {
+func (c *client) newGitHubAppTransport(appID int64, baseURL string, privateKey *rsa.PrivateKey) *AppsTransport {
 	transport := c.newAppsTransportFromPrivateKey(http.DefaultTransport, appID, privateKey)
 	transport.BaseURL = baseURL
 
@@ -58,7 +58,7 @@ func (c *client) newGitHubAppTransport(appID int64, baseURL string, privateKey *
 		)
 	}
 
-	return transport, nil
+	return transport
 }
 
 // newAppsTransportFromPrivateKey returns an AppsTransport using a crypto/rsa.(*PrivateKey).

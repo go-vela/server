@@ -42,6 +42,10 @@ import (
 //   name: setup_action
 //   description: The specific setup action callback identifier
 //   type: string
+// - in: query
+//   name: installation_id
+//   description: The specific installation identifier for a GitHub App integration
+//   type: integer
 // responses:
 //   '200':
 //     description: Successfully authenticated

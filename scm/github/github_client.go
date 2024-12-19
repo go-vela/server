@@ -82,7 +82,8 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 
 	id := r.GetInstallID()
 
-	// if repo has an install ID, use it to create an installation token
+	// if the source scm repo has an install ID but the Vela db record does not
+	// then use the source repo to create an installation token
 	if id == 0 {
 		// list all installations (a.k.a. orgs) where the GitHub App is installed
 		installations, _, err := client.Apps.ListInstallations(ctx, &github.ListOptions{})
