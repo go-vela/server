@@ -19,6 +19,7 @@ type Build struct {
 	Steps       StepSlice          `yaml:"steps,omitempty"       json:"steps,omitempty"       jsonschema:"oneof_required=steps,description=Provide sequential execution instructions.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/"`
 	Templates   TemplateSlice      `yaml:"templates,omitempty"   json:"templates,omitempty"   jsonschema:"description=Provide the name of templates to expand.\nReference: https://go-vela.github.io/docs/reference/yaml/templates/"`
 	Deployment  Deployment         `yaml:"deployment,omitempty"  json:"deployment,omitempty"  jsonschema:"description=Provide deployment configuration.\nReference: https://go-vela.github.io/docs/reference/yaml/deployments/"`
+	Git         Git                `yaml:"git,omitempty"         json:"git,omitempty"         jsonschema:"description=Provide the git access specifications.\nReference: https://go-vela.github.io/docs/reference/yaml/git/"`
 }
 
 // ToPipelineAPI converts the Build type to an API Pipeline type.
@@ -75,6 +76,7 @@ func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Steps       StepSlice
 		Templates   TemplateSlice
 		Deployment  Deployment
+		Git         Git
 	})
 
 	// attempt to unmarshal as a build type
@@ -89,6 +91,7 @@ func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	// override the values
+	b.Git = build.Git
 	b.Version = build.Version
 	b.Metadata = build.Metadata
 	b.Environment = build.Environment

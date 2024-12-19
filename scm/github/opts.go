@@ -135,8 +135,8 @@ func WithWebUIAddress(address string) ClientOpt {
 	}
 }
 
-// WithScopes sets the OAuth scopes in the scm client for GitHub.
-func WithScopes(scopes []string) ClientOpt {
+// WithOAuthScopes sets the OAuth scopes in the scm client for GitHub.
+func WithOAuthScopes(scopes []string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Trace("configuring oauth scopes in github scm client")
 
@@ -146,7 +146,7 @@ func WithScopes(scopes []string) ClientOpt {
 		}
 
 		// set the scopes in the github client
-		c.config.Scopes = scopes
+		c.config.OAuthScopes = scopes
 
 		return nil
 	}
@@ -156,6 +156,53 @@ func WithScopes(scopes []string) ClientOpt {
 func WithTracing(tracing *tracing.Client) ClientOpt {
 	return func(e *client) error {
 		e.Tracing = tracing
+
+		return nil
+	}
+}
+
+// WithGithubAppID sets the ID for the GitHub App in the scm client.
+func WithGithubAppID(id int64) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring ID for GitHub App in github scm client")
+
+		// set the ID for the GitHub App in the github client
+		c.config.AppID = id
+
+		return nil
+	}
+}
+
+// WithGithubPrivateKey sets the private key for the GitHub App in the scm client.
+func WithGithubPrivateKey(key string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring private key for GitHub App in github scm client")
+
+		// set the private key for the GitHub App in the github client
+		c.config.AppPrivateKey = key
+
+		return nil
+	}
+}
+
+// WithGithubPrivateKeyPath sets the private key path for the GitHub App in the scm client.
+func WithGithubPrivateKeyPath(path string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring private key path for GitHub App in github scm client")
+
+		// set the private key for the GitHub App in the github client
+		c.config.AppPrivateKeyPath = path
+
+		return nil
+	}
+}
+
+// WithGitHubAppPermissions sets the App permissions in the scm client for GitHub.
+func WithGitHubAppPermissions(permissions []string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring app permissions in github scm client")
+
+		c.config.AppPermissions = permissions
 
 		return nil
 	}

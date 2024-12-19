@@ -50,7 +50,7 @@ func New(ctx context.Context, address, token string) (*client, error) {
 
 	if len(token) > 0 {
 		// create GitHub OAuth client with user's token
-		gitClient = c.newClientToken(ctx, token)
+		gitClient = c.newOAuthTokenClient(ctx, token)
 	}
 
 	// overwrite the github client
@@ -59,8 +59,8 @@ func New(ctx context.Context, address, token string) (*client, error) {
 	return c, nil
 }
 
-// newClientToken is a helper function to return the GitHub oauth2 client.
-func (c *client) newClientToken(ctx context.Context, token string) *github.Client {
+// newOAuthTokenClient is a helper function to return the GitHub oauth2 client.
+func (c *client) newOAuthTokenClient(ctx context.Context, token string) *github.Client {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -68,14 +68,6 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 
 	// create the OAuth client
 	tc := oauth2.NewClient(ctx, ts)
-	// if c.SkipVerify {
-	// 	tc.Transport.(*oauth2.Transport).Base = &http.Transport{
-	// 		Proxy: http.ProxyFromEnvironment,
-	// 		TLSClientConfig: &tls.Config{
-	// 			InsecureSkipVerify: true,
-	// 		},
-	// 	}
-	// }
 
 	// create the GitHub client from the OAuth client
 	github := github.NewClient(tc)

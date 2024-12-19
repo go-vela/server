@@ -193,6 +193,7 @@ func TestTypes_Repo_ToAPI(t *testing.T) {
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("oldName")
 	want.SetApproveBuild(constants.ApproveNever)
+	want.SetInstallID(0)
 
 	// run test
 	got := testRepo().ToAPI()
@@ -345,6 +346,7 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 	r.SetPipelineType("yaml")
 	r.SetPreviousName("oldName")
 	r.SetApproveBuild(constants.ApproveNever)
+	r.SetInstallID(0)
 
 	want := testRepo()
 	want.Owner = User{}
@@ -382,6 +384,7 @@ func testRepo() *Repo {
 		PipelineType: sql.NullString{String: "yaml", Valid: true},
 		PreviousName: sql.NullString{String: "oldName", Valid: true},
 		ApproveBuild: sql.NullString{String: constants.ApproveNever, Valid: true},
+		InstallID:    sql.NullInt64{Int64: 0, Valid: true},
 
 		Owner: *testUser(),
 	}

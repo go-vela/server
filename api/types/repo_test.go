@@ -303,7 +303,8 @@ func TestTypes_Repo_String(t *testing.T) {
   Timeout: %d,
   Topics: %s,
   Trusted: %t,
-  Visibility: %s
+  Visibility: %s,
+  InstallID: %d
 }`,
 		r.GetActive(),
 		r.GetAllowEvents().List(),
@@ -325,6 +326,7 @@ func TestTypes_Repo_String(t *testing.T) {
 		r.GetTopics(),
 		r.GetTrusted(),
 		r.GetVisibility(),
+		r.GetInstallID(),
 	)
 
 	// run test

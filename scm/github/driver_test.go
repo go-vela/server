@@ -3,6 +3,7 @@
 package github
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -14,6 +15,7 @@ func TestGitHub_Driver(t *testing.T) {
 	want := constants.DriverGithub
 
 	_service, err := New(
+		context.Background(),
 		WithAddress("https://github.com/"),
 		WithClientID("foo"),
 		WithClientSecret("bar"),
