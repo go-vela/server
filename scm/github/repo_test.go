@@ -14,7 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v65/github"
+	"github.com/google/go-github/v67/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/yaml"
