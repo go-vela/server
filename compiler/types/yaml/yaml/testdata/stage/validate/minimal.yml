@@ -1,0 +1,7 @@
+stages:
+  hello:
+    steps:
+      - name: hello
+        image: alpine:latest
+        commands:
+          - echo "hello vela"
