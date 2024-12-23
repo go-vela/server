@@ -8,11 +8,11 @@ import (
 	"net/http"
 	"strings"
 
-	yml "github.com/buildkite/yaml"
 	"github.com/gin-gonic/gin"
+	yml "gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 const (
