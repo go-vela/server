@@ -11,13 +11,14 @@ import (
 	"github.com/buildkite/yaml"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	types "github.com/go-vela/server/compiler/types/yaml"
+	bkTypes "github.com/go-vela/server/compiler/types/yaml/buildkite"
+	types "github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 // Render combines the template with the step in the yaml pipeline.
 func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
-	config := new(types.Build)
+	config := new(bkTypes.Build)
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(environment, name)}
 	templateFuncMap := map[string]interface{}{
@@ -57,13 +58,13 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 		config.Steps[index].Name = fmt.Sprintf("%s_%s", name, newStep.Name)
 	}
 
-	return &types.Build{Metadata: config.Metadata, Deployment: config.Deployment, Steps: config.Steps, Secrets: config.Secrets, Services: config.Services, Environment: config.Environment, Templates: config.Templates}, nil
+	return &types.Build{Metadata: *config.Metadata.ToYAML(), Steps: *config.Steps.ToYAML(), Secrets: *config.Secrets.ToYAML(), Services: *config.Services.ToYAML(), Environment: config.Environment, Templates: *config.Templates.ToYAML(), Deployment: *config.Deployment.ToYAML()}, nil
 }
 
 // RenderBuild renders the templated build.
 func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
-	config := new(types.Build)
+	config := new(bkTypes.Build)
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(envs, tmpl)}
 	templateFuncMap := map[string]interface{}{
@@ -98,5 +99,5 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
-	return config, nil
+	return config.ToYAML(), nil
 }
