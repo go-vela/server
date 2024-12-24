@@ -35,8 +35,8 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	// ensure the mock expects the build queries
 	_mock.ExpectExec(build.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(build.CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateEventIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(build.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(build.CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(build.CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the dashboard queries
 	_mock.ExpectExec(dashboard.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
