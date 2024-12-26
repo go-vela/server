@@ -1,0 +1,6 @@
+---
+- name: foo
+  soft: 1024
+- name: bar
+  soft: 1024
+  hard: 2048

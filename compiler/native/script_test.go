@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/urfave/cli/v2"
 
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 func TestNative_ScriptStages(t *testing.T) {
@@ -19,7 +19,7 @@ func TestNative_ScriptStages(t *testing.T) {
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	baseEnv := environment(nil, nil, nil, nil)
+	baseEnv := environment(nil, nil, nil, nil, nil)
 
 	s := yaml.StageSlice{
 		&yaml.Stage{
@@ -109,7 +109,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	emptyEnv := environment(nil, nil, nil, nil)
+	emptyEnv := environment(nil, nil, nil, nil, nil)
 
 	baseEnv := emptyEnv
 	baseEnv["HOME"] = "/root"

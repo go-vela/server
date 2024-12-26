@@ -1,0 +1,45 @@
+# test file that uses the non-standard multiple anchor keys in one step to test custom step unmarshaler
+
+version: "1"
+
+aliases:
+  images:
+    alpine: &alpine-image
+      image: alpine:latest
+    postgres: &pg-image
+      image: postgres
+
+  events:
+    push: &event-push
+      ruleset:
+        event:
+          - push
+  env:
+    dev-env: &dev-environment
+      environment:
+        REGION: dev 
+
+services:
+  - name: service-a
+    <<: [ *pg-image, *dev-environment ]
+    ports:
+      - "5432:5432"
+
+steps:
+  - name: alpha
+    <<: [ *alpine-image, *event-push ]
+    commands:
+      - echo alpha
+
+  - name: beta
+    <<: [ *alpine-image, *event-push ]
+    commands:
+      - echo beta
+
+  - name: gamma
+    <<: 
+      - *alpine-image
+      - *event-push
+      - *dev-environment
+    commands:
+      - echo gamma

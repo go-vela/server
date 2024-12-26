@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/internal"
 )
 
@@ -59,7 +59,7 @@ func TestNative_TransformStages(t *testing.T) {
 				Steps: yaml.StepSlice{
 					&yaml.Step{
 						Commands:    []string{"./gradlew downloadDependencies"},
-						Environment: environment(nil, nil, nil, nil),
+						Environment: environment(nil, nil, nil, nil, nil),
 						Image:       "openjdk:latest",
 						Name:        "install",
 						Pull:        "always",
@@ -72,7 +72,7 @@ func TestNative_TransformStages(t *testing.T) {
 				Steps: yaml.StepSlice{
 					&yaml.Step{
 						Commands:    []string{"./gradlew check"},
-						Environment: environment(nil, nil, nil, nil),
+						Environment: environment(nil, nil, nil, nil, nil),
 						Image:       "openjdk:latest",
 						Name:        "test",
 						Pull:        "always",
@@ -138,7 +138,7 @@ func TestNative_TransformStages(t *testing.T) {
 								ID:          "__0_install deps_install",
 								Commands:    []string{"./gradlew downloadDependencies"},
 								Directory:   "/vela/src",
-								Environment: environment(nil, nil, nil, nil),
+								Environment: environment(nil, nil, nil, nil, nil),
 								Image:       "openjdk:latest",
 								Name:        "install",
 								Number:      1,
@@ -194,7 +194,7 @@ func TestNative_TransformStages(t *testing.T) {
 								ID:          "localOrg_localRepo_1_install deps_install",
 								Commands:    []string{"./gradlew downloadDependencies"},
 								Directory:   "/vela/src",
-								Environment: environment(nil, nil, nil, nil),
+								Environment: environment(nil, nil, nil, nil, nil),
 								Image:       "openjdk:latest",
 								Name:        "install",
 								Number:      1,
@@ -297,14 +297,14 @@ func TestNative_TransformSteps(t *testing.T) {
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Commands:    []string{"./gradlew downloadDependencies"},
-				Environment: environment(nil, nil, nil, nil),
+				Environment: environment(nil, nil, nil, nil, nil),
 				Image:       "openjdk:latest",
 				Name:        "install deps",
 				Pull:        "always",
 			},
 			&yaml.Step{
 				Commands:    []string{"./gradlew check"},
-				Environment: environment(nil, nil, nil, nil),
+				Environment: environment(nil, nil, nil, nil, nil),
 				Image:       "openjdk:latest",
 				Name:        "test",
 				Pull:        "always",
@@ -365,7 +365,7 @@ func TestNative_TransformSteps(t *testing.T) {
 						ID:          "step___0_install deps",
 						Commands:    []string{"./gradlew downloadDependencies"},
 						Directory:   "/vela/src",
-						Environment: environment(nil, nil, nil, nil),
+						Environment: environment(nil, nil, nil, nil, nil),
 						Image:       "openjdk:latest",
 						Name:        "install deps",
 						Number:      1,
@@ -416,7 +416,7 @@ func TestNative_TransformSteps(t *testing.T) {
 						ID:          "step_localOrg_localRepo_1_install deps",
 						Commands:    []string{"./gradlew downloadDependencies"},
 						Directory:   "/vela/src",
-						Environment: environment(nil, nil, nil, nil),
+						Environment: environment(nil, nil, nil, nil, nil),
 						Image:       "openjdk:latest",
 						Name:        "install deps",
 						Number:      1,

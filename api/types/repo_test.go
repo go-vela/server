@@ -156,6 +156,10 @@ func TestTypes_Repo_Getters(t *testing.T) {
 		if test.repo.GetApprovalTimeout() != test.want.GetApprovalTimeout() {
 			t.Errorf("GetApprovalTimeout is %v, want %v", test.repo.GetApprovalTimeout(), test.want.GetApprovalTimeout())
 		}
+
+		if test.repo.GetInstallID() != test.want.GetInstallID() {
+			t.Errorf("GetInstallID is %v, want %v", test.repo.GetInstallID(), test.want.GetInstallID())
+		}
 	}
 }
 
@@ -202,6 +206,7 @@ func TestTypes_Repo_Setters(t *testing.T) {
 		test.repo.SetPreviousName(test.want.GetPreviousName())
 		test.repo.SetApproveBuild(test.want.GetApproveBuild())
 		test.repo.SetApprovalTimeout(test.want.GetApprovalTimeout())
+		test.repo.SetInstallID(test.want.GetInstallID())
 
 		if test.repo.GetID() != test.want.GetID() {
 			t.Errorf("SetID is %v, want %v", test.repo.GetID(), test.want.GetID())
@@ -286,6 +291,10 @@ func TestTypes_Repo_Setters(t *testing.T) {
 		if test.repo.GetApprovalTimeout() != test.want.GetApprovalTimeout() {
 			t.Errorf("SetApprovalTimeout is %v, want %v", test.repo.GetApprovalTimeout(), test.want.GetApprovalTimeout())
 		}
+
+		if test.repo.GetInstallID() != test.want.GetInstallID() {
+			t.Errorf("SetInstallID is %v, want %v", test.repo.GetInstallID(), test.want.GetInstallID())
+		}
 	}
 }
 
@@ -314,7 +323,8 @@ func TestTypes_Repo_String(t *testing.T) {
   Timeout: %d,
   Topics: %s,
   Trusted: %t,
-  Visibility: %s
+  Visibility: %s,
+  InstallID: %d
 }`,
 		r.GetActive(),
 		r.GetAllowEvents().List(),
@@ -337,6 +347,7 @@ func TestTypes_Repo_String(t *testing.T) {
 		r.GetTopics(),
 		r.GetTrusted(),
 		r.GetVisibility(),
+		r.GetInstallID(),
 	)
 
 	// run test
@@ -375,6 +386,7 @@ func testRepo() *Repo {
 	r.SetPreviousName("")
 	r.SetApproveBuild(constants.ApproveNever)
 	r.SetApprovalTimeout(7)
+	r.SetInstallID(123)
 
 	return r
 }

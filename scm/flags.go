@@ -67,4 +67,29 @@ var Flags = []cli.Flag{
 			"is behind a Firewall or NAT, or when using something like ngrok to forward webhooks. " +
 			"(defaults to VELA_ADDR).",
 	},
+	&cli.Int64Flag{
+		EnvVars:  []string{"VELA_SCM_APP_ID", "SCM_APP_ID"},
+		FilePath: "/vela/scm/app_id",
+		Name:     "scm.app.id",
+		Usage:    "set ID for the SCM App integration (GitHub App)",
+	},
+	&cli.StringFlag{
+		EnvVars:  []string{"VELA_SCM_APP_PRIVATE_KEY", "SCM_APP_PRIVATE_KEY"},
+		FilePath: "/vela/scm/app_private_key",
+		Name:     "scm.app.private-key",
+		Usage:    "set value of base64 encoded SCM App integration (GitHub App) private key",
+	},
+	&cli.StringFlag{
+		EnvVars:  []string{"VELA_SCM_APP_PRIVATE_KEY_PATH", "SCM_APP_PRIVATE_KEY_PATH"},
+		FilePath: "/vela/scm/app_private_key_path",
+		Name:     "scm.app.private-key.path",
+		Usage:    "set filepath to the SCM App integration (GitHub App) private key",
+	},
+	&cli.StringSliceFlag{
+		EnvVars:  []string{"VELA_SCM_APP_PERMISSIONS", "SCM_APP_PERMISSIONS", "VELA_SOURCE_APP_PERMISSIONS", "SOURCE_APP_PERMISSIONS"},
+		FilePath: "/vela/scm/app/permissions",
+		Name:     "scm.app.permissions",
+		Usage:    "SCM App integration (GitHub App) permissions to be used as the allowed set of possible installation token permissions",
+		Value:    cli.NewStringSlice("contents:read", "checks:write"),
+	},
 }

@@ -36,6 +36,7 @@ repos (
 	previous_name    VARCHAR(100),
 	approve_build    VARCHAR(20),
 	approval_timeout INTEGER,
+	install_id       INTEGER,
 	UNIQUE(full_name)
 );
 `
@@ -67,6 +68,7 @@ repos (
 	previous_name    TEXT,
 	approve_build    TEXT,
 	approval_timeout INTEGER,
+	install_id       INTEGER,
 	UNIQUE(full_name)
 );
 `

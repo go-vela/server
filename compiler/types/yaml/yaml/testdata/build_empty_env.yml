@@ -1,0 +1,27 @@
+---
+version: "1"
+
+metadata:
+  template: false
+  environment: []
+
+environment:
+  HELLO: "Hello, Global Message"  
+
+worker:
+  flavor: 16cpu8gb
+  platform: gcp    
+
+steps:
+  - name: install
+    commands:
+      - ./gradlew downloadDependencies
+    environment:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+      GRADLE_USER_HOME: .gradle
+    image: openjdk:latest
+    pull: true
+    ruleset:
+      event: [ push, pull_request ]
+    volumes: [ /foo:/bar:ro ]
+    ulimits: [ foo=1024:2048 ]

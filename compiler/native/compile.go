@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
-	yml "github.com/buildkite/yaml"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
+	yml "gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
 )
 
@@ -42,6 +42,19 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
+	}
+
+	// create the netrc using the scm
+	// this has to occur after Parse because the scm configurations might be set in yaml
+	// netrc can be provided directly using WithNetrc for situations like local exec
+	if c.netrc == nil && c.scm != nil {
+		// get the netrc password from the scm
+		netrc, err := c.scm.GetNetrcPassword(ctx, c.db, c.repo, c.user, p.Git)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		c.WithNetrc(netrc)
 	}
 
 	// create the API pipeline object from the yaml configuration

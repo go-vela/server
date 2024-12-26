@@ -174,5 +174,31 @@ func SyncRepo(c *gin.Context) {
 		}
 	}
 
+	// map this repo to an installation, if necessary
+	installID := r.GetInstallID()
+
+	r, err = scm.FromContext(c).SyncRepoWithInstallation(ctx, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to sync repo %s with installation: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// install_id was synced
+	if r.GetInstallID() != installID {
+		_, err := database.FromContext(c).UpdateRepo(ctx, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to update repo %s during repair: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		l.Tracef("repo %s install_id synced to %d", r.GetFullName(), r.GetInstallID())
+	}
+
 	c.Status(http.StatusNoContent)
 }

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 // ScriptStages injects the script for each step in every stage in a yaml configuration.

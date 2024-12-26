@@ -60,7 +60,8 @@ const (
   },
   "approve_build": "fork-always",
   "approval_timeout": 7,
-  "previous_name": ""
+  "previous_name": "",
+  "install_id": 0
 }`
 
 	// ReposResp represents a JSON return for one to many repos.
@@ -79,7 +80,8 @@ const (
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true
+    "active": true,
+    "install_id": 0
   },
   {
     "id": 2,
@@ -95,7 +97,8 @@ const (
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true
+    "active": true,
+    "install_id": 0
   }
 ]`
 )

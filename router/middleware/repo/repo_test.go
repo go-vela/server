@@ -67,6 +67,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetPreviousName("")
 	want.SetApproveBuild("")
 	want.SetApprovalTimeout(7)
+	want.SetInstallID(0)
 
 	got := new(api.Repo)
 

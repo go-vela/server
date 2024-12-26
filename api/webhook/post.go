@@ -84,6 +84,7 @@ func PostWebhook(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
 	l := c.MustGet("logger").(*logrus.Entry)
+	db := database.FromContext(c)
 	ctx := c.Request.Context()
 
 	l.Debug("webhook received")
@@ -133,6 +134,20 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	if webhook.Installation != nil {
+		err = scm.FromContext(c).ProcessInstallation(ctx, c.Request, webhook, db)
+		if err != nil {
+			retErr := fmt.Errorf("unable to process installation: %w", err)
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		c.JSON(http.StatusOK, "installation processed successfully")
+
+		return
+	}
+
 	// check if the hook should be skipped
 	if skip, skipReason := webhook.ShouldSkip(); skip {
 		c.JSON(http.StatusOK, fmt.Sprintf("skipping build: %s", skipReason))
@@ -144,8 +159,6 @@ func PostWebhook(c *gin.Context) {
 
 	l.Debugf("hook generated from SCM: %v", h)
 	l.Debugf("repo generated from SCM: %v", r)
-
-	db := database.FromContext(c)
 
 	// if event is repository event, handle separately and return
 	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {
@@ -536,7 +549,7 @@ func PostWebhook(c *gin.Context) {
 	}()
 
 	// determine whether to send compiled build to queue
-	err = build.TrafficBuild(c, l, b, repo, item)
+	shouldEnqueue, err := build.ShouldEnqueue(c, l, b, repo)
 	if err != nil {
 		retErr := fmt.Errorf("unable to process build destination: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -545,6 +558,34 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		return
+	}
+
+	if shouldEnqueue {
+		// send API call to set the status on the commit
+		err := scm.FromContext(c).Status(c.Request.Context(), r.GetOwner(), b, r.GetOrg(), r.GetName())
+		if err != nil {
+			l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		}
+
+		// publish the build to the queue
+		go build.Enqueue(
+			context.WithoutCancel(c.Request.Context()),
+			queue.FromGinContext(c),
+			database.FromContext(c),
+			item,
+			b.GetHost(),
+		)
+	} else {
+		err := build.GatekeepBuild(c, b, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to gate build: %w", err)
+			util.HandleError(c, http.StatusInternalServerError, err)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
 	}
 
 	c.JSON(http.StatusCreated, b)

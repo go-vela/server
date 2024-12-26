@@ -194,6 +194,7 @@ func TestTypes_Repo_ToAPI(t *testing.T) {
 	want.SetPreviousName("oldName")
 	want.SetApproveBuild(constants.ApproveNever)
 	want.SetApprovalTimeout(7)
+	want.SetInstallID(0)
 
 	// run test
 	got := testRepo().ToAPI()
@@ -347,6 +348,7 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 	r.SetPreviousName("oldName")
 	r.SetApproveBuild(constants.ApproveNever)
 	r.SetApprovalTimeout(7)
+	r.SetInstallID(0)
 
 	want := testRepo()
 	want.Owner = User{}
@@ -385,6 +387,7 @@ func testRepo() *Repo {
 		PreviousName:    sql.NullString{String: "oldName", Valid: true},
 		ApproveBuild:    sql.NullString{String: constants.ApproveNever, Valid: true},
 		ApprovalTimeout: sql.NullInt64{Int64: 7, Valid: true},
+		InstallID:       sql.NullInt64{Int64: 0, Valid: true},
 
 		Owner: *testUser(),
 	}

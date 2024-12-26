@@ -68,6 +68,7 @@ type Repo struct {
 	PreviousName    sql.NullString `sql:"previous_name"`
 	ApproveBuild    sql.NullString `sql:"approve_build"`
 	ApprovalTimeout sql.NullInt64  `sql:"approval_timeout"`
+	InstallID       sql.NullInt64  `sql:"install_id"`
 
 	Owner User `gorm:"foreignKey:UserID"`
 }
@@ -265,6 +266,7 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetPreviousName(r.PreviousName.String)
 	repo.SetApproveBuild(r.ApproveBuild.String)
 	repo.SetApprovalTimeout(r.ApprovalTimeout.Int64)
+	repo.SetInstallID(r.InstallID.Int64)
 
 	return repo
 }
@@ -358,6 +360,7 @@ func RepoFromAPI(r *api.Repo) *Repo {
 		PreviousName:    sql.NullString{String: r.GetPreviousName(), Valid: true},
 		ApproveBuild:    sql.NullString{String: r.GetApproveBuild(), Valid: true},
 		ApprovalTimeout: sql.NullInt64{Int64: r.GetApprovalTimeout(), Valid: true},
+		InstallID:       sql.NullInt64{Int64: r.GetInstallID(), Valid: true},
 	}
 
 	return repo.Nullify()
