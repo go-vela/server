@@ -7,14 +7,12 @@ import (
 	"io"
 	"os"
 
-	bkYaml "github.com/buildkite/yaml"
-
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	typesRaw "github.com/go-vela/server/compiler/types/raw"
-	bkYamlTypes "github.com/go-vela/server/compiler/types/yaml/buildkite"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/internal"
 )
 
 // ParseRaw converts an object to a string.
@@ -114,12 +112,9 @@ func (c *client) Parse(v interface{}, pipelineType string, template *yaml.Templa
 
 // ParseBytes converts a byte slice to a yaml configuration.
 func ParseBytes(data []byte) (*yaml.Build, []byte, error) {
-	config := new(bkYamlTypes.Build)
-
-	// unmarshal the bytes into the yaml configuration
-	err := bkYaml.Unmarshal(data, config)
+	config, err := internal.ParseYAML(data)
 	if err != nil {
-		return nil, data, fmt.Errorf("unable to unmarshal yaml: %w", err)
+		return nil, nil, err
 	}
 
 	// initializing Environment to prevent nil error
@@ -129,7 +124,7 @@ func ParseBytes(data []byte) (*yaml.Build, []byte, error) {
 		config.Environment = typesRaw.StringSliceMap{}
 	}
 
-	return config.ToYAML(), data, nil
+	return config, data, nil
 }
 
 // ParseFile converts an os.File into a yaml configuration.

@@ -8,17 +8,15 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
-	"github.com/buildkite/yaml"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	bkTypes "github.com/go-vela/server/compiler/types/yaml/buildkite"
 	types "github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/internal"
 )
 
 // Render combines the template with the step in the yaml pipeline.
 func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
-	config := new(bkTypes.Build)
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(environment, name)}
 	templateFuncMap := map[string]interface{}{
@@ -48,7 +46,7 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	}
 
 	// unmarshal the template to the pipeline
-	err = yaml.Unmarshal(buffer.Bytes(), config)
+	config, err := internal.ParseYAML(buffer.Bytes())
 	if err != nil {
 		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
@@ -58,13 +56,12 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 		config.Steps[index].Name = fmt.Sprintf("%s_%s", name, newStep.Name)
 	}
 
-	return &types.Build{Metadata: *config.Metadata.ToYAML(), Steps: *config.Steps.ToYAML(), Secrets: *config.Secrets.ToYAML(), Services: *config.Services.ToYAML(), Environment: config.Environment, Templates: *config.Templates.ToYAML(), Deployment: *config.Deployment.ToYAML()}, nil
+	return &types.Build{Metadata: config.Metadata, Steps: config.Steps, Secrets: config.Secrets, Services: config.Services, Environment: config.Environment, Templates: config.Templates, Deployment: config.Deployment}, nil
 }
 
 // RenderBuild renders the templated build.
 func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
-	config := new(bkTypes.Build)
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(envs, tmpl)}
 	templateFuncMap := map[string]interface{}{
@@ -94,10 +91,10 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 	}
 
 	// unmarshal the template to the pipeline
-	err = yaml.Unmarshal(buffer.Bytes(), config)
+	config, err := internal.ParseYAML(buffer.Bytes())
 	if err != nil {
 		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
-	return config.ToYAML(), nil
+	return config, nil
 }
