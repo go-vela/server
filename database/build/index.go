@@ -14,6 +14,15 @@ builds_created
 ON builds (created);
 `
 
+	// CreateEventIndex represents a query to create an
+	// index on the builds table for the event column.
+	CreateEventIndex = `
+CREATE INDEX
+IF NOT EXISTS
+builds_event
+ON builds (event);
+`
+
 	// CreateRepoIDIndex represents a query to create an
 	// index on the builds table for the repo_id column.
 	CreateRepoIDIndex = `
@@ -21,15 +30,6 @@ CREATE INDEX
 IF NOT EXISTS
 builds_repo_id
 ON builds (repo_id);
-`
-
-	// CreateSourceIndex represents a query to create an
-	// index on the builds table for the source column.
-	CreateSourceIndex = `
-CREATE INDEX
-IF NOT EXISTS
-builds_source
-ON builds (source);
 `
 
 	// CreateStatusIndex represents a query to create an
@@ -54,18 +54,18 @@ func (e *engine) CreateBuildIndexes(ctx context.Context) error {
 		return err
 	}
 
-	// create the repo_id column index for the builds table
+	// create the event column index for the builds table
 	err = e.client.
 		WithContext(ctx).
-		Exec(CreateRepoIDIndex).Error
+		Exec(CreateEventIndex).Error
 	if err != nil {
 		return err
 	}
 
-	// create the source column index for the builds table
+	// create the repo_id column index for the builds table
 	err = e.client.
 		WithContext(ctx).
-		Exec(CreateSourceIndex).Error
+		Exec(CreateRepoIDIndex).Error
 	if err != nil {
 		return err
 	}
