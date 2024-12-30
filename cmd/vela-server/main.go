@@ -133,6 +133,12 @@ func main() {
 			Usage:   "override default build timeout (minutes)",
 			Value:   constants.BuildTimeoutDefault,
 		},
+		&cli.Int64Flag{
+			EnvVars: []string{"VELA_DEFAULT_APPROVAL_TIMEOUT"},
+			Name:    "default-approval-timeout",
+			Usage:   "override default approval timeout (days)",
+			Value:   constants.ApprovalTimeoutDefault,
+		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_DEFAULT_REPO_EVENTS"},
 			Name:    "default-repo-events",

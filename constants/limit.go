@@ -22,6 +22,15 @@ const (
 	// BuildTimeoutDefault defines the default value in minutes for repo build timeout.
 	BuildTimeoutDefault = 30
 
+	// ApprovalTimeoutMin defines the minimum value in days for the repo build approval timeout.
+	ApprovalTimeoutMin = 1
+
+	// ApprovalTimeoutMax defines the maximum value in days for the repo build approval timeout.
+	ApprovalTimeoutMax = 60
+
+	// ApprovalTimeout defines the default value in days for repo build approval timeout.
+	ApprovalTimeoutDefault = 7
+
 	// FavoritesMaxSize defines the maximum size in characters for user favorites.
 	FavoritesMaxSize = 5000
 

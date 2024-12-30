@@ -383,10 +383,10 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CleanBuilds"] = true
 
 	// update the builds
-	for _, build := range resources.Builds {
+	for i, build := range resources.Builds {
 		prevStatus := build.GetStatus()
 
-		build.SetStatus("success")
+		build.SetStatus("pending approval")
 		_, err = db.UpdateBuild(context.TODO(), build)
 		if err != nil {
 			t.Errorf("unable to update build %d: %v", build.GetID(), err)
@@ -401,10 +401,22 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetBuild() mismatch (-want +got):\n%s", diff)
 		}
 
+		if i == 1 {
+			pABuilds, err := db.ListPendingApprovalBuilds(context.TODO(), "1663474076")
+			if err != nil {
+				t.Errorf("unable to list pending approval builds: %v", err)
+			}
+
+			if len(pABuilds) != 2 {
+				t.Errorf("ListPendingApprovalBuilds() is %v, want %v", len(pABuilds), 2)
+			}
+		}
+
 		build.SetStatus(prevStatus)
 	}
 	methods["UpdateBuild"] = true
 	methods["GetBuild"] = true
+	methods["ListPendingApprovalBuilds"] = true
 
 	// delete the builds
 	for _, build := range resources.Builds {
@@ -2491,6 +2503,7 @@ func newResources() *Resources {
 	repoOne.SetPreviousName("")
 	repoOne.SetApproveBuild(constants.ApproveNever)
 	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
+	repoOne.SetApprovalTimeout(7)
 	repoOne.SetInstallID(0)
 
 	repoTwo := new(api.Repo)
@@ -2515,6 +2528,7 @@ func newResources() *Resources {
 	repoTwo.SetPreviousName("")
 	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
 	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	repoTwo.SetApprovalTimeout(7)
 	repoTwo.SetInstallID(0)
 
 	buildOne := new(api.Build)
