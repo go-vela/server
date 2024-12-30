@@ -48,6 +48,10 @@ func TestInternal_ParseYAML(t *testing.T) {
 			want: wantBuild,
 		},
 		{
+			file: "testdata/buildkite_new_version.yml",
+			want: wantBuild,
+		},
+		{
 			file: "testdata/no_version.yml",
 			want: wantBuild,
 		},
