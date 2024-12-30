@@ -149,19 +149,42 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
+	// determine whether or not to send compiled build to queue
+	shouldEnqueue, err := ShouldEnqueue(c, l, item.Build, r)
+	if err != nil {
+		util.HandleError(c, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	if shouldEnqueue {
+		// send API call to set the status on the commit
+		err := scm.Status(c.Request.Context(), r.GetOwner(), b, r.GetOrg(), r.GetName())
+		if err != nil {
+			l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		}
+
+		// publish the build to the queue
+		go Enqueue(
+			context.WithoutCancel(c.Request.Context()),
+			queue.FromGinContext(c),
+			database.FromContext(c),
+			item,
+			b.GetHost(),
+		)
+	} else {
+		err := GatekeepBuild(c, b, r)
+		if err != nil {
+			util.HandleError(c, http.StatusInternalServerError, err)
+
+			return
+		}
+	}
+
 	l.WithFields(logrus.Fields{
 		"new_build":    item.Build.GetNumber(),
 		"new_build_id": item.Build.GetID(),
 	}).Info("build created via restart")
 
 	c.JSON(http.StatusCreated, item.Build)
-
-	// publish the build to the queue
-	go Enqueue(
-		context.WithoutCancel(ctx),
-		queue.FromGinContext(c),
-		database.FromContext(c),
-		item,
-		item.Build.GetHost(),
-	)
 }
