@@ -2162,19 +2162,21 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
 	}
 
-	// run test on current version (should fail)
-	yaml, err = os.ReadFile("../types/yaml/buildkite/testdata/merge_anchor.yml") // has `version: "1"` instead of `version: "legacy"`
+	// run test on current version
+	yaml, err = os.ReadFile("testdata/steps_merge_anchor_1.yml") // has `version: "1"` instead of `version: "legacy"`
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
 	got, _, err = compiler.Compile(context.Background(), yaml)
-	if err == nil {
-		t.Errorf("Compile should have returned err")
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
 	}
 
-	if got != nil {
-		t.Errorf("Compile is %v, want %v", got, nil)
+	want.Version = "1"
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
 	}
 }
 

@@ -4,6 +4,7 @@ package internal
 
 import (
 	"fmt"
+	"strings"
 
 	bkYaml "github.com/buildkite/yaml"
 	yaml "gopkg.in/yaml.v3"
@@ -55,9 +56,90 @@ func ParseYAML(data []byte) (*types.Build, error) {
 		// unmarshal the bytes into the yaml configuration
 		err := yaml.Unmarshal(data, config)
 		if err != nil {
-			return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
+			// if error is related to duplicate `<<` keys, attempt to fix
+			if strings.Contains(err.Error(), "mapping key \"<<\" already defined") {
+				root := new(yaml.Node)
+
+				if err := yaml.Unmarshal(data, root); err != nil {
+					fmt.Println("error unmarshalling YAML:", err)
+
+					return nil, err
+				}
+
+				collapseMergeAnchors(root.Content[0])
+
+				newData, err := yaml.Marshal(root)
+				if err != nil {
+					return nil, err
+				}
+
+				err = yaml.Unmarshal(newData, config)
+				if err != nil {
+					return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
+				}
+			} else {
+				return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
+			}
 		}
 	}
 
 	return config, nil
+}
+
+// collapseMergeAnchors traverses the entire pipeline and replaces duplicate `<<` keys with a single key->sequence.
+func collapseMergeAnchors(node *yaml.Node) {
+	// only replace on maps
+	if node.Kind == yaml.MappingNode {
+		var (
+			anchors      []*yaml.Node
+			keysToRemove []int
+			firstIndex   int
+			firstFound   bool
+		)
+
+		// traverse mapping node content
+		for i := 0; i < len(node.Content); i += 2 {
+			keyNode := node.Content[i]
+
+			// anchor found
+			if keyNode.Value == "<<" {
+				if (i+1) < len(node.Content) && node.Content[i+1].Kind == yaml.AliasNode {
+					anchors = append(anchors, node.Content[i+1])
+				}
+
+				if !firstFound {
+					firstIndex = i
+					firstFound = true
+				} else {
+					keysToRemove = append(keysToRemove, i)
+				}
+			}
+		}
+
+		// only replace if there were duplicates
+		if len(anchors) > 1 && firstFound {
+			seqNode := &yaml.Node{
+				Kind:    yaml.SequenceNode,
+				Content: anchors,
+			}
+
+			node.Content[firstIndex] = &yaml.Node{Kind: yaml.ScalarNode, Value: "<<"}
+			node.Content[firstIndex+1] = seqNode
+
+			for i := len(keysToRemove) - 1; i >= 0; i-- {
+				index := keysToRemove[i]
+
+				node.Content = append(node.Content[:index], node.Content[index+2:]...)
+			}
+		}
+
+		// go to next level
+		for _, content := range node.Content {
+			collapseMergeAnchors(content)
+		}
+	} else if node.Kind == yaml.SequenceNode {
+		for _, item := range node.Content {
+			collapseMergeAnchors(item)
+		}
+	}
 }
