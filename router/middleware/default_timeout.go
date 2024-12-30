@@ -14,3 +14,12 @@ func DefaultTimeout(defaultTimeout int64) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// DefaultApprovalTimeout is a middleware function that attaches the defaultApprovalTimeout
+// to enable the server to override the default build approval timeout.
+func DefaultApprovalTimeout(defaultApprovalTimeout int64) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("defaultApprovalTimeout", defaultApprovalTimeout)
+		c.Next()
+	}
+}

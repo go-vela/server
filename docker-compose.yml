@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-version: '3'
-
 services:
   # The `server` compose service hosts the Vela server and API.
   #
@@ -13,7 +11,7 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ${VELA_SERVER_DOCKERFILE:-Dockerfile}
     container_name: server
     networks:
       - vela

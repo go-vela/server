@@ -46,28 +46,29 @@ var (
 
 // Repo is the database representation of a repo.
 type Repo struct {
-	ID           sql.NullInt64  `sql:"id"`
-	UserID       sql.NullInt64  `sql:"user_id"`
-	Hash         sql.NullString `sql:"hash"`
-	Org          sql.NullString `sql:"org"`
-	Name         sql.NullString `sql:"name"`
-	FullName     sql.NullString `sql:"full_name"`
-	Link         sql.NullString `sql:"link"`
-	Clone        sql.NullString `sql:"clone"`
-	Branch       sql.NullString `sql:"branch"`
-	Topics       pq.StringArray `sql:"topics"        gorm:"type:varchar(1020)"`
-	BuildLimit   sql.NullInt64  `sql:"build_limit"`
-	Timeout      sql.NullInt64  `sql:"timeout"`
-	Counter      sql.NullInt64  `sql:"counter"`
-	Visibility   sql.NullString `sql:"visibility"`
-	Private      sql.NullBool   `sql:"private"`
-	Trusted      sql.NullBool   `sql:"trusted"`
-	Active       sql.NullBool   `sql:"active"`
-	AllowEvents  sql.NullInt64  `sql:"allow_events"`
-	PipelineType sql.NullString `sql:"pipeline_type"`
-	PreviousName sql.NullString `sql:"previous_name"`
-	ApproveBuild sql.NullString `sql:"approve_build"`
-	InstallID    sql.NullInt64  `sql:"install_id"`
+	ID              sql.NullInt64  `sql:"id"`
+	UserID          sql.NullInt64  `sql:"user_id"`
+	Hash            sql.NullString `sql:"hash"`
+	Org             sql.NullString `sql:"org"`
+	Name            sql.NullString `sql:"name"`
+	FullName        sql.NullString `sql:"full_name"`
+	Link            sql.NullString `sql:"link"`
+	Clone           sql.NullString `sql:"clone"`
+	Branch          sql.NullString `sql:"branch"`
+	Topics          pq.StringArray `sql:"topics"           gorm:"type:varchar(1020)"`
+	BuildLimit      sql.NullInt64  `sql:"build_limit"`
+	Timeout         sql.NullInt64  `sql:"timeout"`
+	Counter         sql.NullInt64  `sql:"counter"`
+	Visibility      sql.NullString `sql:"visibility"`
+	Private         sql.NullBool   `sql:"private"`
+	Trusted         sql.NullBool   `sql:"trusted"`
+	Active          sql.NullBool   `sql:"active"`
+	AllowEvents     sql.NullInt64  `sql:"allow_events"`
+	PipelineType    sql.NullString `sql:"pipeline_type"`
+	PreviousName    sql.NullString `sql:"previous_name"`
+	ApproveBuild    sql.NullString `sql:"approve_build"`
+	ApprovalTimeout sql.NullInt64  `sql:"approval_timeout"`
+	InstallID       sql.NullInt64  `sql:"install_id"`
 
 	Owner User `gorm:"foreignKey:UserID"`
 }
@@ -222,6 +223,11 @@ func (r *Repo) Nullify() *Repo {
 		r.ApproveBuild.Valid = false
 	}
 
+	// check if the ApprovalTimeout field should be false
+	if r.ApprovalTimeout.Int64 == 0 {
+		r.ApprovalTimeout.Valid = false
+	}
+
 	return r
 }
 
@@ -230,8 +236,16 @@ func (r *Repo) Nullify() *Repo {
 func (r *Repo) ToAPI() *api.Repo {
 	repo := new(api.Repo)
 
+	var owner *api.User
+	if r.Owner.ID.Valid {
+		owner = r.Owner.ToAPI()
+	} else {
+		owner = new(api.User)
+		owner.SetID(r.UserID.Int64)
+	}
+
 	repo.SetID(r.ID.Int64)
-	repo.SetOwner(r.Owner.ToAPI().Crop())
+	repo.SetOwner(owner.Crop())
 	repo.SetHash(r.Hash.String)
 	repo.SetOrg(r.Org.String)
 	repo.SetName(r.Name.String)
@@ -251,6 +265,7 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetPipelineType(r.PipelineType.String)
 	repo.SetPreviousName(r.PreviousName.String)
 	repo.SetApproveBuild(r.ApproveBuild.String)
+	repo.SetApprovalTimeout(r.ApprovalTimeout.Int64)
 	repo.SetInstallID(r.InstallID.Int64)
 
 	return repo
@@ -323,28 +338,29 @@ func (r *Repo) Validate() error {
 // to a database repo type.
 func RepoFromAPI(r *api.Repo) *Repo {
 	repo := &Repo{
-		ID:           sql.NullInt64{Int64: r.GetID(), Valid: true},
-		UserID:       sql.NullInt64{Int64: r.GetOwner().GetID(), Valid: true},
-		Hash:         sql.NullString{String: r.GetHash(), Valid: true},
-		Org:          sql.NullString{String: r.GetOrg(), Valid: true},
-		Name:         sql.NullString{String: r.GetName(), Valid: true},
-		FullName:     sql.NullString{String: r.GetFullName(), Valid: true},
-		Link:         sql.NullString{String: r.GetLink(), Valid: true},
-		Clone:        sql.NullString{String: r.GetClone(), Valid: true},
-		Branch:       sql.NullString{String: r.GetBranch(), Valid: true},
-		Topics:       pq.StringArray(r.GetTopics()),
-		BuildLimit:   sql.NullInt64{Int64: r.GetBuildLimit(), Valid: true},
-		Timeout:      sql.NullInt64{Int64: r.GetTimeout(), Valid: true},
-		Counter:      sql.NullInt64{Int64: int64(r.GetCounter()), Valid: true},
-		Visibility:   sql.NullString{String: r.GetVisibility(), Valid: true},
-		Private:      sql.NullBool{Bool: r.GetPrivate(), Valid: true},
-		Trusted:      sql.NullBool{Bool: r.GetTrusted(), Valid: true},
-		Active:       sql.NullBool{Bool: r.GetActive(), Valid: true},
-		AllowEvents:  sql.NullInt64{Int64: r.GetAllowEvents().ToDatabase(), Valid: true},
-		PipelineType: sql.NullString{String: r.GetPipelineType(), Valid: true},
-		PreviousName: sql.NullString{String: r.GetPreviousName(), Valid: true},
-		ApproveBuild: sql.NullString{String: r.GetApproveBuild(), Valid: true},
-		InstallID:    sql.NullInt64{Int64: r.GetInstallID(), Valid: true},
+		ID:              sql.NullInt64{Int64: r.GetID(), Valid: true},
+		UserID:          sql.NullInt64{Int64: r.GetOwner().GetID(), Valid: true},
+		Hash:            sql.NullString{String: r.GetHash(), Valid: true},
+		Org:             sql.NullString{String: r.GetOrg(), Valid: true},
+		Name:            sql.NullString{String: r.GetName(), Valid: true},
+		FullName:        sql.NullString{String: r.GetFullName(), Valid: true},
+		Link:            sql.NullString{String: r.GetLink(), Valid: true},
+		Clone:           sql.NullString{String: r.GetClone(), Valid: true},
+		Branch:          sql.NullString{String: r.GetBranch(), Valid: true},
+		Topics:          pq.StringArray(r.GetTopics()),
+		BuildLimit:      sql.NullInt64{Int64: r.GetBuildLimit(), Valid: true},
+		Timeout:         sql.NullInt64{Int64: r.GetTimeout(), Valid: true},
+		Counter:         sql.NullInt64{Int64: int64(r.GetCounter()), Valid: true},
+		Visibility:      sql.NullString{String: r.GetVisibility(), Valid: true},
+		Private:         sql.NullBool{Bool: r.GetPrivate(), Valid: true},
+		Trusted:         sql.NullBool{Bool: r.GetTrusted(), Valid: true},
+		Active:          sql.NullBool{Bool: r.GetActive(), Valid: true},
+		AllowEvents:     sql.NullInt64{Int64: r.GetAllowEvents().ToDatabase(), Valid: true},
+		PipelineType:    sql.NullString{String: r.GetPipelineType(), Valid: true},
+		PreviousName:    sql.NullString{String: r.GetPreviousName(), Valid: true},
+		ApproveBuild:    sql.NullString{String: r.GetApproveBuild(), Valid: true},
+		ApprovalTimeout: sql.NullInt64{Int64: r.GetApprovalTimeout(), Valid: true},
+		InstallID:       sql.NullInt64{Int64: r.GetInstallID(), Valid: true},
 	}
 
 	return repo.Nullify()
