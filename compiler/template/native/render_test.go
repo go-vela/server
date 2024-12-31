@@ -59,7 +59,7 @@ func TestNative_Render(t *testing.T) {
 				t.Error(err)
 			}
 
-			tmplBuild, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables)
+			tmplBuild, _, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -120,7 +120,7 @@ func TestNative_RenderBuild(t *testing.T) {
 				t.Error(err)
 			}
 
-			got, err := RenderBuild("build", string(sFile), map[string]string{
+			got, _, err := RenderBuild("build", string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "main",
 			}, map[string]interface{}{})

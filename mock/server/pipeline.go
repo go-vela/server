@@ -169,6 +169,9 @@ templates:
   "stages": false,
   "steps": true,
   "templates": false,
+  "warnings": [
+    "42:this is a warning"
+  ],
   "data": "LS0tCnZlcnNpb246ICIxIgoKc3RlcHM6CiAgLSBuYW1lOiBlY2hvCiAgICBpbWFnZTogYWxwaW5lOmxhdGVzdAogICAgY29tbWFuZHM6IFtlY2hvIGZvb10="
 }`
 

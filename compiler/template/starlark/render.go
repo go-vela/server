@@ -31,11 +31,11 @@ var (
 )
 
 // Render combines the template with the step in the yaml pipeline.
-func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}, limit int64) (*types.Build, error) {
+func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}, limit int64) (*types.Build, []string, error) {
 	thread := &starlark.Thread{Name: name}
 
 	if limit < 0 {
-		return nil, fmt.Errorf("starlark exec limit must be non-negative")
+		return nil, nil, fmt.Errorf("starlark exec limit must be non-negative")
 	}
 
 	thread.SetMaxExecutionSteps(uint64(limit))
@@ -44,31 +44,31 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 
 	globals, err := starlark.ExecFileOptions(syntax.LegacyFileOptions(), thread, "templated-base", tmpl, predeclared)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// check the provided template has a main function
 	mainVal, ok := globals["main"]
 	if !ok {
-		return nil, fmt.Errorf("%w: %s", ErrMissingMainFunc, tName)
+		return nil, nil, fmt.Errorf("%w: %s", ErrMissingMainFunc, tName)
 	}
 
 	// check the provided main is a function
 	main, ok := mainVal.(starlark.Callable)
 	if !ok {
-		return nil, fmt.Errorf("%w: %s", ErrInvalidMainFunc, tName)
+		return nil, nil, fmt.Errorf("%w: %s", ErrInvalidMainFunc, tName)
 	}
 
 	// load the user provided vars into a starlark type
 	userVars, err := convertTemplateVars(variables)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// load the platform provided vars into a starlark type
 	velaVars, err := convertPlatformVars(environment, name)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// add the user and platform vars to a context to be used
@@ -77,12 +77,12 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 
 	err = context.SetKey(starlark.String("vela"), velaVars)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	err = context.SetKey(starlark.String("vars"), userVars)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	args := starlark.Tuple([]starlark.Value{context})
@@ -90,11 +90,10 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	// execute Starlark program from Go.
 	mainVal, err = starlark.Call(thread, main, args, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	buf := new(bytes.Buffer)
-
 	// extract the pipeline from the starlark program
 	switch v := mainVal.(type) {
 	case *starlark.List:
@@ -105,7 +104,7 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 
 			err = writeJSON(buf, item)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			buf.WriteString("\n")
@@ -115,16 +114,16 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 
 		err = writeJSON(buf, v)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	default:
-		return nil, fmt.Errorf("%w: %s", ErrInvalidPipelineReturn, mainVal.Type())
+		return nil, nil, fmt.Errorf("%w: %s", ErrInvalidPipelineReturn, mainVal.Type())
 	}
 
 	// unmarshal the template to the pipeline
-	config, err := internal.ParseYAML(buf.Bytes())
+	config, warnings, err := internal.ParseYAML(buf.Bytes())
 	if err != nil {
-		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
+		return nil, nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
 	// ensure all templated steps have template prefix
@@ -132,17 +131,25 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 		config.Steps[index].Name = fmt.Sprintf("%s_%s", name, newStep.Name)
 	}
 
-	return &types.Build{Steps: config.Steps, Secrets: config.Secrets, Services: config.Services, Environment: config.Environment}, nil
+	return &types.Build{
+			Steps:       config.Steps,
+			Secrets:     config.Secrets,
+			Services:    config.Services,
+			Environment: config.Environment,
+			Deployment:  config.Deployment,
+		},
+		warnings,
+		nil
 }
 
 // RenderBuild renders the templated build.
 //
 //nolint:lll // ignore function length due to input args
-func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}, limit int64) (*types.Build, error) {
+func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}, limit int64) (*types.Build, []string, error) {
 	thread := &starlark.Thread{Name: "templated-base"}
 
 	if limit < 0 {
-		return nil, fmt.Errorf("starlark exec limit must be non-negative")
+		return nil, nil, fmt.Errorf("starlark exec limit must be non-negative")
 	}
 
 	thread.SetMaxExecutionSteps(uint64(limit))
@@ -151,31 +158,31 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 
 	globals, err := starlark.ExecFileOptions(syntax.LegacyFileOptions(), thread, "templated-base", b, predeclared)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// check the provided template has a main function
 	mainVal, ok := globals["main"]
 	if !ok {
-		return nil, fmt.Errorf("%w: %s", ErrMissingMainFunc, "templated-base")
+		return nil, nil, fmt.Errorf("%w: %s", ErrMissingMainFunc, "templated-base")
 	}
 
 	// check the provided main is a function
 	main, ok := mainVal.(starlark.Callable)
 	if !ok {
-		return nil, fmt.Errorf("%w: %s", ErrInvalidMainFunc, "templated-base")
+		return nil, nil, fmt.Errorf("%w: %s", ErrInvalidMainFunc, "templated-base")
 	}
 
 	// load the user provided vars into a starlark type
 	userVars, err := convertTemplateVars(variables)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// load the platform provided vars into a starlark type
 	velaVars, err := convertPlatformVars(envs, tmpl)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// add the user and platform vars to a context to be used
@@ -184,12 +191,12 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 
 	err = context.SetKey(starlark.String("vela"), velaVars)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	err = context.SetKey(starlark.String("vars"), userVars)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	args := starlark.Tuple([]starlark.Value{context})
@@ -197,11 +204,10 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 	// execute Starlark program from Go.
 	mainVal, err = starlark.Call(thread, main, args, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	buf := new(bytes.Buffer)
-
 	// extract the pipeline from the starlark program
 	switch v := mainVal.(type) {
 	case *starlark.List:
@@ -212,7 +218,7 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 
 			err = writeJSON(buf, item)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			buf.WriteString("\n")
@@ -222,17 +228,17 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 
 		err = writeJSON(buf, v)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	default:
-		return nil, fmt.Errorf("%w: %s", ErrInvalidPipelineReturn, mainVal.Type())
+		return nil, nil, fmt.Errorf("%w: %s", ErrInvalidPipelineReturn, mainVal.Type())
 	}
 
 	// unmarshal the template to the pipeline
-	config, err := internal.ParseYAML(buf.Bytes())
+	config, warnings, err := internal.ParseYAML(buf.Bytes())
 	if err != nil {
-		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
+		return nil, nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
-	return config, nil
+	return config, warnings, nil
 }

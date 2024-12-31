@@ -39,7 +39,7 @@ type ModifyResponse struct {
 
 // Compile produces an executable pipeline from a yaml configuration.
 func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *api.Pipeline, error) {
-	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
+	p, data, warnings, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -61,6 +61,7 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)
 	_pipeline.SetType(c.repo.GetPipelineType())
+	_pipeline.SetWarnings(warnings)
 
 	// create map of templates for easy lookup
 	templates := mapFromTemplates(p.Templates)
@@ -117,7 +118,7 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
 func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *api.Pipeline, error) {
-	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
+	p, data, warnings, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -126,6 +127,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)
 	_pipeline.SetType(c.repo.GetPipelineType())
+	_pipeline.SetWarnings(warnings)
 
 	if p.Metadata.RenderInline {
 		newPipeline, err := c.compileInline(ctx, p, c.GetTemplateDepth())
@@ -267,7 +269,7 @@ func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 		// inject template name into variables
 		template.Variables["VELA_TEMPLATE_NAME"] = template.Name
 
-		parsed, _, err := c.Parse(bytes, format, template)
+		parsed, _, _, err := c.Parse(bytes, format, template)
 		if err != nil {
 			return nil, err
 		}
