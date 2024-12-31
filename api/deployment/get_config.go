@@ -11,7 +11,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
@@ -72,10 +74,24 @@ func GetDeploymentConfig(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 
-	ctx := c.Request.Context()
-
 	// capture ref from parameters - use default branch if not provided
 	ref := util.QueryParameter(c, "ref", r.GetBranch())
+
+	deployConfig, err := getDeploymentConfig(c, l, u, r, ref)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get deployment config for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, deployConfig)
+}
+
+// getDeploymentConfig is a helper function that lightly compiles a Vela pipeline to retrieve the deployment configuration.
+func getDeploymentConfig(c *gin.Context, l *logrus.Entry, u *types.User, r *types.Repo, ref string) (yaml.Deployment, error) {
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s@%s", r.GetFullName(), ref)
 
@@ -91,19 +107,11 @@ func GetDeploymentConfig(c *gin.Context) {
 
 			config, err = scm.FromContext(c).ConfigBackoff(ctx, u, r, ref)
 			if err != nil {
-				retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", entry, err)
-
-				util.HandleError(c, http.StatusNotFound, retErr)
-
-				return
+				return yaml.Deployment{}, fmt.Errorf("unable to get pipeline configuration for %s: %w", entry, err)
 			}
 		} else {
 			// some other error
-			retErr := fmt.Errorf("unable to get pipeline for %s: %w", entry, err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
+			return yaml.Deployment{}, fmt.Errorf("unable to get pipeline for %s: %w", entry, err)
 		}
 	} else {
 		l.Debugf("pipeline %s found in database", entry)
@@ -117,12 +125,8 @@ func GetDeploymentConfig(c *gin.Context) {
 	// compile the pipeline
 	pipeline, _, err := compiler.CompileLite(ctx, config, nil, true)
 	if err != nil {
-		retErr := fmt.Errorf("unable to compile pipeline %s: %w", entry, err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
+		return yaml.Deployment{}, fmt.Errorf("unable to compile pipeline %s: %w", entry, err)
 	}
 
-	c.JSON(http.StatusOK, pipeline.Deployment)
+	return pipeline.Deployment, nil
 }
