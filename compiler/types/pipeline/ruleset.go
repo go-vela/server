@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/expr-lang/expr"
+
 	"github.com/go-vela/server/constants"
 )
 
@@ -23,7 +24,7 @@ type (
 		Matcher  string `json:"matcher,omitempty"  yaml:"matcher,omitempty"`
 		Operator string `json:"operator,omitempty" yaml:"operator,omitempty"`
 		Continue bool   `json:"continue,omitempty" yaml:"continue,omitempty"`
-		Eval     string `json:"eval,omitempty" yaml:"eval,omitempty"`
+		Eval     string `json:"eval,omitempty"     yaml:"eval,omitempty"`
 	}
 
 	// Rules is the pipeline representation of the ruletypes
@@ -103,12 +104,12 @@ func (r *Ruleset) Match(from *RuleData, envs map[string]string) (bool, error) {
 	if r.Eval != "" {
 		eval, err := expr.Compile(r.Eval, expr.Env(envs), expr.AllowUndefinedVariables(), expr.AsBool())
 		if err != nil {
-			return false, fmt.Errorf("failed to compile expr of %s: %v", r.Eval, err)
+			return false, fmt.Errorf("failed to compile expr of %s: %w", r.Eval, err)
 		}
 
 		result, err := expr.Run(eval, envs)
 		if err != nil {
-			return false, fmt.Errorf("failed to run expr of %s: %v", r.Eval, err)
+			return false, fmt.Errorf("failed to run expr of %s: %w", r.Eval, err)
 		}
 
 		bResult, ok := result.(bool)

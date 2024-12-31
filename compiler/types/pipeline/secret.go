@@ -5,9 +5,9 @@ package pipeline
 import (
 	"errors"
 	"fmt"
-	"github.com/go-vela/server/compiler/types/raw"
 	"strings"
 
+	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/constants"
 )
 
