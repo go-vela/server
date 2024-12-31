@@ -43,7 +43,7 @@ func (s *StageSlice) Purge(r *RuleData) (*StageSlice, error) {
 
 		// iterate through each step for the stage in the pipeline
 		for _, step := range stage.Steps {
-			match, err := step.Ruleset.Match(r)
+			match, err := step.Ruleset.Match(r, step.Environment)
 			if err != nil {
 				return nil, fmt.Errorf("unable to process ruleset for step %s: %w", step.Name, err)
 			}

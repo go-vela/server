@@ -211,7 +211,7 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 
 	// run test
 	for _, test := range tests {
-		got, err := test.ruleset.Match(test.data)
+		got, err := test.ruleset.Match(test.data, map[string]string{})
 		if err != nil {
 			if !test.wantErr {
 				t.Errorf("Ruleset Match for %s operator returned err: %s", test.ruleset.Operator, err)

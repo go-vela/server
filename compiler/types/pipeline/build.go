@@ -72,7 +72,7 @@ func (b *Build) Purge(r *RuleData) (*Build, error) {
 
 	// purge secrets in pipeline if secrets are provided
 	if len(b.Secrets) > 0 {
-		pSecrets, err := b.Secrets.Purge(r)
+		pSecrets, err := b.Secrets.Purge(r, b.Environment)
 		if err != nil {
 			return nil, err
 		}

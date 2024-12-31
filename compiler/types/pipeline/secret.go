@@ -5,6 +5,7 @@ package pipeline
 import (
 	"errors"
 	"fmt"
+	"github.com/go-vela/server/compiler/types/raw"
 	"strings"
 
 	"github.com/go-vela/server/constants"
@@ -70,7 +71,7 @@ var (
 
 // Purge removes the secrets that have a ruleset
 // that do not match the provided ruledata.
-func (s *SecretSlice) Purge(r *RuleData) (*SecretSlice, error) {
+func (s *SecretSlice) Purge(r *RuleData, envs raw.StringSliceMap) (*SecretSlice, error) {
 	counter := 1
 	secrets := new(SecretSlice)
 
@@ -83,7 +84,7 @@ func (s *SecretSlice) Purge(r *RuleData) (*SecretSlice, error) {
 			continue
 		}
 
-		match, err := secret.Origin.Ruleset.Match(r)
+		match, err := secret.Origin.Ruleset.Match(r, envs)
 		if err != nil {
 			return nil, fmt.Errorf("unable to process ruleset for secret %s: %w", secret.Name, err)
 		}
