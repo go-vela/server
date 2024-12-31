@@ -202,13 +202,13 @@ func (p *Pipeline) Validate() error {
 		return ErrEmptyPipelineVersion
 	}
 
-	// calculate total size of favorites
+	// calculate total size of warnings
 	total := 0
 	for _, w := range p.Warnings {
 		total += len(w)
 	}
 
-	// verify the Favorites field is within the database constraints
+	// verify the Warnings field is within the database constraints
 	// len is to factor in number of comma separators included in the database field,
 	// removing 1 due to the last item not having an appended comma
 	if (total + len(p.Warnings) - 1) > constants.PipelineWarningsMaxSize {
