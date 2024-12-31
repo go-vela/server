@@ -562,9 +562,9 @@ func PostWebhook(c *gin.Context) {
 
 	if shouldEnqueue {
 		// send API call to set the status on the commit
-		err := scm.FromContext(c).Status(c.Request.Context(), r.GetOwner(), b, r.GetOrg(), r.GetName())
+		err := scm.FromContext(c).Status(c.Request.Context(), repo.GetOwner(), b, repo.GetOrg(), repo.GetName())
 		if err != nil {
-			l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+			l.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 		}
 
 		// publish the build to the queue
@@ -576,7 +576,7 @@ func PostWebhook(c *gin.Context) {
 			b.GetHost(),
 		)
 	} else {
-		err := build.GatekeepBuild(c, b, r)
+		err := build.GatekeepBuild(c, b, repo)
 		if err != nil {
 			retErr := fmt.Errorf("unable to gate build: %w", err)
 			util.HandleError(c, http.StatusInternalServerError, err)
