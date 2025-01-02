@@ -62,9 +62,7 @@ func GetStatus(c *gin.Context) {
 	l.Debug("reading status for build")
 
 	// sanitize fields for the unauthenticated response
-	if b.Repo != nil {
-		b.Repo.StatusSanitize()
-	}
+	b.StatusSanitize()
 
 	c.JSON(http.StatusOK, b)
 }
