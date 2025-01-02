@@ -6,8 +6,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/router/middleware/build"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/router/middleware/build"
 )
 
 // swagger:operation GET /status/{org}/{repo}/{build} builds GetStatus
