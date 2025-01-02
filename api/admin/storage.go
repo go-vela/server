@@ -133,6 +133,64 @@ func DeleteBucket(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// swagger:operation GET /api/v1/admin/storage/bucket/lifecycle admin GetBucketLifecycle
+//
+// # Get bucket lifecycle configuration
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+//   - in: query
+//     name: bucketName
+//     description: The name of the bucket
+//     required: true
+//     type: string
+//
+// security:
+//   - ApiKeyAuth: []
+//
+// responses:
+//
+//	'200':
+//	  description: Successfully retrieved the bucket lifecycle configuration
+//	'400':
+//	  description: Invalid request payload
+//	  schema:
+//	    "$ref": "#/definitions/Error"
+//	'500':
+//	  description: Unexpected server error
+//	  schema:
+//	    "$ref": "#/definitions/Error"
+func GetBucketLifecycle(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
+	ctx := c.Request.Context()
+
+	l.Debug("platform admin: getting bucket lifecycle configuration")
+
+	// capture query parameters from API request
+	bucketName := c.Query("bucketName")
+
+	if bucketName == "" {
+		retErr := fmt.Errorf("bucketName is required")
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	input := &types.Bucket{
+		BucketName: bucketName,
+	}
+
+	lifecycleConfig, err := storage.FromGinContext(c).GetBucketLifecycle(ctx, input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get bucket lifecycle configuration: %w", err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, lifecycleConfig)
+}
+
 // swagger:operation PUT /api/v1/admin/storage/bucket/lifecycle admin AdminSetBucketLifecycle
 //
 // Set bucket lifecycle configuration
@@ -400,9 +458,9 @@ func GetPresignedURL(c *gin.Context) {
 	}
 
 	url, err := storage.FromGinContext(c).PresignedGetObject(ctx, input)
-	if err != nil {
+	if err != nil || url == "" {
 		retErr := fmt.Errorf("unable to generate presigned URL: %w", err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 		return
 	}
 

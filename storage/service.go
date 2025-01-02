@@ -13,6 +13,7 @@ type Storage interface {
 	BucketExists(ctx context.Context, bucket *api.Bucket) (bool, error)
 	ListBuckets(ctx context.Context) ([]string, error)
 	// Object Operations
+	StatObject(ctx context.Context, object *api.Object) (*api.Object, error)
 	Upload(ctx context.Context, object *api.Object) error
 	Download(ctx context.Context, object *api.Object) error
 	Delete(ctx context.Context, object *api.Object) error

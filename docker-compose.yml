@@ -53,8 +53,8 @@ services:
 #      VELA_STORAGE_ACCESS_KEY: minio_access_user
 #      VELA_STORAGE_SECRET_KEY: minio_secret_key
       VELA_STORAGE_ENDPOINT: stage.ttc.toss.target.com
-      VELA_STORAGE_ACCESS_KEY:
-      VELA_STORAGE_SECRET_KEY:
+      VELA_STORAGE_ACCESS_KEY: CTEGXGCIAFJS5EOV0YXY
+      VELA_STORAGE_SECRET_KEY: 7Qbay0a2OrgHnQPWmuMiEzmungbn87B5Exjgx2hw
       VELA_STORAGE_USE_SSL: 'false'
       VELA_STORAGE_BUCKET: vela
     env_file:

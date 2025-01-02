@@ -67,8 +67,8 @@ func AdminHandlers(base *gin.RouterGroup) {
 		_admin.DELETE("/storage/bucket", admin.DeleteBucket)
 
 		// Admin storage bucket lifecycle endpoint
-		//_admin.GET("/storage/bucket/lifecycle", admin.)
-		//_admin.POST("/storage/bucket/lifecycle", admin.)
+		_admin.GET("/storage/bucket/lifecycle", admin.GetBucketLifecycle)
+		_admin.PUT("/storage/bucket/lifecycle", admin.SetBucketLifecycle)
 
 		// Admin storage object endpoints
 		_admin.POST("/storage/object/download", admin.DownloadObject)
