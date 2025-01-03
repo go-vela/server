@@ -11,7 +11,7 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 )
 
-// swagger:operation GET /status/{org}/{repo} repos GetStatus
+// swagger:operation GET /status/{org}/{repo} repos GetRepoStatus
 //
 // Get a repository status
 //
@@ -49,8 +49,8 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Repo"
 
-// GetStatus represents the API handler to return "status", a lite representation of the resource with limited fields for unauthenticated access.
-func GetStatus(c *gin.Context) {
+// GetRepoStatus represents the API handler to return "status", a lite representation of the resource with limited fields for unauthenticated access.
+func GetRepoStatus(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)

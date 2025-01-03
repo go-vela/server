@@ -11,7 +11,7 @@ import (
 	"github.com/go-vela/server/router/middleware/build"
 )
 
-// swagger:operation GET /status/{org}/{repo}/{build} builds GetStatus
+// swagger:operation GET /status/{org}/{repo}/{build} builds GetBuildStatus
 //
 // Get a build status
 //
@@ -54,8 +54,8 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Build"
 
-// GetStatus represents the API handler to return "status", a lite representation of the resource with limited fields for unauthenticated access.
-func GetStatus(c *gin.Context) {
+// GetBuildStatus represents the API handler to return "status", a lite representation of the resource with limited fields for unauthenticated access.
+func GetBuildStatus(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
