@@ -34,8 +34,11 @@ import (
 
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/auth"
+	apiBuild "github.com/go-vela/server/api/build"
+	apiRepo "github.com/go-vela/server/api/repo"
 	"github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -61,6 +64,13 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 	// Badge endpoint
 	r.GET("/badge/:org/:repo/status.svg", org.Establish(), repo.Establish(), api.GetBadge)
+
+	// Status endpoints
+	status := r.Group("/status/:org/:repo", org.Establish(), repo.Establish())
+	{
+		status.GET("", org.Establish(), repo.Establish(), apiRepo.GetRepoStatus)
+		status.GET("/:build", org.Establish(), repo.Establish(), build.Establish(), apiBuild.GetBuildStatus)
+	}
 
 	// Health endpoint
 	r.GET("/health", api.Health)
