@@ -68,8 +68,8 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Status endpoints
 	status := r.Group("/status/:org/:repo", org.Establish(), repo.Establish())
 	{
-		status.GET("", org.Establish(), repo.Establish(), apiRepo.GetStatus)
-		status.GET("/:build", org.Establish(), repo.Establish(), build.Establish(), apiBuild.GetStatus)
+		status.GET("", org.Establish(), repo.Establish(), apiRepo.GetRepoStatus)
+		status.GET("/:build", org.Establish(), repo.Establish(), build.Establish(), apiBuild.GetBuildStatus)
 	}
 
 	// Health endpoint
