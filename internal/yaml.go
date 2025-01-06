@@ -14,19 +14,20 @@ import (
 )
 
 // ParseYAML is a helper function for transitioning teams away from legacy buildkite YAML parser.
-func ParseYAML(data []byte) (*types.Build, error) {
+func ParseYAML(data []byte) (*types.Build, []string, error) {
 	var (
 		rootNode yaml.Node
+		warnings []string
 		version  string
 	)
 
 	err := yaml.Unmarshal(data, &rootNode)
 	if err != nil {
-		return nil, fmt.Errorf("unable to unmarshal pipeline version yaml: %w", err)
+		return nil, nil, fmt.Errorf("unable to unmarshal pipeline version yaml: %w", err)
 	}
 
 	if len(rootNode.Content) == 0 || rootNode.Content[0].Kind != yaml.MappingNode {
-		return nil, fmt.Errorf("unable to find pipeline version in yaml")
+		return nil, nil, fmt.Errorf("unable to find pipeline version in yaml")
 	}
 
 	for i, subNode := range rootNode.Content[0].Content {
@@ -47,10 +48,12 @@ func ParseYAML(data []byte) (*types.Build, error) {
 
 		err := bkYaml.Unmarshal(data, legacyConfig)
 		if err != nil {
-			return nil, fmt.Errorf("unable to unmarshal legacy yaml: %w", err)
+			return nil, nil, fmt.Errorf("unable to unmarshal legacy yaml: %w", err)
 		}
 
 		config = legacyConfig.ToYAML()
+
+		warnings = append(warnings, "using legacy version. Upgrade to go-yaml v3")
 
 	default:
 		// unmarshal the bytes into the yaml configuration
@@ -63,31 +66,31 @@ func ParseYAML(data []byte) (*types.Build, error) {
 				if err := yaml.Unmarshal(data, root); err != nil {
 					fmt.Println("error unmarshalling YAML:", err)
 
-					return nil, err
+					return nil, nil, err
 				}
 
-				collapseMergeAnchors(root.Content[0])
+				warnings = collapseMergeAnchors(root.Content[0], warnings)
 
 				newData, err := yaml.Marshal(root)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 
 				err = yaml.Unmarshal(newData, config)
 				if err != nil {
-					return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
+					return nil, nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 				}
 			} else {
-				return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
+				return nil, nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 			}
 		}
 	}
 
-	return config, nil
+	return config, warnings, nil
 }
 
 // collapseMergeAnchors traverses the entire pipeline and replaces duplicate `<<` keys with a single key->sequence.
-func collapseMergeAnchors(node *yaml.Node) {
+func collapseMergeAnchors(node *yaml.Node, warnings []string) []string {
 	// only replace on maps
 	if node.Kind == yaml.MappingNode {
 		var (
@@ -129,17 +132,20 @@ func collapseMergeAnchors(node *yaml.Node) {
 			for i := len(keysToRemove) - 1; i >= 0; i-- {
 				index := keysToRemove[i]
 
+				warnings = append(warnings, fmt.Sprintf("%d:duplicate << keys in single YAML map", node.Content[index].Line))
 				node.Content = append(node.Content[:index], node.Content[index+2:]...)
 			}
 		}
 
 		// go to next level
 		for _, content := range node.Content {
-			collapseMergeAnchors(content)
+			warnings = collapseMergeAnchors(content, warnings)
 		}
 	} else if node.Kind == yaml.SequenceNode {
 		for _, item := range node.Content {
-			collapseMergeAnchors(item)
+			warnings = collapseMergeAnchors(item, warnings)
 		}
 	}
+
+	return warnings
 }
