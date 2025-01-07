@@ -1240,4 +1240,7 @@ func (b *Build) StatusSanitize() {
 	if b.Repo != nil {
 		b.Repo.StatusSanitize()
 	}
+
+	b.Email = nil
+	b.DeployPayload = nil
 }
