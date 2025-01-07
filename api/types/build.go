@@ -1233,3 +1233,14 @@ func (b *Build) String() string {
 		b.GetTitle(),
 	)
 }
+
+// StatusSanitize removes sensitive information before producing a "status".
+func (b *Build) StatusSanitize() {
+	// sanitize repo
+	if b.Repo != nil {
+		b.Repo.StatusSanitize()
+	}
+
+	b.Email = nil
+	b.DeployPayload = nil
+}
