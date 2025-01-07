@@ -2,10 +2,11 @@ package minio
 
 import (
 	"context"
+	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-
 	"github.com/sirupsen/logrus"
+	"strings"
 	"time"
 )
 
@@ -31,13 +32,17 @@ func New(endpoint string, opts ...ClientOpt) (*MinioClient, error) {
 	// create new Minio client
 	c := new(MinioClient)
 
+	// default to secure connection
+	urlEndpoint := "s3.amazonaws.com"
+	useSSL := true
+
 	// create new fields
 	c.config = new(config)
 	c.Options = new(minio.Options)
 
 	// create new logger for the client
 	logger := logrus.StandardLogger()
-	c.Logger = logrus.NewEntry(logger).WithField("storage", "minio")
+	c.Logger = logrus.NewEntry(logger).WithField("minio", "minio")
 
 	// apply all provided configuration options
 	for _, opt := range opts {
@@ -49,8 +54,23 @@ func New(endpoint string, opts ...ClientOpt) (*MinioClient, error) {
 	c.Options.Creds = credentials.NewStaticV4(c.config.AccessKey, c.config.SecretKey, "")
 	c.Options.Secure = c.config.Secure
 	logrus.Debugf("secure: %v", c.config.Secure)
+
+	if len(endpoint) > 0 {
+		useSSL = strings.HasPrefix(endpoint, "https://")
+
+		if !useSSL {
+			if !strings.HasPrefix(endpoint, "http://") {
+				return nil, fmt.Errorf("invalid server %s: must to be a HTTP URI", endpoint)
+			}
+
+			urlEndpoint = endpoint[7:]
+		} else {
+			urlEndpoint = endpoint[8:]
+		}
+	}
+
 	// create the Minio client from the provided endpoint and options
-	minioClient, err := minio.New(endpoint, c.Options)
+	minioClient, err := minio.New(urlEndpoint, c.Options)
 	if err != nil {
 		return nil, err
 	}
@@ -89,27 +109,33 @@ func pingBucket(c *MinioClient, bucket string) error {
 // This function is intended for running tests only.
 //
 //nolint:revive // ignore returning unexported client
-func NewTest(endpoint, accessKey, secretKey string) (*MinioClient, error) {
+func NewTest(endpoint, accessKey, secretKey string, secure bool) (*MinioClient, error) {
+	//var cleanup func() error
+	//var err error
+	//endpoint, cleanup, err = miniotest.StartEmbedded()
+	//
+	//if err != nil {
+	//	fmt.Fprintf(os.Stderr, "while starting embedded server: %s", err)
+	//	os.Exit(1)
+	//}
+	//
+	//err = cleanup()
+	//if err != nil {
+	//	fmt.Fprintf(os.Stderr, "while stopping embedded server: %s", err)
+	//}
+
 	// create a local fake MinIO instance
 	//
 	// https://pkg.go.dev/github.com/minio/minio-go/v7#New
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure: false,
-	})
-	if err != nil {
-		return nil, err
-	}
+	//minioClient, err := minio.New(endpoint, &minio.Options{
+	//	Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+	//	Secure: false,
+	//})
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	return &MinioClient{
-		client: minioClient,
-		config: &config{
-			Endpoint:  endpoint,
-			AccessKey: accessKey,
-			SecretKey: secretKey,
-			Secure:    false,
-		},
-	}, nil
+	return New(endpoint, WithAccessKey(accessKey), WithSecretKey(secretKey), WithSecure(secure))
 }
 
 //// UploadArtifact uploads an artifact to storage.

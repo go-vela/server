@@ -49,12 +49,9 @@ services:
       VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND: 100
       VELA_STORAGE_ENABLE: 'true'
       VELA_STORAGE_DRIVER: minio
-#      VELA_STORAGE_ENDPOINT: objectstorage:9000
-#      VELA_STORAGE_ACCESS_KEY: minio_access_user
-#      VELA_STORAGE_SECRET_KEY: minio_secret_key
-      VELA_STORAGE_ENDPOINT: stage.ttc.toss.target.com
-      VELA_STORAGE_ACCESS_KEY: CTEGXGCIAFJS5EOV0YXY
-      VELA_STORAGE_SECRET_KEY: 7Qbay0a2OrgHnQPWmuMiEzmungbn87B5Exjgx2hw
+      VELA_STORAGE_ENDPOINT: "http://minio:9000"
+      VELA_STORAGE_ACCESS_KEY: minio_access_user
+      VELA_STORAGE_SECRET_KEY: minio_secret_key
       VELA_STORAGE_USE_SSL: 'false'
       VELA_STORAGE_BUCKET: vela
     env_file:
@@ -189,9 +186,9 @@ services:
       - '16686:16686'
       - '4318:4318'
 
-  objectstorage:
-    container_name: objectstorage
-    image: bitnami/minio:latest
+  minio:
+    container_name: minio
+    image: minio/minio:latest
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -202,7 +199,7 @@ services:
     environment:
       - MINIO_ROOT_USER=minio_access_user
       - MINIO_ROOT_PASSWORD=minio_secret_key
-#    command: minio server --address ":9000" --console-address ":9001" /data
+    command: minio server --address ":9000" --console-address ":9001" /data
 
 
 networks:

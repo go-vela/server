@@ -11,10 +11,7 @@ import (
 // TODO hide URL behind a different name
 // PresignedGetObject generates a presigned URL for downloading an object.
 func (c *MinioClient) PresignedGetObject(ctx context.Context, object *api.Object) (string, error) {
-	c.Logger.WithFields(logrus.Fields{
-		"bucket": object.BucketName,
-		"object": object.ObjectName,
-	}).Tracef("generating presigned URL for object %s in bucket %s", object.ObjectName, object.BucketName)
+	c.Logger.Tracef("generating presigned URL for object %s in bucket %s", object.ObjectName, object.BucketName)
 
 	// collect metadata on the object
 	objInfo, err := c.client.StatObject(ctx, object.BucketName, object.ObjectName, minio.StatObjectOptions{})
