@@ -101,6 +101,29 @@ func CreateDeployment(c *gin.Context) {
 		input.SetRef(fmt.Sprintf("refs/heads/%s", r.GetBranch()))
 	}
 
+	deployConfigYAML, err := getDeploymentConfig(c, l, u, r, input.GetRef())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get deployment config for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	deployConfig := deployConfigYAML.ToPipeline()
+
+	if !deployConfig.Empty() {
+		err := deployConfig.Validate(input.GetTarget(), input.GetPayload())
+
+		if err != nil {
+			retErr := fmt.Errorf("unable to validate deployment config for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+	}
+
 	// send API call to create the deployment
 	err = scm.FromContext(c).CreateDeployment(ctx, u, r, input)
 	if err != nil {

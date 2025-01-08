@@ -58,7 +58,7 @@ func (d *Deployment) Validate(target string, inputParams map[string]string) erro
 
 	// validate targets
 	if len(d.Targets) > 0 && !slices.Contains(d.Targets, target) {
-		return fmt.Errorf("deployment target %s not found in deployment config targets", target)
+		return fmt.Errorf("deployment target `%s` not found in deployment config targets", target)
 	}
 
 	// validate params
