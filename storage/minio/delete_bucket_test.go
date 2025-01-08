@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestMinioClient_BucketExists(t *testing.T) {
+func TestMinioClient_Bucket_Delete_Success(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -22,67 +22,65 @@ func TestMinioClient_BucketExists(t *testing.T) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 	})
-	// mock bucket exists call
-	engine.HEAD("/foo/", func(c *gin.Context) {
+
+	// mock delete bucket call
+	engine.DELETE("/foo/", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 	ctx := context.TODO()
-
+	b := new(api.Bucket)
+	b.BucketName = "foo"
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", false)
 
 	// create bucket
-	err := client.CreateBucket(ctx, &api.Bucket{BucketName: "foo"})
+	err := client.CreateBucket(ctx, b)
 	if err != nil {
 		t.Errorf("CreateBucket returned err: %v", err)
 	}
 
 	// run test
-	exists, err := client.BucketExists(ctx, &api.Bucket{BucketName: "foo"})
+	err = client.DeleteBucket(ctx, b)
 	if resp.Code != http.StatusOK {
-		t.Errorf("BucketExists returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("DeleteBucket returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if err != nil {
-		t.Errorf("BucketExists returned err: %v", err)
+	// in Minio SDK, removeBucket returns status code 200 OK as error if a bucket is deleted successfully
+	if err != nil && err.Error() != "200 OK" {
+		t.Errorf("DeleteBucket returned err: %v", err)
 	}
 
-	if !exists {
-		t.Errorf("BucketExists returned %v, want %v", exists, true)
-	}
 }
 
-func TestMinioClient_BucketExists_Failure(t *testing.T) {
+func TestMinioClient_Bucket_Delete_BucketNotFound(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
-	// setup mock server
-	engine.HEAD("/foo/", func(c *gin.Context) {
-		c.Status(http.StatusOK)
+	// mock delete bucket call
+	engine.DELETE("/foo/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "The specified bucket does not exist"})
 	})
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 	ctx := context.TODO()
-
+	b := new(api.Bucket)
+	b.BucketName = "foo"
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", false)
 
 	// run test
-	exists, err := client.BucketExists(ctx, &api.Bucket{BucketName: "bar"})
+	err := client.DeleteBucket(ctx, b)
 	if resp.Code != http.StatusOK {
-		t.Errorf("BucketExists returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("DeleteBucket returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if err != nil {
-		t.Errorf("BucketExists returned err: %v", err)
+	if err == nil {
+		t.Errorf("DeleteBucket expected error, got nil")
 	}
 
-	if exists {
-		t.Errorf("BucketExists returned %v, want %v", exists, false)
-	}
 }

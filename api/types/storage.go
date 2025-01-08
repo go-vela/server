@@ -18,6 +18,6 @@ type BucketOptions struct {
 
 type Object struct {
 	ObjectName string `json:"object_name,omitempty"`
-	BucketName string `json:"bucket_name,omitempty"`
+	Bucket     Bucket `json:"bucket,omitempty"`
 	FilePath   string `json:"file_path,omitempty"`
 }

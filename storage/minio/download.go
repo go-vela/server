@@ -32,25 +32,25 @@ func (c *MinioClient) Download(ctx context.Context, object *api.Object) error {
 	//
 	//c.Logger.Tracef("successfully downloaded object %s to %s", object.ObjectName, object.FilePath)
 	//return nil
-	logrus.Debugf("getting object info on bucket %s from path: %s", object.BucketName, object.ObjectName)
+	logrus.Debugf("getting object info on bucket %s from path: %s", object.Bucket.BucketName, object.ObjectName)
 
 	// set a timeout on the request to the cache provider
 	//ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	//defer cancel()
 
 	// collect metadata on the object
-	objInfo, err := c.client.StatObject(ctx, object.BucketName, object.ObjectName, minio.StatObjectOptions{})
+	objInfo, err := c.client.StatObject(ctx, object.Bucket.BucketName, object.ObjectName, minio.StatObjectOptions{})
 	if objInfo.Key == "" {
 		logrus.Error(err)
 		return nil
 	}
 
-	logrus.Debugf("getting object in bucket %s from path: %s", object.BucketName, object.ObjectName)
+	logrus.Debugf("getting object in bucket %s from path: %s", object.Bucket.BucketName, object.ObjectName)
 
 	logrus.Infof("%s to download", humanize.Bytes(uint64(objInfo.Size)))
 
 	// retrieve the object in specified path of the bucket
-	err = c.client.FGetObject(ctx, object.BucketName, object.ObjectName, filename, minio.GetObjectOptions{})
+	err = c.client.FGetObject(ctx, object.Bucket.BucketName, object.ObjectName, filename, minio.GetObjectOptions{})
 	if err != nil {
 		return err
 	}

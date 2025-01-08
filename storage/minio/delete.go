@@ -8,9 +8,9 @@ import (
 
 // Delete deletes an object in a bucket in MinIO.
 func (c *MinioClient) Delete(ctx context.Context, object *api.Object) error {
-	c.Logger.Tracef("deleting objectName: %s from bucketName: %s", object.ObjectName, object.BucketName)
+	c.Logger.Tracef("deleting objectName: %s from bucketName: %s", object.ObjectName, object.Bucket.BucketName)
 
-	err := c.client.RemoveObject(ctx, object.BucketName, object.ObjectName, minio.RemoveObjectOptions{})
+	err := c.client.RemoveObject(ctx, object.Bucket.BucketName, object.ObjectName, minio.RemoveObjectOptions{})
 	if err != nil {
 		return err
 	}
