@@ -3,6 +3,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/router/middleware/settings"
 )
 
 // MetricsQueryParameters holds query parameter information pertaining to requested metrics.
@@ -303,13 +305,20 @@ func recordGauges(c *gin.Context) {
 
 	// queued_build_count
 	if q.QueuedBuildCount {
-		// send API call to capture the total number of queued builds
-		t, err := queue.FromContext(c).Length(c)
-		if err != nil {
-			logrus.Errorf("unable to get count of all queued builds: %v", err)
+		queueTotal := int64(0)
+
+		for _, route := range settings.FromContext(c).GetRoutes() {
+			t, err := queue.FromContext(c).RouteLength(c, route)
+			if err != nil {
+				logrus.Errorf("unable to get count of all queued builds for route %s: %v", route, err)
+			}
+
+			totals.WithLabelValues("build", "status", fmt.Sprintf("queued_%s", route)).Set(float64(t))
+
+			queueTotal += t
 		}
 
-		totals.WithLabelValues("build", "status", "queued").Set(float64(t))
+		totals.WithLabelValues("build", "status", "queued").Set(float64(queueTotal))
 	}
 
 	// failure_build_count
