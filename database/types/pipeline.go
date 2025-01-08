@@ -6,7 +6,10 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/lib/pq"
+
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/util"
 )
 
@@ -30,6 +33,10 @@ var (
 	// ErrEmptyPipelineVersion defines the error type when a
 	// Pipeline type has an empty Version field provided.
 	ErrEmptyPipelineVersion = errors.New("empty pipeline version provided")
+
+	// ErrExceededWarningsLimit defines the error type when a
+	// Pipeline warnings field has too many total characters.
+	ErrExceededWarningsLimit = errors.New("exceeded character limit for pipeline warnings")
 )
 
 // Pipeline is the database representation of a pipeline.
@@ -48,6 +55,7 @@ type Pipeline struct {
 	Stages          sql.NullBool   `sql:"stages"`
 	Steps           sql.NullBool   `sql:"steps"`
 	Templates       sql.NullBool   `sql:"templates"`
+	Warnings        pq.StringArray `sql:"warnings"         gorm:"type:varchar(5000)"`
 	Data            []byte         `sql:"data"`
 
 	Repo Repo `gorm:"foreignKey:RepoID"`
@@ -160,6 +168,7 @@ func (p *Pipeline) ToAPI() *api.Pipeline {
 	pipeline.SetStages(p.Stages.Bool)
 	pipeline.SetSteps(p.Steps.Bool)
 	pipeline.SetTemplates(p.Templates.Bool)
+	pipeline.SetWarnings(p.Warnings)
 	pipeline.SetData(p.Data)
 
 	return pipeline
@@ -193,6 +202,19 @@ func (p *Pipeline) Validate() error {
 		return ErrEmptyPipelineVersion
 	}
 
+	// calculate total size of warnings
+	total := 0
+	for _, w := range p.Warnings {
+		total += len(w)
+	}
+
+	// verify the Warnings field is within the database constraints
+	// len is to factor in number of comma separators included in the database field,
+	// removing 1 due to the last item not having an appended comma
+	if (total + len(p.Warnings) - 1) > constants.PipelineWarningsMaxSize {
+		return ErrExceededWarningsLimit
+	}
+
 	// ensure that all Pipeline string fields
 	// that can be returned as JSON are sanitized
 	// to avoid unsafe HTML content
@@ -224,6 +246,7 @@ func PipelineFromAPI(p *api.Pipeline) *Pipeline {
 		Stages:          sql.NullBool{Bool: p.GetStages(), Valid: true},
 		Steps:           sql.NullBool{Bool: p.GetSteps(), Valid: true},
 		Templates:       sql.NullBool{Bool: p.GetTemplates(), Valid: true},
+		Warnings:        pq.StringArray(p.GetWarnings()),
 		Data:            p.GetData(),
 	}
 

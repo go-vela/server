@@ -723,3 +723,9 @@ func (r *Repo) String() string {
 		r.GetInstallID(),
 	)
 }
+
+// StatusSanitize removes sensitive information before producing a "status".
+func (r *Repo) StatusSanitize() {
+	// remove allowed events
+	r.AllowEvents = nil
+}
