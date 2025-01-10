@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/go-github/v65/github"
+	"github.com/google/go-github/v68/github"
 	"golang.org/x/oauth2"
 )
 
