@@ -105,7 +105,7 @@ func getDeploymentConfig(c *gin.Context, l *logrus.Entry, u *types.User, r *type
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			l.Debugf("pipeline %s not found in database, fetching from scm", entry)
 
-			config, err = scm.FromContext(c).ConfigBackoff(ctx, u, r, ref)
+			config, err = scm.FromContext(c).Config(ctx, u, r, ref)
 			if err != nil {
 				return yaml.Deployment{}, fmt.Errorf("unable to get pipeline configuration for %s: %w", entry, err)
 			}
