@@ -20,8 +20,12 @@ type Service interface {
 	Driver() string
 
 	// Length defines a function that outputs
-	// the length of a queue channel
+	// the length of all queue channels
 	Length(context.Context) (int64, error)
+
+	// RouteLength defines a function that outputs
+	// the length of a defined queue route
+	RouteLength(context.Context, string) (int64, error)
 
 	// Pop defines a function that grabs an
 	// item off the queue.
