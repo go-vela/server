@@ -170,7 +170,7 @@ func RestartBuild(c *gin.Context) {
 			queue.FromGinContext(c),
 			database.FromContext(c),
 			item,
-			b.GetHost(),
+			item.Build.GetHost(),
 		)
 	} else {
 		err := GatekeepBuild(c, b, r)
