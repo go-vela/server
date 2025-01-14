@@ -30,6 +30,9 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 	l := []string{}
 	r := c.Request
 
+	// grab the current query params
+	q := r.URL.Query()
+
 	hl := HeaderLink{
 		"first": 1,
 		"last":  p.TotalPages(),
@@ -41,6 +44,9 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 	if !p.HasPages() {
 		return
 	}
+
+	// reset per config
+	q.Set("per_page", strconv.Itoa(p.PerPage))
 
 	// drop first, prev on the first page
 	if p.Page == 1 {
@@ -54,14 +60,17 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 		delete(hl, "next")
 	}
 
+	// loop over the fields that make up the header links
 	for rel, page := range hl {
+		// set the page info for the current field
+		q.Set("page", strconv.Itoa(page))
+
 		ls := fmt.Sprintf(
-			`<%s://%s%s?per_page=%d&page=%d>; rel="%s"`,
+			`<%s://%s%s?%s>; rel="%s"`,
 			resolveScheme(r),
 			r.Host,
 			r.URL.Path,
-			p.PerPage,
-			page,
+			q.Encode(),
 			rel,
 		)
 

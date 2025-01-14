@@ -27,7 +27,7 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map
 	builds := []*api.Build{}
 
 	// count the results
-	count, err := e.CountBuildsForRepo(ctx, r, filters)
+	count, err := e.CountBuildsForRepo(ctx, r, filters, before, after)
 	if err != nil {
 		return builds, 0, err
 	}
