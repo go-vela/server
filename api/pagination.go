@@ -30,6 +30,7 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 	l := []string{}
 	r := c.Request
 
+	// grab the current query params
 	q := r.URL.Query()
 
 	hl := HeaderLink{
@@ -48,6 +49,7 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 	q.Del("page")
 	q.Del("per_page")
 
+	// reset per config
 	q.Set("per_page", strconv.Itoa(p.PerPage))
 
 	// drop first, prev on the first page
