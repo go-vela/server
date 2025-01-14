@@ -119,7 +119,7 @@ func CompileAndPublish(
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.CountBuildsForRepo(ctx, r, filters)
+	builds, err := database.CountBuildsForRepo(ctx, r, filters, time.Now().Unix(), 0)
 	if err != nil {
 		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, r.GetFullName())
 

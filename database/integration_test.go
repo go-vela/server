@@ -258,7 +258,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CountBuildsForOrg"] = true
 
 	// count the builds for a repo
-	count, err = db.CountBuildsForRepo(context.TODO(), resources.Repos[0], nil)
+	count, err = db.CountBuildsForRepo(context.TODO(), resources.Repos[0], nil, time.Now().Unix(), 0)
 	if err != nil {
 		t.Errorf("unable to count builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}

@@ -55,7 +55,7 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3`).WithArgs(1, AnyArgument{}, 0).WillReturnRows(_rows)
 
 	// create expected query result in mock
 	_rows = sqlmock.NewRows(

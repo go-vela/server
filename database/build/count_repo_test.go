@@ -6,6 +6,7 @@ import (
 	"context"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 
@@ -33,12 +34,14 @@ func TestBuild_Engine_CountBuildsForRepo(t *testing.T) {
 	_buildOne.SetRepo(_repo)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetCreated(1)
 
 	_buildTwo := testutils.APIBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepo(_repo)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetCreated(2)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -47,7 +50,7 @@ func TestBuild_Engine_CountBuildsForRepo(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3`).WithArgs(1, AnyArgument{}, 0).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -88,7 +91,7 @@ func TestBuild_Engine_CountBuildsForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountBuildsForRepo(context.TODO(), _repo, filters)
+			got, err := test.database.CountBuildsForRepo(context.TODO(), _repo, filters, time.Now().Unix(), 0)
 
 			if test.failure {
 				if err == nil {
