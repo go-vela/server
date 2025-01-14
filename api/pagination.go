@@ -45,10 +45,6 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 		return
 	}
 
-	// delete existing paging information
-	q.Del("page")
-	q.Del("per_page")
-
 	// reset per config
 	q.Set("per_page", strconv.Itoa(p.PerPage))
 
