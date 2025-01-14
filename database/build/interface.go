@@ -35,7 +35,7 @@ type BuildInterface interface {
 	// CountBuildsForOrg defines a function that gets the count of builds by org name.
 	CountBuildsForOrg(context.Context, string, map[string]interface{}) (int64, error)
 	// CountBuildsForRepo defines a function that gets the count of builds by repo ID.
-	CountBuildsForRepo(context.Context, *api.Repo, map[string]interface{}) (int64, error)
+	CountBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64) (int64, error)
 	// CountBuildsForStatus defines a function that gets the count of builds by status.
 	CountBuildsForStatus(context.Context, string, map[string]interface{}) (int64, error)
 	// CreateBuild defines a function that creates a new build.

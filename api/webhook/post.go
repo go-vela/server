@@ -785,7 +785,7 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	}
 
 	// get total number of builds associated with repository
-	t, err = db.CountBuildsForRepo(ctx, dbR, nil)
+	t, err = db.CountBuildsForRepo(ctx, dbR, nil, time.Now().Unix(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get build count for repo %s: %w", dbR.GetFullName(), err)
 	}
