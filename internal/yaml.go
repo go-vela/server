@@ -53,7 +53,7 @@ func ParseYAML(data []byte) (*types.Build, []string, error) {
 
 		config = legacyConfig.ToYAML()
 
-		warnings = append(warnings, "using legacy version. Upgrade to go-yaml v3")
+		warnings = append(warnings, `using legacy version - address any incompatibilities and use "1" instead`)
 
 	default:
 		// unmarshal the bytes into the yaml configuration

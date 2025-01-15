@@ -51,7 +51,7 @@ func TestInternal_ParseYAML(t *testing.T) {
 			name:         "buildkite legacy",
 			file:         "testdata/buildkite.yml",
 			wantBuild:    wantBuild,
-			wantWarnings: []string{"using legacy version. Upgrade to go-yaml v3"},
+			wantWarnings: []string{`using legacy version - address any incompatibilities and use "1" instead`},
 		},
 		{
 			name:         "anchor collapse",
