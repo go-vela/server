@@ -4,6 +4,7 @@ package buildkite
 
 import (
 	"fmt"
+
 	bkYaml "github.com/buildkite/yaml"
 	"github.com/invopop/jsonschema"
 
