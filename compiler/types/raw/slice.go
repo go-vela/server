@@ -5,6 +5,8 @@ package raw
 import (
 	"encoding/json"
 	"errors"
+
+	"github.com/invopop/jsonschema"
 )
 
 // StringSlice represents a string or an array of strings.
@@ -70,4 +72,25 @@ func (s *StringSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	return errors.New("unable to unmarshal into StringSlice")
+}
+
+// JSONSchema handles some overrides that need to be in place
+// for this type for the jsonschema generation.
+//
+// Without these changes it would only allow an array of strings,
+// but we do some special handling to support plain string also.
+func (StringSlice) JSONSchema() *jsonschema.Schema {
+	return &jsonschema.Schema{
+		OneOf: []*jsonschema.Schema{
+			{
+				Type: "string",
+			},
+			{
+				Type: "array",
+				Items: &jsonschema.Schema{
+					Type: "string",
+				},
+			},
+		},
+	}
 }

@@ -1,0 +1,9 @@
+version: "1"
+
+steps:
+  - name: notify
+    image: slack
+    ruleset:
+      unless:
+        status: success
+      continue: true
