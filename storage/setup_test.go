@@ -10,7 +10,7 @@ func TestSetup_Minio(t *testing.T) {
 	setup := &Setup{
 		Enable:    true,
 		Driver:    "minio",
-		Endpoint:  "minio.example.com",
+		Endpoint:  "http://minio.example.com",
 		AccessKey: "access-key",
 		SecretKey: "secret-key",
 		Bucket:    "bucket-name",

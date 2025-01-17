@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	endpoint   = "localhost:9000"
+	endpoint   = "http://localhost:9000"
 	_accessKey = "minio_access_user"
 	_secretKey = "minio_secret_key"
 	_useSSL    = false

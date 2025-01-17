@@ -15,7 +15,7 @@ func TestStorage_New(t *testing.T) {
 			setup: &Setup{
 				Driver:    constants.DriverMinio,
 				Enable:    true,
-				Endpoint:  "minio.example.com",
+				Endpoint:  "http://minio.example.com",
 				AccessKey: "access-key",
 				SecretKey: "secret-key",
 				Bucket:    "bucket-name",
@@ -27,7 +27,7 @@ func TestStorage_New(t *testing.T) {
 			setup: &Setup{
 				Driver:    "invalid-driver",
 				Enable:    false,
-				Endpoint:  "invalid.example.com",
+				Endpoint:  "http://invalid.example.com",
 				AccessKey: "access-key",
 				SecretKey: "secret-key",
 				Bucket:    "bucket-name",

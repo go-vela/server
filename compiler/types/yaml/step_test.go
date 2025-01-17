@@ -76,6 +76,10 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 							AccessMode:  "ro",
 						},
 					},
+					TestReport: TestReport{
+						Results:     []string{"test.txt"},
+						Attachments: []string{"test.log"},
+					},
 				},
 			},
 			want: &pipeline.ContainerSlice{
@@ -133,6 +137,10 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 							Destination: "/bar",
 							AccessMode:  "ro",
 						},
+					},
+					TestReport: pipeline.TestReport{
+						Results:     []string{"test.txt"},
+						Attachments: []string{"test.log"},
 					},
 				},
 			},
@@ -211,6 +219,15 @@ func TestYaml_StepSlice_UnmarshalYAML(t *testing.T) {
 							"repo":     "github/octocat",
 							"tags":     []interface{}{"latest", "dev"},
 						},
+					},
+				},
+				{
+					Name:  "test-reports",
+					Pull:  "always",
+					Image: "golang:1.20",
+					TestReport: TestReport{
+						Results:     []string{"test-results/*.xml"},
+						Attachments: []string{"screenshots/**/*.png", " video/*.mp4"},
 					},
 				},
 			},

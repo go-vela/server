@@ -309,7 +309,7 @@ func UploadObject(c *gin.Context) {
 
 		return
 	}
-	if input.BucketName == "" || input.ObjectName == "" {
+	if input.Bucket.BucketName == "" || input.ObjectName == "" {
 		retErr := fmt.Errorf("bucketName and objectName are required")
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		return
@@ -382,7 +382,7 @@ func DownloadObject(c *gin.Context) {
 
 		return
 	}
-	if input.BucketName == "" || input.ObjectName == "" {
+	if input.Bucket.BucketName == "" || input.ObjectName == "" {
 		retErr := fmt.Errorf("bucketName and objectName are required")
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		return
@@ -453,7 +453,7 @@ func GetPresignedURL(c *gin.Context) {
 	}
 
 	input := &types.Object{
-		BucketName: bucketName,
+		Bucket:     types.Bucket{BucketName: bucketName},
 		ObjectName: objectName,
 	}
 

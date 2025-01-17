@@ -33,7 +33,7 @@ func New(endpoint string, opts ...ClientOpt) (*MinioClient, error) {
 	c := new(MinioClient)
 
 	// default to secure connection
-	urlEndpoint := "s3.amazonaws.com"
+	var urlEndpoint string
 	useSSL := true
 
 	// create new fields
