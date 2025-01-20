@@ -77,8 +77,8 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 						},
 					},
 					TestReport: TestReport{
-						Results:     []string{"test.txt"},
-						Attachments: []string{"test.log"},
+						Results:     []string{"test-results/*.xml"},
+						Attachments: []string{"screenshots/**/*.png", " video/*.mp4"},
 					},
 				},
 			},
@@ -139,8 +139,8 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 						},
 					},
 					TestReport: pipeline.TestReport{
-						Results:     []string{"test.txt"},
-						Attachments: []string{"test.log"},
+						Results:     []string{"test-results/*.xml"},
+						Attachments: []string{"screenshots/**/*.png", " video/*.mp4"},
 					},
 				},
 			},

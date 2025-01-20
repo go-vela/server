@@ -60,12 +60,12 @@ func (s *StepSlice) ToPipeline() *pipeline.ContainerSlice {
 			Pull:        step.Pull,
 			Ruleset:     *step.Ruleset.ToPipeline(),
 			Secrets:     *step.Secrets.ToPipeline(),
+			TestReport:  *step.TestReport.ToPipeline(),
 			Ulimits:     *step.Ulimits.ToPipeline(),
 			Volumes:     *step.Volumes.ToPipeline(),
 			User:        step.User,
 			ReportAs:    step.ReportAs,
 			IDRequest:   step.IDRequest,
-			TestReport:  *step.TestReport.ToPipeline(),
 		})
 	}
 

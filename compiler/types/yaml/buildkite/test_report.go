@@ -1,6 +1,9 @@
 package buildkite
 
-import "github.com/go-vela/server/compiler/types/pipeline"
+import (
+	"github.com/go-vela/server/compiler/types/pipeline"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
+)
 
 // TestReport represents the structure for test report configuration.
 type TestReport struct {
@@ -37,4 +40,11 @@ func (t *TestReport) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	t.Attachments = testReport.Attachments
 
 	return nil
+}
+
+func (t *TestReport) ToYAML() yaml.TestReport {
+	return yaml.TestReport{
+		Results:     t.Results,
+		Attachments: t.Attachments,
+	}
 }
