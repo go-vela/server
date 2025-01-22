@@ -22,7 +22,6 @@ import (
 // Update step logs for a build
 //
 // ---
-// deprecated: true
 // produces:
 // - application/json
 // parameters:
