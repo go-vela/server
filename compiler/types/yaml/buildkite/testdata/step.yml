@@ -44,3 +44,10 @@
       registry: index.docker.io
       repo: github/octocat
       tags: [ latest, dev ]
+
+- name: test-reports
+  image: golang:1.20
+  pull: true
+  test_report:
+    results: ["test-results/*.xml"]
+    attachments: ["screenshots/**/*.png", " video/*.mp4"]
