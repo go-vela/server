@@ -37,6 +37,7 @@ type (
 		User        string                 `yaml:"user,omitempty"        json:"user,omitempty"        jsonschema:"description=Set the user for the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-user-key"`
 		ReportAs    string                 `yaml:"report_as,omitempty"   json:"report_as,omitempty"   jsonschema:"description=Set the name of the step to report as.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-report_as-key"`
 		IDRequest   string                 `yaml:"id_request,omitempty"  json:"id_request,omitempty"  jsonschema:"description=Request ID Request Token for the step.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-id_request-key"`
+		LogTrunc    string                 `yaml:"log_trunc,omitempty"   json:"log_trunc,omitempty"   jsonschema:"enum=head,enum=tail,description=When log reaches max size, set head or tail preference.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-log_trunc-key"`
 	}
 )
 
@@ -65,6 +66,7 @@ func (s *StepSlice) ToPipeline() *pipeline.ContainerSlice {
 			User:        step.User,
 			ReportAs:    step.ReportAs,
 			IDRequest:   step.IDRequest,
+			LogTrunc:    step.LogTrunc,
 		})
 	}
 
@@ -171,6 +173,7 @@ func (s *Step) ToYAML() *yaml.Step {
 		User:        s.User,
 		ReportAs:    s.ReportAs,
 		IDRequest:   s.IDRequest,
+		LogTrunc:    s.LogTrunc,
 	}
 }
 

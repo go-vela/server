@@ -53,6 +53,7 @@ type (
 		User        string            `json:"user,omitempty"        yaml:"user,omitempty"`
 		ReportAs    string            `json:"report_as,omitempty"   yaml:"report_as,omitempty"`
 		IDRequest   string            `json:"id_request,omitempty"  yaml:"id_request,omitempty"`
+		LogTrunc    string            `json:"log_trunc,omitempty"   yaml:"log_trunc,omitempty"`
 	}
 )
 
@@ -137,7 +138,8 @@ func (c *Container) Empty() bool {
 		len(c.Volumes) == 0 &&
 		len(c.User) == 0 &&
 		len(c.ReportAs) == 0 &&
-		len(c.IDRequest) == 0 {
+		len(c.IDRequest) == 0 &&
+		len(c.LogTrunc) == 0 {
 		return true
 	}
 
