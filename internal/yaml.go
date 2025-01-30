@@ -105,8 +105,8 @@ func collapseMergeAnchors(node *yaml.Node, warnings []string) []string {
 			keyNode := node.Content[i]
 
 			// anchor found
-			if keyNode.Value == "<<" {
-				if (i+1) < len(node.Content) && node.Content[i+1].Kind == yaml.AliasNode {
+			if keyNode.Tag == "!!merge" && keyNode.Value == "<<" {
+				if (i + 1) < len(node.Content) {
 					anchors = append(anchors, node.Content[i+1])
 				}
 

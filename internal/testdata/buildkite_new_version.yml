@@ -6,13 +6,13 @@ aliases:
       image: alpine:latest
 
   env:
-    dev-env: &dev-environment
-      environment:
+    dev-env: &dev-parameters
+      parameters:
         REGION: dev 
 
 steps:
   - name: example
     <<: *alpine-image
-    <<: *dev-environment
+    <<: *dev-parameters
     commands:
       - echo $REGION
