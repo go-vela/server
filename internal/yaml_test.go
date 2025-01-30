@@ -23,7 +23,7 @@ func TestInternal_ParseYAML(t *testing.T) {
 			&yaml.Step{
 				Name:  "example",
 				Image: "alpine:latest",
-				Environment: map[string]string{
+				Parameters: map[string]interface{}{
 					"REGION": "dev",
 				},
 				Pull: "not_present",
@@ -46,6 +46,18 @@ func TestInternal_ParseYAML(t *testing.T) {
 			name:      "go-yaml",
 			file:      "testdata/go-yaml.yml",
 			wantBuild: wantBuild,
+		},
+		{
+			name:         "top level anchors",
+			file:         "testdata/top_level_anchor.yml",
+			wantBuild:    wantBuild,
+			wantWarnings: []string{`6:duplicate << keys in single YAML map`},
+		},
+		{
+			name:         "top level anchors legacy",
+			file:         "testdata/top_level_anchor_legacy.yml",
+			wantBuild:    wantBuild,
+			wantWarnings: []string{`using legacy version - address any incompatibilities and use "1" instead`},
 		},
 		{
 			name:         "buildkite legacy",
