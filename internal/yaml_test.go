@@ -36,11 +36,12 @@ func TestInternal_ParseYAML(t *testing.T) {
 
 	// set up tests
 	tests := []struct {
-		name         string
-		file         string
-		wantBuild    *yaml.Build
-		wantWarnings []string
-		wantErr      bool
+		name          string
+		file          string
+		wantBuild     *yaml.Build
+		wantWarnings  []string
+		warningPrefix string
+		wantErr       bool
 	}{
 		{
 			name:      "go-yaml",
@@ -72,6 +73,13 @@ func TestInternal_ParseYAML(t *testing.T) {
 			wantWarnings: []string{"16:duplicate << keys in single YAML map"},
 		},
 		{
+			name:          "anchor collapse - warning prefix",
+			file:          "testdata/buildkite_new_version.yml",
+			wantBuild:     wantBuild,
+			wantWarnings:  []string{"prefix:16:duplicate << keys in single YAML map"},
+			warningPrefix: "prefix",
+		},
+		{
 			name:      "no version",
 			file:      "testdata/no_version.yml",
 			wantBuild: wantBuild,
@@ -91,7 +99,7 @@ func TestInternal_ParseYAML(t *testing.T) {
 			t.Errorf("unable to read file for test %s: %v", test.name, err)
 		}
 
-		gotBuild, gotWarnings, err := ParseYAML(bytes)
+		gotBuild, gotWarnings, err := ParseYAML(bytes, test.warningPrefix)
 		if err != nil && !test.wantErr {
 			t.Errorf("ParseYAML for test %s returned err: %v", test.name, err)
 		}

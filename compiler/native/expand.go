@@ -21,17 +21,22 @@ import (
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-func (c *client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*yaml.Build, error) {
+func (c *client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, warnings []string) (*yaml.Build, []string, error) {
+	var (
+		p   *yaml.Build
+		err error
+	)
+
 	if len(tmpls) == 0 {
-		return s, nil
+		return s, warnings, nil
 	}
 
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		p, err := c.ExpandSteps(ctx, &yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.GetTemplateDepth())
+		p, warnings, err = c.ExpandSteps(ctx, &yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, warnings, c.GetTemplateDepth())
 		if err != nil {
-			return nil, err
+			return nil, warnings, err
 		}
 
 		stage.Steps = p.Steps
@@ -40,23 +45,23 @@ func (c *client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[stri
 		s.Environment = p.Environment
 	}
 
-	return s, nil
+	return s, warnings, nil
 }
 
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
 //
 //nolint:funlen,gocyclo // ignore function length
-func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, depth int) (*yaml.Build, error) {
+func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, warnings []string, depth int) (*yaml.Build, []string, error) {
 	if len(tmpls) == 0 {
-		return s, nil
+		return s, warnings, nil
 	}
 
 	// return if max template depth has been reached
 	if depth == 0 {
 		retErr := fmt.Errorf("max template depth of %d exceeded", c.GetTemplateDepth())
 
-		return s, retErr
+		return s, warnings, retErr
 	}
 
 	steps := yaml.StepSlice{}
@@ -81,7 +86,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		// lookup step template name
 		tmpl, ok := tmpls[step.Template.Name]
 		if !ok {
-			return s, fmt.Errorf("missing template source for template %s in pipeline for step %s", step.Template.Name, step.Name)
+			return s, warnings, fmt.Errorf("missing template source for template %s in pipeline for step %s", step.Template.Name, step.Name)
 		}
 
 		// if ruledata is nil (CompileLite), continue with expansion
@@ -94,7 +99,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 
 			pipeline, err := pipeline.Purge(r)
 			if err != nil {
-				return nil, fmt.Errorf("unable to purge pipeline: %w", err)
+				return nil, warnings, fmt.Errorf("unable to purge pipeline: %w", err)
 			}
 
 			// if step purged, do not proceed with expansion
@@ -115,7 +120,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		// inject environment information for template
 		step, err := c.EnvironmentStep(step, envGlobalSteps)
 		if err != nil {
-			return s, err
+			return s, warnings, err
 		}
 
 		var (
@@ -126,7 +131,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		if bytes, found = c.TemplateCache[tmpl.Source]; !found {
 			bytes, err = c.getTemplate(ctx, tmpl, step.Template.Name)
 			if err != nil {
-				return s, err
+				return s, warnings, err
 			}
 		}
 
@@ -138,23 +143,25 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		// inject template name into variables
 		step.Template.Variables["VELA_TEMPLATE_NAME"] = step.Template.Name
 
-		tmplBuild, _, err := c.mergeTemplate(bytes, tmpl, step)
+		tmplBuild, tmplWarnings, err := c.mergeTemplate(bytes, tmpl, step)
 		if err != nil {
-			return s, err
+			return s, warnings, err
 		}
+
+		warnings = append(warnings, tmplWarnings...)
 
 		// if template references other templates, expand again
 		if len(tmplBuild.Templates) != 0 {
 			// if the tmplBuild has render_inline but the parent build does not, abort
 			if tmplBuild.Metadata.RenderInline && !s.Metadata.RenderInline {
-				return s, fmt.Errorf("cannot use render_inline inside a called template (%s)", step.Template.Name)
+				return s, warnings, fmt.Errorf("cannot use render_inline inside a called template (%s)", step.Template.Name)
 			}
 
 			templates = append(templates, tmplBuild.Templates...)
 
-			tmplBuild, err = c.ExpandSteps(ctx, tmplBuild, mapFromTemplates(tmplBuild.Templates), r, depth-1)
+			tmplBuild, warnings, err = c.ExpandSteps(ctx, tmplBuild, mapFromTemplates(tmplBuild.Templates), r, warnings, depth-1)
 			if err != nil {
-				return s, err
+				return s, warnings, err
 			}
 		}
 
@@ -217,7 +224,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 	s.Environment = environment
 	s.Templates = templates
 
-	return s, nil
+	return s, warnings, nil
 }
 
 // ExpandDeployment injects the template for a

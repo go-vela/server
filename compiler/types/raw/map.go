@@ -6,6 +6,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/invopop/jsonschema"
@@ -138,7 +139,7 @@ func (s *StringSliceMap) UnmarshalYAML(unmarshal func(interface{}) error) error 
 		return nil
 	}
 
-	return errors.New("unable to unmarshal into StringSliceMap")
+	return fmt.Errorf("unable to unmarshal into StringSliceMap: %w", err)
 }
 
 // JSONSchema handles some overrides that need to be in place
