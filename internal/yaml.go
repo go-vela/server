@@ -23,7 +23,7 @@ func ParseYAML(data []byte, tmplName string) (*types.Build, []string, error) {
 	)
 
 	if len(tmplName) > 0 {
-		warningPrefix = fmt.Sprintf("%s:", tmplName)
+		warningPrefix = fmt.Sprintf("[%s]:", tmplName)
 	}
 
 	err := yaml.Unmarshal(data, &rootNode)

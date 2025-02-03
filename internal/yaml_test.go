@@ -76,7 +76,7 @@ func TestInternal_ParseYAML(t *testing.T) {
 			name:          "anchor collapse - warning prefix",
 			file:          "testdata/buildkite_new_version.yml",
 			wantBuild:     wantBuild,
-			wantWarnings:  []string{"prefix:16:duplicate << keys in single YAML map"},
+			wantWarnings:  []string{"[prefix]:16:duplicate << keys in single YAML map"},
 			warningPrefix: "prefix",
 		},
 		{

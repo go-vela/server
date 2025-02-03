@@ -458,10 +458,10 @@ func TestNative_ExpandStepsWarnings(t *testing.T) {
 	}
 
 	wantWarnings := []string{
-		"warnings:25:duplicate << keys in single YAML map",
-		"warnings:32:duplicate << keys in single YAML map",
-		"warnings:44:duplicate << keys in single YAML map",
-		"warnings:43:duplicate << keys in single YAML map",
+		"[warnings]:25:duplicate << keys in single YAML map",
+		"[warnings]:32:duplicate << keys in single YAML map",
+		"[warnings]:44:duplicate << keys in single YAML map",
+		"[warnings]:43:duplicate << keys in single YAML map",
 	}
 
 	// run test
