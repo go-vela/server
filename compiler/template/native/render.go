@@ -45,7 +45,7 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	}
 
 	// unmarshal the template to the pipeline
-	config, warnings, err := internal.ParseYAML(buffer.Bytes())
+	config, warnings, err := internal.ParseYAML(buffer.Bytes(), tName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
@@ -99,7 +99,7 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 	}
 
 	// unmarshal the template to the pipeline
-	config, warnings, err := internal.ParseYAML(buffer.Bytes())
+	config, warnings, err := internal.ParseYAML(buffer.Bytes(), "")
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}

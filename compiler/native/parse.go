@@ -112,7 +112,7 @@ func (c *client) Parse(v interface{}, pipelineType string, template *yaml.Templa
 
 // ParseBytes converts a byte slice to a yaml configuration.
 func ParseBytes(data []byte) (*yaml.Build, []byte, []string, error) {
-	config, warnings, err := internal.ParseYAML(data)
+	config, warnings, err := internal.ParseYAML(data, "")
 	if err != nil {
 		return nil, nil, nil, err
 	}

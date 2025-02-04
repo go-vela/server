@@ -14,12 +14,17 @@ import (
 )
 
 // ParseYAML is a helper function for transitioning teams away from legacy buildkite YAML parser.
-func ParseYAML(data []byte) (*types.Build, []string, error) {
+func ParseYAML(data []byte, tmplName string) (*types.Build, []string, error) {
 	var (
-		rootNode yaml.Node
-		warnings []string
-		version  string
+		rootNode      yaml.Node
+		warnings      []string
+		version       string
+		warningPrefix string
 	)
+
+	if len(tmplName) > 0 {
+		warningPrefix = fmt.Sprintf("[%s]:", tmplName)
+	}
 
 	err := yaml.Unmarshal(data, &rootNode)
 	if err != nil {
@@ -53,7 +58,7 @@ func ParseYAML(data []byte) (*types.Build, []string, error) {
 
 		config = legacyConfig.ToYAML()
 
-		warnings = append(warnings, `using legacy version - address any incompatibilities and use "1" instead`)
+		warnings = append(warnings, fmt.Sprintf(`%susing legacy version - address any incompatibilities and use "1" instead`, warningPrefix))
 
 	default:
 		// unmarshal the bytes into the yaml configuration
@@ -69,7 +74,7 @@ func ParseYAML(data []byte) (*types.Build, []string, error) {
 					return nil, nil, err
 				}
 
-				warnings = collapseMergeAnchors(root.Content[0], warnings)
+				warnings = collapseMergeAnchors(root.Content[0], warnings, warningPrefix)
 
 				newData, err := yaml.Marshal(root)
 				if err != nil {
@@ -90,7 +95,7 @@ func ParseYAML(data []byte) (*types.Build, []string, error) {
 }
 
 // collapseMergeAnchors traverses the entire pipeline and replaces duplicate `<<` keys with a single key->sequence.
-func collapseMergeAnchors(node *yaml.Node, warnings []string) []string {
+func collapseMergeAnchors(node *yaml.Node, warnings []string, warningPrefix string) []string {
 	// only replace on maps
 	if node.Kind == yaml.MappingNode {
 		var (
@@ -132,18 +137,18 @@ func collapseMergeAnchors(node *yaml.Node, warnings []string) []string {
 			for i := len(keysToRemove) - 1; i >= 0; i-- {
 				index := keysToRemove[i]
 
-				warnings = append(warnings, fmt.Sprintf("%d:duplicate << keys in single YAML map", node.Content[index].Line))
+				warnings = append(warnings, fmt.Sprintf("%s%d:duplicate << keys in single YAML map", warningPrefix, node.Content[index].Line))
 				node.Content = append(node.Content[:index], node.Content[index+2:]...)
 			}
 		}
 
 		// go to next level
 		for _, content := range node.Content {
-			warnings = collapseMergeAnchors(content, warnings)
+			warnings = collapseMergeAnchors(content, warnings, warningPrefix)
 		}
 	} else if node.Kind == yaml.SequenceNode {
 		for _, item := range node.Content {
-			warnings = collapseMergeAnchors(item, warnings)
+			warnings = collapseMergeAnchors(item, warnings, warningPrefix)
 		}
 	}
 
