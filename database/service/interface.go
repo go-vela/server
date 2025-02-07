@@ -41,7 +41,7 @@ type ServiceInterface interface {
 	// ListServices defines a function that gets a list of all services.
 	ListServices(context.Context) ([]*api.Service, error)
 	// ListServicesForBuild defines a function that gets a list of services by build ID.
-	ListServicesForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*api.Service, int64, error)
+	ListServicesForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*api.Service, error)
 	// ListServiceImageCount defines a function that gets a list of all service images and the count of their occurrence.
 	ListServiceImageCount(context.Context) (map[string]float64, error)
 	// ListServiceStatusCount defines a function that gets a list of all service statuses and the count of their occurrence.

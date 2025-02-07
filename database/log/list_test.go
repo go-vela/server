@@ -33,13 +33,7 @@ func TestLog_Engine_ListLogs(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "logs"`).WillReturnRows(_rows)
-
-	// create expected result in mock
-	_rows = sqlmock.NewRows(
+	_rows := sqlmock.NewRows(
 		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "data"}).
 		AddRow(1, 1, 1, 1, 0, []byte{}).AddRow(2, 1, 1, 0, 1, []byte{})
 
