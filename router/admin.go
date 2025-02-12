@@ -71,7 +71,7 @@ func AdminHandlers(base *gin.RouterGroup) {
 
 		// Admin storage object endpoints
 		_admin.POST("/storage/object/download", admin.DownloadObject)
-		_admin.POST("/storage/object", admin.UploadObject)
+		//_admin.POST("/storage/object", admin.UploadObject)
 
 		// Admin storage presign endpoints
 		_admin.GET("/storage/presign", admin.GetPresignedURL)

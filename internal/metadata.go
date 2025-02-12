@@ -24,6 +24,12 @@ type (
 		Host   string `json:"host"`
 	}
 
+	// Storage is the extra set of Storage data passed to the compiler.
+	Storage struct {
+		Driver string `json:"driver"`
+		Host   string `json:"host"`
+	}
+
 	// Vela is the extra set of Vela data passed to the compiler.
 	Vela struct {
 		Address              string        `json:"address"`
@@ -41,5 +47,6 @@ type (
 		Queue    *Queue    `json:"queue"`
 		Source   *Source   `json:"source"`
 		Vela     *Vela     `json:"vela"`
+		Storage  *Storage  `json:"storage"`
 	}
 )

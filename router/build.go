@@ -4,7 +4,6 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-
 	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/api/log"
 	"github.com/go-vela/server/router/middleware"
@@ -44,7 +43,8 @@ import (
 // POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
-// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs .
+// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
+// POST  /api/v1/repos/:org/:repo/builds/:build/storage/upload
 func BuildHandlers(base *gin.RouterGroup) {
 	// Builds endpoints
 	builds := base.Group("/builds")
@@ -67,6 +67,8 @@ func BuildHandlers(base *gin.RouterGroup) {
 			b.GET("/id_request_token", perm.MustBuildAccess(), build.GetIDRequestToken)
 			b.GET("/graph", perm.MustRead(), build.GetBuildGraph)
 			b.GET("/executable", perm.MustBuildAccess(), build.GetBuildExecutable)
+
+			//b.POST("/storage/upload", perm.MustBuildAccess(), build.UploadObject)
 
 			// Service endpoints
 			// * Log endpoints

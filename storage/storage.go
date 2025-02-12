@@ -15,8 +15,8 @@ func FromCLIContext(c *cli.Context) (Storage, error) {
 	// S3 configuration
 	_setup := &Setup{
 		Enable:    c.Bool("storage.enable"),
-		Driver:    c.String("storage.driver.name"),
-		Endpoint:  c.String("storage.endpoint.name"),
+		Driver:    c.String("storage.driver"),
+		Endpoint:  c.String("storage.addr"),
 		AccessKey: c.String("storage.access.key"),
 		SecretKey: c.String("storage.secret.key"),
 		Bucket:    c.String("storage.bucket.name"),
@@ -38,7 +38,7 @@ func New(s *Setup) (Storage, error) {
 	//
 	err := s.Validate()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to validate storage setup: %w", err)
 	}
 	logrus.Debug("creating storage client from setup")
 	// process the storage driver being provided

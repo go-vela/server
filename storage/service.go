@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	api "github.com/go-vela/server/api/types"
+	"io"
 )
 
 // Storage defines the service interface for object storage operations.
@@ -15,6 +16,7 @@ type Storage interface {
 	// Object Operations
 	StatObject(ctx context.Context, object *api.Object) (*api.Object, error)
 	Upload(ctx context.Context, object *api.Object) error
+	UploadObject(ctx context.Context, object *api.Object, reader io.Reader, size int64) error
 	Download(ctx context.Context, object *api.Object) error
 	Delete(ctx context.Context, object *api.Object) error
 	ListObjects(ctx context.Context, bucketName string) ([]string, error)

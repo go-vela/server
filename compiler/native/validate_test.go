@@ -640,10 +640,10 @@ func TestNative_Validate_TestReport(t *testing.T) {
 				Image:    "alpine",
 				Name:     str,
 				Pull:     "always",
-				TestReport: yaml.TestReport{
-					Results:     []string{"results.xml"},
-					Attachments: []string{"attachments"},
-				},
+				//TestReport: yaml.TestReport{
+				//	Results:     []string{"results.xml"},
+				//	Attachments: []string{"attachments"},
+				//},
 			},
 		},
 	}

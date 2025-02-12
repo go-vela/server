@@ -15,23 +15,23 @@ var Flags = []cli.Flag{
 		Usage:   "enable object storage",
 	},
 	&cli.StringFlag{
-		EnvVars: []string{"VELA_STORAGE_DRIVER"},
-		Name:    "storage.driver.name",
+		EnvVars: []string{"VELA_STORAGE_DRIVER", "STORAGE_DRIVER"},
+		Name:    "storage.driver",
 		Usage:   "object storage driver",
 	},
 	&cli.StringFlag{
-		EnvVars: []string{"VELA_STORAGE_ENDPOINT"},
-		Name:    "storage.endpoint.name",
+		EnvVars: []string{"VELA_STORAGE_ADDRESS", "STORAGE_ADDRESS"},
+		Name:    "storage.addr",
 		Usage:   "set the storage endpoint (ex. scheme://host:port)",
 	},
 
 	&cli.StringFlag{
-		EnvVars: []string{"VELA_STORAGE_ACCESS_KEY"},
+		EnvVars: []string{"VELA_STORAGE_ACCESS_KEY", "STORAGE_ACCESS_KEY"},
 		Name:    "storage.access.key",
 		Usage:   "set storage access key",
 	},
 	&cli.StringFlag{
-		EnvVars: []string{"VELA_STORAGE_SECRET_KEY"},
+		EnvVars: []string{"VELA_STORAGE_SECRET_KEY", "STORAGE_SECRET_KEY"},
 		Name:    "storage.secret.key",
 		Usage:   "set storage secret key",
 	},

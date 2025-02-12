@@ -47,7 +47,7 @@ services:
       VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND: 100
       VELA_STORAGE_ENABLE: 'true'
       VELA_STORAGE_DRIVER: minio
-      VELA_STORAGE_ENDPOINT: "http://minio:9000"
+      VELA_STORAGE_ADDRESS: "http://minio:9000"
       VELA_STORAGE_ACCESS_KEY: minio_access_user
       VELA_STORAGE_SECRET_KEY: minio_secret_key
       VELA_STORAGE_USE_SSL: 'false'
@@ -75,7 +75,7 @@ services:
 #    container_name: worker
 #    image: target/vela-worker:latest
     build:
-      context: ../.
+      context: ../worker
       dockerfile: Dockerfile
     container_name: worker
     networks:
@@ -94,6 +94,11 @@ services:
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       WORKER_ADDR: 'http://worker:8080'
       WORKER_CHECK_IN: 2m
+      VELA_EXECUTOR_OUTPUTS_IMAGE: 'alpine:latest'
+      VELA_STORAGE_ENABLE: 'true'
+      VELA_STORAGE_DRIVER: minio
+      VELA_STORAGE_ADDRESS: "http://minio:9000"
+      VELA_STORAGE_BUCKET: vela
     restart: always
     ports:
       - '8081:8080'

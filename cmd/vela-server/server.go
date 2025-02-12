@@ -215,6 +215,9 @@ func server(c *cli.Context) error {
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
 		middleware.TracingClient(tc),
 		middleware.TracingInstrumentation(tc),
+		middleware.StorageAddress(c.String("storage.addr")),
+		middleware.StorageAccessKey(c.String("storage.access.key")),
+		middleware.StorageSecretKey(c.String("storage.secret.key")),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))

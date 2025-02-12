@@ -45,6 +45,13 @@ func setupMetadata(c *cli.Context) (*internal.Metadata, error) {
 
 	m.Vela = vela
 
+	storage, err := metadataStorage(c)
+	if err != nil {
+		return nil, err
+	}
+
+	m.Storage = storage
+
 	return m, nil
 }
 
@@ -89,6 +96,21 @@ func metadataSource(c *cli.Context) (*internal.Source, error) {
 
 	return &internal.Source{
 		Driver: c.String("scm.driver"),
+		Host:   u.Host,
+	}, nil
+}
+
+// helper function to capture the queue metadata from the CLI arguments.
+func metadataStorage(c *cli.Context) (*internal.Storage, error) {
+	logrus.Trace("creating storage metadata from CLI configuration")
+
+	u, err := url.Parse(c.String("storage.addr"))
+	if err != nil {
+		return nil, err
+	}
+
+	return &internal.Storage{
+		Driver: c.String("storage.driver"),
 		Host:   u.Host,
 	}, nil
 }

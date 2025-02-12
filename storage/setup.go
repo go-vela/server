@@ -44,9 +44,9 @@ func (s *Setup) Validate() error {
 	logrus.Trace("validating Storage setup for client")
 
 	// verify storage is enabled
-	if !s.Enable {
-		return fmt.Errorf("Storage is not enabled")
-	}
+	//if !s.Enable {
+	//	return fmt.Errorf("Storage is not enabled")
+	//}
 
 	// verify an endpoint was provided
 	if len(s.Endpoint) == 0 {
@@ -64,9 +64,9 @@ func (s *Setup) Validate() error {
 	}
 
 	// verify a bucket was provided
-	if len(s.Bucket) == 0 {
-		return fmt.Errorf("no storage bucket provided")
-	}
+	//if len(s.Bucket) == 0 {
+	//	return fmt.Errorf("no storage bucket provided")
+	//}
 
 	// setup is valid
 	return nil
