@@ -91,6 +91,11 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 			want:    true,
 		},
 		{
+			ruleset: &Ruleset{If: Rules{Branch: []string{"hotfix-*"}, Event: []string{"pull_request"}}, Operator: "or"},
+			data:    &RuleData{Branch: "main", Event: "push", Status: "pending"},
+			want:    false,
+		},
+		{
 			ruleset: &Ruleset{If: Rules{Branch: []string{"main"}, Event: []string{"push"}}, Operator: "or"},
 			data:    &RuleData{Branch: "dev", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
 			want:    true,

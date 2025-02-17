@@ -195,7 +195,7 @@ func (r *Rules) Match(from *RuleData, matcher, op string) (bool, error) {
 
 func (r *Rules) matchStatus(from *RuleData, matcher, op string) (bool, error) {
 	if len(from.Status) == 0 {
-		return true, nil
+		return strings.EqualFold(op, constants.OperatorAnd), nil
 	}
 
 	return r.Status.MatchSingle(from.Status, matcher, op)
