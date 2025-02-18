@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/buildkite/yaml"
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
 )
@@ -32,6 +33,8 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Target:   []string{"production"},
 					Label:    []string{"enhancement"},
 					Instance: []string{"http://localhost:8080"},
+					Matcher:  "filepath",
+					Operator: "and",
 				},
 				Unless: Rules{
 					Branch:   []string{"main"},
@@ -44,9 +47,9 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Tag:      []string{"v0.2.0"},
 					Target:   []string{"production"},
 					Instance: []string{"http://localhost:8080"},
+					Matcher:  "regexp",
+					Operator: "or",
 				},
-				Matcher:  "filepath",
-				Operator: "and",
 				Continue: false,
 			},
 			want: &pipeline.Ruleset{
@@ -62,6 +65,8 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Target:   []string{"production"},
 					Label:    []string{"enhancement"},
 					Instance: []string{"http://localhost:8080"},
+					Matcher:  "filepath",
+					Operator: "and",
 				},
 				Unless: pipeline.Rules{
 					Branch:   []string{"main"},
@@ -74,9 +79,9 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Tag:      []string{"v0.2.0"},
 					Target:   []string{"production"},
 					Instance: []string{"http://localhost:8080"},
+					Matcher:  "regexp",
+					Operator: "or",
 				},
-				Matcher:  "filepath",
-				Operator: "and",
 				Continue: false,
 			},
 		},
@@ -113,9 +118,9 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 					Status:   []string{"success"},
 					Tag:      []string{"v0.1.0"},
 					Target:   []string{"production"},
+					Matcher:  "filepath",
+					Operator: "and",
 				},
-				Matcher:  "filepath",
-				Operator: "and",
 				Continue: true,
 			},
 		},
@@ -123,16 +128,37 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 			file: "testdata/ruleset_advanced.yml",
 			want: &Ruleset{
 				If: Rules{
-					Branch: []string{"main"},
-					Event:  []string{"push"},
-					Tag:    []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Branch:   []string{"main"},
+					Event:    []string{"push"},
+					Tag:      []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Matcher:  "regexp",
+					Operator: "or",
 				},
 				Unless: Rules{
-					Event: []string{"deployment:created", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened", "comment:created", "comment:edited", "schedule"},
-					Path:  []string{"foo.txt", "/foo/bar.txt"},
+					Event:    []string{"deployment:created", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened", "comment:created", "comment:edited", "schedule"},
+					Path:     []string{"foo.txt", "/foo/bar.txt"},
+					Matcher:  "regexp",
+					Operator: "or",
 				},
-				Matcher:  "regexp",
-				Operator: "or",
+				Continue: true,
+			},
+		},
+		{
+			file: "testdata/ruleset_op_match.yml",
+			want: &Ruleset{
+				If: Rules{
+					Branch:   []string{"main"},
+					Event:    []string{"push"},
+					Tag:      []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Matcher:  "regexp",
+					Operator: "and",
+				},
+				Unless: Rules{
+					Event:    []string{"deployment:created", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened", "comment:created", "comment:edited", "schedule"},
+					Path:     []string{"foo.txt", "/foo/bar.txt"},
+					Matcher:  "filepath",
+					Operator: "or",
+				},
 				Continue: true,
 			},
 		},
@@ -140,12 +166,12 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 			file: "testdata/ruleset_regex.yml",
 			want: &Ruleset{
 				If: Rules{
-					Branch: []string{"main"},
-					Event:  []string{"tag"},
-					Tag:    []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Branch:   []string{"main"},
+					Event:    []string{"tag"},
+					Tag:      []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Operator: "and",
+					Matcher:  "regex",
 				},
-				Operator: "and",
-				Matcher:  "regex",
 			},
 		},
 	}
@@ -165,8 +191,8 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 			t.Errorf("UnmarshalYAML returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("UnmarshalYAML is %v, want %v", got, test.want)
+		if diff := cmp.Diff(test.want, got); diff != "" {
+			t.Errorf("UnmarshalYAML mismatch (-want +got):\n%s", diff)
 		}
 	}
 }

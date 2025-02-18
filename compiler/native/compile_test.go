@@ -2102,10 +2102,10 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 				Pull:        "not_present",
 				Ruleset: pipeline.Ruleset{
 					If: pipeline.Rules{
-						Event: []string{"push"},
+						Event:    []string{"push"},
+						Matcher:  "filepath",
+						Operator: "and",
 					},
-					Matcher:  "filepath",
-					Operator: "and",
 				},
 			},
 			&pipeline.Container{
@@ -2120,10 +2120,10 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 				Pull:        "not_present",
 				Ruleset: pipeline.Ruleset{
 					If: pipeline.Rules{
-						Event: []string{"push"},
+						Event:    []string{"push"},
+						Matcher:  "filepath",
+						Operator: "and",
 					},
-					Matcher:  "filepath",
-					Operator: "and",
 				},
 			},
 			&pipeline.Container{
@@ -2138,10 +2138,10 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 				Pull:        "not_present",
 				Ruleset: pipeline.Ruleset{
 					If: pipeline.Rules{
-						Event: []string{"push"},
+						Event:    []string{"push"},
+						Matcher:  "filepath",
+						Operator: "and",
 					},
-					Matcher:  "filepath",
-					Operator: "and",
 				},
 			},
 		},
@@ -3394,11 +3394,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event:  []string{"push"},
-										Branch: []string{"main"},
+										Event:    []string{"push"},
+										Branch:   []string{"main"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -3414,11 +3414,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event: []string{"tag"},
-										Tag:   []string{"v*"},
+										Event:    []string{"tag"},
+										Tag:      []string{"v*"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -3434,11 +3434,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event: []string{"tag"},
-										Tag:   []string{"v*"},
+										Event:    []string{"tag"},
+										Tag:      []string{"v*"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -3454,11 +3454,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event: []string{"tag"},
-										Tag:   []string{"v*"},
+										Event:    []string{"tag"},
+										Tag:      []string{"v*"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -3535,11 +3535,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event:  []string{"push"},
-										Branch: []string{"main"},
+										Event:    []string{"push"},
+										Branch:   []string{"main"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -3555,11 +3555,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event: []string{"tag"},
-										Tag:   []string{"v*"},
+										Event:    []string{"tag"},
+										Tag:      []string{"v*"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -3575,11 +3575,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event: []string{"tag"},
-										Tag:   []string{"v*"},
+										Event:    []string{"tag"},
+										Tag:      []string{"v*"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -3595,11 +3595,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event: []string{"tag"},
-										Tag:   []string{"v*"},
+										Event:    []string{"tag"},
+										Tag:      []string{"v*"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -3663,11 +3663,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event:  []string{"push"},
-										Branch: []string{"main"},
+										Event:    []string{"push"},
+										Branch:   []string{"main"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -3726,11 +3726,11 @@ func Test_CompileLite(t *testing.T) {
 						Pull:     "not_present",
 						Ruleset: yaml.Ruleset{
 							If: yaml.Rules{
-								Event:  []string{"deployment:created"},
-								Target: []string{"production"},
+								Event:    []string{"deployment:created"},
+								Target:   []string{"production"},
+								Matcher:  "filepath",
+								Operator: "and",
 							},
-							Matcher:  "filepath",
-							Operator: "and",
 						},
 					},
 					{
@@ -3740,11 +3740,11 @@ func Test_CompileLite(t *testing.T) {
 						Pull:     "not_present",
 						Ruleset: yaml.Ruleset{
 							If: yaml.Rules{
-								Path:  []string{"src/*", "test/*"},
-								Event: []string{},
+								Path:     []string{"src/*", "test/*"},
+								Event:    []string{},
+								Matcher:  "filepath",
+								Operator: "and",
 							},
-							Matcher:  "filepath",
-							Operator: "and",
 						},
 					},
 					{
@@ -3830,11 +3830,11 @@ func Test_CompileLite(t *testing.T) {
 						Pull:     "not_present",
 						Ruleset: yaml.Ruleset{
 							If: yaml.Rules{
-								Event:  []string{"deployment:created"},
-								Target: []string{"production"},
+								Event:    []string{"deployment:created"},
+								Target:   []string{"production"},
+								Matcher:  "filepath",
+								Operator: "and",
 							},
-							Matcher:  "filepath",
-							Operator: "and",
 						},
 					},
 					{
@@ -4156,11 +4156,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event: []string{"tag"},
-										Tag:   []string{"v*"},
+										Event:    []string{"tag"},
+										Tag:      []string{"v*"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -4176,11 +4176,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event: []string{"tag"},
-										Tag:   []string{"v*"},
+										Event:    []string{"tag"},
+										Tag:      []string{"v*"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},
@@ -4196,11 +4196,11 @@ func Test_CompileLite(t *testing.T) {
 								Pull:     "not_present",
 								Ruleset: yaml.Ruleset{
 									If: yaml.Rules{
-										Event: []string{"tag"},
-										Tag:   []string{"v*"},
+										Event:    []string{"tag"},
+										Tag:      []string{"v*"},
+										Matcher:  "filepath",
+										Operator: "and",
 									},
-									Matcher:  "filepath",
-									Operator: "and",
 								},
 							},
 						},

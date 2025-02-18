@@ -65,7 +65,7 @@ func (c *ContainerSlice) Purge(r *RuleData) (*ContainerSlice, error) {
 	// iterate through each Container in the pipeline
 	for _, container := range *c {
 		// verify ruleset matches
-		match, err := container.Ruleset.Match(r)
+		match, err := r.Match(container.Ruleset)
 		if err != nil {
 			return nil, fmt.Errorf("unable to process ruleset for step %s: %w", container.Name, err)
 		}
@@ -153,80 +153,22 @@ func (c *Container) Execute(r *RuleData) (bool, error) {
 		return false, nil
 	}
 
-	// Skip evaluating path, comment, and label in ruleset,
-	// as the worker lacks necessary rule data.
-	//
-	// The compiler determines whether a container will run based on
-	// these rules.
-	c.Ruleset.If.Path = []string{}
-	c.Ruleset.Unless.Path = []string{}
+	var (
+		execute bool
+		err     error
+	)
 
-	c.Ruleset.If.Comment = []string{}
-	c.Ruleset.Unless.Comment = []string{}
+	// if no ruleset, follow status protocol
+	if len(c.Ruleset.If.Status) == 0 && len(c.Ruleset.Unless.Status) == 0 {
+		execute = !(r.Status == constants.StatusFailure || r.Status == constants.StatusError)
 
-	c.Ruleset.If.Label = []string{}
-	c.Ruleset.Unless.Label = []string{}
-
-	c.Ruleset.If.Instance = []string{}
-	c.Ruleset.Unless.Instance = []string{}
-
-	// check if the build is in a running state
-	if strings.EqualFold(r.Status, constants.StatusRunning) {
-		// treat the ruleset status as success
-		r.Status = constants.StatusSuccess
-
-		// return if the container ruleset matches the conditions
-		return c.Ruleset.Match(r)
+		return execute, nil
 	}
 
-	// assume you will execute the container
-	execute := true
-
-	// capture the build status out of the ruleset
-	status := r.Status
-
-	// check if the build status is successful
-	if !strings.EqualFold(status, constants.StatusSuccess) {
-		// disregard the need to run the container
-		execute = false
-
-		match, err := c.Ruleset.Match(r)
-		if err != nil {
-			return false, err
-		}
-
-		// check if you need to run a status failure ruleset
-
-		if ((!(c.Ruleset.If.Empty() && c.Ruleset.Unless.Empty()) &&
-			!(c.Ruleset.If.NoStatus() && c.Ruleset.Unless.NoStatus())) || c.Ruleset.If.Parallel) &&
-			match {
-			// approve the need to run the container
-			execute = true
-		}
-	}
-
-	r.Status = constants.StatusFailure
-
-	match, err := c.Ruleset.Match(r)
+	// if ruleset, determine match
+	execute, err = r.Match(c.Ruleset)
 	if err != nil {
-		return false, err
-	}
-
-	// check if you need to skip a status failure ruleset
-	if strings.EqualFold(status, constants.StatusSuccess) &&
-		!(c.Ruleset.If.NoStatus() && c.Ruleset.Unless.NoStatus()) &&
-		!(c.Ruleset.If.Empty() && c.Ruleset.Unless.Empty()) && match {
-		r.Status = constants.StatusSuccess
-
-		match, err = c.Ruleset.Match(r)
-		if err != nil {
-			return false, err
-		}
-
-		if !match {
-			// disregard the need to run the container
-			execute = false
-		}
+		return false, fmt.Errorf("unable to process ruleset for container %s: %w", c.Name, err)
 	}
 
 	return execute, nil
