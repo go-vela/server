@@ -85,6 +85,8 @@ func validateServices(s yaml.ServiceSlice) error {
 // validateStages is a helper function that verifies the
 // stages block in the yaml configuration is valid.
 func validateStages(s yaml.StageSlice) error {
+	nameMap := make(map[string]bool)
+
 	for _, stage := range s {
 		if len(stage.Name) == 0 {
 			return fmt.Errorf("no name provided for stage")
@@ -109,6 +111,12 @@ func validateStages(s yaml.StageSlice) error {
 			if step.Name == "clone" || step.Name == "init" {
 				continue
 			}
+
+			if _, ok := nameMap[stage.Name+"_"+step.Name]; ok {
+				return fmt.Errorf("step %s for stage %s is already defined", step.Name, stage.Name)
+			}
+
+			nameMap[stage.Name+"_"+step.Name] = true
 
 			if len(step.Commands) == 0 && len(step.Environment) == 0 &&
 				len(step.Parameters) == 0 && len(step.Secrets) == 0 &&
