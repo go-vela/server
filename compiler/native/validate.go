@@ -58,7 +58,7 @@ func (c *client) Validate(p *yaml.Build) error {
 	}
 
 	// validate the steps block provided
-	err = validateSteps(p.Steps)
+	err = validateSteps(p.Steps, make(map[string]bool), "")
 	if err != nil {
 		result = multierror.Append(result, err)
 	}
@@ -99,30 +99,9 @@ func validateStages(s yaml.StageSlice) error {
 			}
 		}
 
-		for _, step := range stage.Steps {
-			if len(step.Name) == 0 {
-				return fmt.Errorf("no name provided for step for stage %s", stage.Name)
-			}
-
-			if len(step.Image) == 0 {
-				return fmt.Errorf("no image provided for step %s for stage %s", step.Name, stage.Name)
-			}
-
-			if step.Name == "clone" || step.Name == "init" {
-				continue
-			}
-
-			if _, ok := nameMap[stage.Name+"_"+step.Name]; ok {
-				return fmt.Errorf("step %s for stage %s is already defined", step.Name, stage.Name)
-			}
-
-			nameMap[stage.Name+"_"+step.Name] = true
-
-			if len(step.Commands) == 0 && len(step.Environment) == 0 &&
-				len(step.Parameters) == 0 && len(step.Secrets) == 0 &&
-				len(step.Template.Name) == 0 && !step.Detach {
-				return fmt.Errorf("no commands, environment, parameters, secrets or template provided for step %s for stage %s", step.Name, stage.Name)
-			}
+		err := validateSteps(stage.Steps, nameMap, stage.Name)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -131,7 +110,7 @@ func validateStages(s yaml.StageSlice) error {
 
 // validateSteps is a helper function that verifies the
 // steps block in the yaml configuration is valid.
-func validateSteps(s yaml.StepSlice) error {
+func validateSteps(s yaml.StepSlice, nameMap map[string]bool, stageName string) error {
 	reportCount := 0
 
 	reportMap := make(map[string]string)
@@ -148,6 +127,12 @@ func validateSteps(s yaml.StepSlice) error {
 		if step.Name == "clone" || step.Name == "init" {
 			continue
 		}
+
+		if _, ok := nameMap[stageName+"_"+step.Name]; ok {
+			return fmt.Errorf("step %s is already defined", step.Name)
+		}
+
+		nameMap[stageName+"_"+step.Name] = true
 
 		if s, ok := reportMap[step.ReportAs]; ok {
 			return fmt.Errorf("report_as to %s for step %s is already targeted by step %s", step.ReportAs, step.Name, s)
