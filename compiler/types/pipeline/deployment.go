@@ -63,9 +63,9 @@ func (d *Deployment) Validate(target string, inputParams map[string]string) erro
 	}
 
 	// make lowercase key map for validation (it is all uppercase in the end but users can write YAML how they want)
-	standardizedInput := make(map[string]string)
-	for k := range inputParams {
-		standardizedInput[strings.ToLower(k)] = inputParams[k]
+	standardizedInput := make(map[string]string, len(inputParams))
+	for k, v := range inputParams {
+		standardizedInput[strings.ToLower(k)] = v
 	}
 
 	// validate params
