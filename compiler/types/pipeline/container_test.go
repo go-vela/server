@@ -142,6 +142,7 @@ func TestPipeline_Container_Execute(t *testing.T) {
 		container *Container
 		ruleData  *RuleData
 		want      bool
+		wantErr   bool
 	}{
 		{ // empty/nil container
 			container: nil,
@@ -561,11 +562,11 @@ func TestPipeline_Container_Execute(t *testing.T) {
 				Commands: []string{"echo \"Hey Vela\""},
 				Ruleset: Ruleset{
 					If: Rules{
-						Branch: []string{"main"},
-						Event:  []string{constants.EventPush},
-						Status: []string{constants.StatusSuccess},
+						Branch:   []string{"main"},
+						Event:    []string{constants.EventPush},
+						Status:   []string{constants.StatusSuccess},
+						Operator: "or",
 					},
-					Operator: "or",
 				},
 			},
 			ruleData: &RuleData{
@@ -835,11 +836,44 @@ func TestPipeline_Container_Execute(t *testing.T) {
 			},
 			want: true,
 		},
+		{ // status with bad regexp
+			container: &Container{
+				Name:     "status-bad-regexp",
+				Image:    "alpine:latest",
+				Commands: []string{"echo \"Hey Vela\""},
+				Ruleset: Ruleset{
+					If: Rules{
+						Status:  []string{"*"},
+						Matcher: constants.MatcherRegex,
+					},
+				},
+			},
+			ruleData: &RuleData{
+				Branch: "main",
+				Event:  "push",
+				Repo:   "foo/bar",
+				Status: "running",
+			},
+			want:    false,
+			wantErr: true,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		got, _ := test.container.Execute(test.ruleData)
+		got, err := test.container.Execute(test.ruleData)
+
+		if test.wantErr {
+			if err == nil {
+				t.Errorf("Container Execute %s should have returned err", test.container.Name)
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("Container Execute returned err: %v", err)
+		}
 
 		if got != test.want {
 			t.Errorf("Container Execute %s is %v, want %v", test.container.Name, got, test.want)
