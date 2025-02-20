@@ -178,7 +178,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 
 				for _, s := range stg.Steps {
 					cRuleset := s.Ruleset.ToPipeline()
-					if match, err := cRuleset.Match(ruleData); err == nil && match {
+					if match, err := cRuleset.Match(ruleData, c.EnvironmentBuild()); err == nil && match {
 						*purgedSteps = append(*purgedSteps, s)
 					}
 				}
@@ -215,7 +215,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 
 			for _, s := range p.Steps {
 				cRuleset := s.Ruleset.ToPipeline()
-				if match, err := cRuleset.Match(ruleData); err == nil && match {
+				if match, err := cRuleset.Match(ruleData, c.EnvironmentBuild()); err == nil && match {
 					*purgedSteps = append(*purgedSteps, s)
 				}
 			}
