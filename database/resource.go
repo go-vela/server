@@ -14,6 +14,8 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/reports/testreports"
+	"github.com/go-vela/server/database/reports/testreports/testattachments"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
@@ -142,6 +144,30 @@ func (e *engine) NewResources(ctx context.Context) error {
 		repo.WithEncryptionKey(e.config.EncryptionKey),
 		repo.WithLogger(e.logger),
 		repo.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for testreports
+	e.TestReportsInterface, err = testreports.New(
+		testreports.WithContext(ctx),
+		testreports.WithClient(e.client),
+		testreports.WithEncryptionKey(e.config.EncryptionKey),
+		testreports.WithLogger(e.logger),
+		testreports.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for testattachments
+	e.TestAttachmentsInterface, err = testattachments.New(
+		testattachments.WithContext(ctx),
+		testattachments.WithClient(e.client),
+		testattachments.WithEncryptionKey(e.config.EncryptionKey),
+		testattachments.WithLogger(e.logger),
+		testattachments.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

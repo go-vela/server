@@ -12,6 +12,8 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/reports/testreports"
+	"github.com/go-vela/server/database/reports/testreports/testattachments"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
@@ -65,6 +67,12 @@ type Interface interface {
 
 	// RepoInterface defines the interface for repos stored in the database.
 	repo.RepoInterface
+
+	// TestReportsInterface defines the interface for testreports stored in the database.
+	testreports.TestReportsInterface
+
+	// TestAttachmentsInterface defines the interface for testattachments stored in the database.
+	testattachments.TestAttachmentsInterface
 
 	// ScheduleInterface defines the interface for schedules stored in the database.
 	schedule.ScheduleInterface
