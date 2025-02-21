@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"reflect"
 	"testing"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-github/v69/github"
 	"golang.org/x/oauth2"
 )
 
@@ -20,6 +20,7 @@ func TestGithub_New(t *testing.T) {
 	defer s.Close()
 
 	gitClient := github.NewClient(nil)
+
 	gitClient.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
 
 	want := &client{
@@ -35,7 +36,7 @@ func TestGithub_New(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
+	if !cmp.Equal(got, want) {
 		t.Errorf("New is %v, want %v", got, want)
 	}
 }
@@ -66,8 +67,8 @@ func TestGithub_NewToken(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("New is %+v, want %+v", got.Github, want.Github)
+	if !cmp.Equal(got, want) {
+		t.Errorf("New is %v, want %v", got, want)
 	}
 }
 
