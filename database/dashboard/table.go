@@ -16,9 +16,9 @@ IF NOT EXISTS
 dashboards (
 	id            UUID PRIMARY KEY,
 	name          VARCHAR(250),
-	created_at    INTEGER,
+	created_at    BIGINT,
 	created_by    VARCHAR(250),
-	updated_at    INTEGER,
+	updated_at    BIGINT,
 	updated_by    VARCHAR(250),
 	admins        JSON DEFAULT NULL,
 	repos         JSON DEFAULT NULL

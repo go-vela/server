@@ -14,16 +14,16 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 schedules (
-	id           SERIAL PRIMARY KEY,
-	repo_id      INTEGER,
+	id           BIGSERIAL PRIMARY KEY,
+	repo_id      BIGINT,
 	active       BOOLEAN,
 	name         VARCHAR(100),
 	entry        VARCHAR(100),
-	created_at   INTEGER,
+	created_at   BIGINT,
 	created_by   VARCHAR(250),
-	updated_at   INTEGER,
+	updated_at   BIGINT,
 	updated_by   VARCHAR(250),
-	scheduled_at INTEGER,
+	scheduled_at BIGINT,
 	branch       VARCHAR(250),
 	error        VARCHAR(250),
 	UNIQUE(repo_id, name)

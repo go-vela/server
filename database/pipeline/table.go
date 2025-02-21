@@ -14,8 +14,8 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 pipelines (
-	id               SERIAL PRIMARY KEY,
-	repo_id          INTEGER,
+	id               BIGSERIAL PRIMARY KEY,
+	repo_id          BIGINT,
 	commit           VARCHAR(500),
 	flavor           VARCHAR(100),
 	platform         VARCHAR(100),
