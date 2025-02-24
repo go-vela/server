@@ -623,7 +623,7 @@ func ServiceFromContainerEnvironment(ctn *pipeline.Container) *Service {
 	value, ok = ctn.Environment["VELA_SERVICE_NUMBER"]
 	if ok {
 		// parse the environment variable value into an int
-		i, err := strconv.ParseInt(value, 10, 16)
+		i, err := strconv.ParseInt(value, 10, 32)
 		if err == nil {
 			// set the Number field to the parsed int
 			s.SetNumber(int32(i))
