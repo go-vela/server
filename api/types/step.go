@@ -683,7 +683,7 @@ func StepFromContainerEnvironment(ctn *pipeline.Container) *Step {
 	value, ok = ctn.Environment["VELA_STEP_EXIT_CODE"]
 	if ok {
 		// parse the environment variable value into an int
-		i, err := strconv.ParseUint(value, 10, 8)
+		i, err := strconv.ParseInt(value, 10, 32)
 		if err == nil {
 			// set the ExitCode field to the parsed int
 			s.SetExitCode(int32(i))
