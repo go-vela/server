@@ -14,7 +14,7 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 settings (
-	id                  BIGSERIAL PRIMARY KEY,
+	id                  SERIAL PRIMARY KEY,
 	compiler            JSON DEFAULT NULL,
 	queue               JSON DEFAULT NULL,
 	repo_allowlist      VARCHAR(1000),
