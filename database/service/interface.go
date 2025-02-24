@@ -37,7 +37,7 @@ type ServiceInterface interface {
 	// GetService defines a function that gets a service by ID.
 	GetService(context.Context, int64) (*api.Service, error)
 	// GetServiceForBuild defines a function that gets a service by number and build ID.
-	GetServiceForBuild(context.Context, *api.Build, int) (*api.Service, error)
+	GetServiceForBuild(context.Context, *api.Build, int32) (*api.Service, error)
 	// ListServices defines a function that gets a list of all services.
 	ListServices(context.Context) ([]*api.Service, error)
 	// ListServicesForBuild defines a function that gets a list of services by build ID.

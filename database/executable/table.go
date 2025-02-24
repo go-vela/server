@@ -14,8 +14,8 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 build_executables (
-	id               SERIAL PRIMARY KEY,
-	build_id         INTEGER,
+	id               BIGSERIAL PRIMARY KEY,
+	build_id         BIGINT,
 	data             BYTEA,
 	UNIQUE(build_id)
 );

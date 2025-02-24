@@ -77,7 +77,7 @@ func UpdateRepo(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	maxBuildLimit := c.Value("maxBuildLimit").(int64)
+	maxBuildLimit := c.Value("maxBuildLimit").(int32)
 	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
 	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
 	ctx := c.Request.Context()

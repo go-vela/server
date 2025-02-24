@@ -224,6 +224,6 @@ func testWorker() *api.Worker {
 		LastBuildStartedAt:  new(int64),
 		LastBuildFinishedAt: new(int64),
 		LastCheckedIn:       new(int64),
-		BuildLimit:          new(int64),
+		BuildLimit:          new(int32),
 	}
 }

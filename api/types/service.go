@@ -18,12 +18,12 @@ type Service struct {
 	ID           *int64  `json:"id,omitempty"`
 	BuildID      *int64  `json:"build_id,omitempty"`
 	RepoID       *int64  `json:"repo_id,omitempty"`
-	Number       *int    `json:"number,omitempty"`
+	Number       *int32  `json:"number,omitempty"`
 	Name         *string `json:"name,omitempty"`
 	Image        *string `json:"image,omitempty"`
 	Status       *string `json:"status,omitempty"`
 	Error        *string `json:"error,omitempty"`
-	ExitCode     *int    `json:"exit_code,omitempty"`
+	ExitCode     *int32  `json:"exit_code,omitempty"`
 	Created      *int64  `json:"created,omitempty"`
 	Started      *int64  `json:"started,omitempty"`
 	Finished     *int64  `json:"finished,omitempty"`
@@ -122,7 +122,7 @@ func (s *Service) GetRepoID() int64 {
 //
 // When the provided Service type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Service) GetNumber() int {
+func (s *Service) GetNumber() int32 {
 	// return zero value if Service type or Number field is nil
 	if s == nil || s.Number == nil {
 		return 0
@@ -187,7 +187,7 @@ func (s *Service) GetError() string {
 //
 // When the provided Service type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Service) GetExitCode() int {
+func (s *Service) GetExitCode() int32 {
 	// return zero value if Service type or ExitCode field is nil
 	if s == nil || s.ExitCode == nil {
 		return 0
@@ -317,7 +317,7 @@ func (s *Service) SetRepoID(v int64) {
 //
 // When the provided Service type is nil, it
 // will set nothing and immediately return.
-func (s *Service) SetNumber(v int) {
+func (s *Service) SetNumber(v int32) {
 	// return if Service type is nil
 	if s == nil {
 		return
@@ -382,7 +382,7 @@ func (s *Service) SetError(v string) {
 //
 // When the provided Service type is nil, it
 // will set nothing and immediately return.
-func (s *Service) SetExitCode(v int) {
+func (s *Service) SetExitCode(v int32) {
 	// return if Service type is nil
 	if s == nil {
 		return
@@ -601,10 +601,10 @@ func ServiceFromContainerEnvironment(ctn *pipeline.Container) *Service {
 	value, ok = ctn.Environment["VELA_SERVICE_EXIT_CODE"]
 	if ok {
 		// parse the environment variable value into an int
-		i, err := strconv.ParseInt(value, 10, 0)
+		i, err := strconv.ParseInt(value, 10, 32)
 		if err == nil {
 			// set the ExitCode field to the parsed int
-			s.SetExitCode(int(i))
+			s.SetExitCode(int32(i))
 		}
 	}
 
@@ -623,10 +623,10 @@ func ServiceFromContainerEnvironment(ctn *pipeline.Container) *Service {
 	value, ok = ctn.Environment["VELA_SERVICE_NUMBER"]
 	if ok {
 		// parse the environment variable value into an int
-		i, err := strconv.ParseInt(value, 10, 0)
+		i, err := strconv.ParseInt(value, 10, 32)
 		if err == nil {
 			// set the Number field to the parsed int
-			s.SetNumber(int(i))
+			s.SetNumber(int32(i))
 		}
 	}
 

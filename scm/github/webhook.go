@@ -339,7 +339,7 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 
 	return &internal.Webhook{
 		PullRequest: internal.PullRequest{
-			Number: payload.GetNumber(),
+			Number: int64(payload.GetNumber()),
 			Labels: prLabels,
 		},
 		Hook:  h,
@@ -506,7 +506,7 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 	return &internal.Webhook{
 		PullRequest: internal.PullRequest{
 			Comment: payload.GetComment().GetBody(),
-			Number:  payload.GetIssue().GetNumber(),
+			Number:  int64(payload.GetIssue().GetNumber()),
 		},
 		Hook:  h,
 		Repo:  r,
