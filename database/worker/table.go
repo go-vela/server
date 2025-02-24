@@ -25,7 +25,7 @@ workers (
 	last_build_started_at  BIGINT,
 	last_build_finished_at BIGINT,
 	last_checked_in        BIGINT,
-	build_limit            BIGINT,
+	build_limit            INTEGER,
 	UNIQUE(hostname)
 );
 `

@@ -24,8 +24,8 @@ repos (
 	clone            VARCHAR(1000),
 	branch           VARCHAR(250),
 	topics           VARCHAR(1020),
-	build_limit      BIGINT,
-	timeout          BIGINT,
+	build_limit      INTEGER,
+	timeout          INTEGER,
 	counter          BIGINT,
 	visibility       TEXT,
 	private          BOOLEAN,
@@ -35,7 +35,7 @@ repos (
 	pipeline_type    TEXT,
 	previous_name    VARCHAR(100),
 	approve_build    VARCHAR(20),
-	approval_timeout BIGINT,
+	approval_timeout INTEGER,
 	install_id       BIGINT,
 	UNIQUE(full_name)
 );

@@ -32,7 +32,7 @@ import (
 // swagger:model Graph
 type Graph struct {
 	BuildID     int64         `json:"build_id"`
-	BuildNumber int           `json:"build_number"`
+	BuildNumber int64         `json:"build_number"`
 	Org         string        `json:"org"`
 	Repo        string        `json:"repo"`
 	Nodes       map[int]*node `json:"nodes"`
@@ -334,7 +334,7 @@ func GetBuildGraph(c *gin.Context) {
 	stageMap := map[string]*stg{}
 
 	// build a map for step_id to pipeline step
-	stepMap := map[int]*pipeline.Container{}
+	stepMap := map[int32]*pipeline.Container{}
 
 	for _, pStep := range p.Steps {
 		stepMap[pStep.Number] = pStep

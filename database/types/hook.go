@@ -144,7 +144,7 @@ func (h *Hook) ToAPI() *api.Hook {
 
 	hook.SetID(h.ID.Int64)
 	hook.SetRepo(h.Repo.ToAPI())
-	hook.SetNumber(int(h.Number.Int64))
+	hook.SetNumber(h.Number.Int64)
 	hook.SetSourceID(h.SourceID.String)
 	hook.SetCreated(h.Created.Int64)
 	hook.SetHost(h.Host.String)

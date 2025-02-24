@@ -18,13 +18,13 @@ type Step struct {
 	ID           *int64  `json:"id,omitempty"`
 	BuildID      *int64  `json:"build_id,omitempty"`
 	RepoID       *int64  `json:"repo_id,omitempty"`
-	Number       *int    `json:"number,omitempty"`
+	Number       *int32  `json:"number,omitempty"`
 	Name         *string `json:"name,omitempty"`
 	Image        *string `json:"image,omitempty"`
 	Stage        *string `json:"stage,omitempty"`
 	Status       *string `json:"status,omitempty"`
 	Error        *string `json:"error,omitempty"`
-	ExitCode     *int    `json:"exit_code,omitempty"`
+	ExitCode     *int32  `json:"exit_code,omitempty"`
 	Created      *int64  `json:"created,omitempty"`
 	Started      *int64  `json:"started,omitempty"`
 	Finished     *int64  `json:"finished,omitempty"`
@@ -126,7 +126,7 @@ func (s *Step) GetRepoID() int64 {
 //
 // When the provided Step type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Step) GetNumber() int {
+func (s *Step) GetNumber() int32 {
 	// return zero value if Step type or Number field is nil
 	if s == nil || s.Number == nil {
 		return 0
@@ -204,7 +204,7 @@ func (s *Step) GetError() string {
 //
 // When the provided Step type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Step) GetExitCode() int {
+func (s *Step) GetExitCode() int32 {
 	// return zero value if Step type or ExitCode field is nil
 	if s == nil || s.ExitCode == nil {
 		return 0
@@ -347,7 +347,7 @@ func (s *Step) SetRepoID(v int64) {
 //
 // When the provided Step type is nil, it
 // will set nothing and immediately return.
-func (s *Step) SetNumber(v int) {
+func (s *Step) SetNumber(v int32) {
 	// return if Step type is nil
 	if s == nil {
 		return
@@ -425,7 +425,7 @@ func (s *Step) SetError(v string) {
 //
 // When the provided Step type is nil, it
 // will set nothing and immediately return.
-func (s *Step) SetExitCode(v int) {
+func (s *Step) SetExitCode(v int32) {
 	// return if Step type is nil
 	if s == nil {
 		return
@@ -683,10 +683,10 @@ func StepFromContainerEnvironment(ctn *pipeline.Container) *Step {
 	value, ok = ctn.Environment["VELA_STEP_EXIT_CODE"]
 	if ok {
 		// parse the environment variable value into an int
-		i, err := strconv.ParseInt(value, 10, 0)
+		i, err := strconv.ParseUint(value, 10, 8)
 		if err == nil {
 			// set the ExitCode field to the parsed int
-			s.SetExitCode(int(i))
+			s.SetExitCode(int32(i))
 		}
 	}
 
@@ -705,10 +705,10 @@ func StepFromContainerEnvironment(ctn *pipeline.Container) *Step {
 	value, ok = ctn.Environment["VELA_STEP_NUMBER"]
 	if ok {
 		// parse the environment variable value into an int
-		i, err := strconv.ParseInt(value, 10, 0)
+		i, err := strconv.ParseInt(value, 10, 16)
 		if err == nil {
 			// set the Number field to the parsed int
-			s.SetNumber(int(i))
+			s.SetNumber(int32(i))
 		}
 	}
 
