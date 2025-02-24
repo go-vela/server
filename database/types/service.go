@@ -153,7 +153,7 @@ func (s *Service) ToAPI() *api.Service {
 	service.SetImage(s.Image.String)
 	service.SetStatus(s.Status.String)
 	service.SetError(s.Error.String)
-	service.SetExitCode(int32(s.ExitCode.Int32))
+	service.SetExitCode(s.ExitCode.Int32)
 	service.SetCreated(s.Created.Int64)
 	service.SetStarted(s.Started.Int64)
 	service.SetFinished(s.Finished.Int64)
@@ -218,7 +218,7 @@ func ServiceFromAPI(s *api.Service) *Service {
 		Image:        sql.NullString{String: s.GetImage(), Valid: true},
 		Status:       sql.NullString{String: s.GetStatus(), Valid: true},
 		Error:        sql.NullString{String: s.GetError(), Valid: true},
-		ExitCode:     sql.NullInt32{Int32: int32(s.GetExitCode()), Valid: true},
+		ExitCode:     sql.NullInt32{Int32: s.GetExitCode(), Valid: true},
 		Created:      sql.NullInt64{Int64: s.GetCreated(), Valid: true},
 		Started:      sql.NullInt64{Int64: s.GetStarted(), Valid: true},
 		Finished:     sql.NullInt64{Int64: s.GetFinished(), Valid: true},

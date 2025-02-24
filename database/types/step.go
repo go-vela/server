@@ -166,7 +166,7 @@ func (s *Step) ToAPI() *api.Step {
 	step.SetStage(s.Stage.String)
 	step.SetStatus(s.Status.String)
 	step.SetError(s.Error.String)
-	step.SetExitCode(int32(s.ExitCode.Int32))
+	step.SetExitCode(s.ExitCode.Int32)
 	step.SetCreated(s.Created.Int64)
 	step.SetStarted(s.Started.Int64)
 	step.SetFinished(s.Finished.Int64)
@@ -235,7 +235,7 @@ func StepFromAPI(s *api.Step) *Step {
 		Stage:        sql.NullString{String: s.GetStage(), Valid: true},
 		Status:       sql.NullString{String: s.GetStatus(), Valid: true},
 		Error:        sql.NullString{String: s.GetError(), Valid: true},
-		ExitCode:     sql.NullInt32{Int32: int32(s.GetExitCode()), Valid: true},
+		ExitCode:     sql.NullInt32{Int32: s.GetExitCode(), Valid: true},
 		Created:      sql.NullInt64{Int64: s.GetCreated(), Valid: true},
 		Started:      sql.NullInt64{Int64: s.GetStarted(), Valid: true},
 		Finished:     sql.NullInt64{Int64: s.GetFinished(), Valid: true},
