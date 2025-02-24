@@ -389,6 +389,53 @@ func TestNative_Validate_Stages_NoCommands(t *testing.T) {
 	}
 }
 
+func TestNative_Validate_Stages_StepNameConflict(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	str := "foo"
+	p := &yaml.Build{
+		Version: "v1",
+		Stages: yaml.StageSlice{
+			&yaml.Stage{
+				Name: str,
+				Steps: yaml.StepSlice{
+					&yaml.Step{
+						Commands: raw.StringSlice{"echo hello"},
+						Image:    "alpine",
+						Name:     str,
+						Pull:     "always",
+					},
+				},
+			},
+			&yaml.Stage{
+				Name: str,
+				Steps: yaml.StepSlice{
+					&yaml.Step{
+						Commands: raw.StringSlice{"echo hello"},
+						Image:    "alpine",
+						Name:     str,
+						Pull:     "always",
+					},
+				},
+			},
+		},
+	}
+
+	// run test
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.Validate(p)
+	if err == nil {
+		t.Errorf("Validate should have returned err")
+	}
+}
+
 func TestNative_Validate_Stages_NeedsSelfReference(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
@@ -469,6 +516,36 @@ func TestNative_Validate_Steps_NoName(t *testing.T) {
 			&yaml.Step{
 				Commands: raw.StringSlice{"echo hello"},
 				Name:     "",
+				Pull:     "always",
+			},
+		},
+	}
+
+	// run test
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.Validate(p)
+	if err == nil {
+		t.Errorf("Validate should have returned err")
+	}
+}
+
+func TestNative_Validate_Steps_NameCollision(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	str := "foo"
+	p := &yaml.Build{
+		Version: "v1",
+		Steps: yaml.StepSlice{
+			&yaml.Step{
+				Commands: raw.StringSlice{"echo hello"},
+				Name:     str,
 				Pull:     "always",
 			},
 		},
@@ -620,6 +697,43 @@ func TestNative_Validate_MultiReportAs(t *testing.T) {
 
 	err = compiler.Validate(p)
 
+	if err == nil {
+		t.Errorf("Validate should have returned err")
+	}
+}
+
+func TestNative_Validate_Steps_StepNameConflict(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	str := "foo"
+	p := &yaml.Build{
+		Version: "v1",
+		Steps: yaml.StepSlice{
+			&yaml.Step{
+				Commands: raw.StringSlice{"echo hello"},
+				Image:    "alpine",
+				Name:     str,
+				Pull:     "always",
+			},
+			&yaml.Step{
+				Commands: raw.StringSlice{"echo goodbye"},
+				Image:    "alpine",
+				Name:     str,
+				Pull:     "always",
+			},
+		},
+	}
+
+	// run test
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.Validate(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
