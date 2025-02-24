@@ -5,9 +5,10 @@ package github
 import (
 	"context"
 	"net/url"
+	"reflect"
 	"strings"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v69/github"
 	"golang.org/x/oauth2"
 )
 
@@ -20,6 +21,10 @@ type client struct {
 	Github *github.Client
 	URL    string
 	API    string
+}
+
+func (c *client) Equal(other *client) bool {
+	return (reflect.DeepEqual(c.Github.Client(), other.Github.Client())) && c.URL == other.URL && c.API == other.API
 }
 
 // New returns a Registry implementation that integrates
