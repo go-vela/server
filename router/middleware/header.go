@@ -32,7 +32,7 @@ func Options(c *gin.Context) {
 	} else {
 		c.Header("Access-Control-Allow-Origin", "*")
 
-		origin := CORSAllowOrigin(c, m)
+		origin := CorsAllowOrigin(c, m)
 		if len(origin) > 0 {
 			c.Header("Access-Control-Allow-Origin", origin)
 			c.Header("Access-Control-Allow-Credentials", "true")
@@ -66,7 +66,7 @@ func Cors(c *gin.Context) {
 
 	c.Header("Access-Control-Allow-Origin", "*")
 
-	origin := CORSAllowOrigin(c, m)
+	origin := CorsAllowOrigin(c, m)
 	if len(origin) > 0 {
 		c.Header("Access-Control-Allow-Origin", origin)
 		c.Header("Access-Control-Allow-Credentials", "true")
@@ -75,13 +75,13 @@ func Cors(c *gin.Context) {
 	c.Header("Access-Control-Expose-Headers", "link, x-total-count")
 }
 
-// CORSAllowOrigin is a helper function that returns the
+// CorsAllowOrigin is a helper function that returns the
 // allowed origin for CORS requests by checking the
 // request origin against the allowed origins in the
 // Vela metadata.
-func CORSAllowOrigin(c *gin.Context, m *internal.Metadata) string {
+func CorsAllowOrigin(c *gin.Context, m *internal.Metadata) string {
 	origin := c.Request.Header.Get("Origin")
-	for _, domain := range m.Vela.CORSAllowOrigins {
+	for _, domain := range m.Vela.CorsAllowOrigins {
 		if domain == origin {
 			return domain
 		}

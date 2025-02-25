@@ -189,7 +189,7 @@ func TestMiddleware_Cors(t *testing.T) {
 			m: &internal.Metadata{
 				Vela: &internal.Vela{
 					Address:          "http://localhost:8080",
-					CORSAllowOrigins: []string{},
+					CorsAllowOrigins: []string{},
 				},
 			},
 			origin:                "http://localhost:8888",
@@ -202,7 +202,7 @@ func TestMiddleware_Cors(t *testing.T) {
 			m: &internal.Metadata{
 				Vela: &internal.Vela{
 					WebAddress:       "http://localhost:8888",
-					CORSAllowOrigins: []string{},
+					CorsAllowOrigins: []string{},
 				},
 			},
 			origin:                "http://localhost:8888",
@@ -215,7 +215,7 @@ func TestMiddleware_Cors(t *testing.T) {
 			m: &internal.Metadata{
 				Vela: &internal.Vela{
 					WebAddress:       "http://localhost:8888",
-					CORSAllowOrigins: []string{"http://localhost:3000", "http://localhost:3001"},
+					CorsAllowOrigins: []string{"http://localhost:3000", "http://localhost:3001"},
 				},
 			},
 			origin:                "http://localhost:8888",
@@ -228,7 +228,7 @@ func TestMiddleware_Cors(t *testing.T) {
 			m: &internal.Metadata{
 				Vela: &internal.Vela{
 					WebAddress:       "",
-					CORSAllowOrigins: []string{"http://localhost:3000", "http://localhost:3001", "http://localhost:8888"},
+					CorsAllowOrigins: []string{"http://localhost:3000", "http://localhost:3001", "http://localhost:8888"},
 				},
 			},
 			origin:                "http://localhost:8888",

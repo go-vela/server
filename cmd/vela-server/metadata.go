@@ -110,7 +110,7 @@ func metadataVela(c *cli.Context) (*internal.Vela, error) {
 	}
 
 	if len(c.StringSlice("cors-allow-origins")) > 0 {
-		vela.CORSAllowOrigins = c.StringSlice("cors-allow-origins")
+		vela.CorsAllowOrigins = c.StringSlice("cors-allow-origins")
 	}
 
 	if len(c.String("webui-oauth-callback")) > 0 {
