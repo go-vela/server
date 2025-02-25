@@ -179,6 +179,7 @@ func TestMiddleware_Cors(t *testing.T) {
 	tests := []struct {
 		name                  string
 		m                     *internal.Metadata
+		origin                string
 		expectedOrigin        string
 		expectedCredentials   string
 		expectedExposeHeaders string
@@ -191,31 +192,47 @@ func TestMiddleware_Cors(t *testing.T) {
 					CORSAllowOrigins: []string{},
 				},
 			},
+			origin:                "http://localhost:8888",
 			expectedOrigin:        "*",
 			expectedCredentials:   "",
 			expectedExposeHeaders: "link, x-total-count",
 		},
 		{
-			name: "WebAddress",
+			name: "WebAddress is origin",
 			m: &internal.Metadata{
 				Vela: &internal.Vela{
 					WebAddress:       "http://localhost:8888",
 					CORSAllowOrigins: []string{},
 				},
 			},
+			origin:                "http://localhost:8888",
 			expectedOrigin:        "http://localhost:8888",
 			expectedCredentials:   "true",
 			expectedExposeHeaders: "link, x-total-count",
 		},
 		{
-			name: "CORSAllowOrigins",
+			name: "CORSAllowOrigins origin is web address",
 			m: &internal.Metadata{
 				Vela: &internal.Vela{
-					WebAddress:       "",
+					WebAddress:       "http://localhost:8888",
 					CORSAllowOrigins: []string{"http://localhost:3000", "http://localhost:3001"},
 				},
 			},
-			expectedOrigin:        "http://localhost:3000,http://localhost:3001",
+			origin:                "http://localhost:8888",
+			expectedOrigin:        "http://localhost:8888",
+			expectedCredentials:   "true",
+			expectedExposeHeaders: "link, x-total-count",
+		},
+		{
+			name: "CORSAllowOrigins origin is in list",
+			m: &internal.Metadata{
+				Vela: &internal.Vela{
+					WebAddress:       "",
+					CORSAllowOrigins: []string{"http://localhost:3000", "http://localhost:3001", "http://localhost:8888"},
+				},
+			},
+			origin:                "http://localhost:8888",
+			expectedOrigin:        "http://localhost:8888",
 			expectedCredentials:   "true",
 			expectedExposeHeaders: "link, x-total-count",
 		},
@@ -227,6 +244,7 @@ func TestMiddleware_Cors(t *testing.T) {
 			resp := httptest.NewRecorder()
 			context, engine := gin.CreateTestContext(resp)
 			context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+			context.Request.Header.Add("Origin", tt.origin)
 
 			// inject metadata
 			engine.Use(func(c *gin.Context) {
