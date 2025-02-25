@@ -187,7 +187,7 @@ func TestMiddleware_Cors(t *testing.T) {
 			name: "*",
 			m: &internal.Metadata{
 				Vela: &internal.Vela{
-					Address:          "http://example.com",
+					Address:          "http://localhost:8080",
 					CORSAllowOrigins: []string{},
 				},
 			},
@@ -199,11 +199,11 @@ func TestMiddleware_Cors(t *testing.T) {
 			name: "WebAddress",
 			m: &internal.Metadata{
 				Vela: &internal.Vela{
-					WebAddress:       "http://example.com",
+					WebAddress:       "http://localhost:8888",
 					CORSAllowOrigins: []string{},
 				},
 			},
-			expectedOrigin:        "http://example.com",
+			expectedOrigin:        "http://localhost:8888",
 			expectedCredentials:   "true",
 			expectedExposeHeaders: "link, x-total-count",
 		},
@@ -212,10 +212,10 @@ func TestMiddleware_Cors(t *testing.T) {
 			m: &internal.Metadata{
 				Vela: &internal.Vela{
 					WebAddress:       "",
-					CORSAllowOrigins: []string{"http://c1.com", "http://c2.com"},
+					CORSAllowOrigins: []string{"http://localhost:3000", "http://localhost:3001"},
 				},
 			},
-			expectedOrigin:        "http://c1.com,http://c2.com",
+			expectedOrigin:        "http://localhost:3000,http://localhost:3001",
 			expectedCredentials:   "true",
 			expectedExposeHeaders: "link, x-total-count",
 		},
@@ -243,10 +243,12 @@ func TestMiddleware_Cors(t *testing.T) {
 			if gotOrigin != tt.expectedOrigin {
 				t.Errorf("Access-Control-Allow-Origin is %v; want %v", gotOrigin, tt.expectedOrigin)
 			}
+
 			gotCredentials := context.Writer.Header().Get("Access-Control-Allow-Credentials")
 			if gotCredentials != tt.expectedCredentials {
 				t.Errorf("Access-Control-Allow-Credentials is %v; want %v", gotCredentials, tt.expectedCredentials)
 			}
+
 			gotExposeHeaders := context.Writer.Header().Get("Access-Control-Expose-Headers")
 			if gotExposeHeaders != tt.expectedExposeHeaders {
 				t.Errorf("Access-Control-Expose-Headers is %v; want %v", gotExposeHeaders, tt.expectedExposeHeaders)
