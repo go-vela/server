@@ -176,45 +176,82 @@ func TestMiddleware_Options_InvalidMethod(t *testing.T) {
 }
 
 func TestMiddleware_Cors(t *testing.T) {
-	// setup types
-	wantOrigin := "*"
-	wantExposeHeaders := "link, x-total-count"
-	m := &internal.Metadata{
-		Vela: &internal.Vela{
-			Address: "http://localhost:8080",
+	tests := []struct {
+		name                  string
+		m                     *internal.Metadata
+		expectedOrigin        string
+		expectedCredentials   string
+		expectedExposeHeaders string
+	}{
+		{
+			name: "*",
+			m: &internal.Metadata{
+				Vela: &internal.Vela{
+					Address:          "http://example.com",
+					CORSAllowOrigins: []string{},
+				},
+			},
+			expectedOrigin:        "*",
+			expectedCredentials:   "",
+			expectedExposeHeaders: "link, x-total-count",
+		},
+		{
+			name: "WebAddress",
+			m: &internal.Metadata{
+				Vela: &internal.Vela{
+					WebAddress:       "http://example.com",
+					CORSAllowOrigins: []string{},
+				},
+			},
+			expectedOrigin:        "http://example.com",
+			expectedCredentials:   "true",
+			expectedExposeHeaders: "link, x-total-count",
+		},
+		{
+			name: "CORSAllowOrigins",
+			m: &internal.Metadata{
+				Vela: &internal.Vela{
+					WebAddress:       "",
+					CORSAllowOrigins: []string{"http://c1.com", "http://c2.com"},
+				},
+			},
+			expectedOrigin:        "http://c1.com,http://c2.com",
+			expectedCredentials:   "true",
+			expectedExposeHeaders: "link, x-total-count",
 		},
 	}
 
-	// setup context
-	gin.SetMode(gin.TestMode)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gin.SetMode(gin.TestMode)
+			resp := httptest.NewRecorder()
+			context, engine := gin.CreateTestContext(resp)
+			context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+			// inject metadata
+			engine.Use(func(c *gin.Context) {
+				c.Set("metadata", tt.m)
+				c.Next()
+			})
+			engine.Use(Cors)
+			engine.GET("/health", func(c *gin.Context) {
+				c.Status(http.StatusOK)
+			})
+			engine.ServeHTTP(context.Writer, context.Request)
 
-	// setup mock server
-	engine.Use(Metadata(m))
-	engine.Use(Cors)
-	engine.GET("/health", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
-
-	// run test
-	engine.ServeHTTP(context.Writer, context.Request)
-
-	gotOrigin := context.Writer.Header().Get("Access-Control-Allow-Origin")
-	gotExposeHeaders := context.Writer.Header().Get("Access-Control-Expose-Headers")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("CORS returned %v, want %v", resp.Code, http.StatusOK)
-	}
-
-	if !reflect.DeepEqual(gotOrigin, wantOrigin) {
-		t.Errorf("CORS Access-Control-Allow-Origin is %v, want %v", gotOrigin, wantOrigin)
-	}
-
-	if !reflect.DeepEqual(gotExposeHeaders, wantExposeHeaders) {
-		t.Errorf("CORS Access-Control-Expose-Headers is %v, want %v", gotExposeHeaders, wantExposeHeaders)
+			gotOrigin := context.Writer.Header().Get("Access-Control-Allow-Origin")
+			if gotOrigin != tt.expectedOrigin {
+				t.Errorf("Access-Control-Allow-Origin is %v; want %v", gotOrigin, tt.expectedOrigin)
+			}
+			gotCredentials := context.Writer.Header().Get("Access-Control-Allow-Credentials")
+			if gotCredentials != tt.expectedCredentials {
+				t.Errorf("Access-Control-Allow-Credentials is %v; want %v", gotCredentials, tt.expectedCredentials)
+			}
+			gotExposeHeaders := context.Writer.Header().Get("Access-Control-Expose-Headers")
+			if gotExposeHeaders != tt.expectedExposeHeaders {
+				t.Errorf("Access-Control-Expose-Headers is %v; want %v", gotExposeHeaders, tt.expectedExposeHeaders)
+			}
+		})
 	}
 }
 

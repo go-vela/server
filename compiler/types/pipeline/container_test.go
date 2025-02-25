@@ -11,35 +11,54 @@ import (
 
 func TestPipeline_ContainerSlice_Purge(t *testing.T) {
 	// setup types
-	containers := testContainers()
-	*containers = (*containers)[:len(*containers)-1]
+	containers1 := testContainers()
+	*containers1 = (*containers1)[:len(*containers1)-1]
+
+	containers2 := testContainersOR()
+	*containers2 = (*containers2)[:len(*containers2)-1]
+
+	ruledata1 := &RuleData{
+		Branch: "main",
+		Event:  "pull_request",
+		Path:   []string{},
+		Repo:   "foo/bar",
+		Tag:    "refs/heads/main",
+	}
+
+	ruledata2 := &RuleData{
+		Branch: "dev",
+		Event:  "pull_request",
+		Path:   []string{},
+		Repo:   "foo/bar",
+		Tag:    "refs/heads/main",
+	}
 
 	// setup tests
 	tests := []struct {
 		containers *ContainerSlice
+		ruledata   *RuleData
 		want       *ContainerSlice
 	}{
 		{
 			containers: testContainers(),
-			want:       containers,
+			ruledata:   ruledata1,
+			want:       containers1,
+		},
+		{
+			containers: testContainersOR(),
+			ruledata:   ruledata2,
+			want:       containers2,
 		},
 		{
 			containers: new(ContainerSlice),
+			ruledata:   ruledata1,
 			want:       new(ContainerSlice),
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		r := &RuleData{
-			Branch: "main",
-			Event:  "pull_request",
-			Path:   []string{},
-			Repo:   "foo/bar",
-			Tag:    "refs/heads/main",
-		}
-
-		got, _ := test.containers.Purge(r)
+		got, _ := test.containers.Purge(test.ruledata)
 
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("Purge is %v, want %v", got, test.want)
@@ -1033,6 +1052,48 @@ func testContainers() *ContainerSlice {
 			Ruleset: Ruleset{
 				If:       Rules{Event: []string{"push"}},
 				Operator: "and",
+			},
+		},
+	}
+}
+
+func testContainersOR() *ContainerSlice {
+	return &ContainerSlice{
+		{
+			ID:          "step_github octocat._1_init",
+			Directory:   "/home/github/octocat",
+			Environment: map[string]string{"FOO": "bar"},
+			Image:       "#init",
+			Name:        "init",
+			Number:      1,
+			Pull:        "always",
+		},
+		{
+			ID:          "step_github octocat._1_clone",
+			Directory:   "/home/github/octocat",
+			Environment: map[string]string{"FOO": "bar"},
+			Image:       "target/vela-git:v0.3.0",
+			Name:        "clone",
+			Number:      2,
+			Pull:        "always",
+			IDRequest:   "yes",
+		},
+		{
+			ID:          "step_github/octocat._1_echo",
+			Commands:    []string{"echo hello"},
+			Directory:   "/home/github/octocat",
+			Environment: map[string]string{"FOO": "bar"},
+			Image:       "alpine:latest",
+			Name:        "echo",
+			Number:      3,
+			Pull:        "always",
+			ReportAs:    "echo-step",
+			Ruleset: Ruleset{
+				If: Rules{
+					Event:  []string{"push"},
+					Branch: []string{"main"},
+				},
+				Operator: "or",
 			},
 		},
 	}
