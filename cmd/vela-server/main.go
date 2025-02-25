@@ -75,7 +75,7 @@ func main() {
 			Usage:   "web ui oauth callback path",
 			Value:   "/account/authenticate",
 		},
-		&cli.StringFlag{
+		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_CORS_ALLOW_ORIGINS", "VELA_CORS_ALLOWED_ORIGINS"},
 			Name:    "cors-allow-origins",
 			Usage:   "list of origins a cross-domain request can be executed from",
