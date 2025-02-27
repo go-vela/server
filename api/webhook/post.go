@@ -757,7 +757,7 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	page := 1
 	// capture all secrets belonging to certain repo in database
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
-		s, _, err := db.ListSecretsForRepo(ctx, dbR, map[string]interface{}{}, page, 100)
+		s, err := db.ListSecretsForRepo(ctx, dbR, map[string]interface{}{}, page, 100)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
 		}
@@ -794,7 +794,7 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	page = 1
 	// capture all builds belonging to repo in database
 	for build := int64(0); build < t; build += 100 {
-		b, _, err := db.ListBuildsForRepo(ctx, dbR, nil, time.Now().Unix(), 0, page, 100)
+		b, err := db.ListBuildsForRepo(ctx, dbR, nil, time.Now().Unix(), 0, page, 100)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get build list for repo %s: %w", dbR.GetFullName(), err)
 		}

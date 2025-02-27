@@ -43,7 +43,7 @@ type ScheduleInterface interface {
 	// ListSchedules defines a function that gets a list of all schedules.
 	ListSchedules(context.Context) ([]*api.Schedule, error)
 	// ListSchedulesForRepo defines a function that gets a list of schedules by repo ID.
-	ListSchedulesForRepo(context.Context, *api.Repo, int, int) ([]*api.Schedule, int64, error)
+	ListSchedulesForRepo(context.Context, *api.Repo, int, int) ([]*api.Schedule, error)
 	// UpdateSchedule defines a function that updates an existing schedule.
 	UpdateSchedule(context.Context, *api.Schedule, bool) (*api.Schedule, error)
 }

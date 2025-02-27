@@ -115,7 +115,7 @@ func ListPipelines(c *gin.Context) {
 	//nolint:gomnd // ignore magic number
 	perPage = max(1, min(100, perPage))
 
-	p, t, err := database.FromContext(c).ListPipelinesForRepo(ctx, r, page, perPage)
+	p, err := database.FromContext(c).ListPipelinesForRepo(ctx, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list pipelines for repo %s: %w", r.GetFullName(), err)
 
@@ -128,7 +128,7 @@ func ListPipelines(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   t,
+		Results: len(p),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)

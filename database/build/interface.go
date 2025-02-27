@@ -51,11 +51,11 @@ type BuildInterface interface {
 	// ListBuilds defines a function that gets a list of all builds.
 	ListBuilds(context.Context) ([]*api.Build, error)
 	// ListBuildsForOrg defines a function that gets a list of builds by org name.
-	ListBuildsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Build, int64, error)
+	ListBuildsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Build, error)
 	// ListBuildsForDashboardRepo defines a function that gets a list of builds based on dashboard filters.
 	ListBuildsForDashboardRepo(context.Context, *api.Repo, []string, []string) ([]*api.Build, error)
 	// ListBuildsForRepo defines a function that gets a list of builds by repo ID.
-	ListBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64, int, int) ([]*api.Build, int64, error)
+	ListBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64, int, int) ([]*api.Build, error)
 	// ListPendingAndRunningBuilds defines a function that gets a list of pending and running builds.
 	ListPendingAndRunningBuilds(context.Context, string) ([]*api.QueueBuild, error)
 	// ListPendingAndRunningBuildsForRepo defines a function that gets a list of pending and running builds for a repo.

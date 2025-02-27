@@ -43,7 +43,7 @@ type LogInterface interface {
 	// ListLogs defines a function that gets a list of all logs.
 	ListLogs(context.Context) ([]*api.Log, error)
 	// ListLogsForBuild defines a function that gets a list of logs by build ID.
-	ListLogsForBuild(context.Context, *api.Build, int, int) ([]*api.Log, int64, error)
+	ListLogsForBuild(context.Context, *api.Build, int, int) ([]*api.Log, error)
 	// UpdateLog defines a function that updates an existing log.
 	UpdateLog(context.Context, *api.Log) error
 }

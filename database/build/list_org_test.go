@@ -63,12 +63,8 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected count query without filters result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-	// ensure the mock expects the count query without filters
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1`).WithArgs("foo").WillReturnRows(_rows)
 	// create expected query without filters result in mock
-	_rows = sqlmock.NewRows(
+	_rows := sqlmock.NewRows(
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
 		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
 		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
@@ -87,10 +83,6 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
-	// create expected count query with event filter result in mock
-	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
-	// ensure the mock expects the count query with event filter
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "event" = $2`).WithArgs("foo", "push").WillReturnRows(_rows)
 	// create expected query with event filter result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
@@ -111,10 +103,6 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
-	// create expected count query with visibility filter result in mock
-	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
-	// ensure the mock expects the count query with visibility filter
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "visibility" = $2`).WithArgs("foo", "public").WillReturnRows(_rows)
 	// create expected query with visibility filter result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
@@ -236,7 +224,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListBuildsForOrg(context.TODO(), "foo", test.filters, 1, 10)
+			got, err := test.database.ListBuildsForOrg(context.TODO(), "foo", test.filters, 1, 10)
 
 			if test.failure {
 				if err == nil {
