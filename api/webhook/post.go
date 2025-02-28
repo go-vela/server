@@ -157,6 +157,40 @@ func PostWebhook(c *gin.Context) {
 
 	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
 
+	// check if repo was parsed from webhook
+	if r == nil {
+		retErr := fmt.Errorf("%s: failed to parse repo from webhook", baseErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// send API call to capture parsed repo from webhook
+	repo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// verify the webhook from the source control provider
+	if c.Value("webhookvalidation").(bool) {
+		err = scm.FromContext(c).VerifyWebhook(ctx, dupRequest, repo)
+		if err != nil {
+			retErr := fmt.Errorf("unable to verify webhook: %w", err)
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+	}
+
 	l.Debugf("hook generated from SCM: %v", h)
 	l.Debugf("repo generated from SCM: %v", r)
 
@@ -194,14 +228,6 @@ func PostWebhook(c *gin.Context) {
 		build ref: %s`,
 		b.GetAuthor(), b.GetBranch(), b.GetCommit(), b.GetRef())
 
-	// check if repo was parsed from webhook
-	if r == nil {
-		retErr := fmt.Errorf("%s: failed to parse repo from webhook", baseErr)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
 	defer func() {
 		// send API call to update the webhook
 		//
@@ -219,18 +245,6 @@ func PostWebhook(c *gin.Context) {
 			"repo_id": r.GetID(),
 		}).Info("hook updated")
 	}()
-
-	// send API call to capture parsed repo from webhook
-	repo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
-		return
-	}
 
 	// attach a sender SCM id if the webhook payload from the SCM has no sender id
 	// the code in ProcessWebhook implies that the sender may not always be present
@@ -334,20 +348,6 @@ func PostWebhook(c *gin.Context) {
 		"org":     repo.GetOrg(),
 		"repo":    repo.GetName(),
 	}).Info("hook created")
-
-	// verify the webhook from the source control provider
-	if c.Value("webhookvalidation").(bool) {
-		err = scm.FromContext(c).VerifyWebhook(ctx, dupRequest, repo)
-		if err != nil {
-			retErr := fmt.Errorf("unable to verify webhook: %w", err)
-			util.HandleError(c, http.StatusUnauthorized, retErr)
-
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(retErr.Error())
-
-			return
-		}
-	}
 
 	// check if the repo is active
 	if !repo.GetActive() {
