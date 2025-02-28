@@ -253,18 +253,19 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
 	)
 
-	// if the pull request state isn't open we ignore it
-	if payload.GetPullRequest().GetState() != "open" {
+	// if the pull request state isn't open or actively being closed we ignore it
+	if payload.GetPullRequest().GetState() != "open" && payload.GetAction() != "closed" {
 		return &internal.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize, reopened, edited, labeled, or unlabeled
-	if !strings.EqualFold(payload.GetAction(), "opened") &&
-		!strings.EqualFold(payload.GetAction(), "synchronize") &&
-		!strings.EqualFold(payload.GetAction(), "reopened") &&
-		!strings.EqualFold(payload.GetAction(), "edited") &&
-		!strings.EqualFold(payload.GetAction(), "labeled") &&
-		!strings.EqualFold(payload.GetAction(), "unlabeled") {
+	// skip if the pull request action is not configured
+	if payload.GetAction() != "opened" &&
+		payload.GetAction() != "synchronize" &&
+		payload.GetAction() != "reopened" &&
+		payload.GetAction() != "edited" &&
+		payload.GetAction() != "labeled" &&
+		payload.GetAction() != "unlabeled" &&
+		payload.GetAction() != "closed" {
 		return &internal.Webhook{Hook: h}, nil
 	}
 
@@ -300,9 +301,20 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 	b.SetBaseRef(payload.GetPullRequest().GetBase().GetRef())
 	b.SetHeadRef(payload.GetPullRequest().GetHead().GetRef())
 
-	// ensure the build reference is set
+	// PR merge action grabs merge commit as ref and commit
 	if payload.GetPullRequest().GetMerged() {
-		b.SetRef(fmt.Sprintf("refs/pull/%d/merge", payload.GetNumber()))
+		b.SetMessage(fmt.Sprintf("Merged PR #%d", payload.GetNumber()))
+		b.SetRef(payload.GetPullRequest().GetMergeCommitSHA())
+		b.SetCommit(payload.GetPullRequest().GetMergeCommitSHA())
+		b.SetEventAction(constants.ActionMerged)
+	}
+
+	// PR close action grabs base ref and commit
+	if payload.GetAction() == constants.ActionClosed && !payload.GetPullRequest().GetMerged() {
+		b.SetMessage(fmt.Sprintf("Closed PR #%d", payload.GetNumber()))
+		b.SetRef(payload.GetPullRequest().GetBase().GetRef())
+		b.SetCommit(payload.GetPullRequest().GetBase().GetSHA())
+		b.SetEventAction(constants.ActionClosed)
 	}
 
 	// ensure the build author is set
@@ -333,7 +345,6 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 	}
 
 	// determine if pull request head is a fork and does not match the repo name of base
-
 	b.SetFork(payload.GetPullRequest().GetHead().GetRepo().GetFork() &&
 		!strings.EqualFold(payload.GetPullRequest().GetBase().GetRepo().GetFullName(), payload.GetPullRequest().GetHead().GetRepo().GetFullName()))
 

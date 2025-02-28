@@ -124,6 +124,7 @@ func TestTypes_Events_List(t *testing.T) {
 		"pull_request:synchronize",
 		"pull_request:reopened",
 		"pull_request:unlabeled",
+		"pull_request:merged",
 		"tag",
 		"comment:created",
 		"schedule",
@@ -133,6 +134,7 @@ func TestTypes_Events_List(t *testing.T) {
 	wantTwo := []string{
 		"pull_request:edited",
 		"pull_request:labeled",
+		"pull_request:closed",
 		"deployment",
 		"comment:edited",
 		"delete:tag",
@@ -162,6 +164,7 @@ func TestTypes_Events_NewEventsFromMask_ToDatabase(t *testing.T) {
 			constants.AllowPullSync |
 			constants.AllowPullReopen |
 			constants.AllowPullUnlabel |
+			constants.AllowPullMerged |
 			constants.AllowCommentCreate |
 			constants.AllowSchedule,
 	)
@@ -171,6 +174,7 @@ func TestTypes_Events_NewEventsFromMask_ToDatabase(t *testing.T) {
 			constants.AllowPullEdit |
 			constants.AllowCommentEdit |
 			constants.AllowPullLabel |
+			constants.AllowPullClosedUnmerged |
 			constants.AllowDeployCreate,
 	)
 
@@ -215,13 +219,13 @@ func Test_NewEventsFromSlice(t *testing.T) {
 	}{
 		{
 			name:    "action specific events to e1",
-			events:  []string{"push:branch", "push:tag", "delete:branch", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened", "comment:created", "schedule:run", "pull_request:unlabeled"},
+			events:  []string{"push:branch", "push:tag", "delete:branch", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened", "pull_request:unlabeled", "pull_request:merged", "comment:created", "schedule:run"},
 			want:    e1,
 			failure: false,
 		},
 		{
 			name:    "action specific events to e2",
-			events:  []string{"delete:tag", "pull_request:edited", "deployment:created", "comment:edited", "pull_request:labeled"},
+			events:  []string{"delete:tag", "pull_request:edited", "pull_request:closed", "deployment:created", "comment:edited", "pull_request:labeled"},
 			want:    e2,
 			failure: false,
 		},
@@ -242,6 +246,8 @@ func Test_NewEventsFromSlice(t *testing.T) {
 					Synchronize: &tBool,
 					Labeled:     &fBool,
 					Unlabeled:   &fBool,
+					Merged:      &fBool,
+					Closed:      &fBool,
 				},
 				Deployment: &actions.Deploy{
 					Created: &tBool,
@@ -273,6 +279,8 @@ func Test_NewEventsFromSlice(t *testing.T) {
 					Synchronize: &tBool,
 					Labeled:     &fBool,
 					Unlabeled:   &fBool,
+					Merged:      &fBool,
+					Closed:      &fBool,
 				},
 				Deployment: &actions.Deploy{
 					Created: &fBool,
@@ -340,6 +348,8 @@ func TestTypes_Events_Allowed(t *testing.T) {
 		{event: "pull_request", action: "reopened", want: true},
 		{event: "pull_request", action: "labeled", want: false},
 		{event: "pull_request", action: "unlabeled", want: true},
+		{event: "pull_request", action: "merged", want: true},
+		{event: "pull_request", action: "closed", want: false},
 		{event: "deployment", action: "created", want: false},
 		{event: "comment", action: "created", want: true},
 		{event: "comment", action: "edited", want: false},
@@ -381,6 +391,8 @@ func testEvents() (*Events, *Events) {
 			Reopened:    &tBool,
 			Labeled:     &fBool,
 			Unlabeled:   &tBool,
+			Merged:      &tBool,
+			Closed:      &fBool,
 		},
 		Deployment: &actions.Deploy{
 			Created: &fBool,
@@ -408,6 +420,8 @@ func testEvents() (*Events, *Events) {
 			Reopened:    &fBool,
 			Labeled:     &tBool,
 			Unlabeled:   &fBool,
+			Merged:      &fBool,
+			Closed:      &tBool,
 		},
 		Deployment: &actions.Deploy{
 			Created: &tBool,

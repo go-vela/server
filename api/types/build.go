@@ -144,7 +144,13 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 	// check if the Build event is comment
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) {
 		// capture the pull request number
-		number := ToString(strings.SplitN(b.GetRef(), "/", 4)[2])
+		var number string
+
+		split := strings.SplitN(b.GetRef(), "/", 4)
+
+		if len(split) == 4 {
+			number = ToString(split[2])
+		}
 
 		// add the pull request number to the list
 		envs["BUILD_PULL_REQUEST_NUMBER"] = number
@@ -184,7 +190,19 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 	// check if the Build event is pull_request
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
 		// capture the pull request number
-		number := ToString(strings.SplitN(b.GetRef(), "/", 4)[2])
+		var number string
+
+		if b.GetEventAction() == constants.ActionMerged {
+			number = strings.TrimPrefix(b.GetMessage(), "Merged PR #")
+		} else if b.GetEventAction() == constants.ActionClosed {
+			number = strings.TrimPrefix(b.GetMessage(), "Closed PR #")
+		} else {
+			split := strings.SplitN(b.GetRef(), "/", 4)
+
+			if len(split) == 4 {
+				number = ToString(split[2])
+			}
+		}
 
 		// add the pull request number to the list
 		envs["BUILD_PULL_REQUEST_NUMBER"] = number
@@ -198,7 +216,13 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 	// check if the Build event is tag
 	if strings.EqualFold(b.GetEvent(), constants.EventTag) {
 		// capture the tag reference
-		tag := ToString(strings.SplitN(b.GetRef(), "refs/tags/", 2)[1])
+		var tag string
+
+		split := strings.SplitN(b.GetRef(), "refs/tags/", 2)
+
+		if len(split) == 2 {
+			tag = ToString(split[1])
+		}
 
 		// add the tag reference to the list
 		envs["BUILD_TAG"] = tag

@@ -447,6 +447,19 @@ func CompileAndPublish(
 // getPRNumberFromBuild is a helper function to
 // extract the pull request number from a Build.
 func getPRNumberFromBuild(b *types.Build) (int, error) {
+	// on PR merges and closures, grab number from message
+	if b.GetEventAction() == constants.ActionMerged && b.GetEvent() == constants.EventPull {
+		numStr := strings.TrimPrefix(b.GetMessage(), "Merged PR #")
+
+		return strconv.Atoi(numStr)
+	}
+
+	if b.GetEventAction() == constants.ActionClosed && b.GetEvent() == constants.EventPull {
+		numStr := strings.TrimPrefix(b.GetMessage(), "Closed PR #")
+
+		return strconv.Atoi(numStr)
+	}
+
 	// parse out pull request number from base ref
 	//
 	// pattern: refs/pull/1/head

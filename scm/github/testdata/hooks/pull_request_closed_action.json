@@ -37,7 +37,7 @@
     "created_at": "2018-05-30T20:18:30Z",
     "updated_at": "2018-05-30T20:18:50Z",
     "closed_at": "2018-05-30T20:18:50Z",
-    "merged_at": null,
+    "merged_at": "2018-05-30T20:18:50Z",
     "merge_commit_sha": "414cb0069601a32b00bd122a2380cd283626a8e5",
     "assignee": null,
     "assignees": [
@@ -321,7 +321,7 @@
       }
     },
     "author_association": "OWNER",
-    "merged": false,
+    "merged": true,
     "mergeable": true,
     "rebaseable": true,
     "mergeable_state": "clean",
