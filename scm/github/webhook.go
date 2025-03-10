@@ -139,6 +139,9 @@ func (c *client) processPushEvent(ctx context.Context, h *api.Hook, payload *git
 	}).Tracef("processing push GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to library repo
 	r := new(api.Repo)
@@ -268,6 +271,9 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to library repo
 	r := new(api.Repo)
@@ -355,6 +361,9 @@ func (c *client) processDeploymentEvent(h *api.Hook, payload *github.DeploymentE
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to library repo
 	r := new(api.Repo)
@@ -473,6 +482,9 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to library repo
 	r := new(api.Repo)
@@ -516,6 +528,9 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to library repo
 	r := new(api.Repo)
