@@ -12,6 +12,9 @@ const (
 	// in Vela to control their pipeline being compiled as Go templates.
 	PipelineTypeGo = "go"
 
+	// PipelineTypeGoAlt defines the alternative value for "go".
+	PipelineTypeGoAlt = "golang"
+
 	// PipelineTypeStarlark defines the pipeline type for allowing users
 	// in Vela to control their pipeline being compiled as Starlark templates.
 	PipelineTypeStarlark = "starlark"
