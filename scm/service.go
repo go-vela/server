@@ -156,7 +156,7 @@ type Service interface {
 	ProcessWebhook(context.Context, *http.Request) (*internal.Webhook, error)
 	// VerifyWebhook defines a function that
 	// verifies the webhook from a repo.
-	VerifyWebhook(context.Context, *http.Request, *api.Repo) error
+	VerifyWebhook(context.Context, *http.Request, []byte) error
 	// RedeliverWebhook defines a function that
 	// redelivers the webhook from the SCM.
 	RedeliverWebhook(context.Context, *api.User, *api.Hook) error
