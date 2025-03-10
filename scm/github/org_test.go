@@ -6,7 +6,6 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +13,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-func TestGithub_GetOrgName(t *testing.T) {
+func TestGithub_GetOrgIdentifiers(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -36,12 +35,13 @@ func TestGithub_GetOrgName(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	want := "github"
+	wantName := "github"
+	wantID := int64(1)
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.GetOrgName(context.TODO(), u, "github")
+	gotName, gotID, err := client.GetOrgIdentifiers(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetOrgName returned %v, want %v", resp.Code, http.StatusOK)
@@ -51,8 +51,12 @@ func TestGithub_GetOrgName(t *testing.T) {
 		t.Errorf("GetOrgName returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("GetOrgName is %v, want %v", got, want)
+	if gotName != wantName {
+		t.Errorf("GetOrgIdentifiers name is %v, want %v", gotName, wantName)
+	}
+
+	if gotID != wantID {
+		t.Errorf("GetOrgIdentifiers id is %v, want %v", gotID, wantID)
 	}
 }
 
@@ -78,12 +82,13 @@ func TestGithub_GetOrgName_Personal(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	want := "octocat"
+	wantName := "octocat"
+	wantID := int64(1)
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.GetOrgName(context.TODO(), u, "octocat")
+	gotName, gotID, err := client.GetOrgIdentifiers(context.TODO(), u, "octocat")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetOrgName returned %v, want %v", resp.Code, http.StatusOK)
@@ -93,8 +98,12 @@ func TestGithub_GetOrgName_Personal(t *testing.T) {
 		t.Errorf("GetOrgName returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("GetOrgName is %v, want %v", got, want)
+	if gotName != wantName {
+		t.Errorf("GetOrgIdentifiers name is %v, want %v", gotName, wantName)
+	}
+
+	if gotID != wantID {
+		t.Errorf("GetOrgIdentifiers id is %v, want %v", gotID, wantID)
 	}
 }
 
@@ -122,7 +131,7 @@ func TestGithub_GetOrgName_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.GetOrgName(context.TODO(), u, "octocat")
+	_, _, err := client.GetOrgIdentifiers(context.TODO(), u, "octocat")
 
 	if err == nil {
 		t.Error("GetOrgName should return error")

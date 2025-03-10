@@ -35,6 +35,14 @@ var (
 	// Repo type has an empty UserID field provided.
 	ErrEmptyRepoUserID = errors.New("empty repo user_id provided")
 
+	// ErrEmptyRepoSCMID defines the error type when a
+	// Repo type has an empty SCMID field provided.
+	ErrEmptyRepoSCMID = errors.New("empty repo scm_id provided")
+
+	// ErrEmptyRepoOrgSCMID defines the error type when a
+	// Repo type has an empty OrgSCMID field provided.
+	ErrEmptyRepoOrgSCMID = errors.New("empty repo org_scm_id provided")
+
 	// ErrEmptyRepoVisibility defines the error type when a
 	// Repo type has an empty Visibility field provided.
 	ErrEmptyRepoVisibility = errors.New("empty repo visibility provided")
@@ -69,6 +77,8 @@ type Repo struct {
 	ApproveBuild    sql.NullString `sql:"approve_build"`
 	ApprovalTimeout sql.NullInt64  `sql:"approval_timeout"`
 	InstallID       sql.NullInt64  `sql:"install_id"`
+	SCMID           sql.NullInt64  `sql:"scm_id"`
+	OrgSCMID        sql.NullInt64  `sql:"org_scm_id"`
 
 	Owner User `gorm:"foreignKey:UserID"`
 }
@@ -228,6 +238,21 @@ func (r *Repo) Nullify() *Repo {
 		r.ApprovalTimeout.Valid = false
 	}
 
+	// check if the InstallID field should be false
+	if r.InstallID.Int64 == 0 {
+		r.InstallID.Valid = false
+	}
+
+	// check if the SCMID field should be false
+	if r.SCMID.Int64 == 0 {
+		r.SCMID.Valid = false
+	}
+
+	// check if the OrgSCMID field should be false
+	if r.OrgSCMID.Int64 == 0 {
+		r.OrgSCMID.Valid = false
+	}
+
 	return r
 }
 
@@ -267,6 +292,8 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetApproveBuild(r.ApproveBuild.String)
 	repo.SetApprovalTimeout(r.ApprovalTimeout.Int64)
 	repo.SetInstallID(r.InstallID.Int64)
+	repo.SetSCMID(r.SCMID.Int64)
+	repo.SetOrgSCMID(r.OrgSCMID.Int64)
 
 	return repo
 }
@@ -302,6 +329,16 @@ func (r *Repo) Validate() error {
 	// verify the Visibility field is populated
 	if len(r.Visibility.String) == 0 {
 		return ErrEmptyRepoVisibility
+	}
+
+	// verify the SCMID field is populated
+	if r.SCMID.Int64 <= 0 {
+		return ErrEmptyRepoSCMID
+	}
+
+	// verify the OrgSCMID field is populated
+	if r.OrgSCMID.Int64 <= 0 {
+		return ErrEmptyRepoOrgSCMID
 	}
 
 	// calculate total size of favorites while sanitizing entries
@@ -361,6 +398,8 @@ func RepoFromAPI(r *api.Repo) *Repo {
 		ApproveBuild:    sql.NullString{String: r.GetApproveBuild(), Valid: true},
 		ApprovalTimeout: sql.NullInt64{Int64: r.GetApprovalTimeout(), Valid: true},
 		InstallID:       sql.NullInt64{Int64: r.GetInstallID(), Valid: true},
+		SCMID:           sql.NullInt64{Int64: r.GetSCMID(), Valid: true},
+		OrgSCMID:        sql.NullInt64{Int64: r.GetOrgSCMID(), Valid: true},
 	}
 
 	return repo.Nullify()

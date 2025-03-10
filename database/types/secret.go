@@ -24,13 +24,25 @@ var (
 	// Secret type has an empty Org field provided.
 	ErrEmptySecretOrg = errors.New("empty secret org provided")
 
+	// ErrEmptySecretOrgSCMID defines the error type when a
+	// Secret type has an empty OrgSCMID field provided.
+	ErrEmptySecretOrgSCMID = errors.New("empty secret org scm id provided")
+
 	// ErrEmptySecretRepo defines the error type when a
 	// Secret type has an empty Repo field provided.
 	ErrEmptySecretRepo = errors.New("empty secret repo provided")
 
+	// ErrEmptySecretRepoSCMID defines the error type when a
+	// Secret type has an empty RepoSCMID field provided.
+	ErrEmptySecretRepoSCMID = errors.New("empty secret repo scm id provided")
+
 	// ErrEmptySecretTeam defines the error type when a
 	// Secret type has an empty Team field provided.
 	ErrEmptySecretTeam = errors.New("empty secret team provided")
+
+	// ErrEmptySecretTeamSCMID defines the error type when a
+	// Secret type has an empty SCMID field provided.
+	ErrEmptySecretTeamSCMID = errors.New("empty secret scm id provided")
 
 	// ErrEmptySecretType defines the error type when a
 	// Secret type has an empty Type field provided.
@@ -45,8 +57,11 @@ var (
 type Secret struct {
 	ID                sql.NullInt64  `sql:"id"`
 	Org               sql.NullString `sql:"org"`
+	OrgSCMID          sql.NullInt64  `sql:"org_scm_id"`
 	Repo              sql.NullString `sql:"repo"`
+	RepoSCMID         sql.NullInt64  `sql:"repo_scm_id"`
 	Team              sql.NullString `sql:"team"`
+	TeamSCMID         sql.NullInt64  `sql:"team_scm_id"`
 	Name              sql.NullString `sql:"name"`
 	Value             sql.NullString `sql:"value"`
 	Type              sql.NullString `sql:"type"`
@@ -128,14 +143,29 @@ func (s *Secret) Nullify() *Secret {
 		s.Org.Valid = false
 	}
 
+	// check if the OrgSCMID field should be false
+	if s.OrgSCMID.Int64 == 0 {
+		s.OrgSCMID.Valid = false
+	}
+
 	// check if the Repo field should be false
 	if len(s.Repo.String) == 0 {
 		s.Repo.Valid = false
 	}
 
+	// check if the RepoSCMID field should be false
+	if s.RepoSCMID.Int64 == 0 {
+		s.RepoSCMID.Valid = false
+	}
+
 	// check if the Team field should be false
 	if len(s.Team.String) == 0 {
 		s.Team.Valid = false
+	}
+
+	// check if the TeamSCMID field should be false
+	if s.TeamSCMID.Int64 == 0 {
+		s.TeamSCMID.Valid = false
 	}
 
 	// check if the Name field should be false
@@ -188,8 +218,11 @@ func (s *Secret) ToAPI() *api.Secret {
 
 	secret.SetID(s.ID.Int64)
 	secret.SetOrg(s.Org.String)
+	secret.SetOrgSCMID(s.OrgSCMID.Int64)
 	secret.SetRepo(s.Repo.String)
+	secret.SetRepoSCMID(s.RepoSCMID.Int64)
 	secret.SetTeam(s.Team.String)
+	secret.SetTeamSCMID(s.TeamSCMID.Int64)
 	secret.SetName(s.Name.String)
 	secret.SetValue(s.Value.String)
 	secret.SetType(s.Type.String)
@@ -218,12 +251,20 @@ func (s *Secret) Validate() error {
 		return ErrEmptySecretOrg
 	}
 
+	if s.OrgSCMID.Int64 <= 0 {
+		return ErrEmptySecretOrgSCMID
+	}
+
 	// check if an org or repo secret
 	if strings.EqualFold(s.Type.String, constants.SecretRepo) ||
 		strings.EqualFold(s.Type.String, constants.SecretOrg) {
 		// verify the Repo field is populated
 		if len(s.Repo.String) == 0 {
 			return ErrEmptySecretRepo
+		}
+
+		if s.Type.String == constants.SecretRepo && s.RepoSCMID.Int64 <= 0 {
+			return ErrEmptySecretRepoSCMID
 		}
 	}
 
@@ -232,6 +273,10 @@ func (s *Secret) Validate() error {
 		// verify the Team field is populated
 		if len(s.Team.String) == 0 {
 			return ErrEmptySecretTeam
+		}
+
+		if s.TeamSCMID.Int64 <= 0 {
+			return ErrEmptySecretTeamSCMID
 		}
 	}
 
@@ -269,8 +314,11 @@ func SecretFromAPI(s *api.Secret) *Secret {
 	secret := &Secret{
 		ID:                sql.NullInt64{Int64: s.GetID(), Valid: true},
 		Org:               sql.NullString{String: s.GetOrg(), Valid: true},
+		OrgSCMID:          sql.NullInt64{Int64: s.GetOrgSCMID(), Valid: true},
 		Repo:              sql.NullString{String: s.GetRepo(), Valid: true},
+		RepoSCMID:         sql.NullInt64{Int64: s.GetRepoSCMID(), Valid: true},
 		Team:              sql.NullString{String: s.GetTeam(), Valid: true},
+		TeamSCMID:         sql.NullInt64{Int64: s.GetTeamSCMID(), Valid: true},
 		Name:              sql.NullString{String: s.GetName(), Valid: true},
 		Value:             sql.NullString{String: s.GetValue(), Valid: true},
 		Type:              sql.NullString{String: s.GetType(), Valid: true},

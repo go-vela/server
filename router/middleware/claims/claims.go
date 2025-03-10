@@ -36,7 +36,7 @@ func Establish() gin.HandlerFunc {
 		claims := new(token.Claims)
 
 		// special handling for workers if symmetric token is provided
-		if secret, ok := c.Value("secret").(string); ok {
+		if secret, ok := c.Value("vela-secret").(string); ok {
 			if strings.EqualFold(at, secret) {
 				claims.Subject = "vela-worker"
 				claims.TokenType = constants.ServerWorkerTokenType

@@ -287,7 +287,49 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat")
+	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat", int64(0), int64(0))
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("TeamAccess returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("TeamAccess is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_TeamAccess_AdminIDMatch(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/user/teams", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/team_admin.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	want := "admin"
+
+	u := new(api.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.TeamAccess(context.TODO(), u, "github", "Justice League", int64(2), int64(2))
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -329,7 +371,7 @@ func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(context.TODO(), u, "github", "baz")
+	got, err := client.TeamAccess(context.TODO(), u, "github", "baz", int64(0), int64(0))
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -359,7 +401,7 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat")
+	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat", int64(0), int64(0))
 
 	if err == nil {
 		t.Errorf("TeamAccess should have returned err")

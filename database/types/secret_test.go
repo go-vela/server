@@ -162,8 +162,11 @@ func TestDatabase_Secret_ToAPI(t *testing.T) {
 
 	want.SetID(1)
 	want.SetOrg("github")
+	want.SetOrgSCMID(1)
 	want.SetRepo("octocat")
+	want.SetRepoSCMID(1)
 	want.SetTeam("octokitties")
+	want.SetTeamSCMID(1)
 	want.SetName("foo")
 	want.SetValue("bar")
 	want.SetType("repo")
@@ -197,67 +200,118 @@ func TestDatabase_Secret_Validate(t *testing.T) {
 		{ // no name set for secret
 			failure: true,
 			secret: &Secret{
-				ID:    sql.NullInt64{Int64: 1, Valid: true},
-				Org:   sql.NullString{String: "github", Valid: true},
-				Repo:  sql.NullString{String: "octocat", Valid: true},
-				Team:  sql.NullString{String: "octokitties", Valid: true},
-				Value: sql.NullString{String: "bar", Valid: true},
-				Type:  sql.NullString{String: "repo", Valid: true},
+				ID:        sql.NullInt64{Int64: 1, Valid: true},
+				Org:       sql.NullString{String: "github", Valid: true},
+				OrgSCMID:  sql.NullInt64{Int64: 1, Valid: true},
+				Repo:      sql.NullString{String: "octocat", Valid: true},
+				RepoSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Team:      sql.NullString{String: "octokitties", Valid: true},
+				Value:     sql.NullString{String: "bar", Valid: true},
+				Type:      sql.NullString{String: "repo", Valid: true},
 			},
 		},
 		{ // no org set for secret
 			failure: true,
 			secret: &Secret{
-				ID:    sql.NullInt64{Int64: 1, Valid: true},
-				Repo:  sql.NullString{String: "octocat", Valid: true},
-				Team:  sql.NullString{String: "octokitties", Valid: true},
-				Name:  sql.NullString{String: "foo", Valid: true},
-				Value: sql.NullString{String: "bar", Valid: true},
-				Type:  sql.NullString{String: "repo", Valid: true},
+				ID:        sql.NullInt64{Int64: 1, Valid: true},
+				OrgSCMID:  sql.NullInt64{Int64: 1, Valid: true},
+				Repo:      sql.NullString{String: "octocat", Valid: true},
+				RepoSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Team:      sql.NullString{String: "octokitties", Valid: true},
+				Name:      sql.NullString{String: "foo", Valid: true},
+				Value:     sql.NullString{String: "bar", Valid: true},
+				Type:      sql.NullString{String: "repo", Valid: true},
 			},
 		},
 		{ // no repo set for secret
 			failure: true,
 			secret: &Secret{
-				ID:    sql.NullInt64{Int64: 1, Valid: true},
-				Org:   sql.NullString{String: "github", Valid: true},
-				Team:  sql.NullString{String: "octokitties", Valid: true},
-				Name:  sql.NullString{String: "foo", Valid: true},
-				Value: sql.NullString{String: "bar", Valid: true},
-				Type:  sql.NullString{String: "repo", Valid: true},
+				ID:        sql.NullInt64{Int64: 1, Valid: true},
+				Org:       sql.NullString{String: "github", Valid: true},
+				OrgSCMID:  sql.NullInt64{Int64: 1, Valid: true},
+				RepoSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Team:      sql.NullString{String: "octokitties", Valid: true},
+				Name:      sql.NullString{String: "foo", Valid: true},
+				Value:     sql.NullString{String: "bar", Valid: true},
+				Type:      sql.NullString{String: "repo", Valid: true},
 			},
 		},
 		{ // no team set for secret
 			failure: true,
 			secret: &Secret{
-				ID:    sql.NullInt64{Int64: 1, Valid: true},
-				Org:   sql.NullString{String: "github", Valid: true},
-				Repo:  sql.NullString{String: "octocat", Valid: true},
-				Name:  sql.NullString{String: "foo", Valid: true},
-				Value: sql.NullString{String: "bar", Valid: true},
-				Type:  sql.NullString{String: "shared", Valid: true},
+				ID:        sql.NullInt64{Int64: 1, Valid: true},
+				Org:       sql.NullString{String: "github", Valid: true},
+				OrgSCMID:  sql.NullInt64{Int64: 1, Valid: true},
+				Repo:      sql.NullString{String: "octocat", Valid: true},
+				RepoSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				TeamSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Name:      sql.NullString{String: "foo", Valid: true},
+				Value:     sql.NullString{String: "bar", Valid: true},
+				Type:      sql.NullString{String: "shared", Valid: true},
 			},
 		},
 		{ // no type set for secret
 			failure: true,
 			secret: &Secret{
-				ID:    sql.NullInt64{Int64: 1, Valid: true},
-				Org:   sql.NullString{String: "github", Valid: true},
-				Repo:  sql.NullString{String: "octocat", Valid: true},
-				Team:  sql.NullString{String: "octokitties", Valid: true},
-				Name:  sql.NullString{String: "foo", Valid: true},
-				Value: sql.NullString{String: "bar", Valid: true},
+				ID:        sql.NullInt64{Int64: 1, Valid: true},
+				Org:       sql.NullString{String: "github", Valid: true},
+				OrgSCMID:  sql.NullInt64{Int64: 1, Valid: true},
+				Repo:      sql.NullString{String: "octocat", Valid: true},
+				RepoSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Team:      sql.NullString{String: "octokitties", Valid: true},
+				Name:      sql.NullString{String: "foo", Valid: true},
+				Value:     sql.NullString{String: "bar", Valid: true},
 			},
 		},
 		{ // no value set for secret
 			failure: true,
 			secret: &Secret{
-				ID:   sql.NullInt64{Int64: 1, Valid: true},
-				Org:  sql.NullString{String: "github", Valid: true},
-				Repo: sql.NullString{String: "octocat", Valid: true},
-				Team: sql.NullString{String: "octokitties", Valid: true},
-				Name: sql.NullString{String: "foo", Valid: true},
-				Type: sql.NullString{String: "repo", Valid: true},
+				ID:        sql.NullInt64{Int64: 1, Valid: true},
+				Org:       sql.NullString{String: "github", Valid: true},
+				OrgSCMID:  sql.NullInt64{Int64: 1, Valid: true},
+				Repo:      sql.NullString{String: "octocat", Valid: true},
+				RepoSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Team:      sql.NullString{String: "octokitties", Valid: true},
+				Name:      sql.NullString{String: "foo", Valid: true},
+				Type:      sql.NullString{String: "repo", Valid: true},
+			},
+		},
+		{ // no value set for org scm id
+			failure: true,
+			secret: &Secret{
+				ID:        sql.NullInt64{Int64: 1, Valid: true},
+				Org:       sql.NullString{String: "github", Valid: true},
+				Repo:      sql.NullString{String: "octocat", Valid: true},
+				RepoSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Team:      sql.NullString{String: "octokitties", Valid: true},
+				TeamSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Name:      sql.NullString{String: "foo", Valid: true},
+				Type:      sql.NullString{String: "repo", Valid: true},
+			},
+		},
+		{ // no value set for repo scm id
+			failure: true,
+			secret: &Secret{
+				ID:        sql.NullInt64{Int64: 1, Valid: true},
+				Org:       sql.NullString{String: "github", Valid: true},
+				OrgSCMID:  sql.NullInt64{Int64: 1, Valid: true},
+				Repo:      sql.NullString{String: "octocat", Valid: true},
+				Team:      sql.NullString{String: "octokitties", Valid: true},
+				TeamSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Name:      sql.NullString{String: "foo", Valid: true},
+				Type:      sql.NullString{String: "repo", Valid: true},
+			},
+		},
+		{ // no value set for team scm id on shared secret
+			failure: true,
+			secret: &Secret{
+				ID:       sql.NullInt64{Int64: 1, Valid: true},
+				Org:      sql.NullString{String: "github", Valid: true},
+				OrgSCMID: sql.NullInt64{Int64: 1, Valid: true},
+				Repo:     sql.NullString{String: "octocat", Valid: true},
+				Team:     sql.NullString{String: "octokitties", Valid: true},
+				Name:     sql.NullString{String: "foo", Valid: true},
+				Type:     sql.NullString{String: "shared", Valid: true},
 			},
 		},
 	}
@@ -286,8 +340,11 @@ func TestDatabase_SecretFromAPI(t *testing.T) {
 
 	s.SetID(1)
 	s.SetOrg("github")
+	s.SetOrgSCMID(1)
 	s.SetRepo("octocat")
+	s.SetRepoSCMID(1)
 	s.SetTeam("octokitties")
+	s.SetTeamSCMID(1)
 	s.SetName("foo")
 	s.SetValue("bar")
 	s.SetType("repo")
@@ -316,8 +373,11 @@ func testSecret() *Secret {
 	return &Secret{
 		ID:                sql.NullInt64{Int64: 1, Valid: true},
 		Org:               sql.NullString{String: "github", Valid: true},
+		OrgSCMID:          sql.NullInt64{Int64: 1, Valid: true},
 		Repo:              sql.NullString{String: "octocat", Valid: true},
+		RepoSCMID:         sql.NullInt64{Int64: 1, Valid: true},
 		Team:              sql.NullString{String: "octokitties", Valid: true},
+		TeamSCMID:         sql.NullInt64{Int64: 1, Valid: true},
 		Name:              sql.NullString{String: "foo", Valid: true},
 		Value:             sql.NullString{String: "bar", Valid: true},
 		Type:              sql.NullString{String: "repo", Valid: true},

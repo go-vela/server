@@ -12,7 +12,7 @@ import (
 // server <-> agent communication to the context of every http.Request.
 func Secret(secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("secret", secret)
+		c.Set("vela-secret", secret)
 		c.Next()
 	}
 }

@@ -58,7 +58,7 @@ type Service interface {
 	RepoAccess(context.Context, string, string, string, string) (string, error)
 	// TeamAccess defines a function that captures
 	// the user's access level for a team.
-	TeamAccess(context.Context, *api.User, string, string) (string, error)
+	TeamAccess(context.Context, *api.User, string, string, int64, int64) (string, error)
 	// RepoContributor defines a function that captures
 	// whether the user is a contributor for a repo.
 	RepoContributor(context.Context, *api.User, string, string, string) (bool, error)
@@ -138,7 +138,7 @@ type Service interface {
 	GetOrgAndRepoName(context.Context, *api.User, string, string) (string, string, error)
 	// GetOrg defines a function that retrieves
 	// the name for an org in the SCM.
-	GetOrgName(context.Context, *api.User, string) (string, error)
+	GetOrgIdentifiers(context.Context, *api.User, string) (string, int64, error)
 	// GetHTMLURL defines a function that retrieves
 	// a repository file's html_url.
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)

@@ -22,6 +22,8 @@ func TestRepo_Engine_CountRepos(t *testing.T) {
 	_repoOne.SetName("bar")
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
+	_repoOne.SetSCMID(1)
+	_repoOne.SetOrgSCMID(1)
 
 	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
@@ -31,6 +33,8 @@ func TestRepo_Engine_CountRepos(t *testing.T) {
 	_repoTwo.SetName("foo")
 	_repoTwo.SetFullName("bar/foo")
 	_repoTwo.SetVisibility("public")
+	_repoTwo.SetSCMID(2)
+	_repoTwo.SetOrgSCMID(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

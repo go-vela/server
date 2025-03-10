@@ -33,6 +33,8 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetTopics([]string{})
 	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
+	_repoOne.SetSCMID(1)
+	_repoOne.SetOrgSCMID(1)
 
 	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
@@ -45,6 +47,8 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetTopics([]string{})
 	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	_repoTwo.SetSCMID(2)
+	_repoTwo.SetOrgSCMID(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -57,9 +61,9 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil).
-		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil)
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build", "approval_timeout", "scm_id", "org_scm_id"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil, 0, 1, 1).
+		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil, 0, 2, 1)
 
 	_userRows := sqlmock.NewRows(
 		[]string{"id", "name", "token", "hash", "active", "admin"}).

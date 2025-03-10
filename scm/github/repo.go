@@ -594,6 +594,8 @@ func toAPIRepo(gr github.Repository) *api.Repo {
 		Topics:     &gr.Topics,
 		Private:    gr.Private,
 		Visibility: &visibility,
+		SCMID:      gr.ID,
+		OrgSCMID:   gr.GetOwner().ID,
 	}
 }
 

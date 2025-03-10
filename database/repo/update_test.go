@@ -30,15 +30,17 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	_repo.SetTopics([]string{})
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 	_repo.SetApprovalTimeout(5)
+	_repo.SetSCMID(1)
+	_repo.SetOrgSCMID(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "repos"
-SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"visibility"=$13,"private"=$14,"trusted"=$15,"active"=$16,"allow_events"=$17,"pipeline_type"=$18,"previous_name"=$19,"approve_build"=$20,"approval_timeout"=$21,"install_id"=$22
-WHERE "id" = $23`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 1, "yaml", "oldName", constants.ApproveForkAlways, 5, 0, 1).
+SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"visibility"=$13,"private"=$14,"trusted"=$15,"active"=$16,"allow_events"=$17,"pipeline_type"=$18,"previous_name"=$19,"approve_build"=$20,"approval_timeout"=$21,"install_id"=$22,"scm_id"=$23,"org_scm_id"=$24
+WHERE "id" = $25`).
+		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 1, "yaml", "oldName", constants.ApproveForkAlways, 5, nil, 1, 1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

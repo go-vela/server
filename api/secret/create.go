@@ -94,6 +94,13 @@ func CreateSecret(c *gin.Context) {
 
 	entry := fmt.Sprintf("%s/%s/%s", t, o, n)
 
+	var (
+		scmOrg   string
+		scmOrgID int64
+		scmRepo  *types.Repo
+		err      error
+	)
+
 	// create log fields from API metadata
 	fields := logrus.Fields{
 		"secret_engine": e,
@@ -121,7 +128,7 @@ func CreateSecret(c *gin.Context) {
 		// but Org/Repo != org/repo in Vela. So this check ensures that
 		// what a user inputs matches the casing we expect in Vela since
 		// the SCM will have the source of truth for casing.
-		org, err := scm.FromContext(c).GetOrgName(ctx, u, o)
+		scmOrg, scmOrgID, err = scm.FromContext(c).GetOrgIdentifiers(ctx, u, o)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve organization %s", o)
 
@@ -131,8 +138,8 @@ func CreateSecret(c *gin.Context) {
 		}
 
 		// check if casing is accurate
-		if org != o {
-			retErr := fmt.Errorf("unable to retrieve organization %s. Did you mean %s?", o, org)
+		if scmOrg != o {
+			retErr := fmt.Errorf("unable to retrieve organization %s. Did you mean %s?", o, scmOrg)
 
 			util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -144,7 +151,7 @@ func CreateSecret(c *gin.Context) {
 		// retrieve org and repo name from SCM
 		//
 		// same story as org secret. SCM has accurate casing.
-		scmOrg, scmRepo, err := scm.FromContext(c).GetOrgAndRepoName(ctx, u, o, n)
+		scmRepo, _, err = scm.FromContext(c).GetRepo(ctx, u, &types.Repo{Org: &o, Name: &n})
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve repository %s/%s", o, n)
 
@@ -154,8 +161,8 @@ func CreateSecret(c *gin.Context) {
 		}
 
 		// check if casing is accurate for org entry
-		if scmOrg != o {
-			retErr := fmt.Errorf("unable to retrieve org %s. Did you mean %s?", o, scmOrg)
+		if scmRepo.GetOrg() != o {
+			retErr := fmt.Errorf("unable to retrieve org %s. Did you mean %s?", o, scmRepo.GetOrg())
 
 			util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -163,13 +170,15 @@ func CreateSecret(c *gin.Context) {
 		}
 
 		// check if casing is accurate for repo entry
-		if scmRepo != n {
-			retErr := fmt.Errorf("unable to retrieve repository %s. Did you mean %s?", n, scmRepo)
+		if scmRepo.GetName() != n {
+			retErr := fmt.Errorf("unable to retrieve repository %s. Did you mean %s?", n, scmRepo.GetName())
 
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
+
+		scmOrgID = scmRepo.GetOrgSCMID()
 	}
 
 	logger.Debugf("creating new secret %s for %s service", entry, e)
@@ -177,7 +186,7 @@ func CreateSecret(c *gin.Context) {
 	// capture body from API request
 	input := new(types.Secret)
 
-	err := c.Bind(input)
+	err = c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for secret %s for %s service: %w", entry, e, err)
 
@@ -198,7 +207,9 @@ func CreateSecret(c *gin.Context) {
 
 	// update fields in secret object
 	input.SetOrg(o)
+	input.SetOrgSCMID(scmOrgID)
 	input.SetRepo(n)
+	input.SetRepoSCMID(scmRepo.GetSCMID())
 	input.SetType(t)
 	input.SetCreatedAt(time.Now().UTC().Unix())
 	input.SetCreatedBy(u.GetName())

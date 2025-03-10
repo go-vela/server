@@ -34,6 +34,8 @@ type Repo struct {
 	ApproveBuild    *string   `json:"approve_build,omitempty"`
 	ApprovalTimeout *int64    `json:"approval_timeout,omitempty"`
 	InstallID       *int64    `json:"install_id,omitempty"`
+	SCMID           *int64    `json:"scm_id,omitempty"`
+	OrgSCMID        *int64    `json:"org_scm_id,omitempty"`
 }
 
 // Environment returns a list of environment variables
@@ -58,6 +60,9 @@ func (r *Repo) Environment() map[string]string {
 		"VELA_REPO_APPROVE_BUILD":    ToString(r.GetApproveBuild()),
 		"VELA_REPO_APPROVAL_TIMEOUT": ToString(r.GetApprovalTimeout()),
 		"VELA_REPO_OWNER":            ToString(r.GetOwner().GetName()),
+		"VELA_REPO_INSTALL_ID":       ToString(r.GetInstallID()),
+		"VELA_REPO_SCM_ID":           ToString(r.GetSCMID()),
+		"VELA_REPO_ORG_SCM_ID":       ToString(r.GetOrgSCMID()),
 
 		// deprecated environment variables
 		"REPOSITORY_ACTIVE":       ToString(r.GetActive()),
@@ -374,6 +379,32 @@ func (r *Repo) GetInstallID() int64 {
 	return *r.InstallID
 }
 
+// GetSCMID returns the SCMID field.
+//
+// When the provided Repo type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (r *Repo) GetSCMID() int64 {
+	// return zero value if Repo type or SCMID field is nil
+	if r == nil || r.SCMID == nil {
+		return 0
+	}
+
+	return *r.SCMID
+}
+
+// GetOrgSCMID returns the OrgSCMID field.
+//
+// When the provided Repo type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (r *Repo) GetOrgSCMID() int64 {
+	// return zero value if Repo type or OrgSCMID field is nil
+	if r == nil || r.OrgSCMID == nil {
+		return 0
+	}
+
+	return *r.OrgSCMID
+}
+
 // SetID sets the ID field.
 //
 // When the provided Repo type is nil, it
@@ -671,6 +702,32 @@ func (r *Repo) SetInstallID(v int64) {
 	}
 
 	r.InstallID = &v
+}
+
+// SetSCMID sets the SCMID field.
+//
+// When the provided Repo type is nil, it
+// will set nothing and immediately return.
+func (r *Repo) SetSCMID(v int64) {
+	// return if Repo type is nil
+	if r == nil {
+		return
+	}
+
+	r.SCMID = &v
+}
+
+// SetOrgSCMID sets the OrgSCMID field.
+//
+// When the provided Repo type is nil, it
+// will set nothing and immediately return.
+func (r *Repo) SetOrgSCMID(v int64) {
+	// return if Repo type is nil
+	if r == nil {
+		return
+	}
+
+	r.OrgSCMID = &v
 }
 
 // String implements the Stringer interface for the Repo type.

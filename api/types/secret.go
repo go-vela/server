@@ -16,8 +16,11 @@ import (
 type Secret struct {
 	ID                *int64    `json:"id,omitempty"`
 	Org               *string   `json:"org,omitempty"`
+	OrgSCMID          *int64    `json:"org_scm_id,omitempty"`
 	Repo              *string   `json:"repo,omitempty"`
+	RepoSCMID         *int64    `json:"repo_scm_id,omitempty"`
 	Team              *string   `json:"team,omitempty"`
+	TeamSCMID         *int64    `json:"team_scm_id,omitempty"`
 	Name              *string   `json:"name,omitempty"`
 	Value             *string   `json:"value,omitempty"`
 	Type              *string   `json:"type,omitempty"`
@@ -144,6 +147,19 @@ func (s *Secret) GetOrg() string {
 	return *s.Org
 }
 
+// GetOrgSCMID returns the OrgSCMID field.
+//
+// When the provided Secret type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Secret) GetOrgSCMID() int64 {
+	// return zero value if Secret type or OrgSCMID field is nil
+	if s == nil || s.OrgSCMID == nil {
+		return 0
+	}
+
+	return *s.OrgSCMID
+}
+
 // GetRepo returns the Repo field.
 //
 // When the provided Secret type is nil, or the field within
@@ -157,6 +173,19 @@ func (s *Secret) GetRepo() string {
 	return *s.Repo
 }
 
+// GetRepoSCMID returns the RepoSCMID field.
+//
+// When the provided Secret type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Secret) GetRepoSCMID() int64 {
+	// return zero value if Secret type or RepoSCMID field is nil
+	if s == nil || s.RepoSCMID == nil {
+		return 0
+	}
+
+	return *s.RepoSCMID
+}
+
 // GetTeam returns the Team field.
 //
 // When the provided Secret type is nil, or the field within
@@ -168,6 +197,19 @@ func (s *Secret) GetTeam() string {
 	}
 
 	return *s.Team
+}
+
+// GetTeamSCMID returns the TeamSCMID field.
+//
+// When the provided Secret type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Secret) GetTeamSCMID() int64 {
+	// return zero value if Secret type or TeamSCMID field is nil
+	if s == nil || s.TeamSCMID == nil {
+		return 0
+	}
+
+	return *s.TeamSCMID
 }
 
 // GetName returns the Name field.
@@ -339,6 +381,19 @@ func (s *Secret) SetOrg(v string) {
 	s.Org = &v
 }
 
+// SetOrgSCMID sets the OrgSCMID field.
+//
+// When the provided Secret type is nil, it
+// will set nothing and immediately return.
+func (s *Secret) SetOrgSCMID(v int64) {
+	// return if Secret type is nil
+	if s == nil {
+		return
+	}
+
+	s.OrgSCMID = &v
+}
+
 // SetRepo sets the Repo field.
 //
 // When the provided Secret type is nil, it
@@ -352,6 +407,19 @@ func (s *Secret) SetRepo(v string) {
 	s.Repo = &v
 }
 
+// SetRepoSCMID sets the RepoSCMID field.
+//
+// When the provided Secret type is nil, it
+// will set nothing and immediately return.
+func (s *Secret) SetRepoSCMID(v int64) {
+	// return if Secret type is nil
+	if s == nil {
+		return
+	}
+
+	s.RepoSCMID = &v
+}
+
 // SetTeam sets the Team field.
 //
 // When the provided Secret type is nil, it
@@ -363,6 +431,19 @@ func (s *Secret) SetTeam(v string) {
 	}
 
 	s.Team = &v
+}
+
+// SetTeamSCMID sets the TeamSCMID field.
+//
+// When the provided Secret type is nil, it
+// will set nothing and immediately return.
+func (s *Secret) SetTeamSCMID(v int64) {
+	// return if Secret type is nil
+	if s == nil {
+		return
+	}
+
+	s.TeamSCMID = &v
 }
 
 // SetName sets the Name field.

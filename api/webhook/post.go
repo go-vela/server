@@ -770,6 +770,7 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	// update secrets to point to the new repository name
 	for _, secret := range secrets {
 		secret.SetOrg(r.GetOrg())
+		secret.SetOrgSCMID(r.GetOrgSCMID())
 		secret.SetRepo(r.GetName())
 
 		_, err = db.UpdateSecret(ctx, secret)
@@ -827,6 +828,7 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	// update the repo name information
 	dbR.SetName(r.GetName())
 	dbR.SetOrg(r.GetOrg())
+	dbR.SetOrgSCMID(r.GetOrgSCMID())
 	dbR.SetFullName(r.GetFullName())
 	dbR.SetClone(r.GetClone())
 	dbR.SetLink(r.GetLink())

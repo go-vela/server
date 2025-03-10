@@ -145,7 +145,9 @@ func (c *client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetOrgSCMID(repo.GetOwner().GetID())
 	r.SetName(repo.GetName())
+	r.SetSCMID(repo.GetID())
 	r.SetFullName(repo.GetFullName())
 	r.SetLink(repo.GetHTMLURL())
 	r.SetClone(repo.GetCloneURL())
@@ -274,7 +276,9 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetOrgSCMID(repo.GetOwner().GetID())
 	r.SetName(repo.GetName())
+	r.SetSCMID(repo.GetID())
 	r.SetFullName(repo.GetFullName())
 	r.SetLink(repo.GetHTMLURL())
 	r.SetClone(repo.GetCloneURL())
@@ -361,7 +365,9 @@ func (c *client) processDeploymentEvent(h *api.Hook, payload *github.DeploymentE
 	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetOrgSCMID(repo.GetOwner().GetID())
 	r.SetName(repo.GetName())
+	r.SetSCMID(repo.GetID())
 	r.SetFullName(repo.GetFullName())
 	r.SetLink(repo.GetHTMLURL())
 	r.SetClone(repo.GetCloneURL())
@@ -481,7 +487,9 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetOrgSCMID(repo.GetOwner().GetID())
 	r.SetName(repo.GetName())
+	r.SetSCMID(repo.GetID())
 	r.SetFullName(repo.GetFullName())
 	r.SetLink(repo.GetHTMLURL())
 	r.SetClone(repo.GetCloneURL())
@@ -523,7 +531,9 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 	// convert payload to API repo
 	r := new(api.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetOrgSCMID(repo.GetOwner().GetID())
 	r.SetName(repo.GetName())
+	r.SetSCMID(repo.GetID())
 	r.SetFullName(repo.GetFullName())
 	r.SetLink(repo.GetHTMLURL())
 	r.SetClone(repo.GetCloneURL())

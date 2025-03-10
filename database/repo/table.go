@@ -37,6 +37,8 @@ repos (
 	approve_build    VARCHAR(20),
 	approval_timeout INTEGER,
 	install_id       INTEGER,
+	scm_id           BIGINT,
+	org_scm_id       BIGINT,
 	UNIQUE(full_name)
 );
 `
@@ -69,6 +71,8 @@ repos (
 	approve_build    TEXT,
 	approval_timeout INTEGER,
 	install_id       INTEGER,
+	scm_id           INTEGER,
+	org_scm_id       INTEGER,
 	UNIQUE(full_name)
 );
 `

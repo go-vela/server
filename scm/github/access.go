@@ -79,7 +79,7 @@ func (c *client) RepoAccess(ctx context.Context, name, token, org, repo string) 
 }
 
 // TeamAccess captures the user's access level for a team.
-func (c *client) TeamAccess(ctx context.Context, u *api.User, org, team string) (string, error) {
+func (c *client) TeamAccess(ctx context.Context, u *api.User, org, team string, orgID, teamID int64) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -90,7 +90,7 @@ func (c *client) TeamAccess(ctx context.Context, u *api.User, org, team string) 
 	if strings.EqualFold(org, u.GetName()) {
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
-			"team": team,
+			"team": teamID,
 			"user": u.GetName(),
 		}).Debugf("skipping access level check for user %s with team %s/%s", u.GetName(), org, team)
 
@@ -124,12 +124,14 @@ func (c *client) TeamAccess(ctx context.Context, u *api.User, org, team string) 
 	// iterate through each element in the teams
 	for _, t := range teams {
 		// skip the team if does not match the team we are checking
-		if !strings.EqualFold(team, t.GetName()) {
+		// teamID will be 0 if this is a POST request
+		if (teamID != 0 && teamID != t.GetID()) || (!strings.EqualFold(team, t.GetName())) {
 			continue
 		}
 
 		// skip the org if does not match the org we are checking
-		if !strings.EqualFold(org, t.GetOrganization().GetLogin()) {
+		// orgID will be 0 if this is a POST request
+		if (orgID != 0 && orgID != t.GetOrganization().GetID()) || (!strings.EqualFold(org, t.GetOrganization().GetLogin())) {
 			continue
 		}
 

@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/secret"
+	"github.com/go-vela/server/router/middleware/secret"
 	"github.com/go-vela/server/util"
 )
 
@@ -79,7 +79,7 @@ func GetSecret(c *gin.Context) {
 	o := util.PathParameter(c, "org")
 	n := util.PathParameter(c, "name")
 	s := strings.TrimPrefix(util.PathParameter(c, "secret"), "/")
-	ctx := c.Request.Context()
+	sec := secret.Retrieve(c)
 
 	entry := fmt.Sprintf("%s/%s/%s/%s", t, o, n, s)
 
@@ -106,24 +106,14 @@ func GetSecret(c *gin.Context) {
 
 	logger.Debugf("reading secret %s from %s service", entry, e)
 
-	// send API call to capture the secret
-	secret, err := secret.FromContext(c, e).Get(ctx, t, o, n, s)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get secret %s from %s service: %w", entry, e, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// only allow workers to access the full secret with the value
 	if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
-		c.JSON(http.StatusOK, secret)
+		c.JSON(http.StatusOK, sec)
 
 		return
 	}
 
 	logger.Infof("retrieved secret %s from %s service", entry, e)
 
-	c.JSON(http.StatusOK, secret.Sanitize())
+	c.JSON(http.StatusOK, sec.Sanitize())
 }

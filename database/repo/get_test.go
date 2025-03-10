@@ -27,6 +27,8 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 	_repo.SetPipelineType("yaml")
 	_repo.SetTopics([]string{})
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
+	_repo.SetSCMID(1)
+	_repo.SetOrgSCMID(1)
 
 	_owner := testutils.APIUser().Crop()
 	_owner.SetID(1)
@@ -40,8 +42,8 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build", "approval_timeout", "scm_id", "org_scm_id"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "", 0, 1, 1)
 
 	_userRows := sqlmock.NewRows(
 		[]string{"id", "name", "token", "hash", "active", "admin"}).

@@ -129,6 +129,8 @@ func APIRepo() *api.Repo {
 		ApproveBuild:    new(string),
 		ApprovalTimeout: new(int64),
 		InstallID:       new(int64),
+		OrgSCMID:        new(int64),
+		SCMID:           new(int64),
 	}
 }
 
@@ -196,8 +198,11 @@ func APISecret() *api.Secret {
 	return &api.Secret{
 		ID:                new(int64),
 		Org:               new(string),
+		OrgSCMID:          new(int64),
 		Repo:              new(string),
+		RepoSCMID:         new(int64),
 		Team:              new(string),
+		TeamSCMID:         new(int64),
 		Name:              new(string),
 		Value:             new(string),
 		Type:              new(string),

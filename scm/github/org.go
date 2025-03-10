@@ -11,8 +11,8 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-// GetOrgName gets org name from Github.
-func (c *client) GetOrgName(ctx context.Context, u *api.User, o string) (string, error) {
+// GetOrgIdentifiers gets org name and id from Github.
+func (c *client) GetOrgIdentifiers(ctx context.Context, u *api.User, o string) (string, int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
 		"user": u.GetName(),
@@ -25,18 +25,20 @@ func (c *client) GetOrgName(ctx context.Context, u *api.User, o string) (string,
 	orgInfo, resp, err := client.Organizations.Get(ctx, o)
 
 	orgName := orgInfo.GetLogin()
+	orgID := orgInfo.GetID()
 
 	// if org is not found, return the personal org
 	if resp.StatusCode == http.StatusNotFound {
 		user, _, err := client.Users.Get(ctx, "")
 		if err != nil {
-			return "", err
+			return "", 0, err
 		}
 
 		orgName = user.GetLogin()
+		orgID = user.GetID()
 	} else if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
-	return orgName, nil
+	return orgName, orgID, nil
 }

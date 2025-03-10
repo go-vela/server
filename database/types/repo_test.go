@@ -4,7 +4,6 @@ package types
 
 import (
 	"database/sql"
-	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -115,20 +114,24 @@ func TestTypes_Repo_Nullify(t *testing.T) {
 	var r *Repo
 
 	want := &Repo{
-		ID:           sql.NullInt64{Int64: 0, Valid: false},
-		UserID:       sql.NullInt64{Int64: 0, Valid: false},
-		Hash:         sql.NullString{String: "", Valid: false},
-		Org:          sql.NullString{String: "", Valid: false},
-		Name:         sql.NullString{String: "", Valid: false},
-		FullName:     sql.NullString{String: "", Valid: false},
-		Link:         sql.NullString{String: "", Valid: false},
-		Clone:        sql.NullString{String: "", Valid: false},
-		Branch:       sql.NullString{String: "", Valid: false},
-		Timeout:      sql.NullInt64{Int64: 0, Valid: false},
-		AllowEvents:  sql.NullInt64{Int64: 0, Valid: false},
-		Visibility:   sql.NullString{String: "", Valid: false},
-		PipelineType: sql.NullString{String: "", Valid: false},
-		ApproveBuild: sql.NullString{String: "", Valid: false},
+		ID:              sql.NullInt64{Int64: 0, Valid: false},
+		UserID:          sql.NullInt64{Int64: 0, Valid: false},
+		Hash:            sql.NullString{String: "", Valid: false},
+		Org:             sql.NullString{String: "", Valid: false},
+		Name:            sql.NullString{String: "", Valid: false},
+		FullName:        sql.NullString{String: "", Valid: false},
+		Link:            sql.NullString{String: "", Valid: false},
+		Clone:           sql.NullString{String: "", Valid: false},
+		Branch:          sql.NullString{String: "", Valid: false},
+		Timeout:         sql.NullInt64{Int64: 0, Valid: false},
+		AllowEvents:     sql.NullInt64{Int64: 0, Valid: false},
+		Visibility:      sql.NullString{String: "", Valid: false},
+		PipelineType:    sql.NullString{String: "", Valid: false},
+		ApproveBuild:    sql.NullString{String: "", Valid: false},
+		InstallID:       sql.NullInt64{Int64: 0, Valid: false},
+		ApprovalTimeout: sql.NullInt64{Int64: 0, Valid: false},
+		SCMID:           sql.NullInt64{Int64: 0, Valid: false},
+		OrgSCMID:        sql.NullInt64{Int64: 0, Valid: false},
 	}
 
 	// setup tests
@@ -154,8 +157,8 @@ func TestTypes_Repo_Nullify(t *testing.T) {
 	for _, test := range tests {
 		got := test.repo.Nullify()
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("Nullify is %v, want %v", got, test.want)
+		if diff := cmp.Diff(test.want, got); diff != "" {
+			t.Errorf("Nullify() mismatch (-want +got):\n%s", diff)
 		}
 	}
 }
@@ -194,7 +197,9 @@ func TestTypes_Repo_ToAPI(t *testing.T) {
 	want.SetPreviousName("oldName")
 	want.SetApproveBuild(constants.ApproveNever)
 	want.SetApprovalTimeout(7)
-	want.SetInstallID(0)
+	want.SetInstallID(1)
+	want.SetSCMID(1)
+	want.SetOrgSCMID(1)
 
 	// run test
 	got := testRepo().ToAPI()
@@ -231,6 +236,8 @@ func TestTypes_Repo_Validate(t *testing.T) {
 				Name:       sql.NullString{String: "octocat", Valid: true},
 				FullName:   sql.NullString{String: "github/octocat", Valid: true},
 				Visibility: sql.NullString{String: "public", Valid: true},
+				SCMID:      sql.NullInt64{Int64: 1, Valid: true},
+				OrgSCMID:   sql.NullInt64{Int64: 1, Valid: true},
 			},
 		},
 		{ // no hash set for repo
@@ -242,6 +249,8 @@ func TestTypes_Repo_Validate(t *testing.T) {
 				Name:       sql.NullString{String: "octocat", Valid: true},
 				FullName:   sql.NullString{String: "github/octocat", Valid: true},
 				Visibility: sql.NullString{String: "public", Valid: true},
+				SCMID:      sql.NullInt64{Int64: 1, Valid: true},
+				OrgSCMID:   sql.NullInt64{Int64: 1, Valid: true},
 			},
 		},
 		{ // no org set for repo
@@ -253,6 +262,8 @@ func TestTypes_Repo_Validate(t *testing.T) {
 				Name:       sql.NullString{String: "octocat", Valid: true},
 				FullName:   sql.NullString{String: "github/octocat", Valid: true},
 				Visibility: sql.NullString{String: "public", Valid: true},
+				SCMID:      sql.NullInt64{Int64: 1, Valid: true},
+				OrgSCMID:   sql.NullInt64{Int64: 1, Valid: true},
 			},
 		},
 		{ // no name set for repo
@@ -264,6 +275,8 @@ func TestTypes_Repo_Validate(t *testing.T) {
 				Org:        sql.NullString{String: "github", Valid: true},
 				FullName:   sql.NullString{String: "github/octocat", Valid: true},
 				Visibility: sql.NullString{String: "public", Valid: true},
+				SCMID:      sql.NullInt64{Int64: 1, Valid: true},
+				OrgSCMID:   sql.NullInt64{Int64: 1, Valid: true},
 			},
 		},
 		{ // no full_name set for repo
@@ -275,6 +288,8 @@ func TestTypes_Repo_Validate(t *testing.T) {
 				Org:        sql.NullString{String: "github", Valid: true},
 				Name:       sql.NullString{String: "octocat", Valid: true},
 				Visibility: sql.NullString{String: "public", Valid: true},
+				SCMID:      sql.NullInt64{Int64: 1, Valid: true},
+				OrgSCMID:   sql.NullInt64{Int64: 1, Valid: true},
 			},
 		},
 		{ // no visibility set for repo
@@ -286,6 +301,8 @@ func TestTypes_Repo_Validate(t *testing.T) {
 				Org:      sql.NullString{String: "github", Valid: true},
 				Name:     sql.NullString{String: "octocat", Valid: true},
 				FullName: sql.NullString{String: "github/octocat", Valid: true},
+				SCMID:    sql.NullInt64{Int64: 1, Valid: true},
+				OrgSCMID: sql.NullInt64{Int64: 1, Valid: true},
 			},
 		},
 		{ // topics exceed max size
@@ -297,7 +314,33 @@ func TestTypes_Repo_Validate(t *testing.T) {
 				Org:      sql.NullString{String: "github", Valid: true},
 				Name:     sql.NullString{String: "octocat", Valid: true},
 				FullName: sql.NullString{String: "github/octocat", Valid: true},
+				SCMID:    sql.NullInt64{Int64: 1, Valid: true},
+				OrgSCMID: sql.NullInt64{Int64: 1, Valid: true},
 				Topics:   topics,
+			},
+		},
+		{ // no scm id
+			failure: true,
+			repo: &Repo{
+				ID:       sql.NullInt64{Int64: 1, Valid: true},
+				UserID:   sql.NullInt64{Int64: 1, Valid: true},
+				Hash:     sql.NullString{String: "superSecretHash", Valid: true},
+				Org:      sql.NullString{String: "github", Valid: true},
+				Name:     sql.NullString{String: "octocat", Valid: true},
+				FullName: sql.NullString{String: "github/octocat", Valid: true},
+				OrgSCMID: sql.NullInt64{Int64: 1, Valid: true},
+			},
+		},
+		{ // no org scm id
+			failure: true,
+			repo: &Repo{
+				ID:       sql.NullInt64{Int64: 1, Valid: true},
+				UserID:   sql.NullInt64{Int64: 1, Valid: true},
+				Hash:     sql.NullString{String: "superSecretHash", Valid: true},
+				Org:      sql.NullString{String: "github", Valid: true},
+				Name:     sql.NullString{String: "octocat", Valid: true},
+				FullName: sql.NullString{String: "github/octocat", Valid: true},
+				SCMID:    sql.NullInt64{Int64: 1, Valid: true},
 			},
 		},
 	}
@@ -348,7 +391,9 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 	r.SetPreviousName("oldName")
 	r.SetApproveBuild(constants.ApproveNever)
 	r.SetApprovalTimeout(7)
-	r.SetInstallID(0)
+	r.SetInstallID(1)
+	r.SetSCMID(1)
+	r.SetOrgSCMID(1)
 
 	want := testRepo()
 	want.Owner = User{}
@@ -387,7 +432,9 @@ func testRepo() *Repo {
 		PreviousName:    sql.NullString{String: "oldName", Valid: true},
 		ApproveBuild:    sql.NullString{String: constants.ApproveNever, Valid: true},
 		ApprovalTimeout: sql.NullInt64{Int64: 7, Valid: true},
-		InstallID:       sql.NullInt64{Int64: 0, Valid: true},
+		InstallID:       sql.NullInt64{Int64: 1, Valid: true},
+		SCMID:           sql.NullInt64{Int64: 1, Valid: true},
+		OrgSCMID:        sql.NullInt64{Int64: 1, Valid: true},
 
 		Owner: *testUser(),
 	}
