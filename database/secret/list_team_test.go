@@ -19,7 +19,9 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	_secretOne := testutils.APISecret()
 	_secretOne.SetID(1)
 	_secretOne.SetOrg("foo")
+	_secretOne.SetOrgSCMID(1)
 	_secretOne.SetTeam("bar")
+	_secretOne.SetTeamSCMID(1)
 	_secretOne.SetName("baz")
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("shared")
@@ -32,7 +34,9 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
 	_secretTwo.SetOrg("foo")
+	_secretTwo.SetOrgSCMID(1)
 	_secretTwo.SetTeam("bar")
+	_secretTwo.SetTeamSCMID(1)
 	_secretTwo.SetName("foob")
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("shared")
@@ -54,9 +58,9 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 
 	// create expected name query result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(2, "shared", "foo", "", "bar", "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2").
-		AddRow(1, "shared", "foo", "", "bar", "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2")
+		[]string{"id", "type", "org", "org_scm_id", "repo", "repo_scm_id", "team", "team_scm_id", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
+		AddRow(2, "shared", "foo", 1, "", nil, "bar", 1, "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2").
+		AddRow(1, "shared", "foo", 1, "", nil, "bar", 1, "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND team = $3 ORDER BY id DESC LIMIT $4`).
@@ -127,7 +131,9 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	_secretOne := testutils.APISecret()
 	_secretOne.SetID(1)
 	_secretOne.SetOrg("foo")
+	_secretOne.SetOrgSCMID(1)
 	_secretOne.SetTeam("bar")
+	_secretOne.SetTeamSCMID(1)
 	_secretOne.SetName("baz")
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("shared")
@@ -140,7 +146,9 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
 	_secretTwo.SetOrg("foo")
+	_secretTwo.SetOrgSCMID(1)
 	_secretTwo.SetTeam("bar")
+	_secretTwo.SetTeamSCMID(1)
 	_secretTwo.SetName("foob")
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("shared")
@@ -162,9 +170,9 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 
 	// create expected name query result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(2, "shared", "foo", "", "bar", "foob", "baz", nil, 1, false, 1, "user", 1, "user2").
-		AddRow(1, "shared", "foo", "", "bar", "baz", "foob", nil, 1, false, 1, "user", 1, "user2")
+		[]string{"id", "type", "org", "org_scm_id", "repo", "repo_scm_id", "team", "team_scm_id", "name", "value", "images", "allow_events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
+		AddRow(2, "shared", "foo", 1, "", nil, "bar", 1, "foob", "baz", nil, 1, false, 1, "user", 1, "user2").
+		AddRow(1, "shared", "foo", 1, "", nil, "bar", 1, "baz", "foob", nil, 1, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND LOWER(team) IN ($3,$4) ORDER BY id DESC LIMIT $5`).

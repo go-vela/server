@@ -18,7 +18,9 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	_secretOne := testutils.APISecret()
 	_secretOne.SetID(1)
 	_secretOne.SetOrg("foo")
+	_secretOne.SetOrgSCMID(1)
 	_secretOne.SetRepo("bar")
+	_secretOne.SetRepoSCMID(1)
 	_secretOne.SetName("baz")
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("repo")
@@ -31,7 +33,9 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
 	_secretTwo.SetOrg("foo")
+	_secretTwo.SetOrgSCMID(1)
 	_secretTwo.SetRepo("bar")
+	_secretTwo.SetRepoSCMID(1)
 	_secretTwo.SetName("foob")
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("repo")
@@ -52,9 +56,9 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2").
-		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2")
+		[]string{"id", "type", "org", "org_scm_id", "repo", "repo_scm_id", "team", "team_scm_id", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
+		AddRow(1, "repo", "foo", 1, "bar", 1, "", nil, "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2").
+		AddRow(2, "repo", "foo", 1, "bar", 1, "", nil, "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "secrets"`).WillReturnRows(_rows)

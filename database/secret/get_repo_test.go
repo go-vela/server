@@ -29,7 +29,9 @@ func TestSecret_Engine_GetSecretForRepo(t *testing.T) {
 	_secret := testutils.APISecret()
 	_secret.SetID(1)
 	_secret.SetOrg("foo")
+	_secret.SetOrgSCMID(1)
 	_secret.SetRepo("bar")
+	_secret.SetRepoSCMID(1)
 	_secret.SetName("baz")
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
@@ -44,8 +46,8 @@ func TestSecret_Engine_GetSecretForRepo(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2")
+		[]string{"id", "type", "org", "org_scm_id", "repo", "repo_scm_id", "team", "team_scm_id", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
+		AddRow(1, "repo", "foo", 1, "bar", 1, "", nil, "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND repo = $3 AND name = $4 LIMIT $5`).

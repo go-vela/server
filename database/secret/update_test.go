@@ -18,7 +18,9 @@ func TestSecret_Engine_UpdateSecret(t *testing.T) {
 	_secretRepo := testutils.APISecret()
 	_secretRepo.SetID(1)
 	_secretRepo.SetOrg("foo")
+	_secretRepo.SetOrgSCMID(1)
 	_secretRepo.SetRepo("bar")
+	_secretRepo.SetRepoSCMID(1)
 	_secretRepo.SetName("baz")
 	_secretRepo.SetValue("foob")
 	_secretRepo.SetType("repo")
@@ -31,6 +33,7 @@ func TestSecret_Engine_UpdateSecret(t *testing.T) {
 	_secretOrg := testutils.APISecret()
 	_secretOrg.SetID(2)
 	_secretOrg.SetOrg("foo")
+	_secretOrg.SetOrgSCMID(1)
 	_secretOrg.SetRepo("*")
 	_secretOrg.SetName("bar")
 	_secretOrg.SetValue("baz")
@@ -44,7 +47,9 @@ func TestSecret_Engine_UpdateSecret(t *testing.T) {
 	_secretShared := testutils.APISecret()
 	_secretShared.SetID(3)
 	_secretShared.SetOrg("foo")
+	_secretShared.SetOrgSCMID(1)
 	_secretShared.SetTeam("bar")
+	_secretShared.SetTeamSCMID(1)
 	_secretShared.SetName("baz")
 	_secretShared.SetValue("foob")
 	_secretShared.SetType("shared")
@@ -59,23 +64,23 @@ func TestSecret_Engine_UpdateSecret(t *testing.T) {
 
 	// ensure the mock expects the repo query
 	_mock.ExpectExec(`UPDATE "secrets"
-SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"allow_events"=$8,"allow_command"=$9,"allow_substitution"=$10,"created_at"=$11,"created_by"=$12,"updated_at"=$13,"updated_by"=$14
-WHERE "id" = $15`).
-		WithArgs("foo", "bar", nil, "baz", testutils.AnyArgument{}, "repo", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 1).
+SET "org"=$1,"org_scm_id"=$2,"repo"=$3,"repo_scm_id"=$4,"team"=$5,"team_scm_id"=$6,"name"=$7,"value"=$8,"type"=$9,"images"=$10,"allow_events"=$11,"allow_command"=$12,"allow_substitution"=$13,"created_at"=$14,"created_by"=$15,"updated_at"=$16,"updated_by"=$17
+WHERE "id" = $18`).
+		WithArgs("foo", 1, "bar", 1, nil, nil, "baz", testutils.AnyArgument{}, "repo", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the org query
 	_mock.ExpectExec(`UPDATE "secrets"
-SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"allow_events"=$8,"allow_command"=$9,"allow_substitution"=$10,"created_at"=$11,"created_by"=$12,"updated_at"=$13,"updated_by"=$14
-WHERE "id" = $15`).
-		WithArgs("foo", "*", nil, "bar", testutils.AnyArgument{}, "org", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 2).
+SET "org"=$1,"org_scm_id"=$2,"repo"=$3,"repo_scm_id"=$4,"team"=$5,"team_scm_id"=$6,"name"=$7,"value"=$8,"type"=$9,"images"=$10,"allow_events"=$11,"allow_command"=$12,"allow_substitution"=$13,"created_at"=$14,"created_by"=$15,"updated_at"=$16,"updated_by"=$17
+WHERE "id" = $18`).
+		WithArgs("foo", 1, "*", nil, nil, nil, "bar", testutils.AnyArgument{}, "org", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the shared query
 	_mock.ExpectExec(`UPDATE "secrets"
-SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"allow_events"=$8,"allow_command"=$9,"allow_substitution"=$10,"created_at"=$11,"created_by"=$12,"updated_at"=$13,"updated_by"=$14
-WHERE "id" = $15`).
-		WithArgs("foo", nil, "bar", "baz", testutils.AnyArgument{}, "shared", nil, 1, false, false, 1, "user", testutils.NowTimestamp{}, "user2", 3).
+SET "org"=$1,"org_scm_id"=$2,"repo"=$3,"repo_scm_id"=$4,"team"=$5,"team_scm_id"=$6,"name"=$7,"value"=$8,"type"=$9,"images"=$10,"allow_events"=$11,"allow_command"=$12,"allow_substitution"=$13,"created_at"=$14,"created_by"=$15,"updated_at"=$16,"updated_by"=$17
+WHERE "id" = $18`).
+		WithArgs("foo", 1, nil, nil, "bar", 1, "baz", testutils.AnyArgument{}, "shared", nil, 1, false, false, 1, "user", testutils.NowTimestamp{}, "user2", 3).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
