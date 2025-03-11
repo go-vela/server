@@ -7,12 +7,13 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 
+	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
 )
 
 // Validate verifies the yaml configuration is valid.
-func (c *client) Validate(p *yaml.Build) error {
+func (c *client) ValidateYAML(p *yaml.Build) error {
 	var result error
 	// check a version is provided
 	if len(p.Version) == 0 {
@@ -45,6 +46,12 @@ func (c *client) Validate(p *yaml.Build) error {
 		}
 	}
 
+	return result
+}
+
+func (c *client) ValidatePipeline(p *pipeline.Build) error {
+	var result error
+
 	// validate the services block provided
 	err := validateServices(p.Services)
 	if err != nil {
@@ -58,7 +65,7 @@ func (c *client) Validate(p *yaml.Build) error {
 	}
 
 	// validate the steps block provided
-	err = validateSteps(p.Steps)
+	err = validateSteps(p.Steps, make(map[string]bool), "")
 	if err != nil {
 		result = multierror.Append(result, err)
 	}
@@ -68,7 +75,7 @@ func (c *client) Validate(p *yaml.Build) error {
 
 // validateServices is a helper function that verifies the
 // services block in the yaml configuration is valid.
-func validateServices(s yaml.ServiceSlice) error {
+func validateServices(s pipeline.ContainerSlice) error {
 	for _, service := range s {
 		if len(service.Name) == 0 {
 			return fmt.Errorf("no name provided for service")
@@ -84,7 +91,9 @@ func validateServices(s yaml.ServiceSlice) error {
 
 // validateStages is a helper function that verifies the
 // stages block in the yaml configuration is valid.
-func validateStages(s yaml.StageSlice) error {
+func validateStages(s pipeline.StageSlice) error {
+	nameMap := make(map[string]bool)
+
 	for _, stage := range s {
 		if len(stage.Name) == 0 {
 			return fmt.Errorf("no name provided for stage")
@@ -97,24 +106,9 @@ func validateStages(s yaml.StageSlice) error {
 			}
 		}
 
-		for _, step := range stage.Steps {
-			if len(step.Name) == 0 {
-				return fmt.Errorf("no name provided for step for stage %s", stage.Name)
-			}
-
-			if len(step.Image) == 0 {
-				return fmt.Errorf("no image provided for step %s for stage %s", step.Name, stage.Name)
-			}
-
-			if step.Name == "clone" || step.Name == "init" {
-				continue
-			}
-
-			if len(step.Commands) == 0 && len(step.Environment) == 0 &&
-				len(step.Parameters) == 0 && len(step.Secrets) == 0 &&
-				len(step.Template.Name) == 0 && !step.Detach {
-				return fmt.Errorf("no commands, environment, parameters, secrets or template provided for step %s for stage %s", step.Name, stage.Name)
-			}
+		err := validateSteps(stage.Steps, nameMap, stage.Name)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -123,7 +117,7 @@ func validateStages(s yaml.StageSlice) error {
 
 // validateSteps is a helper function that verifies the
 // steps block in the yaml configuration is valid.
-func validateSteps(s yaml.StepSlice) error {
+func validateSteps(s pipeline.ContainerSlice, nameMap map[string]bool, stageName string) error {
 	reportCount := 0
 
 	reportMap := make(map[string]string)
@@ -141,6 +135,12 @@ func validateSteps(s yaml.StepSlice) error {
 			continue
 		}
 
+		if _, ok := nameMap[stageName+"_"+step.Name]; ok {
+			return fmt.Errorf("step `%s` is already defined", step.Name)
+		}
+
+		nameMap[stageName+"_"+step.Name] = true
+
 		if s, ok := reportMap[step.ReportAs]; ok {
 			return fmt.Errorf("report_as to %s for step %s is already targeted by step %s", step.ReportAs, step.Name, s)
 		}
@@ -151,9 +151,8 @@ func validateSteps(s yaml.StepSlice) error {
 		}
 
 		if len(step.Commands) == 0 && len(step.Environment) == 0 &&
-			len(step.Parameters) == 0 && len(step.Secrets) == 0 &&
-			len(step.Template.Name) == 0 && !step.Detach {
-			return fmt.Errorf("no commands, environment, parameters, secrets or template provided for step %s", step.Name)
+			len(step.Secrets) == 0 && !step.Detach {
+			return fmt.Errorf("no commands, environment, or secrets provided for step %s", step.Name)
 		}
 	}
 
