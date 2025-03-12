@@ -1,0 +1,12 @@
+metadata:
+  template: true
+
+steps:
+  - name: install
+    commands:
+      - go get ./...
+    image: {{ .image }}
+    {{ .pull_policy }}
+    ruleset:
+      # double bracket causes [["push", "tag"]]
+      event: [{{ default "push" .event }}]
