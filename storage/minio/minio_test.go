@@ -8,6 +8,7 @@ var (
 	endpoint   = "http://localhost:9000"
 	_accessKey = "minio_access_user"
 	_secretKey = "minio_secret_key"
+	_bucket    = "minio_bucket"
 	_useSSL    = false
 )
 
@@ -38,6 +39,7 @@ func TestMinio_New(t *testing.T) {
 			WithAccessKey(_accessKey),
 			WithSecretKey(_secretKey),
 			WithSecure(_useSSL),
+			WithBucket(_bucket),
 		)
 
 		if test.failure {

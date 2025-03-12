@@ -9,6 +9,7 @@ type StorageInfo struct {
 	StorageAccessKey *string `json:"storage_access_key,omitempty"`
 	StorageSecretKey *string `json:"storage_secret_key,omitempty"`
 	StorageAddress   *string `json:"storage_address,omitempty"`
+	StorageBucket    *string `json:"storage_bucket,omitempty"`
 }
 
 // GetAccessKey returns the StorageAccessKey field.
@@ -50,6 +51,19 @@ func (w *StorageInfo) GetStorageAddress() string {
 	return *w.StorageAddress
 }
 
+// GetStorageBucket returns the StorageBucket field.
+//
+// When the provided StorageInfo type is nil, or the field within
+// the type is nil, it returns an empty string for the field.
+func (w *StorageInfo) GetStorageBucket() string {
+	// return zero value if StorageInfo type or StorageBucket field is nil
+	if w == nil || w.StorageBucket == nil {
+		return ""
+	}
+
+	return *w.StorageBucket
+}
+
 // SetAccessKey sets the StorageAccessKey field.
 //
 // When the provided StorageInfo type is nil, it
@@ -87,4 +101,17 @@ func (w *StorageInfo) SetStorageAddress(v string) {
 	}
 
 	w.StorageAddress = &v
+}
+
+// SetStorageBucket sets the StorageBucket field.
+//
+// When the provided StorageInfo type is nil, it
+// will set nothing and immediately return.
+func (w *StorageInfo) SetStorageBucket(v string) {
+	// return if StorageInfo type is nil
+	if w == nil {
+		return
+	}
+
+	w.StorageBucket = &v
 }

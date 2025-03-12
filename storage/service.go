@@ -13,6 +13,7 @@ type Storage interface {
 	DeleteBucket(ctx context.Context, bucket *api.Bucket) error
 	BucketExists(ctx context.Context, bucket *api.Bucket) (bool, error)
 	ListBuckets(ctx context.Context) ([]string, error)
+	GetBucket(ctx context.Context) string
 	// Object Operations
 	StatObject(ctx context.Context, object *api.Object) (*api.Object, error)
 	Upload(ctx context.Context, object *api.Object) error
@@ -26,6 +27,7 @@ type Storage interface {
 	// Object Lifecycle
 	SetBucketLifecycle(ctx context.Context, bucketName *api.Bucket) error
 	GetBucketLifecycle(ctx context.Context, bucket *api.Bucket) (*api.Bucket, error)
+
 	//// Workflow-Specific Operations
 	//UploadArtifact(ctx context.Context, workflowID, artifactName string, data []byte) error
 	//DownloadArtifact(ctx context.Context, workflowID, artifactName string) ([]byte, error)

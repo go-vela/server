@@ -35,6 +35,9 @@ func TestTypes_StorageInfo_Getters(t *testing.T) {
 		if test.sI.GetStorageAddress() != test.want.GetStorageAddress() {
 			t.Errorf("GetStorageAddress is %v, want %v", test.sI.GetStorageAddress(), test.want.GetStorageAddress())
 		}
+		if test.sI.GetStorageBucket() != test.want.GetStorageBucket() {
+			t.Errorf("GetStorageBucket is %v, want %v", test.sI.GetStorageBucket(), test.want.GetStorageBucket())
+		}
 	}
 }
 
@@ -62,6 +65,7 @@ func TestTypes_StorageInfo_Setters(t *testing.T) {
 		test.sI.SetAccessKey(test.want.GetAccessKey())
 		test.sI.SetSecretKey(test.want.GetSecretKey())
 		test.sI.SetStorageAddress(test.want.GetStorageAddress())
+		test.sI.SetStorageBucket(test.want.GetStorageBucket())
 
 		if test.sI.GetAccessKey() != test.want.GetAccessKey() {
 			t.Errorf("GetAccessKey is %v, want %v", test.sI.GetAccessKey(), test.want.GetAccessKey())

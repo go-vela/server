@@ -28,7 +28,7 @@ func TestMinioClient_CreateBucket(t *testing.T) {
 	b := new(api.Bucket)
 	b.BucketName = "foo"
 
-	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", false)
+	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	// run test
 	err := client.CreateBucket(context.TODO(), b)

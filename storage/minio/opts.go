@@ -52,3 +52,20 @@ func WithSecure(secure bool) ClientOpt {
 		return nil
 	}
 }
+
+// WithBucket sets the bucket name in the MinIO client.
+func WithBucket(bucket string) ClientOpt {
+	return func(c *MinioClient) error {
+		c.Logger.Trace("configuring bucket name in minio client")
+
+		// check if the bucket name provided is empty
+		if len(bucket) == 0 {
+			return fmt.Errorf("no MinIO bucket name provided")
+		}
+
+		// set the bucket name in the minio client
+		c.config.Bucket = bucket
+
+		return nil
+	}
+}

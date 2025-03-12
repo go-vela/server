@@ -202,3 +202,35 @@ func TestMiddleware_StorageSecretKey(t *testing.T) {
 		t.Errorf("StorageSecretKey is %v, want %v", got, want)
 	}
 }
+
+func TestMiddleware_StorageBucket(t *testing.T) {
+	// setup types
+	got := ""
+	want := "foobar"
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+
+	// setup mock server
+	engine.Use(StorageBucket(want))
+	engine.GET("/health", func(c *gin.Context) {
+		got = c.Value("storage-bucket").(string)
+
+		c.Status(http.StatusOK)
+	})
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("StorageBucket returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("StorageBucket is %v, want %v", got, want)
+	}
+}

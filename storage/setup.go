@@ -35,6 +35,7 @@ func (s *Setup) Minio() (Storage, error) {
 		minio.WithAccessKey(s.AccessKey),
 		minio.WithSecretKey(s.SecretKey),
 		minio.WithSecure(s.Secure),
+		minio.WithBucket(s.Bucket),
 	)
 }
 

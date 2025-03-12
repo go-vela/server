@@ -22,8 +22,9 @@ func (c *MinioClient) UploadObject(ctx context.Context, object *api.Object, read
 	c.Logger.Infof("uploading data to bucket %s", object.Bucket.BucketName)
 	ext := filepath.Ext(object.FilePath)
 	contentType := mime.TypeByExtension(ext)
-
+	
 	c.Logger.Infof("uploading object %s with content type %s", object.ObjectName, contentType)
+	// TODO - better way to get bucket name
 	info, err := c.client.PutObject(ctx, object.Bucket.BucketName, object.ObjectName, reader, size,
 		minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {

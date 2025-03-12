@@ -59,3 +59,12 @@ func StorageAddress(address string) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// StorageBucket is a middleware function that attaches the bucket name used
+// to open the connection to the queue.
+func StorageBucket(bucket string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("storage-bucket", bucket)
+		c.Next()
+	}
+}

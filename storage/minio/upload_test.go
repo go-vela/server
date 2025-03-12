@@ -36,7 +36,7 @@ func TestMinioClient_Upload_Success(t *testing.T) {
 	obj.Bucket.BucketName = "foo"
 	obj.ObjectName = "test.xml"
 	obj.FilePath = "test_data/test.xml"
-	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", false)
+	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	// create bucket
 	err := client.CreateBucket(ctx, &api.Bucket{BucketName: "foo"})
@@ -82,7 +82,7 @@ func TestMinioClient_Upload_Failure(t *testing.T) {
 	obj.Bucket.BucketName = "foo"
 	obj.ObjectName = "test.xml"
 	obj.FilePath = "nonexist/test.xml"
-	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", false)
+	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	// create bucket
 	err := client.CreateBucket(ctx, &api.Bucket{BucketName: "foo"})

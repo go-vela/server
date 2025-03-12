@@ -33,7 +33,7 @@ func TestMinioClient_Bucket_Delete_Success(t *testing.T) {
 	ctx := context.TODO()
 	b := new(api.Bucket)
 	b.BucketName = "foo"
-	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", false)
+	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	// create bucket
 	err := client.CreateBucket(ctx, b)
@@ -71,7 +71,7 @@ func TestMinioClient_Bucket_Delete_BucketNotFound(t *testing.T) {
 	ctx := context.TODO()
 	b := new(api.Bucket)
 	b.BucketName = "foo"
-	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", false)
+	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	// run test
 	err := client.DeleteBucket(ctx, b)

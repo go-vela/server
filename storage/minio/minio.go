@@ -1,13 +1,11 @@
 package minio
 
 import (
-	"context"
 	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
 	"strings"
-	"time"
 )
 
 // config holds the configuration for the MinIO client.
@@ -15,6 +13,7 @@ type config struct {
 	Endpoint  string
 	AccessKey string
 	SecretKey string
+	Bucket    string
 	Secure    bool
 }
 
@@ -88,87 +87,13 @@ func New(endpoint string, opts ...ClientOpt) (*MinioClient, error) {
 	//return &MinioClient{client: minioClient}, nil
 }
 
-// pingBucket checks if the specified bucket exists.
-func pingBucket(c *MinioClient, bucket string) error {
-	for i := 0; i < 10; i++ {
-		_, err := c.client.BucketExists(context.Background(), bucket)
-		if err != nil {
-			c.Logger.Debugf("unable to ping %s. Retrying in %v", bucket, time.Duration(i)*time.Second)
-			time.Sleep(1 * time.Second)
-
-			continue
-		}
-	}
-
-	return nil
-}
-
 // NewTest returns a Storage implementation that
 // integrates with a local MinIO instance.
 //
 // This function is intended for running tests only.
 //
 //nolint:revive // ignore returning unexported client
-func NewTest(endpoint, accessKey, secretKey string, secure bool) (*MinioClient, error) {
-	//var cleanup func() error
-	//var err error
-	//endpoint, cleanup, err = miniotest.StartEmbedded()
-	//
-	//if err != nil {
-	//	fmt.Fprintf(os.Stderr, "while starting embedded server: %s", err)
-	//	os.Exit(1)
-	//}
-	//
-	//err = cleanup()
-	//if err != nil {
-	//	fmt.Fprintf(os.Stderr, "while stopping embedded server: %s", err)
-	//}
+func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*MinioClient, error) {
 
-	// create a local fake MinIO instance
-	//
-	// https://pkg.go.dev/github.com/minio/minio-go/v7#New
-	//minioClient, err := minio.New(endpoint, &minio.Options{
-	//	Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-	//	Secure: false,
-	//})
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	return New(endpoint, WithAccessKey(accessKey), WithSecretKey(secretKey), WithSecure(secure))
+	return New(endpoint, WithAccessKey(accessKey), WithSecretKey(secretKey), WithSecure(secure), WithBucket(bucket))
 }
-
-//// UploadArtifact uploads an artifact to storage.
-//func (c *MinioClient) UploadArtifact(ctx context.Context, workflowID, artifactName string, data []byte) error {
-//	key := path.Join("artifacts", workflowID, artifactName)
-//	bucket := "vela-artifacts"
-//	return c.upload(ctx, bucket, key, data)
-//}
-//
-//// DownloadArtifact downloads an artifact from storage.
-//func (c *MinioClient) DownloadArtifact(ctx context.Context, workflowID, artifactName string) ([]byte, error) {
-//	key := path.Join("artifacts", workflowID, artifactName)
-//	bucket := "vela-artifacts"
-//	return c.download(ctx, bucket, key)
-//}
-//
-//// UploadCache uploads cache data to storage.
-//func (c *MinioClient) UploadCache(ctx context.Context, key string, data []byte) error {
-//	cacheKey := path.Join("cache", key)
-//	bucket := "vela-cache"
-//	return c.upload(ctx, bucket, cacheKey, data)
-//}
-//
-//// DownloadCache downloads cache data from storage.
-//func (c *MinioClient) DownloadCache(ctx context.Context, key string) ([]byte, error) {
-//	cacheKey := path.Join("cache", key)
-//	bucket := "vela-cache"
-//	return c.download(ctx, bucket, cacheKey)
-//}
-//
-//// DeleteCache deletes cache data from storage.
-//func (c *MinioClient) DeleteCache(ctx context.Context, key string) error {
-//	cacheKey := path.Join("cache", key)
-//	bucket := "vela-cache"
-//	return c.client.RemoveObject(ctx, bucket, cacheKey, minio.RemoveObjectOptions{})
-//}
