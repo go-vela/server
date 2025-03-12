@@ -24,7 +24,6 @@ type Pipeline struct {
 	Stages          *bool     `json:"stages,omitempty"`
 	Steps           *bool     `json:"steps,omitempty"`
 	Templates       *bool     `json:"templates,omitempty"`
-	TestReport      *bool     `json:"test_report,omitempty"`
 	Warnings        *[]string `json:"warnings,omitempty"`
 	// swagger:strfmt base64
 	Data *[]byte `json:"data,omitempty"`
@@ -238,19 +237,6 @@ func (p *Pipeline) GetData() []byte {
 	return *p.Data
 }
 
-// GetTestReport returns the TestReport results field.
-//
-// When the provided Pipeline type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (p *Pipeline) GetTestReport() bool {
-	// return zero value if Pipeline type or TestReport field is nil
-	if p == nil || p.TestReport == nil {
-		return false
-	}
-
-	return *p.TestReport
-}
-
 // SetID sets the ID field.
 //
 // When the provided Pipeline type is nil, it
@@ -433,19 +419,6 @@ func (p *Pipeline) SetTemplates(v bool) {
 	p.Templates = &v
 }
 
-// SetTestReport sets the TestReport field.
-//
-// When the provided Pipeline type is nil, it
-// will set nothing and immediately return.
-func (p *Pipeline) SetTestReport(v bool) {
-	// return if Pipeline type is nil
-	if p == nil {
-		return
-	}
-
-	p.TestReport = &v
-}
-
 // SetWarnings sets the Warnings field.
 //
 // When the provided Pipeline type is nil, it
@@ -488,7 +461,6 @@ func (p *Pipeline) String() string {
   Stages: %t,
   Steps: %t,
   Templates: %t,
-  TestReport: %t,
   Type: %s,
   Version: %s,
   Warnings: %v,
@@ -506,7 +478,6 @@ func (p *Pipeline) String() string {
 		p.GetStages(),
 		p.GetSteps(),
 		p.GetTemplates(),
-		p.GetTestReport(),
 		p.GetType(),
 		p.GetVersion(),
 		p.GetWarnings(),

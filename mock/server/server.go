@@ -157,7 +157,7 @@ func FakeHandler() http.Handler {
 
 	// mock endpoint for queue credentials
 	e.GET("/api/v1/queue/info", getQueueCreds)
-	
+
 	// mock endpoint for storage credentials
 	e.GET("/api/v1/storage/info", getStorageCreds)
 
