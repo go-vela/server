@@ -165,13 +165,12 @@ func (s *Step) ToYAML() *yaml.Step {
 		Ruleset:     *s.Ruleset.ToYAML(),
 		Secrets:     *s.Secrets.ToYAML(),
 		Template:    s.Template.ToYAML(),
-		//TestReport:  s.TestReport.ToYAML(),
-		Ulimits:    *s.Ulimits.ToYAML(),
-		Volumes:    *s.Volumes.ToYAML(),
-		Parameters: s.Parameters,
-		User:       s.User,
-		ReportAs:   s.ReportAs,
-		IDRequest:  s.IDRequest,
+		Ulimits:     *s.Ulimits.ToYAML(),
+		Volumes:     *s.Volumes.ToYAML(),
+		Parameters:  s.Parameters,
+		User:        s.User,
+		ReportAs:    s.ReportAs,
+		IDRequest:   s.IDRequest,
 	}
 }
 
