@@ -14,9 +14,9 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 deployments (
-	id           SERIAL PRIMARY KEY,
-	repo_id      INTEGER,
-	number       INTEGER,
+	id           BIGSERIAL PRIMARY KEY,
+	repo_id      BIGINT,
+	number       BIGINT,
 	url          VARCHAR(500),
 	commit       VARCHAR(500),
 	ref          VARCHAR(500),
@@ -24,7 +24,7 @@ deployments (
 	target       VARCHAR(500),
 	description  VARCHAR(2500),
 	payload      VARCHAR(2500),
-	created_at   INTEGER,
+	created_at   BIGINT,
 	created_by   VARCHAR(250),
 	builds       VARCHAR(500),
 	UNIQUE(repo_id, number)
@@ -36,7 +36,7 @@ deployments (
 CREATE TABLE
 IF NOT EXISTS
 deployments (
-	id           SERIAL PRIMARY KEY,
+	id           INTEGER PRIMARY KEY AUTOINCREMENT,
 	repo_id      INTEGER,
 	number       INTEGER,	
 	url     	 VARCHAR(1000),

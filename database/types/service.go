@@ -37,12 +37,12 @@ type Service struct {
 	ID           sql.NullInt64  `sql:"id"`
 	BuildID      sql.NullInt64  `sql:"build_id"`
 	RepoID       sql.NullInt64  `sql:"repo_id"`
-	Number       sql.NullInt64  `sql:"number"`
+	Number       sql.NullInt32  `sql:"number"`
 	Name         sql.NullString `sql:"name"`
 	Image        sql.NullString `sql:"image"`
 	Status       sql.NullString `sql:"status"`
 	Error        sql.NullString `sql:"error"`
-	ExitCode     sql.NullInt64  `sql:"exit_code"`
+	ExitCode     sql.NullInt32  `sql:"exit_code"`
 	Created      sql.NullInt64  `sql:"created"`
 	Started      sql.NullInt64  `sql:"started"`
 	Finished     sql.NullInt64  `sql:"finished"`
@@ -78,7 +78,7 @@ func (s *Service) Nullify() *Service {
 	}
 
 	// check if the Number field should be false
-	if s.Number.Int64 == 0 {
+	if s.Number.Int32 == 0 {
 		s.Number.Valid = false
 	}
 
@@ -103,7 +103,7 @@ func (s *Service) Nullify() *Service {
 	}
 
 	// check if the ExitCode field should be false
-	if s.ExitCode.Int64 == 0 {
+	if s.ExitCode.Int32 == 0 {
 		s.ExitCode.Valid = false
 	}
 
@@ -148,12 +148,12 @@ func (s *Service) ToAPI() *api.Service {
 	service.SetID(s.ID.Int64)
 	service.SetBuildID(s.BuildID.Int64)
 	service.SetRepoID(s.RepoID.Int64)
-	service.SetNumber(int(s.Number.Int64))
+	service.SetNumber(s.Number.Int32)
 	service.SetName(s.Name.String)
 	service.SetImage(s.Image.String)
 	service.SetStatus(s.Status.String)
 	service.SetError(s.Error.String)
-	service.SetExitCode(int(s.ExitCode.Int64))
+	service.SetExitCode(s.ExitCode.Int32)
 	service.SetCreated(s.Created.Int64)
 	service.SetStarted(s.Started.Int64)
 	service.SetFinished(s.Finished.Int64)
@@ -178,7 +178,7 @@ func (s *Service) Validate() error {
 	}
 
 	// verify the Number field is populated
-	if s.Number.Int64 <= 0 {
+	if s.Number.Int32 <= 0 {
 		return ErrEmptyServiceNumber
 	}
 
@@ -213,12 +213,12 @@ func ServiceFromAPI(s *api.Service) *Service {
 		ID:           sql.NullInt64{Int64: s.GetID(), Valid: true},
 		BuildID:      sql.NullInt64{Int64: s.GetBuildID(), Valid: true},
 		RepoID:       sql.NullInt64{Int64: s.GetRepoID(), Valid: true},
-		Number:       sql.NullInt64{Int64: int64(s.GetNumber()), Valid: true},
+		Number:       sql.NullInt32{Int32: s.GetNumber(), Valid: true},
 		Name:         sql.NullString{String: s.GetName(), Valid: true},
 		Image:        sql.NullString{String: s.GetImage(), Valid: true},
 		Status:       sql.NullString{String: s.GetStatus(), Valid: true},
 		Error:        sql.NullString{String: s.GetError(), Valid: true},
-		ExitCode:     sql.NullInt64{Int64: int64(s.GetExitCode()), Valid: true},
+		ExitCode:     sql.NullInt32{Int32: s.GetExitCode(), Valid: true},
 		Created:      sql.NullInt64{Int64: s.GetCreated(), Valid: true},
 		Started:      sql.NullInt64{Int64: s.GetStarted(), Valid: true},
 		Finished:     sql.NullInt64{Int64: s.GetFinished(), Valid: true},

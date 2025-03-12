@@ -129,7 +129,7 @@ func CompileAndPublish(
 	logger.Debugf("currently %d builds running on repo %s", builds, r.GetFullName())
 
 	// check if the number of pending and running builds exceeds the limit for the repo
-	if builds >= r.GetBuildLimit() {
+	if builds >= int64(r.GetBuildLimit()) {
 		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
 
 		return nil, nil, http.StatusTooManyRequests, retErr

@@ -17,7 +17,7 @@ var (
 // processing a webhook.
 type PullRequest struct {
 	Comment string
-	Number  int
+	Number  int64
 	Labels  []string
 }
 

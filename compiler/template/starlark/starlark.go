@@ -54,11 +54,11 @@ func toStarlark(value interface{}) (starlark.Value, error) {
 		return starlark.MakeInt64(v.Int()), nil
 	case reflect.Uint:
 		fallthrough
-	case reflect.Uint32:
+	case reflect.Uint16:
 		fallthrough
 	case reflect.Uint64:
 		fallthrough
-	case reflect.Uint16:
+	case reflect.Uint32:
 		return starlark.MakeUint64(v.Uint()), nil
 	case reflect.Float32:
 		return starlark.Float(v.Float()), nil
