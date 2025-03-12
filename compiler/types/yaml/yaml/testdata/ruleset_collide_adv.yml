@@ -1,0 +1,8 @@
+---
+if:
+  event: push
+  branch: main
+  event:
+unless:
+  tag: v3*
+  matcher: filepath
