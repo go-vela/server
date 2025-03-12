@@ -21,9 +21,8 @@ func TestNative_New(t *testing.T) {
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
-	public, _ := github.New(context.Background(), "", "")
+
 	want := &client{
-		Github:        public,
 		Compiler:      settings.CompilerMockEmpty(),
 		TemplateCache: make(map[string][]byte),
 	}
@@ -35,6 +34,12 @@ func TestNative_New(t *testing.T) {
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
+
+	if got.Github == nil {
+		t.Errorf("New returned nil Github client")
+	}
+
+	got.Github = nil
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("New is %v, want %v", got, want)
@@ -51,11 +56,8 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 	set.String("github-token", token, "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
-	public, _ := github.New(context.Background(), "", "")
-	private, _ := github.New(context.Background(), url, token)
+
 	want := &client{
-		Github:           public,
-		PrivateGithub:    private,
 		UsePrivateGithub: true,
 		TemplateCache:    make(map[string][]byte),
 		Compiler:         settings.CompilerMockEmpty(),
@@ -68,6 +70,17 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
+
+	if got.Github == nil {
+		t.Errorf("New returned nil Github client")
+	}
+
+	if got.PrivateGithub == nil {
+		t.Errorf("New returned nil Private Github client")
+	}
+
+	got.Github = nil
+	got.PrivateGithub = nil
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("New is %v, want %v", got, want)
@@ -84,11 +97,8 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 	set.String("github-token", token, "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
-	public, _ := github.New(context.Background(), "", "")
-	private, _ := github.New(context.Background(), url, token)
+
 	want := &client{
-		Github:           public,
-		PrivateGithub:    private,
 		UsePrivateGithub: true,
 		TemplateCache:    make(map[string][]byte),
 		Compiler:         settings.CompilerMockEmpty(),
@@ -101,6 +111,17 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
+
+	if got.Github == nil {
+		t.Errorf("New returned nil Github client")
+	}
+
+	if got.PrivateGithub == nil {
+		t.Errorf("New returned nil Private Github client")
+	}
+
+	got.Github = nil
+	got.PrivateGithub = nil
 
 	if !reflect.DeepEqual(got.Duplicate(), want) {
 		t.Errorf("New is %v, want %v", got, want)
@@ -123,6 +144,8 @@ func TestNative_DuplicateStripBuild(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
+
+	got.Github = want.Github
 
 	// modify engine with WithBuild and then call Duplicate
 	// to get a copy of the Engine without build attached.
@@ -149,6 +172,8 @@ func TestNative_WithBuild(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
+	got.Github = want.Github
+
 	if !reflect.DeepEqual(got.WithBuild(b), want) {
 		t.Errorf("WithBuild is %v, want %v", got, want)
 	}
@@ -171,6 +196,8 @@ func TestNative_WithFiles(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
+	got.Github = want.Github
+
 	if !reflect.DeepEqual(got.WithFiles(f), want) {
 		t.Errorf("WithFiles is %v, want %v", got, want)
 	}
@@ -191,6 +218,8 @@ func TestNative_WithComment(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
+
+	got.Github = want.Github
 
 	if !reflect.DeepEqual(got.WithComment(comment), want) {
 		t.Errorf("WithComment is %v, want %v", got, want)
@@ -213,6 +242,8 @@ func TestNative_WithLocal(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
+	got.Github = want.Github
+
 	if !reflect.DeepEqual(got.WithLocal(local), want) {
 		t.Errorf("WithLocal is %v, want %v", got, want)
 	}
@@ -233,6 +264,8 @@ func TestNative_WithLocalTemplates(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
+
+	got.Github = want.Github
 
 	if !reflect.DeepEqual(got.WithLocalTemplates(localTemplates), want) {
 		t.Errorf("WithLocalTemplates is %v, want %v", got, want)
@@ -274,6 +307,8 @@ func TestNative_WithMetadata(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
+	got.Github = want.Github
+
 	if !reflect.DeepEqual(got.WithMetadata(m), want) {
 		t.Errorf("WithMetadata is %v, want %v", got, want)
 	}
@@ -301,8 +336,13 @@ func TestNative_WithPrivateGitHub(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	if !reflect.DeepEqual(got.WithPrivateGitHub(context.Background(), url, token), want) {
-		t.Errorf("WithRepo is %v, want %v", got, want)
+	got.WithPrivateGitHub(context.Background(), url, token)
+
+	got.Github = want.Github
+	got.PrivateGithub = want.PrivateGithub
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("WithPrivateGitHub is %v, want %v", got, want)
 	}
 }
 
@@ -323,6 +363,8 @@ func TestNative_WithRepo(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
+
+	got.Github = want.Github
 
 	if !reflect.DeepEqual(got.WithRepo(r), want) {
 		t.Errorf("WithRepo is %v, want %v", got, want)
@@ -347,6 +389,8 @@ func TestNative_WithUser(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
+	got.Github = want.Github
+
 	if !reflect.DeepEqual(got.WithUser(u), want) {
 		t.Errorf("WithUser is %v, want %v", got, want)
 	}
@@ -367,6 +411,8 @@ func TestNative_WithLabels(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
+
+	got.Github = want.Github
 
 	if !reflect.DeepEqual(got.WithLabels(labels), want) {
 		t.Errorf("WithLocalTemplates is %v, want %v", got, want)

@@ -85,6 +85,12 @@ var Flags = []cli.Flag{
 		Name:     "scm.app.private-key.path",
 		Usage:    "set filepath to the SCM App integration (GitHub App) private key",
 	},
+	&cli.StringFlag{
+		EnvVars:  []string{"VELA_SCM_APP_WEBHOOK_SECRET", "SCM_APP_WEBHOOK_SECRET"},
+		FilePath: "/vela/scm/app_webhook_secret",
+		Name:     "scm.app.webhook-secret",
+		Usage:    "set value of SCM App integration webhook secret",
+	},
 	&cli.StringSliceFlag{
 		EnvVars:  []string{"VELA_SCM_APP_PERMISSIONS", "SCM_APP_PERMISSIONS", "VELA_SOURCE_APP_PERMISSIONS", "SOURCE_APP_PERMISSIONS"},
 		FilePath: "/vela/scm/app/permissions",

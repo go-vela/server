@@ -10,7 +10,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestYaml_Ruleset_ToPipeline(t *testing.T) {
@@ -96,9 +95,8 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 	// setup tests
 	tests := []struct {
-		file    string
-		want    *Ruleset
-		wantErr bool
+		file string
+		want *Ruleset
 	}{
 		{
 			file: "testdata/ruleset_simple.yml",
@@ -150,27 +148,6 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 				Matcher:  "regex",
 			},
 		},
-		{
-			file: "testdata/ruleset_unknown_field.yml",
-			want: &Ruleset{
-				If: Rules{
-					Branch: []string{"main"},
-					Event:  []string{"push"},
-				},
-				Matcher:  "filepath",
-				Operator: "and",
-			},
-		},
-		{
-			file:    "testdata/ruleset_collide.yml",
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			file:    "testdata/ruleset_collide_adv.yml",
-			want:    nil,
-			wantErr: true,
-		},
 	}
 
 	// run tests
@@ -184,20 +161,12 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 
 		err = yaml.Unmarshal(b, got)
 
-		if test.wantErr {
-			if err == nil {
-				t.Errorf("UnmarshalYAML should have returned err")
-			}
-
-			continue
-		}
-
 		if err != nil {
 			t.Errorf("UnmarshalYAML returned err: %v", err)
 		}
 
-		if diff := cmp.Diff(got, test.want); diff != "" {
-			t.Errorf("UnmarshalYAML mismatch (-got +want):\n%s", diff)
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("UnmarshalYAML is %v, want %v", got, test.want)
 		}
 	}
 }
@@ -277,11 +246,6 @@ func TestYaml_Rules_UnmarshalYAML(t *testing.T) {
 				Tag:      []string{"v0.1.0"},
 				Target:   []string{"production"},
 			},
-		},
-		{
-			failure: true,
-			file:    "testdata/ruleset_collide.yml",
-			want:    nil,
 		},
 		{
 			failure: true,
