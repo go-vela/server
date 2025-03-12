@@ -23,7 +23,7 @@ func (c *client) List(ctx context.Context, sType, org, name string, page, perPag
 		}).Tracef("listing native %s secrets for %s", sType, org)
 
 		// capture the list of org secrets from the native service
-		secrets, _, err := c.Database.ListSecretsForOrg(ctx, org, nil, page, perPage)
+		secrets, err := c.Database.ListSecretsForOrg(ctx, org, nil, page, perPage)
 		if err != nil {
 			return nil, err
 		}
@@ -43,7 +43,7 @@ func (c *client) List(ctx context.Context, sType, org, name string, page, perPag
 		r.SetFullName(fmt.Sprintf("%s/%s", org, name))
 
 		// capture the list of repo secrets from the native service
-		secrets, _, err := c.Database.ListSecretsForRepo(ctx, r, nil, page, perPage)
+		secrets, err := c.Database.ListSecretsForRepo(ctx, r, nil, page, perPage)
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +59,7 @@ func (c *client) List(ctx context.Context, sType, org, name string, page, perPag
 			}).Tracef("listing native %s secrets for teams %s in org %s", sType, teams, org)
 
 			// capture the list of shared secrets for multiple teams from the native service
-			secrets, _, err := c.Database.ListSecretsForTeams(ctx, org, teams, nil, page, perPage)
+			secrets, err := c.Database.ListSecretsForTeams(ctx, org, teams, nil, page, perPage)
 			if err != nil {
 				return nil, err
 			}
@@ -74,7 +74,7 @@ func (c *client) List(ctx context.Context, sType, org, name string, page, perPag
 		}).Tracef("listing native %s secrets for %s/%s", sType, org, name)
 
 		// capture the list of shared secrets from the native service
-		secrets, _, err := c.Database.ListSecretsForTeam(ctx, org, name, nil, page, perPage)
+		secrets, err := c.Database.ListSecretsForTeam(ctx, org, name, nil, page, perPage)
 		if err != nil {
 			return nil, err
 		}

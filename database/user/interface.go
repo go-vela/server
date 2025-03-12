@@ -39,7 +39,7 @@ type UserInterface interface {
 	// ListUsers defines a function that gets a list of all users.
 	ListUsers(context.Context) ([]*api.User, error)
 	// ListLiteUsers defines a function that gets a lite list of users.
-	ListLiteUsers(context.Context, int, int) ([]*api.User, int64, error)
+	ListLiteUsers(context.Context, int, int) ([]*api.User, error)
 	// UpdateUser defines a function that updates an existing user.
 	UpdateUser(context.Context, *api.User) (*api.User, error)
 }

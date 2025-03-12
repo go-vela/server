@@ -45,7 +45,7 @@ type HookInterface interface {
 	// ListHooks defines a function that gets a list of all hooks.
 	ListHooks(context.Context) ([]*api.Hook, error)
 	// ListHooksForRepo defines a function that gets a list of hooks by repo ID.
-	ListHooksForRepo(context.Context, *api.Repo, int, int) ([]*api.Hook, int64, error)
+	ListHooksForRepo(context.Context, *api.Repo, int, int) ([]*api.Hook, error)
 	// UpdateHook defines a function that updates an existing hook.
 	UpdateHook(context.Context, *api.Hook) (*api.Hook, error)
 }

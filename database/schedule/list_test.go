@@ -92,13 +92,7 @@ func TestSchedule_Engine_ListSchedules(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "schedules"`).WillReturnRows(_rows)
-
-	// create expected result in mock
-	_rows = sqlmock.NewRows(
+	_rows := sqlmock.NewRows(
 		[]string{"id", "repo_id", "active", "name", "entry", "created_at", "created_by", "updated_at", "updated_by", "scheduled_at", "branch", "error"}).
 		AddRow(1, 1, true, "nightly", "0 0 * * *", 1713476291, "octocat", 3013476291, "octokitty", 2013476291, "main", "no version: YAML property provided").
 		AddRow(2, 1, false, "hourly", "0 * * * *", 1713476291, "octocat", 3013476291, "octokitty", 2013476291, "main", "no version: YAML property provided")

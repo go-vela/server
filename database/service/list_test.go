@@ -35,13 +35,7 @@ func TestService_Engine_ListServices(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "services"`).WillReturnRows(_rows)
-
-	// create expected result in mock
-	_rows = sqlmock.NewRows(
+	_rows := sqlmock.NewRows(
 		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution"}).
 		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "").
 		AddRow(2, 1, 2, 1, "bar", "foo", "", "", "", 0, 0, 0, 0, "", "", "")

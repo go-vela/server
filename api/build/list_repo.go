@@ -129,7 +129,6 @@ func ListBuildsForRepo(c *gin.Context) {
 	var (
 		filters = map[string]interface{}{}
 		b       []*types.Build
-		t       int64
 	)
 
 	// capture middleware values
@@ -237,7 +236,7 @@ func ListBuildsForRepo(c *gin.Context) {
 		return
 	}
 
-	b, t, err = database.FromContext(c).ListBuildsForRepo(ctx, r, filters, before, after, page, perPage)
+	b, err = database.FromContext(c).ListBuildsForRepo(ctx, r, filters, before, after, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for repo %s: %w", r.GetFullName(), err)
 
@@ -250,7 +249,7 @@ func ListBuildsForRepo(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   t,
+		Results: len(b),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)

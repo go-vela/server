@@ -15,23 +15,11 @@ func (e *engine) ListHooks(ctx context.Context) ([]*api.Hook, error) {
 	e.logger.Trace("listing all hooks")
 
 	// variables to store query results and return value
-	count := int64(0)
 	h := new([]types.Hook)
 	hooks := []*api.Hook{}
 
-	// count the results
-	count, err := e.CountHooks(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return hooks, nil
-	}
-
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableHook).
 		Preload("Repo").
