@@ -48,7 +48,6 @@ type (
 		Pull        string            `json:"pull,omitempty"        yaml:"pull,omitempty"`
 		Ruleset     Ruleset           `json:"ruleset,omitempty"     yaml:"ruleset,omitempty"`
 		Secrets     StepSecretSlice   `json:"secrets,omitempty"     yaml:"secrets,omitempty"`
-		TestReport  TestReport        `json:"test_report,omitempty"     yaml:"test_report,omitempty"`
 		Ulimits     UlimitSlice       `json:"ulimits,omitempty"     yaml:"ulimits,omitempty"`
 		Volumes     VolumeSlice       `json:"volumes,omitempty"     yaml:"volumes,omitempty"`
 		User        string            `json:"user,omitempty"        yaml:"user,omitempty"`
@@ -138,8 +137,7 @@ func (c *Container) Empty() bool {
 		len(c.Volumes) == 0 &&
 		len(c.User) == 0 &&
 		len(c.ReportAs) == 0 &&
-		len(c.IDRequest) == 0 &&
-		reflect.DeepEqual(c.TestReport, TestReport{}) {
+		len(c.IDRequest) == 0 {
 		return true
 	}
 

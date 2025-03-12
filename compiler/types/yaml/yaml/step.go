@@ -24,7 +24,6 @@ type (
 		Entrypoint  raw.StringSlice        `yaml:"entrypoint,omitempty"  json:"entrypoint,omitempty"  jsonschema:"description=Command to execute inside the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-entrypoint-key"`
 		Secrets     StepSecretSlice        `yaml:"secrets,omitempty"     json:"secrets,omitempty"     jsonschema:"description=Sensitive variables injected into the container environment.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-secrets-key"`
 		Template    StepTemplate           `yaml:"template,omitempty"    json:"template,omitempty"    jsonschema:"oneof_required=template,description=Name of template to expand in the pipeline.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-template-key"`
-		TestReport  TestReport             `yaml:"test_report,omitempty" json:"test_report,omitempty" jsonschema:"description=Test report configuration for the step.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-test_report-key"`
 		Ulimits     UlimitSlice            `yaml:"ulimits,omitempty"     json:"ulimits,omitempty"     jsonschema:"description=Set the user limits for the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ulimits-key"`
 		Volumes     VolumeSlice            `yaml:"volumes,omitempty"     json:"volumes,omitempty"     jsonschema:"description=Mount volumes for the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-volume-key"`
 		Image       string                 `yaml:"image,omitempty"       json:"image,omitempty"       jsonschema:"oneof_required=image,minLength=1,description=Docker image to use to create the ephemeral container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-image-key"`
@@ -60,7 +59,6 @@ func (s *StepSlice) ToPipeline() *pipeline.ContainerSlice {
 			Pull:        step.Pull,
 			Ruleset:     *step.Ruleset.ToPipeline(),
 			Secrets:     *step.Secrets.ToPipeline(),
-			TestReport:  *step.TestReport.ToPipeline(),
 			Ulimits:     *step.Ulimits.ToPipeline(),
 			Volumes:     *step.Volumes.ToPipeline(),
 			User:        step.User,
