@@ -185,6 +185,7 @@ func server(c *cli.Context) error {
 	compiler.SetSettings(ps)
 
 	router := router.Load(
+		middleware.AppWebhookSecret(c.String("scm.app.webhook-secret")),
 		middleware.CLI(c),
 		middleware.Settings(ps),
 		middleware.Compiler(compiler),

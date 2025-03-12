@@ -152,7 +152,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	compiler.PrivateGithub = nil
-	_, err = compiler.ExpandStages(
+	_, _, err = compiler.ExpandStages(
 		context.Background(),
 		&yaml.Build{
 			Stages:      stages,
@@ -161,6 +161,7 @@ func TestNative_ExpandStages(t *testing.T) {
 		},
 		tmpls,
 		new(pipeline.RuleData),
+		nil,
 	)
 
 	if err == nil {
@@ -173,7 +174,7 @@ func TestNative_ExpandStages(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandStages(
+	build, _, err := compiler.ExpandStages(
 		context.Background(),
 		&yaml.Build{
 			Stages:      stages,
@@ -182,6 +183,7 @@ func TestNative_ExpandStages(t *testing.T) {
 		},
 		tmpls,
 		new(pipeline.RuleData),
+		nil,
 	)
 
 	if err != nil {
@@ -360,14 +362,14 @@ func TestNative_ExpandSteps(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			build, err := compiler.ExpandSteps(
+			build, _, err := compiler.ExpandSteps(
 				context.Background(),
 				&yaml.Build{
 					Steps:       steps,
 					Services:    yaml.ServiceSlice{},
 					Environment: globalEnvironment,
 				},
-				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+				test.tmpls, new(pipeline.RuleData), nil, compiler.GetTemplateDepth())
 			if err != nil {
 				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
 			}
@@ -386,6 +388,106 @@ func TestNative_ExpandSteps(t *testing.T) {
 
 			if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
 				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+		})
+	}
+}
+
+func TestNative_ExpandStepsWarnings(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	testRepo := new(api.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "warnings",
+			tmpls: map[string]*yaml.Template{
+				"warnings": {
+					Name:   "steps_merge_anchor_1.yml",
+					Source: "github.example.com/foo/bar/steps_merge_anchor_1.yml",
+					Type:   "github",
+				},
+			},
+		},
+	}
+
+	steps := yaml.StepSlice{
+		&yaml.Step{
+			Name: "sample",
+			Template: yaml.StepTemplate{
+				Name: "warnings",
+			},
+		},
+	}
+
+	globalEnvironment := raw.StringSliceMap{
+		"foo": "test1",
+		"bar": "test2",
+	}
+
+	wantWarnings := []string{
+		"[warnings]:25:duplicate << keys in single YAML map",
+		"[warnings]:32:duplicate << keys in single YAML map",
+		"[warnings]:44:duplicate << keys in single YAML map",
+		"[warnings]:43:duplicate << keys in single YAML map",
+	}
+
+	// run test
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Creating new compiler returned err: %v", err)
+	}
+
+	compiler.WithCommit("123abc456def").WithRepo(testRepo)
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, warnings, err := compiler.ExpandSteps(
+				context.Background(),
+				&yaml.Build{
+					Steps:       steps,
+					Services:    yaml.ServiceSlice{},
+					Environment: globalEnvironment,
+				},
+				test.tmpls, new(pipeline.RuleData), []string{}, compiler.GetTemplateDepth())
+			if err != nil {
+				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(warnings, wantWarnings) {
+				t.Errorf("ExpandSteps()_Type%s returned incorrect warnings: %v", test.name, warnings)
 			}
 		})
 	}
@@ -741,13 +843,13 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	ruledata := new(pipeline.RuleData)
 	ruledata.Branch = "main"
 
-	build, err := compiler.ExpandSteps(context.Background(),
+	build, _, err := compiler.ExpandSteps(context.Background(),
 		&yaml.Build{
 			Steps:       steps,
 			Services:    yaml.ServiceSlice{},
 			Environment: raw.StringSliceMap{},
 		},
-		tmpls, ruledata, compiler.GetTemplateDepth())
+		tmpls, ruledata, nil, compiler.GetTemplateDepth())
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
@@ -838,14 +940,14 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandSteps(context.Background(),
+	build, _, err := compiler.ExpandSteps(context.Background(),
 		&yaml.Build{
 			Steps:       steps,
 			Secrets:     yaml.SecretSlice{},
 			Services:    yaml.ServiceSlice{},
 			Environment: raw.StringSliceMap{},
 		},
-		tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+		tmpls, new(pipeline.RuleData), nil, compiler.GetTemplateDepth())
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
@@ -1025,13 +1127,13 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			build, err := compiler.ExpandSteps(context.Background(),
+			build, _, err := compiler.ExpandSteps(context.Background(),
 				&yaml.Build{
 					Steps: steps, Services: yaml.ServiceSlice{},
 					Environment: globalEnvironment,
 					Templates:   yaml.TemplateSlice{test.tmpls["chain"]},
 				},
-				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+				test.tmpls, new(pipeline.RuleData), nil, compiler.GetTemplateDepth())
 			if err != nil {
 				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
 			}
@@ -1259,14 +1361,14 @@ func TestNative_ExpandStepsDuplicateCalls(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			build, err := compiler.ExpandSteps(
+			build, _, err := compiler.ExpandSteps(
 				context.Background(),
 				&yaml.Build{
 					Steps:       steps,
 					Services:    yaml.ServiceSlice{},
 					Environment: globalEnvironment,
 				},
-				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+				test.tmpls, new(pipeline.RuleData), nil, compiler.GetTemplateDepth())
 			if err != nil {
 				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
 			}
@@ -1369,11 +1471,11 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := compiler.ExpandSteps(context.Background(),
+			_, _, err := compiler.ExpandSteps(context.Background(),
 				&yaml.Build{
 					Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment,
 				},
-				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+				test.tmpls, new(pipeline.RuleData), nil, compiler.GetTemplateDepth())
 			if err == nil {
 				t.Errorf("ExpandSteps_Type%s should have returned an error", test.name)
 			}
@@ -1460,13 +1562,13 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := compiler.ExpandSteps(context.Background(),
+			_, _, err := compiler.ExpandSteps(context.Background(),
 				&yaml.Build{
 					Steps:       steps,
 					Services:    yaml.ServiceSlice{},
 					Environment: globalEnvironment,
 				},
-				test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
+				test.tmpls, new(pipeline.RuleData), nil, compiler.GetTemplateDepth())
 			if err == nil {
 				t.Errorf("ExpandSteps_Type%s should have returned an error", test.name)
 			}

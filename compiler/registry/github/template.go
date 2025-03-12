@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v69/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/registry"

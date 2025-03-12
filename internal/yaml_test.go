@@ -23,7 +23,7 @@ func TestInternal_ParseYAML(t *testing.T) {
 			&yaml.Step{
 				Name:  "example",
 				Image: "alpine:latest",
-				Environment: map[string]string{
+				Parameters: map[string]interface{}{
 					"REGION": "dev",
 				},
 				Pull: "not_present",
@@ -36,16 +36,29 @@ func TestInternal_ParseYAML(t *testing.T) {
 
 	// set up tests
 	tests := []struct {
-		name         string
-		file         string
-		wantBuild    *yaml.Build
-		wantWarnings []string
-		wantErr      bool
+		name          string
+		file          string
+		wantBuild     *yaml.Build
+		wantWarnings  []string
+		warningPrefix string
+		wantErr       bool
 	}{
 		{
 			name:      "go-yaml",
 			file:      "testdata/go-yaml.yml",
 			wantBuild: wantBuild,
+		},
+		{
+			name:         "top level anchors",
+			file:         "testdata/top_level_anchor.yml",
+			wantBuild:    wantBuild,
+			wantWarnings: []string{`6:duplicate << keys in single YAML map`},
+		},
+		{
+			name:         "top level anchors legacy",
+			file:         "testdata/top_level_anchor_legacy.yml",
+			wantBuild:    wantBuild,
+			wantWarnings: []string{`using legacy version - address any incompatibilities and use "1" instead`},
 		},
 		{
 			name:         "buildkite legacy",
@@ -58,6 +71,13 @@ func TestInternal_ParseYAML(t *testing.T) {
 			file:         "testdata/buildkite_new_version.yml",
 			wantBuild:    wantBuild,
 			wantWarnings: []string{"16:duplicate << keys in single YAML map"},
+		},
+		{
+			name:          "anchor collapse - warning prefix",
+			file:          "testdata/buildkite_new_version.yml",
+			wantBuild:     wantBuild,
+			wantWarnings:  []string{"[prefix]:16:duplicate << keys in single YAML map"},
+			warningPrefix: "prefix",
 		},
 		{
 			name:      "no version",
@@ -79,7 +99,7 @@ func TestInternal_ParseYAML(t *testing.T) {
 			t.Errorf("unable to read file for test %s: %v", test.name, err)
 		}
 
-		gotBuild, gotWarnings, err := ParseYAML(bytes)
+		gotBuild, gotWarnings, err := ParseYAML(bytes, test.warningPrefix)
 		if err != nil && !test.wantErr {
 			t.Errorf("ParseYAML for test %s returned err: %v", test.name, err)
 		}

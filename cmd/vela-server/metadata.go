@@ -131,6 +131,10 @@ func metadataVela(c *cli.Context) (*internal.Vela, error) {
 		vela.WebAddress = c.String("webui-addr")
 	}
 
+	if len(c.StringSlice("cors-allow-origins")) > 0 {
+		vela.CorsAllowOrigins = c.StringSlice("cors-allow-origins")
+	}
+
 	if len(c.String("webui-oauth-callback")) > 0 {
 		vela.WebOauthCallbackPath = c.String("webui-oauth-callback")
 	}

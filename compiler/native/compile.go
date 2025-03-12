@@ -155,10 +155,12 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 	switch {
 	case len(p.Stages) > 0:
 		// inject the templates into the steps
-		p, err = c.ExpandStages(ctx, p, templates, ruleData)
+		p, warnings, err = c.ExpandStages(ctx, p, templates, ruleData, _pipeline.GetWarnings())
 		if err != nil {
 			return nil, _pipeline, err
 		}
+
+		_pipeline.SetWarnings(warnings)
 
 		if substitute {
 			// inject the substituted environment variables into the steps
@@ -193,10 +195,12 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 
 	case len(p.Steps) > 0:
 		// inject the templates into the steps
-		p, err = c.ExpandSteps(ctx, p, templates, ruleData, c.GetTemplateDepth())
+		p, warnings, err = c.ExpandSteps(ctx, p, templates, ruleData, _pipeline.GetWarnings(), c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
+
+		_pipeline.SetWarnings(warnings)
 
 		if substitute {
 			// inject the substituted environment variables into the steps
@@ -334,7 +338,10 @@ func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
 func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
-	var err error
+	var (
+		warnings []string
+		err      error
+	)
 
 	// check if the pipeline disabled the clone
 	if p.Metadata.Clone == nil || *p.Metadata.Clone {
@@ -358,10 +365,12 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 	}
 
 	// inject the templates into the steps
-	p, err = c.ExpandSteps(ctx, p, tmpls, r, c.GetTemplateDepth())
+	p, warnings, err = c.ExpandSteps(ctx, p, tmpls, r, _pipeline.GetWarnings(), c.GetTemplateDepth())
 	if err != nil {
 		return nil, _pipeline, err
 	}
+
+	_pipeline.SetWarnings(warnings)
 
 	if c.ModificationService.Endpoint != "" {
 		// send config to external endpoint for modification
@@ -437,7 +446,10 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 
 // compileStages executes the workflow for converting a YAML pipeline into an executable struct.
 func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
-	var err error
+	var (
+		warnings []string
+		err      error
+	)
 
 	// check if the pipeline disabled the clone
 	if p.Metadata.Clone == nil || *p.Metadata.Clone {
@@ -455,10 +467,12 @@ func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 	}
 
 	// inject the templates into the stages
-	p, err = c.ExpandStages(ctx, p, tmpls, r)
+	p, warnings, err = c.ExpandStages(ctx, p, tmpls, r, _pipeline.GetWarnings())
 	if err != nil {
 		return nil, _pipeline, err
 	}
+
+	_pipeline.SetWarnings(warnings)
 
 	if c.ModificationService.Endpoint != "" {
 		// send config to external endpoint for modification
