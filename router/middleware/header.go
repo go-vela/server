@@ -32,8 +32,9 @@ func Options(c *gin.Context) {
 	} else {
 		c.Header("Access-Control-Allow-Origin", "*")
 
-		if len(m.Vela.WebAddress) > 0 {
-			c.Header("Access-Control-Allow-Origin", m.Vela.WebAddress)
+		origin := CorsAllowOrigin(c, m)
+		if len(origin) > 0 {
+			c.Header("Access-Control-Allow-Origin", origin)
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
 
@@ -65,12 +66,29 @@ func Cors(c *gin.Context) {
 
 	c.Header("Access-Control-Allow-Origin", "*")
 
-	if len(m.Vela.WebAddress) > 0 {
-		c.Header("Access-Control-Allow-Origin", m.Vela.WebAddress)
+	origin := CorsAllowOrigin(c, m)
+	if len(origin) > 0 {
+		c.Header("Access-Control-Allow-Origin", origin)
 		c.Header("Access-Control-Allow-Credentials", "true")
 	}
 
 	c.Header("Access-Control-Expose-Headers", "link, x-total-count")
+}
+
+// CorsAllowOrigin is a helper function that returns the
+// allowed origin for CORS requests by checking the
+// request origin against the allowed origins in the
+// Vela metadata.
+func CorsAllowOrigin(c *gin.Context, m *internal.Metadata) string {
+	origin := c.Request.Header.Get("Origin")
+	for _, domain := range m.Vela.CorsAllowOrigins {
+		if domain == origin {
+			return domain
+		}
+	}
+
+	// return the Vela web address as the default to preserve functionality
+	return m.Vela.WebAddress
 }
 
 // RequestVersion is a middleware function that injects the Vela API version

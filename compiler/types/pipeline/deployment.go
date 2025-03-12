@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 )
 
 type (
@@ -61,21 +62,31 @@ func (d *Deployment) Validate(target string, inputParams map[string]string) erro
 		return fmt.Errorf("deployment target `%s` not found in deployment config targets", target)
 	}
 
+	// make lowercase key map for validation (it is all uppercase in the end but users can write YAML how they want)
+	standardizedInput := make(map[string]string, len(inputParams))
+	for k, v := range inputParams {
+		standardizedInput[strings.ToLower(k)] = v
+	}
+
 	// validate params
 	for kConfig, vConfig := range d.Parameters {
 		var (
 			inputStr string
 			ok       bool
 		)
+
+		// lowercase config key to match input map
+		standardizedK := strings.ToLower(kConfig)
+
 		// check if the parameter is required
 		if vConfig.Required {
 			// check if the parameter is provided
-			if inputStr, ok = inputParams[kConfig]; !ok {
+			if inputStr, ok = standardizedInput[standardizedK]; !ok {
 				return fmt.Errorf("deployment parameter %s is required", kConfig)
 			}
 		} else {
 			// check if the parameter is provided
-			if inputStr, ok = inputParams[kConfig]; !ok {
+			if inputStr, ok = standardizedInput[standardizedK]; !ok {
 				continue
 			}
 		}

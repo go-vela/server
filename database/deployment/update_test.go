@@ -4,6 +4,7 @@ package deployment
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -72,7 +73,7 @@ WHERE "id" = $13`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err = test.database.UpdateDeployment(context.TODO(), _deploymentOne)
+			got, err := test.database.UpdateDeployment(context.TODO(), _deploymentOne)
 
 			if test.failure {
 				if err == nil {
@@ -84,6 +85,10 @@ WHERE "id" = $13`).
 
 			if err != nil {
 				t.Errorf("UpdateDeployment for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _deploymentOne) {
+				t.Errorf("UpdateDeployment for %s is %v, want %v", test.name, got, _deploymentOne)
 			}
 		})
 	}

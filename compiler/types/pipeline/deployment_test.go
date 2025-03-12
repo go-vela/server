@@ -171,6 +171,18 @@ func TestPipeline_Deployment_Validate(t *testing.T) {
 			deployConfig: fullDeployConfig,
 			wantErr:      false,
 		},
+		{ // correct target and params - strange casing
+			inputTarget: "north",
+			inputParams: map[string]string{
+				"ALPHA":   "bar",
+				"beta":    "bar",
+				"gAmMa":   "1",
+				"deltA":   "true",
+				"Epsilon": "42",
+			},
+			deployConfig: fullDeployConfig,
+			wantErr:      false,
+		},
 	}
 
 	// run tests

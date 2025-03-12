@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v69/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -86,13 +86,8 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*in
 }
 
 // VerifyWebhook verifies the webhook from a repo.
-func (c *client) VerifyWebhook(_ context.Context, request *http.Request, r *api.Repo) error {
-	c.Logger.WithFields(logrus.Fields{
-		"org":  r.GetOrg(),
-		"repo": r.GetName(),
-	}).Tracef("verifying GitHub webhook for %s", r.GetFullName())
-
-	_, err := github.ValidatePayload(request, []byte(r.GetHash()))
+func (c *client) VerifyWebhook(_ context.Context, request *http.Request, secret []byte) error {
+	_, err := github.ValidatePayload(request, secret)
 	if err != nil {
 		return err
 	}
@@ -141,6 +136,9 @@ func (c *client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 	}).Tracef("processing push GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to API repo
 	r := new(api.Repo)
@@ -270,6 +268,9 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to API repo
 	r := new(api.Repo)
@@ -357,6 +358,9 @@ func (c *client) processDeploymentEvent(h *api.Hook, payload *github.DeploymentE
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to API repo
 	r := new(api.Repo)
@@ -477,6 +481,9 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to API repo
 	r := new(api.Repo)
@@ -519,6 +526,9 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// convert payload to API repo
 	r := new(api.Repo)

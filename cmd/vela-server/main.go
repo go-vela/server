@@ -75,6 +75,11 @@ func main() {
 			Usage:   "web ui oauth callback path",
 			Value:   "/account/authenticate",
 		},
+		&cli.StringSliceFlag{
+			EnvVars: []string{"VELA_CORS_ALLOW_ORIGINS", "VELA_CORS_ALLOWED_ORIGINS"},
+			Name:    "cors-allow-origins",
+			Usage:   "list of origins a cross-domain request can be executed from",
+		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SECRET"},
 			Name:    "vela-secret",
@@ -95,7 +100,7 @@ func main() {
 			EnvVars: []string{"VELA_CLONE_IMAGE"},
 			Name:    "clone-image",
 			Usage:   "the clone image to use for the injected clone step",
-			Value:   "target/vela-git-slim:v0.12.0@sha256:533786ab3ef17c900b0105fdffbd7143d2601803f28b39e156132ad25819af0f", // renovate: container
+			Value:   "target/vela-git-slim:v0.12.1@sha256:93cdb399e0a3150addac494198473c464c978ca055121593607097b75480192b", // renovate: container
 		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
