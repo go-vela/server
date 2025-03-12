@@ -624,38 +624,3 @@ func TestNative_Validate_MultiReportAs(t *testing.T) {
 		t.Errorf("Validate should have returned err")
 	}
 }
-
-func TestNative_Validate_TestReport(t *testing.T) {
-	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
-	str := "foo"
-	p := &yaml.Build{
-		Version: "v1",
-		Steps: yaml.StepSlice{
-			&yaml.Step{
-				Commands: raw.StringSlice{"echo hello"},
-				Image:    "alpine",
-				Name:     str,
-				Pull:     "always",
-				//TestReport: yaml.TestReport{
-				//	Results:     []string{"results.xml"},
-				//	Attachments: []string{"attachments"},
-				//},
-			},
-		},
-	}
-
-	// run test
-	compiler, err := FromCLIContext(c)
-	if err != nil {
-		t.Errorf("Unable to create new compiler: %v", err)
-	}
-
-	err = compiler.Validate(p)
-	if err != nil {
-		t.Errorf("Validate returned err: %v", err)
-	}
-}
