@@ -2446,8 +2446,8 @@ func convertFileToGithubResponse(file string) (github.RepositoryContent, error) 
 	}
 
 	content := github.RepositoryContent{
-		Encoding: github.String(""),
-		Content:  github.String(string(body)),
+		Encoding: github.Ptr(""),
+		Content:  github.Ptr(string(body)),
 	}
 
 	return content, nil
