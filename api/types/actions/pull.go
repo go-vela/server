@@ -13,6 +13,8 @@ type Pull struct {
 	Reopened    *bool `json:"reopened"`
 	Labeled     *bool `json:"labeled"`
 	Unlabeled   *bool `json:"unlabeled"`
+	Merged      *bool `json:"merged"`
+	Closed      *bool `json:"closed"`
 }
 
 // FromMask returns the Pull type resulting from the provided integer mask.
@@ -23,6 +25,8 @@ func (a *Pull) FromMask(mask int64) *Pull {
 	a.SetReopened(mask&constants.AllowPullReopen > 0)
 	a.SetLabeled(mask&constants.AllowPullLabel > 0)
 	a.SetUnlabeled(mask&constants.AllowPullUnlabel > 0)
+	a.SetMerged(mask&constants.AllowPullMerged > 0)
+	a.SetClosed(mask&constants.AllowPullClosedUnmerged > 0)
 
 	return a
 }
@@ -53,6 +57,14 @@ func (a *Pull) ToMask() int64 {
 
 	if a.GetUnlabeled() {
 		mask = mask | constants.AllowPullUnlabel
+	}
+
+	if a.GetMerged() {
+		mask = mask | constants.AllowPullMerged
+	}
+
+	if a.GetClosed() {
+		mask = mask | constants.AllowPullClosedUnmerged
 	}
 
 	return mask
@@ -122,6 +134,28 @@ func (a *Pull) GetUnlabeled() bool {
 	}
 
 	return *a.Unlabeled
+}
+
+// GetMerged returns the Merged field from the provided Pull. If the object is nil,
+// or the field within the object is nil, it returns the zero value instead.
+func (a *Pull) GetMerged() bool {
+	// return zero value if Pull type or Merged field is nil
+	if a == nil || a.Merged == nil {
+		return false
+	}
+
+	return *a.Merged
+}
+
+// GetClosed returns the Closed field from the provided Pull. If the object is nil,
+// or the field within the object is nil, it returns the zero value instead.
+func (a *Pull) GetClosed() bool {
+	// return zero value if Pull type or Closed field is nil
+	if a == nil || a.Closed == nil {
+		return false
+	}
+
+	return *a.Closed
 }
 
 // SetOpened sets the Pull Opened field.
@@ -200,4 +234,30 @@ func (a *Pull) SetUnlabeled(v bool) {
 	}
 
 	a.Unlabeled = &v
+}
+
+// SetMerged sets the Pull Merged field.
+//
+// When the provided Pull type is nil, it
+// will set nothing and immediately return.
+func (a *Pull) SetMerged(v bool) {
+	// return if Pull type is nil
+	if a == nil {
+		return
+	}
+
+	a.Merged = &v
+}
+
+// SetClosed sets the Pull Closed field.
+//
+// When the provided Pull type is nil, it
+// will set nothing and immediately return.
+func (a *Pull) SetClosed(v bool) {
+	// return if Pull type is nil
+	if a == nil {
+		return
+	}
+
+	a.Closed = &v
 }
