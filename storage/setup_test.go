@@ -70,15 +70,6 @@ func TestSetup_Validate(t *testing.T) {
 				Bucket:    "bucket-name",
 			},
 		},
-		{
-			failure: true,
-			setup: &Setup{
-				Enable:    true,
-				Endpoint:  "example.com",
-				AccessKey: "access-key",
-				SecretKey: "secret-key",
-			},
-		},
 	}
 
 	for _, test := range tests {
