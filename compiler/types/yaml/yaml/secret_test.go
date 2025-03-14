@@ -126,9 +126,9 @@ func TestYaml_SecretSlice_ToPipeline(t *testing.T) {
 						Pull: "always",
 						Ruleset: Ruleset{
 							If: Rules{
-								Event: []string{"push"},
+								Event:    []string{"push"},
+								Operator: "and",
 							},
-							Operator: "and",
 						},
 						Secrets: StepSecretSlice{
 							{
@@ -165,9 +165,9 @@ func TestYaml_SecretSlice_ToPipeline(t *testing.T) {
 						Pull:        "always",
 						Ruleset: pipeline.Ruleset{
 							If: pipeline.Rules{
-								Event: []string{"push"},
+								Event:    []string{"push"},
+								Operator: "and",
 							},
-							Operator: "and",
 						},
 						Secrets: pipeline.StepSecretSlice{
 							{
@@ -256,10 +256,10 @@ func TestYaml_SecretSlice_UnmarshalYAML(t *testing.T) {
 						Pull: "always",
 						Ruleset: Ruleset{
 							If: Rules{
-								Event: []string{"push"},
+								Event:    []string{"push"},
+								Operator: "and",
+								Matcher:  "filepath",
 							},
-							Operator: "and",
-							Matcher:  "filepath",
 						},
 						Secrets: StepSecretSlice{
 							{
@@ -288,10 +288,10 @@ func TestYaml_SecretSlice_UnmarshalYAML(t *testing.T) {
 						Pull: "always",
 						Ruleset: Ruleset{
 							If: Rules{
-								Event: []string{"push"},
+								Event:    []string{"push"},
+								Operator: "and",
+								Matcher:  "filepath",
 							},
-							Operator: "and",
-							Matcher:  "filepath",
 						},
 						Secrets: StepSecretSlice{
 							{

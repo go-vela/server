@@ -1,0 +1,17 @@
+---
+if:
+  branch: [ main ]
+  event: push
+  tag: "^refs/tags/(\\d+\\.)+\\d+$"
+  matcher: regexp
+  operator: and
+unless:
+  event:
+    - deployment
+    - pull_request
+    - comment
+    - schedule
+  path: [ foo.txt, /foo/bar.txt ]
+  matcher: filepath
+  operator: or
+continue: true
