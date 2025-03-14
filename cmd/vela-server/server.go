@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-vela/server/storage"
 	"net/http"
 	"net/url"
 	"os"
@@ -113,6 +114,11 @@ func server(c *cli.Context) error {
 		return err
 	}
 
+	st, err := storage.FromCLIContext(c)
+	if err != nil {
+		return err
+	}
+
 	metadata, err := setupMetadata(c)
 	if err != nil {
 		return err
@@ -188,10 +194,12 @@ func server(c *cli.Context) error {
 		middleware.Metadata(metadata),
 		middleware.TokenManager(tm),
 		middleware.Queue(queue),
+		middleware.Storage(st),
 		middleware.RequestVersion,
 		middleware.Secret(c.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
+		middleware.Storage(st),
 		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(c.String("queue.public-key")),
 		middleware.QueueAddress(c.String("queue.addr")),
@@ -208,6 +216,10 @@ func server(c *cli.Context) error {
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
 		middleware.TracingClient(tc),
 		middleware.TracingInstrumentation(tc),
+		middleware.StorageAddress(c.String("storage.addr")),
+		middleware.StorageAccessKey(c.String("storage.access.key")),
+		middleware.StorageSecretKey(c.String("storage.secret.key")),
+		middleware.StorageBucket(c.String("storage.bucket.name")),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))
