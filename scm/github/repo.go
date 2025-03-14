@@ -130,7 +130,7 @@ func (c *client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 		}
 
 		// capture hook ID if the hook url matches
-		if strings.EqualFold(hook.GetConfig().GetURL(), fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)) {
+		if strings.EqualFold(hook.GetConfig().GetURL(), c.config.ServerWebhookAddress) {
 			ids = append(ids, hook.GetID())
 		}
 	}
@@ -141,7 +141,7 @@ func (c *client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 			"org":  org,
 			"repo": name,
 			"user": u.GetName(),
-		}).Warnf("no repository webhooks matching %s/webhook found for %s/%s", c.config.ServerWebhookAddress, org, name)
+		}).Warnf("no repository webhooks matching %s found for %s/%s", c.config.ServerWebhookAddress, org, name)
 
 		return nil
 	}
@@ -202,7 +202,7 @@ func (c *client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h 
 	hook := &github.Hook{
 		Events: events,
 		Config: &github.HookConfig{
-			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
+			URL:         github.String(c.config.ServerWebhookAddress),
 			ContentType: github.String("form"),
 			Secret:      github.String(r.GetHash()),
 		},

@@ -95,7 +95,14 @@ func WithServerWebhookAddress(address string) ClientOpt {
 
 		// fallback to Vela server address if the provided Vela server webhook address is empty
 		if len(address) == 0 {
-			c.config.ServerWebhookAddress = c.config.ServerAddress
+			c.config.ServerWebhookAddress = fmt.Sprintf("%s/webhook", c.config.ServerAddress)
+			return nil
+		}
+
+		if strings.EqualFold(address, c.config.ServerAddress) {
+			c.Logger.Warnf("vela server webhook address is the same as the server address. setting to %s/webhook", c.config.ServerAddress)
+			c.config.ServerWebhookAddress = fmt.Sprintf("%s/webhook", c.config.ServerAddress)
+
 			return nil
 		}
 
