@@ -113,6 +113,7 @@ func CreateBucket(c *gin.Context) {
 //	  schema:
 //	    "$ref": "#/definitions/Error"
 //
+
 // DownloadObject represents the API handler to download an object from a bucket.
 func DownloadObject(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
@@ -198,6 +199,8 @@ func DownloadObject(c *gin.Context) {
 //	  description: Unexpected server error
 //	  schema:
 //	    "$ref": "#/definitions/Error"
+
+// GetPresignedURL represents the API handler to generate a presigned URL for an object.
 func GetPresignedURL(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
