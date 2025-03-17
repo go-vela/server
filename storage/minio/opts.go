@@ -5,11 +5,11 @@ import (
 )
 
 // ClientOpt represents a configuration option to initialize the MinIO client.
-type ClientOpt func(client *MinioClient) error
+type ClientOpt func(client *Client) error
 
 // WithAccessKey sets the access key in the MinIO client.
 func WithAccessKey(accessKey string) ClientOpt {
-	return func(c *MinioClient) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring access key in minio client")
 
 		// check if the access key provided is empty
@@ -26,7 +26,7 @@ func WithAccessKey(accessKey string) ClientOpt {
 
 // WithSecretKey sets the secret key in the MinIO client.
 func WithSecretKey(secretKey string) ClientOpt {
-	return func(c *MinioClient) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring secret key in minio client")
 
 		// check if the secret key provided is empty
@@ -43,7 +43,7 @@ func WithSecretKey(secretKey string) ClientOpt {
 
 // WithSecure sets the secure connection mode in the MinIO client.
 func WithSecure(secure bool) ClientOpt {
-	return func(c *MinioClient) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring secure connection mode in minio client")
 
 		// set the secure connection mode in the minio client
@@ -55,7 +55,7 @@ func WithSecure(secure bool) ClientOpt {
 
 // WithBucket sets the bucket name in the MinIO client.
 func WithBucket(bucket string) ClientOpt {
-	return func(c *MinioClient) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring bucket name in minio client")
 
 		// check if the bucket name provided is empty

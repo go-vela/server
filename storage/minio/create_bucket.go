@@ -8,7 +8,7 @@ import (
 )
 
 // CreateBucket creates a new bucket in MinIO.
-func (c *MinioClient) CreateBucket(ctx context.Context, bucket *api.Bucket) error {
+func (c *Client) CreateBucket(ctx context.Context, bucket *api.Bucket) error {
 	c.Logger.Tracef("create new bucket: %s", bucket.BucketName)
 	var opts minio.MakeBucketOptions
 	if &bucket.Options == nil {

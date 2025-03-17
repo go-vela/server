@@ -6,7 +6,7 @@ import (
 )
 
 // GetBucketLifecycle retrieves the lifecycle configuration for a bucket.
-func (c *MinioClient) GetBucketLifecycle(ctx context.Context, bucket *api.Bucket) (*api.Bucket, error) {
+func (c *Client) GetBucketLifecycle(ctx context.Context, bucket *api.Bucket) (*api.Bucket, error) {
 	c.Logger.Tracef("getting lifecycle configuration for bucket %s", bucket.BucketName)
 
 	var lifecycleConfig *api.Bucket

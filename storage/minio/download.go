@@ -1,18 +1,23 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package minio
 
 import (
 	"context"
+	"os"
+
 	"github.com/dustin/go-humanize"
-	"github.com/go-vela/archiver/v3"
-	api "github.com/go-vela/server/api/types"
 	"github.com/minio/minio-go/v7"
 	"github.com/sirupsen/logrus"
-	"os"
+
+	"github.com/go-vela/archiver/v3"
+	api "github.com/go-vela/server/api/types"
 )
 
-func (c *MinioClient) Download(ctx context.Context, object *api.Object) error {
+func (c *Client) Download(ctx context.Context, object *api.Object) error {
 	// Temporary file to store the object
 	filename := "/"
+
 	logrus.Debugf("getting object info on bucket %s from path: %s", object.Bucket.BucketName, object.ObjectName)
 
 	// collect metadata on the object
@@ -64,5 +69,4 @@ func (c *MinioClient) Download(ctx context.Context, object *api.Object) error {
 	logrus.Infof("object downloaded successfully")
 
 	return nil
-
 }

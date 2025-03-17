@@ -17,8 +17,8 @@ type config struct {
 	Secure    bool
 }
 
-// MinioClient implements the Storage interface using MinIO.
-type MinioClient struct {
+// Client implements the Storage interface using MinIO.
+type Client struct {
 	config  *config
 	client  *minio.Client
 	Options *minio.Options
@@ -27,9 +27,9 @@ type MinioClient struct {
 }
 
 // New creates a new MinIO client.
-func New(endpoint string, opts ...ClientOpt) (*MinioClient, error) {
+func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 	// create new Minio client
-	c := new(MinioClient)
+	c := new(Client)
 
 	// default to secure connection
 	var urlEndpoint string
@@ -93,7 +93,7 @@ func New(endpoint string, opts ...ClientOpt) (*MinioClient, error) {
 // This function is intended for running tests only.
 //
 //nolint:revive // ignore returning unexported client
-func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*MinioClient, error) {
+func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*Client, error) {
 
 	return New(endpoint, WithAccessKey(accessKey), WithSecretKey(secretKey), WithSecure(secure), WithBucket(bucket))
 }

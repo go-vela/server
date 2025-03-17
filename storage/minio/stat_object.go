@@ -8,7 +8,7 @@ import (
 )
 
 // StatObject retrieves the metadata of an object from the MinIO storage.
-func (c *MinioClient) StatObject(ctx context.Context, object *types.Object) (*types.Object, error) {
+func (c *Client) StatObject(ctx context.Context, object *types.Object) (*types.Object, error) {
 	c.Logger.Tracef("retrieving metadata for object %s from bucket %s", object.ObjectName, object.Bucket.BucketName)
 
 	// Get object info

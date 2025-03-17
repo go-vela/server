@@ -5,7 +5,7 @@ import (
 )
 
 // ListBuckets lists all buckets in MinIO.
-func (c *MinioClient) ListBuckets(ctx context.Context) ([]string, error) {
+func (c *Client) ListBuckets(ctx context.Context) ([]string, error) {
 	c.Logger.Trace("listing all buckets")
 
 	buckets, err := c.client.ListBuckets(ctx)
