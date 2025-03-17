@@ -23,3 +23,7 @@ type Object struct {
 	Bucket     Bucket `json:"bucket,omitempty"`
 	FilePath   string `json:"file_path,omitempty"`
 }
+
+func (bo BucketOptions) IsEmpty() bool {
+	return bo.Region == "" && !bo.ObjectLocking
+}

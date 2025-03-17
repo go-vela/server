@@ -59,8 +59,13 @@ func ToContext(c Setter, s Storage) {
 }
 
 // WithContext adds the minio Storage to the context.
-func WithContext(ctx context.Context, storage Storage) context.Context {
-	return context.WithValue(ctx, key, storage)
+func WithContext(ctx context.Context, s Storage) context.Context {
+	// set the storage Service in the context.Context
+	//
+	// https://pkg.go.dev/context?tab=doc#WithValue
+	//
+	//nolint:staticcheck,revive // ignore using string with context value
+	return context.WithValue(ctx, key, s)
 }
 
 // WithGinContext inserts the minio Storage into the gin.Context.

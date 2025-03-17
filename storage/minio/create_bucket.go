@@ -17,7 +17,7 @@ func (c *Client) CreateBucket(ctx context.Context, bucket *api.Bucket) error {
 
 	var opts minio.MakeBucketOptions
 
-	if &bucket.Options == nil {
+	if bucket.Options.IsEmpty() {
 		c.Logger.Trace("Using US Standard Region as location default")
 
 		opts = minio.MakeBucketOptions{}
