@@ -1,12 +1,16 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package minio
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestMinioClient_BucketExists(t *testing.T) {

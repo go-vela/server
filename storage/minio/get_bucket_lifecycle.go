@@ -1,7 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package minio
 
 import (
 	"context"
+
 	api "github.com/go-vela/server/api/types"
 )
 
@@ -10,6 +13,7 @@ func (c *Client) GetBucketLifecycle(ctx context.Context, bucket *api.Bucket) (*a
 	c.Logger.Tracef("getting lifecycle configuration for bucket %s", bucket.BucketName)
 
 	var lifecycleConfig *api.Bucket
+
 	lifeCycle, err := c.client.GetBucketLifecycle(ctx, bucket.BucketName)
 	if err != nil {
 		return lifecycleConfig, err

@@ -1,9 +1,13 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package storage
 
 import (
 	"fmt"
-	"github.com/go-vela/server/storage/minio"
+
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/storage/minio"
 )
 
 // Setup represents the configuration necessary for

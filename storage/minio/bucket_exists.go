@@ -1,7 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package minio
 
 import (
 	"context"
+
 	api "github.com/go-vela/server/api/types"
 )
 
@@ -13,5 +16,6 @@ func (c *Client) BucketExists(ctx context.Context, bucket *api.Bucket) (bool, er
 	if err != nil {
 		return false, err
 	}
+
 	return exists, nil
 }

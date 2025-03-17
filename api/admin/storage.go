@@ -4,13 +4,15 @@ package admin
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/storage"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
-	"net/http"
-	"strings"
 )
 
 // swagger:operation POST /api/v1/admin/storage/bucket admin CreateBucket
@@ -63,11 +65,14 @@ func CreateBucket(c *gin.Context) {
 
 		return
 	}
+
 	l.Debugf("bucket name: %s", input.BucketName)
+
 	err = storage.FromGinContext(c).CreateBucket(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create bucket: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -127,25 +132,33 @@ func DownloadObject(c *gin.Context) {
 
 		return
 	}
+
 	if input.Bucket.BucketName == "" || input.ObjectName == "" {
 		retErr := fmt.Errorf("bucketName and objectName are required")
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
+
 	if input.FilePath == "" {
 		retErr := fmt.Errorf("file path is required")
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
+
 	if strings.ContainsAny(input.FilePath, "/\\") || strings.Contains(input.FilePath, "..") || strings.TrimSpace(input.FilePath) == "" {
 		retErr := fmt.Errorf("invalid file path")
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
+
 	err = storage.FromGinContext(c).Download(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to download object: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -199,6 +212,7 @@ func GetPresignedURL(c *gin.Context) {
 	if bucketName == "" || objectName == "" {
 		retErr := fmt.Errorf("bucketName and objectName are required")
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -211,6 +225,7 @@ func GetPresignedURL(c *gin.Context) {
 	if err != nil || url == "" {
 		retErr := fmt.Errorf("unable to generate presigned URL: %w", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 

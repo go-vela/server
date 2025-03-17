@@ -1,13 +1,17 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package minio
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestMinioClient_Upload_Success(t *testing.T) {
@@ -53,7 +57,6 @@ func TestMinioClient_Upload_Success(t *testing.T) {
 	if err != nil {
 		t.Errorf("Upload returned err: %v", err)
 	}
-
 }
 
 func TestMinioClient_Upload_Failure(t *testing.T) {

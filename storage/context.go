@@ -4,10 +4,11 @@ package storage
 
 import (
 	"context"
+
 	"github.com/gin-gonic/gin"
 )
 
-// key is the key used to store minio service in context
+// key is the key used to store minio service in context.
 const key = "minio"
 
 // Setter defines a context that enables setting values.
@@ -15,7 +16,7 @@ type Setter interface {
 	Set(string, interface{})
 }
 
-// FromContext retrieves minio service from the context
+// FromContext retrieves minio service from the context.
 func FromContext(ctx context.Context) Storage {
 	// get minio value from context.Context
 	v := ctx.Value(key)
@@ -28,6 +29,7 @@ func FromContext(ctx context.Context) Storage {
 	if !ok {
 		return nil
 	}
+
 	return s
 }
 
@@ -56,7 +58,7 @@ func ToContext(c Setter, s Storage) {
 	c.Set(key, s)
 }
 
-// WithContext adds the minio Storage to the context
+// WithContext adds the minio Storage to the context.
 func WithContext(ctx context.Context, storage Storage) context.Context {
 	return context.WithValue(ctx, key, storage)
 }

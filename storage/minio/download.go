@@ -38,9 +38,11 @@ func (c *Client) Download(ctx context.Context, object *api.Object) error {
 
 	safeDir := "/safe/directory"
 	absFilePath, err := filepath.Abs(filepath.Join(safeDir, object.FilePath))
+
 	if err != nil || !strings.HasPrefix(absFilePath, safeDir) {
 		return fmt.Errorf("invalid file path")
 	}
+
 	stat, err := os.Stat(absFilePath)
 	if err != nil {
 		return err

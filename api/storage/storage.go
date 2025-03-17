@@ -4,14 +4,14 @@ package storage
 
 import (
 	"fmt"
-	"github.com/go-vela/server/storage"
-	"github.com/go-vela/server/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/storage"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation POST /api/v1/storage/info storage Info
@@ -118,20 +118,26 @@ func UploadObject(c *gin.Context) {
 
 		return
 	}
+
 	if input.Bucket.BucketName == "" || input.ObjectName == "" {
 		retErr := fmt.Errorf("bucketName and objectName are required")
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
+
 	if input.FilePath == "" {
 		retErr := fmt.Errorf("file path is required")
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
+
 	err = storage.FromGinContext(c).Upload(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to upload object: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

@@ -1,9 +1,12 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package storage
 
 import (
 	"context"
-	api "github.com/go-vela/server/api/types"
 	"io"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 // Storage defines the service interface for object storage operations.

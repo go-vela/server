@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package minio
 
 import (
@@ -17,5 +19,6 @@ func (c *Client) ListBuckets(ctx context.Context) ([]string, error) {
 	for i, bucket := range buckets {
 		bucketNames[i] = bucket.Name
 	}
+
 	return bucketNames, nil
 }

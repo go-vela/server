@@ -1,11 +1,14 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package minio
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
-	"strings"
 )
 
 // config holds the configuration for the MinIO client.
@@ -33,6 +36,7 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 
 	// default to secure connection
 	var urlEndpoint string
+
 	useSSL := true
 
 	// create new fields
@@ -50,6 +54,7 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 			return nil, err
 		}
 	}
+
 	c.Options.Creds = credentials.NewStaticV4(c.config.AccessKey, c.config.SecretKey, "")
 	c.Options.Secure = c.config.Secure
 	logrus.Debugf("secure: %v", c.config.Secure)
@@ -92,8 +97,7 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 //
 // This function is intended for running tests only.
 //
-//nolint:revive // ignore returning unexported client
-func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*Client, error) {
 
+func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*Client, error) {
 	return New(endpoint, WithAccessKey(accessKey), WithSecretKey(secretKey), WithSecure(secure), WithBucket(bucket))
 }

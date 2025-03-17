@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package types
 
 import "github.com/minio/minio-go/v7/pkg/lifecycle"

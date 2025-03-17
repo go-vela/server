@@ -1,8 +1,11 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package storage
 
 import (
-	"github.com/go-vela/server/constants"
 	"testing"
+
+	"github.com/go-vela/server/constants"
 )
 
 func TestStorage_New(t *testing.T) {

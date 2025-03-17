@@ -3,13 +3,15 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/storage"
-	"github.com/go-vela/server/storage/minio"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/server/storage"
+	"github.com/go-vela/server/storage/minio"
 )
 
 func TestMiddleware_Storage(t *testing.T) {

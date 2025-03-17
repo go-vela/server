@@ -1,11 +1,15 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package minio
 
 import (
 	"context"
-	api "github.com/go-vela/server/api/types"
+	"time"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/sirupsen/logrus"
-	"time"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 // TODO hide URL behind a different name
