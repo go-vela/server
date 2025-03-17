@@ -4,7 +4,10 @@ package minio
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/dustin/go-humanize"
 	"github.com/minio/minio-go/v7"
