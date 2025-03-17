@@ -96,23 +96,19 @@ func CreateBucket(c *gin.Context) {
 //     description: The name of the object
 //     required: true
 //     type: string
-//
 // security:
 //   - ApiKeyAuth: []
-//
 // responses:
-//
-//	'200':
-//	  description: Successfully downloaded the object
-//	'400':
-//	  description: Invalid request payload
-//	  schema:
-//	    "$ref": "#/definitions/Error"
-//	'500':
-//	  description: Unexpected server error
-//	  schema:
-//	    "$ref": "#/definitions/Error"
-//
+//   '200':
+//     description: Successfully downloaded the object
+//   '400':
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // DownloadObject represents the API handler to download an object from a bucket.
 func DownloadObject(c *gin.Context) {
@@ -183,22 +179,19 @@ func DownloadObject(c *gin.Context) {
 //     description: The name of the object
 //     required: true
 //     type: string
-//
 // security:
 //   - ApiKeyAuth: []
-//
 // responses:
-//
-//	'200':
-//	  description: Successfully generated the presigned URL
-//	'400':
-//	  description: Invalid request payload
-//	  schema:
-//	    "$ref": "#/definitions/Error"
-//	'500':
-//	  description: Unexpected server error
-//	  schema:
-//	    "$ref": "#/definitions/Error"
+//   '200':
+//     description: Successfully generated the presigned URL
+//   '400':
+//     description: Invalid request payload
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // GetPresignedURL represents the API handler to generate a presigned URL for an object.
 func GetPresignedURL(c *gin.Context) {

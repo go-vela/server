@@ -11,7 +11,7 @@ import (
 	"github.com/go-vela/server/api/types"
 )
 
-// swagger:operation POST /api/v1/storage/info storage Info
+// swagger:operation POST /api/v1/storage/info storage StorageInfo
 //
 // Get storage credentials
 //
