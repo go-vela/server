@@ -46,7 +46,6 @@ func TestSetup_Validate(t *testing.T) {
 		{
 			failure: true,
 			setup: &Setup{
-				Enable:    true,
 				AccessKey: "access-key",
 				SecretKey: "secret-key",
 				Bucket:    "bucket-name",
