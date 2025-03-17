@@ -16,7 +16,6 @@ import (
 )
 
 // swagger:operation POST /api/v1/admin/storage/bucket admin CreateBucket
-
 //
 // Create a new bucket
 //
