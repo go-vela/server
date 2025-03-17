@@ -48,7 +48,7 @@ func (c *client) Parse(v interface{}, pipelineType string, template *yaml.Templa
 	)
 
 	switch pipelineType {
-	case constants.PipelineTypeGo, "golang":
+	case constants.PipelineTypeGo, constants.PipelineTypeGoAlt:
 		// expand the base configuration
 		parsedRaw, err := c.ParseRaw(v)
 		if err != nil {
