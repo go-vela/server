@@ -73,11 +73,11 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 			client: appsClient,
 			repo:   accessibleRepo,
 			installation: &github.Installation{
-				ID: github.Int64(1),
+				ID: github.Ptr(int64(1)),
 				Account: &github.User{
-					Login: github.String("github"),
+					Login: github.Ptr("github"),
 				},
-				RepositorySelection: github.String(constants.AppInstallRepositoriesSelectionSelected),
+				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
 			},
 			want:    true,
 			wantErr: false,
@@ -87,11 +87,11 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 			client: appsClient,
 			repo:   inaccessibleRepo,
 			installation: &github.Installation{
-				ID: github.Int64(2),
+				ID: github.Ptr(int64(2)),
 				Account: &github.User{
-					Login: github.String("github"),
+					Login: github.Ptr("github"),
 				},
-				RepositorySelection: github.String(constants.AppInstallRepositoriesSelectionSelected),
+				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
 			},
 			want:    false,
 			wantErr: false,
@@ -101,11 +101,11 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 			client: oauthClient,
 			repo:   accessibleRepo,
 			installation: &github.Installation{
-				ID: github.Int64(1),
+				ID: github.Ptr(int64(1)),
 				Account: &github.User{
-					Login: github.String("github"),
+					Login: github.Ptr("github"),
 				},
-				RepositorySelection: github.String(constants.AppInstallRepositoriesSelectionSelected),
+				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
 			},
 			want:    false,
 			wantErr: true,

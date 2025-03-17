@@ -130,7 +130,7 @@ func (c *client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 		}
 
 		// capture hook ID if the hook url matches
-		if strings.EqualFold(hook.GetConfig().GetURL(), fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)) {
+		if strings.EqualFold(hook.GetConfig().GetURL(), c.config.ServerWebhookAddress) {
 			ids = append(ids, hook.GetID())
 		}
 	}
@@ -141,7 +141,7 @@ func (c *client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 			"org":  org,
 			"repo": name,
 			"user": u.GetName(),
-		}).Warnf("no repository webhooks matching %s/webhook found for %s/%s", c.config.ServerWebhookAddress, org, name)
+		}).Warnf("no repository webhooks matching %s found for %s/%s", c.config.ServerWebhookAddress, org, name)
 
 		return nil
 	}
@@ -202,11 +202,11 @@ func (c *client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h 
 	hook := &github.Hook{
 		Events: events,
 		Config: &github.HookConfig{
-			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
-			ContentType: github.String("form"),
-			Secret:      github.String(r.GetHash()),
+			URL:         github.Ptr(c.config.ServerWebhookAddress),
+			ContentType: github.Ptr("form"),
+			Secret:      github.Ptr(r.GetHash()),
 		},
-		Active: github.Bool(true),
+		Active: github.Ptr(true),
 	}
 
 	// send API call to create the webhook
@@ -276,11 +276,11 @@ func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	hook := &github.Hook{
 		Events: events,
 		Config: &github.HookConfig{
-			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
-			ContentType: github.String("form"),
-			Secret:      github.String(r.GetHash()),
+			URL:         github.Ptr(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
+			ContentType: github.Ptr("form"),
+			Secret:      github.Ptr(r.GetHash()),
 		},
-		Active: github.Bool(true),
+		Active: github.Ptr(true),
 	}
 
 	// send API call to update the webhook
@@ -378,14 +378,14 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 
 		// create the status object to make the API call
 		status := &github.DeploymentStatusRequest{
-			Description: github.String(description),
-			Environment: github.String(b.GetDeploy()),
-			State:       github.String(state),
+			Description: github.Ptr(description),
+			Environment: github.Ptr(b.GetDeploy()),
+			State:       github.Ptr(state),
 		}
 
 		// provide "Details" link in GitHub UI if server was configured with it
 		if len(c.config.WebUIAddress) > 0 {
-			status.LogURL = github.String(url)
+			status.LogURL = github.Ptr(url)
 		}
 
 		_, _, err = client.Repositories.CreateDeploymentStatus(ctx, org, name, int64(number), status)
@@ -395,14 +395,14 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 
 	// create the status object to make the API call
 	status := &github.RepoStatus{
-		Context:     github.String(context),
-		Description: github.String(description),
-		State:       github.String(state),
+		Context:     github.Ptr(context),
+		Description: github.Ptr(description),
+		State:       github.Ptr(state),
 	}
 
 	// provide "Details" link in GitHub UI if server was configured with it
 	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
-		status.TargetURL = github.String(url)
+		status.TargetURL = github.Ptr(url)
 	}
 
 	// send API call to create the status context for the commit
@@ -464,14 +464,14 @@ func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *a
 
 	// create the status object to make the API call
 	status := &github.RepoStatus{
-		Context:     github.String(context),
-		Description: github.String(description),
-		State:       github.String(state),
+		Context:     github.Ptr(context),
+		Description: github.Ptr(description),
+		State:       github.Ptr(state),
 	}
 
 	// provide "Details" link in GitHub UI if server was configured with it
 	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
-		status.TargetURL = github.String(url)
+		status.TargetURL = github.Ptr(url)
 	}
 
 	// send API call to create the status context for the commit
@@ -719,8 +719,8 @@ func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 	//
 	// the default is contents:read and checks:write
 	ghPermissions := &github.InstallationPermissions{
-		Contents: github.String(AppInstallPermissionRead),
-		Checks:   github.String(AppInstallPermissionWrite),
+		Contents: github.Ptr(AppInstallPermissionRead),
+		Checks:   github.Ptr(AppInstallPermissionWrite),
 	}
 
 	permissions := g.Permissions

@@ -195,13 +195,13 @@ func TestGithub_ClientOpt_WithServerWebhookAddress(t *testing.T) {
 			failure:        false,
 			address:        "https://vela.example.com",
 			webhookAddress: "",
-			want:           "https://vela.example.com",
+			want:           "https://vela.example.com/webhook",
 		},
 		{
 			failure:        false,
 			address:        "https://vela.example.com",
 			webhookAddress: "https://vela.example.com",
-			want:           "https://vela.example.com",
+			want:           "https://vela.example.com/webhook",
 		},
 		{
 			failure:        false,
