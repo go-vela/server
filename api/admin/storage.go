@@ -137,7 +137,7 @@ func DownloadObject(c *gin.Context) {
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		return
 	}
-	if strings.Contains(input.FilePath, "/") || strings.Contains(input.FilePath, "\\") || strings.Contains(input.FilePath, "..") {
+	if strings.ContainsAny(input.FilePath, "/\\") || strings.Contains(input.FilePath, "..") || strings.TrimSpace(input.FilePath) == "" {
 		retErr := fmt.Errorf("invalid file path")
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		return

@@ -33,7 +33,12 @@ func (c *Client) Download(ctx context.Context, object *api.Object) error {
 		return err
 	}
 
-	stat, err := os.Stat(object.FilePath)
+	safeDir := "/safe/directory"
+	absFilePath, err := filepath.Abs(filepath.Join(safeDir, object.FilePath))
+	if err != nil || !strings.HasPrefix(absFilePath, safeDir) {
+		return fmt.Errorf("invalid file path")
+	}
+	stat, err := os.Stat(absFilePath)
 	if err != nil {
 		return err
 	}
@@ -51,7 +56,7 @@ func (c *Client) Download(ctx context.Context, object *api.Object) error {
 	logrus.Debugf("unarchiving file %s into directory %s", filename, pwd)
 
 	// expand the object back onto the filesystem
-	err = archiver.Unarchive(object.FilePath, pwd)
+	err = archiver.Unarchive(absFilePath, pwd)
 	if err != nil {
 		return err
 	}
@@ -59,7 +64,7 @@ func (c *Client) Download(ctx context.Context, object *api.Object) error {
 	logrus.Infof("successfully unpacked file %s", object.FilePath)
 
 	// delete the temporary archive file
-	err = os.Remove(filename)
+	err = os.Remove(absFilePath)
 	if err != nil {
 		logrus.Infof("delete of file %s unsuccessful", filename)
 	} else {
