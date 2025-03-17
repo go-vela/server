@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/dustin/go-humanize"
 	"github.com/minio/minio-go/v7"
 	"github.com/sirupsen/logrus"
 
@@ -42,13 +41,6 @@ func (c *Client) Download(ctx context.Context, object *api.Object) error {
 	if err != nil || !strings.HasPrefix(absFilePath, safeDir) {
 		return fmt.Errorf("invalid file path")
 	}
-
-	stat, err := os.Stat(absFilePath)
-	if err != nil {
-		return err
-	}
-
-	logrus.Infof("downloaded %s to %s on local filesystem", humanize.Bytes(uint64(stat.Size())), filename)
 
 	logrus.Debug("getting current working directory")
 

@@ -37,8 +37,6 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 	// default to secure connection
 	var urlEndpoint string
 
-	useSSL := true
-
 	// create new fields
 	c.config = new(config)
 	c.Options = new(minio.Options)
@@ -60,7 +58,7 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 	logrus.Debugf("secure: %v", c.config.Secure)
 
 	if len(endpoint) > 0 {
-		useSSL = strings.HasPrefix(endpoint, "https://")
+		useSSL := strings.HasPrefix(endpoint, "https://")
 
 		if !useSSL {
 			if !strings.HasPrefix(endpoint, "http://") {
@@ -82,14 +80,6 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 	c.client = minioClient
 
 	return c, nil
-	//minioClient, err := minio.New(endpoint, &minio.Options{
-	//	Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-	//	Secure: useSSL,
-	//})
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return &MinioClient{client: minioClient}, nil
 }
 
 // NewTest returns a Storage implementation that
