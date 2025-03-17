@@ -18,6 +18,5 @@ func StorageHandlers(base *gin.RouterGroup) {
 	_storage := base.Group("/storage")
 	{
 		_storage.GET("/info", perm.MustWorkerRegisterToken(), storage.Info)
-		_storage.POST("/upload", storage.UploadObject)
 	} // end of storage endpoints
 }
