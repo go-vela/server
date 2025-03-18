@@ -32,6 +32,7 @@ type (
 		AccessTokenDuration  time.Duration `json:"access_token_duration"`
 		RefreshTokenDuration time.Duration `json:"refresh_token_duration"`
 		OpenIDIssuer         string        `json:"oidc_issuer"`
+		CorsAllowOrigins     []string      `json:"cors_allow_origins"`
 	}
 
 	// Metadata is the extra set of data passed to the compiler for

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v69/github"
 )
 
 // see: https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28
@@ -59,11 +59,11 @@ func ApplyInstallationPermissions(resource, perm string, perms *github.Installat
 	// convert resource from string
 	switch strings.ToLower(resource) {
 	case AppInstallResourceContents:
-		perms.Contents = github.String(perm)
+		perms.Contents = github.Ptr(perm)
 	case AppInstallResourceChecks:
-		perms.Checks = github.String(perm)
+		perms.Checks = github.Ptr(perm)
 	case AppInstallResourcePackages:
-		perms.Packages = github.String(perm)
+		perms.Packages = github.Ptr(perm)
 	// add more supported resources as needed.
 	default:
 		return perms, fmt.Errorf("invalid permission resource given for <resource>:<level> in %s:%s", resource, perm)

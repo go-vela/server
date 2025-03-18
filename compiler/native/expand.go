@@ -400,7 +400,7 @@ func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 //nolint:lll // ignore long line length due to input arguments
 func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, []string, error) {
 	switch tmpl.Format {
-	case constants.PipelineTypeGo, "golang", "":
+	case constants.PipelineTypeGo, constants.PipelineTypeGoAlt, "":
 		//nolint:lll // ignore long line length due to return
 		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	case constants.PipelineTypeStarlark:
@@ -414,7 +414,7 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 
 func (c *client) mergeDeployTemplate(bytes []byte, tmpl *yaml.Template, d *yaml.Deployment) (*yaml.Build, []string, error) {
 	switch tmpl.Format {
-	case constants.PipelineTypeGo, "golang", "":
+	case constants.PipelineTypeGo, constants.PipelineTypeGoAlt, "":
 		//nolint:lll // ignore long line length due to return
 		return native.Render(string(bytes), "", d.Template.Name, make(raw.StringSliceMap), d.Template.Variables)
 	case constants.PipelineTypeStarlark:

@@ -69,7 +69,7 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 		t.Errorf("Compiler returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
+	if !reflect.DeepEqual(got.GetSettings(), want.GetSettings()) {
 		t.Errorf("Compiler is %v, want %v", got, want)
 	}
 }

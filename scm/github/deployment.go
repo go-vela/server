@@ -6,7 +6,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v69/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -177,7 +177,7 @@ func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	deployment := &github.DeploymentRequest{
 		Ref:              d.Ref,
 		Task:             d.Task,
-		AutoMerge:        github.Bool(false),
+		AutoMerge:        github.Ptr(false),
 		RequiredContexts: &[]string{},
 		Payload:          payload,
 		Environment:      d.Target,

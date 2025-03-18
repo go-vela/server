@@ -113,6 +113,10 @@ func validateCore(c *cli.Context) error {
 		}
 	}
 
+	if !c.Bool("vela-disable-webhook-validation") && c.Int64("scm.app.id") != 0 && len(c.String("scm.app.webhook-secret")) == 0 {
+		return fmt.Errorf("webhook-validation enabled and app ID provided but no app webhook secret is provided")
+	}
+
 	return nil
 }
 

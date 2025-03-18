@@ -14,7 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v69/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
@@ -1848,48 +1848,48 @@ func TestGithub_applyGitHubInstallationPermission(t *testing.T) {
 		{
 			name: "valid read permission for contents",
 			perms: &github.InstallationPermissions{
-				Contents: github.String(AppInstallPermissionNone),
+				Contents: github.Ptr(AppInstallPermissionNone),
 			},
 			resource: AppInstallResourceContents,
 			perm:     AppInstallPermissionRead,
 			wantPerms: &github.InstallationPermissions{
-				Contents: github.String(AppInstallPermissionRead),
+				Contents: github.Ptr(AppInstallPermissionRead),
 			},
 			wantErr: false,
 		},
 		{
 			name: "valid write permission for checks",
 			perms: &github.InstallationPermissions{
-				Checks: github.String(AppInstallPermissionNone),
+				Checks: github.Ptr(AppInstallPermissionNone),
 			},
 			resource: AppInstallResourceChecks,
 			perm:     AppInstallPermissionWrite,
 			wantPerms: &github.InstallationPermissions{
-				Checks: github.String(AppInstallPermissionWrite),
+				Checks: github.Ptr(AppInstallPermissionWrite),
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid permission value",
 			perms: &github.InstallationPermissions{
-				Contents: github.String(AppInstallPermissionNone),
+				Contents: github.Ptr(AppInstallPermissionNone),
 			},
 			resource: AppInstallResourceContents,
 			perm:     "invalid",
 			wantPerms: &github.InstallationPermissions{
-				Contents: github.String(AppInstallPermissionNone),
+				Contents: github.Ptr(AppInstallPermissionNone),
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid permission key",
 			perms: &github.InstallationPermissions{
-				Contents: github.String(AppInstallPermissionNone),
+				Contents: github.Ptr(AppInstallPermissionNone),
 			},
 			resource: "invalid",
 			perm:     AppInstallPermissionRead,
 			wantPerms: &github.InstallationPermissions{
-				Contents: github.String(AppInstallPermissionNone),
+				Contents: github.Ptr(AppInstallPermissionNone),
 			},
 			wantErr: true,
 		},

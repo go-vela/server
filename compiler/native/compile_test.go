@@ -15,7 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v69/github"
 	"github.com/urfave/cli/v2"
 	yml "gopkg.in/yaml.v3"
 
@@ -2446,8 +2446,8 @@ func convertFileToGithubResponse(file string) (github.RepositoryContent, error) 
 	}
 
 	content := github.RepositoryContent{
-		Encoding: github.String(""),
-		Content:  github.String(string(body)),
+		Encoding: github.Ptr(""),
+		Content:  github.Ptr(string(body)),
 	}
 
 	return content, nil
