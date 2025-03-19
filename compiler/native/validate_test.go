@@ -178,24 +178,24 @@ func TestNative_ValidatePipeline_Services(t *testing.T) {
 	}
 }
 
-func TestNative_ValidatePipeline_Services_NoName(t *testing.T) {
+func TestNative_ValidateYAML_Services_NoName(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Services: pipeline.ContainerSlice{
-			&pipeline.Container{
+		Services: yaml.ServiceSlice{
+			&yaml.Service{
 				Image: "postgres",
 				Name:  "",
 				Ports: raw.StringSlice{"8080:8080"},
 			},
 		},
-		Steps: pipeline.ContainerSlice{
-			&pipeline.Container{
+		Steps: yaml.StepSlice{
+			&yaml.Step{
 				Commands: raw.StringSlice{"echo hello"},
 				Image:    "alpine",
 				Name:     str,
@@ -210,7 +210,7 @@ func TestNative_ValidatePipeline_Services_NoName(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
@@ -223,17 +223,17 @@ func TestNative_Validate_Services_NoImage(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Services: pipeline.ContainerSlice{
-			&pipeline.Container{
+		Services: yaml.ServiceSlice{
+			&yaml.Service{
 				Image: "",
 				Name:  str,
 				Ports: raw.StringSlice{"8080:8080"},
 			},
 		},
-		Steps: pipeline.ContainerSlice{
-			&pipeline.Container{
+		Steps: yaml.StepSlice{
+			&yaml.Step{
 				Commands: raw.StringSlice{"echo hello"},
 				Image:    "alpine",
 				Name:     str,
@@ -248,7 +248,7 @@ func TestNative_Validate_Services_NoImage(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
@@ -297,13 +297,13 @@ func TestNative_Validate_Stages_NoName(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Stages: pipeline.StageSlice{
-			&pipeline.Stage{
+		Stages: yaml.StageSlice{
+			&yaml.Stage{
 				Name: "",
-				Steps: pipeline.ContainerSlice{
-					&pipeline.Container{
+				Steps: yaml.StepSlice{
+					&yaml.Step{
 						Commands: raw.StringSlice{"echo hello"},
 						Name:     str,
 						Pull:     "always",
@@ -319,7 +319,7 @@ func TestNative_Validate_Stages_NoName(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
@@ -332,13 +332,13 @@ func TestNative_Validate_Stages_NoStepName(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Stages: pipeline.StageSlice{
-			&pipeline.Stage{
+		Stages: yaml.StageSlice{
+			&yaml.Stage{
 				Name: str,
-				Steps: pipeline.ContainerSlice{
-					&pipeline.Container{
+				Steps: yaml.StepSlice{
+					&yaml.Step{
 						Commands: raw.StringSlice{"echo hello"},
 						Name:     "",
 						Pull:     "always",
@@ -354,7 +354,7 @@ func TestNative_Validate_Stages_NoStepName(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
@@ -367,13 +367,13 @@ func TestNative_Validate_Stages_NoImage(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Stages: pipeline.StageSlice{
-			&pipeline.Stage{
+		Stages: yaml.StageSlice{
+			&yaml.Stage{
 				Name: str,
-				Steps: pipeline.ContainerSlice{
-					&pipeline.Container{
+				Steps: yaml.StepSlice{
+					&yaml.Step{
 						Commands: raw.StringSlice{"echo hello"},
 						Name:     str,
 						Pull:     "always",
@@ -389,7 +389,7 @@ func TestNative_Validate_Stages_NoImage(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
@@ -402,13 +402,13 @@ func TestNative_Validate_Stages_NoCommands(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Stages: pipeline.StageSlice{
-			&pipeline.Stage{
+		Stages: yaml.StageSlice{
+			&yaml.Stage{
 				Name: str,
-				Steps: pipeline.ContainerSlice{
-					&pipeline.Container{
+				Steps: yaml.StepSlice{
+					&yaml.Step{
 						Image: "alpine",
 						Name:  str,
 						Pull:  "always",
@@ -424,7 +424,7 @@ func TestNative_Validate_Stages_NoCommands(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
@@ -484,14 +484,14 @@ func TestNative_Validate_Stages_NeedsSelfReference(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Stages: pipeline.StageSlice{
-			&pipeline.Stage{
+		Stages: yaml.StageSlice{
+			&yaml.Stage{
 				Name:  str,
 				Needs: raw.StringSlice{str},
-				Steps: pipeline.ContainerSlice{
-					&pipeline.Container{
+				Steps: yaml.StepSlice{
+					&yaml.Step{
 						Commands: raw.StringSlice{"echo hello"},
 						Image:    "alpine",
 						Name:     str,
@@ -508,7 +508,7 @@ func TestNative_Validate_Stages_NeedsSelfReference(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
@@ -551,10 +551,10 @@ func TestNative_Validate_Steps_NoName(t *testing.T) {
 	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Steps: pipeline.ContainerSlice{
-			&pipeline.Container{
+		Steps: yaml.StepSlice{
+			&yaml.Step{
 				Commands: raw.StringSlice{"echo hello"},
 				Name:     "",
 				Pull:     "always",
@@ -568,13 +568,13 @@ func TestNative_Validate_Steps_NoName(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
 }
 
-func TestNative_Validate_Steps_NameCollision(t *testing.T) {
+func TestNative_Validate_Services_NameCollision(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", defaultCloneImage, "doc")
@@ -583,11 +583,22 @@ func TestNative_Validate_Steps_NameCollision(t *testing.T) {
 	str := "foo"
 	p := &pipeline.Build{
 		Version: "v1",
-		Steps: pipeline.ContainerSlice{
+		Services: pipeline.ContainerSlice{
 			&pipeline.Container{
-				Commands: raw.StringSlice{"echo hello"},
-				Name:     str,
-				Pull:     "always",
+				Environment: raw.StringSliceMap{
+					"FOO": "bar",
+				},
+				Image: "postgres",
+				Name:  str,
+				Pull:  "always",
+			},
+			&pipeline.Container{
+				Environment: raw.StringSliceMap{
+					"FOO": "bar",
+				},
+				Image: "kafka",
+				Name:  str,
+				Pull:  "always",
 			},
 		},
 	}
@@ -611,10 +622,10 @@ func TestNative_Validate_Steps_NoImage(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Steps: pipeline.ContainerSlice{
-			&pipeline.Container{
+		Steps: yaml.StepSlice{
+			&yaml.Step{
 				Commands: raw.StringSlice{"echo hello"},
 				Name:     str,
 				Pull:     "always",
@@ -628,7 +639,7 @@ func TestNative_Validate_Steps_NoImage(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
@@ -641,10 +652,10 @@ func TestNative_Validate_Steps_NoCommands(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
-	p := &pipeline.Build{
+	p := &yaml.Build{
 		Version: "v1",
-		Steps: pipeline.ContainerSlice{
-			&pipeline.Container{
+		Steps: yaml.StepSlice{
+			&yaml.Step{
 				Image: "alpine",
 				Name:  str,
 				Pull:  "always",
@@ -658,7 +669,7 @@ func TestNative_Validate_Steps_NoCommands(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidatePipeline(p)
+	err = compiler.ValidateYAML(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}

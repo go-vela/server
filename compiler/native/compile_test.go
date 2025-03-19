@@ -1911,7 +1911,6 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 
 	// todo: this needs to be fixed in compiler validation
 	// this is a dirty hack to make this test pass
-	compiler.SetCloneImage("")
 	compiler.WithMetadata(m)
 
 	compiler.repo = &api.Repo{Name: &author}
