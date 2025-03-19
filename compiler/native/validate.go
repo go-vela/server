@@ -4,10 +4,9 @@ package native
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/hashicorp/go-multierror"
-
-	"slices"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
