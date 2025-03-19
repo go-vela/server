@@ -18,21 +18,20 @@ import (
 
 func (c *Client) Download(ctx context.Context, object *api.Object) error {
 	// Temporary file to store the object
-	filename := "/"
+	filename := object.FilePath
 
 	logrus.Debugf("getting object info on bucket %s from path: %s", object.Bucket.BucketName, object.ObjectName)
 
 	// collect metadata on the object
-	objInfo, err := c.client.StatObject(ctx, object.Bucket.BucketName, object.ObjectName, minio.StatObjectOptions{})
-	if objInfo.Key == "" {
-		logrus.Error(err)
-		return nil
-	}
+	//objInfo, err := c.client.StatObject(ctx, object.Bucket.BucketName, object.ObjectName, minio.StatObjectOptions{})
+	//if objInfo.Key == "" {
+	//	return fmt.Errorf("object %s not found in bucket %s", object.ObjectName, object.Bucket.BucketName)
+	//}
 
 	// retrieve the object in specified path of the bucket
-	err = c.client.FGetObject(ctx, object.Bucket.BucketName, object.ObjectName, filename, minio.GetObjectOptions{})
+	err := c.client.FGetObject(ctx, object.Bucket.BucketName, object.ObjectName, filename, minio.GetObjectOptions{})
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to download object %s from bucket %s: %v", object.ObjectName, object.Bucket.BucketName, err)
 	}
 
 	safeDir := "/safe/directory"

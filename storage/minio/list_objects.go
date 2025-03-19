@@ -4,15 +4,16 @@ package minio
 
 import (
 	"context"
+	api "github.com/go-vela/server/api/types"
 
 	"github.com/minio/minio-go/v7"
 )
 
 // ListObjects lists the objects in a bucket.
-func (c *Client) ListObjects(ctx context.Context, bucketName string) ([]string, error) {
-	c.Logger.Tracef("listing objects in bucket %s", bucketName)
+func (c *Client) ListObjects(ctx context.Context, b *api.Bucket) ([]string, error) {
+	c.Logger.Tracef("listing objects in bucket %s", b.BucketName)
 
-	objectCh := c.client.ListObjects(ctx, bucketName, minio.ListObjectsOptions{})
+	objectCh := c.client.ListObjects(ctx, b.BucketName, minio.ListObjectsOptions{})
 
 	var objects []string
 

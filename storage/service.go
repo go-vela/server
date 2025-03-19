@@ -21,7 +21,7 @@ type Storage interface {
 	Upload(ctx context.Context, object *api.Object) error
 	UploadObject(ctx context.Context, object *api.Object, reader io.Reader, size int64) error
 	Download(ctx context.Context, object *api.Object) error
-	ListObjects(ctx context.Context, bucketName string) ([]string, error)
+	ListObjects(ctx context.Context, bucket *api.Bucket) ([]string, error)
 	// Presigned URLs
 	PresignedGetObject(ctx context.Context, object *api.Object) (string, error)
 }
