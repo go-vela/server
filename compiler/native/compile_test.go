@@ -1869,63 +1869,6 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	}
 }
 
-func TestNative_Compile_NoStepsorStages(t *testing.T) {
-	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-	name := "foo"
-	author := "author"
-	number := 1
-
-	m := &internal.Metadata{
-		Database: &internal.Database{
-			Driver: "foo",
-			Host:   "foo",
-		},
-		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
-		},
-		Source: &internal.Source{
-			Driver: "foo",
-			Host:   "foo",
-		},
-		Vela: &internal.Vela{
-			Address:    "foo",
-			WebAddress: "foo",
-		},
-	}
-
-	// run test
-	yaml, err := os.ReadFile("testdata/metadata.yml")
-	if err != nil {
-		t.Errorf("Reading yaml file return err: %v", err)
-	}
-
-	compiler, err := FromCLIContext(c)
-	if err != nil {
-		t.Errorf("Creating compiler returned err: %v", err)
-	}
-
-	// todo: this needs to be fixed in compiler validation
-	// this is a dirty hack to make this test pass
-	compiler.WithMetadata(m)
-
-	compiler.repo = &api.Repo{Name: &author}
-	compiler.build = &api.Build{Author: &name, Number: &number}
-
-	got, _, err := compiler.Compile(context.Background(), yaml)
-	if err == nil {
-		t.Errorf("Compile should have returned err")
-	}
-
-	if got != nil {
-		t.Errorf("Compile is %v, want %v", got, nil)
-	}
-}
-
 func TestNative_Compile_StageNameCollision(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)

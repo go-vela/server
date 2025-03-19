@@ -343,6 +343,21 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 		err      error
 	)
 
+	// check if the pipeline disabled the clone
+	if p.Metadata.Clone == nil || *p.Metadata.Clone {
+		// inject the clone step
+		p, err = c.CloneStep(p)
+		if err != nil {
+			return nil, _pipeline, err
+		}
+	}
+
+	// inject the init step
+	p, err = c.InitStep(p)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
 	// inject the template for deploy config if exists
 	p, err = c.ExpandDeployment(ctx, p, tmpls)
 	if err != nil {
@@ -369,21 +384,6 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 
 	// validate the yaml configuration
 	err = c.ValidateYAML(p)
-	if err != nil {
-		return nil, _pipeline, err
-	}
-
-	// check if the pipeline disabled the clone
-	if p.Metadata.Clone == nil || *p.Metadata.Clone {
-		// inject the clone step
-		p, err = c.CloneStep(p)
-		if err != nil {
-			return nil, _pipeline, err
-		}
-	}
-
-	// inject the init step
-	p, err = c.InitStep(p)
 	if err != nil {
 		return nil, _pipeline, err
 	}
