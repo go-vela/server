@@ -42,9 +42,13 @@ type Engine interface {
 	// an object to a string.
 	ParseRaw(interface{}) (string, error)
 
-	// Validate defines a function that verifies
+	// ValidateYAML defines a function that verifies
 	// the yaml configuration is accurate.
-	Validate(*yaml.Build) error
+	ValidateYAML(*yaml.Build) error
+
+	// ValidatePipeline defines a function that verifies
+	// the final pipeline build is accurate.
+	ValidatePipeline(*pipeline.Build) error
 
 	// Clone Compiler Interface Functions
 
