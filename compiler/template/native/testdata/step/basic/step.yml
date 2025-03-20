@@ -5,5 +5,6 @@ steps:
       vars:
         image: golang:latest
         pull_policy: "pull: true"
+        event: [tag, push]
         
         
