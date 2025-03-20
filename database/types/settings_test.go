@@ -15,7 +15,7 @@ func TestTypes_Platform_Nullify(t *testing.T) {
 	var ps *Platform
 
 	want := &Platform{
-		ID: sql.NullInt64{Int64: 0, Valid: false},
+		ID: sql.NullInt32{Int32: 0, Valid: false},
 	}
 
 	// setup tests
@@ -86,7 +86,7 @@ func TestTypes_Platform_Validate(t *testing.T) {
 		{ // no CloneImage set for settings
 			failure: true,
 			settings: &Platform{
-				ID: sql.NullInt64{Int64: 1, Valid: true},
+				ID: sql.NullInt32{Int32: 1, Valid: true},
 				Compiler: Compiler{
 					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
 					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
@@ -96,7 +96,7 @@ func TestTypes_Platform_Validate(t *testing.T) {
 		{ // no TemplateDepth set for settings
 			failure: true,
 			settings: &Platform{
-				ID: sql.NullInt64{Int64: 1, Valid: true},
+				ID: sql.NullInt32{Int32: 1, Valid: true},
 				Compiler: Compiler{
 					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
@@ -106,7 +106,7 @@ func TestTypes_Platform_Validate(t *testing.T) {
 		{ // no StarlarkExecLimit set for settings
 			failure: true,
 			settings: &Platform{
-				ID: sql.NullInt64{Int64: 1, Valid: true},
+				ID: sql.NullInt32{Int32: 1, Valid: true},
 				Compiler: Compiler{
 					CloneImage:    sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 					TemplateDepth: sql.NullInt64{Int64: 10, Valid: true},
@@ -116,7 +116,7 @@ func TestTypes_Platform_Validate(t *testing.T) {
 		{ // no queue fields set for settings
 			failure: false,
 			settings: &Platform{
-				ID: sql.NullInt64{Int64: 1, Valid: true},
+				ID: sql.NullInt32{Int32: 1, Valid: true},
 				Compiler: Compiler{
 					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
@@ -177,7 +177,7 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 // type with all fields set to a fake value.
 func testPlatform() *Platform {
 	return &Platform{
-		ID: sql.NullInt64{Int64: 1, Valid: true},
+		ID: sql.NullInt32{Int32: 1, Valid: true},
 		Compiler: Compiler{
 			CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 			TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},

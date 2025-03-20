@@ -41,7 +41,7 @@ type Worker struct {
 	LastBuildStartedAt  sql.NullInt64  `sql:"last_build_started_at"`
 	LastBuildFinishedAt sql.NullInt64  `sql:"last_build_finished_at"`
 	LastCheckedIn       sql.NullInt64  `sql:"last_checked_in"`
-	BuildLimit          sql.NullInt64  `sql:"build_limit"`
+	BuildLimit          sql.NullInt32  `sql:"build_limit"`
 }
 
 // Nullify ensures the valid flag for
@@ -95,7 +95,7 @@ func (w *Worker) Nullify() *Worker {
 		w.LastCheckedIn.Valid = false
 	}
 
-	if w.BuildLimit.Int64 == 0 {
+	if w.BuildLimit.Int32 == 0 {
 		w.BuildLimit.Valid = false
 	}
 
@@ -118,7 +118,7 @@ func (w *Worker) ToAPI(builds []*api.Build) *api.Worker {
 	worker.SetLastBuildStartedAt(w.LastBuildStartedAt.Int64)
 	worker.SetLastBuildFinishedAt(w.LastBuildFinishedAt.Int64)
 	worker.SetLastCheckedIn(w.LastCheckedIn.Int64)
-	worker.SetBuildLimit(w.BuildLimit.Int64)
+	worker.SetBuildLimit(w.BuildLimit.Int32)
 
 	return worker
 }
@@ -185,7 +185,7 @@ func WorkerFromAPI(w *api.Worker) *Worker {
 		LastBuildStartedAt:  sql.NullInt64{Int64: w.GetLastBuildStartedAt(), Valid: true},
 		LastBuildFinishedAt: sql.NullInt64{Int64: w.GetLastBuildFinishedAt(), Valid: true},
 		LastCheckedIn:       sql.NullInt64{Int64: w.GetLastCheckedIn(), Valid: true},
-		BuildLimit:          sql.NullInt64{Int64: w.GetBuildLimit(), Valid: true},
+		BuildLimit:          sql.NullInt32{Int32: w.GetBuildLimit(), Valid: true},
 	}
 
 	return worker.Nullify()

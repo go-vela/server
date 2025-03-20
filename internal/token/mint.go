@@ -22,7 +22,7 @@ import (
 // includes information about the user.
 type Claims struct {
 	BuildID     int64  `json:"build_id,omitempty"`
-	BuildNumber int    `json:"build_number,omitempty"`
+	BuildNumber int64  `json:"build_number,omitempty"`
 	Actor       string `json:"actor,omitempty"`
 	IsActive    bool   `json:"is_active,omitempty"`
 	IsAdmin     bool   `json:"is_admin,omitempty"`

@@ -34,7 +34,7 @@ type (
 // If all steps from a stage are removed, then the
 // entire stage is removed from the pipeline.
 func (s *StageSlice) Purge(r *RuleData) (*StageSlice, error) {
-	counter := 1
+	counter := int32(1)
 	stages := new(StageSlice)
 
 	// iterate through each stage for the pipeline

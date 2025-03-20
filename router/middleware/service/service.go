@@ -55,7 +55,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		number, err := strconv.Atoi(sParam)
+		number, err := strconv.ParseInt(sParam, 10, 16)
 		if err != nil {
 			retErr := fmt.Errorf("malformed service parameter provided: %s", sParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)
@@ -65,7 +65,7 @@ func Establish() gin.HandlerFunc {
 
 		l.Debugf("reading service %d", number)
 
-		s, err := database.FromContext(c).GetServiceForBuild(ctx, b, number)
+		s, err := database.FromContext(c).GetServiceForBuild(ctx, b, int32(number))
 		if err != nil {
 			retErr := fmt.Errorf("unable to read service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)

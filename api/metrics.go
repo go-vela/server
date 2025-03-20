@@ -419,7 +419,7 @@ func recordGauges(c *gin.Context) {
 
 	// add worker metrics
 	var (
-		buildLimit       int64
+		buildLimit       int32
 		activeWorkers    int64
 		inactiveWorkers  int64
 		idleWorkers      int64

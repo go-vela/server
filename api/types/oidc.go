@@ -25,7 +25,7 @@ type OpenIDClaims struct {
 	ActorSCMID  string `json:"actor_scm_id,omitempty"`
 	Branch      string `json:"branch,omitempty"`
 	BuildID     int64  `json:"build_id,omitempty"`
-	BuildNumber int    `json:"build_number,omitempty"`
+	BuildNumber int64  `json:"build_number,omitempty"`
 	Commands    bool   `json:"commands,omitempty"`
 	Event       string `json:"event,omitempty"`
 	Image       string `json:"image,omitempty"`
