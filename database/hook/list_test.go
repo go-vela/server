@@ -61,13 +61,7 @@ func TestHook_Engine_ListHooks(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "hooks"`).WillReturnRows(_rows)
-
-	// create expected result in mock
-	_rows = sqlmock.NewRows(
+	_rows := sqlmock.NewRows(
 		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "event_action", "branch", "error", "status", "link", "webhook_id"}).
 		AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1).
 		AddRow(2, 1, 0, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1)
