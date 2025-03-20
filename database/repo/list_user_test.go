@@ -62,14 +62,8 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected name count query result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the name count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "repos" WHERE user_id = $1`).WithArgs(1).WillReturnRows(_rows)
-
 	// create expected name query result in mock
-	_rows = sqlmock.NewRows(
+	_rows := sqlmock.NewRows(
 		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
 		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil).
 		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil)
@@ -81,12 +75,6 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE user_id = $1 ORDER BY name LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
-
-	// create expected latest count query result in mock
-	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the latest count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "repos" WHERE user_id = $1`).WithArgs(1).WillReturnRows(_rows)
 
 	// create expected latest query result in mock
 	_rows = sqlmock.NewRows(
@@ -183,7 +171,7 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListReposForUser(context.TODO(), _owner, test.sort, filters, 1, 10)
+			got, err := test.database.ListReposForUser(context.TODO(), _owner, test.sort, filters, 1, 10)
 
 			if test.failure {
 				if err == nil {

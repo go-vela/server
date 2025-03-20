@@ -45,13 +45,7 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "secrets"`).WillReturnRows(_rows)
-
-	// create expected result in mock
-	_rows = sqlmock.NewRows(
+	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
 		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2").
 		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2")

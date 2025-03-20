@@ -162,16 +162,6 @@ func ListSecrets(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the total number of secrets
-	total, err := secret.FromContext(c, e).Count(ctx, t, o, n, teams)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get secret count for %s from %s service: %w", entry, e, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// ensure per_page isn't above or below allowed values
 	perPage = max(1, min(100, perPage))
 
@@ -189,7 +179,7 @@ func ListSecrets(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   total,
+		Results: len(s),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)

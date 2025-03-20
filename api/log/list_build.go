@@ -112,7 +112,7 @@ func ListLogsForBuild(c *gin.Context) {
 	perPage = max(1, min(100, perPage))
 
 	// send API call to capture the list of logs for the build
-	bl, t, err := database.FromContext(c).ListLogsForBuild(ctx, b, page, perPage)
+	bl, err := database.FromContext(c).ListLogsForBuild(ctx, b, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list logs for build %s: %w", entry, err)
 
@@ -125,7 +125,7 @@ func ListLogsForBuild(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   t,
+		Results: len(bl),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)

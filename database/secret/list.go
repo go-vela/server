@@ -15,23 +15,11 @@ func (e *engine) ListSecrets(ctx context.Context) ([]*api.Secret, error) {
 	e.logger.Trace("listing all secrets")
 
 	// variables to store query results and return value
-	count := int64(0)
 	s := new([]types.Secret)
 	secrets := []*api.Secret{}
 
-	// count the results
-	count, err := e.CountSecrets(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return secrets, nil
-	}
-
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableSecret).
 		Find(&s).
