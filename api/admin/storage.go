@@ -4,9 +4,10 @@ package admin
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/storage"

@@ -1,13 +1,16 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package minio
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"github.com/minio/minio-go/v7"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go/v7"
 )
 
 //func TestMinioClient_List_Object_Success(t *testing.T) {
@@ -88,7 +91,7 @@ func TestMinioClient_List_Object_Success(t *testing.T) {
 			{"Key": "test.xml"},
 		}
 
-		c.Stream(func(w io.Writer) bool {
+		c.Stream(func(_ io.Writer) bool {
 			for _, object := range objects {
 				c.SSEvent("object", object)
 			}

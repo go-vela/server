@@ -3,14 +3,14 @@
 package storage
 
 import (
-	"github.com/go-vela/server/storage"
-	"github.com/go-vela/server/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/storage"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation POST /api/v1/storage/info storage StorageInfo
@@ -61,7 +61,7 @@ func Info(c *gin.Context) {
 	c.JSON(http.StatusOK, wr)
 }
 
-// swagger:operation GET /api/v1/storage/list_objects/:bucket storage ListObjects
+// swagger:operation GET /api/v1/storage/{bucket}/objects storage ListObjects
 //
 // List objects in a bucket
 //
@@ -82,11 +82,7 @@ func Info(c *gin.Context) {
 //     schema:
 //       type: array
 //       items:
-//         "$ref": "#/definitions/Object"
-//   '401':
-//     description: Unauthorized
-//     schema:
-//       "$ref": "#/definitions/Error"
+//         type: string
 //   '500':
 //     description: Unexpected server error
 //     schema:
@@ -111,6 +107,7 @@ func ListObjects(c *gin.Context) {
 	if err != nil {
 		l.Errorf("unable to list objects in bucket %s: %v", bucketName, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 

@@ -4,9 +4,10 @@ package minio
 
 import (
 	"context"
-	api "github.com/go-vela/server/api/types"
 
 	"github.com/minio/minio-go/v7"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 // ListObjects lists the objects in a bucket.
