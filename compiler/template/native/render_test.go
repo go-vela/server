@@ -37,6 +37,7 @@ func TestNative_Render(t *testing.T) {
 		{"invalid yml", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/invalid.yml"}, "", true},
 		{"disallowed env func", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/disallowed/tmpl_env.yml"}, "", true},
 		{"disallowed expandenv func", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/disallowed/tmpl_expandenv.yml"}, "", true},
+		{"bad ruleset formatting", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/bad_ruleset_format.yml"}, "", true},
 	}
 
 	for _, tt := range tests {
