@@ -3,6 +3,8 @@
 package storage
 
 import (
+	"github.com/go-vela/server/storage"
+	"github.com/go-vela/server/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -57,4 +59,60 @@ func Info(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, wr)
+}
+
+// swagger:operation GET /api/v1/storage/list_objects/:bucket storage ListObjects
+//
+// List objects in a bucket
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: bucket
+//   description: Name of the bucket
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully listed objects in the bucket
+//     schema:
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Object"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unexpected server error
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// ListObjects represents the API handler to list objects in a bucket.
+func ListObjects(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
+
+	l.Debug("listing objects in bucket")
+
+	// extract the bucket name from the request
+	bucketName := util.PathParameter(c, "bucket")
+
+	// create a new bucket object
+	b := &types.Bucket{
+		BucketName: bucketName,
+	}
+
+	// list objects in the bucket
+	objects, err := storage.FromGinContext(c).ListObjects(c.Request.Context(), b)
+	if err != nil {
+		l.Errorf("unable to list objects in bucket %s: %v", bucketName, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"objects": objects})
 }

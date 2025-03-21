@@ -13,17 +13,22 @@ func TestMinioClient_ListBuckets_Success(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
+	type Bucket struct {
+		Name string `xml:"Name"`
+	}
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
 	engine.PUT("/foo/", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
+		c.Header("Content-Type", "application/xml;charset=utf-8")
 		c.Status(http.StatusOK)
 	})
 	// mock list buckets call
-	engine.GET("/minio/buckets", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"buckets": []string{"bucket1", "bucket2"},
+	engine.GET("/", func(c *gin.Context) {
+		c.Header("Content-Type", "application/xml;charset=utf-8")
+		c.XML(http.StatusOK, gin.H{
+			"Name": "foo",
 		})
 	})
 	fake := httptest.NewServer(engine)

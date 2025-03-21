@@ -18,5 +18,6 @@ func StorageHandlers(base *gin.RouterGroup) {
 	_storage := base.Group("/storage")
 	{
 		_storage.GET("/info", perm.MustWorkerRegisterToken(), storage.Info)
+		_storage.GET("/list_objects/:bucket", storage.ListObjects)
 	} // end of storage endpoints
 }

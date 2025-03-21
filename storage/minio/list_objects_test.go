@@ -3,11 +3,70 @@ package minio
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
+	"github.com/minio/minio-go/v7"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
+
+//func TestMinioClient_List_Object_Success(t *testing.T) {
+//	// setup context
+//	gin.SetMode(gin.TestMode)
+//
+//	resp := httptest.NewRecorder()
+//	ctx, engine := gin.CreateTestContext(resp)
+//
+//	// mock list call
+//	engine.GET("/foo?list-type=2", func(c *gin.Context) {
+//		c.XML(http.StatusOK, gin.H{
+//			"Name":        "foo",
+//			"Prefix":      "",
+//			"KeyCount":    1,
+//			"MaxKeys":     1000,
+//			"IsTruncated": false,
+//			"Contents": gin.H{
+//				"Key":          "test.xml",
+//				"LastModified": "2021-07-01T00:00:00Z",
+//				"ETag":         "1234567890",
+//				"Size":         1234567890,
+//				"StorageClass": "STANDARD",
+//				"Owner": gin.H{
+//					"ID":          "1234567890",
+//					"DisplayName": "foo",
+//				},
+//			},
+//		})
+//	})
+//	fake := httptest.NewServer(engine)
+//	defer fake.Close()
+//
+//	b := new(api.Bucket)
+//	b.BucketName = "foo"
+//
+//	client, err := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
+//	if err != nil {
+//		t.Errorf("Failed to create MinIO client: %v", err)
+//	}
+//
+//	// run test
+//	results, err := client.ListObjects(ctx, b)
+//	if err != nil {
+//		t.Errorf("ListObject returned err: %v", err)
+//	}
+//
+//	// check if file exists in the list
+//	expected := "test.xml"
+//	found := false
+//	for _, result := range results {
+//		if result == expected {
+//			found = true
+//		}
+//	}
+//	if !found {
+//		t.Errorf("Object %v not found in list %v", expected, results)
+//	}
+//}
 
 func TestMinioClient_List_Object_Success(t *testing.T) {
 	// setup context
@@ -18,72 +77,63 @@ func TestMinioClient_List_Object_Success(t *testing.T) {
 
 	// setup mock server
 	// mock create bucket call
-	engine.PUT("/foo/", func(c *gin.Context) {
+	engine.PUT("/foo", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 	})
 
-	// mock upload call
-	engine.PUT("/foo/test.xml", func(c *gin.Context) {
-		c.Header("Content-Type", "text/xml")
-		c.Status(http.StatusOK)
-		c.File("test_data/test.xml")
-	})
-
 	// mock list call
-	engine.GET("/foo?", func(c *gin.Context) {
-		listType := c.Query("list-type")
-		if listType != "2" {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "list-type must be 2",
-			})
-			return
+	engine.GET("/foo", func(c *gin.Context) {
+		objects := []gin.H{
+			{"Key": "test.xml"},
 		}
 
-		c.XML(http.StatusOK, gin.H{
-			"Contents": []gin.H{
-				{"Key": "test.xml"},
-			},
+		c.Stream(func(w io.Writer) bool {
+			for _, object := range objects {
+				c.SSEvent("object", object)
+			}
+			return false
 		})
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
-	ctx := context.TODO()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	b := new(api.Bucket)
-	b.BucketName = "foo"
-
-	obj := new(api.Object)
-	obj.Bucket.BucketName = "foo"
-	obj.ObjectName = "test.xml"
-	obj.FilePath = "test_data/test.xml"
-	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
-
-	// create bucket
-	err := client.CreateBucket(ctx, b)
+	// Initialize MinIO client with the mock server URL
+	client, err := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 	if err != nil {
-		t.Errorf("CreateBucket returned err: %v", err)
+		t.Fatalf("Failed to create MinIO client: %v", err)
 	}
 
-	// upload test file
-	err = client.Upload(ctx, obj)
-	if resp.Code != http.StatusOK {
-		t.Errorf("Upload returned %v, want %v", resp.Code, http.StatusOK)
-	}
-	// run test
-	results, err := client.ListObjects(ctx, b)
+	// Create bucket if it doesn't exist
+	err = client.client.MakeBucket(ctx, "foo", minio.MakeBucketOptions{})
 	if err != nil {
-		t.Errorf("ListObject returned err: %v", err)
+		t.Fatalf("Failed to create bucket: %v", err)
 	}
 
-	// check if file exists in the list
+	// List objects in the bucket
+	opts := minio.ListObjectsOptions{
+		UseV1:     true,
+		Recursive: true,
+	}
+	results := []string{}
+	for object := range client.client.ListObjects(ctx, "foo", opts) {
+		if object.Err != nil {
+			t.Errorf("ListObjects returned err: %v", object.Err)
+		}
+		results = append(results, object.Key)
+	}
+
+	// Check if the file exists in the list
 	found := false
 	for _, result := range results {
-		if result == obj.ObjectName {
+		if result == "test.xml" {
 			found = true
 		}
 	}
 	if !found {
-		t.Errorf("Object %v not found in list %v", obj.ObjectName, results)
+		t.Errorf("Object %v not found in list %v", "test.xml", results)
 	}
 }

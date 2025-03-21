@@ -64,7 +64,7 @@ func AdminHandlers(base *gin.RouterGroup) {
 		_admin.PUT("/storage/bucket", admin.CreateBucket)
 
 		// Admin storage object endpoints
-		_admin.POST("/storage/object/download", admin.DownloadObject)
+		//_admin.POST("/storage/object/download", admin.DownloadObject)
 
 		// Admin storage presign endpoints
 		_admin.GET("/storage/presign", admin.GetPresignedURL)
