@@ -4,13 +4,15 @@ package minio
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
-	"github.com/minio/minio-go/v7"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go/v7"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestMinioClient_ListBuckets_Success(t *testing.T) {

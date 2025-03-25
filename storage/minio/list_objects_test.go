@@ -3,72 +3,15 @@
 package minio
 
 import (
-	api "github.com/go-vela/server/api/types"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
-)
 
-//func TestMinioClient_List_Object_Success(t *testing.T) {
-//	// setup context
-//	gin.SetMode(gin.TestMode)
-//
-//	resp := httptest.NewRecorder()
-//	ctx, engine := gin.CreateTestContext(resp)
-//
-//	// mock list call
-//	engine.GET("/foo?list-type=2", func(c *gin.Context) {
-//		c.XML(http.StatusOK, gin.H{
-//			"Name":        "foo",
-//			"Prefix":      "",
-//			"KeyCount":    1,
-//			"MaxKeys":     1000,
-//			"IsTruncated": false,
-//			"Contents": gin.H{
-//				"Key":          "test.xml",
-//				"LastModified": "2021-07-01T00:00:00Z",
-//				"ETag":         "1234567890",
-//				"Size":         1234567890,
-//				"StorageClass": "STANDARD",
-//				"Owner": gin.H{
-//					"ID":          "1234567890",
-//					"DisplayName": "foo",
-//				},
-//			},
-//		})
-//	})
-//	fake := httptest.NewServer(engine)
-//	defer fake.Close()
-//
-//	b := new(api.Bucket)
-//	b.BucketName = "foo"
-//
-//	client, err := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
-//	if err != nil {
-//		t.Errorf("Failed to create MinIO client: %v", err)
-//	}
-//
-//	// run test
-//	results, err := client.ListObjects(ctx, b)
-//	if err != nil {
-//		t.Errorf("ListObject returned err: %v", err)
-//	}
-//
-//	// check if file exists in the list
-//	expected := "test.xml"
-//	found := false
-//	for _, result := range results {
-//		if result == expected {
-//			found = true
-//		}
-//	}
-//	if !found {
-//		t.Errorf("Object %v not found in list %v", expected, results)
-//	}
-//}
+	api "github.com/go-vela/server/api/types"
+)
 
 func TestMinioClient_ListObjects_Success(t *testing.T) {
 	gin.SetMode(gin.TestMode)
@@ -86,7 +29,6 @@ func TestMinioClient_ListObjects_Success(t *testing.T) {
 	})
 
 	engine.GET("/foo/", func(c *gin.Context) {
-
 		objects := []gin.H{
 			{"etag": "982beba05db8083656a03f544c8c7927",
 				"name":         "test.xml",
@@ -122,6 +64,10 @@ func TestMinioClient_ListObjects_Success(t *testing.T) {
 				"Internal":          "null"},
 		}
 		c.Stream(func(w io.Writer) bool {
+			_, err := w.Write([]byte(objects[0]["name"].(string)))
+			if err != nil {
+				return false
+			}
 			c.XML(http.StatusOK, objects)
 			c.Status(http.StatusOK)
 			return false
@@ -155,4 +101,41 @@ func TestMinioClient_ListObjects_Success(t *testing.T) {
 	//if !found {
 	//	t.Errorf("Object %v not found in list %v", expected, results)
 	//}
+}
+
+func TestMinioClient_ListObjects_Failure(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	ctx, engine := gin.CreateTestContext(resp)
+
+	// mock create bucket call
+	engine.PUT("/foo/", func(c *gin.Context) {
+		c.XML(http.StatusOK, gin.H{
+			"bucketName":     "foo",
+			"bucketLocation": "snowball",
+			"objectName":     "test.xml",
+		})
+	})
+
+	engine.GET("/foo/", func(c *gin.Context) {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	})
+
+	fake := httptest.NewServer(engine)
+	defer fake.Close()
+
+	b := new(api.Bucket)
+	b.BucketName = "foo"
+
+	client, err := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
+	if err != nil {
+		t.Errorf("Failed to create MinIO client: %v", err)
+	}
+
+	// run test
+	_, err = client.ListObjects(ctx, b)
+	if err == nil {
+		t.Errorf("ListObject should have returned an error")
+	}
 }

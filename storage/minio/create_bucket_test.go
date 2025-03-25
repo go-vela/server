@@ -12,7 +12,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-func TestMinioClient_CreateBucket(t *testing.T) {
+func TestMinioClient_CreateBucket_Success(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 

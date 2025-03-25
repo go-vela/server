@@ -4,8 +4,9 @@ package storage
 
 import (
 	"context"
-	"github.com/minio/minio-go/v7"
 	"io"
+
+	"github.com/minio/minio-go/v7"
 
 	api "github.com/go-vela/server/api/types"
 )
