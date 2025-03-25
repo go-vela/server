@@ -35,8 +35,8 @@ require (
 	github.com/prometheus/client_golang v1.21.1
 	github.com/redis/go-redis/v9 v9.7.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/afero v1.12.0
 	github.com/stretchr/testify v1.10.0
+	github.com/spf13/afero v1.14.0
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2
 	github.com/urfave/cli/v2 v2.27.6
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.60.0
@@ -47,7 +47,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.35.0
 	go.opentelemetry.io/otel/sdk v1.35.0
 	go.opentelemetry.io/otel/trace v1.35.0
-	go.starlark.net v0.0.0-20250225190231-0d3f41d403af
+	go.starlark.net v0.0.0-20250318223901-d9371fef63fe
 	golang.org/x/crypto v0.36.0
 	golang.org/x/oauth2 v0.28.0
 	golang.org/x/sync v0.12.0
@@ -56,7 +56,7 @@ require (
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/driver/sqlite v1.5.7
 	gorm.io/gorm v1.25.12
-	k8s.io/apimachinery v0.32.2
+	k8s.io/apimachinery v0.32.3
 )
 
 require (
