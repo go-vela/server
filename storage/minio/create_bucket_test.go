@@ -3,7 +3,6 @@
 package minio
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,7 +17,7 @@ func TestMinioClient_CreateBucket(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	resp := httptest.NewRecorder()
-	_, engine := gin.CreateTestContext(resp)
+	ctx, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
 	engine.PUT("/foo/", func(c *gin.Context) {
@@ -35,7 +34,7 @@ func TestMinioClient_CreateBucket(t *testing.T) {
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	// run test
-	err := client.CreateBucket(context.TODO(), b)
+	err := client.CreateBucket(ctx, b)
 	if resp.Code != http.StatusOK {
 		t.Errorf("CreateBucket returned %v, want %v", resp.Code, http.StatusOK)
 	}

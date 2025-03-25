@@ -4,6 +4,7 @@ package storage
 
 import (
 	"context"
+	"github.com/minio/minio-go/v7"
 	"io"
 
 	api "github.com/go-vela/server/api/types"
@@ -21,7 +22,7 @@ type Storage interface {
 	Upload(ctx context.Context, object *api.Object) error
 	UploadObject(ctx context.Context, object *api.Object, reader io.Reader, size int64) error
 	//Download(ctx context.Context, object *api.Object) error
-	ListObjects(ctx context.Context, bucket *api.Bucket) ([]string, error)
+	ListObjects(ctx context.Context, bucket *api.Bucket) ([]minio.ObjectInfo, error)
 	// Presigned URLs
 	PresignedGetObject(ctx context.Context, object *api.Object) (string, error)
 }

@@ -27,7 +27,7 @@ func TestMinioClient_Upload_Success(t *testing.T) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 	})
-	// mock bucket exists call
+	// mock upload call
 	engine.PUT("/foo/test.xml", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)

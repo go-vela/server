@@ -27,7 +27,7 @@ type Setup struct {
 // Minio creates and returns a Vela service capable
 // of integrating with an S3 environment.
 func (s *Setup) Minio() (Storage, error) {
-	//client, err := minio.New(s.Endpoint, &minio.Options{
+	//client, err := minio.New(s.Endpoint, &minio.MakeBucketOptions{
 	//	Creds:  credentials.NewStaticV4(s.AccessKey, s.SecretKey, ""),
 	//	Secure: s.Secure,
 	//})

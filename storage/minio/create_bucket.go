@@ -6,27 +6,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/minio/minio-go/v7"
-
 	api "github.com/go-vela/server/api/types"
 )
 
 // CreateBucket creates a new bucket in MinIO.
 func (c *Client) CreateBucket(ctx context.Context, bucket *api.Bucket) error {
 	c.Logger.Tracef("create new bucket: %s", bucket.BucketName)
-
-	var opts minio.MakeBucketOptions
-
-	if bucket.Options.IsEmpty() {
-		c.Logger.Trace("Using US Standard Region as location default")
-
-		opts = minio.MakeBucketOptions{}
-	} else {
-		opts = minio.MakeBucketOptions{
-			Region:        bucket.Options.Region,
-			ObjectLocking: bucket.Options.ObjectLocking,
-		}
-	}
 
 	exists, errBucketExists := c.BucketExists(ctx, bucket)
 	if errBucketExists != nil && exists {
@@ -35,7 +20,7 @@ func (c *Client) CreateBucket(ctx context.Context, bucket *api.Bucket) error {
 		return fmt.Errorf("bucket %s already exists", bucket.BucketName)
 	}
 
-	err := c.client.MakeBucket(ctx, bucket.BucketName, opts)
+	err := c.client.MakeBucket(ctx, bucket.BucketName, bucket.MakeBucketOptions)
 	if err != nil {
 		c.Logger.Errorf("unable to create bucket %s: %v", bucket.BucketName, err)
 		return err
