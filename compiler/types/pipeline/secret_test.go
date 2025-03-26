@@ -39,7 +39,7 @@ func TestPipeline_SecretSlice_Purge(t *testing.T) {
 			Tag:    "refs/heads/main",
 		}
 
-		got, _ := test.secrets.Purge(r)
+		got, _ := test.secrets.Purge(r, map[string]string{})
 
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("Purge is %v, want %v", got, test.want)
