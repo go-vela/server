@@ -26,6 +26,8 @@ import (
 // GET    	 /api/v1/admin/settings
 // PUT    	 /api/v1/admin/settings
 // DELETE	 /api/v1/admin/settings.
+// PUT    	 /api/v1/admin/storage/bucket
+// GET    	 /api/v1/admin/storage/presign
 func AdminHandlers(base *gin.RouterGroup) {
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
@@ -62,9 +64,6 @@ func AdminHandlers(base *gin.RouterGroup) {
 
 		// Admin storage bucket endpoints
 		_admin.PUT("/storage/bucket", admin.CreateBucket)
-
-		// Admin storage object endpoints
-		//_admin.POST("/storage/object/download", admin.DownloadObject)
 
 		// Admin storage presign endpoints
 		_admin.GET("/storage/presign", admin.GetPresignedURL)
