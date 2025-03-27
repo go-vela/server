@@ -14,7 +14,7 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-// swagger:operation POST /api/v1/admin/storage/bucket admin CreateBucket
+// swagger:operation PUT /api/v1/admin/storage/bucket admin CreateBucket
 //
 // Create a new bucket
 //
@@ -108,57 +108,6 @@ func CreateBucket(c *gin.Context) {
 //     description: Unexpected server error
 //     schema:
 //       "$ref": "#/definitions/Error"
-
-// DownloadObject represents the API handler to download an object from a bucket.
-//func DownloadObject(c *gin.Context) {
-//	l := c.MustGet("logger").(*logrus.Entry)
-//	ctx := c.Request.Context()
-//
-//	l.Debug("platform admin: downloading object")
-//
-//	// capture body from API request
-//	input := new(types.Object)
-//
-//	err := c.Bind(input)
-//	if err != nil {
-//		retErr := fmt.Errorf("unable to decode JSON for object %s: %w", input.ObjectName, err)
-//
-//		util.HandleError(c, http.StatusBadRequest, retErr)
-//
-//		return
-//	}
-//
-//	if input.Bucket.BucketName == "" || input.ObjectName == "" {
-//		retErr := fmt.Errorf("bucketName and objectName are required")
-//		util.HandleError(c, http.StatusBadRequest, retErr)
-//
-//		return
-//	}
-//
-//	if input.FilePath == "" {
-//		retErr := fmt.Errorf("file path is required")
-//		util.HandleError(c, http.StatusBadRequest, retErr)
-//
-//		return
-//	}
-//
-//	if strings.ContainsAny(input.FilePath, "/\\") || strings.Contains(input.FilePath, "..") || strings.TrimSpace(input.FilePath) == "" {
-//		retErr := fmt.Errorf("invalid file path")
-//		util.HandleError(c, http.StatusBadRequest, retErr)
-//
-//		return
-//	}
-//
-//	err = storage.FromGinContext(c).Download(ctx, input)
-//	if err != nil {
-//		retErr := fmt.Errorf("unable to download object: %w", err)
-//		util.HandleError(c, http.StatusInternalServerError, retErr)
-//
-//		return
-//	}
-//
-//	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("File has been downloaded to %s", input.FilePath)})
-//}
 
 // swagger:operation GET /api/v1/admin/storage/presign admin GetPresignedURL
 //
