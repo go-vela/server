@@ -1,14 +1,16 @@
 package minio
 
 import (
-	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
-	"github.com/minio/minio-go/v7"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go/v7"
+	"github.com/stretchr/testify/assert"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func Test_StatObject_Success(t *testing.T) {

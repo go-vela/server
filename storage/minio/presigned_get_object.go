@@ -4,9 +4,10 @@ package minio
 
 import (
 	"context"
+	"time"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/sirupsen/logrus"
-	"time"
 
 	api "github.com/go-vela/server/api/types"
 )
