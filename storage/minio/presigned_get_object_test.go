@@ -19,6 +19,14 @@ func Test_PresignedGetObject_Success(t *testing.T) {
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
+	// mock stat object call
+	engine.HEAD("/foo/test.xml", func(c *gin.Context) {
+		c.Header("Content-Type", "application/xml")
+		c.Header("Last-Modified", "Mon, 2 Jan 2006 15:04:05 GMT")
+		c.XML(200, gin.H{
+			"name": "test.xml",
+		})
+	})
 	// mock presigned get object call
 	engine.GET("/foo/", func(c *gin.Context) {
 		c.Header("Content-Type", "application/xml")
