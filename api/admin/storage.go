@@ -77,38 +77,6 @@ func CreateBucket(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-// swagger:operation GET /api/v1/admin/storage/bucket/download admin DownloadObject
-//
-// # Download an object from a bucket
-//
-// ---
-// produces:
-// - application/json
-// parameters:
-//   - in: query
-//     name: bucketName
-//     description: The name of the bucket
-//     required: true
-//     type: string
-//   - in: query
-//     name: objectName
-//     description: The name of the object
-//     required: true
-//     type: string
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully downloaded the object
-//   '400':
-//     description: Invalid request payload
-//     schema:
-//       "$ref": "#/definitions/Error"
-//   '500':
-//     description: Unexpected server error
-//     schema:
-//       "$ref": "#/definitions/Error"
-
 // swagger:operation GET /api/v1/admin/storage/presign admin GetPresignedURL
 //
 // # Generate a presigned URL for an object
