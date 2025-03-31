@@ -59,7 +59,7 @@ type (
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
 //
-
+//nolint:revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Vault client
 	c := new(client)

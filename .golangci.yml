@@ -16,8 +16,6 @@ output:
       print-linter-name: true
       # print lines of code with issue, default is true
       print-issued-lines: true
-    json:
-      path: stderr
 linters:
   # disable all linters as new linters might be added to golangci
   # in v2, this is for disable-all: true

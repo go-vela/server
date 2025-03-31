@@ -43,7 +43,7 @@ type client struct {
 // New returns a Queue implementation that
 // integrates with a Redis queue instance.
 //
-
+//nolint:revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Redis client
 	c := new(client)

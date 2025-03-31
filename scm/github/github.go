@@ -74,7 +74,7 @@ type client struct {
 // New returns a SCM implementation that integrates with
 // a GitHub or a GitHub Enterprise instance.
 //
-
+//nolint:revive // ignore returning unexported client
 func New(ctx context.Context, opts ...ClientOpt) (*client, error) {
 	// create new GitHub client
 	c := new(client)
@@ -238,7 +238,7 @@ func (c *client) ValidateGitHubApp(ctx context.Context) error {
 //
 // This function is intended for running tests only.
 //
-
+//nolint:revive // ignore returning unexported client
 func NewTest(urls ...string) (*client, error) {
 	address := urls[0]
 	server := address

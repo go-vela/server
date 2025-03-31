@@ -42,7 +42,7 @@ type (
 
 // New creates and returns a Vela service for integrating with key sets in the database.
 //
-
+//nolint:revive // ignore returning unexported client
 func New(opts ...EngineOpt) (*engine, error) {
 	// create new JWK engine
 	e := new(engine)
