@@ -179,7 +179,7 @@ func UpdateSettings(c *gin.Context) {
 	}
 
 	if input.Queue != nil {
-		if input.Routes != nil {
+		if input.Queue.Routes != nil {
 			_s.SetRoutes(input.GetRoutes())
 		}
 

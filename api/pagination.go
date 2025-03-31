@@ -108,7 +108,7 @@ func (p *Pagination) HasNext() bool {
 
 // HasPages returns true if there is need to deal with pagination.
 func (p *Pagination) HasPages() bool {
-	return p.Page != 1 || p.Results >= p.PerPage
+	return !(p.Page == 1 && p.Results < p.PerPage)
 }
 
 // resolveScheme is a helper to determine the protocol scheme

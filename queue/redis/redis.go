@@ -179,7 +179,7 @@ func pingQueue(c *client) error {
 //
 // This function is intended for running tests only.
 //
-
+//nolint:revive // ignore returning unexported client
 func NewTest(signingPrivateKey, signingPublicKey string, routes ...string) (*client, error) {
 	// create a local fake redis instance
 	//

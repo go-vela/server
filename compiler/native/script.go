@@ -80,7 +80,7 @@ func generateScriptPosix(commands []string) string {
 		escaped := fmt.Sprintf("%q", command)
 
 		// safely escape trace character
-		escaped = strings.ReplaceAll(escaped, "$", `\$`)
+		escaped = strings.Replace(escaped, "$", `\$`, -1)
 
 		// write escaped lines to buffer
 		buf.WriteString(fmt.Sprintf(

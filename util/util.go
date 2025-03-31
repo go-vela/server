@@ -65,7 +65,7 @@ func SplitFullName(value string) (string, string) {
 // EscapeValue safely escapes any string by removing any new lines and HTML escaping it.
 func EscapeValue(value string) string {
 	// replace all new lines in the value
-	escaped := strings.ReplaceAll(strings.ReplaceAll(value, "\n", ""), "\r", "")
+	escaped := strings.Replace(strings.Replace(value, "\n", "", -1), "\r", "", -1)
 
 	// HTML escape the new line escaped value
 	return html.EscapeString(escaped)
