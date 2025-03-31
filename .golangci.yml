@@ -127,6 +127,13 @@ linters:
     # will auto fix with `make lintfix`
     tagalign:
       sort: false
+    # static check to ignore QFI (Quality Function Interface) issues
+    staticcheck:
+      checks:
+        - '-QF1001' # ignore specific QFI issues
+        - '-QF1003'
+        - '-QF1004'
+        - '-QF1008'
   exclusions:
     generated: lax
     presets:
