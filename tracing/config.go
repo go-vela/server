@@ -76,7 +76,7 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 			return nil, errors.Wrap(err, fmt.Sprintf("unable to read tracing tasks config file from path %s", tasksConfigPath))
 		}
 
-		err = json.Unmarshal(f, &cfg.Sampler.Tasks)
+		err = json.Unmarshal(f, &cfg.Tasks)
 		if err != nil {
 			return nil, errors.Wrap(err, fmt.Sprintf("unable to parse tracing tasks config file from path %s", tasksConfigPath))
 		}

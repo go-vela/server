@@ -32,16 +32,16 @@ func (s *RateLimitSampler) ShouldSample(p sdktrace.SamplingParameters) sdktrace.
 	psc := trace.SpanContextFromContext(p.ParentContext)
 	ts := psc.TraceState()
 
-	for k, v := range s.Config.TraceStateAttributes {
+	for k, v := range s.TraceStateAttributes {
 		ts, _ = ts.Insert(k, v)
 	}
 
 	attributes := []attribute.KeyValue{
 		attribute.String("sampler.algorithm", "rate-limiting"),
-		attribute.Float64("sampler.param", s.Config.PerSecond),
+		attribute.Float64("sampler.param", s.PerSecond),
 	}
 
-	for k, v := range s.Config.SpanAttributes {
+	for k, v := range s.SpanAttributes {
 		attributes = append(attributes, attribute.String(k, v))
 	}
 
@@ -64,14 +64,14 @@ func (s *RateLimitSampler) ShouldSample(p sdktrace.SamplingParameters) sdktrace.
 
 // Description returns the description of the rate limit sampler.
 func (s *RateLimitSampler) Description() string {
-	return fmt.Sprintf("rate-limit-sampler{%v}", s.Config.PerSecond)
+	return fmt.Sprintf("rate-limit-sampler{%v}", s.PerSecond)
 }
 
 // ShouldSampleTask returns whether a task should be sampled.
 func (s *RateLimitSampler) ShouldSampleTask(p sdktrace.SamplingParameters) bool {
 	taskName := strings.ToLower(p.Name)
 
-	endpoint, ok := s.Config.Tasks[taskName]
+	endpoint, ok := s.Tasks[taskName]
 	if ok {
 		if !endpoint.Active {
 			return false

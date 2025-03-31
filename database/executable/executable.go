@@ -72,7 +72,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the build executables table
-	err := e.CreateBuildExecutableTable(e.ctx, e.client.Config.Dialector.Name())
+	err := e.CreateBuildExecutableTable(e.ctx, e.client.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableBuildExecutable, err)
 	}

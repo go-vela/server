@@ -42,7 +42,7 @@ type (
 
 // New creates and returns a Vela service for integrating with logs in the database.
 //
-//nolint:revive // ignore returning unexported engine
+
 func New(opts ...EngineOpt) (*engine, error) {
 	// create new Log engine
 	e := new(engine)
@@ -68,7 +68,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the logs table
-	err := e.CreateLogTable(e.ctx, e.client.Config.Dialector.Name())
+	err := e.CreateLogTable(e.ctx, e.client.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableLog, err)
 	}

@@ -30,7 +30,7 @@ func (c *client) newOAuthTokenClient(ctx context.Context, token string) *github.
 	// create the OAuth client
 	tc := oauth2.NewClient(ctx, ts)
 
-	if c.Tracing.Config.EnableTracing {
+	if c.Tracing.EnableTracing {
 		tc.Transport = otelhttp.NewTransport(
 			tc.Transport,
 			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {

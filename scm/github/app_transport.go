@@ -49,7 +49,7 @@ func (c *client) newGitHubAppTransport(appID int64, baseURL string, privateKey *
 	transport.BaseURL = baseURL
 
 	// apply tracing to the transport
-	if c.Tracing.Config.EnableTracing {
+	if c.Tracing.EnableTracing {
 		transport.tr = otelhttp.NewTransport(
 			transport.tr,
 			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {

@@ -24,6 +24,83 @@ linters:
   default: none
   # enable a specific set of linters to run
   enable:
+    - bidichk # checks for dangerous unicode character sequences
+    - bodyclose # checks whether HTTP response body is closed successfully
+    - contextcheck # check the function whether use a non-inherited context
+    - copyloopvar # checks for loop variables
+    - errcheck # checks for unchecked errors
+    - errorlint # find misuses of errors
+    - funlen # detects long functions
+    - goconst # finds repeated strings that could be replaced by a constant
+    - gocyclo # computes and checks the cyclomatic complexity of functions
+    - godot # checks if comments end in a period
+    - goheader # checks is file header matches to pattern
+    - gomoddirectives # manage the use of 'replace', 'retract', and 'excludes' directives in go.mod
+    - goprintffuncname # checks that printf-like functions are named with f at the end
+    - gosec # inspects code for security problems
+    - govet # reports suspicious constructs, ex. Printf calls whose arguments don't align with the format string
+    - ineffassign # detects when assignments to existing variables aren't used
+    - makezero # finds slice declarations with non-zero initial length
+    - misspell # finds commonly misspelled English words in comments
+    - nakedret # finds naked returns in functions greater than a specified function length
+    - nilerr # finds the code that returns nil even if it checks that the error is not nil
+    - noctx # noctx finds sending http request without context.Context
+    - nolintlint # reports ill-formed or insufficient nolint directives
+    - revive # linter for go
+    - staticcheck # applies static analysis checks, go vet on steroids
+     # The linters stylecheck, gosimple, and staticcheck has been merged inside the staticcheck.
+    - tagalign # finds maligned struct tags
+    - unconvert # remove unnecessary type conversions
+    - unparam # reports unused function parameters
+    - unused # checks for unused constants, variables, functions and types
+    - whitespace # detects leading and trailing whitespace
+    - wsl # forces code to use empty lines
+
+  # static list of linters we know golangci can run but we've
+  # chosen to leave disabled for now
+  # - asciicheck          - non-critical
+  # - cyclop              - unused complexity metric
+  # - depguard            - unused
+  # - dogsled             - blanks allowed
+  # - durationcheck       - unused
+  # - errname             - unused
+  # - exhaustive          - unused
+  # - exhaustivestruct    - style preference
+  # - forbidigo           - unused
+  # - forcetypeassert     - unused
+  # - gochecknoinits      - unused
+  # - gochecknoglobals    - global variables allowed
+  # - gocognit            - unused complexity metric
+  # - gocritic            - style preference
+  # - godox               - to be used in the future
+  # - goerr113            - to be used in the future
+  # - goimports           - use gci
+  # - golint              - archived, replaced with revive
+  # - gofumpt             - use gofmt
+  # - gomnd               - get too many false-positives
+  # - gomodguard          - unused
+  # - ifshort             - use both styles
+  # - ireturn             - allow interfaces to be returned
+  # - importas            - want flexibility with naming
+  # - lll                 - not too concerned about line length
+  # - interfacer          - archived
+  # - nestif              - non-critical
+  # - nilnil              - style preference
+  # - nlreturn            - style preference
+  # - maligned            - archived, replaced with govet 'fieldalignment'
+  # - paralleltest        - false-positives
+  # - prealloc            - don't use
+  # - predeclared         - unused
+  # - promlinter          - style preference
+  # - rowserrcheck        - unused
+  # - scopelint           - deprecated - replaced with exportloopref
+  # - sqlclosecheck       - unused
+  # - tagliatelle         - use a mix of variable naming
+  # - testpackage         - don't use this style of testing
+  # - thelper             - false-positives
+  # - varnamelen          - unused
+  # - wastedassign        - duplicate functionality
+  # - wrapcheck           - style preference
 
   # This section provides the configuration for each linter
   # we've instructed golangci to execute.
@@ -77,8 +154,8 @@ issues:
   uniq-by-line: true
 formatters:
   enable:
-    - gci
-    - gofmt
+    - gci # consistent import ordering
+    - gofmt # checks whether code was gofmt-ed
   settings:
     # https://github.com/daixiang0/gci
     # ensure import order is consistent

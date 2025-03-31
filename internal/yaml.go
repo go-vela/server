@@ -97,7 +97,8 @@ func ParseYAML(data []byte, tmplName string) (*types.Build, []string, error) {
 // collapseMergeAnchors traverses the entire pipeline and replaces duplicate `<<` keys with a single key->sequence.
 func collapseMergeAnchors(node *yaml.Node, warnings []string, warningPrefix string) []string {
 	// only replace on maps
-	if node.Kind == yaml.MappingNode {
+	switch node.Kind {
+	case yaml.MappingNode:
 		var (
 			anchors      []*yaml.Node
 			keysToRemove []int
@@ -146,7 +147,7 @@ func collapseMergeAnchors(node *yaml.Node, warnings []string, warningPrefix stri
 		for _, content := range node.Content {
 			warnings = collapseMergeAnchors(content, warnings, warningPrefix)
 		}
-	} else if node.Kind == yaml.SequenceNode {
+	case yaml.SequenceNode:
 		for _, item := range node.Content {
 			warnings = collapseMergeAnchors(item, warnings, warningPrefix)
 		}

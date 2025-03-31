@@ -42,7 +42,7 @@ type (
 
 // New creates and returns a Vela service for integrating with repos in the database.
 //
-//nolint:revive // ignore returning unexported engine
+
 func New(opts ...EngineOpt) (*engine, error) {
 	// create new Repo engine
 	e := new(engine)
@@ -68,7 +68,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the repos table
-	err := e.CreateRepoTable(e.ctx, e.client.Config.Dialector.Name())
+	err := e.CreateRepoTable(e.ctx, e.client.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableRepo, err)
 	}
