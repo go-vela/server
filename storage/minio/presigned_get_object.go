@@ -4,6 +4,7 @@ package minio
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -16,7 +17,7 @@ import (
 // PresignedGetObject generates a presigned URL for downloading an object.
 func (c *Client) PresignedGetObject(ctx context.Context, object *api.Object) (string, error) {
 	c.Logger.Tracef("generating presigned URL for object %s in bucket %s", object.ObjectName, object.Bucket.BucketName)
-
+	var url string
 	// collect metadata on the object
 	// make sure the object exists before generating the presigned URL
 	objInfo, err := c.client.StatObject(ctx, object.Bucket.BucketName, object.ObjectName, minio.StatObjectOptions{})
@@ -31,6 +32,13 @@ func (c *Client) PresignedGetObject(ctx context.Context, object *api.Object) (st
 	if err != nil {
 		return "", err
 	}
-	//presignedURL.RequestURI()
-	return presignedURL.String(), nil
+	url = presignedURL.String()
+
+	// replace minio:9000 with minio:9002
+	// for local development
+	if strings.Contains(url, "minio:9000") {
+		// replace with minio:9002
+		url = strings.Replace(url, "minio:9000", "minio:9002", 1)
+	}
+	return url, nil
 }
