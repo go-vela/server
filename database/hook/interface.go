@@ -39,7 +39,7 @@ type HookInterface interface {
 	// GetHookByWebhookID defines a function that gets any hook with a matching webhook_id.
 	GetHookByWebhookID(context.Context, int64) (*api.Hook, error)
 	// GetHookForRepo defines a function that gets a hook by repo ID and number.
-	GetHookForRepo(context.Context, *api.Repo, int) (*api.Hook, error)
+	GetHookForRepo(context.Context, *api.Repo, int64) (*api.Hook, error)
 	// LastHookForRepo defines a function that gets the last hook by repo ID.
 	LastHookForRepo(context.Context, *api.Repo) (*api.Hook, error)
 	// ListHooks defines a function that gets a list of all hooks.
