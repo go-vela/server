@@ -43,7 +43,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		number, err := strconv.Atoi(bParam)
+		number, err := strconv.ParseInt(bParam, 10, 64)
 		if err != nil {
 			retErr := fmt.Errorf("invalid build parameter provided: %s", bParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)
