@@ -20,7 +20,7 @@ func TestExecutor_FromContext(t *testing.T) {
 		want    Storage
 	}{
 		{
-			//nolint:staticcheck,revive // ignore using string with context value
+			//nolint:revive // ignore using string with context value
 			context: context.WithValue(context.Background(), key, _service),
 			want:    _service,
 		},
@@ -29,7 +29,7 @@ func TestExecutor_FromContext(t *testing.T) {
 			want:    nil,
 		},
 		{
-			//nolint:staticcheck,revive // ignore using string with context value
+			//nolint:revive // ignore using string with context value
 			context: context.WithValue(context.Background(), key, "foo"),
 			want:    nil,
 		},
@@ -90,7 +90,7 @@ func TestExecutor_WithContext(t *testing.T) {
 	// setup types
 	_service, _ := New(&Setup{})
 
-	//nolint:staticcheck,revive // ignore using string with context value
+	//nolint:revive // ignore using string with context value
 	want := context.WithValue(context.Background(), key, _service)
 
 	// run test

@@ -64,7 +64,7 @@ func WithContext(ctx context.Context, s Storage) context.Context {
 	//
 	// https://pkg.go.dev/context?tab=doc#WithValue
 	//
-	//nolint:staticcheck,revive // ignore using string with context value
+	//nolint:revive // ignore using string with context value
 	return context.WithValue(ctx, key, s)
 }
 
