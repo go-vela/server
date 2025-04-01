@@ -21,22 +21,23 @@ type OpenIDConfig struct {
 // OpenIDClaims struct is an extension of the JWT standard claims. It
 // includes information relevant to OIDC services.
 type OpenIDClaims struct {
-	Actor       string `json:"actor,omitempty"`
-	ActorSCMID  string `json:"actor_scm_id,omitempty"`
-	Branch      string `json:"branch,omitempty"`
-	BuildID     int64  `json:"build_id,omitempty"`
-	BuildNumber int    `json:"build_number,omitempty"`
-	Commands    bool   `json:"commands,omitempty"`
-	Event       string `json:"event,omitempty"`
-	Image       string `json:"image,omitempty"`
-	ImageName   string `json:"image_name,omitempty"`
-	ImageTag    string `json:"image_tag,omitempty"`
-	PullFork    bool   `json:"pull_fork,omitempty"`
-	Ref         string `json:"ref,omitempty"`
-	Repo        string `json:"repo,omitempty"`
-	Request     string `json:"request,omitempty"`
-	SHA         string `json:"sha,omitempty"`
-	TokenType   string `json:"token_type,omitempty"`
+	Actor       string         `json:"actor,omitempty"`
+	ActorSCMID  string         `json:"actor_scm_id,omitempty"`
+	Branch      string         `json:"branch,omitempty"`
+	BuildID     int64          `json:"build_id,omitempty"`
+	BuildNumber int            `json:"build_number,omitempty"`
+	Commands    bool           `json:"commands,omitempty"`
+	Event       string         `json:"event,omitempty"`
+	Image       string         `json:"image,omitempty"`
+	ImageName   string         `json:"image_name,omitempty"`
+	ImageTag    string         `json:"image_tag,omitempty"`
+	PullFork    bool           `json:"pull_fork,omitempty"`
+	Ref         string         `json:"ref,omitempty"`
+	Repo        string         `json:"repo,omitempty"`
+	Request     string         `json:"request,omitempty"`
+	SHA         string         `json:"sha,omitempty"`
+	CustomProps map[string]any `json:"custom_properties,omitempty"`
+	TokenType   string         `json:"token_type,omitempty"`
 	jwt.RegisteredClaims
 }
 

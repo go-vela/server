@@ -137,6 +137,8 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	// initialize claims struct
 	var claims = new(api.OpenIDClaims)
 
+	logrus.Infof("MTO MTO MTO: %v", mto.Build.GetRepo().GetCustomProps())
+
 	var err error
 
 	// validate provided claims
@@ -171,6 +173,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.Audience = mto.Audience
 	claims.TokenType = mto.TokenType
 	claims.Image = mto.Image
+	claims.CustomProps = mto.Build.GetRepo().GetCustomProps()
 
 	claims.ImageName, claims.ImageTag, err = imageParse(mto.Image)
 	if err != nil {

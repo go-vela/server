@@ -4,8 +4,11 @@ package types
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/lib/pq"
 
@@ -45,32 +48,55 @@ var (
 )
 
 // Repo is the database representation of a repo.
-type Repo struct {
-	ID              sql.NullInt64  `sql:"id"`
-	UserID          sql.NullInt64  `sql:"user_id"`
-	Hash            sql.NullString `sql:"hash"`
-	Org             sql.NullString `sql:"org"`
-	Name            sql.NullString `sql:"name"`
-	FullName        sql.NullString `sql:"full_name"`
-	Link            sql.NullString `sql:"link"`
-	Clone           sql.NullString `sql:"clone"`
-	Branch          sql.NullString `sql:"branch"`
-	Topics          pq.StringArray `sql:"topics"           gorm:"type:varchar(1020)"`
-	BuildLimit      sql.NullInt64  `sql:"build_limit"`
-	Timeout         sql.NullInt64  `sql:"timeout"`
-	Counter         sql.NullInt64  `sql:"counter"`
-	Visibility      sql.NullString `sql:"visibility"`
-	Private         sql.NullBool   `sql:"private"`
-	Trusted         sql.NullBool   `sql:"trusted"`
-	Active          sql.NullBool   `sql:"active"`
-	AllowEvents     sql.NullInt64  `sql:"allow_events"`
-	PipelineType    sql.NullString `sql:"pipeline_type"`
-	PreviousName    sql.NullString `sql:"previous_name"`
-	ApproveBuild    sql.NullString `sql:"approve_build"`
-	ApprovalTimeout sql.NullInt64  `sql:"approval_timeout"`
-	InstallID       sql.NullInt64  `sql:"install_id"`
+type (
+	Repo struct {
+		ID              sql.NullInt64   `sql:"id"`
+		UserID          sql.NullInt64   `sql:"user_id"`
+		Hash            sql.NullString  `sql:"hash"`
+		Org             sql.NullString  `sql:"org"`
+		Name            sql.NullString  `sql:"name"`
+		FullName        sql.NullString  `sql:"full_name"`
+		Link            sql.NullString  `sql:"link"`
+		Clone           sql.NullString  `sql:"clone"`
+		Branch          sql.NullString  `sql:"branch"`
+		Topics          pq.StringArray  `sql:"topics"           gorm:"type:varchar(1020)"`
+		BuildLimit      sql.NullInt64   `sql:"build_limit"`
+		Timeout         sql.NullInt64   `sql:"timeout"`
+		Counter         sql.NullInt64   `sql:"counter"`
+		Visibility      sql.NullString  `sql:"visibility"`
+		Private         sql.NullBool    `sql:"private"`
+		Trusted         sql.NullBool    `sql:"trusted"`
+		Active          sql.NullBool    `sql:"active"`
+		AllowEvents     sql.NullInt64   `sql:"allow_events"`
+		PipelineType    sql.NullString  `sql:"pipeline_type"`
+		PreviousName    sql.NullString  `sql:"previous_name"`
+		ApproveBuild    sql.NullString  `sql:"approve_build"`
+		ApprovalTimeout sql.NullInt64   `sql:"approval_timeout"`
+		InstallID       sql.NullInt64   `sql:"install_id"`
+		CustomProps     CustomPropsJSON `sql:"custom_props"`
 
-	Owner User `gorm:"foreignKey:UserID"`
+		Owner User `gorm:"foreignKey:UserID"`
+	}
+
+	CustomPropsJSON map[string]any
+)
+
+// Value - Implementation of valuer for database/sql for DashReposJSON.
+func (cp CustomPropsJSON) Value() (driver.Value, error) {
+	valueString, err := json.Marshal(cp)
+	return string(valueString), err
+}
+
+// Scan - Implement the database/sql scanner interface for DashReposJSON.
+func (cp *CustomPropsJSON) Scan(value any) error {
+	switch v := value.(type) {
+	case []byte:
+		return json.Unmarshal(v, &cp)
+	case string:
+		return json.Unmarshal([]byte(v), &cp)
+	default:
+		return fmt.Errorf("wrong type for custom properties: %T", v)
+	}
 }
 
 // Decrypt will manipulate the existing repo hash by
@@ -267,6 +293,7 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetApproveBuild(r.ApproveBuild.String)
 	repo.SetApprovalTimeout(r.ApprovalTimeout.Int64)
 	repo.SetInstallID(r.InstallID.Int64)
+	repo.SetCustomProps(r.CustomProps)
 
 	return repo
 }
@@ -361,6 +388,7 @@ func RepoFromAPI(r *api.Repo) *Repo {
 		ApproveBuild:    sql.NullString{String: r.GetApproveBuild(), Valid: true},
 		ApprovalTimeout: sql.NullInt64{Int64: r.GetApprovalTimeout(), Valid: true},
 		InstallID:       sql.NullInt64{Int64: r.GetInstallID(), Valid: true},
+		CustomProps:     r.GetCustomProps(),
 	}
 
 	return repo.Nullify()

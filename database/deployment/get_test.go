@@ -6,12 +6,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestDeployment_Engine_GetDeployment(t *testing.T) {
@@ -51,17 +51,11 @@ func TestDeployment_Engine_GetDeployment(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "number", "url", "commit", "ref", "task", "target", "description", "payload", "created_at", "created_by", "builds"}).
-		AddRow(1, 1, 1, "https://github.com/github/octocat/deployments/1", "48afb5bdc41ad69bf22588491333f7cf71135163", "refs/heads/master", "vela-deploy", "production", "Deployment request from Vela", "{\"foo\":\"test1\"}", 1, "octocat", "{}")
+	_rows := testutils.CreateMockRows([]any{*types.DeploymentFromAPI(_deploymentOne)})
 
-	_repoRows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+	_repoRows := testutils.CreateMockRows([]any{*types.RepoFromAPI(_repo)})
 
-	_userRows := sqlmock.NewRows(
-		[]string{"id", "name", "token", "hash", "active", "admin"}).
-		AddRow(1, "foo", "bar", "baz", false, false)
+	_userRows := testutils.CreateMockRows([]any{*types.UserFromAPI(_owner)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "deployments" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)

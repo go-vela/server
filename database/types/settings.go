@@ -24,9 +24,9 @@ var (
 type (
 	// Platform is the database representation of platform settings.
 	Platform struct {
-		ID sql.NullInt64 `sql:"id"`
-		Compiler
-		Queue
+		ID       sql.NullInt64 `sql:"id"`
+		Compiler `json:"compiler" sql:"compiler"`
+		Queue    `json:"queue"    sql:"queue"`
 
 		RepoAllowlist     pq.StringArray `json:"repo_allowlist"     sql:"repo_allowlist"     gorm:"type:varchar(1000)"`
 		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist" sql:"schedule_allowlist" gorm:"type:varchar(1000)"`

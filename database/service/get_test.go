@@ -7,10 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestService_Engine_GetService(t *testing.T) {
@@ -27,9 +26,7 @@ func TestService_Engine_GetService(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution"}).
-		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "")
+	_rows := testutils.CreateMockRows([]any{*types.ServiceFromAPI(_service)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "services" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)
