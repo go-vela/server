@@ -90,7 +90,7 @@ func TestCompiler_WithContext(t *testing.T) {
 	// setup types
 	var _engine Engine
 
-	//nolint: revive // ignore using string with context value
+	//nolint:revive // ignore using string with context value
 	want := context.WithValue(context.Background(), key, _engine)
 
 	// run test
