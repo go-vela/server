@@ -178,7 +178,6 @@ func TestTypes_DashboardFromAPI(t *testing.T) {
 	// test empty uuid results in generated uuid
 	d.SetID("")
 
-	//nolint:staticcheck // linter is lying
 	got = DashboardFromAPI(d)
 
 	if len(got.ID) != 16 {
