@@ -34,11 +34,11 @@ func (c *Client) PresignedGetObject(ctx context.Context, object *api.Object) (st
 	}
 	url = presignedURL.String()
 
-	// replace minio:9000 with minio:9002
+	// replace minio:9000 with minio
 	// for local development
 	if strings.Contains(url, "minio:9000") {
 		// replace with minio:9002
-		url = strings.Replace(url, "minio:9000", "minio:9002", 1)
+		url = strings.Replace(url, "minio:9000", "minio", 1)
 	}
 	return url, nil
 }
