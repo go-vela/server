@@ -69,6 +69,7 @@ func StorageBucket(bucket string) gin.HandlerFunc {
 	}
 }
 
+// StorageEnable is a middleware function that sets a flag in the context
 // to determined if storage is enabled.
 func StorageEnable(enabled bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
