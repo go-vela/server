@@ -40,8 +40,10 @@ func Info(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
 		l.Info("storage is not enabled, skipping credentials request")
 		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
+
 		return
 	}
+
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	l.Info("requesting storage credentials with registration token")
@@ -102,8 +104,10 @@ func ListObjects(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
 		l.Info("storage is not enabled, skipping credentials request")
 		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
+
 		return
 	}
+
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	l.Debug("listing objects in bucket")
