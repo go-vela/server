@@ -220,6 +220,7 @@ func server(c *cli.Context) error {
 		middleware.StorageAccessKey(c.String("storage.access.key")),
 		middleware.StorageSecretKey(c.String("storage.secret.key")),
 		middleware.StorageBucket(c.String("storage.bucket.name")),
+		middleware.StorageEnable(c.Bool("storage.enable")),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))

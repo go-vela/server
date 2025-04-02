@@ -35,6 +35,13 @@ import (
 // Info represents the API handler to
 // retrieve storage credentials as part of worker onboarding.
 func Info(c *gin.Context) {
+	enable := c.MustGet("storage-enable").(bool)
+	if !enable {
+		l := c.MustGet("logger").(*logrus.Entry)
+		l.Info("storage is not enabled, skipping credentials request")
+		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
+		return
+	}
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	l.Info("requesting storage credentials with registration token")
@@ -90,6 +97,13 @@ func Info(c *gin.Context) {
 
 // ListObjects represents the API handler to list objects in a bucket.
 func ListObjects(c *gin.Context) {
+	enable := c.MustGet("storage-enable").(bool)
+	if !enable {
+		l := c.MustGet("logger").(*logrus.Entry)
+		l.Info("storage is not enabled, skipping credentials request")
+		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
+		return
+	}
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	l.Debug("listing objects in bucket")

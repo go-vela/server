@@ -52,7 +52,7 @@ func StorageSecretKey(key string) gin.HandlerFunc {
 }
 
 // StorageAddress is a middleware function that attaches the storage address used
-// to open the connection to the queue.
+// to open the connection to the storage.
 func StorageAddress(address string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("storage-address", address)
@@ -61,10 +61,19 @@ func StorageAddress(address string) gin.HandlerFunc {
 }
 
 // StorageBucket is a middleware function that attaches the bucket name used
-// to open the connection to the queue.
+// to open the connection to the storage.
 func StorageBucket(bucket string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("storage-bucket", bucket)
+		c.Next()
+	}
+}
+
+// StorageEnable is middleware function that attaches the boolean used
+// to determined if storage is enabled
+func StorageEnable(enabled bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("storage-enable", enabled)
 		c.Next()
 	}
 }

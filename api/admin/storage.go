@@ -47,6 +47,13 @@ import (
 
 // CreateBucket represents the API handler to create a new bucket.
 func CreateBucket(c *gin.Context) {
+	enable := c.MustGet("storage-enable").(bool)
+	if !enable {
+		l := c.MustGet("logger").(*logrus.Entry)
+		l.Info("storage is not enabled, skipping credentials request")
+		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
+		return
+	}
 	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
@@ -111,6 +118,13 @@ func CreateBucket(c *gin.Context) {
 
 // GetPresignedURL represents the API handler to generate a presigned URL for an object.
 func GetPresignedURL(c *gin.Context) {
+	enable := c.MustGet("storage-enable").(bool)
+	if !enable {
+		l := c.MustGet("logger").(*logrus.Entry)
+		l.Info("storage is not enabled, skipping credentials request")
+		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
+		return
+	}
 	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
