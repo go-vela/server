@@ -95,7 +95,6 @@ func New(opts ...ClientOpt) (*client, error) {
 		return nil, err
 	}
 
-	//nolint:revive // ignore returning unexported engine
 	return c, nil
 }
 
