@@ -43,7 +43,7 @@ type client struct {
 // New returns a Queue implementation that
 // integrates with a Redis queue instance.
 //
-
+//nolint:revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Redis client
 	c := new(client)
@@ -179,7 +179,7 @@ func pingQueue(c *client) error {
 //
 // This function is intended for running tests only.
 //
-
+//nolint:revive // ignore returning unexported client
 func NewTest(signingPrivateKey, signingPublicKey string, routes ...string) (*client, error) {
 	// create a local fake redis instance
 	//
