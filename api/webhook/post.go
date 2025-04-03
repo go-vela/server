@@ -237,18 +237,6 @@ func PostWebhook(c *gin.Context) {
 		}
 	}
 
-	// update custom props on all events (some repos may have these fields set prior to installing Vela)
-	repo.SetCustomProps(r.GetCustomProps())
-	repo.SetTopics(r.GetTopics())
-
-	repo, err = db.UpdateRepo(ctx, repo)
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// if event is repository event, handle separately and return
 	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {
 		r, err = handleRepositoryEvent(ctx, l, db, m, h, r, repo)
@@ -264,6 +252,19 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusOK, "handled repository event, no build to process")
+
+		return
+	}
+
+	// update custom props, topics, default branch on all events (some repos may have these fields set prior to installing Vela)
+	repo.SetBranch(r.GetBranch())
+	repo.SetCustomProps(r.GetCustomProps())
+	repo.SetTopics(r.GetTopics())
+
+	repo, err = db.UpdateRepo(ctx, repo)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
