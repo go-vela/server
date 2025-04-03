@@ -150,7 +150,6 @@ func (c *client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
-	r.SetCustomProps(repo.CustomProperties)
 
 	// convert payload to API build
 	b := new(api.Build)
@@ -283,7 +282,6 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
-	r.SetCustomProps(repo.CustomProperties)
 
 	// convert payload to api build
 	b := new(api.Build)
@@ -374,7 +372,6 @@ func (c *client) processDeploymentEvent(h *api.Hook, payload *github.DeploymentE
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
-	r.SetCustomProps(repo.CustomProperties)
 
 	// convert payload to api build
 	b := new(api.Build)
@@ -498,7 +495,6 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
-	r.SetCustomProps(repo.CustomProperties)
 
 	// convert payload to API build
 	b := new(api.Build)
@@ -545,7 +541,6 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 	r.SetPrivate(repo.GetPrivate())
 	r.SetActive(!repo.GetArchived())
 	r.SetTopics(repo.Topics)
-	r.SetCustomProps(repo.CustomProperties)
 
 	h.SetEvent(constants.EventRepository)
 	h.SetEventAction(payload.GetAction())

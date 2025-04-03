@@ -96,7 +96,6 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	repo.SetPreviousName("oldName")
 	repo.SetApproveBuild(constants.ApproveNever)
 	repo.SetApprovalTimeout(7)
-	repo.SetCustomProps(map[string]any{"foo": "bar"})
 
 	currTime := time.Now().UTC()
 	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)

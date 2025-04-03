@@ -65,7 +65,6 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
-	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("push")
@@ -145,7 +144,6 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
-	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("push")
@@ -223,7 +221,6 @@ func TestGithub_ProcessWebhook_Push_Branch_Delete(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
-	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("delete")
@@ -302,7 +299,6 @@ func TestGithub_ProcessWebhook_Push_Tag_Delete(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
-	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("delete")
@@ -363,7 +359,6 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
-	wantRepo.SetCustomProps(nil)
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("pull_request")
@@ -601,7 +596,6 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
-	wantRepo.SetCustomProps(nil)
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent(constants.EventDeploy)
@@ -739,7 +733,6 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
-	wantRepo.SetCustomProps(nil)
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent(constants.EventDeploy)
@@ -1012,7 +1005,6 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
-	wantRepo.SetCustomProps(nil)
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("comment")
@@ -1196,7 +1188,6 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
-	wantRepo.SetCustomProps(nil)
 
 	want := &internal.Webhook{
 		Hook: wantHook,
@@ -1260,7 +1251,6 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
-	wantRepo.SetCustomProps(nil)
 
 	want := &internal.Webhook{
 		Hook: wantHook,
@@ -1324,7 +1314,6 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
-	wantRepo.SetCustomProps(nil)
 
 	want := &internal.Webhook{
 		Hook: wantHook,
@@ -1387,7 +1376,6 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("main")
 	wantRepo.SetTopics([]string{"cloud", "security"})
-	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 	wantRepo.SetPrivate(false)
 
 	want := &internal.Webhook{
@@ -1452,7 +1440,6 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
-	wantRepo.SetCustomProps(nil)
 
 	want := &internal.Webhook{
 		Hook: wantHook,

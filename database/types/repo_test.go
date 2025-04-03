@@ -195,7 +195,6 @@ func TestTypes_Repo_ToAPI(t *testing.T) {
 	want.SetApproveBuild(constants.ApproveNever)
 	want.SetApprovalTimeout(7)
 	want.SetInstallID(0)
-	want.SetCustomProps(map[string]any{"foo": "bar"})
 
 	// run test
 	got := testRepo().ToAPI()
@@ -350,7 +349,6 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 	r.SetApproveBuild(constants.ApproveNever)
 	r.SetApprovalTimeout(7)
 	r.SetInstallID(0)
-	r.SetCustomProps(map[string]any{"foo": "bar"})
 
 	want := testRepo()
 	want.Owner = User{}
@@ -390,7 +388,6 @@ func testRepo() *Repo {
 		ApproveBuild:    sql.NullString{String: constants.ApproveNever, Valid: true},
 		ApprovalTimeout: sql.NullInt32{Int32: 7, Valid: true},
 		InstallID:       sql.NullInt64{Int64: 0, Valid: true},
-		CustomProps:     CustomPropsJSON{"foo": "bar"},
 
 		Owner: *testUser(),
 	}

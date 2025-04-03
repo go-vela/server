@@ -237,8 +237,7 @@ func PostWebhook(c *gin.Context) {
 		}
 	}
 
-	// update custom props on all events (some repos may have these fields set prior to installing Vela)
-	repo.SetCustomProps(r.GetCustomProps())
+	repo.SetBranch(r.GetBranch())
 	repo.SetTopics(r.GetTopics())
 
 	repo, err = db.UpdateRepo(ctx, repo)
@@ -711,10 +710,6 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 
 		if !reflect.DeepEqual(dbRepo.GetTopics(), r.GetTopics()) {
 			dbRepo.SetTopics(r.GetTopics())
-		}
-
-		if !reflect.DeepEqual(dbRepo.GetCustomProps(), r.GetCustomProps()) {
-			dbRepo.SetCustomProps(r.GetCustomProps())
 		}
 
 		// update repo object in the database after applying edits
