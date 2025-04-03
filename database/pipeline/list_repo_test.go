@@ -7,11 +7,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
@@ -54,11 +53,21 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "commit", "flavor", "platform", "ref", "type", "version", "services", "stages", "steps", "templates", "data"}).
-		AddRow(1, 1, "48afb5bdc41ad69bf22588491333f7cf71135163", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69}).
-		AddRow(2, 1, "a49aaf4afae6431a79239c95247a2b169fd9f067", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
+	dbPipelineOne := types.PipelineFromAPI(_pipelineOne)
+
+	err := dbPipelineOne.Compress(0)
+	if err != nil {
+		t.Errorf("unable to compress pipeline: %v", err)
+	}
+
+	dbPipelineTwo := types.PipelineFromAPI(_pipelineTwo)
+
+	err = dbPipelineTwo.Compress(0)
+	if err != nil {
+		t.Errorf("unable to compress pipeline: %v", err)
+	}
+
+	_rows := testutils.CreateMockRows([]any{*dbPipelineOne, *dbPipelineTwo})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)

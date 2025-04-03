@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
@@ -23,9 +23,19 @@ func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "build_id", "data"}).
-		AddRow(1, 1, "+//18dbf7mF+v7ZPK3Wo5h2TD6v4Zg95sCMUJYO2tpwY37DEgTxW5xdyt3Tey9w=")
+	dbExecutable := types.BuildExecutableFromAPI(_bExecutable)
+
+	err := dbExecutable.Compress(0)
+	if err != nil {
+		t.Errorf("unable to compress build executable: %v", err)
+	}
+
+	err = dbExecutable.Encrypt("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW")
+	if err != nil {
+		t.Errorf("unable to encrypt build executable: %v", err)
+	}
+
+	_rows := testutils.CreateMockRows([]any{*dbExecutable})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`DELETE FROM "build_executables" WHERE build_id = $1 RETURNING *`).WithArgs(1).WillReturnRows(_rows)
@@ -33,7 +43,7 @@ func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateBuildExecutable(context.TODO(), _bExecutable)
+	err = _sqlite.CreateBuildExecutable(context.TODO(), _bExecutable)
 	if err != nil {
 		t.Errorf("unable to create test build executable for sqlite: %v", err)
 	}
