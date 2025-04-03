@@ -24,7 +24,7 @@ var (
 type (
 	// Platform is the database representation of platform settings.
 	Platform struct {
-		ID       sql.NullInt64 `sql:"id"`
+		ID       sql.NullInt32 `sql:"id"`
 		Compiler `json:"compiler" sql:"compiler"`
 		Queue    `json:"queue"    sql:"queue"`
 
@@ -97,7 +97,7 @@ func (ps *Platform) Nullify() *Platform {
 	}
 
 	// check if the ID field should be false
-	if ps.ID.Int64 == 0 {
+	if ps.ID.Int32 == 0 {
 		ps.ID.Valid = false
 	}
 
@@ -123,7 +123,7 @@ func (ps *Platform) Nullify() *Platform {
 // to an API Settings type.
 func (ps *Platform) ToAPI() *settings.Platform {
 	psAPI := new(settings.Platform)
-	psAPI.SetID(ps.ID.Int64)
+	psAPI.SetID(ps.ID.Int32)
 
 	psAPI.SetRepoAllowlist(ps.RepoAllowlist)
 	psAPI.SetScheduleAllowlist(ps.ScheduleAllowlist)
@@ -198,7 +198,7 @@ func (ps *Platform) Validate() error {
 // to a database Settings type.
 func SettingsFromAPI(s *settings.Platform) *Platform {
 	settings := &Platform{
-		ID: sql.NullInt64{Int64: s.GetID(), Valid: true},
+		ID: sql.NullInt32{Int32: s.GetID(), Valid: true},
 		Compiler: Compiler{
 			CloneImage:        sql.NullString{String: s.GetCloneImage(), Valid: true},
 			TemplateDepth:     sql.NullInt64{Int64: int64(s.GetTemplateDepth()), Valid: true},

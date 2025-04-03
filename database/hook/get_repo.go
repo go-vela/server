@@ -13,7 +13,7 @@ import (
 )
 
 // GetHookForRepo gets a hook by repo ID and number from the database.
-func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int) (*api.Hook, error) {
+func (e *engine) GetHookForRepo(ctx context.Context, r *api.Repo, number int64) (*api.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"hook": number,
 		"org":  r.GetOrg(),

@@ -60,8 +60,8 @@ type (
 		Clone           sql.NullString  `sql:"clone"`
 		Branch          sql.NullString  `sql:"branch"`
 		Topics          pq.StringArray  `sql:"topics"           gorm:"type:varchar(1020)"`
-		BuildLimit      sql.NullInt64   `sql:"build_limit"`
-		Timeout         sql.NullInt64   `sql:"timeout"`
+		BuildLimit      sql.NullInt32   `sql:"build_limit"`
+		Timeout         sql.NullInt32   `sql:"timeout"`
 		Counter         sql.NullInt64   `sql:"counter"`
 		Visibility      sql.NullString  `sql:"visibility"`
 		Private         sql.NullBool    `sql:"private"`
@@ -71,7 +71,7 @@ type (
 		PipelineType    sql.NullString  `sql:"pipeline_type"`
 		PreviousName    sql.NullString  `sql:"previous_name"`
 		ApproveBuild    sql.NullString  `sql:"approve_build"`
-		ApprovalTimeout sql.NullInt64   `sql:"approval_timeout"`
+		ApprovalTimeout sql.NullInt32   `sql:"approval_timeout"`
 		InstallID       sql.NullInt64   `sql:"install_id"`
 		CustomProps     CustomPropsJSON `sql:"custom_props"`
 
@@ -215,12 +215,12 @@ func (r *Repo) Nullify() *Repo {
 	}
 
 	// check if the BuildLimit field should be false
-	if r.BuildLimit.Int64 == 0 {
+	if r.BuildLimit.Int32 == 0 {
 		r.BuildLimit.Valid = false
 	}
 
 	// check if the Timeout field should be false
-	if r.Timeout.Int64 == 0 {
+	if r.Timeout.Int32 == 0 {
 		r.Timeout.Valid = false
 	}
 
@@ -250,7 +250,7 @@ func (r *Repo) Nullify() *Repo {
 	}
 
 	// check if the ApprovalTimeout field should be false
-	if r.ApprovalTimeout.Int64 == 0 {
+	if r.ApprovalTimeout.Int32 == 0 {
 		r.ApprovalTimeout.Valid = false
 	}
 
@@ -280,9 +280,9 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetClone(r.Clone.String)
 	repo.SetBranch(r.Branch.String)
 	repo.SetTopics(r.Topics)
-	repo.SetBuildLimit(r.BuildLimit.Int64)
-	repo.SetTimeout(r.Timeout.Int64)
-	repo.SetCounter(int(r.Counter.Int64))
+	repo.SetBuildLimit(r.BuildLimit.Int32)
+	repo.SetTimeout(r.Timeout.Int32)
+	repo.SetCounter(r.Counter.Int64)
 	repo.SetVisibility(r.Visibility.String)
 	repo.SetPrivate(r.Private.Bool)
 	repo.SetTrusted(r.Trusted.Bool)
@@ -291,7 +291,7 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetPipelineType(r.PipelineType.String)
 	repo.SetPreviousName(r.PreviousName.String)
 	repo.SetApproveBuild(r.ApproveBuild.String)
-	repo.SetApprovalTimeout(r.ApprovalTimeout.Int64)
+	repo.SetApprovalTimeout(r.ApprovalTimeout.Int32)
 	repo.SetInstallID(r.InstallID.Int64)
 	repo.SetCustomProps(r.CustomProps)
 
@@ -375,9 +375,9 @@ func RepoFromAPI(r *api.Repo) *Repo {
 		Clone:           sql.NullString{String: r.GetClone(), Valid: true},
 		Branch:          sql.NullString{String: r.GetBranch(), Valid: true},
 		Topics:          pq.StringArray(r.GetTopics()),
-		BuildLimit:      sql.NullInt64{Int64: r.GetBuildLimit(), Valid: true},
-		Timeout:         sql.NullInt64{Int64: r.GetTimeout(), Valid: true},
-		Counter:         sql.NullInt64{Int64: int64(r.GetCounter()), Valid: true},
+		BuildLimit:      sql.NullInt32{Int32: r.GetBuildLimit(), Valid: true},
+		Timeout:         sql.NullInt32{Int32: r.GetTimeout(), Valid: true},
+		Counter:         sql.NullInt64{Int64: r.GetCounter(), Valid: true},
 		Visibility:      sql.NullString{String: r.GetVisibility(), Valid: true},
 		Private:         sql.NullBool{Bool: r.GetPrivate(), Valid: true},
 		Trusted:         sql.NullBool{Bool: r.GetTrusted(), Valid: true},
@@ -386,7 +386,7 @@ func RepoFromAPI(r *api.Repo) *Repo {
 		PipelineType:    sql.NullString{String: r.GetPipelineType(), Valid: true},
 		PreviousName:    sql.NullString{String: r.GetPreviousName(), Valid: true},
 		ApproveBuild:    sql.NullString{String: r.GetApproveBuild(), Valid: true},
-		ApprovalTimeout: sql.NullInt64{Int64: r.GetApprovalTimeout(), Valid: true},
+		ApprovalTimeout: sql.NullInt32{Int32: r.GetApprovalTimeout(), Valid: true},
 		InstallID:       sql.NullInt64{Int64: r.GetInstallID(), Valid: true},
 		CustomProps:     r.GetCustomProps(),
 	}

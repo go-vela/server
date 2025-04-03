@@ -13,7 +13,7 @@ import (
 )
 
 // GetServiceForBuild gets a service by number and build ID from the database.
-func (e *engine) GetServiceForBuild(ctx context.Context, b *api.Build, number int) (*api.Service, error) {
+func (e *engine) GetServiceForBuild(ctx context.Context, b *api.Build, number int32) (*api.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build":   b.GetNumber(),
 		"service": number,

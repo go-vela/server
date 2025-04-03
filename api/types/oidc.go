@@ -25,8 +25,9 @@ type OpenIDClaims struct {
 	ActorSCMID  string         `json:"actor_scm_id,omitempty"`
 	Branch      string         `json:"branch,omitempty"`
 	BuildID     int64          `json:"build_id,omitempty"`
-	BuildNumber int            `json:"build_number,omitempty"`
+	BuildNumber int64          `json:"build_number,omitempty"`
 	Commands    bool           `json:"commands,omitempty"`
+	CustomProps map[string]any `json:"custom_properties,omitempty"`
 	Event       string         `json:"event,omitempty"`
 	Image       string         `json:"image,omitempty"`
 	ImageName   string         `json:"image_name,omitempty"`
@@ -36,7 +37,6 @@ type OpenIDClaims struct {
 	Repo        string         `json:"repo,omitempty"`
 	Request     string         `json:"request,omitempty"`
 	SHA         string         `json:"sha,omitempty"`
-	CustomProps map[string]any `json:"custom_properties,omitempty"`
 	TokenType   string         `json:"token_type,omitempty"`
 	jwt.RegisteredClaims
 }
