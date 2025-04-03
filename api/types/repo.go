@@ -21,9 +21,9 @@ type Repo struct {
 	Clone           *string   `json:"clone,omitempty"`
 	Branch          *string   `json:"branch,omitempty"`
 	Topics          *[]string `json:"topics,omitempty"`
-	BuildLimit      *int64    `json:"build_limit,omitempty"`
-	Timeout         *int64    `json:"timeout,omitempty"`
-	Counter         *int      `json:"counter,omitempty"`
+	BuildLimit      *int32    `json:"build_limit,omitempty"`
+	Timeout         *int32    `json:"timeout,omitempty"`
+	Counter         *int64    `json:"counter,omitempty"`
 	Visibility      *string   `json:"visibility,omitempty"`
 	Private         *bool     `json:"private,omitempty"`
 	Trusted         *bool     `json:"trusted,omitempty"`
@@ -32,7 +32,7 @@ type Repo struct {
 	PipelineType    *string   `json:"pipeline_type,omitempty"`
 	PreviousName    *string   `json:"previous_name,omitempty"`
 	ApproveBuild    *string   `json:"approve_build,omitempty"`
-	ApprovalTimeout *int64    `json:"approval_timeout,omitempty"`
+	ApprovalTimeout *int32    `json:"approval_timeout,omitempty"`
 	InstallID       *int64    `json:"install_id,omitempty"`
 }
 
@@ -209,7 +209,7 @@ func (r *Repo) GetTopics() []string {
 //
 // When the provided Repo type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *Repo) GetBuildLimit() int64 {
+func (r *Repo) GetBuildLimit() int32 {
 	// return zero value if Repo type or BuildLimit field is nil
 	if r == nil || r.BuildLimit == nil {
 		return 0
@@ -222,7 +222,7 @@ func (r *Repo) GetBuildLimit() int64 {
 //
 // When the provided Repo type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *Repo) GetTimeout() int64 {
+func (r *Repo) GetTimeout() int32 {
 	// return zero value if Repo type or Timeout field is nil
 	if r == nil || r.Timeout == nil {
 		return 0
@@ -235,7 +235,7 @@ func (r *Repo) GetTimeout() int64 {
 //
 // When the provided Repo type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *Repo) GetCounter() int {
+func (r *Repo) GetCounter() int64 {
 	// return zero value if Repo type or Counter field is nil
 	if r == nil || r.Counter == nil {
 		return 0
@@ -352,7 +352,7 @@ func (r *Repo) GetApproveBuild() string {
 //
 // When the provided Repo type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *Repo) GetApprovalTimeout() int64 {
+func (r *Repo) GetApprovalTimeout() int32 {
 	// return zero value if Repo type or ApprovalTimeout field is nil
 	if r == nil || r.ApprovalTimeout == nil {
 		return 0
@@ -508,7 +508,7 @@ func (r *Repo) SetTopics(v []string) {
 //
 // When the provided Repo type is nil, it
 // will set nothing and immediately return.
-func (r *Repo) SetBuildLimit(v int64) {
+func (r *Repo) SetBuildLimit(v int32) {
 	// return if Repo type is nil
 	if r == nil {
 		return
@@ -521,7 +521,7 @@ func (r *Repo) SetBuildLimit(v int64) {
 //
 // When the provided Repo type is nil, it
 // will set nothing and immediately return.
-func (r *Repo) SetTimeout(v int64) {
+func (r *Repo) SetTimeout(v int32) {
 	// return if Repo type is nil
 	if r == nil {
 		return
@@ -534,7 +534,7 @@ func (r *Repo) SetTimeout(v int64) {
 //
 // When the provided Repo type is nil, it
 // will set nothing and immediately return.
-func (r *Repo) SetCounter(v int) {
+func (r *Repo) SetCounter(v int64) {
 	// return if Repo type is nil
 	if r == nil {
 		return
@@ -651,7 +651,7 @@ func (r *Repo) SetApproveBuild(v string) {
 //
 // When the provided Repo type is nil, it
 // will set nothing and immediately return.
-func (r *Repo) SetApprovalTimeout(v int64) {
+func (r *Repo) SetApprovalTimeout(v int32) {
 	// return if Repo type is nil
 	if r == nil {
 		return

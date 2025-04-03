@@ -292,7 +292,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	// setup types
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -381,7 +381,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 	// setup types
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -1876,7 +1876,7 @@ func TestNative_Compile_StageNameCollision(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -2245,7 +2245,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -2300,7 +2300,7 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 	name := "foo"
 	author := "author"
 	event := "push"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -2675,7 +2675,7 @@ func Test_client_modifyConfig(t *testing.T) {
 
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	type args struct {
 		endpoint string

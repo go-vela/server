@@ -14,7 +14,7 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 users (
-	id             SERIAL PRIMARY KEY,
+	id             BIGSERIAL PRIMARY KEY,
 	name           VARCHAR(250),
 	refresh_token  VARCHAR(500),
 	token          VARCHAR(500),

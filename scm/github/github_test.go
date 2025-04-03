@@ -74,12 +74,10 @@ func TestGithub_newClientToken(t *testing.T) {
 	// run test
 	got := client.newOAuthTokenClient(context.Background(), "foobar")
 
-	//nolint:staticcheck // ignore false positive
 	if got == nil {
 		t.Errorf("newClientToken is nil, want %v", want)
 	}
 
-	//nolint:staticcheck // ignore false positive
 	if !reflect.DeepEqual(got.BaseURL, want.BaseURL) {
 		t.Errorf("newClientToken BaseURL is %v, want %v", got.BaseURL, want.BaseURL)
 	}
