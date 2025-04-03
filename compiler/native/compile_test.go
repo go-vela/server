@@ -2068,7 +2068,7 @@ func TestNative_Compile_StepNameCollision(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
