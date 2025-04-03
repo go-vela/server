@@ -89,7 +89,7 @@ func TestPipeline_Build_Purge(t *testing.T) {
 						Number:      2,
 						Pull:        "always",
 						Ruleset: Ruleset{
-							If:       Rules{Event: []string{"push"}, Branch: []string{"*-dev"}},
+							If:       Rules{Event: []string{"push"}, Branch: []string{"*-dev"}, Matcher: "regexp"},
 							Operator: "and",
 							Matcher:  "regexp",
 						},
