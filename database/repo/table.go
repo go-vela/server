@@ -36,12 +36,8 @@ repos (
 	previous_name    VARCHAR(100),
 	approve_build    VARCHAR(20),
 	approval_timeout INTEGER,
-<<<<<<< HEAD
-	install_id       INTEGER,
-	custom_props     JSON DEFAULT NULL,
-=======
 	install_id       BIGINT,
->>>>>>> main
+	custom_props     JSON DEFAULT NULL,
 	UNIQUE(full_name)
 );
 `
