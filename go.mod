@@ -1,6 +1,6 @@
 module github.com/go-vela/server
 
-go 1.23.5
+go 1.24.2
 
 require (
 	github.com/Bose/minisentinel v0.0.0-20200130220412-917c5a9223bb
