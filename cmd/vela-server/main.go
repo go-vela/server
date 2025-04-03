@@ -18,6 +18,7 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
+	"github.com/go-vela/server/storage"
 	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/server/version"
 )
@@ -293,6 +294,9 @@ func main() {
 
 	// Add Tracing Flags
 	app.Flags = append(app.Flags, tracing.Flags...)
+
+	// Add S3 Flags
+	app.Flags = append(app.Flags, storage.Flags...)
 
 	if err = app.Run(os.Args); err != nil {
 		logrus.Fatal(err)

@@ -128,6 +128,7 @@ func New(opts ...ClientOpt) (*client, error) {
 		go c.refreshToken()
 	}
 
+	//nolint:revive // ignore returning unexported engine
 	return c, nil
 }
 

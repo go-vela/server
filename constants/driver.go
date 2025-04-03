@@ -62,3 +62,11 @@ const (
 	// DriverGitLab defines the driver type when integrating with a Gitlab source code system.
 	DriverGitlab = "gitlab"
 )
+
+// Server storage drivers.
+const (
+	// DriverMinio defines the driver type when integrating with a local storage system.
+	DriverMinio = "minio"
+	// DriverAws defines the driver type when integrating with an AWS S3 storage system.
+	DriverAws = "aws"
+)

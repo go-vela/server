@@ -31,7 +31,7 @@ release/
 *.iml
 *.ipr
 *.iws
-*.xml
+#*.xml
 
 # Secrets environment file
 secrets.env
