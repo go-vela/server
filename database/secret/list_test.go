@@ -7,10 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestSecret_Engine_ListSecrets(t *testing.T) {
@@ -45,10 +44,7 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2").
-		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2")
+	_rows := testutils.CreateMockRows([]any{*types.SecretFromAPI(_secretOne), *types.SecretFromAPI(_secretTwo)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "secrets"`).WillReturnRows(_rows)
