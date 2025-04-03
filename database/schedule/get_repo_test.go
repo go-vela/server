@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestSchedule_Engine_GetScheduleForRepo(t *testing.T) {
@@ -73,9 +73,7 @@ func TestSchedule_Engine_GetScheduleForRepo(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "active", "name", "entry", "created_at", "created_by", "updated_at", "updated_by", "scheduled_at", "branch", "error"}).
-		AddRow(1, 1, true, "nightly", "0 0 * * *", 1713476291, "octocat", 3013476291, "octokitty", 2013476291, "main", "no version: YAML property provided")
+	_rows := testutils.CreateMockRows([]any{*types.ScheduleFromAPI(_schedule)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "schedules" WHERE repo_id = $1 AND name = $2 LIMIT $3`).WithArgs(1, "nightly", 1).WillReturnRows(_rows)

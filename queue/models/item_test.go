@@ -12,8 +12,8 @@ import (
 func TestTypes_ToItem(t *testing.T) {
 	// setup types
 	booL := false
-	num := 1
-	num64 := int64(num)
+	num16 := int32(1)
+	num64 := int64(1)
 	str := "foo"
 	e := new(api.Events)
 
@@ -34,15 +34,15 @@ func TestTypes_ToItem(t *testing.T) {
 			Link:        &str,
 			Clone:       &str,
 			Branch:      &str,
-			Timeout:     &num64,
+			Timeout:     &num16,
 			Visibility:  &str,
 			Private:     &booL,
 			Trusted:     &booL,
 			Active:      &booL,
 			AllowEvents: e,
 		},
-		Number:   &num,
-		Parent:   &num,
+		Number:   &num64,
+		Parent:   &num64,
 		Event:    &str,
 		Status:   &str,
 		Error:    &str,
@@ -80,15 +80,15 @@ func TestTypes_ToItem(t *testing.T) {
 				Link:        &str,
 				Clone:       &str,
 				Branch:      &str,
-				Timeout:     &num64,
+				Timeout:     &num16,
 				Visibility:  &str,
 				Private:     &booL,
 				Trusted:     &booL,
 				Active:      &booL,
 				AllowEvents: e,
 			},
-			Number:   &num,
-			Parent:   &num,
+			Number:   &num64,
+			Parent:   &num64,
 			Event:    &str,
 			Status:   &str,
 			Error:    &str,

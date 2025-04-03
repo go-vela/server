@@ -37,12 +37,12 @@ type (
 		Directory   string            `json:"directory,omitempty"   yaml:"directory,omitempty"`
 		Entrypoint  []string          `json:"entrypoint,omitempty"  yaml:"entrypoint,omitempty"`
 		Environment map[string]string `json:"environment,omitempty" yaml:"environment,omitempty"`
-		ExitCode    int               `json:"exit_code,omitempty"   yaml:"exit_code,omitempty"`
+		ExitCode    int32             `json:"exit_code,omitempty"   yaml:"exit_code,omitempty"`
 		Image       string            `json:"image,omitempty"       yaml:"image,omitempty"`
 		Name        string            `json:"name,omitempty"        yaml:"name,omitempty"`
 		Needs       []string          `json:"needs,omitempty"       yaml:"needs,omitempty"`
 		Networks    []string          `json:"networks,omitempty"    yaml:"networks,omitempty"`
-		Number      int               `json:"number,omitempty"      yaml:"number,omitempty"`
+		Number      int32             `json:"number,omitempty"      yaml:"number,omitempty"`
 		Ports       []string          `json:"ports,omitempty"       yaml:"ports,omitempty"`
 		Privileged  bool              `json:"privileged,omitempty"  yaml:"privileged,omitempty"`
 		Pull        string            `json:"pull,omitempty"        yaml:"pull,omitempty"`
@@ -60,7 +60,7 @@ type (
 // Purge removes the Containers that have a ruleset
 // that do not match the provided ruledata.
 func (c *ContainerSlice) Purge(r *RuleData) (*ContainerSlice, error) {
-	counter := 1
+	counter := int32(1)
 	containers := new(ContainerSlice)
 
 	// iterate through each Container in the pipeline
