@@ -58,7 +58,6 @@ func (r *Repo) Environment() map[string]string {
 		"VELA_REPO_APPROVE_BUILD":    ToString(r.GetApproveBuild()),
 		"VELA_REPO_APPROVAL_TIMEOUT": ToString(r.GetApprovalTimeout()),
 		"VELA_REPO_OWNER":            ToString(r.GetOwner().GetName()),
-		"VELA_REPO_INSTALL_ID":       ToString(r.GetInstallID()),
 
 		// deprecated environment variables
 		"REPOSITORY_ACTIVE":       ToString(r.GetActive()),
@@ -698,7 +697,7 @@ func (r *Repo) String() string {
   Topics: %s,
   Trusted: %t,
   Visibility: %s,
-  InstallID: %d,
+  InstallID: %d
 }`,
 		r.GetActive(),
 		r.GetAllowEvents().List(),

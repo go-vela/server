@@ -33,7 +33,6 @@ func TestTypes_Repo_Environment(t *testing.T) {
 		"VELA_REPO_APPROVE_BUILD":    "never",
 		"VELA_REPO_APPROVAL_TIMEOUT": "7",
 		"VELA_REPO_OWNER":            "octocat",
-		"VELA_REPO_INSTALL_ID":       "123",
 		"REPOSITORY_ACTIVE":          "true",
 		"REPOSITORY_ALLOW_EVENTS":    "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,tag,comment:created,schedule,delete:branch",
 		"REPOSITORY_BRANCH":          "main",
@@ -325,7 +324,7 @@ func TestTypes_Repo_String(t *testing.T) {
   Topics: %s,
   Trusted: %t,
   Visibility: %s,
-  InstallID: %d,
+  InstallID: %d
 }`,
 		r.GetActive(),
 		r.GetAllowEvents().List(),

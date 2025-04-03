@@ -98,11 +98,7 @@
       "open_issues": 2,
       "watchers": 0,
       "default_branch": "main",
-      "topics": ["cloud", "security"],
-      "custom_properties": {
-        "prop_1": "foo",
-        "prop_2": "bar"
-      }
+      "topics": ["cloud", "security"]
     },
     "enterprise": {
         "id": 1,
