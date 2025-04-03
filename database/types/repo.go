@@ -45,33 +45,35 @@ var (
 )
 
 // Repo is the database representation of a repo.
-type Repo struct {
-	ID              sql.NullInt64  `sql:"id"`
-	UserID          sql.NullInt64  `sql:"user_id"`
-	Hash            sql.NullString `sql:"hash"`
-	Org             sql.NullString `sql:"org"`
-	Name            sql.NullString `sql:"name"`
-	FullName        sql.NullString `sql:"full_name"`
-	Link            sql.NullString `sql:"link"`
-	Clone           sql.NullString `sql:"clone"`
-	Branch          sql.NullString `sql:"branch"`
-	Topics          pq.StringArray `sql:"topics"           gorm:"type:varchar(1020)"`
-	BuildLimit      sql.NullInt32  `sql:"build_limit"`
-	Timeout         sql.NullInt32  `sql:"timeout"`
-	Counter         sql.NullInt64  `sql:"counter"`
-	Visibility      sql.NullString `sql:"visibility"`
-	Private         sql.NullBool   `sql:"private"`
-	Trusted         sql.NullBool   `sql:"trusted"`
-	Active          sql.NullBool   `sql:"active"`
-	AllowEvents     sql.NullInt64  `sql:"allow_events"`
-	PipelineType    sql.NullString `sql:"pipeline_type"`
-	PreviousName    sql.NullString `sql:"previous_name"`
-	ApproveBuild    sql.NullString `sql:"approve_build"`
-	ApprovalTimeout sql.NullInt32  `sql:"approval_timeout"`
-	InstallID       sql.NullInt64  `sql:"install_id"`
+type (
+	Repo struct {
+		ID              sql.NullInt64  `sql:"id"`
+		UserID          sql.NullInt64  `sql:"user_id"`
+		Hash            sql.NullString `sql:"hash"`
+		Org             sql.NullString `sql:"org"`
+		Name            sql.NullString `sql:"name"`
+		FullName        sql.NullString `sql:"full_name"`
+		Link            sql.NullString `sql:"link"`
+		Clone           sql.NullString `sql:"clone"`
+		Branch          sql.NullString `sql:"branch"`
+		Topics          pq.StringArray `sql:"topics"           gorm:"type:varchar(1020)"`
+		BuildLimit      sql.NullInt32  `sql:"build_limit"`
+		Timeout         sql.NullInt32  `sql:"timeout"`
+		Counter         sql.NullInt64  `sql:"counter"`
+		Visibility      sql.NullString `sql:"visibility"`
+		Private         sql.NullBool   `sql:"private"`
+		Trusted         sql.NullBool   `sql:"trusted"`
+		Active          sql.NullBool   `sql:"active"`
+		AllowEvents     sql.NullInt64  `sql:"allow_events"`
+		PipelineType    sql.NullString `sql:"pipeline_type"`
+		PreviousName    sql.NullString `sql:"previous_name"`
+		ApproveBuild    sql.NullString `sql:"approve_build"`
+		ApprovalTimeout sql.NullInt32  `sql:"approval_timeout"`
+		InstallID       sql.NullInt64  `sql:"install_id"`
 
-	Owner User `gorm:"foreignKey:UserID"`
-}
+		Owner User `gorm:"foreignKey:UserID"`
+	}
+)
 
 // Decrypt will manipulate the existing repo hash by
 // base64 decoding that value. Then, a AES-256 cipher

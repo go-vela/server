@@ -7,11 +7,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
@@ -46,10 +45,7 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected name query result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(2, "org", "foo", "*", "", "bar", "baz", nil, 1, false, false, 1, "user", 1, "user2").
-		AddRow(1, "org", "foo", "*", "", "baz", "bar", nil, 1, false, false, 1, "user", 1, "user2")
+	_rows := testutils.CreateMockRows([]any{*types.SecretFromAPI(_secretTwo), *types.SecretFromAPI(_secretOne)})
 
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 ORDER BY id DESC LIMIT $3`).
