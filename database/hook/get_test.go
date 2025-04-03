@@ -6,12 +6,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestHook_Engine_GetHook(t *testing.T) {
@@ -54,21 +54,13 @@ func TestHook_Engine_GetHook(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "event_action", "branch", "error", "status", "link", "webhook_id"},
-	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1)
+	_rows := testutils.CreateMockRows([]any{*types.HookFromAPI(_hook)})
 
-	_buildRows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_number", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
-		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", 0, nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+	_buildRows := testutils.CreateMockRows([]any{*types.BuildFromAPI(_build)})
 
-	_repoRows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+	_repoRows := testutils.CreateMockRows([]any{*types.RepoFromAPI(_repo)})
 
-	_userRows := sqlmock.NewRows(
-		[]string{"id", "name", "token", "hash", "active", "admin"}).
-		AddRow(1, "foo", "bar", "baz", false, false)
+	_userRows := testutils.CreateMockRows([]any{*types.UserFromAPI(_owner)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "hooks" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)

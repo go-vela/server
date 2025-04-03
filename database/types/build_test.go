@@ -12,7 +12,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/database/testutils"
 )
 
 func TestTypes_Build_Crop(t *testing.T) {
@@ -206,7 +205,7 @@ func TestTypes_Build_BuildFromAPI(t *testing.T) {
 	// setup types
 	b := new(api.Build)
 
-	r := testutils.APIRepo()
+	r := new(api.Repo)
 	r.SetID(1)
 
 	b.SetID(1)

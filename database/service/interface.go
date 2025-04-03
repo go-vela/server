@@ -37,11 +37,11 @@ type ServiceInterface interface {
 	// GetService defines a function that gets a service by ID.
 	GetService(context.Context, int64) (*api.Service, error)
 	// GetServiceForBuild defines a function that gets a service by number and build ID.
-	GetServiceForBuild(context.Context, *api.Build, int) (*api.Service, error)
+	GetServiceForBuild(context.Context, *api.Build, int32) (*api.Service, error)
 	// ListServices defines a function that gets a list of all services.
 	ListServices(context.Context) ([]*api.Service, error)
 	// ListServicesForBuild defines a function that gets a list of services by build ID.
-	ListServicesForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*api.Service, int64, error)
+	ListServicesForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*api.Service, error)
 	// ListServiceImageCount defines a function that gets a list of all service images and the count of their occurrence.
 	ListServiceImageCount(context.Context) (map[string]float64, error)
 	// ListServiceStatusCount defines a function that gets a list of all service statuses and the count of their occurrence.

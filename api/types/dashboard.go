@@ -11,7 +11,7 @@ import (
 type RepoPartial struct {
 	Org     string         `json:"org,omitempty"`
 	Name    string         `json:"name,omitempty"`
-	Counter int            `json:"counter,omitempty"`
+	Counter int64          `json:"counter,omitempty"`
 	Active  bool           `json:"active,omitempty"`
 	Builds  []BuildPartial `json:"builds,omitempty"`
 }
@@ -19,7 +19,7 @@ type RepoPartial struct {
 // BuildPartial is an API type that holds all relevant information
 // for a build attached to a RepoPartial.
 type BuildPartial struct {
-	Number   int    `json:"number,omitempty"`
+	Number   int64  `json:"number,omitempty"`
 	Started  int64  `json:"started,omitempty"`
 	Finished int64  `json:"finished,omitempty"`
 	Sender   string `json:"sender,omitempty"`

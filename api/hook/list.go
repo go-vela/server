@@ -112,7 +112,7 @@ func ListHooks(c *gin.Context) {
 	perPage = max(1, min(100, perPage))
 
 	// send API call to capture the list of steps for the build
-	h, t, err := database.FromContext(c).ListHooksForRepo(ctx, r, page, perPage)
+	h, err := database.FromContext(c).ListHooksForRepo(ctx, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get hooks for repo %s: %w", r.GetFullName(), err)
 
@@ -125,7 +125,7 @@ func ListHooks(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   t,
+		Results: len(h),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)
