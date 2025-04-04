@@ -4,7 +4,7 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/tracing"
