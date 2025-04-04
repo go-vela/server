@@ -5,7 +5,7 @@ package secret
 import (
 	"time"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // Flags represents all supported command line

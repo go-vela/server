@@ -16,7 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-github/v70/github"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	yml "gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
