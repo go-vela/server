@@ -18,8 +18,8 @@ type Build struct {
 	ID            *int64              `json:"id,omitempty"`
 	Repo          *Repo               `json:"repo,omitempty"`
 	PipelineID    *int64              `json:"pipeline_id,omitempty"`
-	Number        *int                `json:"number,omitempty"`
-	Parent        *int                `json:"parent,omitempty"`
+	Number        *int64              `json:"number,omitempty"`
+	Parent        *int64              `json:"parent,omitempty"`
 	Event         *string             `json:"event,omitempty"`
 	EventAction   *string             `json:"event_action,omitempty"`
 	Status        *string             `json:"status,omitempty"`
@@ -286,7 +286,7 @@ func (b *Build) GetPipelineID() int64 {
 //
 // When the provided Build type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (b *Build) GetNumber() int {
+func (b *Build) GetNumber() int64 {
 	// return zero value if Build type or Number field is nil
 	if b == nil || b.Number == nil {
 		return 0
@@ -299,7 +299,7 @@ func (b *Build) GetNumber() int {
 //
 // When the provided Build type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (b *Build) GetParent() int {
+func (b *Build) GetParent() int64 {
 	// return zero value if Build type or Parent field is nil
 	if b == nil || b.Parent == nil {
 		return 0
@@ -754,7 +754,7 @@ func (b *Build) SetPipelineID(v int64) {
 //
 // When the provided Build type is nil, it
 // will set nothing and immediately return.
-func (b *Build) SetNumber(v int) {
+func (b *Build) SetNumber(v int64) {
 	// return if Build type is nil
 	if b == nil {
 		return
@@ -767,7 +767,7 @@ func (b *Build) SetNumber(v int) {
 //
 // When the provided Build type is nil, it
 // will set nothing and immediately return.
-func (b *Build) SetParent(v int) {
+func (b *Build) SetParent(v int64) {
 	// return if Build type is nil
 	if b == nil {
 		return

@@ -1,3 +1,4 @@
+version: "2"
 # This is a manually created golangci.com yaml configuration with
 # some defaults explicitly provided. There is a large number of
 # linters we've enabled that are usually disabled by default.
@@ -9,72 +10,16 @@
 output:
   # colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
   formats:
-    - format: json
-      path: stderr
-    - format: colored-line-number
-
-  # print lines of code with issue, default is true
-  print-issued-lines: true
-
-  # print linter name in the end of issue text, default is true
-  print-linter-name: true
-
-  # make issues output unique by line, default is true
-  uniq-by-line: true
-
-# This section provides the configuration for each linter
-# we've instructed golangci to execute.
-linters-settings:
-  # https://github.com/mibk/dupl
-  dupl:
-    threshold: 100
-
-  # https://github.com/ultraware/funlen
-  funlen:
-    # accounting for comments
-    lines: 160
-    statements: 70
-
-  # https://github.com/daixiang0/gci
-  # ensure import order is consistent
-  # gci write --custom-order -s standard -s default -s blank -s dot -s "prefix(github.com/go-vela)" .
-  gci:
-    custom-order: true
-    sections:
-      - standard
-      - default
-      - blank
-      - dot
-      - prefix(github.com/go-vela)
-
-  # https://golangci-lint.run/usage/linters/#tagalign
-  # ensure struct tags are aligned
-  # will auto fix with `make lintfix`  
-  tagalign:
-    sort: false
-
-  # https://github.com/denis-tingaikin/go-header
-  goheader:
-    template: |-
-      SPDX-License-Identifier: Apache-2.0
-
-  # https://github.com/client9/misspell
-  misspell:
-    locale: US
-
-  # https://github.com/golangci/golangci-lint/blob/master/pkg/golinters/nolintlint
-  nolintlint:
-    allow-unused: false # allow nolint directives that don't address a linting issue
-    require-explanation: true # require an explanation for nolint directives
-    require-specific: true # require nolint directives to be specific about which linter is being skipped
-
-# This section provides the configuration for which linters
-# golangci will execute. Several of them were disabled by
-# default but we've opted to enable them.
+    text:
+      path: stdout
+      # print linter name in the end of issue text, default is true
+      print-linter-name: true
+      # print lines of code with issue, default is true
+      print-issued-lines: true
 linters:
   # disable all linters as new linters might be added to golangci
-  disable-all: true
-
+  # in v2, this is for disable-all: true
+  default: none
   # enable a specific set of linters to run
   enable:
     - bidichk # checks for dangerous unicode character sequences
@@ -84,16 +29,13 @@ linters:
     - errcheck # checks for unchecked errors
     - errorlint # find misuses of errors
     - funlen # detects long functions
-    - gci # consistent import ordering
     - goconst # finds repeated strings that could be replaced by a constant
     - gocyclo # computes and checks the cyclomatic complexity of functions
     - godot # checks if comments end in a period
-    - gofmt # checks whether code was gofmt-ed
     - goheader # checks is file header matches to pattern
     - gomoddirectives # manage the use of 'replace', 'retract', and 'excludes' directives in go.mod
     - goprintffuncname # checks that printf-like functions are named with f at the end
     - gosec # inspects code for security problems
-    - gosimple # linter that specializes in simplifying a code
     - govet # reports suspicious constructs, ex. Printf calls whose arguments don't align with the format string
     - ineffassign # detects when assignments to existing variables aren't used
     - makezero # finds slice declarations with non-zero initial length
@@ -104,10 +46,8 @@ linters:
     - nolintlint # reports ill-formed or insufficient nolint directives
     - revive # linter for go
     - staticcheck # applies static analysis checks, go vet on steroids
-    - stylecheck # replacement for golint
+     # The linters stylecheck, gosimple, and staticcheck has been merged inside the staticcheck.
     - tagalign # finds maligned struct tags
-    - tenv # analyzer that detects using os.Setenv instead of t.Setenv since Go1.17
-    - typecheck # parses and type-checks go code, like the front-end of a go compiler
     - unconvert # remove unnecessary type conversions
     - unparam # reports unused function parameters
     - unused # checks for unused constants, variables, functions and types
@@ -160,15 +100,82 @@ linters:
   # - wastedassign        - duplicate functionality
   # - wrapcheck           - style preference
 
-# This section provides the configuration for how golangci
-# will report the issues it finds.
+  # This section provides the configuration for each linter
+  # we've instructed golangci to execute.
+  settings:
+    # https://github.com/mibk/dupl
+    dupl:
+      threshold: 100
+    # https://github.com/ultraware/funlen
+    funlen:
+      # accounting for comments
+      lines: 160
+      statements: 70
+    # https://github.com/denis-tingaikin/go-header
+    goheader:
+      template: 'SPDX-License-Identifier: Apache-2.0'
+    # https://github.com/client9/misspell
+    misspell:
+      locale: US
+    # https://github.com/golangci/golangci-lint/blob/master/pkg/golinters/nolintlint
+    nolintlint:
+      require-explanation: true # require an explanation for nolint directives
+      require-specific: true # require nolint directives to be specific about which linter is being skipped
+      allow-unused: false # allow nolint directives that don't address a linting issue
+    # https://golangci-lint.run/usage/linters/#tagalign
+    # ensure struct tags are aligned
+    # will auto fix with `make lintfix`
+    tagalign:
+      sort: false
+    # static check to ignore QFI (Quality Function Interface) issues
+    staticcheck:
+      checks:
+        - '-QF1001' # ignore specific QFI issues
+        - '-QF1003'
+        - '-QF1004'
+        - '-QF1008'
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      # Excluding configuration per-path, per-linter, per-text and per-source
+      # prevent linters from running on *_test.go files
+      - linters:
+          - funlen
+          - goconst
+          - gocyclo
+          - wsl
+        path: _test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  # Excluding configuration per-path, per-linter, per-text and per-source
-  exclude-rules:
-    # prevent linters from running on *_test.go files
-    - path: _test\.go
-      linters:
-        - funlen
-        - goconst
-        - gocyclo
-        - wsl
+  # make issues output unique by line, default is true
+  uniq-by-line: true
+formatters:
+  enable:
+    - gci # consistent import ordering
+    - gofmt # checks whether code was gofmt-ed
+  settings:
+    # https://github.com/daixiang0/gci
+    # ensure import order is consistent
+    # gci write --custom-order -s standard -s default -s blank -s dot -s "prefix(github.com/go-vela)" .
+    gci:
+      sections:
+        - standard
+        - default
+        - blank
+        - dot
+        - prefix(github.com/go-vela)
+      custom-order: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

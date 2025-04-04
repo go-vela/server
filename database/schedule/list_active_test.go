@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
 
@@ -92,23 +91,11 @@ func TestSchedule_Engine_ListActiveSchedules(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	_rows := testutils.CreateMockRows([]any{*types.ScheduleFromAPI(_scheduleOne)})
 
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "schedules" WHERE active = $1`).WithArgs(true).WillReturnRows(_rows)
+	_repoRows := testutils.CreateMockRows([]any{*types.RepoFromAPI(_repo)})
 
-	// create expected result in mock
-	_rows = sqlmock.NewRows(
-		[]string{"id", "repo_id", "active", "name", "entry", "created_at", "created_by", "updated_at", "updated_by", "scheduled_at", "branch", "error"}).
-		AddRow(1, 1, true, "nightly", "0 0 * * *", 1713476291, "octocat", 3013476291, "octokitty", 2013476291, "main", "no version: YAML property provided")
-
-	_repoRows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy", "github", "octocat", "github/octocat", "https://github.com/github/octocat", "https://github.com/github/octocat.git", "main", "{cloud,security}", 10, 30, 0, "public", false, false, true, 1, "", "", constants.ApproveNever)
-
-	_userRows := sqlmock.NewRows(
-		[]string{"id", "name", "token", "refresh_token", "favorites", "active", "admin", "dashboards"}).
-		AddRow(1, "octocat", "superSecretToken", "superSecretRefreshToken", "{}", true, false, "{}")
+	_userRows := testutils.CreateMockRows([]any{*types.UserFromAPI(_owner)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "schedules" WHERE active = $1`).WithArgs(true).WillReturnRows(_rows)

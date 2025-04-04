@@ -296,8 +296,8 @@ func (b *Build) ToAPI() *api.Build {
 	build.SetID(b.ID.Int64)
 	build.SetRepo(repo)
 	build.SetPipelineID(b.PipelineID.Int64)
-	build.SetNumber(int(b.Number.Int64))
-	build.SetParent(int(b.Parent.Int64))
+	build.SetNumber(b.Number.Int64)
+	build.SetParent(b.Parent.Int64)
 	build.SetEvent(b.Event.String)
 	build.SetEventAction(b.EventAction.String)
 	build.SetStatus(b.Status.String)
@@ -383,8 +383,8 @@ func BuildFromAPI(b *api.Build) *Build {
 		ID:            sql.NullInt64{Int64: b.GetID(), Valid: true},
 		RepoID:        sql.NullInt64{Int64: b.GetRepo().GetID(), Valid: true},
 		PipelineID:    sql.NullInt64{Int64: b.GetPipelineID(), Valid: true},
-		Number:        sql.NullInt64{Int64: int64(b.GetNumber()), Valid: true},
-		Parent:        sql.NullInt64{Int64: int64(b.GetParent()), Valid: true},
+		Number:        sql.NullInt64{Int64: b.GetNumber(), Valid: true},
+		Parent:        sql.NullInt64{Int64: b.GetParent(), Valid: true},
 		Event:         sql.NullString{String: b.GetEvent(), Valid: true},
 		EventAction:   sql.NullString{String: b.GetEventAction(), Valid: true},
 		Status:        sql.NullString{String: b.GetStatus(), Valid: true},

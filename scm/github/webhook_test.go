@@ -923,7 +923,7 @@ func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err = client.VerifyWebhook(context.TODO(), request, new(api.Repo))
+	err = client.VerifyWebhook(context.TODO(), request, []byte{})
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
 	}
@@ -964,7 +964,7 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err = client.VerifyWebhook(context.TODO(), request, r)
+	err = client.VerifyWebhook(context.TODO(), request, []byte{})
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
 	}

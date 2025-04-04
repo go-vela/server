@@ -51,13 +51,13 @@ type SecretInterface interface {
 	// ListSecrets defines a function that gets a list of all secrets.
 	ListSecrets(context.Context) ([]*api.Secret, error)
 	// ListSecretsForOrg defines a function that gets a list of secrets by org name.
-	ListSecretsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Secret, int64, error)
+	ListSecretsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Secret, error)
 	// ListSecretsForRepo defines a function that gets a list of secrets by org and repo name.
-	ListSecretsForRepo(context.Context, *api.Repo, map[string]interface{}, int, int) ([]*api.Secret, int64, error)
+	ListSecretsForRepo(context.Context, *api.Repo, map[string]interface{}, int, int) ([]*api.Secret, error)
 	// ListSecretsForTeam defines a function that gets a list of secrets by org and team name.
-	ListSecretsForTeam(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Secret, int64, error)
+	ListSecretsForTeam(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Secret, error)
 	// ListSecretsForTeams defines a function that gets a list of secrets by teams within an org.
-	ListSecretsForTeams(context.Context, string, []string, map[string]interface{}, int, int) ([]*api.Secret, int64, error)
+	ListSecretsForTeams(context.Context, string, []string, map[string]interface{}, int, int) ([]*api.Secret, error)
 	// UpdateSecret defines a function that updates an existing secret.
 	UpdateSecret(context.Context, *api.Secret) (*api.Secret, error)
 }

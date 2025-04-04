@@ -26,7 +26,7 @@ func TestTypes_Worker_Nullify(t *testing.T) {
 		LastBuildStartedAt:  sql.NullInt64{Int64: 0, Valid: false},
 		LastBuildFinishedAt: sql.NullInt64{Int64: 0, Valid: false},
 		LastCheckedIn:       sql.NullInt64{Int64: 0, Valid: false},
-		BuildLimit:          sql.NullInt64{Int64: 0, Valid: false},
+		BuildLimit:          sql.NullInt32{Int32: 0, Valid: false},
 	}
 
 	// setup tests
@@ -190,7 +190,7 @@ func testWorker() *Worker {
 		LastBuildStartedAt:  sql.NullInt64{Int64: 1563474077, Valid: true},
 		LastBuildFinishedAt: sql.NullInt64{Int64: 1563474077, Valid: true},
 		LastCheckedIn:       sql.NullInt64{Int64: 1563474077, Valid: true},
-		BuildLimit:          sql.NullInt64{Int64: 2, Valid: true},
+		BuildLimit:          sql.NullInt32{Int32: 2, Valid: true},
 	}
 }
 

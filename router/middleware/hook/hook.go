@@ -45,7 +45,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		number, err := strconv.Atoi(hParam)
+		number, err := strconv.ParseInt(hParam, 10, 64)
 		if err != nil {
 			retErr := fmt.Errorf("malformed hook parameter provided: %s", hParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)

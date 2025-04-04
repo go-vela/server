@@ -109,16 +109,6 @@ func ListDeployments(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = max(1, min(100, perPage))
 
-	// send API call to capture the total number of deployments for the repo
-	t, err := database.FromContext(c).CountDeploymentsForRepo(c, r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get deployment count for %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// send API call to capture the list of deployments for the repo
 	d, err := database.FromContext(c).ListDeploymentsForRepo(c, r, page, perPage)
 	if err != nil {
@@ -133,7 +123,7 @@ func ListDeployments(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   t,
+		Results: len(d),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)

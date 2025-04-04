@@ -107,10 +107,7 @@
     "default_branch": "main",
     "stargazers": 0,
     "master_branch": "main",
-    "topics": [
-      "go",
-      "vela"
-    ]
+    "topics": ["go", "vela"]
   },
   "pusher": {
     "name": "Codertocat",

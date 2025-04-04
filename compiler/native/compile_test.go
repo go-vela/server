@@ -15,7 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v69/github"
+	"github.com/google/go-github/v70/github"
 	"github.com/urfave/cli/v2"
 	yml "gopkg.in/yaml.v3"
 
@@ -292,7 +292,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	// setup types
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -381,7 +381,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 	// setup types
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -1876,7 +1876,7 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -1934,7 +1934,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -1989,7 +1989,7 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 	name := "foo"
 	author := "author"
 	event := "push"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -2364,7 +2364,7 @@ func Test_client_modifyConfig(t *testing.T) {
 
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	type args struct {
 		endpoint string
@@ -2446,8 +2446,8 @@ func convertFileToGithubResponse(file string) (github.RepositoryContent, error) 
 	}
 
 	content := github.RepositoryContent{
-		Encoding: github.String(""),
-		Content:  github.String(string(body)),
+		Encoding: github.Ptr(""),
+		Content:  github.Ptr(string(body)),
 	}
 
 	return content, nil

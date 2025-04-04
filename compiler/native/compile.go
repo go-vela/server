@@ -26,7 +26,7 @@ import (
 // ModifyRequest contains the payload passed to the modification endpoint.
 type ModifyRequest struct {
 	Pipeline string `json:"pipeline,omitempty"`
-	Build    int    `json:"build,omitempty"`
+	Build    int64  `json:"build,omitempty"`
 	Repo     string `json:"repo,omitempty"`
 	Org      string `json:"org,omitempty"`
 	User     string `json:"user,omitempty"`
