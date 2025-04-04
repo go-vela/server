@@ -28,6 +28,12 @@ const (
 	// ActionUnlabeled defines the action for the unlabeling of pull requests.
 	ActionUnlabeled = "unlabeled"
 
+	// ActionMerged defines the action for the merging of a pull request.
+	ActionMerged = "merged"
+
+	// ActionClosed defines the action for closing pull requests (unmerged).
+	ActionClosed = "closed"
+
 	// ActionTransferred defines the action for transferring repository ownership.
 	ActionTransferred = "transferred"
 

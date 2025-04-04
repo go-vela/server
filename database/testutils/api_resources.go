@@ -90,6 +90,8 @@ func APIEvents() *api.Events {
 			Reopened:    new(bool),
 			Labeled:     new(bool),
 			Unlabeled:   new(bool),
+			Merged:      new(bool),
+			Closed:      new(bool),
 		},
 		Deployment: &actions.Deploy{
 			Created: new(bool),
