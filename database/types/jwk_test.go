@@ -51,7 +51,9 @@ func TestTypes_JWK_ToAPI(t *testing.T) {
 		t.Errorf("unable to marshal JWK: %v", err)
 	}
 
-	uuid, _ := uuid.Parse(want.KeyID())
+	wantKeyID, _ := want.KeyID()
+
+	uuid, _ := uuid.Parse(wantKeyID)
 	h := &JWK{
 		ID:     uuid,
 		Active: sql.NullBool{Bool: true, Valid: true},
@@ -74,7 +76,9 @@ func TestTypes_JWKFromAPI(t *testing.T) {
 		t.Errorf("unable to marshal JWK: %v", err)
 	}
 
-	uuid, err := uuid.Parse(j.KeyID())
+	keyID, _ := j.KeyID()
+
+	uuid, err := uuid.Parse(keyID)
 	if err != nil {
 		t.Errorf("unable to parse JWK key id: %v", err)
 	}
