@@ -84,6 +84,10 @@
         "electron",
         "api"
     ],
+    "custom_properties": {
+      "prop_1": "foo",
+      "prop_2": "bar"
+    },
     "has_issues": true,
     "has_projects": true,
     "has_wiki": true,

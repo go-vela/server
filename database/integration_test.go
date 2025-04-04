@@ -2474,6 +2474,7 @@ func newResources() *Resources {
 	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 	repoOne.SetApprovalTimeout(7)
 	repoOne.SetInstallID(0)
+	repoOne.SetCustomProps(map[string]any{"foo": "bar"})
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
@@ -2499,6 +2500,7 @@ func newResources() *Resources {
 	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 	repoTwo.SetApprovalTimeout(7)
 	repoTwo.SetInstallID(0)
+	repoTwo.SetCustomProps(map[string]any{"foo": "bar"})
 
 	buildOne := new(api.Build)
 	buildOne.SetID(1)

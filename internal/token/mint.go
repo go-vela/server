@@ -171,6 +171,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.Audience = mto.Audience
 	claims.TokenType = mto.TokenType
 	claims.Image = mto.Image
+	claims.CustomProps = mto.Build.GetRepo().GetCustomProps()
 
 	claims.ImageName, claims.ImageTag, err = imageParse(mto.Image)
 	if err != nil {

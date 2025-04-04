@@ -107,7 +107,11 @@
     "default_branch": "main",
     "stargazers": 0,
     "master_branch": "main",
-    "topics": ["go", "vela"]
+    "topics": ["go", "vela"],
+    "custom_properties": {
+      "prop_1": "foo",
+      "prop_2": "bar"
+    }
   },
   "pusher": {
     "name": "Codertocat",
