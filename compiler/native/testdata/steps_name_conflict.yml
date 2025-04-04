@@ -1,0 +1,15 @@
+version: "1"
+
+steps:
+  - name: build
+    image: alpine
+    commands:
+      - echo "Building..."
+  - name: test
+    image: alpine
+    commands:
+      - echo "Testing..."
+  - name: build
+    image: alpine
+    commands:
+      - echo "Building...again?"

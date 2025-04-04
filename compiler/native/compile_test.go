@@ -1869,7 +1869,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	}
 }
 
-func TestNative_Compile_NoStepsorStages(t *testing.T) {
+func TestNative_Compile_StageNameCollision(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", defaultCloneImage, "doc")
@@ -1899,7 +1899,7 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	}
 
 	// run test
-	yaml, err := os.ReadFile("testdata/metadata.yml")
+	yaml, err := os.ReadFile("testdata/stages_name_conflict.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -1911,7 +1911,6 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 
 	// todo: this needs to be fixed in compiler validation
 	// this is a dirty hack to make this test pass
-	compiler.SetCloneImage("")
 	compiler.WithMetadata(m)
 
 	compiler.repo = &api.Repo{Name: &author}
@@ -1924,6 +1923,318 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 
 	if got != nil {
 		t.Errorf("Compile is %v, want %v", got, nil)
+	}
+}
+
+func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	compiler.WithMetadata(m)
+
+	build := new(api.Build)
+	build.SetID(1)
+	build.SetEvent("push")
+
+	compiler.WithBuild(build)
+
+	initEnv := environment(build, m, nil, nil, nil)
+
+	stepEnv := environment(build, m, nil, nil, nil)
+	stepEnv["HOME"] = "/root"
+	stepEnv["SHELL"] = "/bin/sh"
+	stepEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Building..."`})
+
+	want := &pipeline.Build{
+		Version: "1",
+		ID:      "__0",
+		Metadata: pipeline.Metadata{
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
+		},
+		Stages: pipeline.StageSlice{
+			&pipeline.Stage{
+				Name:        "init",
+				Environment: initEnv,
+				Steps: pipeline.ContainerSlice{
+					&pipeline.Container{
+						ID:          "__0_init_init",
+						Directory:   "/vela/src/foo//",
+						Environment: initEnv,
+						Image:       "#init",
+						Name:        "init",
+						Number:      1,
+						Pull:        "not_present",
+					},
+				},
+			},
+			&pipeline.Stage{
+				Name:        "clone",
+				Environment: initEnv,
+				Steps: pipeline.ContainerSlice{
+					&pipeline.Container{
+						ID:          "__0_clone_clone",
+						Directory:   "/vela/src/foo//",
+						Environment: initEnv,
+						Image:       defaultCloneImage,
+						Name:        "clone",
+						Number:      2,
+						Pull:        "not_present",
+					},
+				},
+			},
+			&pipeline.Stage{
+				Name:        "three",
+				Needs:       []string{"clone"},
+				Environment: initEnv,
+				Steps: pipeline.ContainerSlice{
+					&pipeline.Container{
+						ID:          "__0_three_word_key_build",
+						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Directory:   "/vela/src/foo//",
+						Entrypoint:  []string{"/bin/sh", "-c"},
+						Environment: stepEnv,
+						Image:       "alpine",
+						Name:        "word_key_build",
+						Number:      3,
+						Pull:        "not_present",
+					},
+				},
+			},
+		},
+	}
+
+	// run test
+	yaml, err := os.ReadFile("testdata/stages_name_conflict_purged.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	got, _, err := compiler.Compile(context.Background(), yaml)
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
+	}
+
+	// WARNING: hack to compare stages
+	//
+	// Channel values can only be compared for equality.
+	// Two channel values are considered equal if they
+	// originated from the same make call meaning they
+	// refer to the same channel value in memory.
+	for i, stage := range got.Stages {
+		tmp := want.Stages
+
+		tmp[i].Done = stage.Done
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
+	}
+}
+
+func TestNative_Compile_StepNameCollision(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+	name := "foo"
+	author := "author"
+	number := int64(1)
+
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	// run test
+	yaml, err := os.ReadFile("testdata/steps_name_conflict.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	// todo: this needs to be fixed in compiler validation
+	// this is a dirty hack to make this test pass
+	compiler.WithMetadata(m)
+
+	compiler.repo = &api.Repo{Name: &author}
+	compiler.build = &api.Build{Author: &name, Number: &number}
+
+	got, _, err := compiler.Compile(context.Background(), yaml)
+	if err == nil {
+		t.Errorf("Compile should have returned err")
+	}
+
+	if got != nil {
+		t.Errorf("Compile is %v, want %v", got, nil)
+	}
+}
+
+func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	compiler, err := FromCLIContext(c)
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	compiler.WithMetadata(m)
+
+	build := new(api.Build)
+	build.SetID(1)
+	build.SetEvent("push")
+
+	compiler.WithBuild(build)
+
+	initEnv := environment(build, m, nil, nil, nil)
+
+	buildEnv := environment(build, m, nil, nil, nil)
+	buildEnv["HOME"] = "/root"
+	buildEnv["SHELL"] = "/bin/sh"
+	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Building..."`})
+
+	testEnv := environment(build, m, nil, nil, nil)
+	testEnv["HOME"] = "/root"
+	testEnv["SHELL"] = "/bin/sh"
+	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Testing..."`})
+
+	want := &pipeline.Build{
+		Version: "1",
+		ID:      "__0",
+		Metadata: pipeline.Metadata{
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
+		},
+		Steps: pipeline.ContainerSlice{
+			&pipeline.Container{
+				ID:          "step___0_init",
+				Directory:   "/vela/src/foo//",
+				Environment: initEnv,
+				Image:       "#init",
+				Name:        "init",
+				Number:      1,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_clone",
+				Directory:   "/vela/src/foo//",
+				Environment: initEnv,
+				Image:       defaultCloneImage,
+				Name:        "clone",
+				Number:      2,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_build",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: buildEnv,
+				Image:       "alpine",
+				Name:        "build",
+				Number:      3,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_test",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: testEnv,
+				Image:       "alpine",
+				Name:        "test",
+				Number:      4,
+				Pull:        "not_present",
+			},
+		},
+	}
+
+	// run test
+	yaml, err := os.ReadFile("testdata/steps_name_conflict_purged.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	got, _, err := compiler.Compile(context.Background(), yaml)
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
 	}
 }
 
