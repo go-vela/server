@@ -55,7 +55,7 @@ type client struct {
 
 // FromCLICommand returns a Pipeline implementation that integrates with the supported registries.
 //
-
+//nolint:revive // ignore returning unexported client
 func FromCLICommand(ctx context.Context, cmd *cli.Command) (*client, error) {
 	logrus.Debug("creating registry clients from CLI configuration")
 
