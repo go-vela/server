@@ -4,7 +4,6 @@ package native
 
 import (
 	"context"
-	"flag"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/urfave/cli/v2"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
@@ -40,14 +38,6 @@ func TestNative_ExpandStages(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	tmpls := map[string]*yaml.Template{
 		"gradle": {
 			Name:   "gradle",
@@ -146,7 +136,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	// run test -- missing private github
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -169,7 +159,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err = FromCLIContext(c)
+	compiler, err = FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -227,14 +217,6 @@ func TestNative_ExpandSteps(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	testRepo := new(api.Repo)
 
 	testRepo.SetID(1)
@@ -353,7 +335,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -413,14 +395,6 @@ func TestNative_ExpandStepsWarnings(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	testRepo := new(api.Repo)
 
 	testRepo.SetID(1)
@@ -465,7 +439,7 @@ func TestNative_ExpandStepsWarnings(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -513,14 +487,6 @@ func TestNative_ExpandDeployment(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	testRepo := new(api.Repo)
 
 	testRepo.SetID(1)
@@ -572,7 +538,7 @@ func TestNative_ExpandDeployment(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -618,14 +584,6 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	tmpls := map[string]*yaml.Template{
 		"gradle": {
 			Name:   "gradle",
@@ -835,7 +793,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	wantEnvironment := raw.StringSliceMap{}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -891,14 +849,6 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	tmpls := map[string]*yaml.Template{
 		"go": {
 			Name:   "go",
@@ -935,7 +885,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -989,14 +939,6 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	testBuild := new(api.Build)
 
 	testBuild.SetID(1)
@@ -1118,7 +1060,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -1193,15 +1135,6 @@ func TestNative_ExpandStepsDuplicateCalls(t *testing.T) {
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
-
-	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
 
 	testRepo := new(api.Repo)
 
@@ -1352,7 +1285,7 @@ func TestNative_ExpandStepsDuplicateCalls(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -1412,14 +1345,6 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	testBuild := new(api.Build)
 
 	testBuild.SetID(1)
@@ -1462,7 +1387,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -1503,14 +1428,6 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	testBuild := new(api.Build)
 
 	testBuild.SetID(1)
@@ -1553,7 +1470,7 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}

@@ -6,13 +6,13 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/constants"
 )
 
-// FromCLIContext helper function to setup Minio Client from the CLI arguments.
-func FromCLIContext(c *cli.Context) (Storage, error) {
+// FromCLICommand helper function to setup Minio Client from the CLI arguments.
+func FromCLICommand(c *cli.Command) (Storage, error) {
 	// S3 configuration
 	_setup := &Setup{
 		Enable:    c.Bool("storage.enable"),
