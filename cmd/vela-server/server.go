@@ -27,6 +27,7 @@ import (
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/tracing"
+	"github.com/go-vela/server/util"
 )
 
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
@@ -189,10 +190,10 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.QueueSigningPrivateKey(cmd.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(cmd.String("queue.public-key")),
 		middleware.QueueAddress(cmd.String("queue.addr")),
-		middleware.DefaultBuildLimit(int(cmd.Int("default-build-limit"))),
-		middleware.DefaultTimeout(int(cmd.Int("default-build-timeout"))),
-		middleware.DefaultApprovalTimeout(int(cmd.Int("default-approval-timeout"))),
-		middleware.MaxBuildLimit(int(cmd.Int("max-build-limit"))),
+		middleware.DefaultBuildLimit(util.Int32FromInt64(cmd.Int("default-build-limit"))),
+		middleware.DefaultTimeout(util.Int32FromInt64(cmd.Int("default-build-timeout"))),
+		middleware.DefaultApprovalTimeout(util.Int32FromInt64(cmd.Int("default-approval-timeout"))),
+		middleware.MaxBuildLimit(util.Int32FromInt64(cmd.Int("max-build-limit"))),
 		middleware.WebhookValidation(!cmd.Bool("vela-disable-webhook-validation")),
 		middleware.SecureCookie(cmd.Bool("vela-enable-secure-cookie")),
 		middleware.Worker(cmd.Duration("worker-active-interval")),
