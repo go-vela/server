@@ -8,7 +8,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 )
 
 var (
@@ -61,7 +61,12 @@ func JWKFromAPI(j jwk.RSAPublicKey) *JWK {
 		err error
 	)
 
-	id, err = uuid.Parse(j.KeyID())
+	keyID, ok := j.KeyID()
+	if !ok {
+		return nil
+	}
+
+	id, err = uuid.Parse(keyID)
 	if err != nil {
 		return nil
 	}

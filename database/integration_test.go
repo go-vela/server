@@ -12,7 +12,7 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
@@ -991,9 +991,14 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
+		kid, ok := jkPub.KeyID()
+		if !ok {
+			t.Errorf("unable to get key ID for jwk")
+		}
+
 		err := db.CreateJWK(context.TODO(), jkPub)
 		if err != nil {
-			t.Errorf("unable to create jwk %s: %v", jkPub.KeyID(), err)
+			t.Errorf("unable to create jwk %s: %v", kid, err)
 		}
 	}
 	methods["CreateJWK"] = true
@@ -1014,9 +1019,14 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
-		got, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		kid, ok := jkPub.KeyID()
+		if !ok {
+			t.Errorf("unable to get key ID for jwk")
+		}
+
+		got, err := db.GetActiveJWK(context.TODO(), kid)
 		if err != nil {
-			t.Errorf("unable to get jwk %s: %v", jkPub.KeyID(), err)
+			t.Errorf("unable to get jwk %s: %v", kid, err)
 		}
 
 		if !cmp.Equal(jkPub, got, testutils.JwkKeyOpts) {
@@ -1036,7 +1046,12 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
-		_, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		kid, ok := jkPub.KeyID()
+		if !ok {
+			t.Errorf("unable to get key ID for jwk")
+		}
+
+		_, err := db.GetActiveJWK(context.TODO(), kid)
 		if err == nil {
 			t.Errorf("GetActiveJWK() should return err after rotation")
 		}
@@ -2459,6 +2474,7 @@ func newResources() *Resources {
 	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 	repoOne.SetApprovalTimeout(7)
 	repoOne.SetInstallID(0)
+	repoOne.SetCustomProps(map[string]any{"foo": "bar"})
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
@@ -2484,6 +2500,7 @@ func newResources() *Resources {
 	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 	repoTwo.SetApprovalTimeout(7)
 	repoTwo.SetInstallID(0)
+	repoTwo.SetCustomProps(map[string]any{"foo": "bar"})
 
 	buildOne := new(api.Build)
 	buildOne.SetID(1)
