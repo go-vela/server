@@ -13,9 +13,9 @@ import (
 
 func TestMiddleware_MaxBuildLimit(t *testing.T) {
 	// setup types
-	var got int
+	var got int32
 
-	want := 30
+	want := int32(30)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -27,7 +27,7 @@ func TestMiddleware_MaxBuildLimit(t *testing.T) {
 	// setup mock server
 	engine.Use(MaxBuildLimit(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("maxBuildLimit").(int)
+		got = c.Value("maxBuildLimit").(int32)
 
 		c.Status(http.StatusOK)
 	})

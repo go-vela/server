@@ -145,3 +145,17 @@ func Sanitize(field string) string {
 	// return the unmodified field
 	return field
 }
+
+// Int32FromInt64 is a helper function that takes an int64 and safely converts it to an int32.
+// This function is necessary specifically for urfave/cli v3 using only int64 flag inputs.
+func Int32FromInt64(v int64) int32 {
+	if v > 2147483647 {
+		return 2147483647
+	}
+
+	if v < -2147483648 {
+		return -2147483648
+	}
+
+	return int32(v)
+}
