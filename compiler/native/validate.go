@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/constants"
 )
 
-// Validate verifies the yaml configuration is valid.
+// ValidateYAML verifies the yaml configuration is valid.
 func (c *client) ValidateYAML(p *yaml.Build) error {
 	var result error
 	// check a version is provided
@@ -68,7 +68,7 @@ func (c *client) ValidateYAML(p *yaml.Build) error {
 	return result
 }
 
-// validateStages is a helper function that verifies the
+// validateYAMLStages is a helper function that verifies the
 // stages block in the yaml configuration is valid.
 func validateYAMLStages(s yaml.StageSlice) error {
 	for _, stage := range s {
@@ -90,6 +90,8 @@ func validateYAMLStages(s yaml.StageSlice) error {
 	return nil
 }
 
+// validateYAMLSteps is a helper function that verifies the
+// steps block in the yaml configuration is valid.
 func validateYAMLSteps(s yaml.StepSlice) error {
 	for _, step := range s {
 		if len(step.Name) == 0 {
@@ -130,6 +132,7 @@ func validateYAMLServices(s yaml.ServiceSlice) error {
 	return nil
 }
 
+// ValidatePipeline verifies the final pipeline configuration is valid.
 func (c *client) ValidatePipeline(p *pipeline.Build) error {
 	var result error
 
@@ -157,8 +160,8 @@ func (c *client) ValidatePipeline(p *pipeline.Build) error {
 	return result
 }
 
-// validateStages is a helper function that verifies the
-// stages block in the yaml configuration is valid.
+// validatePipelineStages is a helper function that verifies the
+// stages block in the final pipeline configuration is valid.
 func validatePipelineStages(s pipeline.StageSlice) error {
 	reportMap := make(map[string]string)
 	reportCount := 0
