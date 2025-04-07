@@ -61,7 +61,10 @@ const (
   "approve_build": "fork-always",
   "approval_timeout": 7,
   "previous_name": "",
-  "install_id": 0
+  "install_id": 0,
+  "custom_props": {
+	"foo": "bar"
+  }
 }`
 
 	// ReposResp represents a JSON return for one to many repos.
