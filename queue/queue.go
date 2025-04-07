@@ -6,13 +6,13 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/constants"
 )
 
-// FromCLIContext helper function to setup the queue from the CLI arguments.
-func FromCLIContext(c *cli.Context) (Service, error) {
+// FromCLICommand helper function to setup the queue from the CLI arguments.
+func FromCLICommand(c *cli.Command) (Service, error) {
 	logrus.Debug("creating queue client from CLI configuration")
 
 	// queue configuration

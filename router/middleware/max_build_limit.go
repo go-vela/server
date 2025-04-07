@@ -8,7 +8,7 @@ import (
 
 // MaxBuildLimit is a middleware function that attaches the defaultLimit
 // to enable the server to override the max build limit.
-func MaxBuildLimit(maxBuildLimit int64) gin.HandlerFunc {
+func MaxBuildLimit(maxBuildLimit int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("maxBuildLimit", maxBuildLimit)
 		c.Next()

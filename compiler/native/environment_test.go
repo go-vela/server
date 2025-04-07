@@ -3,13 +3,12 @@
 package native
 
 import (
-	"flag"
+	"context"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/urfave/cli/v2"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
@@ -19,10 +18,6 @@ import (
 
 func TestNative_EnvironmentStages(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 
 	e := raw.StringSliceMap{
@@ -61,7 +56,7 @@ func TestNative_EnvironmentStages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -78,10 +73,6 @@ func TestNative_EnvironmentStages(t *testing.T) {
 
 func TestNative_EnvironmentSteps(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	e := raw.StringSliceMap{
 		"HELLO": "Hello, Stage Message",
 	}
@@ -209,7 +200,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 	}
 
 	// run test non-local
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -256,10 +247,6 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 
 func TestNative_EnvironmentServices(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	e := raw.StringSliceMap{
 		"HELLO": "Hello, Global Message",
 	}
@@ -387,7 +374,7 @@ func TestNative_EnvironmentServices(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -404,10 +391,6 @@ func TestNative_EnvironmentServices(t *testing.T) {
 
 func TestNative_EnvironmentSecrets(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	e := raw.StringSliceMap{
 		"HELLO": "Hello, Global Message",
 	}
@@ -548,7 +531,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}

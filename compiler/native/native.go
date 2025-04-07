@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
@@ -53,25 +53,25 @@ type client struct {
 	netrc          *string
 }
 
-// FromCLIContext returns a Pipeline implementation that integrates with the supported registries.
+// FromCLICommand returns a Pipeline implementation that integrates with the supported registries.
 //
-//nolint:revive // ignore returning unexported client
-func FromCLIContext(ctx *cli.Context) (*client, error) {
+
+func FromCLICommand(ctx context.Context, cmd *cli.Command) (*client, error) {
 	logrus.Debug("creating registry clients from CLI configuration")
 
 	c := new(client)
 
-	if ctx.String("modification-addr") != "" {
+	if cmd.String("modification-addr") != "" {
 		c.ModificationService = ModificationConfig{
-			Timeout:  ctx.Duration("modification-timeout"),
-			Endpoint: ctx.String("modification-addr"),
-			Secret:   ctx.String("modification-secret"),
-			Retries:  ctx.Int("modification-retries"),
+			Timeout:  cmd.Duration("modification-timeout"),
+			Endpoint: cmd.String("modification-addr"),
+			Secret:   cmd.String("modification-secret"),
+			Retries:  int(cmd.Int("modification-retries")),
 		}
 	}
 
 	// setup github template service
-	github, err := setupGithub(ctx.Context)
+	github, err := setupGithub(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 
 	c.Compiler = settings.Compiler{}
 
-	cloneImage := ctx.String("clone-image")
+	cloneImage := cmd.String("clone-image")
 
 	// validate clone image
 	_, err = image.ParseWithError(cloneImage)
@@ -92,15 +92,15 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 	c.SetCloneImage(cloneImage)
 
 	// set the template depth to use for nested templates
-	c.SetTemplateDepth(ctx.Int("max-template-depth"))
+	c.SetTemplateDepth(int(cmd.Int("max-template-depth")))
 
 	// set the starlark execution step limit for compiling starlark pipelines
-	c.SetStarlarkExecLimit(ctx.Int64("compiler-starlark-exec-limit"))
+	c.SetStarlarkExecLimit(cmd.Int("compiler-starlark-exec-limit"))
 
-	if ctx.Bool("github-driver") {
-		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))
+	if cmd.Bool("github-driver") {
+		logrus.Tracef("setting up Private GitHub Client for %s", cmd.String("github-url"))
 		// setup private github service
-		privGithub, err := setupPrivateGithub(ctx.Context, ctx.String("github-url"), ctx.String("github-token"))
+		privGithub, err := setupPrivateGithub(ctx, cmd.String("github-url"), cmd.String("github-token"))
 		if err != nil {
 			return nil, err
 		}
