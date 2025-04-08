@@ -7,10 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestWorker_Engine_ListWorkers(t *testing.T) {
@@ -45,11 +46,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "hostname", "address", "routes", "active", "status", "last_status_update_at", "running_build_ids", "last_build_started_at", "last_build_finished_at", "last_checked_in", "build_limit"}).
-		AddRow(1, "worker_0", "localhost", nil, true, nil, 0, nil, 0, 0, newer, 0).
-		AddRow(2, "worker_1", "localhost", nil, true, nil, 0, nil, 0, 0, older, 0).
-		AddRow(3, "worker_2", "localhost", nil, false, nil, 0, nil, 0, 0, newer, 0)
+	_rows := testutils.CreateMockRows([]any{*types.WorkerFromAPI(_workerOne), *types.WorkerFromAPI(_workerTwo), *types.WorkerFromAPI(_workerThree)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "workers" WHERE last_checked_in < $1 AND last_checked_in > $2`).WillReturnRows(_rows)

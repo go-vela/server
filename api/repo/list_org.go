@@ -145,7 +145,7 @@ func ListReposForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the org
-	r, t, err := database.FromContext(c).ListReposForOrg(ctx, o, sortBy, filters, page, perPage)
+	r, err := database.FromContext(c).ListReposForOrg(ctx, o, sortBy, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for org %s: %w", o, err)
 
@@ -158,7 +158,7 @@ func ListReposForOrg(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   t,
+		Results: len(r),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)

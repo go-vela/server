@@ -45,17 +45,17 @@ type BuildInterface interface {
 	// GetBuild defines a function that gets a build by ID.
 	GetBuild(context.Context, int64) (*api.Build, error)
 	// GetBuildForRepo defines a function that gets a build by repo ID and number.
-	GetBuildForRepo(context.Context, *api.Repo, int) (*api.Build, error)
+	GetBuildForRepo(context.Context, *api.Repo, int64) (*api.Build, error)
 	// LastBuildForRepo defines a function that gets the last build ran by repo ID and branch.
 	LastBuildForRepo(context.Context, *api.Repo, string) (*api.Build, error)
 	// ListBuilds defines a function that gets a list of all builds.
 	ListBuilds(context.Context) ([]*api.Build, error)
 	// ListBuildsForOrg defines a function that gets a list of builds by org name.
-	ListBuildsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Build, int64, error)
+	ListBuildsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Build, error)
 	// ListBuildsForDashboardRepo defines a function that gets a list of builds based on dashboard filters.
 	ListBuildsForDashboardRepo(context.Context, *api.Repo, []string, []string) ([]*api.Build, error)
 	// ListBuildsForRepo defines a function that gets a list of builds by repo ID.
-	ListBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64, int, int) ([]*api.Build, int64, error)
+	ListBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64, int, int) ([]*api.Build, error)
 	// ListPendingAndRunningBuilds defines a function that gets a list of pending and running builds.
 	ListPendingAndRunningBuilds(context.Context, string) ([]*api.QueueBuild, error)
 	// ListPendingAndRunningBuildsForRepo defines a function that gets a list of pending and running builds for a repo.

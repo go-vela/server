@@ -256,6 +256,19 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// update custom props, topics, default branch on all events (some repos may have these fields set prior to installing Vela)
+	repo.SetBranch(r.GetBranch())
+	repo.SetCustomProps(r.GetCustomProps())
+	repo.SetTopics(r.GetTopics())
+
+	repo, err = db.UpdateRepo(ctx, repo)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	l.Debugf(`build author: %s,
 		build branch: %s,
 		build commit: %s,
@@ -701,6 +714,10 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 			dbRepo.SetTopics(r.GetTopics())
 		}
 
+		if !reflect.DeepEqual(dbRepo.GetCustomProps(), r.GetCustomProps()) {
+			dbRepo.SetCustomProps(r.GetCustomProps())
+		}
+
 		// update repo object in the database after applying edits
 		dbRepo, err = db.UpdateRepo(ctx, dbRepo)
 		if err != nil {
@@ -769,7 +786,7 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	page := 1
 	// capture all secrets belonging to certain repo in database
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
-		s, _, err := db.ListSecretsForRepo(ctx, dbR, map[string]interface{}{}, page, 100)
+		s, err := db.ListSecretsForRepo(ctx, dbR, map[string]interface{}{}, page, 100)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
 		}
@@ -806,7 +823,7 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	page = 1
 	// capture all builds belonging to repo in database
 	for build := int64(0); build < t; build += 100 {
-		b, _, err := db.ListBuildsForRepo(ctx, dbR, nil, time.Now().Unix(), 0, page, 100)
+		b, err := db.ListBuildsForRepo(ctx, dbR, nil, time.Now().Unix(), 0, page, 100)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get build list for repo %s: %w", dbR.GetFullName(), err)
 		}

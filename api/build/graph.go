@@ -32,7 +32,7 @@ import (
 // swagger:model Graph
 type Graph struct {
 	BuildID     int64         `json:"build_id"`
-	BuildNumber int           `json:"build_number"`
+	BuildNumber int64         `json:"build_number"`
 	Org         string        `json:"org"`
 	Repo        string        `json:"repo"`
 	Nodes       map[int]*node `json:"nodes"`
@@ -249,7 +249,7 @@ func GetBuildGraph(c *gin.Context) {
 	if len(p.Stages) > 0 || len(p.Steps) > 0 {
 		for page > 0 {
 			// retrieve build steps (per page) from the database
-			stepsPart, _, err := database.FromContext(c).ListStepsForBuild(ctx, b, nil, page, perPage)
+			stepsPart, err := database.FromContext(c).ListStepsForBuild(ctx, b, nil, page, perPage)
 			if err != nil {
 				retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
 
@@ -287,7 +287,7 @@ func GetBuildGraph(c *gin.Context) {
 	if len(p.Services) > 0 {
 		for page > 0 {
 			// retrieve build services (per page) from the database
-			servicesPart, _, err := database.FromContext(c).ListServicesForBuild(ctx, b, nil, page, perPage)
+			servicesPart, err := database.FromContext(c).ListServicesForBuild(ctx, b, nil, page, perPage)
 			if err != nil {
 				retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
 
@@ -334,7 +334,7 @@ func GetBuildGraph(c *gin.Context) {
 	stageMap := map[string]*stg{}
 
 	// build a map for step_id to pipeline step
-	stepMap := map[int]*pipeline.Container{}
+	stepMap := map[int32]*pipeline.Container{}
 
 	for _, pStep := range p.Steps {
 		stepMap[pStep.Number] = pStep

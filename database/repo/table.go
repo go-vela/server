@@ -14,8 +14,8 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 repos (
-	id               SERIAL PRIMARY KEY,
-	user_id          INTEGER,
+	id               BIGSERIAL PRIMARY KEY,
+	user_id          BIGINT,
 	hash             VARCHAR(500),
 	org              VARCHAR(250),
 	name             VARCHAR(250),
@@ -26,17 +26,18 @@ repos (
 	topics           VARCHAR(1020),
 	build_limit      INTEGER,
 	timeout          INTEGER,
-	counter          INTEGER,
+	counter          BIGINT,
 	visibility       TEXT,
 	private          BOOLEAN,
 	trusted          BOOLEAN,
 	active           BOOLEAN,
-	allow_events     INTEGER,
+	allow_events     BIGINT,
 	pipeline_type    TEXT,
 	previous_name    VARCHAR(100),
 	approve_build    VARCHAR(20),
 	approval_timeout INTEGER,
-	install_id       INTEGER,
+	install_id       BIGINT,
+	custom_props     JSON DEFAULT NULL,
 	UNIQUE(full_name)
 );
 `
@@ -69,6 +70,7 @@ repos (
 	approve_build    TEXT,
 	approval_timeout INTEGER,
 	install_id       INTEGER,
+	custom_props     TEXT,
 	UNIQUE(full_name)
 );
 `

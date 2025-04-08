@@ -11,29 +11,30 @@ import (
 //
 // swagger:model Repo
 type Repo struct {
-	ID              *int64    `json:"id,omitempty"`
-	Owner           *User     `json:"owner,omitempty"`
-	Hash            *string   `json:"-"`
-	Org             *string   `json:"org,omitempty"`
-	Name            *string   `json:"name,omitempty"`
-	FullName        *string   `json:"full_name,omitempty"`
-	Link            *string   `json:"link,omitempty"`
-	Clone           *string   `json:"clone,omitempty"`
-	Branch          *string   `json:"branch,omitempty"`
-	Topics          *[]string `json:"topics,omitempty"`
-	BuildLimit      *int64    `json:"build_limit,omitempty"`
-	Timeout         *int64    `json:"timeout,omitempty"`
-	Counter         *int      `json:"counter,omitempty"`
-	Visibility      *string   `json:"visibility,omitempty"`
-	Private         *bool     `json:"private,omitempty"`
-	Trusted         *bool     `json:"trusted,omitempty"`
-	Active          *bool     `json:"active,omitempty"`
-	AllowEvents     *Events   `json:"allow_events,omitempty"`
-	PipelineType    *string   `json:"pipeline_type,omitempty"`
-	PreviousName    *string   `json:"previous_name,omitempty"`
-	ApproveBuild    *string   `json:"approve_build,omitempty"`
-	ApprovalTimeout *int64    `json:"approval_timeout,omitempty"`
-	InstallID       *int64    `json:"install_id,omitempty"`
+	ID              *int64          `json:"id,omitempty"`
+	Owner           *User           `json:"owner,omitempty"`
+	Hash            *string         `json:"-"`
+	Org             *string         `json:"org,omitempty"`
+	Name            *string         `json:"name,omitempty"`
+	FullName        *string         `json:"full_name,omitempty"`
+	Link            *string         `json:"link,omitempty"`
+	Clone           *string         `json:"clone,omitempty"`
+	Branch          *string         `json:"branch,omitempty"`
+	Topics          *[]string       `json:"topics,omitempty"`
+	BuildLimit      *int32          `json:"build_limit,omitempty"`
+	Timeout         *int32          `json:"timeout,omitempty"`
+	Counter         *int64          `json:"counter,omitempty"`
+	Visibility      *string         `json:"visibility,omitempty"`
+	Private         *bool           `json:"private,omitempty"`
+	Trusted         *bool           `json:"trusted,omitempty"`
+	Active          *bool           `json:"active,omitempty"`
+	AllowEvents     *Events         `json:"allow_events,omitempty"`
+	PipelineType    *string         `json:"pipeline_type,omitempty"`
+	PreviousName    *string         `json:"previous_name,omitempty"`
+	ApproveBuild    *string         `json:"approve_build,omitempty"`
+	ApprovalTimeout *int32          `json:"approval_timeout,omitempty"`
+	InstallID       *int64          `json:"install_id,omitempty"`
+	CustomProps     *map[string]any `json:"custom_props,omitempty"`
 }
 
 // Environment returns a list of environment variables
@@ -58,6 +59,8 @@ func (r *Repo) Environment() map[string]string {
 		"VELA_REPO_APPROVE_BUILD":    ToString(r.GetApproveBuild()),
 		"VELA_REPO_APPROVAL_TIMEOUT": ToString(r.GetApprovalTimeout()),
 		"VELA_REPO_OWNER":            ToString(r.GetOwner().GetName()),
+		"VELA_REPO_INSTALL_ID":       ToString(r.GetInstallID()),
+		"VELA_REPO_CUSTOM_PROPS":     ToString(r.GetCustomProps()),
 
 		// deprecated environment variables
 		"REPOSITORY_ACTIVE":       ToString(r.GetActive()),
@@ -209,7 +212,7 @@ func (r *Repo) GetTopics() []string {
 //
 // When the provided Repo type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *Repo) GetBuildLimit() int64 {
+func (r *Repo) GetBuildLimit() int32 {
 	// return zero value if Repo type or BuildLimit field is nil
 	if r == nil || r.BuildLimit == nil {
 		return 0
@@ -222,7 +225,7 @@ func (r *Repo) GetBuildLimit() int64 {
 //
 // When the provided Repo type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *Repo) GetTimeout() int64 {
+func (r *Repo) GetTimeout() int32 {
 	// return zero value if Repo type or Timeout field is nil
 	if r == nil || r.Timeout == nil {
 		return 0
@@ -235,7 +238,7 @@ func (r *Repo) GetTimeout() int64 {
 //
 // When the provided Repo type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *Repo) GetCounter() int {
+func (r *Repo) GetCounter() int64 {
 	// return zero value if Repo type or Counter field is nil
 	if r == nil || r.Counter == nil {
 		return 0
@@ -352,7 +355,7 @@ func (r *Repo) GetApproveBuild() string {
 //
 // When the provided Repo type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *Repo) GetApprovalTimeout() int64 {
+func (r *Repo) GetApprovalTimeout() int32 {
 	// return zero value if Repo type or ApprovalTimeout field is nil
 	if r == nil || r.ApprovalTimeout == nil {
 		return 0
@@ -372,6 +375,19 @@ func (r *Repo) GetInstallID() int64 {
 	}
 
 	return *r.InstallID
+}
+
+// GetCustomProps returns the CustomProps field.
+//
+// When the provided Repo type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (r *Repo) GetCustomProps() map[string]any {
+	// return zero value if Repo type or CustomProps field is nil
+	if r == nil || r.CustomProps == nil {
+		return make(map[string]any)
+	}
+
+	return *r.CustomProps
 }
 
 // SetID sets the ID field.
@@ -508,7 +524,7 @@ func (r *Repo) SetTopics(v []string) {
 //
 // When the provided Repo type is nil, it
 // will set nothing and immediately return.
-func (r *Repo) SetBuildLimit(v int64) {
+func (r *Repo) SetBuildLimit(v int32) {
 	// return if Repo type is nil
 	if r == nil {
 		return
@@ -521,7 +537,7 @@ func (r *Repo) SetBuildLimit(v int64) {
 //
 // When the provided Repo type is nil, it
 // will set nothing and immediately return.
-func (r *Repo) SetTimeout(v int64) {
+func (r *Repo) SetTimeout(v int32) {
 	// return if Repo type is nil
 	if r == nil {
 		return
@@ -534,7 +550,7 @@ func (r *Repo) SetTimeout(v int64) {
 //
 // When the provided Repo type is nil, it
 // will set nothing and immediately return.
-func (r *Repo) SetCounter(v int) {
+func (r *Repo) SetCounter(v int64) {
 	// return if Repo type is nil
 	if r == nil {
 		return
@@ -651,7 +667,7 @@ func (r *Repo) SetApproveBuild(v string) {
 //
 // When the provided Repo type is nil, it
 // will set nothing and immediately return.
-func (r *Repo) SetApprovalTimeout(v int64) {
+func (r *Repo) SetApprovalTimeout(v int32) {
 	// return if Repo type is nil
 	if r == nil {
 		return
@@ -671,6 +687,19 @@ func (r *Repo) SetInstallID(v int64) {
 	}
 
 	r.InstallID = &v
+}
+
+// SetCustomProps sets the CustomProps field.
+//
+// When the provided Repo type is nil, it
+// will set nothing and immediately return.
+func (r *Repo) SetCustomProps(v map[string]any) {
+	// return if Repo type is nil
+	if r == nil {
+		return
+	}
+
+	r.CustomProps = &v
 }
 
 // String implements the Stringer interface for the Repo type.
@@ -697,7 +726,8 @@ func (r *Repo) String() string {
   Topics: %s,
   Trusted: %t,
   Visibility: %s,
-  InstallID: %d
+  InstallID: %d,
+  CustomProps: %v
 }`,
 		r.GetActive(),
 		r.GetAllowEvents().List(),
@@ -721,6 +751,7 @@ func (r *Repo) String() string {
 		r.GetTrusted(),
 		r.GetVisibility(),
 		r.GetInstallID(),
+		r.GetCustomProps(),
 	)
 }
 

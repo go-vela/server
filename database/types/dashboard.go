@@ -29,14 +29,14 @@ var (
 type (
 	// Dashboard is the database representation of a dashboard.
 	Dashboard struct {
-		ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v7()"`
+		ID        uuid.UUID      `sql:"id"         gorm:"type:uuid;default:uuid_generate_v7()"`
 		Name      sql.NullString `sql:"name"`
 		CreatedAt sql.NullInt64  `sql:"created_at"`
 		CreatedBy sql.NullString `sql:"created_by"`
 		UpdatedAt sql.NullInt64  `sql:"updated_at"`
 		UpdatedBy sql.NullString `sql:"updated_by"`
-		Admins    AdminsJSON
-		Repos     DashReposJSON
+		Admins    AdminsJSON     `sql:"admins"`
+		Repos     DashReposJSON  `sql:"repos"`
 	}
 
 	DashReposJSON []*api.DashboardRepo

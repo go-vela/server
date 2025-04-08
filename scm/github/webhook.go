@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v69/github"
+	"github.com/google/go-github/v70/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -150,6 +150,7 @@ func (c *client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
+	r.SetCustomProps(repo.CustomProperties)
 
 	// convert payload to API build
 	b := new(api.Build)
@@ -282,6 +283,7 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
+	r.SetCustomProps(repo.CustomProperties)
 
 	// convert payload to api build
 	b := new(api.Build)
@@ -340,7 +342,7 @@ func (c *client) processPREvent(h *api.Hook, payload *github.PullRequestEvent) (
 
 	return &internal.Webhook{
 		PullRequest: internal.PullRequest{
-			Number: payload.GetNumber(),
+			Number: int64(payload.GetNumber()),
 			Labels: prLabels,
 		},
 		Hook:  h,
@@ -372,6 +374,7 @@ func (c *client) processDeploymentEvent(h *api.Hook, payload *github.DeploymentE
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
+	r.SetCustomProps(repo.CustomProperties)
 
 	// convert payload to api build
 	b := new(api.Build)
@@ -495,6 +498,7 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
+	r.SetCustomProps(repo.CustomProperties)
 
 	// convert payload to API build
 	b := new(api.Build)
@@ -513,7 +517,7 @@ func (c *client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 	return &internal.Webhook{
 		PullRequest: internal.PullRequest{
 			Comment: payload.GetComment().GetBody(),
-			Number:  payload.GetIssue().GetNumber(),
+			Number:  int64(payload.GetIssue().GetNumber()),
 		},
 		Hook:  h,
 		Repo:  r,
@@ -541,6 +545,7 @@ func (c *client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 	r.SetPrivate(repo.GetPrivate())
 	r.SetActive(!repo.GetArchived())
 	r.SetTopics(repo.Topics)
+	r.SetCustomProps(repo.CustomProperties)
 
 	h.SetEvent(constants.EventRepository)
 	h.SetEventAction(payload.GetAction())
