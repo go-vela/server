@@ -4,11 +4,10 @@ package native
 
 import (
 	"context"
-	"flag"
 	"reflect"
 	"testing"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
@@ -18,18 +17,15 @@ import (
 
 func TestNative_New(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	want := &Client{
 		Compiler:      settings.CompilerMockEmpty(),
 		TemplateCache: make(map[string][]byte),
 	}
 	want.SetCloneImage(defaultCloneImage)
+	want.SetTemplateDepth(5)
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -48,24 +44,16 @@ func TestNative_New(t *testing.T) {
 
 func TestNative_New_PrivateGithub(t *testing.T) {
 	// setup types
-	url := "http://foo.example.com"
-	token := "someToken"
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", url, "doc")
-	set.String("github-token", token, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	want := &Client{
 		UsePrivateGithub: true,
 		TemplateCache:    make(map[string][]byte),
 		Compiler:         settings.CompilerMockEmpty(),
 	}
 	want.SetCloneImage(defaultCloneImage)
+	want.SetTemplateDepth(5)
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -89,24 +77,16 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 
 func TestNative_DuplicateRetainSettings(t *testing.T) {
 	// setup types
-	url := "http://foo.example.com"
-	token := "someToken"
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", url, "doc")
-	set.String("github-token", token, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	want := &Client{
 		UsePrivateGithub: true,
 		TemplateCache:    make(map[string][]byte),
 		Compiler:         settings.CompilerMockEmpty(),
 	}
 	want.SetCloneImage(defaultCloneImage)
+	want.SetTemplateDepth(5)
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -130,17 +110,13 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 
 func TestNative_DuplicateStripBuild(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	id := int64(1)
 	b := &api.Build{ID: &id}
 
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -156,18 +132,14 @@ func TestNative_DuplicateStripBuild(t *testing.T) {
 
 func TestNative_WithBuild(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	id := int64(1)
 	b := &api.Build{ID: &id}
 
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 	want.build = b
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -181,17 +153,13 @@ func TestNative_WithBuild(t *testing.T) {
 
 func TestNative_WithFiles(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	f := []string{"foo"}
 
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 	want.files = f
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -205,16 +173,12 @@ func TestNative_WithFiles(t *testing.T) {
 
 func TestNative_WithComment(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	comment := "ok to test"
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 	want.comment = comment
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -228,16 +192,12 @@ func TestNative_WithComment(t *testing.T) {
 
 func TestNative_WithLocal(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	local := true
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 	want.local = true
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -251,16 +211,12 @@ func TestNative_WithLocal(t *testing.T) {
 
 func TestNative_WithLocalTemplates(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	localTemplates := []string{"example:tmpl.yml", "exmpl:template.yml"}
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 	want.localTemplates = []string{"example:tmpl.yml", "exmpl:template.yml"}
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -274,10 +230,6 @@ func TestNative_WithLocalTemplates(t *testing.T) {
 
 func TestNative_WithMetadata(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -298,11 +250,11 @@ func TestNative_WithMetadata(t *testing.T) {
 		},
 	}
 
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 	want.metadata = m
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -316,27 +268,18 @@ func TestNative_WithMetadata(t *testing.T) {
 
 func TestNative_WithPrivateGitHub(t *testing.T) {
 	// setup types
-	url := "http://foo.example.com"
-	token := "someToken"
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", url, "doc")
-	set.String("github-token", token, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
+	private, _ := github.New(context.Background(), "http://foo.example.com", "someToken")
 
-	private, _ := github.New(context.Background(), url, token)
-
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	want.PrivateGithub = private
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	got.WithPrivateGitHub(context.Background(), url, token)
+	got.WithPrivateGitHub(context.Background(), "http://foo.example.com", "someToken")
 
 	got.Github = want.Github
 	got.PrivateGithub = want.PrivateGithub
@@ -348,18 +291,14 @@ func TestNative_WithPrivateGitHub(t *testing.T) {
 
 func TestNative_WithRepo(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	id := int64(1)
 	r := &api.Repo{ID: &id}
 
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 	want.repo = r
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -373,18 +312,14 @@ func TestNative_WithRepo(t *testing.T) {
 
 func TestNative_WithUser(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	id := int64(1)
 	u := &api.User{ID: &id}
 
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 	want.user = u
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -398,16 +333,12 @@ func TestNative_WithUser(t *testing.T) {
 
 func TestNative_WithLabels(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	labels := []string{"documentation", "enhancement"}
-	want, _ := FromCLIContext(c)
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
 	want.labels = []string{"documentation", "enhancement"}
 
 	// run test
-	got, err := FromCLIContext(c)
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -417,4 +348,35 @@ func TestNative_WithLabels(t *testing.T) {
 	if !reflect.DeepEqual(got.WithLabels(labels), want) {
 		t.Errorf("WithLocalTemplates is %v, want %v", got, want)
 	}
+}
+
+func testCommand(t *testing.T, url string) *cli.Command {
+	t.Helper()
+
+	c := new(cli.Command)
+
+	c.Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:  "clone-image",
+			Value: defaultCloneImage,
+		},
+		&cli.IntFlag{
+			Name:  "max-template-depth",
+			Value: 5,
+		},
+		&cli.BoolFlag{
+			Name:  "github-driver",
+			Value: len(url) > 0,
+		},
+		&cli.StringFlag{
+			Name:  "github-url",
+			Value: url,
+		},
+		&cli.StringFlag{
+			Name:  "github-token",
+			Value: "someToken",
+		},
+	}
+
+	return c
 }

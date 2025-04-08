@@ -42,7 +42,7 @@ type Client struct {
 
 // New returns a Queue implementation that
 // integrates with a Redis queue instance.
-func New(opts ...ClientOpt) (*Client, error) {
+func New(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 	// create new Redis client
 	c := new(Client)
 
@@ -88,7 +88,7 @@ func New(opts ...ClientOpt) (*Client, error) {
 	}
 
 	// ping the queue
-	err = pingQueue(c)
+	err = pingQueue(ctx, c)
 	if err != nil {
 		return nil, err
 	}
@@ -148,12 +148,12 @@ func failoverFromOptions(source *redis.Options) *redis.FailoverOptions {
 // This will ensure we have properly established a
 // connection to the Redis queue instance before
 // we try to set it up.
-func pingQueue(c *Client) error {
+func pingQueue(ctx context.Context, c *Client) error {
 	// attempt 10 times
 	var err error
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		// send ping request to client
-		err = c.Redis.Ping(context.Background()).Err()
+		err = c.Redis.Ping(ctx).Err()
 		if err != nil {
 			c.Logger.Debugf("unable to ping Redis queue. Retrying in %v", time.Duration(i)*time.Second)
 			time.Sleep(1 * time.Second)
@@ -186,6 +186,7 @@ func NewTest(signingPrivateKey, signingPublicKey string, routes ...string) (*Cli
 	}
 
 	return New(
+		context.TODO(),
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
 		WithRoutes(routes...),
 		WithCluster(false),

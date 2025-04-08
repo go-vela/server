@@ -99,7 +99,7 @@ func (c *Client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 			return nil, _pipeline, err
 		}
 		// validate the yaml configuration
-		err = c.Validate(newPipeline)
+		err = c.ValidateYAML(newPipeline)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -135,7 +135,7 @@ func (c *Client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 			return nil, _pipeline, err
 		}
 		// validate the yaml configuration
-		err = c.Validate(newPipeline)
+		err = c.ValidateYAML(newPipeline)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -225,7 +225,7 @@ func (c *Client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 	}
 
 	// validate the yaml configuration
-	err = c.Validate(p)
+	err = c.ValidateYAML(p)
 	if err != nil {
 		return nil, _pipeline, err
 	}
@@ -383,7 +383,7 @@ func (c *Client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 	}
 
 	// validate the yaml configuration
-	err = c.Validate(p)
+	err = c.ValidateYAML(p)
 	if err != nil {
 		return nil, _pipeline, err
 	}
@@ -441,6 +441,12 @@ func (c *Client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 		return nil, _pipeline, err
 	}
 
+	// validate the yaml configuration
+	err = c.ValidatePipeline(build)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
 	return build, _pipeline, nil
 }
 
@@ -485,7 +491,7 @@ func (c *Client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 	}
 
 	// validate the yaml configuration
-	err = c.Validate(p)
+	err = c.ValidateYAML(p)
 	if err != nil {
 		return nil, _pipeline, err
 	}
@@ -539,6 +545,12 @@ func (c *Client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 
 	// create executable representation
 	build, err := c.TransformStages(r, p)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
+	// validate the final pipeline configuration
+	err = c.ValidatePipeline(build)
 	if err != nil {
 		return nil, _pipeline, err
 	}

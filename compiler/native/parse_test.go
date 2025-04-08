@@ -4,14 +4,14 @@ package native
 
 import (
 	"bytes"
+	"context"
 	"errors"
-	"flag"
 	"os"
 	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
@@ -21,7 +21,7 @@ import (
 
 func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -50,7 +50,7 @@ func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 
 func TestNative_Parse_Metadata_File(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -81,7 +81,7 @@ func TestNative_Parse_Metadata_File(t *testing.T) {
 
 func TestNative_Parse_Metadata_Invalid(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 
 	// run test
 	got, _, _, err := client.Parse(nil, "", new(yaml.Template))
@@ -97,7 +97,7 @@ func TestNative_Parse_Metadata_Invalid(t *testing.T) {
 
 func TestNative_Parse_Metadata_Path(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -121,7 +121,7 @@ func TestNative_Parse_Metadata_Path(t *testing.T) {
 
 func TestNative_Parse_Metadata_Reader(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -150,7 +150,7 @@ func TestNative_Parse_Metadata_Reader(t *testing.T) {
 
 func TestNative_Parse_Metadata_String(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -179,7 +179,7 @@ func TestNative_Parse_Metadata_String(t *testing.T) {
 
 func TestNative_Parse_Parameters(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -227,7 +227,7 @@ func TestNative_Parse_Parameters(t *testing.T) {
 
 func TestNative_Parse_StagesPipeline(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -356,7 +356,7 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 func TestNative_Parse_StepsPipeline(t *testing.T) {
 	// setup types
 	tBool := true
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -458,7 +458,7 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 
 func TestNative_Parse_Secrets(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -529,7 +529,7 @@ func TestNative_Parse_Secrets(t *testing.T) {
 
 func TestNative_Parse_Stages(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -606,7 +606,7 @@ func TestNative_Parse_Stages(t *testing.T) {
 
 func TestNative_Parse_StagesLegacyMergeAnchor(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "legacy",
 		Metadata: yaml.Metadata{
@@ -684,7 +684,7 @@ func TestNative_Parse_StagesLegacyMergeAnchor(t *testing.T) {
 
 func TestNative_Parse_Steps(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},

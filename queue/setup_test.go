@@ -3,6 +3,7 @@
 package queue
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -28,7 +29,7 @@ func TestQueue_Setup_Redis(t *testing.T) {
 		PublicKey: "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 	}
 
-	_, err = _setup.Redis()
+	_, err = _setup.Redis(context.Background())
 	if err != nil {
 		t.Errorf("Redis returned err: %v", err)
 	}

@@ -4,7 +4,7 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
@@ -12,7 +12,7 @@ import (
 )
 
 // helper function to setup the secrets engines from the CLI arguments.
-func setupSecrets(c *cli.Context, d database.Interface) (map[string]secret.Service, error) {
+func setupSecrets(c *cli.Command, d database.Interface) (map[string]secret.Service, error) {
 	logrus.Debug("creating secret clients from CLI configuration")
 
 	secrets := make(map[string]secret.Service)

@@ -3,6 +3,7 @@
 package queue
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -67,7 +68,7 @@ func TestQueue_New(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_, err := New(test.setup)
+		_, err := New(context.Background(), test.setup)
 
 		if test.failure {
 			if err == nil {

@@ -15,7 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -27,12 +27,13 @@ import (
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/tracing"
+	"github.com/go-vela/server/util"
 )
 
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
-func server(c *cli.Context) error {
+func server(ctx context.Context, cmd *cli.Command) error {
 	// set log formatter
-	switch c.String("log-formatter") {
+	switch cmd.String("log-formatter") {
 	case "json":
 		// set logrus to log in JSON format
 		logrus.SetFormatter(&logrus.JSONFormatter{})
@@ -43,14 +44,8 @@ func server(c *cli.Context) error {
 		})
 	}
 
-	// validate all input
-	err := validate(c)
-	if err != nil {
-		return err
-	}
-
 	// set log level for logrus
-	switch c.String("log-level") {
+	switch cmd.String("log-level") {
 	case "t", "trace", "Trace", "TRACE":
 		gin.SetMode(gin.DebugMode)
 		logrus.SetLevel(logrus.TraceLevel)
@@ -74,59 +69,59 @@ func server(c *cli.Context) error {
 		logrus.SetLevel(logrus.PanicLevel)
 	}
 
-	compiler, err := native.FromCLIContext(c)
+	compiler, err := native.FromCLICommand(ctx, cmd)
 	if err != nil {
 		return err
 	}
 
-	tc, err := tracing.FromCLIContext(c)
+	tc, err := tracing.FromCLICommand(ctx, cmd)
 	if err != nil {
 		return err
 	}
 
 	if tc.EnableTracing {
 		defer func() {
-			err := tc.TracerProvider.Shutdown(context.Background())
+			err := tc.TracerProvider.Shutdown(ctx)
 			if err != nil {
 				logrus.Errorf("unable to shutdown tracer provider: %v", err)
 			}
 		}()
 	}
 
-	database, err := database.FromCLIContext(c, tc)
+	database, err := database.FromCLICommand(cmd, tc)
 	if err != nil {
 		return err
 	}
 
-	queue, err := queue.FromCLIContext(c)
+	queue, err := queue.FromCLICommand(ctx, cmd)
 	if err != nil {
 		return err
 	}
 
-	secrets, err := setupSecrets(c, database)
+	secrets, err := setupSecrets(cmd, database)
 	if err != nil {
 		return err
 	}
 
-	scm, err := setupSCM(c, tc)
+	scm, err := setupSCM(ctx, cmd, tc)
 	if err != nil {
 		return err
 	}
 
-	metadata, err := setupMetadata(c)
+	metadata, err := setupMetadata(cmd)
 	if err != nil {
 		return err
 	}
 
-	tm, err := setupTokenManager(c, database)
+	tm, err := setupTokenManager(ctx, cmd, database)
 	if err != nil {
 		return err
 	}
 
 	// determine issuer for metadata and token manager
-	oidcIssuer := c.String("oidc-issuer")
+	oidcIssuer := cmd.String("oidc-issuer")
 	if len(oidcIssuer) == 0 {
-		oidcIssuer = fmt.Sprintf("%s/_services/token", c.String("server-addr"))
+		oidcIssuer = fmt.Sprintf("%s/_services/token", cmd.String("server-addr"))
 	}
 
 	metadata.Vela.OpenIDIssuer = oidcIssuer
@@ -138,7 +133,7 @@ func server(c *cli.Context) error {
 
 	time.Sleep(jitter)
 
-	ps, err := database.GetSettings(context.Background())
+	ps, err := database.GetSettings(ctx)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
@@ -148,7 +143,7 @@ func server(c *cli.Context) error {
 		logrus.Info("creating initial platform settings")
 
 		// create initial settings record
-		ps = settings.FromCLIContext(c)
+		ps = settings.FromCLICommand(cmd)
 
 		// singleton record ID should always be 1
 		ps.SetID(1)
@@ -165,7 +160,7 @@ func server(c *cli.Context) error {
 		ps.SetQueue(queueSettings)
 
 		// create the settings record in the database
-		_, err = database.CreateSettings(context.Background(), ps)
+		_, err = database.CreateSettings(ctx, ps)
 		if err != nil {
 			return err
 		}
@@ -179,8 +174,8 @@ func server(c *cli.Context) error {
 	compiler.SetSettings(ps)
 
 	router := router.Load(
-		middleware.AppWebhookSecret(c.String("scm.app.webhook-secret")),
-		middleware.CLI(c),
+		middleware.AppWebhookSecret(cmd.String("scm.app.webhook-secret")),
+		middleware.CLI(cmd),
 		middleware.Settings(ps),
 		middleware.Compiler(compiler),
 		middleware.Database(database),
@@ -189,28 +184,28 @@ func server(c *cli.Context) error {
 		middleware.TokenManager(tm),
 		middleware.Queue(queue),
 		middleware.RequestVersion,
-		middleware.Secret(c.String("vela-secret")),
+		middleware.Secret(cmd.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
-		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
-		middleware.QueueSigningPublicKey(c.String("queue.public-key")),
-		middleware.QueueAddress(c.String("queue.addr")),
-		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
-		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
-		middleware.DefaultApprovalTimeout(c.Int64("default-approval-timeout")),
-		middleware.MaxBuildLimit(c.Int64("max-build-limit")),
-		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
-		middleware.SecureCookie(c.Bool("vela-enable-secure-cookie")),
-		middleware.Worker(c.Duration("worker-active-interval")),
-		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
-		middleware.DefaultRepoEventsMask(c.Int64("default-repo-events-mask")),
-		middleware.DefaultRepoApproveBuild(c.String("default-repo-approve-build")),
-		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
+		middleware.QueueSigningPrivateKey(cmd.String("queue.private-key")),
+		middleware.QueueSigningPublicKey(cmd.String("queue.public-key")),
+		middleware.QueueAddress(cmd.String("queue.addr")),
+		middleware.DefaultBuildLimit(util.Int32FromInt64(cmd.Int("default-build-limit"))),
+		middleware.DefaultTimeout(util.Int32FromInt64(cmd.Int("default-build-timeout"))),
+		middleware.DefaultApprovalTimeout(util.Int32FromInt64(cmd.Int("default-approval-timeout"))),
+		middleware.MaxBuildLimit(util.Int32FromInt64(cmd.Int("max-build-limit"))),
+		middleware.WebhookValidation(!cmd.Bool("vela-disable-webhook-validation")),
+		middleware.SecureCookie(cmd.Bool("vela-enable-secure-cookie")),
+		middleware.Worker(cmd.Duration("worker-active-interval")),
+		middleware.DefaultRepoEvents(cmd.StringSlice("default-repo-events")),
+		middleware.DefaultRepoEventsMask(cmd.Int("default-repo-events-mask")),
+		middleware.DefaultRepoApproveBuild(cmd.String("default-repo-approve-build")),
+		middleware.ScheduleFrequency(cmd.Duration("schedule-minimum-frequency")),
 		middleware.TracingClient(tc),
 		middleware.TracingInstrumentation(tc),
 	)
 
-	addr, err := url.Parse(c.String("server-addr"))
+	addr, err := url.Parse(cmd.String("server-addr"))
 	if err != nil {
 		return err
 	}
@@ -218,7 +213,7 @@ func server(c *cli.Context) error {
 	port := addr.Port()
 	// check if a port is part of the address
 	if len(port) == 0 {
-		port = c.String("server-port")
+		port = cmd.String("server-port")
 	}
 
 	// gin expects the address to be ":<port>" ie ":8080"
@@ -229,7 +224,7 @@ func server(c *cli.Context) error {
 	}
 
 	// create the context for controlling the worker subprocesses
-	ctx, done := context.WithCancel(context.Background())
+	ctx, done := context.WithCancel(ctx)
 	// create the errgroup for managing worker subprocesses
 	//
 	// https://pkg.go.dev/golang.org/x/sync/errgroup?tab=doc#Group
@@ -266,14 +261,14 @@ func server(c *cli.Context) error {
 
 	// spawn goroutine for refreshing settings
 	g.Go(func() error {
-		interval := c.Duration("settings-refresh-interval")
+		interval := cmd.Duration("settings-refresh-interval")
 
 		logrus.Infof("refreshing platform settings every %v", interval)
 
 		for {
 			time.Sleep(interval)
 
-			newSettings, err := database.GetSettings(context.Background())
+			newSettings, err := database.GetSettings(ctx)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to refresh platform settings")
 
@@ -306,7 +301,7 @@ func server(c *cli.Context) error {
 		defer ticker.Stop()
 
 		for {
-			err := cleanupPendingApproval(c, database)
+			err := cleanupPendingApproval(ctx, database)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to cleanup pending approval builds")
 			}
@@ -331,7 +326,7 @@ func server(c *cli.Context) error {
 			// We need to sleep for some amount of time before we attempt to process schedules
 			// setup in the database. Since the schedule interval is configurable, we use that
 			// as the base duration to determine how long to sleep for.
-			interval := c.Duration("schedule-interval")
+			interval := cmd.Duration("schedule-interval")
 
 			// This should prevent multiple servers from processing schedules at the same time by
 			// leveraging a base duration along with a standard deviation of randomness a.k.a.
