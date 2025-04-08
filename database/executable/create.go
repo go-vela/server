@@ -14,7 +14,7 @@ import (
 )
 
 // CreateBuildExecutable creates a new build executable in the database.
-func (e *engine) CreateBuildExecutable(ctx context.Context, b *api.BuildExecutable) error {
+func (e *Engine) CreateBuildExecutable(ctx context.Context, b *api.BuildExecutable) error {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetBuildID(),
 	}).Tracef("creating build executable for build %d in the database", b.GetBuildID())

@@ -11,7 +11,7 @@ import (
 )
 
 // GetHook gets a hook by ID from the database.
-func (e *engine) GetHook(ctx context.Context, id int64) (*api.Hook, error) {
+func (e *Engine) GetHook(ctx context.Context, id int64) (*api.Hook, error) {
 	e.logger.Tracef("getting hook %d", id)
 
 	// variable to store query results

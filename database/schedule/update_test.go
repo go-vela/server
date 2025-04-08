@@ -91,7 +91,7 @@ WHERE "id" = $12`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,
@@ -203,7 +203,7 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

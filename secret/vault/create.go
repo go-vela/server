@@ -15,7 +15,7 @@ import (
 )
 
 // Create creates a new secret.
-func (c *client) Create(_ context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
+func (c *Client) Create(_ context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
@@ -61,25 +61,25 @@ func (c *client) Create(_ context.Context, sType, org, name string, s *api.Secre
 
 // createOrg is a helper function to create
 // the org secret for the provided path.
-func (c *client) createOrg(org, path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) createOrg(org, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.create(fmt.Sprintf("%s/org/%s/%s", c.config.Prefix, org, path), data)
 }
 
 // createRepo is a helper function to create
 // the repo secret for the provided path.
-func (c *client) createRepo(org, repo, path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) createRepo(org, repo, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.create(fmt.Sprintf("%s/repo/%s/%s/%s", c.config.Prefix, org, repo, path), data)
 }
 
 // createShared is a helper function to create
 // the shared secret for the provided path.
-func (c *client) createShared(org, team, path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) createShared(org, team, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.create(fmt.Sprintf("%s/shared/%s/%s/%s", c.config.Prefix, org, team, path), data)
 }
 
 // create is a helper function to create
 // the secret for the provided path.
-func (c *client) create(path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) create(path string, data map[string]interface{}) (*api.Secret, error) {
 	if strings.HasPrefix("secret/data", c.config.Prefix) {
 		data = map[string]interface{}{
 			"data": data,

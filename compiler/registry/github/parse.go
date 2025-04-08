@@ -13,7 +13,7 @@ import (
 
 // Parse creates the registry source object from
 // a template path and default branch.
-func (c *client) Parse(path string) (*registry.Source, error) {
+func (c *Client) Parse(path string) (*registry.Source, error) {
 	// ref will hold the reference identifier,
 	// eg. <org>/<repo>/<filename>@<reference>
 	ref := ""

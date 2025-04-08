@@ -13,7 +13,7 @@ import (
 )
 
 // DeleteDashboard deletes an existing dashboard from the database.
-func (e *engine) DeleteDashboard(ctx context.Context, d *api.Dashboard) error {
+func (e *Engine) DeleteDashboard(ctx context.Context, d *api.Dashboard) error {
 	e.logger.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
 	}).Tracef("deleting dashboard %s", d.GetID())

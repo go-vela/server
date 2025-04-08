@@ -11,7 +11,7 @@ import (
 )
 
 // ListBuilds gets a list of all builds from the database.
-func (e *engine) ListBuilds(ctx context.Context) ([]*api.Build, error) {
+func (e *Engine) ListBuilds(ctx context.Context) ([]*api.Build, error) {
 	e.logger.Trace("listing all builds")
 
 	// variables to store query results and return value

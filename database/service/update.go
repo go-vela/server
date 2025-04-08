@@ -13,7 +13,7 @@ import (
 )
 
 // UpdateService updates an existing service in the database.
-func (e *engine) UpdateService(ctx context.Context, s *api.Service) (*api.Service, error) {
+func (e *Engine) UpdateService(ctx context.Context, s *api.Service) (*api.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("updating service %s", s.GetName())

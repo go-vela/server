@@ -12,7 +12,7 @@ import (
 )
 
 // Validate verifies the yaml configuration is valid.
-func (c *client) Validate(p *yaml.Build) error {
+func (c *Client) Validate(p *yaml.Build) error {
 	var result error
 	// check a version is provided
 	if len(p.Version) == 0 {

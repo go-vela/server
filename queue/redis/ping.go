@@ -7,7 +7,7 @@ import (
 )
 
 // Ping contacts the queue to test its connection.
-func (c *client) Ping(ctx context.Context) error {
+func (c *Client) Ping(ctx context.Context) error {
 	// send ping request to client
 	err := c.Redis.Ping(ctx).Err()
 	if err != nil {

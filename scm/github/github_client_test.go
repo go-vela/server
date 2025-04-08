@@ -61,7 +61,7 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		name          string
-		client        *client
+		client        *Client
 		repo          *api.Repo
 		installation  *github.Installation
 		appsTransport bool

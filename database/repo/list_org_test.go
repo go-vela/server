@@ -122,7 +122,7 @@ func TestRepo_Engine_ListReposForOrg(t *testing.T) {
 		failure  bool
 		name     string
 		sort     string
-		database *engine
+		database *Engine
 		want     []*api.Repo
 	}{
 		{

@@ -11,7 +11,7 @@ import (
 )
 
 // ListLogs gets a list of all logs from the database.
-func (e *engine) ListLogs(ctx context.Context) ([]*api.Log, error) {
+func (e *Engine) ListLogs(ctx context.Context) ([]*api.Log, error) {
 	e.logger.Trace("listing all logs")
 
 	// variables to store query results and return value

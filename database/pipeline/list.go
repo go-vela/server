@@ -11,7 +11,7 @@ import (
 )
 
 // ListPipelines gets a list of all pipelines from the database.
-func (e *engine) ListPipelines(ctx context.Context) ([]*api.Pipeline, error) {
+func (e *Engine) ListPipelines(ctx context.Context) ([]*api.Pipeline, error) {
 	e.logger.Trace("listing all pipelines")
 
 	// variables to store query results and return value

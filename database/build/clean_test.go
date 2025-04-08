@@ -97,7 +97,7 @@ func TestBuild_Engine_CleanBuilds(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

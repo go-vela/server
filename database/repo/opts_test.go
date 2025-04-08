@@ -13,7 +13,7 @@ import (
 
 func TestRepo_EngineOpt_WithClient(t *testing.T) {
 	// setup types
-	e := &engine{client: new(gorm.DB)}
+	e := &Engine{client: new(gorm.DB)}
 
 	// setup tests
 	tests := []struct {
@@ -62,7 +62,7 @@ func TestRepo_EngineOpt_WithClient(t *testing.T) {
 
 func TestRepo_EngineOpt_WithEncryptionKey(t *testing.T) {
 	// setup types
-	e := &engine{config: new(config)}
+	e := &Engine{config: new(config)}
 
 	// setup tests
 	tests := []struct {
@@ -111,7 +111,7 @@ func TestRepo_EngineOpt_WithEncryptionKey(t *testing.T) {
 
 func TestRepo_EngineOpt_WithLogger(t *testing.T) {
 	// setup types
-	e := &engine{logger: new(logrus.Entry)}
+	e := &Engine{logger: new(logrus.Entry)}
 
 	// setup tests
 	tests := []struct {
@@ -160,7 +160,7 @@ func TestRepo_EngineOpt_WithLogger(t *testing.T) {
 
 func TestRepo_EngineOpt_WithSkipCreation(t *testing.T) {
 	// setup types
-	e := &engine{config: new(config)}
+	e := &Engine{config: new(config)}
 
 	// setup tests
 	tests := []struct {
@@ -209,7 +209,7 @@ func TestRepo_EngineOpt_WithSkipCreation(t *testing.T) {
 
 func TestRepo_EngineOpt_WithContext(t *testing.T) {
 	// setup types
-	e := &engine{config: new(config)}
+	e := &Engine{config: new(config)}
 
 	// setup tests
 	tests := []struct {

@@ -1001,13 +1001,13 @@ func Test_client_Parse(t *testing.T) {
 				t.Errorf("Reading file returned err: %v", err)
 			}
 
-			var c *client
+			var c *Client
 
 			pipelineType := tt.args.pipelineType
 			if pipelineType == "nil" {
-				c = &client{}
+				c = &Client{}
 			} else {
-				c = &client{
+				c = &Client{
 					repo: &api.Repo{PipelineType: &pipelineType},
 				}
 			}
@@ -1079,7 +1079,7 @@ func Test_client_ParseRaw(t *testing.T) {
 				content = tt.want
 			}
 
-			c := &client{}
+			c := &Client{}
 			got, err := c.ParseRaw(content)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseRaw() error = %v, wantErr %v", err, tt.wantErr)

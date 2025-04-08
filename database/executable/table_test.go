@@ -23,7 +23,7 @@ func TestExecutable_Engine_CreateBuildExecutableTable(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

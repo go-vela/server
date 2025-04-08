@@ -13,7 +13,7 @@ import (
 )
 
 // DeleteRepo deletes an existing repo from the database.
-func (e *engine) DeleteRepo(ctx context.Context, r *api.Repo) error {
+func (e *Engine) DeleteRepo(ctx context.Context, r *api.Repo) error {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

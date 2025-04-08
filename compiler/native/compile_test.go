@@ -345,7 +345,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler := client{
+			compiler := Client{
 				ModificationService: ModificationConfig{
 					Timeout:  1 * time.Second,
 					Endpoint: tt.args.endpoint,
@@ -434,7 +434,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler := client{
+			compiler := Client{
 				ModificationService: ModificationConfig{
 					Timeout:  1 * time.Second,
 					Endpoint: tt.args.endpoint,
@@ -2419,7 +2419,7 @@ func Test_client_modifyConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler := client{
+			compiler := Client{
 				ModificationService: ModificationConfig{
 					Timeout:  2 * time.Second,
 					Retries:  2,

@@ -23,7 +23,7 @@ func TestSchedule_Engine_CreateScheduleIndexes(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

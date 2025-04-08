@@ -28,7 +28,7 @@ type ModificationConfig struct {
 	Secret   string
 }
 
-type client struct {
+type Client struct {
 	Github           registry.Service
 	PrivateGithub    registry.Service
 	UsePrivateGithub bool
@@ -54,12 +54,10 @@ type client struct {
 }
 
 // FromCLIContext returns a Pipeline implementation that integrates with the supported registries.
-//
-//nolint:revive // ignore returning unexported client
-func FromCLIContext(ctx *cli.Context) (*client, error) {
+func FromCLIContext(ctx *cli.Context) (*Client, error) {
 	logrus.Debug("creating registry clients from CLI configuration")
 
-	c := new(client)
+	c := new(Client)
 
 	if ctx.String("modification-addr") != "" {
 		c.ModificationService = ModificationConfig{
@@ -129,8 +127,8 @@ func setupPrivateGithub(ctx context.Context, addr, token string) (registry.Servi
 }
 
 // Duplicate creates a clone of the Engine.
-func (c *client) Duplicate() compiler.Engine {
-	cc := new(client)
+func (c *Client) Duplicate() compiler.Engine {
+	cc := new(Client)
 
 	// copy the essential fields from the existing client
 	cc.Github = c.Github
@@ -146,7 +144,7 @@ func (c *client) Duplicate() compiler.Engine {
 }
 
 // WithBuild sets the API build type in the Engine.
-func (c *client) WithBuild(b *api.Build) compiler.Engine {
+func (c *Client) WithBuild(b *api.Build) compiler.Engine {
 	if b != nil {
 		c.build = b
 	}
@@ -155,7 +153,7 @@ func (c *client) WithBuild(b *api.Build) compiler.Engine {
 }
 
 // WithComment sets the comment in the Engine.
-func (c *client) WithComment(cmt string) compiler.Engine {
+func (c *Client) WithComment(cmt string) compiler.Engine {
 	if cmt != "" {
 		c.comment = cmt
 	}
@@ -164,7 +162,7 @@ func (c *client) WithComment(cmt string) compiler.Engine {
 }
 
 // WithCommit sets the comment in the Engine.
-func (c *client) WithCommit(cmt string) compiler.Engine {
+func (c *Client) WithCommit(cmt string) compiler.Engine {
 	if cmt != "" {
 		c.commit = cmt
 	}
@@ -173,7 +171,7 @@ func (c *client) WithCommit(cmt string) compiler.Engine {
 }
 
 // WithFiles sets the changeset files in the Engine.
-func (c *client) WithFiles(f []string) compiler.Engine {
+func (c *Client) WithFiles(f []string) compiler.Engine {
 	if f != nil {
 		c.files = f
 	}
@@ -182,21 +180,21 @@ func (c *client) WithFiles(f []string) compiler.Engine {
 }
 
 // WithLocal sets the compiler metadata type in the Engine.
-func (c *client) WithLocal(local bool) compiler.Engine {
+func (c *Client) WithLocal(local bool) compiler.Engine {
 	c.local = local
 
 	return c
 }
 
 // WithLocalTemplates sets the compiler local templates in the Engine.
-func (c *client) WithLocalTemplates(templates []string) compiler.Engine {
+func (c *Client) WithLocalTemplates(templates []string) compiler.Engine {
 	c.localTemplates = templates
 
 	return c
 }
 
 // WithMetadata sets the compiler metadata type in the Engine.
-func (c *client) WithMetadata(m *internal.Metadata) compiler.Engine {
+func (c *Client) WithMetadata(m *internal.Metadata) compiler.Engine {
 	if m != nil {
 		c.metadata = m
 	}
@@ -205,7 +203,7 @@ func (c *client) WithMetadata(m *internal.Metadata) compiler.Engine {
 }
 
 // WithPrivateGitHub sets the private github client in the Engine.
-func (c *client) WithPrivateGitHub(ctx context.Context, url, token string) compiler.Engine {
+func (c *Client) WithPrivateGitHub(ctx context.Context, url, token string) compiler.Engine {
 	if len(url) != 0 && len(token) != 0 {
 		privGithub, _ := setupPrivateGithub(ctx, url, token)
 
@@ -216,7 +214,7 @@ func (c *client) WithPrivateGitHub(ctx context.Context, url, token string) compi
 }
 
 // WithRepo sets the API repo type in the Engine.
-func (c *client) WithRepo(r *api.Repo) compiler.Engine {
+func (c *Client) WithRepo(r *api.Repo) compiler.Engine {
 	if r != nil {
 		c.repo = r
 	}
@@ -225,7 +223,7 @@ func (c *client) WithRepo(r *api.Repo) compiler.Engine {
 }
 
 // WithUser sets the API user type in the Engine.
-func (c *client) WithUser(u *api.User) compiler.Engine {
+func (c *Client) WithUser(u *api.User) compiler.Engine {
 	if u != nil {
 		c.user = u
 	}
@@ -234,7 +232,7 @@ func (c *client) WithUser(u *api.User) compiler.Engine {
 }
 
 // WithLabels sets the label(s) in the Engine.
-func (c *client) WithLabels(labels []string) compiler.Engine {
+func (c *Client) WithLabels(labels []string) compiler.Engine {
 	if len(labels) != 0 {
 		c.labels = labels
 	}
@@ -243,21 +241,21 @@ func (c *client) WithLabels(labels []string) compiler.Engine {
 }
 
 // WithNetrc sets the netrc in the Engine.
-func (c *client) WithNetrc(n string) compiler.Engine {
+func (c *Client) WithNetrc(n string) compiler.Engine {
 	c.netrc = &n
 
 	return c
 }
 
 // WithSCM sets the scm in the Engine.
-func (c *client) WithSCM(_scm scm.Service) compiler.Engine {
+func (c *Client) WithSCM(_scm scm.Service) compiler.Engine {
 	c.scm = _scm
 
 	return c
 }
 
 // WithDatabase sets the database in the Engine.
-func (c *client) WithDatabase(db database.Interface) compiler.Engine {
+func (c *Client) WithDatabase(db database.Interface) compiler.Engine {
 	c.db = db
 
 	return c

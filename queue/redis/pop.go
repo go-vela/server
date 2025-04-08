@@ -14,7 +14,7 @@ import (
 )
 
 // Pop grabs an item from the specified channel off the queue.
-func (c *client) Pop(ctx context.Context, inRoutes []string) (*models.Item, error) {
+func (c *Client) Pop(ctx context.Context, inRoutes []string) (*models.Item, error) {
 	// define routes to pop from
 	var routes []string
 

@@ -12,7 +12,7 @@ import (
 )
 
 // CleanBuilds updates builds to an error with a provided message with a created timestamp prior to a defined moment.
-func (e *engine) CleanBuilds(ctx context.Context, msg string, before int64) (int64, error) {
+func (e *Engine) CleanBuilds(ctx context.Context, msg string, before int64) (int64, error) {
 	logrus.Tracef("cleaning pending or running builds created prior to %d", before)
 
 	// send query to the database

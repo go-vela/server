@@ -79,7 +79,7 @@ func TestJWK_Engine_ListJWKs(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     jwk.Set
 	}{
 		{

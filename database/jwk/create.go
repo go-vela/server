@@ -15,7 +15,7 @@ import (
 )
 
 // CreateJWK creates a new JWK in the database.
-func (e *engine) CreateJWK(ctx context.Context, j jwk.RSAPublicKey) error {
+func (e *Engine) CreateJWK(ctx context.Context, j jwk.RSAPublicKey) error {
 	logKeyID, ok := j.KeyID()
 	if !ok {
 		return fmt.Errorf("unable to create JWK: no key provided")

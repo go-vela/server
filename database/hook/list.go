@@ -11,7 +11,7 @@ import (
 )
 
 // ListHooks gets a list of all hooks from the database.
-func (e *engine) ListHooks(ctx context.Context) ([]*api.Hook, error) {
+func (e *Engine) ListHooks(ctx context.Context) ([]*api.Hook, error) {
 	e.logger.Trace("listing all hooks")
 
 	// variables to store query results and return value

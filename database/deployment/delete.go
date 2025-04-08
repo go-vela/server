@@ -13,7 +13,7 @@ import (
 )
 
 // DeleteDeployment deletes an existing deployment from the database.
-func (e *engine) DeleteDeployment(ctx context.Context, d *api.Deployment) error {
+func (e *Engine) DeleteDeployment(ctx context.Context, d *api.Deployment) error {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetID(),
 	}).Tracef("deleting deployment %d", d.GetID())

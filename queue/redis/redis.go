@@ -29,7 +29,7 @@ type config struct {
 	PublicKey *[32]byte
 }
 
-type client struct {
+type Client struct {
 	config  *config
 	Redis   *redis.Client
 	Options *redis.Options
@@ -42,11 +42,9 @@ type client struct {
 
 // New returns a Queue implementation that
 // integrates with a Redis queue instance.
-//
-//nolint:revive // ignore returning unexported client
-func New(opts ...ClientOpt) (*client, error) {
+func New(opts ...ClientOpt) (*Client, error) {
 	// create new Redis client
-	c := new(client)
+	c := new(Client)
 
 	// create new fields
 	c.config = new(config)
@@ -150,7 +148,7 @@ func failoverFromOptions(source *redis.Options) *redis.FailoverOptions {
 // This will ensure we have properly established a
 // connection to the Redis queue instance before
 // we try to set it up.
-func pingQueue(c *client) error {
+func pingQueue(c *Client) error {
 	// attempt 10 times
 	var err error
 	for i := 0; i < 10; i++ {
@@ -178,9 +176,7 @@ func pingQueue(c *client) error {
 // with the different supported backends.
 //
 // This function is intended for running tests only.
-//
-//nolint:revive // ignore returning unexported client
-func NewTest(signingPrivateKey, signingPublicKey string, routes ...string) (*client, error) {
+func NewTest(signingPrivateKey, signingPublicKey string, routes ...string) (*Client, error) {
 	// create a local fake redis instance
 	//
 	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run

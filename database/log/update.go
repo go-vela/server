@@ -12,7 +12,7 @@ import (
 )
 
 // UpdateLog updates an existing log in the database.
-func (e *engine) UpdateLog(ctx context.Context, l *api.Log) error {
+func (e *Engine) UpdateLog(ctx context.Context, l *api.Log) error {
 	// check what the log entry is for
 	switch {
 	case l.GetServiceID() > 0:

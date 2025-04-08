@@ -21,7 +21,7 @@ import (
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-func (c *client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, warnings []string) (*yaml.Build, []string, error) {
+func (c *Client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, warnings []string) (*yaml.Build, []string, error) {
 	var (
 		p   *yaml.Build
 		err error
@@ -52,7 +52,7 @@ func (c *client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[stri
 // templated step in a yaml configuration.
 //
 //nolint:funlen,gocyclo // ignore function length
-func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, warnings []string, depth int) (*yaml.Build, []string, error) {
+func (c *Client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, warnings []string, depth int) (*yaml.Build, []string, error) {
 	if len(tmpls) == 0 {
 		return s, warnings, nil
 	}
@@ -229,7 +229,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 
 // ExpandDeployment injects the template for a
 // templated deployment config in a yaml configuration.
-func (c *client) ExpandDeployment(ctx context.Context, b *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+func (c *Client) ExpandDeployment(ctx context.Context, b *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return b, nil
 	}
@@ -264,7 +264,7 @@ func (c *client) ExpandDeployment(ctx context.Context, b *yaml.Build, tmpls map[
 	return b, nil
 }
 
-func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name string) ([]byte, error) {
+func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name string) ([]byte, error) {
 	var (
 		bytes []byte
 		err   error
@@ -398,7 +398,7 @@ func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 }
 
 //nolint:lll // ignore long line length due to input arguments
-func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, []string, error) {
+func (c *Client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, []string, error) {
 	switch tmpl.Format {
 	case constants.PipelineTypeGo, constants.PipelineTypeGoAlt, "":
 		//nolint:lll // ignore long line length due to return
@@ -412,7 +412,7 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 	}
 }
 
-func (c *client) mergeDeployTemplate(bytes []byte, tmpl *yaml.Template, d *yaml.Deployment) (*yaml.Build, []string, error) {
+func (c *Client) mergeDeployTemplate(bytes []byte, tmpl *yaml.Template, d *yaml.Deployment) (*yaml.Build, []string, error) {
 	switch tmpl.Format {
 	case constants.PipelineTypeGo, constants.PipelineTypeGoAlt, "":
 		//nolint:lll // ignore long line length due to return

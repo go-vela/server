@@ -13,7 +13,7 @@ import (
 )
 
 // GetSecretForTeam gets a secret by org and team name from the database.
-func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (*api.Secret, error) {
+func (e *Engine) GetSecretForTeam(ctx context.Context, org, team, name string) (*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":    org,
 		"team":   team,

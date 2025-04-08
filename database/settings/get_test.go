@@ -47,7 +47,7 @@ func TestSettings_Engine_GetSettings(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *settings.Platform
 	}{
 		{

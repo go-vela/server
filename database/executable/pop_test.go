@@ -52,7 +52,7 @@ func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.BuildExecutable
 	}{
 		{

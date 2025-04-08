@@ -11,7 +11,7 @@ import (
 )
 
 // GetWorker gets a worker by ID from the database.
-func (e *engine) GetWorker(ctx context.Context, id int64) (*api.Worker, error) {
+func (e *Engine) GetWorker(ctx context.Context, id int64) (*api.Worker, error) {
 	e.logger.Tracef("getting worker %d", id)
 
 	// variable to store query results
