@@ -5,7 +5,7 @@ package settings
 import (
 	"fmt"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // Platform is the API representation of platform settingps.
@@ -22,8 +22,8 @@ type Platform struct {
 	UpdatedBy         *string   `json:"updated_by,omitempty"         yaml:"updated_by,omitempty"`
 }
 
-// FromCLIContext returns a new Platform record from a cli context.
-func FromCLIContext(c *cli.Context) *Platform {
+// FromCLICommand returns a new Platform record from a cli command.
+func FromCLICommand(c *cli.Command) *Platform {
 	ps := new(Platform)
 
 	// set repos permitted to be added

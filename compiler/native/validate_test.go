@@ -3,11 +3,9 @@
 package native
 
 import (
-	"flag"
+	"context"
 	"fmt"
 	"testing"
-
-	"github.com/urfave/cli/v2"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
@@ -16,14 +14,10 @@ import (
 
 func TestNative_ValidateYAML_NoVersion(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	p := &yaml.Build{}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -36,16 +30,12 @@ func TestNative_ValidateYAML_NoVersion(t *testing.T) {
 
 func TestNative_ValidateYAML_NoStagesOrSteps(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	p := &yaml.Build{
 		Version: "v1",
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -58,10 +48,6 @@ func TestNative_ValidateYAML_NoStagesOrSteps(t *testing.T) {
 
 func TestNative_ValidateYAML_StagesAndSteps(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -89,7 +75,7 @@ func TestNative_ValidateYAML_StagesAndSteps(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -102,10 +88,6 @@ func TestNative_ValidateYAML_StagesAndSteps(t *testing.T) {
 
 func TestNative_ValidateYAML_RenderInLineStepTemplate(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -129,7 +111,7 @@ func TestNative_ValidateYAML_RenderInLineStepTemplate(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -142,10 +124,6 @@ func TestNative_ValidateYAML_RenderInLineStepTemplate(t *testing.T) {
 
 func TestNative_ValidatePipeline_Services(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &pipeline.Build{
 		Version: "v1",
@@ -167,7 +145,7 @@ func TestNative_ValidatePipeline_Services(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -180,10 +158,6 @@ func TestNative_ValidatePipeline_Services(t *testing.T) {
 
 func TestNative_ValidateYAML_Services_NoName(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -205,7 +179,7 @@ func TestNative_ValidateYAML_Services_NoName(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -218,10 +192,6 @@ func TestNative_ValidateYAML_Services_NoName(t *testing.T) {
 
 func TestNative_Validate_Services_NoImage(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -243,7 +213,7 @@ func TestNative_Validate_Services_NoImage(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -256,10 +226,6 @@ func TestNative_Validate_Services_NoImage(t *testing.T) {
 
 func TestNative_Validate_Stages(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &pipeline.Build{
 		Version: "v1",
@@ -279,7 +245,7 @@ func TestNative_Validate_Stages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -292,10 +258,6 @@ func TestNative_Validate_Stages(t *testing.T) {
 
 func TestNative_Validate_Stages_NoName(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -314,7 +276,7 @@ func TestNative_Validate_Stages_NoName(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -327,10 +289,6 @@ func TestNative_Validate_Stages_NoName(t *testing.T) {
 
 func TestNative_Validate_Stages_NoStepName(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -349,7 +307,7 @@ func TestNative_Validate_Stages_NoStepName(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -362,10 +320,6 @@ func TestNative_Validate_Stages_NoStepName(t *testing.T) {
 
 func TestNative_Validate_Stages_NoImage(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -384,7 +338,7 @@ func TestNative_Validate_Stages_NoImage(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -397,10 +351,6 @@ func TestNative_Validate_Stages_NoImage(t *testing.T) {
 
 func TestNative_Validate_Stages_NoCommands(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -419,7 +369,7 @@ func TestNative_Validate_Stages_NoCommands(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -432,10 +382,6 @@ func TestNative_Validate_Stages_NoCommands(t *testing.T) {
 
 func TestNative_Validate_Stages_StepNameConflict(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &pipeline.Build{
 		Version: "v1",
@@ -466,7 +412,7 @@ func TestNative_Validate_Stages_StepNameConflict(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -479,10 +425,6 @@ func TestNative_Validate_Stages_StepNameConflict(t *testing.T) {
 
 func TestNative_Validate_Stages_NeedsSelfReference(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -503,7 +445,7 @@ func TestNative_Validate_Stages_NeedsSelfReference(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -516,10 +458,6 @@ func TestNative_Validate_Stages_NeedsSelfReference(t *testing.T) {
 
 func TestNative_Validate_Steps(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &pipeline.Build{
 		Version: "v1",
@@ -534,7 +472,7 @@ func TestNative_Validate_Steps(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -547,10 +485,6 @@ func TestNative_Validate_Steps(t *testing.T) {
 
 func TestNative_Validate_Steps_NoName(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	p := &yaml.Build{
 		Version: "v1",
 		Steps: yaml.StepSlice{
@@ -563,7 +497,7 @@ func TestNative_Validate_Steps_NoName(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -576,10 +510,6 @@ func TestNative_Validate_Steps_NoName(t *testing.T) {
 
 func TestNative_Validate_Services_NameCollision(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &pipeline.Build{
 		Version: "v1",
@@ -604,7 +534,7 @@ func TestNative_Validate_Services_NameCollision(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -617,10 +547,6 @@ func TestNative_Validate_Services_NameCollision(t *testing.T) {
 
 func TestNative_Validate_Steps_NoImage(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -634,7 +560,7 @@ func TestNative_Validate_Steps_NoImage(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -647,10 +573,6 @@ func TestNative_Validate_Steps_NoImage(t *testing.T) {
 
 func TestNative_Validate_Steps_NoCommands(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -664,7 +586,7 @@ func TestNative_Validate_Steps_NoCommands(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -677,10 +599,6 @@ func TestNative_Validate_Steps_NoCommands(t *testing.T) {
 
 func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 
 	reportSteps := pipeline.ContainerSlice{}
@@ -702,7 +620,7 @@ func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -716,10 +634,6 @@ func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
 
 func TestNative_Validate_MultiReportAs(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &pipeline.Build{
 		Version: "v1",
@@ -742,7 +656,7 @@ func TestNative_Validate_MultiReportAs(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -756,10 +670,6 @@ func TestNative_Validate_MultiReportAs(t *testing.T) {
 
 func TestNative_Validate_Steps_StepNameConflict(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &pipeline.Build{
 		Version: "v1",
@@ -780,7 +690,7 @@ func TestNative_Validate_Steps_StepNameConflict(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
