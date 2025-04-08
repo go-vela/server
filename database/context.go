@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/tracing"
 )

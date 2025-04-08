@@ -4,7 +4,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	cliMiddleware "github.com/go-vela/server/router/middleware/cli"
 )

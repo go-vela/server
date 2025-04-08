@@ -5,7 +5,7 @@ package settings
 import (
 	"fmt"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // Platform is the API representation of platform settingps.

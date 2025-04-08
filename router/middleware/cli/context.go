@@ -5,7 +5,7 @@ package cli
 import (
 	"context"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const key = "cli"
