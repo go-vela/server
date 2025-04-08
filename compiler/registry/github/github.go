@@ -30,7 +30,7 @@ func (c *client) Equal(other *client) bool {
 // New returns a Registry implementation that integrates
 // with GitHub or a GitHub Enterprise instance.
 //
-//nolint:revive // ignore returning unexported client
+
 func New(ctx context.Context, address, token string) (*client, error) {
 	// create the client object
 	c := &client{
