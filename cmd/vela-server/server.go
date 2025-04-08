@@ -223,12 +223,11 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		ReadHeaderTimeout: 60 * time.Second,
 	}
 
-	// create the context for controlling the worker subprocesses
-	ctx, done := context.WithCancel(ctx)
-	// create the errgroup for managing worker subprocesses
-	//
-	// https://pkg.go.dev/golang.org/x/sync/errgroup?tab=doc#Group
-	g, gctx := errgroup.WithContext(ctx)
+	// create the server context for error group handling (cancelable)
+	sCtx, done := context.WithCancel(ctx)
+
+	// create the errgroup for handling exits for server
+	g, gctx := errgroup.WithContext(sCtx)
 
 	// spawn goroutine to check for signals to gracefully shutdown
 	g.Go(func() error {
@@ -239,7 +238,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		case sig := <-signalChannel:
 			logrus.Infof("received signal: %s", sig)
 
-			err := srv.Shutdown(ctx)
+			err := srv.Shutdown(sCtx)
 			if err != nil {
 				logrus.Error(err)
 			}
@@ -248,7 +247,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		case <-gctx.Done():
 			logrus.Info("closing signal goroutine")
 
-			err := srv.Shutdown(ctx)
+			err := srv.Shutdown(sCtx)
 			if err != nil {
 				logrus.Error(err)
 			}
@@ -268,6 +267,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		for {
 			time.Sleep(interval)
 
+			// pass in parent non-cancelable and timeout-less context
 			newSettings, err := database.GetSettings(ctx)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to refresh platform settings")
@@ -290,6 +290,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 			logrus.Errorf("failing server: %v", err)
 		}
 
+		// return err which will cancel the context
 		return err
 	})
 
@@ -301,6 +302,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		defer ticker.Stop()
 
 		for {
+			// pass in parent non-cancelable and timeout-less context
 			err := cleanupPendingApproval(ctx, database)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to cleanup pending approval builds")
@@ -342,6 +344,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 			compiler.SetSettings(ps)
 			queue.SetSettings(ps)
 
+			// pass in parent non-cancelable and timeout-less context
 			err = processSchedules(ctx, start, ps, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
