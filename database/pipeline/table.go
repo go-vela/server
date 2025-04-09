@@ -61,7 +61,7 @@ pipelines (
 )
 
 // CreatePipelineTable creates the pipelines table in the database.
-func (e *engine) CreatePipelineTable(ctx context.Context, driver string) error {
+func (e *Engine) CreatePipelineTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating pipelines table in the database")
 
 	// handle the driver provided to create the table

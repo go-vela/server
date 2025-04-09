@@ -5,14 +5,14 @@ package jwk
 import (
 	"context"
 
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
 )
 
 // GetActiveJWK gets a JWK by UUID (kid) from the database if active.
-func (e *engine) GetActiveJWK(ctx context.Context, id string) (jwk.RSAPublicKey, error) {
+func (e *Engine) GetActiveJWK(ctx context.Context, id string) (jwk.RSAPublicKey, error) {
 	e.logger.Tracef("getting JWK key %s", id)
 
 	// variable to store query results

@@ -13,7 +13,7 @@ import (
 )
 
 // GetWorkerForHostname gets a worker by hostname from the database.
-func (e *engine) GetWorkerForHostname(ctx context.Context, hostname string) (*api.Worker, error) {
+func (e *Engine) GetWorkerForHostname(ctx context.Context, hostname string) (*api.Worker, error) {
 	e.logger.WithFields(logrus.Fields{
 		"worker": hostname,
 	}).Tracef("getting worker %s", hostname)

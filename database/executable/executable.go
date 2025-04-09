@@ -25,8 +25,8 @@ type (
 		Driver string
 	}
 
-	// engine represents the build executable functionality that implements the BuildExecutableService interface.
-	engine struct {
+	// Engine represents the build executable functionality that implements the BuildExecutableService interface.
+	Engine struct {
 		// engine configuration settings used in build executable functions
 		config *config
 
@@ -45,11 +45,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with build executables in the database.
-//
-//nolint:revive // ignore returning unexported engine
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new BuildExecutable engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

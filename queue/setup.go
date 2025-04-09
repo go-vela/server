@@ -3,6 +3,7 @@
 package queue
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -37,13 +38,14 @@ type Setup struct {
 
 // Redis creates and returns a Vela service capable
 // of integrating with a Redis queue.
-func (s *Setup) Redis() (Service, error) {
+func (s *Setup) Redis(ctx context.Context) (Service, error) {
 	logrus.Trace("creating redis queue client from setup")
 
 	// create new Redis queue service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/queue/redis?tab=doc#New
 	return redis.New(
+		ctx,
 		redis.WithAddress(s.Address),
 		redis.WithRoutes(s.Routes...),
 		redis.WithCluster(s.Cluster),

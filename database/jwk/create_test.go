@@ -23,11 +23,16 @@ func TestJWK_Engine_CreateJWK(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
+	kid, ok := _jwk.KeyID()
+	if !ok {
+		t.Errorf("unable to get key ID for jwk")
+	}
+
 	// ensure the mock expects the query
 	_mock.ExpectExec(`INSERT INTO "jwks"
 ("id","active","key")
 VALUES ($1,$2,$3)`).
-		WithArgs(_jwk.KeyID(), true, _jwkBytes).
+		WithArgs(kid, true, _jwkBytes).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
@@ -37,7 +42,7 @@ VALUES ($1,$2,$3)`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

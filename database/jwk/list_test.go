@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	"github.com/go-vela/server/database/testutils"
 )
@@ -31,11 +31,21 @@ func TestJWK_Engine_ListJWKs(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
+	kidOne, ok := _jwkOne.KeyID()
+	if !ok {
+		t.Errorf("unable to get key ID for jwk")
+	}
+
+	kidTwo, ok := _jwkTwo.KeyID()
+	if !ok {
+		t.Errorf("unable to get key ID for jwk")
+	}
+
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "active", "key"}).
-		AddRow(_jwkOne.KeyID(), true, _jwkOneBytes).
-		AddRow(_jwkTwo.KeyID(), true, _jwkTwoBytes)
+		AddRow(kidOne, true, _jwkOneBytes).
+		AddRow(kidTwo, true, _jwkTwoBytes)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "jwks"`).WillReturnRows(_rows)
@@ -69,7 +79,7 @@ func TestJWK_Engine_ListJWKs(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     jwk.Set
 	}{
 		{

@@ -37,6 +37,7 @@ repos (
 	approve_build    VARCHAR(20),
 	approval_timeout INTEGER,
 	install_id       BIGINT,
+	custom_props     JSON DEFAULT NULL,
 	UNIQUE(full_name)
 );
 `
@@ -69,13 +70,14 @@ repos (
 	approve_build    TEXT,
 	approval_timeout INTEGER,
 	install_id       INTEGER,
+	custom_props     TEXT,
 	UNIQUE(full_name)
 );
 `
 )
 
 // CreateRepoTable creates the repos table in the database.
-func (e *engine) CreateRepoTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateRepoTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating repos table")
 
 	// handle the driver provided to create the table

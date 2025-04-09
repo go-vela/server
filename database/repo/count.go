@@ -9,7 +9,7 @@ import (
 )
 
 // CountRepos gets the count of all repos from the database.
-func (e *engine) CountRepos(ctx context.Context) (int64, error) {
+func (e *Engine) CountRepos(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all repos")
 
 	// variable to store query results

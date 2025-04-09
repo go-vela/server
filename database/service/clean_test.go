@@ -89,7 +89,7 @@ func TestService_Engine_CleanService(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

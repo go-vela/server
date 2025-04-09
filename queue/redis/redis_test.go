@@ -3,6 +3,7 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -100,6 +101,7 @@ func TestRedis_New(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		_, err := New(
+			context.Background(),
 			WithAddress(test.address),
 			WithRoutes("foo"),
 			WithCluster(false),

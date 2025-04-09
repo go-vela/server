@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/tracing"
 )
@@ -39,16 +39,16 @@ func ToContext(c Setter, d Interface) {
 	c.Set(key, d)
 }
 
-// FromCLIContext creates and returns a database engine from the urfave/cli context.
-func FromCLIContext(c *cli.Context, tc *tracing.Client) (Interface, error) {
+// FromCLICommand creates and returns a database engine from the urfave/cli context.
+func FromCLICommand(c *cli.Command, tc *tracing.Client) (Interface, error) {
 	logrus.Debug("creating database engine from CLI configuration")
 
 	return New(
 		WithAddress(c.String("database.addr")),
-		WithCompressionLevel(c.Int("database.compression.level")),
+		WithCompressionLevel(int(c.Int("database.compression.level"))),
 		WithConnectionLife(c.Duration("database.connection.life")),
-		WithConnectionIdle(c.Int("database.connection.idle")),
-		WithConnectionOpen(c.Int("database.connection.open")),
+		WithConnectionIdle(int(c.Int("database.connection.idle"))),
+		WithConnectionOpen(int(c.Int("database.connection.open"))),
 		WithDriver(c.String("database.driver")),
 		WithEncryptionKey(c.String("database.encryption.key")),
 		WithLogLevel(c.String("database.log.level")),

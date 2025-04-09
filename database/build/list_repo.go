@@ -15,7 +15,7 @@ import (
 // ListBuildsForRepo gets a list of builds by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*api.Build, error) {
+func (e *Engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

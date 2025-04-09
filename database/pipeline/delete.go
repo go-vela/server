@@ -13,7 +13,7 @@ import (
 )
 
 // DeletePipeline deletes an existing pipeline from the database.
-func (e *engine) DeletePipeline(ctx context.Context, p *api.Pipeline) error {
+func (e *Engine) DeletePipeline(ctx context.Context, p *api.Pipeline) error {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("deleting pipeline %s", p.GetCommit())

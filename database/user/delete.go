@@ -13,7 +13,7 @@ import (
 )
 
 // DeleteUser deletes an existing user from the database.
-func (e *engine) DeleteUser(ctx context.Context, u *api.User) error {
+func (e *Engine) DeleteUser(ctx context.Context, u *api.User) error {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("deleting user %s", u.GetName())

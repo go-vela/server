@@ -15,7 +15,7 @@ import (
 // SubstituteStages replaces every declared environment
 // variable with its corresponding value for each step
 // in every stage in a yaml configuration.
-func (c *client) SubstituteStages(s types.StageSlice) (types.StageSlice, error) {
+func (c *Client) SubstituteStages(s types.StageSlice) (types.StageSlice, error) {
 	// iterate through all stages
 	for _, stage := range s {
 		// inject the scripts into the steps for the stage
@@ -33,7 +33,7 @@ func (c *client) SubstituteStages(s types.StageSlice) (types.StageSlice, error) 
 // SubstituteSteps replaces every declared environment
 // variable with its corresponding value for each step
 // in a yaml configuration.
-func (c *client) SubstituteSteps(s types.StepSlice) (types.StepSlice, error) {
+func (c *Client) SubstituteSteps(s types.StepSlice) (types.StepSlice, error) {
 	// iterate through all steps
 	for _, step := range s {
 		// marshal step configuration

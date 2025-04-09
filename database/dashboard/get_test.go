@@ -60,7 +60,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Dashboard
 	}{
 		{

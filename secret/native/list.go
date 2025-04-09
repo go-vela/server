@@ -13,7 +13,7 @@ import (
 )
 
 // List captures a list of secrets.
-func (c *client) List(ctx context.Context, sType, org, name string, page, perPage int, teams []string) ([]*api.Secret, error) {
+func (c *Client) List(ctx context.Context, sType, org, name string, page, perPage int, teams []string) ([]*api.Secret, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:

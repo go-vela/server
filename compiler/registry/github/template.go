@@ -7,16 +7,16 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/go-github/v69/github"
+	"github.com/google/go-github/v71/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/registry"
 )
 
 // Template captures the templated pipeline configuration from the GitHub repo.
-func (c *client) Template(ctx context.Context, u *api.User, s *registry.Source) ([]byte, error) {
+func (c *Client) Template(ctx context.Context, u *api.User, s *registry.Source) ([]byte, error) {
 	// use default GitHub OAuth client we provide
-	cli := c.Github
+	cli := c.githubClient
 	if u != nil {
 		// create GitHub OAuth client with user's token
 		cli = c.newOAuthTokenClient(ctx, u.GetToken())

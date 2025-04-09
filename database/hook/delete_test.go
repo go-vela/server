@@ -45,7 +45,7 @@ func TestHook_Engine_DeleteHook(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

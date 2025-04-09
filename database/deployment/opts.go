@@ -10,11 +10,11 @@ import (
 )
 
 // EngineOpt represents a configuration option to initialize the database engine for Deployments.
-type EngineOpt func(*engine) error
+type EngineOpt func(*Engine) error
 
 // WithClient sets the gorm.io/gorm client in the database engine for Deployments.
 func WithClient(client *gorm.DB) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the gorm.io/gorm client in the deployment engine
 		e.client = client
 
@@ -24,7 +24,7 @@ func WithClient(client *gorm.DB) EngineOpt {
 
 // WithLogger sets the github.com/sirupsen/logrus logger in the database engine for Deployments.
 func WithLogger(logger *logrus.Entry) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the github.com/sirupsen/logrus logger in the deployment engine
 		e.logger = logger
 
@@ -34,7 +34,7 @@ func WithLogger(logger *logrus.Entry) EngineOpt {
 
 // WithSkipCreation sets the skip creation logic in the database engine for Deployments.
 func WithSkipCreation(skipCreation bool) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set to skip creating tables and indexes in the deployment engine
 		e.config.SkipCreation = skipCreation
 
@@ -44,7 +44,7 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 
 // WithEncryptionKey sets the encryption key in the database engine for Deployments.
 func WithEncryptionKey(key string) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the encryption key in the build engine
 		e.config.EncryptionKey = key
 
@@ -54,7 +54,7 @@ func WithEncryptionKey(key string) EngineOpt {
 
 // WithContext sets the context in the database engine for Deployments.
 func WithContext(ctx context.Context) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		e.ctx = ctx
 
 		return nil

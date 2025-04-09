@@ -5,8 +5,9 @@ package jwk
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/constants"
@@ -14,10 +15,15 @@ import (
 )
 
 // CreateJWK creates a new JWK in the database.
-func (e *engine) CreateJWK(ctx context.Context, j jwk.RSAPublicKey) error {
+func (e *Engine) CreateJWK(ctx context.Context, j jwk.RSAPublicKey) error {
+	logKeyID, ok := j.KeyID()
+	if !ok {
+		return fmt.Errorf("unable to create JWK: no key provided")
+	}
+
 	e.logger.WithFields(logrus.Fields{
-		"jwk": j.KeyID(),
-	}).Tracef("creating key %s", j.KeyID())
+		"jwk": logKeyID,
+	}).Tracef("creating key %s", logKeyID)
 
 	key := types.JWKFromAPI(j)
 	key.Active = sql.NullBool{Bool: true, Valid: true}

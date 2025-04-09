@@ -15,7 +15,7 @@ import (
 // ListBuildsForOrg gets a list of builds by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[string]interface{}, page, perPage int) ([]*api.Build, error) {
+func (e *Engine) ListBuildsForOrg(ctx context.Context, org string, filters map[string]interface{}, page, perPage int) ([]*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("listing builds for org %s", org)

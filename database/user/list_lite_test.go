@@ -69,7 +69,7 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.User
 	}{
 		{

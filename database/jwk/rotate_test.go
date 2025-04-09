@@ -29,21 +29,31 @@ func TestJWK_Engine_RotateKeys(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
+	kidOne, ok := _jwkOne.KeyID()
+	if !ok {
+		t.Errorf("unable to get key ID for jwk")
+	}
+
+	kidTwo, ok := _jwkTwo.KeyID()
+	if !ok {
+		t.Errorf("unable to get key ID for jwk")
+	}
+
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "active", "key"},
-	).AddRow(_jwkOne.KeyID(), true, _jwkOneBytes)
+	).AddRow(kidOne, true, _jwkOneBytes)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs(_jwkOne.KeyID(), true, 1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs(kidOne, true, 1).WillReturnRows(_rows)
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "active", "key"},
-	).AddRow(_jwkTwo.KeyID(), true, _jwkTwoBytes)
+	).AddRow(kidTwo, true, _jwkTwoBytes)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs(_jwkTwo.KeyID(), true, 1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs(kidTwo, true, 1).WillReturnRows(_rows)
 
 	_mock.ExpectExec(`DELETE FROM "jwks" WHERE active = $1`).
 		WithArgs(false).
@@ -70,7 +80,7 @@ func TestJWK_Engine_RotateKeys(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,
@@ -87,12 +97,12 @@ func TestJWK_Engine_RotateKeys(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := test.database.GetActiveJWK(context.TODO(), _jwkOne.KeyID())
+			_, err := test.database.GetActiveJWK(context.TODO(), kidOne)
 			if err != nil {
 				t.Errorf("GetActiveJWK for %s returned err: %v", test.name, err)
 			}
 
-			_, err = test.database.GetActiveJWK(context.TODO(), _jwkTwo.KeyID())
+			_, err = test.database.GetActiveJWK(context.TODO(), kidTwo)
 			if err != nil {
 				t.Errorf("GetActiveJWK for %s returned err: %v", test.name, err)
 			}
@@ -111,12 +121,12 @@ func TestJWK_Engine_RotateKeys(t *testing.T) {
 				t.Errorf("RotateKeys for %s returned err: %v", test.name, err)
 			}
 
-			_, err = test.database.GetActiveJWK(context.TODO(), _jwkOne.KeyID())
+			_, err = test.database.GetActiveJWK(context.TODO(), kidOne)
 			if err == nil {
 				t.Errorf("GetActiveJWK for %s should have returned err", test.name)
 			}
 
-			_, err = test.database.GetActiveJWK(context.TODO(), _jwkTwo.KeyID())
+			_, err = test.database.GetActiveJWK(context.TODO(), kidTwo)
 			if err == nil {
 				t.Errorf("GetActiveJWK for %s should have returned err", test.name)
 			}

@@ -3,7 +3,11 @@
 package scm
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+	"fmt"
+	"strings"
+
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/constants"
 )
@@ -12,90 +16,158 @@ import (
 // interface (CLI) flags for the scm.
 //
 // https://pkg.go.dev/github.com/urfave/cli?tab=doc#Flag
-//
-// TODO: in a future release remove the "source" vars in favor of the "scm" ones.
 var Flags = []cli.Flag{
 	// SCM Flags
 
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_DRIVER", "SCM_DRIVER", "VELA_SOURCE_DRIVER", "SOURCE_DRIVER"},
-		FilePath: "/vela/scm/driver",
-		Name:     "scm.driver",
-		Usage:    "driver to be used for the version control system",
-		Value:    constants.DriverGithub,
+		Name:  "scm.driver",
+		Usage: "driver to be used for the version control system",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_DRIVER"),
+			cli.EnvVar("SCM_DRIVER"),
+			cli.File("/vela/scm/driver"),
+		),
+		Value: constants.DriverGithub,
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_ADDR", "SCM_ADDR", "VELA_SOURCE_ADDR", "SOURCE_ADDR"},
-		FilePath: "/vela/scm/addr",
-		Name:     "scm.addr",
-		Usage:    "fully qualified url (<scheme>://<host>) for the version control system",
-		Value:    "https://github.com",
+		Name:  "scm.addr",
+		Usage: "fully qualified url (<scheme>://<host>) for the version control system",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_ADDR"),
+			cli.EnvVar("SCM_ADDR"),
+			cli.File("/vela/scm/addr"),
+		),
+		Value: "https://github.com",
+		Action: func(_ context.Context, _ *cli.Command, v string) error {
+			if !strings.Contains(v, "://") {
+				return fmt.Errorf("scm address must be fully qualified (<scheme>://<host>)")
+			}
+
+			if strings.HasSuffix(v, "/") {
+				return fmt.Errorf("scm address must not have trailing slash")
+			}
+
+			return nil
+		},
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_CLIENT", "SCM_CLIENT", "VELA_SOURCE_CLIENT", "SOURCE_CLIENT"},
-		FilePath: "/vela/scm/client",
-		Name:     "scm.client",
-		Usage:    "OAuth client id from version control system",
+		Name:  "scm.client",
+		Usage: "OAuth client id from version control system",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_CLIENT"),
+			cli.EnvVar("SCM_CLIENT"),
+			cli.File("/vela/scm/client"),
+		),
+		Required: true,
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_SECRET", "SCM_SECRET", "VELA_SOURCE_SECRET", "SOURCE_SECRET"},
-		FilePath: "/vela/scm/secret",
-		Name:     "scm.secret",
-		Usage:    "OAuth client secret from version control system",
+		Name:  "scm.secret",
+		Usage: "OAuth client secret from version control system",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_SECRET"),
+			cli.EnvVar("SCM_SECRET"),
+			cli.File("/vela/scm/secret"),
+		),
+		Required: true,
+	},
+	&cli.BoolFlag{
+		Name:    "vela-disable-webhook-validation",
+		Usage:   "determines whether or not webhook validation is disabled.  useful for local development.",
+		Sources: cli.EnvVars("VELA_DISABLE_WEBHOOK_VALIDATION"),
+		Value:   false,
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_CONTEXT", "SCM_CONTEXT", "VELA_SOURCE_CONTEXT", "SOURCE_CONTEXT"},
-		FilePath: "/vela/scm/context",
-		Name:     "scm.context",
-		Usage:    "context for commit status in version control system",
-		Value:    "continuous-integration/vela",
+		Name:  "scm.context",
+		Usage: "context for commit status in version control system",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_CONTEXT"),
+			cli.EnvVar("SCM_CONTEXT"),
+			cli.File("/vela/scm/context"),
+		),
+		Value: "continuous-integration/vela",
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"VELA_SCM_SCOPES", "SCM_SCOPES", "VELA_SOURCE_SCOPES", "SOURCE_SCOPES"},
-		FilePath: "/vela/scm/scopes",
-		Name:     "scm.scopes",
-		Usage:    "OAuth scopes to be used for the version control system",
-		Value:    cli.NewStringSlice("repo", "repo:status", "user:email", "read:user", "read:org"),
+		Name:  "scm.scopes",
+		Usage: "OAuth scopes to be used for the version control system",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_SCOPES"),
+			cli.EnvVar("SCM_SCOPES"),
+			cli.File("/vela/scm/scopes"),
+		),
+		Value: []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_WEBHOOK_ADDR", "SCM_WEBHOOK_ADDR", "VELA_SOURCE_WEBHOOK_ADDR", "SOURCE_WEBHOOK_ADDR"},
-		FilePath: "/vela/scm/webhook_addr",
-		Name:     "scm.webhook.addr",
+		Name: "scm.webhook.addr",
 		Usage: "Alternative or proxy server address as a fully qualified url (<scheme>://<host>). " +
 			"Use this when the Vela server address that the scm provider can send webhooks to " +
 			"differs from the server address the UI and oauth flows use, such as when the server " +
 			"is behind a Firewall or NAT, or when using something like ngrok to forward webhooks. " +
 			"(defaults to VELA_ADDR).",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_WEBHOOK_ADDR"),
+			cli.EnvVar("SCM_WEBHOOK_ADDR"),
+			cli.File("/vela/scm/webhook_addr"),
+		),
 	},
-	&cli.Int64Flag{
-		EnvVars:  []string{"VELA_SCM_APP_ID", "SCM_APP_ID"},
-		FilePath: "/vela/scm/app_id",
-		Name:     "scm.app.id",
-		Usage:    "set ID for the SCM App integration (GitHub App)",
+	&cli.IntFlag{
+		Name:  "scm.app.id",
+		Usage: "set ID for the SCM App integration (GitHub App)",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_APP_ID"),
+			cli.EnvVar("SCM_APP_ID"),
+			cli.File("/vela/scm/app_id"),
+		),
+		Action: func(_ context.Context, cmd *cli.Command, v int64) error {
+			if v > 0 {
+				if !cmd.Bool("vela-disable-webhook-validation") && cmd.String("scm.app.webhook-secret") == "" {
+					return fmt.Errorf("webhook-validation enabled and app ID provided but no app webhook secret is provided")
+				}
+				if cmd.String("scm.app.private-key") == "" && cmd.String("scm.app.private-key.path") == "" {
+					return fmt.Errorf("app ID provided but no app private key is provided")
+				}
+				if cmd.String("scm.app.private-key") != "" && cmd.String("scm.app.private-key.path") != "" {
+					return fmt.Errorf("app ID provided but both app private key and app private key path are provided")
+				}
+			}
+
+			return nil
+		},
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_APP_PRIVATE_KEY", "SCM_APP_PRIVATE_KEY"},
-		FilePath: "/vela/scm/app_private_key",
-		Name:     "scm.app.private-key",
-		Usage:    "set value of base64 encoded SCM App integration (GitHub App) private key",
+		Name:  "scm.app.private-key",
+		Usage: "set value of base64 encoded SCM App integration (GitHub App) private key",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_APP_PRIVATE_KEY"),
+			cli.EnvVar("SCM_APP_PRIVATE_KEY"),
+			cli.File("/vela/scm/app_private_key"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_APP_PRIVATE_KEY_PATH", "SCM_APP_PRIVATE_KEY_PATH"},
-		FilePath: "/vela/scm/app_private_key_path",
-		Name:     "scm.app.private-key.path",
-		Usage:    "set filepath to the SCM App integration (GitHub App) private key",
+		Name:  "scm.app.private-key.path",
+		Usage: "set filepath to the SCM App integration (GitHub App) private key",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_APP_PRIVATE_KEY_PATH"),
+			cli.EnvVar("SCM_APP_PRIVATE_KEY_PATH"),
+			cli.File("/vela/scm/app_private_key_path"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_APP_WEBHOOK_SECRET", "SCM_APP_WEBHOOK_SECRET"},
-		FilePath: "/vela/scm/app_webhook_secret",
-		Name:     "scm.app.webhook-secret",
-		Usage:    "set value of SCM App integration webhook secret",
+		Name:  "scm.app.webhook-secret",
+		Usage: "set value of SCM App integration webhook secret",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_APP_WEBHOOK_SECRET"),
+			cli.EnvVar("SCM_APP_WEBHOOK_SECRET"),
+			cli.File("/vela/scm/app_webhook_secret"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"VELA_SCM_APP_PERMISSIONS", "SCM_APP_PERMISSIONS", "VELA_SOURCE_APP_PERMISSIONS", "SOURCE_APP_PERMISSIONS"},
-		FilePath: "/vela/scm/app/permissions",
-		Name:     "scm.app.permissions",
-		Usage:    "SCM App integration (GitHub App) permissions to be used as the allowed set of possible installation token permissions",
-		Value:    cli.NewStringSlice("contents:read", "checks:write"),
+		Name:  "scm.app.permissions",
+		Usage: "SCM App integration (GitHub App) permissions to be used as the allowed set of possible installation token permissions",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_APP_PERMISSIONS"),
+			cli.EnvVar("SCM_APP_PERMISSIONS"),
+			cli.File("/vela/scm/app/permissions"),
+		),
+		Value: []string{"contents:read", "checks:write"},
 	},
 }

@@ -11,7 +11,7 @@ import (
 )
 
 // GetPipeline gets a pipeline by ID from the database.
-func (e *engine) GetPipeline(ctx context.Context, id int64) (*api.Pipeline, error) {
+func (e *Engine) GetPipeline(ctx context.Context, id int64) (*api.Pipeline, error) {
 	e.logger.Tracef("getting pipeline %d", id)
 
 	// variable to store query results

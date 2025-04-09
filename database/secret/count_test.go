@@ -64,7 +64,7 @@ func TestSecret_Engine_CountSecrets(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

@@ -8,7 +8,7 @@ import (
 
 // DefaultTimeout is a middleware function that attaches the defaultTimeout
 // to enable the server to override the default build timeout.
-func DefaultTimeout(defaultTimeout int64) gin.HandlerFunc {
+func DefaultTimeout(defaultTimeout int32) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("defaultTimeout", defaultTimeout)
 		c.Next()
@@ -17,7 +17,7 @@ func DefaultTimeout(defaultTimeout int64) gin.HandlerFunc {
 
 // DefaultApprovalTimeout is a middleware function that attaches the defaultApprovalTimeout
 // to enable the server to override the default build approval timeout.
-func DefaultApprovalTimeout(defaultApprovalTimeout int64) gin.HandlerFunc {
+func DefaultApprovalTimeout(defaultApprovalTimeout int32) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("defaultApprovalTimeout", defaultApprovalTimeout)
 		c.Next()

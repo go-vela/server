@@ -23,7 +23,7 @@ func TestDeployment_Engine_CreateDeploymentIndexes(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

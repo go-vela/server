@@ -61,7 +61,7 @@ secrets (
 )
 
 // CreateSecretTable creates the secrets table in the database.
-func (e *engine) CreateSecretTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateSecretTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating secrets table")
 
 	// handle the driver provided to create the table

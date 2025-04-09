@@ -16,7 +16,7 @@ ON repos (org, name);
 )
 
 // CreateRepoIndexes creates the indexes for the repos table in the database.
-func (e *engine) CreateRepoIndexes(ctx context.Context) error {
+func (e *Engine) CreateRepoIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for repos table")
 
 	// create the org and name columns index for the repos table

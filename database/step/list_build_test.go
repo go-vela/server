@@ -64,7 +64,7 @@ func TestStep_Engine_ListStepsForBuild(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Step
 	}{
 		{

@@ -66,7 +66,7 @@ func TestBuild_Engine_CountBuilds(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

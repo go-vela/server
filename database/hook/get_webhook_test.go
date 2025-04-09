@@ -76,7 +76,7 @@ func TestHook_Engine_GetHookByWebhookID(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Hook
 	}{
 		{

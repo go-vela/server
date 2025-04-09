@@ -13,7 +13,7 @@ import (
 )
 
 // UpdateWorker updates an existing worker in the database.
-func (e *engine) UpdateWorker(ctx context.Context, w *api.Worker) (*api.Worker, error) {
+func (e *Engine) UpdateWorker(ctx context.Context, w *api.Worker) (*api.Worker, error) {
 	e.logger.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
 	}).Tracef("updating worker %s", w.GetHostname())

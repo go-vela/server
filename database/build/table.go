@@ -103,7 +103,7 @@ builds (
 )
 
 // CreateBuildTable creates the builds table in the database.
-func (e *engine) CreateBuildTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateBuildTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating builds table")
 
 	// handle the driver provided to create the table

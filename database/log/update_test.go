@@ -62,7 +62,7 @@ WHERE "id" = $6`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		logs     []*api.Log
 	}{
 		{
