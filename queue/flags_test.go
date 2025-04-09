@@ -98,7 +98,7 @@ func TestDatabase_Flags(t *testing.T) {
 				"queue.addr":   "redis://redis.example.com",
 				"queue.routes": "vela,worker",
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 

@@ -99,6 +99,5 @@ var Flags = []cli.Flag{
 			cli.EnvVar("QUEUE_PUBLIC_KEY"),
 			cli.File("/vela/signing.pub"),
 		),
-		Required: true,
 	},
 }
