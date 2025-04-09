@@ -703,10 +703,6 @@ func TestNative_Validate_Steps_StepNameConflict(t *testing.T) {
 
 func TestNative_Validate_TestReport(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	str := "foo"
 	p := &yaml.Build{
 		Version: "v1",
@@ -725,12 +721,12 @@ func TestNative_Validate_TestReport(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.Validate(p)
+	err = compiler.ValidateYAML(p)
 	if err != nil {
 		t.Errorf("Validate returned err: %v", err)
 	}
