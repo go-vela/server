@@ -3,53 +3,85 @@
 package storage
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+	"fmt"
+	"github.com/urfave/cli/v3"
+	"strings"
 )
 
 var Flags = []cli.Flag{
 	// STORAGE Flags
 
 	&cli.BoolFlag{
-		EnvVars:  []string{"VELA_STORAGE_ENABLE"},
-		FilePath: "vela/storage/enable",
-		Name:     "storage.enable",
-		Usage:    "enable object storage",
+		Name:  "storage.enable",
+		Usage: "enable object storage",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_STORAGE_ENABLE"),
+			cli.File("vela/storage/enable"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_STORAGE_DRIVER", "STORAGE_DRIVER"},
-		FilePath: "vela/storage/driver",
-		Name:     "storage.driver",
-		Usage:    "object storage driver",
+		Name:  "storage.driver",
+		Usage: "object storage driver",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_STORAGE_DRIVER"),
+			cli.EnvVar("STORAGE_DRIVER"),
+			cli.File("vela/storage/driver"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_STORAGE_ADDRESS", "STORAGE_ADDRESS"},
-		FilePath: "vela/storage/addr",
-		Name:     "storage.addr",
-		Usage:    "set the storage endpoint (ex. scheme://host:port)",
+		Name:  "storage.addr",
+		Usage: "set the storage endpoint (ex. scheme://host:port)",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_STORAGE_ADDRESS"),
+			cli.EnvVar("STORAGE_ADDRESS"),
+			cli.File("vela/storage/addr"),
+		),
+		Action: func(_ context.Context, _ *cli.Command, v string) error {
+			// check if the queue address has a scheme
+			if !strings.Contains(v, "://") {
+				return fmt.Errorf("queue address must be fully qualified (<scheme>://<host>)")
+			}
+
+			// check if the queue address has a trailing slash
+			if strings.HasSuffix(v, "/") {
+				return fmt.Errorf("queue address must not have trailing slash")
+			}
+
+			return nil
+		},
 	},
 
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_STORAGE_ACCESS_KEY", "STORAGE_ACCESS_KEY"},
-		FilePath: "vela/storage/access_key",
-		Name:     "storage.access.key",
-		Usage:    "set storage access key",
+		Name:  "storage.access.key",
+		Usage: "set storage access key",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_STORAGE_ACCESS_KEY"),
+			cli.EnvVar("STORAGE_ACCESS_KEY"),
+			cli.File("vela/storage/access_key"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_STORAGE_SECRET_KEY", "STORAGE_SECRET_KEY"},
-		FilePath: "vela/storage/secret_key",
-		Name:     "storage.secret.key",
-		Usage:    "set storage secret key",
+		Name:  "storage.secret.key",
+		Usage: "set storage secret key",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_STORAGE_SECRET_KEY"),
+			cli.EnvVar("STORAGE_SECRET_KEY"),
+			cli.File("vela/storage/secret_key"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_STORAGE_BUCKET"},
-		FilePath: "vela/storage/bucket",
-		Name:     "storage.bucket.name",
-		Usage:    "set storage bucket name",
+		Name:  "storage.bucket.name",
+		Usage: "set storage bucket name",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_STORAGE_BUCKET"),
+			cli.File("vela/storage/bucket"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars: []string{"VELA_STORAGE_USE_SSL"},
 		Name:    "storage.use.ssl",
 		Usage:   "enable storage to use SSL",
 		Value:   false,
+		Sources: cli.EnvVars("VELA_STORAGE_USE_SSL"),
 	},
 }

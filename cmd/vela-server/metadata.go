@@ -101,7 +101,7 @@ func metadataSource(c *cli.Command) (*internal.Source, error) {
 }
 
 // helper function to capture the queue metadata from the CLI arguments.
-func metadataStorage(c *cli.Context) (*internal.Storage, error) {
+func metadataStorage(c *cli.Command) (*internal.Storage, error) {
 	logrus.Trace("creating storage metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("storage.addr"))

@@ -60,7 +60,7 @@ func main() {
 	cmd.Flags = append(cmd.Flags, tracing.Flags...)
 
 	// Add S3 Flags
-	app.Flags = append(app.Flags, storage.Flags...)
+	cmd.Flags = append(cmd.Flags, storage.Flags...)
 
 	if err = cmd.Run(context.Background(), os.Args); err != nil {
 		logrus.Fatal(err)

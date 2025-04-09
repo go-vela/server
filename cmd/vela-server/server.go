@@ -109,7 +109,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	st, err := storage.FromCLICommand(c)
+	st, err := storage.FromCLICommand(ctx, cmd)
 	if err != nil {
 		return err
 	}
@@ -195,27 +195,27 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
 		middleware.Storage(st),
-		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
-		middleware.QueueSigningPublicKey(c.String("queue.public-key")),
-		middleware.QueueAddress(c.String("queue.addr")),
-		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
-		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
-		middleware.DefaultApprovalTimeout(c.Int64("default-approval-timeout")),
-		middleware.MaxBuildLimit(c.Int64("max-build-limit")),
-		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
-		middleware.SecureCookie(c.Bool("vela-enable-secure-cookie")),
-		middleware.Worker(c.Duration("worker-active-interval")),
-		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
-		middleware.DefaultRepoEventsMask(c.Int64("default-repo-events-mask")),
-		middleware.DefaultRepoApproveBuild(c.String("default-repo-approve-build")),
-		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
+		middleware.QueueSigningPrivateKey(cmd.String("queue.private-key")),
+		middleware.QueueSigningPublicKey(cmd.String("queue.public-key")),
+		middleware.QueueAddress(cmd.String("queue.addr")),
+		middleware.DefaultBuildLimit(util.Int32FromInt64(cmd.Int("default-build-limit"))),
+		middleware.DefaultTimeout(util.Int32FromInt64(cmd.Int("default-build-timeout"))),
+		middleware.DefaultApprovalTimeout(util.Int32FromInt64(cmd.Int("default-approval-timeout"))),
+		middleware.MaxBuildLimit(util.Int32FromInt64(cmd.Int("max-build-limit"))),
+		middleware.WebhookValidation(!cmd.Bool("vela-disable-webhook-validation")),
+		middleware.SecureCookie(cmd.Bool("vela-enable-secure-cookie")),
+		middleware.Worker(cmd.Duration("worker-active-interval")),
+		middleware.DefaultRepoEvents(cmd.StringSlice("default-repo-events")),
+		middleware.DefaultRepoEventsMask(cmd.Int("default-repo-events-mask")),
+		middleware.DefaultRepoApproveBuild(cmd.String("default-repo-approve-build")),
+		middleware.ScheduleFrequency(cmd.Duration("schedule-minimum-frequency")),
 		middleware.TracingClient(tc),
 		middleware.TracingInstrumentation(tc),
-		middleware.StorageAddress(c.String("storage.addr")),
-		middleware.StorageAccessKey(c.String("storage.access.key")),
-		middleware.StorageSecretKey(c.String("storage.secret.key")),
-		middleware.StorageBucket(c.String("storage.bucket.name")),
-		middleware.StorageEnable(c.Bool("storage.enable")),
+		middleware.StorageAddress(cmd.String("storage.addr")),
+		middleware.StorageAccessKey(cmd.String("storage.access.key")),
+		middleware.StorageSecretKey(cmd.String("storage.secret.key")),
+		middleware.StorageBucket(cmd.String("storage.bucket.name")),
+		middleware.StorageEnable(cmd.Bool("storage.enable")),
 	)
 
 	addr, err := url.Parse(cmd.String("server-addr"))
