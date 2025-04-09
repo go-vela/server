@@ -54,7 +54,7 @@ func TestPipeline_New(t *testing.T) {
 		level        int
 		logger       *logrus.Entry
 		skipCreation bool
-		want         *engine
+		want         *Engine
 	}{
 		{
 			failure:      false,
@@ -63,7 +63,7 @@ func TestPipeline_New(t *testing.T) {
 			level:        1,
 			logger:       logger,
 			skipCreation: false,
-			want: &engine{
+			want: &Engine{
 				client: _postgres,
 				config: &config{CompressionLevel: 1, SkipCreation: false},
 				ctx:    context.TODO(),
@@ -77,7 +77,7 @@ func TestPipeline_New(t *testing.T) {
 			level:        1,
 			logger:       logger,
 			skipCreation: false,
-			want: &engine{
+			want: &Engine{
 				client: _sqlite,
 				config: &config{CompressionLevel: 1, SkipCreation: false},
 				ctx:    context.TODO(),
@@ -117,7 +117,7 @@ func TestPipeline_New(t *testing.T) {
 }
 
 // testPostgres is a helper function to create a Postgres engine for testing.
-func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
+func testPostgres(t *testing.T) (*Engine, sqlmock.Sqlmock) {
 	// create the new mock sql database
 	//
 	// https://pkg.go.dev/github.com/DATA-DOG/go-sqlmock#New
@@ -154,7 +154,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 }
 
 // testSqlite is a helper function to create a Sqlite engine for testing.
-func testSqlite(t *testing.T) *engine {
+func testSqlite(t *testing.T) *Engine {
 	_sqlite, err := gorm.Open(
 		sqlite.Open("file::memory:?cache=shared"),
 		&gorm.Config{SkipDefaultTransaction: true},
@@ -177,7 +177,7 @@ func testSqlite(t *testing.T) *engine {
 }
 
 // sqlitePopulateTables is a helper function to populate tables for testing.
-func sqlitePopulateTables(t *testing.T, e *engine, pipelines []*api.Pipeline, users []*api.User, repos []*api.Repo) {
+func sqlitePopulateTables(t *testing.T, e *Engine, pipelines []*api.Pipeline, users []*api.User, repos []*api.Repo) {
 	for _, _pipeline := range pipelines {
 		_, err := e.CreatePipeline(context.TODO(), _pipeline)
 		if err != nil {

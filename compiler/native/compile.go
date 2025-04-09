@@ -38,7 +38,7 @@ type ModifyResponse struct {
 }
 
 // Compile produces an executable pipeline from a yaml configuration.
-func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *api.Pipeline, error) {
+func (c *Client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *api.Pipeline, error) {
 	p, data, warnings, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -117,7 +117,7 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *api.Pipeline, error) {
+func (c *Client) CompileLite(ctx context.Context, v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *api.Pipeline, error) {
 	p, data, warnings, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -234,7 +234,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 }
 
 // compileInline parses and expands out inline pipelines.
-func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*yaml.Build, error) {
+func (c *Client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*yaml.Build, error) {
 	newPipeline := *p
 
 	// return if max template depth has been reached
@@ -337,7 +337,7 @@ func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 }
 
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
-func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
+func (c *Client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
 	var (
 		warnings []string
 		err      error
@@ -451,7 +451,7 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 }
 
 // compileStages executes the workflow for converting a YAML pipeline into an executable struct.
-func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
+func (c *Client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
 	var (
 		warnings []string
 		err      error
@@ -568,7 +568,7 @@ func errorHandler(resp *http.Response, err error, attempts int) (*http.Response,
 }
 
 // modifyConfig sends the configuration to external http endpoint for modification.
-func (c *client) modifyConfig(build *yaml.Build, apiBuild *api.Build, repo *api.Repo) (*yaml.Build, error) {
+func (c *Client) modifyConfig(build *yaml.Build, apiBuild *api.Build, repo *api.Repo) (*yaml.Build, error) {
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
 	if err != nil {

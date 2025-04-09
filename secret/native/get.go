@@ -13,7 +13,7 @@ import (
 )
 
 // Get captures a secret.
-func (c *client) Get(ctx context.Context, sType, org, name, path string) (*api.Secret, error) {
+func (c *Client) Get(ctx context.Context, sType, org, name, path string) (*api.Secret, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:

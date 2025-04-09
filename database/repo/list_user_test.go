@@ -121,7 +121,7 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 		failure  bool
 		name     string
 		sort     string
-		database *engine
+		database *Engine
 		want     []*api.Repo
 	}{
 		{

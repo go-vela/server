@@ -14,7 +14,7 @@ import (
 )
 
 // ValidateYAML verifies the yaml configuration is valid.
-func (c *client) ValidateYAML(p *yaml.Build) error {
+func (c *Client) ValidateYAML(p *yaml.Build) error {
 	var result error
 	// check a version is provided
 	if len(p.Version) == 0 {
@@ -133,7 +133,7 @@ func validateYAMLServices(s yaml.ServiceSlice) error {
 }
 
 // ValidatePipeline verifies the final pipeline configuration is valid.
-func (c *client) ValidatePipeline(p *pipeline.Build) error {
+func (c *Client) ValidatePipeline(p *pipeline.Build) error {
 	var result error
 
 	// report count for custom report containers

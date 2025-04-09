@@ -56,7 +56,7 @@ func TestService_Engine_ListServiceImageCount(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     map[string]float64
 	}{
 		{

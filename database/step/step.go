@@ -19,8 +19,8 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the step functionality that implements the StepInterface interface.
-	engine struct {
+	// Engine represents the step functionality that implements the StepInterface interface.
+	Engine struct {
 		// engine configuration settings used in step functions
 		config *config
 
@@ -39,11 +39,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with steps in the database.
-//
-//nolint:revive // ignore returning unexported engine
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new Step engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

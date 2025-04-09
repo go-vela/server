@@ -11,7 +11,7 @@ import (
 )
 
 // ListRepos gets a list of all repos from the database.
-func (e *engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
+func (e *Engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
 	e.logger.Trace("listing all repos")
 
 	// variables to store query results and return value

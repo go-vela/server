@@ -755,7 +755,7 @@ func Test_client_EnvironmentBuild(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &client{
+			c := &Client{
 				build:    tt.fields.build,
 				metadata: tt.fields.metadata,
 				repo:     tt.fields.repo,

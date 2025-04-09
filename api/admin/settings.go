@@ -273,7 +273,7 @@ func RestoreSettings(c *gin.Context) {
 		return
 	}
 
-	queue, err := queue.FromCLICommand(cliCmd)
+	queue, err := queue.FromCLICommand(ctx, cliCmd)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restore platform settings: %w", err)
 

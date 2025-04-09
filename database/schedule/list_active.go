@@ -11,7 +11,7 @@ import (
 )
 
 // ListActiveSchedules gets a list of all active schedules from the database.
-func (e *engine) ListActiveSchedules(ctx context.Context) ([]*api.Schedule, error) {
+func (e *Engine) ListActiveSchedules(ctx context.Context) ([]*api.Schedule, error) {
 	e.logger.Trace("listing all active schedules")
 
 	// variables to store query results and return value

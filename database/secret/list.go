@@ -11,7 +11,7 @@ import (
 )
 
 // ListSecrets gets a list of all secrets from the database.
-func (e *engine) ListSecrets(ctx context.Context) ([]*api.Secret, error) {
+func (e *Engine) ListSecrets(ctx context.Context) ([]*api.Secret, error) {
 	e.logger.Trace("listing all secrets")
 
 	// variables to store query results and return value

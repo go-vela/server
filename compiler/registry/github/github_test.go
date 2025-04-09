@@ -23,10 +23,10 @@ func TestGithub_New(t *testing.T) {
 
 	gitClient.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
 
-	want := &client{
-		Github: gitClient,
-		URL:    s.URL,
-		API:    s.URL + "/api/v3/",
+	want := &Client{
+		githubClient: gitClient,
+		URL:          s.URL,
+		API:          s.URL + "/api/v3/",
 	}
 
 	// run test
@@ -54,10 +54,10 @@ func TestGithub_NewToken(t *testing.T) {
 	gitClient := github.NewClient(tc)
 	gitClient.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
 
-	want := &client{
-		Github: gitClient,
-		URL:    s.URL,
-		API:    s.URL + "/api/v3/",
+	want := &Client{
+		githubClient: gitClient,
+		URL:          s.URL,
+		API:          s.URL + "/api/v3/",
 	}
 
 	// run test
@@ -76,12 +76,12 @@ func TestGithub_NewURL(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		address string
-		want    client
+		want    Client
 	}{
 		{
 			// address matches default, so no change to default URL or API.
 			address: "https://github.com/",
-			want: client{
+			want: Client{
 				URL: "https://github.com/",
 				API: "https://api.github.com/",
 			},
@@ -89,7 +89,7 @@ func TestGithub_NewURL(t *testing.T) {
 		{
 			// not the default address, but has github.com, so keep default API.
 			address: "https://github.com",
-			want: client{
+			want: Client{
 				URL: "https://github.com",
 				API: "https://api.github.com/",
 			},
@@ -97,7 +97,7 @@ func TestGithub_NewURL(t *testing.T) {
 		{
 			// github-enterprise install with /
 			address: "https://git.example.com/",
-			want: client{
+			want: Client{
 				URL: "https://git.example.com",
 				API: "https://git.example.com/api/v3/",
 			},
@@ -105,7 +105,7 @@ func TestGithub_NewURL(t *testing.T) {
 		{
 			// github-enterprise install without /
 			address: "https://git.example.com",
-			want: client{
+			want: Client{
 				URL: "https://git.example.com",
 				API: "https://git.example.com/api/v3/",
 			},

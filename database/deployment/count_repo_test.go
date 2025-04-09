@@ -85,7 +85,7 @@ func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

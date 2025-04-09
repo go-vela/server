@@ -36,7 +36,7 @@ const (
 )
 
 // TransformStages converts a yaml configuration with stages into an executable pipeline.
-func (c *client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline.Build, error) {
+func (c *Client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline.Build, error) {
 	// capture variables for setting the unique ID fields
 	org := c.repo.GetOrg()
 	name := c.repo.GetName()
@@ -123,7 +123,7 @@ func (c *client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline
 }
 
 // TransformSteps converts a yaml configuration with steps into an executable pipeline.
-func (c *client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.Build, error) {
+func (c *Client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.Build, error) {
 	// capture variables for setting the unique ID fields
 	org := c.repo.GetOrg()
 	name := c.repo.GetName()

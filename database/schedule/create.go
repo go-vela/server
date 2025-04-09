@@ -13,7 +13,7 @@ import (
 )
 
 // CreateSchedule creates a new schedule in the database.
-func (e *engine) CreateSchedule(ctx context.Context, s *api.Schedule) (*api.Schedule, error) {
+func (e *Engine) CreateSchedule(ctx context.Context, s *api.Schedule) (*api.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("creating schedule %s in the database", s.GetName())

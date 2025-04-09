@@ -23,7 +23,7 @@ func TestHook_Engine_CreateHookTable(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

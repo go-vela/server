@@ -37,7 +37,7 @@ func TestWorker_Engine_DeleteWorker(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

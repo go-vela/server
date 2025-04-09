@@ -13,7 +13,7 @@ import (
 )
 
 // UpdateDeployment updates an existing deployment in the database.
-func (e *engine) UpdateDeployment(ctx context.Context, d *api.Deployment) (*api.Deployment, error) {
+func (e *Engine) UpdateDeployment(ctx context.Context, d *api.Deployment) (*api.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetID(),
 	}).Tracef("updating deployment %d", d.GetID())

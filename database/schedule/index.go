@@ -16,7 +16,7 @@ ON schedules (repo_id);
 )
 
 // CreateScheduleIndexes creates the indexes for the schedules table in the database.
-func (e *engine) CreateScheduleIndexes(ctx context.Context) error {
+func (e *Engine) CreateScheduleIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for schedules table in the database")
 
 	// create the repo_id column index for the schedules table

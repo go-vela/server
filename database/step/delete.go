@@ -13,7 +13,7 @@ import (
 )
 
 // DeleteStep deletes an existing step from the database.
-func (e *engine) DeleteStep(ctx context.Context, s *api.Step) error {
+func (e *Engine) DeleteStep(ctx context.Context, s *api.Step) error {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
 	}).Tracef("deleting step %s", s.GetName())

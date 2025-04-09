@@ -13,7 +13,7 @@ import (
 )
 
 // GetPipelineForRepo gets a pipeline by number and repo ID from the database.
-func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *api.Repo) (*api.Pipeline, error) {
+func (e *Engine) GetPipelineForRepo(ctx context.Context, commit string, r *api.Repo) (*api.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":      r.GetOrg(),
 		"pipeline": commit,

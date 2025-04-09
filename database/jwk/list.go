@@ -12,7 +12,7 @@ import (
 )
 
 // ListJWKs gets a list of all configured JWKs from the database.
-func (e *engine) ListJWKs(ctx context.Context) (jwk.Set, error) {
+func (e *Engine) ListJWKs(ctx context.Context) (jwk.Set, error) {
 	e.logger.Trace("listing all JWKs")
 
 	k := new([]types.JWK)

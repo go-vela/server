@@ -13,7 +13,7 @@ import (
 )
 
 // CreateDeployment creates a new deployment in the database.
-func (e *engine) CreateDeployment(ctx context.Context, d *api.Deployment) (*api.Deployment, error) {
+func (e *Engine) CreateDeployment(ctx context.Context, d *api.Deployment) (*api.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetID(),
 	}).Tracef("creating deployment %d", d.GetID())

@@ -11,7 +11,7 @@ import (
 )
 
 // CountReposForOrg gets the count of repos by org name from the database.
-func (e *engine) CountReposForOrg(ctx context.Context, org string, filters map[string]interface{}) (int64, error) {
+func (e *Engine) CountReposForOrg(ctx context.Context, org string, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("getting count of repos for org %s", org)

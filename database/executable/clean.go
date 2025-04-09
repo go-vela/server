@@ -28,7 +28,7 @@ const CleanExecutablesSqlite = `
 `
 
 // CleanBuildExecutables pops executables which have a corresponding build that was cleaned.
-func (e *engine) CleanBuildExecutables(ctx context.Context) (int64, error) {
+func (e *Engine) CleanBuildExecutables(ctx context.Context) (int64, error) {
 	logrus.Trace("clearing build executables in the database")
 
 	switch e.config.Driver {

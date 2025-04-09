@@ -16,7 +16,7 @@ ON users (refresh_token);
 )
 
 // CreateUserIndexes creates the indexes for the users table in the database.
-func (e *engine) CreateUserIndexes(ctx context.Context) error {
+func (e *Engine) CreateUserIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for users table")
 
 	// create the refresh_token column index for the users table

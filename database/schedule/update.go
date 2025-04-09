@@ -13,7 +13,7 @@ import (
 )
 
 // UpdateSchedule updates an existing schedule in the database.
-func (e *engine) UpdateSchedule(ctx context.Context, s *api.Schedule, fields bool) (*api.Schedule, error) {
+func (e *Engine) UpdateSchedule(ctx context.Context, s *api.Schedule, fields bool) (*api.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("updating schedule %s in the database", s.GetName())

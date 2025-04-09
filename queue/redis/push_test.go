@@ -38,7 +38,7 @@ func TestRedis_Push(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool
-		redis   *client
+		redis   *Client
 		bytes   []byte
 	}{
 		{

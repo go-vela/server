@@ -87,7 +87,7 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Pipeline
 	}{
 		{

@@ -17,7 +17,7 @@ import (
 
 func TestNative_New(t *testing.T) {
 	// setup types
-	want := &client{
+	want := &Client{
 		Compiler:      settings.CompilerMockEmpty(),
 		TemplateCache: make(map[string][]byte),
 	}
@@ -44,7 +44,7 @@ func TestNative_New(t *testing.T) {
 
 func TestNative_New_PrivateGithub(t *testing.T) {
 	// setup types
-	want := &client{
+	want := &Client{
 		UsePrivateGithub: true,
 		TemplateCache:    make(map[string][]byte),
 		Compiler:         settings.CompilerMockEmpty(),
@@ -77,7 +77,7 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 
 func TestNative_DuplicateRetainSettings(t *testing.T) {
 	// setup types
-	want := &client{
+	want := &Client{
 		UsePrivateGithub: true,
 		TemplateCache:    make(map[string][]byte),
 		Compiler:         settings.CompilerMockEmpty(),

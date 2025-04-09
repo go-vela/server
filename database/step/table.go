@@ -63,7 +63,7 @@ steps (
 )
 
 // CreateStepTable creates the steps table in the database.
-func (e *engine) CreateStepTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateStepTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating steps table in the database")
 
 	// handle the driver provided to create the table
