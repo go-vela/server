@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/go-github/v70/github"
+	"github.com/google/go-github/v71/github"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
@@ -37,14 +37,14 @@ const (
 // See https://developer.github.com/apps/building-integrations/setting-up-and-registering-github-apps/about-authentication-options-for-github-apps/
 type AppsTransport struct {
 	BaseURL string            // BaseURL is the scheme and host for GitHub API, defaults to https://api.github.com
-	Client  Client            // Client to use to refresh tokens, defaults to http.Client with provided transport
+	Client  HTTPClient        // Client to use to refresh tokens, defaults to http.Client with provided transport
 	tr      http.RoundTripper // tr is the underlying roundtripper being wrapped
 	signer  Signer            // signer signs JWT tokens.
 	appID   int64             // appID is the GitHub App's ID
 }
 
 // newGitHubAppTransport creates a new GitHub App transport for authenticating as the GitHub App.
-func (c *client) newGitHubAppTransport(appID int64, baseURL string, privateKey *rsa.PrivateKey) *AppsTransport {
+func (c *Client) newGitHubAppTransport(appID int64, baseURL string, privateKey *rsa.PrivateKey) *AppsTransport {
 	transport := c.newAppsTransportFromPrivateKey(http.DefaultTransport, appID, privateKey)
 	transport.BaseURL = baseURL
 
@@ -62,7 +62,7 @@ func (c *client) newGitHubAppTransport(appID int64, baseURL string, privateKey *
 }
 
 // newAppsTransportFromPrivateKey returns an AppsTransport using a crypto/rsa.(*PrivateKey).
-func (c *client) newAppsTransportFromPrivateKey(tr http.RoundTripper, appID int64, key *rsa.PrivateKey) *AppsTransport {
+func (c *Client) newAppsTransportFromPrivateKey(tr http.RoundTripper, appID int64, key *rsa.PrivateKey) *AppsTransport {
 	return &AppsTransport{
 		BaseURL: defaultAPI,
 		Client:  &http.Client{Transport: tr},
@@ -105,7 +105,7 @@ func (t *AppsTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 // See https://developer.github.com/apps/building-integrations/setting-up-and-registering-github-apps/about-authentication-options-for-github-apps/
 type Transport struct {
 	BaseURL                  string                           // BaseURL is the scheme and host for GitHub API, defaults to https://api.github.com
-	Client                   Client                           // Client to use to refresh tokens, defaults to http.Client with provided transport
+	Client                   HTTPClient                       // Client to use to refresh tokens, defaults to http.Client with provided transport
 	tr                       http.RoundTripper                // tr is the underlying roundtripper being wrapped
 	installationID           int64                            // installationID is the GitHub App Installation ID
 	InstallationTokenOptions *github.InstallationTokenOptions // parameters restrict a token's access
@@ -125,9 +125,9 @@ type accessToken struct {
 
 var _ http.RoundTripper = &Transport{}
 
-// Client is a HTTP client which sends a http.Request and returns a http.Response
+// HTTPClient is a HTTP client which sends a http.Request and returns a http.Response
 // or an error.
-type Client interface {
+type HTTPClient interface {
 	Do(*http.Request) (*http.Response, error)
 }
 

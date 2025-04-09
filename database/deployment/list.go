@@ -12,7 +12,7 @@ import (
 )
 
 // ListDeployments gets a list of all deployments from the database.
-func (e *engine) ListDeployments(ctx context.Context) ([]*api.Deployment, error) {
+func (e *Engine) ListDeployments(ctx context.Context) ([]*api.Deployment, error) {
 	e.logger.Trace("listing all deployments")
 
 	// variables to store query results and return value

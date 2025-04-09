@@ -43,7 +43,7 @@ dashboards (
 )
 
 // CreateDashboardTable creates the dashboards table in the database.
-func (e *engine) CreateDashboardTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateDashboardTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating dashboards table")
 
 	// handle the driver provided to create the table

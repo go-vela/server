@@ -7,12 +7,12 @@ import (
 )
 
 // GetSettings retrieves the api settings type.
-func (c *client) GetSettings() settings.Compiler {
+func (c *Client) GetSettings() settings.Compiler {
 	return c.Compiler
 }
 
 // SetSettings sets the api settings type.
-func (c *client) SetSettings(s *settings.Platform) {
+func (c *Client) SetSettings(s *settings.Platform) {
 	if s != nil {
 		c.SetCloneImage(s.GetCloneImage())
 		c.SetTemplateDepth(s.GetTemplateDepth())

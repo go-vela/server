@@ -14,7 +14,7 @@ import (
 )
 
 // ListDeploymentsForRepo gets a list of deployments by repo ID from the database.
-func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Deployment, error) {
+func (e *Engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

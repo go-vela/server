@@ -11,7 +11,7 @@ import (
 )
 
 // ListServices gets a list of all services from the database.
-func (e *engine) ListServices(ctx context.Context) ([]*api.Service, error) {
+func (e *Engine) ListServices(ctx context.Context) ([]*api.Service, error) {
 	e.logger.Trace("listing all services")
 
 	// variables to store query results and return value

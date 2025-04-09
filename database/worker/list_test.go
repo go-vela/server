@@ -75,7 +75,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 		before   int64
 		active   string
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Worker
 	}{
 		{

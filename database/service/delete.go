@@ -13,7 +13,7 @@ import (
 )
 
 // DeleteService deletes an existing service from the database.
-func (e *engine) DeleteService(ctx context.Context, s *api.Service) error {
+func (e *Engine) DeleteService(ctx context.Context, s *api.Service) error {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("deleting service %s", s.GetName())

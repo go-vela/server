@@ -116,7 +116,7 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Schedule
 	}{
 		{

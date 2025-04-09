@@ -13,7 +13,7 @@ import (
 )
 
 // GetRepoForOrg gets a repo by org and repo name from the database.
-func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*api.Repo, error) {
+func (e *Engine) GetRepoForOrg(ctx context.Context, org, name string) (*api.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,

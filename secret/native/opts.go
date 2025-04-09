@@ -9,11 +9,11 @@ import (
 )
 
 // ClientOpt represents a configuration option to initialize the secret client for Native.
-type ClientOpt func(*client) error
+type ClientOpt func(*Client) error
 
 // WithDatabase sets the Vela database service in the secret client for Native.
 func WithDatabase(d database.Interface) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring database service in native secret client")
 
 		// check if the Vela database service provided is empty

@@ -12,7 +12,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/google/go-github/v70/github"
+	"github.com/google/go-github/v71/github"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 
@@ -61,7 +61,7 @@ type config struct {
 	OAuthScopes []string
 }
 
-type client struct {
+type Client struct {
 	config        *config
 	OAuth         *oauth2.Config
 	AuthReq       *github.AuthorizationRequest
@@ -73,11 +73,9 @@ type client struct {
 
 // New returns a SCM implementation that integrates with
 // a GitHub or a GitHub Enterprise instance.
-//
-//nolint:revive // ignore returning unexported client
-func New(ctx context.Context, opts ...ClientOpt) (*client, error) {
+func New(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 	// create new GitHub client
-	c := new(client)
+	c := new(Client)
 
 	// create new fields
 	c.config = new(config)
@@ -177,7 +175,7 @@ func New(ctx context.Context, opts ...ClientOpt) (*client, error) {
 }
 
 // ValidateGitHubApp ensures the GitHub App configuration is valid.
-func (c *client) ValidateGitHubApp(ctx context.Context) error {
+func (c *Client) ValidateGitHubApp(ctx context.Context) error {
 	client, err := c.newGithubAppClient()
 	if err != nil {
 		return fmt.Errorf("error creating github app client: %w", err)
@@ -237,9 +235,7 @@ func (c *client) ValidateGitHubApp(ctx context.Context) error {
 // mock server. Only the url from the mock server is required.
 //
 // This function is intended for running tests only.
-//
-//nolint:revive // ignore returning unexported client
-func NewTest(urls ...string) (*client, error) {
+func NewTest(urls ...string) (*Client, error) {
 	address := urls[0]
 	server := address
 

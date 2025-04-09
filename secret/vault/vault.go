@@ -48,7 +48,7 @@ type (
 		Version string
 	}
 
-	client struct {
+	Client struct {
 		config *config
 		AWS    *awsCfg
 		Vault  *api.Client
@@ -58,11 +58,9 @@ type (
 )
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
-//
-//nolint:revive // ignore returning unexported client
-func New(opts ...ClientOpt) (*client, error) {
+func New(opts ...ClientOpt) (*Client, error) {
 	// create new Vault client
-	c := new(client)
+	c := new(Client)
 
 	// create new fields
 	c.config = new(config)

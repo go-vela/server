@@ -42,7 +42,7 @@ func TestLog_Engine_GetLog(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Log
 	}{
 		{

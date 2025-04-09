@@ -6,13 +6,13 @@ import (
 	"net/url"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/internal"
 )
 
 // helper function to setup the metadata from the CLI arguments.
-func setupMetadata(c *cli.Context) (*internal.Metadata, error) {
+func setupMetadata(c *cli.Command) (*internal.Metadata, error) {
 	logrus.Debug("creating metadata from CLI configuration")
 
 	m := new(internal.Metadata)
@@ -56,7 +56,7 @@ func setupMetadata(c *cli.Context) (*internal.Metadata, error) {
 }
 
 // helper function to capture the database metadata from the CLI arguments.
-func metadataDatabase(c *cli.Context) (*internal.Database, error) {
+func metadataDatabase(c *cli.Command) (*internal.Database, error) {
 	logrus.Trace("creating database metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("database.addr"))
@@ -71,7 +71,7 @@ func metadataDatabase(c *cli.Context) (*internal.Database, error) {
 }
 
 // helper function to capture the queue metadata from the CLI arguments.
-func metadataQueue(c *cli.Context) (*internal.Queue, error) {
+func metadataQueue(c *cli.Command) (*internal.Queue, error) {
 	logrus.Trace("creating queue metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("queue.addr"))
@@ -86,7 +86,7 @@ func metadataQueue(c *cli.Context) (*internal.Queue, error) {
 }
 
 // helper function to capture the source metadata from the CLI arguments.
-func metadataSource(c *cli.Context) (*internal.Source, error) {
+func metadataSource(c *cli.Command) (*internal.Source, error) {
 	logrus.Trace("creating source metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("scm.addr"))
@@ -118,7 +118,7 @@ func metadataStorage(c *cli.Context) (*internal.Storage, error) {
 // helper function to capture the Vela metadata from the CLI arguments.
 //
 //nolint:unparam // ignore unparam for now
-func metadataVela(c *cli.Context) (*internal.Vela, error) {
+func metadataVela(c *cli.Command) (*internal.Vela, error) {
 	logrus.Trace("creating Vela metadata from CLI configuration")
 
 	vela := new(internal.Vela)

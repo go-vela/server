@@ -13,7 +13,7 @@ import (
 )
 
 // DeleteSecret deletes an existing secret from the database.
-func (e *engine) DeleteSecret(ctx context.Context, s *api.Secret) error {
+func (e *Engine) DeleteSecret(ctx context.Context, s *api.Secret) error {
 	// handle the secret based off the type
 	//
 	//nolint:dupl // ignore similar code with update.go

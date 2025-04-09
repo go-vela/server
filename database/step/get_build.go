@@ -13,7 +13,7 @@ import (
 )
 
 // GetStepForBuild gets a step by number and build ID from the database.
-func (e *engine) GetStepForBuild(ctx context.Context, b *api.Build, number int32) (*api.Step, error) {
+func (e *Engine) GetStepForBuild(ctx context.Context, b *api.Build, number int32) (*api.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"step":  number,

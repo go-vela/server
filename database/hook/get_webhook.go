@@ -11,7 +11,7 @@ import (
 )
 
 // GetHookByWebhookID gets a single hook with a matching webhook id in the database.
-func (e *engine) GetHookByWebhookID(ctx context.Context, webhookID int64) (*api.Hook, error) {
+func (e *Engine) GetHookByWebhookID(ctx context.Context, webhookID int64) (*api.Hook, error) {
 	e.logger.Tracef("getting a hook with webhook id %d", webhookID)
 
 	// variable to store query results

@@ -48,7 +48,7 @@ func TestSecret_Engine_GetSecret(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Secret
 	}{
 		{

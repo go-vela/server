@@ -16,7 +16,7 @@ ON deployments (repo_id);
 )
 
 // CreateDeploymetsIndexes creates the indexes for the deployments table in the database.
-func (e *engine) CreateDeploymentIndexes(ctx context.Context) error {
+func (e *Engine) CreateDeploymentIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for deployments table")
 
 	// create the repo_id column index for the deployments table

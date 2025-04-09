@@ -58,7 +58,7 @@ SET "name"=$1,"created_at"=$2,"created_by"=$3,"updated_at"=$4,"updated_by"=$5,"a
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

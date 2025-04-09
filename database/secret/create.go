@@ -14,7 +14,7 @@ import (
 )
 
 // CreateSecret creates a new secret in the database.
-func (e *engine) CreateSecret(ctx context.Context, s *api.Secret) (*api.Secret, error) {
+func (e *Engine) CreateSecret(ctx context.Context, s *api.Secret) (*api.Secret, error) {
 	// handle the secret based off the type
 	switch s.GetType() {
 	case constants.SecretShared:

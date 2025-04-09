@@ -16,7 +16,7 @@ ON pipelines (repo_id);
 )
 
 // CreatePipelineIndexes creates the indexes for the pipelines table in the database.
-func (e *engine) CreatePipelineIndexes(ctx context.Context) error {
+func (e *Engine) CreatePipelineIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for pipelines table in the database")
 
 	// create the repo_id column index for the pipelines table

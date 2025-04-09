@@ -15,7 +15,7 @@ import (
 )
 
 // LastBuildForRepo gets the last build by repo ID and branch from the database.
-func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch string) (*api.Build, error) {
+func (e *Engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch string) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

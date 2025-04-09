@@ -13,7 +13,7 @@ import (
 )
 
 // ListBuildsForDashboardRepo gets a list of builds by repo ID from the database.
-func (e *engine) ListBuildsForDashboardRepo(ctx context.Context, r *api.Repo, branches, events []string) ([]*api.Build, error) {
+func (e *Engine) ListBuildsForDashboardRepo(ctx context.Context, r *api.Repo, branches, events []string) ([]*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

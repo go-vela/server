@@ -13,7 +13,7 @@ import (
 )
 
 // GetUserForName gets a user by name from the database.
-func (e *engine) GetUserForName(ctx context.Context, name string) (*api.User, error) {
+func (e *Engine) GetUserForName(ctx context.Context, name string) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": name,
 	}).Tracef("getting user %s", name)

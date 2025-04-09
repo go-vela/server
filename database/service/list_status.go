@@ -10,7 +10,7 @@ import (
 )
 
 // ListServiceStatusCount gets a list of all service statuses and the count of their occurrence from the database.
-func (e *engine) ListServiceStatusCount(ctx context.Context) (map[string]float64, error) {
+func (e *Engine) ListServiceStatusCount(ctx context.Context) (map[string]float64, error) {
 	e.logger.Tracef("getting count of all statuses for services")
 
 	// variables to store query results and return value
