@@ -19,7 +19,6 @@ var Flags = []cli.Flag{
 			cli.EnvVar("VELA_STORAGE_ENABLE"),
 			cli.File("vela/storage/enable"),
 		),
-		Required: true,
 	},
 	&cli.StringFlag{
 		Name:  "storage.driver",
@@ -29,7 +28,6 @@ var Flags = []cli.Flag{
 			cli.EnvVar("STORAGE_DRIVER"),
 			cli.File("vela/storage/driver"),
 		),
-		Required: true,
 	},
 	&cli.StringFlag{
 		Name:  "storage.addr",
@@ -39,7 +37,6 @@ var Flags = []cli.Flag{
 			cli.EnvVar("STORAGE_ADDRESS"),
 			cli.File("vela/storage/addr"),
 		),
-		Required: true,
 		Action: func(_ context.Context, _ *cli.Command, v string) error {
 			// check if the queue address has a scheme
 			if !strings.Contains(v, "://") {
@@ -63,7 +60,6 @@ var Flags = []cli.Flag{
 			cli.EnvVar("STORAGE_ACCESS_KEY"),
 			cli.File("vela/storage/access_key"),
 		),
-		Required: true,
 	},
 	&cli.StringFlag{
 		Name:  "storage.secret.key",
@@ -73,7 +69,6 @@ var Flags = []cli.Flag{
 			cli.EnvVar("STORAGE_SECRET_KEY"),
 			cli.File("vela/storage/secret_key"),
 		),
-		Required: true,
 	},
 	&cli.StringFlag{
 		Name:  "storage.bucket.name",
@@ -82,7 +77,6 @@ var Flags = []cli.Flag{
 			cli.EnvVar("VELA_STORAGE_BUCKET"),
 			cli.File("vela/storage/bucket"),
 		),
-		Required: true,
 	},
 	&cli.BoolFlag{
 		Name:  "storage.use.ssl",
@@ -91,6 +85,5 @@ var Flags = []cli.Flag{
 		Sources: cli.NewValueSourceChain(
 			cli.EnvVar("VELA_STORAGE_USE_SSL"),
 		),
-		Required: false,
 	},
 }

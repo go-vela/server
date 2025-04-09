@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-vela/server/storage"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -17,7 +18,6 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
-	"github.com/go-vela/server/storage"
 	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/server/version"
 )
