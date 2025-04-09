@@ -38,14 +38,14 @@ var Flags = []cli.Flag{
 			cli.File("vela/storage/addr"),
 		),
 		Action: func(_ context.Context, _ *cli.Command, v string) error {
-			// check if the queue address has a scheme
+			// check if the storage address has a scheme
 			if !strings.Contains(v, "://") {
-				return fmt.Errorf("queue address must be fully qualified (<scheme>://<host>)")
+				return fmt.Errorf("storage address must be fully qualified (<scheme>://<host>)")
 			}
 
 			// check if the queue address has a trailing slash
 			if strings.HasSuffix(v, "/") {
-				return fmt.Errorf("queue address must not have trailing slash")
+				return fmt.Errorf("storage address must not have trailing slash")
 			}
 
 			return nil
