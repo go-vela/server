@@ -14,7 +14,7 @@ type (
 	Deployment struct {
 		Targets    raw.StringSlice `yaml:"targets,omitempty"    json:"targets,omitempty"    jsonschema:"description=List of deployment targets for the deployment block.\nReference: https://go-vela.github.io/docs/reference/yaml/deployments/#the-targets-key"`
 		Parameters ParameterMap    `yaml:"parameters,omitempty" json:"parameters,omitempty" jsonschema:"description=List of parameters for the deployment block.\nReference: https://go-vela.github.io/docs/reference/yaml/deployments/#the-parameters-key"`
-		Template   StepTemplate    `yaml:"template,omitempty"   json:"template"             jsonschema:"description=Name of template to expand in the deployment block.\nReference: https://go-vela.github.io/docs/reference/yaml/deployments/#the-template-key"`
+		Template   StepTemplate    `yaml:"template,omitempty"   json:"template,omitempty"   jsonschema:"description=Name of template to expand in the deployment block.\nReference: https://go-vela.github.io/docs/reference/yaml/deployments/#the-template-key"`
 	}
 
 	// ParameterMap is the yaml representation

@@ -27,7 +27,7 @@ type (
 		Key    string `yaml:"key,omitempty"    json:"key,omitempty"    jsonschema:"minLength=1,description=Path to secret to fetch from storage backend.\nReference: https://go-vela.github.io/docs/reference/yaml/secrets/#the-key-key"`
 		Engine string `yaml:"engine,omitempty" json:"engine,omitempty" jsonschema:"enum=native,enum=vault,default=native,description=Name of storage backend to fetch secret from.\nReference: https://go-vela.github.io/docs/reference/yaml/secrets/#the-engine-key"`
 		Type   string `yaml:"type,omitempty"   json:"type,omitempty"   jsonschema:"enum=repo,enum=org,enum=shared,default=repo,description=Type of secret to fetch from storage backend.\nReference: https://go-vela.github.io/docs/reference/yaml/secrets/#the-type-key"`
-		Origin Origin `yaml:"origin,omitempty" json:"origin"           jsonschema:"description=Declaration to pull secrets from non-internal secret providers.\nReference: https://go-vela.github.io/docs/reference/yaml/secrets/#the-origin-key"`
+		Origin Origin `yaml:"origin,omitempty" json:"origin,omitempty" jsonschema:"description=Declaration to pull secrets from non-internal secret providers.\nReference: https://go-vela.github.io/docs/reference/yaml/secrets/#the-origin-key"`
 		Pull   string `yaml:"pull,omitempty"   json:"pull,omitempty"   jsonschema:"enum=step_start,enum=build_start,default=build_start,description=When to pull in secrets from storage backend.\nReference: https://go-vela.github.io/docs/reference/yaml/secrets/#the-pull-key"`
 	}
 
@@ -40,7 +40,7 @@ type (
 		Parameters  map[string]any     `yaml:"parameters,omitempty"  json:"parameters,omitempty"  jsonschema:"description=Extra configuration variables for the secret plugin.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-parameters-key"`
 		Secrets     StepSecretSlice    `yaml:"secrets,omitempty"     json:"secrets,omitempty"     jsonschema:"description=Secrets to inject that are necessary to retrieve the secrets.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-secrets-key"`
 		Pull        string             `yaml:"pull,omitempty"        json:"pull,omitempty"        jsonschema:"enum=always,enum=not_present,enum=on_start,enum=never,default=not_present,description=Declaration to configure if and when the Docker image is pulled.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-pull-key"`
-		Ruleset     Ruleset            `yaml:"ruleset,omitempty"     json:"ruleset"               jsonschema:"description=Conditions to limit the execution of the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Ruleset     Ruleset            `yaml:"ruleset,omitempty"     json:"ruleset,omitempty"     jsonschema:"description=Conditions to limit the execution of the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 	}
 )
 
