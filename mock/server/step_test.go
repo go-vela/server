@@ -20,7 +20,7 @@ func TestStep_ActiveStepResp(t *testing.T) {
 
 	tStep := reflect.TypeOf(testStep)
 
-	for i := 0; i < tStep.NumField(); i++ {
+	for i := range tStep.NumField() {
 		if reflect.ValueOf(testStep).Field(i).IsNil() {
 			t.Errorf("StepResp missing field %s", tStep.Field(i).Name)
 		}

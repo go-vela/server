@@ -55,6 +55,7 @@ func TestRedis_Ping_Bad(t *testing.T) {
 		WithCluster(false),
 		WithTimeout(5*time.Second),
 	)
+
 	_redis.SetError("not aiv")
 	// run tests
 	err = badRedis.Ping(context.Background())

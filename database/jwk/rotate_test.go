@@ -15,12 +15,14 @@ import (
 func TestJWK_Engine_RotateKeys(t *testing.T) {
 	// setup types
 	_jwkOne := testutils.JWK()
+
 	_jwkOneBytes, err := json.Marshal(_jwkOne)
 	if err != nil {
 		t.Errorf("unable to marshal JWK: %v", err)
 	}
 
 	_jwkTwo := testutils.JWK()
+
 	_jwkTwoBytes, err := json.Marshal(_jwkTwo)
 	if err != nil {
 		t.Errorf("unable to marshal JWK: %v", err)

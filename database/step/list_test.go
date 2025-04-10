@@ -33,6 +33,7 @@ func TestStep_Engine_ListSteps(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 
 	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock

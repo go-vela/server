@@ -20,7 +20,7 @@ func TestService_ActiveServiceResp(t *testing.T) {
 
 	tService := reflect.TypeOf(testService)
 
-	for i := 0; i < tService.NumField(); i++ {
+	for i := range tService.NumField() {
 		if reflect.ValueOf(testService).Field(i).IsNil() {
 			t.Errorf("ServiceResp missing field %s", tService.Field(i).Name)
 		}

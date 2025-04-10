@@ -241,6 +241,7 @@ func TestMiddleware_Cors(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gin.SetMode(gin.TestMode)
+
 			resp := httptest.NewRecorder()
 			context, engine := gin.CreateTestContext(resp)
 			context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)

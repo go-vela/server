@@ -15,6 +15,7 @@ import (
 func TestJWK_Engine_CreateJWK(t *testing.T) {
 	// setup types
 	_jwk := testutils.JWK()
+
 	_jwkBytes, err := json.Marshal(_jwk)
 	if err != nil {
 		t.Errorf("unable to marshal JWK: %v", err)

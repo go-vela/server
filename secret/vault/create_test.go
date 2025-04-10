@@ -87,6 +87,7 @@ func TestVault_Create_Org(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
+
 			got, err := s.Create(context.TODO(), "org", "foo", "*", sec)
 
 			if resp.Code != http.StatusOK {

@@ -15,7 +15,7 @@ import (
 // ListReposForOrg gets a list of repos by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *Engine) ListReposForOrg(ctx context.Context, org, sortBy string, filters map[string]interface{}, page, perPage int) ([]*api.Repo, error) {
+func (e *Engine) ListReposForOrg(ctx context.Context, org, sortBy string, filters map[string]any, page, perPage int) ([]*api.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("listing repos for org %s", org)

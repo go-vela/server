@@ -20,7 +20,7 @@ func TestWorker_ActiveWorkerResp(t *testing.T) {
 
 	tWorker := reflect.TypeOf(testWorker)
 
-	for i := 0; i < tWorker.NumField(); i++ {
+	for i := range tWorker.NumField() {
 		if reflect.ValueOf(testWorker).Field(i).IsNil() {
 			t.Errorf("WorkerResp missing field %s", tWorker.Field(i).Name)
 		}
@@ -38,7 +38,7 @@ func TestWorker_ListActiveWorkerResp(t *testing.T) {
 	for index, worker := range testWorkers {
 		tWorker := reflect.TypeOf(worker)
 
-		for i := 0; i < tWorker.NumField(); i++ {
+		for i := range tWorker.NumField() {
 			if reflect.ValueOf(worker).Field(i).IsNil() {
 				t.Errorf("WorkersResp index %d missing field %s", index, tWorker.Field(i).Name)
 			}

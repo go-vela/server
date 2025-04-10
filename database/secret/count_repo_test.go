@@ -93,7 +93,7 @@ func TestSecret_Engine_CountSecretsForRepo(t *testing.T) {
 		},
 	}
 
-	filters := map[string]interface{}{}
+	filters := map[string]any{}
 
 	// run tests
 	for _, test := range tests {

@@ -323,7 +323,7 @@ func PostWebhook(c *gin.Context) {
 	// Some operations taken during the webhook workflow can lead to race conditions
 	// failing to successfully process the request. This logic ensures we attempt our
 	// best efforts to handle these cases gracefully.
-	for i := 0; i < retryLimit; i++ {
+	for i := range retryLimit {
 		// check if we're on the first iteration of the loop
 		if i > 0 {
 			// incrementally sleep in between retries
@@ -777,7 +777,7 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	}
 
 	// get total number of secrets associated with repository
-	t, err := db.CountSecretsForRepo(ctx, dbR, map[string]interface{}{})
+	t, err := db.CountSecretsForRepo(ctx, dbR, map[string]any{})
 	if err != nil {
 		return nil, fmt.Errorf("unable to get secret count for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
 	}
@@ -786,7 +786,7 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	page := 1
 	// capture all secrets belonging to certain repo in database
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
-		s, err := db.ListSecretsForRepo(ctx, dbR, map[string]interface{}{}, page, 100)
+		s, err := db.ListSecretsForRepo(ctx, dbR, map[string]any{}, page, 100)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
 		}

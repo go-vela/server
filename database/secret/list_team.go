@@ -16,7 +16,7 @@ import (
 // ListSecretsForTeam gets a list of secrets by org and team name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *Engine) ListSecretsForTeam(ctx context.Context, org, team string, filters map[string]interface{}, page, perPage int) ([]*api.Secret, error) {
+func (e *Engine) ListSecretsForTeam(ctx context.Context, org, team string, filters map[string]any, page, perPage int) ([]*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -69,7 +69,7 @@ func (e *Engine) ListSecretsForTeam(ctx context.Context, org, team string, filte
 }
 
 // ListSecretsForTeams gets a list of secrets by teams within an org from the database.
-func (e *Engine) ListSecretsForTeams(ctx context.Context, org string, teams []string, filters map[string]interface{}, page, perPage int) ([]*api.Secret, error) {
+func (e *Engine) ListSecretsForTeams(ctx context.Context, org string, teams []string, filters map[string]any, page, perPage int) ([]*api.Secret, error) {
 	// iterate through the list of teams provided
 	for index, team := range teams {
 		// ensure the team name is lower case

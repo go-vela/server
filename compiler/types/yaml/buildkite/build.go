@@ -11,16 +11,16 @@ import (
 // Build is the yaml representation of a build for a pipeline.
 type Build struct {
 	Version     string             `yaml:"version,omitempty"     json:"version,omitempty"     jsonschema:"required,minLength=1,description=Provide syntax version used to evaluate the pipeline.\nReference: https://go-vela.github.io/docs/reference/yaml/version/"`
-	Metadata    Metadata           `yaml:"metadata,omitempty"    json:"metadata,omitempty"    jsonschema:"description=Pass extra information.\nReference: https://go-vela.github.io/docs/reference/yaml/metadata/"`
+	Metadata    Metadata           `yaml:"metadata,omitempty"    json:"metadata"              jsonschema:"description=Pass extra information.\nReference: https://go-vela.github.io/docs/reference/yaml/metadata/"`
 	Environment raw.StringSliceMap `yaml:"environment,omitempty" json:"environment,omitempty" jsonschema:"description=Provide global environment variables injected into the container environment.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-environment-key"`
-	Worker      Worker             `yaml:"worker,omitempty"      json:"worker,omitempty"      jsonschema:"description=Limit the pipeline to certain types of workers.\nReference: https://go-vela.github.io/docs/reference/yaml/worker/"`
+	Worker      Worker             `yaml:"worker,omitempty"      json:"worker"                jsonschema:"description=Limit the pipeline to certain types of workers.\nReference: https://go-vela.github.io/docs/reference/yaml/worker/"`
 	Secrets     SecretSlice        `yaml:"secrets,omitempty"     json:"secrets,omitempty"     jsonschema:"description=Provide sensitive information.\nReference: https://go-vela.github.io/docs/reference/yaml/secrets/"`
 	Services    ServiceSlice       `yaml:"services,omitempty"    json:"services,omitempty"    jsonschema:"description=Provide detached (headless) execution instructions.\nReference: https://go-vela.github.io/docs/reference/yaml/services/"`
 	Stages      StageSlice         `yaml:"stages,omitempty"      json:"stages,omitempty"      jsonschema:"oneof_required=stages,description=Provide parallel execution instructions.\nReference: https://go-vela.github.io/docs/reference/yaml/stages/"`
 	Steps       StepSlice          `yaml:"steps,omitempty"       json:"steps,omitempty"       jsonschema:"oneof_required=steps,description=Provide sequential execution instructions.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/"`
 	Templates   TemplateSlice      `yaml:"templates,omitempty"   json:"templates,omitempty"   jsonschema:"description=Provide the name of templates to expand.\nReference: https://go-vela.github.io/docs/reference/yaml/templates/"`
-	Deployment  Deployment         `yaml:"deployment,omitempty"  json:"deployment,omitempty"  jsonschema:"description=Provide deployment configuration.\nReference: https://go-vela.github.io/docs/reference/yaml/deployments/"`
-	Git         Git                `yaml:"git,omitempty"         json:"git,omitempty"         jsonschema:"description=Provide the git access specifications.\nReference: https://go-vela.github.io/docs/reference/yaml/git/"`
+	Deployment  Deployment         `yaml:"deployment,omitempty"  json:"deployment"            jsonschema:"description=Provide deployment configuration.\nReference: https://go-vela.github.io/docs/reference/yaml/deployments/"`
+	Git         Git                `yaml:"git,omitempty"         json:"git"                   jsonschema:"description=Provide the git access specifications.\nReference: https://go-vela.github.io/docs/reference/yaml/git/"`
 }
 
 // ToPipelineAPI converts the Build type to an API Pipeline type.
@@ -64,7 +64,7 @@ func (b *Build) ToPipelineAPI() *api.Pipeline {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the Build type.
-func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (b *Build) UnmarshalYAML(unmarshal func(any) error) error {
 	// build we try unmarshalling to
 	build := new(struct {
 		Version     string

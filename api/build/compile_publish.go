@@ -114,7 +114,7 @@ func CompileAndPublish(
 	}
 
 	// create SQL filters for querying pending and running builds for repo
-	filters := map[string]interface{}{
+	filters := map[string]any{
 		"status": []string{constants.StatusPending, constants.StatusRunning},
 	}
 
@@ -193,7 +193,7 @@ func CompileAndPublish(
 	// Some operations taken during the webhook workflow can lead to race conditions
 	// failing to successfully process the request. This logic ensures we attempt our
 	// best efforts to handle these cases gracefully.
-	for i := 0; i < cfg.Retries; i++ {
+	for i := range cfg.Retries {
 		logger.Debugf("compilation loop - attempt %d", i+1)
 		// check if we're on the first iteration of the loop
 		if i > 0 {

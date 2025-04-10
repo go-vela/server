@@ -9,7 +9,7 @@ import (
 
 // Git is the yaml representation of git configurations for a pipeline.
 type Git struct {
-	Token `yaml:"token,omitempty" json:"token,omitempty" jsonschema:"description=Provide the git token specifications, primarily used for cloning.\nReference: https://go-vela.github.io/docs/reference/yaml/git/#token"`
+	Token `yaml:"token,omitempty" json:"token" jsonschema:"description=Provide the git token specifications, primarily used for cloning.\nReference: https://go-vela.github.io/docs/reference/yaml/git/#token"`
 }
 
 // Token is the yaml representation of the git token.

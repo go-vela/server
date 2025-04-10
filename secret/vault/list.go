@@ -62,7 +62,7 @@ func (c *Client) List(ctx context.Context, sType, org, name string, _, _ int, _ 
 	}
 
 	// cast the list of secrets to the expected type
-	keys, ok := vault.Data["keys"].([]interface{})
+	keys, ok := vault.Data["keys"].([]any)
 	if !ok {
 		return nil, fmt.Errorf("not a valid list of secrets from Vault")
 	}

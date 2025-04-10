@@ -29,7 +29,7 @@ type ServiceInterface interface {
 	// CountServices defines a function that gets the count of all services.
 	CountServices(context.Context) (int64, error)
 	// CountServicesForBuild defines a function that gets the count of services by build ID.
-	CountServicesForBuild(context.Context, *api.Build, map[string]interface{}) (int64, error)
+	CountServicesForBuild(context.Context, *api.Build, map[string]any) (int64, error)
 	// CreateService defines a function that creates a new service.
 	CreateService(context.Context, *api.Service) (*api.Service, error)
 	// DeleteService defines a function that deletes an existing service.
@@ -41,7 +41,7 @@ type ServiceInterface interface {
 	// ListServices defines a function that gets a list of all services.
 	ListServices(context.Context) ([]*api.Service, error)
 	// ListServicesForBuild defines a function that gets a list of services by build ID.
-	ListServicesForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*api.Service, error)
+	ListServicesForBuild(context.Context, *api.Build, map[string]any, int, int) ([]*api.Service, error)
 	// ListServiceImageCount defines a function that gets a list of all service images and the count of their occurrence.
 	ListServiceImageCount(context.Context) (map[string]float64, error)
 	// ListServiceStatusCount defines a function that gets a list of all service statuses and the count of their occurrence.

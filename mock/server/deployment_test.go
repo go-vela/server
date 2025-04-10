@@ -20,7 +20,7 @@ func TestDeployment_ActiveDeploymentResp(t *testing.T) {
 
 	tDeployment := reflect.TypeOf(testDeployment)
 
-	for i := 0; i < tDeployment.NumField(); i++ {
+	for i := range tDeployment.NumField() {
 		if reflect.ValueOf(testDeployment).Field(i).IsNil() {
 			t.Errorf("DeploymentResp missing field %s", tDeployment.Field(i).Name)
 		}

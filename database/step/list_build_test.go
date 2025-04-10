@@ -39,6 +39,7 @@ func TestStep_Engine_ListStepsForBuild(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 
 	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -81,7 +82,7 @@ func TestStep_Engine_ListStepsForBuild(t *testing.T) {
 		},
 	}
 
-	filters := map[string]interface{}{}
+	filters := map[string]any{}
 
 	// run tests
 	for _, test := range tests {

@@ -196,7 +196,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 						Name: "sample",
 						Template: yaml.StepTemplate{
 							Name: "go",
-							Variables: map[string]interface{}{
+							Variables: map[string]any{
 								"build_author": "${BUILD_AUTHOR}",
 								"unknown":      "${DEPLOYMENT_PARAMETER_API_IMAGE}",
 							},
@@ -212,7 +212,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 					Name: "sample",
 					Template: yaml.StepTemplate{
 						Name: "go",
-						Variables: map[string]interface{}{
+						Variables: map[string]any{
 							"build_author": "testauthor",
 							"unknown":      "${DEPLOYMENT_PARAMETER_API_IMAGE}",
 						},

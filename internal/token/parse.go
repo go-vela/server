@@ -16,13 +16,13 @@ import (
 // * the token signing method doesn't match what is expected
 // * the token is invalid (potentially expired or improper).
 func (tm *Manager) ParseToken(token string) (*Claims, error) {
-	var claims = new(Claims)
+	claims := new(Claims)
 
 	// create a new JWT parser
 	p := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
 
 	// parse and validate given token
-	tkn, err := p.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
+	tkn, err := p.ParseWithClaims(token, claims, func(t *jwt.Token) (any, error) {
 		var err error
 
 		// extract the claims from the token
@@ -44,7 +44,6 @@ func (tm *Manager) ParseToken(token string) (*Claims, error) {
 
 		return []byte(tm.PrivateKeyHMAC), err
 	})
-
 	if err != nil {
 		return nil, errors.New("failed parsing: " + err.Error())
 	}

@@ -31,6 +31,7 @@ func TestNative_ExpandStages(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -54,7 +55,7 @@ func TestNative_ExpandStages(t *testing.T) {
 					Name: "sample",
 					Template: yaml.StepTemplate{
 						Name: "gradle",
-						Variables: map[string]interface{}{
+						Variables: map[string]any{
 							"image":       "openjdk:latest",
 							"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 							"pull_policy": "pull: true",
@@ -175,7 +176,6 @@ func TestNative_ExpandStages(t *testing.T) {
 		new(pipeline.RuleData),
 		nil,
 	)
-
 	if err != nil {
 		t.Errorf("ExpandStages returned err: %v", err)
 	}
@@ -210,6 +210,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -254,7 +255,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 			Name: "sample",
 			Template: yaml.StepTemplate{
 				Name: "gradle",
-				Variables: map[string]interface{}{
+				Variables: map[string]any{
 					"image":       "openjdk:latest",
 					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 					"pull_policy": "pull: true",
@@ -388,6 +389,7 @@ func TestNative_ExpandStepsWarnings(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -480,6 +482,7 @@ func TestNative_ExpandDeployment(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -512,7 +515,7 @@ func TestNative_ExpandDeployment(t *testing.T) {
 	deployCfg := yaml.Deployment{
 		Template: yaml.StepTemplate{
 			Name: "deploy",
-			Variables: map[string]interface{}{
+			Variables: map[string]any{
 				"regions": []string{"us-east-1", "us-west-1"},
 			},
 		},
@@ -577,6 +580,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -607,7 +611,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 			Name: "sample",
 			Template: yaml.StepTemplate{
 				Name: "gradle",
-				Variables: map[string]interface{}{
+				Variables: map[string]any{
 					"image":       "openjdk:latest",
 					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 					"pull_policy": "pull: true",
@@ -618,7 +622,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 			Name: "sample",
 			Template: yaml.StepTemplate{
 				Name: "maven",
-				Variables: map[string]interface{}{
+				Variables: map[string]any{
 					"image":       "openjdk:latest",
 					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 					"pull_policy": "pull: true",
@@ -635,7 +639,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 			Name: "sample",
 			Template: yaml.StepTemplate{
 				Name: "npm",
-				Variables: map[string]interface{}{
+				Variables: map[string]any{
 					"image":       "openjdk:latest",
 					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 					"pull_policy": "pull: true",
@@ -749,12 +753,12 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 						Target: "VAULT_TOKEN",
 					},
 				},
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"addr":        "vault.example.com",
 					"auth_method": "token",
 					"username":    "octocat",
-					"items": []interface{}{
-						map[string]interface{}{"path": "docker", "source": "secret/docker"},
+					"items": []any{
+						map[string]any{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
@@ -770,12 +774,12 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 						Target: "VAULT_TOKEN",
 					},
 				},
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"addr":        "vault.example.com",
 					"auth_method": "token",
 					"username":    "octocat",
-					"items": []interface{}{
-						map[string]interface{}{"path": "docker", "source": "secret/docker"},
+					"items": []any{
+						map[string]any{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
@@ -842,6 +846,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -863,7 +868,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 			Name: "sample",
 			Template: yaml.StepTemplate{
 				Name:      "go",
-				Variables: map[string]interface{}{},
+				Variables: map[string]any{},
 			},
 		},
 	}
@@ -932,6 +937,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -1126,10 +1132,12 @@ func TestNative_ExpandStepsDuplicateCalls(t *testing.T) {
 		}
 
 		testCallsMap[c.Param("path")] = true
+
 		body, err := convertFileToGithubResponse(c.Param("path"))
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -1163,7 +1171,7 @@ func TestNative_ExpandStepsDuplicateCalls(t *testing.T) {
 			Name: "sample",
 			Template: yaml.StepTemplate{
 				Name: "gradle",
-				Variables: map[string]interface{}{
+				Variables: map[string]any{
 					"image":       "openjdk:latest",
 					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 					"pull_policy": "pull: true",
@@ -1174,7 +1182,7 @@ func TestNative_ExpandStepsDuplicateCalls(t *testing.T) {
 			Name: "sample-dup",
 			Template: yaml.StepTemplate{
 				Name: "gradle",
-				Variables: map[string]interface{}{
+				Variables: map[string]any{
 					"image":       "openjdk:latest",
 					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 					"pull_policy": "pull: true",
@@ -1338,6 +1346,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -1421,6 +1430,7 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 

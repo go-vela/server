@@ -17,8 +17,8 @@ type (
 	//
 	// swagger:model PipelineRuleset
 	Ruleset struct {
-		If       Rules  `json:"if,omitempty"       yaml:"if,omitempty"`
-		Unless   Rules  `json:"unless,omitempty"   yaml:"unless,omitempty"`
+		If       Rules  `json:"if"                 yaml:"if,omitempty"`
+		Unless   Rules  `json:"unless"             yaml:"unless,omitempty"`
 		Matcher  string `json:"matcher,omitempty"  yaml:"matcher,omitempty"`
 		Operator string `json:"operator,omitempty" yaml:"operator,omitempty"`
 		Continue bool   `json:"continue,omitempty" yaml:"continue,omitempty"`

@@ -87,27 +87,27 @@ func (c *Client) Update(ctx context.Context, sType, org, name string, s *api.Sec
 
 // updateOrg is a helper function to update
 // the org secret for the provided path.
-func (c *Client) updateOrg(org, path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) updateOrg(org, path string, data map[string]any) (*api.Secret, error) {
 	return c.update(fmt.Sprintf("%s/%s/%s/%s", c.config.Prefix, constants.SecretOrg, org, path), data)
 }
 
 // updateRepo is a helper function to update
 // the repo secret for the provided path.
-func (c *Client) updateRepo(org, repo, path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) updateRepo(org, repo, path string, data map[string]any) (*api.Secret, error) {
 	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretRepo, org, repo, path), data)
 }
 
 // updateShared is a helper function to update
 // the shared secret for the provided path.
-func (c *Client) updateShared(org, team, path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) updateShared(org, team, path string, data map[string]any) (*api.Secret, error) {
 	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretShared, org, team, path), data)
 }
 
 // update is a helper function to update
 // the secret for the provided path.
-func (c *Client) update(path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) update(path string, data map[string]any) (*api.Secret, error) {
 	if strings.HasPrefix("secret/data", c.config.Prefix) {
-		data = map[string]interface{}{
+		data = map[string]any{
 			"data": data,
 		}
 	}

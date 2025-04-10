@@ -15,11 +15,9 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-var (
-	// ErrEmptyCloneImage defines the error type when a
-	// Settings type has an empty CloneImage field provided.
-	ErrEmptyCloneImage = errors.New("empty settings clone image provided")
-)
+// ErrEmptyCloneImage defines the error type when a
+// Settings type has an empty CloneImage field provided.
+var ErrEmptyCloneImage = errors.New("empty settings clone image provided")
 
 type (
 	// Platform is the database representation of platform settings.
@@ -56,7 +54,7 @@ func (r Compiler) Value() (driver.Value, error) {
 }
 
 // Scan - Implement the database/sql scanner interface for Compiler.
-func (r *Compiler) Scan(value interface{}) error {
+func (r *Compiler) Scan(value any) error {
 	switch v := value.(type) {
 	case []byte:
 		return json.Unmarshal(v, &r)
@@ -74,7 +72,7 @@ func (r Queue) Value() (driver.Value, error) {
 }
 
 // Scan - Implement the database/sql scanner interface for Queue.
-func (r *Queue) Scan(value interface{}) error {
+func (r *Queue) Scan(value any) error {
 	switch v := value.(type) {
 	case []byte:
 		return json.Unmarshal(v, &r)

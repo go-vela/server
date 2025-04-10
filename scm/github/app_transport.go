@@ -13,6 +13,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptrace"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -119,7 +120,7 @@ type Transport struct {
 type accessToken struct {
 	Token        string                         `json:"token"`
 	ExpiresAt    time.Time                      `json:"expires_at"`
-	Permissions  github.InstallationPermissions `json:"permissions,omitempty"`
+	Permissions  github.InstallationPermissions `json:"permissions"`
 	Repositories []github.Repository            `json:"repositories,omitempty"`
 }
 
@@ -242,7 +243,7 @@ func (t *Transport) refreshToken(ctx context.Context) error {
 }
 
 // GetReadWriter converts a body interface into an io.ReadWriter object.
-func GetReadWriter(i interface{}) (io.ReadWriter, error) {
+func GetReadWriter(i any) (io.ReadWriter, error) {
 	var buf io.ReadWriter
 
 	if i != nil {
@@ -271,7 +272,7 @@ func cloneRequest(r *http.Request) *http.Request {
 	_r.Header = make(http.Header, len(r.Header))
 
 	for k, s := range r.Header {
-		_r.Header[k] = append([]string(nil), s...)
+		_r.Header[k] = slices.Clone(s)
 	}
 
 	return _r

@@ -12,7 +12,7 @@ const key = "service"
 
 // Setter defines a context that enables setting values.
 type Setter interface {
-	Set(string, interface{})
+	Set(string, any)
 }
 
 // FromContext returns the Service associated with this context.

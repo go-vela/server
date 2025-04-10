@@ -216,11 +216,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 					},
 					{
 						Name: "docker_build",
-						Parameters: map[string]interface{}{
+						Parameters: map[string]any{
 							"dry_run":  true,
 							"registry": "index.docker.io",
 							"repo":     "github/octocat",
-							"tags":     []interface{}{"latest", "dev"},
+							"tags":     []any{"latest", "dev"},
 						},
 						Image: "plugins/docker:18.09",
 						Pull:  "always",
@@ -232,10 +232,10 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 					},
 					{
 						Name: "docker_publish",
-						Parameters: map[string]interface{}{
+						Parameters: map[string]any{
 							"registry": "index.docker.io",
 							"repo":     "github/octocat",
-							"tags":     []interface{}{"latest", "dev"},
+							"tags":     []any{"latest", "dev"},
 						},
 						Image: "plugins/docker:18.09",
 						Pull:  "always",
@@ -302,7 +302,7 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 					{
 						Origin: Origin{
 							Image: "target/vela-vault:latest",
-							Parameters: map[string]interface{}{
+							Parameters: map[string]any{
 								"addr": "vault.example.com",
 							},
 							Pull: "always",
@@ -563,7 +563,8 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 				},
 				Worker: Worker{
 					Flavor:   "16cpu8gb",
-					Platform: "gcp"},
+					Platform: "gcp",
+				},
 				Steps: StepSlice{
 					{
 						Commands: raw.StringSlice{"./gradlew downloadDependencies"},
@@ -721,7 +722,6 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 		}
 
 		err = yaml.Unmarshal(b, got)
-
 		if err != nil {
 			t.Errorf("UnmarshalYAML returned err: %v", err)
 		}

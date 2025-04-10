@@ -4,6 +4,8 @@ package buildkite
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 
 	bkYaml "github.com/buildkite/yaml"
 	"github.com/invopop/jsonschema"
@@ -52,7 +54,7 @@ func (s *StageSlice) ToPipeline() *pipeline.StageSlice {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the StageSlice type.
-func (s *StageSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *StageSlice) UnmarshalYAML(unmarshal func(any) error) error {
 	// map slice we try unmarshalling to
 	mapSlice := new(bkYaml.MapSlice)
 
@@ -85,10 +87,8 @@ func (s *StageSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		if stage.Name != "clone" && stage.Name != "init" {
 			// add clone if not present
 			stage.Needs = func(needs []string) []string {
-				for _, s := range needs {
-					if s == "clone" {
-						return needs
-					}
+				if slices.Contains(needs, "clone") {
+					return needs
 				}
 
 				return append(needs, "clone")
@@ -102,7 +102,7 @@ func (s *StageSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 // MarshalYAML implements the marshaler interface for the StageSlice type.
-func (s StageSlice) MarshalYAML() (interface{}, error) {
+func (s StageSlice) MarshalYAML() (any, error) {
 	// map slice to return as marshaled output
 	var output bkYaml.MapSlice
 
@@ -164,10 +164,7 @@ func (s *Stage) MergeEnv(environment map[string]string) error {
 	}
 
 	// iterate through all environment variables provided
-	for key, value := range environment {
-		// set or update the stage environment variable
-		s.Environment[key] = value
-	}
+	maps.Copy(s.Environment, environment)
 
 	return nil
 }

@@ -20,7 +20,7 @@ func TestPipeline_ActivePipelineResp(t *testing.T) {
 
 	tPipeline := reflect.TypeOf(testPipeline)
 
-	for i := 0; i < tPipeline.NumField(); i++ {
+	for i := range tPipeline.NumField() {
 		if reflect.ValueOf(testPipeline).Field(i).IsNil() {
 			t.Errorf("PipelineResp missing field %s", tPipeline.Field(i).Name)
 		}

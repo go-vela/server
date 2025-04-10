@@ -188,6 +188,7 @@ func TestClaims_Establish(t *testing.T) {
 
 			if strings.EqualFold(tt.TokenType, constants.ServerWorkerTokenType) {
 				tkn = "very-secret"
+
 				engine.Use(func(c *gin.Context) { c.Set("secret", "very-secret") })
 			} else {
 				tkn, _ = tm.MintToken(tt.Mto)

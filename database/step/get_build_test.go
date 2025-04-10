@@ -42,6 +42,7 @@ func TestStep_Engine_GetStepForBuild(t *testing.T) {
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
+
 	_, err := _sqlite.CreateStep(ctx, _step)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)

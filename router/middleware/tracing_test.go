@@ -19,6 +19,7 @@ import (
 func TestMiddleware_TracingClient(t *testing.T) {
 	// setup types
 	var got *tracing.Client
+
 	want := &tracing.Client{
 		Config: tracing.Config{
 			EnableTracing: true,

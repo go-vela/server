@@ -4,6 +4,7 @@ package pipeline
 
 import (
 	"fmt"
+	"maps"
 
 	"github.com/go-vela/server/constants"
 )
@@ -153,10 +154,7 @@ func (s *Stage) MergeEnv(environment map[string]string) error {
 	}
 
 	// iterate through all environment variables provided
-	for key, value := range environment {
-		// set or update the stage environment variable
-		s.Environment[key] = value
-	}
+	maps.Copy(s.Environment, environment)
 
 	return nil
 }

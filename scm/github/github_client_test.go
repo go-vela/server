@@ -120,6 +120,7 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 				t.Errorf("installationCanReadRepo() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("installationCanReadRepo() = %v, want %v", got, tt.want)
 			}

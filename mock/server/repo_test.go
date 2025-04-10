@@ -20,10 +20,11 @@ func TestRepo_ActiveRepoResp(t *testing.T) {
 
 	tRepo := reflect.TypeOf(testRepo)
 
-	for i := 0; i < tRepo.NumField(); i++ {
+	for i := range tRepo.NumField() {
 		if tRepo.Field(i).Name == "Hash" {
 			continue
 		}
+
 		if reflect.ValueOf(testRepo).Field(i).IsNil() {
 			t.Errorf("RepoResp missing field %s", tRepo.Field(i).Name)
 		}
