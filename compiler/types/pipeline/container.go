@@ -47,7 +47,7 @@ type (
 		Ports       []string          `json:"ports,omitempty"       yaml:"ports,omitempty"`
 		Privileged  bool              `json:"privileged,omitempty"  yaml:"privileged,omitempty"`
 		Pull        string            `json:"pull,omitempty"        yaml:"pull,omitempty"`
-		Ruleset     Ruleset           `json:"ruleset"               yaml:"ruleset,omitempty"`
+		Ruleset     Ruleset           `json:"ruleset,omitempty"     yaml:"ruleset,omitempty"`
 		Secrets     StepSecretSlice   `json:"secrets,omitempty"     yaml:"secrets,omitempty"`
 		Ulimits     UlimitSlice       `json:"ulimits,omitempty"     yaml:"ulimits,omitempty"`
 		Volumes     VolumeSlice       `json:"volumes,omitempty"     yaml:"volumes,omitempty"`
