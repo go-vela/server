@@ -253,7 +253,7 @@ func (c *Container) MergeEnv(environment map[string]string) error {
 		return fmt.Errorf("empty environment provided for container %s", c.ID)
 	}
 
-	// iterate through all environment variables provided
+	// apply environment to container environment
 	maps.Copy(c.Environment, environment)
 
 	return nil

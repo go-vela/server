@@ -159,7 +159,7 @@ func (s *Stage) MergeEnv(environment map[string]string) error {
 		return fmt.Errorf("empty environment provided for stage %s", s.Name)
 	}
 
-	// iterate through all environment variables provided
+	// apply environment to stage environment
 	maps.Copy(s.Environment, environment)
 
 	return nil

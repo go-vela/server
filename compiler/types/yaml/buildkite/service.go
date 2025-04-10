@@ -125,7 +125,7 @@ func (s *Service) MergeEnv(environment map[string]string) error {
 		return fmt.Errorf("empty environment provided for service %s", s.Name)
 	}
 
-	// iterate through all environment variables provided
+	// apply environment to service environment
 	maps.Copy(s.Environment, environment)
 
 	return nil

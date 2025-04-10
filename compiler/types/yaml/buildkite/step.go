@@ -140,7 +140,7 @@ func (s *Step) MergeEnv(environment map[string]string) error {
 		return fmt.Errorf("empty environment provided for step %s", s.Name)
 	}
 
-	// iterate through all environment variables provided
+	// apply environment to step environment
 	maps.Copy(s.Environment, environment)
 
 	return nil

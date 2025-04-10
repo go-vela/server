@@ -175,7 +175,7 @@ func (o *Origin) MergeEnv(environment map[string]string) error {
 		return fmt.Errorf("empty environment provided for secret %s", o.Name)
 	}
 
-	// iterate through all environment variables provided
+	// apply environment to secrets environment
 	maps.Copy(o.Environment, environment)
 
 	return nil

@@ -77,7 +77,7 @@ func (s *StringSliceMap) UnmarshalJSON(b []byte) error {
 	// attempt to unmarshal as map of strings
 	err = json.Unmarshal(b, &jsonMap)
 	if err == nil {
-		// iterate through each item in the json map
+		// apply items to map
 		maps.Copy(targetMap, jsonMap)
 
 		// overwrite existing StringSliceMap
@@ -125,7 +125,7 @@ func (s *StringSliceMap) UnmarshalYAML(unmarshal func(any) error) error {
 	// attempt to unmarshal as map of strings
 	err = unmarshal(&yamlMap)
 	if err == nil {
-		// iterate through each item in the yaml map
+		// apply items to map
 		maps.Copy(targetMap, yamlMap)
 
 		// overwrite existing StringSliceMap
