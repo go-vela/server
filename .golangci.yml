@@ -103,6 +103,8 @@ linters:
   # This section provides the configuration for each linter
   # we've instructed golangci to execute.
   settings:
+    copyloopvar:
+      check-alias: false
     # https://github.com/mibk/dupl
     dupl:
       threshold: 100
