@@ -42,10 +42,7 @@ func (e *Engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters ma
 
 	// iterate through all query results
 	for _, step := range *s {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := step
-
-		steps = append(steps, tmp.ToAPI())
+		steps = append(steps, step.ToAPI())
 	}
 
 	return steps, nil

@@ -37,11 +37,8 @@ func (e *Engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*api.U
 
 	// iterate through all query results
 	for _, user := range *u {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := user
-
 		// convert query result to API type
-		users = append(users, tmp.ToAPI())
+		users = append(users, user.ToAPI())
 	}
 
 	return users, nil

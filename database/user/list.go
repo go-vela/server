@@ -30,22 +30,19 @@ func (e *Engine) ListUsers(ctx context.Context) ([]*api.User, error) {
 
 	// iterate through all query results
 	for _, user := range *u {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := user
-
 		// decrypt the fields for the user
-		err = tmp.Decrypt(e.config.EncryptionKey)
+		err = user.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
 			//
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted users
-			e.logger.Errorf("unable to decrypt user %d: %v", tmp.ID.Int64, err)
+			e.logger.Errorf("unable to decrypt user %d: %v", user.ID.Int64, err)
 		}
 
 		// convert query result to API type
-		users = append(users, tmp.ToAPI())
+		users = append(users, user.ToAPI())
 	}
 
 	return users, nil

@@ -46,10 +46,7 @@ func (e *Engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map
 
 	// iterate through all query results
 	for _, build := range *b {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := build
-
-		result := tmp.ToAPI()
+		result := build.ToAPI()
 		result.SetRepo(r)
 
 		builds = append(builds, result)

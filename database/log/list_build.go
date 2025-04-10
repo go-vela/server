@@ -38,11 +38,8 @@ func (e *Engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPa
 
 	// iterate through all query results
 	for _, log := range *l {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := log
-
 		// decompress log data for the build
-		err = tmp.Decompress()
+		err = log.Decompress()
 		if err != nil {
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
@@ -51,7 +48,7 @@ func (e *Engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPa
 		}
 
 		// convert query result to API type
-		logs = append(logs, tmp.ToAPI())
+		logs = append(logs, log.ToAPI())
 	}
 
 	return logs, nil

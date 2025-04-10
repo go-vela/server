@@ -33,12 +33,9 @@ func (e *Engine) ListDeployments(ctx context.Context) ([]*api.Deployment, error)
 
 	// iterate through all query results
 	for _, deployment := range *d {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := deployment
-
 		builds := []*api.Build{}
 
-		for _, a := range tmp.Builds {
+		for _, a := range deployment.Builds {
 			bID, err := strconv.ParseInt(a, 10, 64)
 			if err != nil {
 				return nil, err
@@ -60,13 +57,13 @@ func (e *Engine) ListDeployments(ctx context.Context) ([]*api.Deployment, error)
 			builds = append(builds, b.ToAPI())
 		}
 
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		err = deployment.Repo.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			e.logger.Errorf("unable to decrypt repo: %v", err)
 		}
 
 		// convert query result to API type
-		deployments = append(deployments, tmp.ToAPI(builds))
+		deployments = append(deployments, deployment.ToAPI(builds))
 	}
 
 	return deployments, nil

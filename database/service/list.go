@@ -30,10 +30,7 @@ func (e *Engine) ListServices(ctx context.Context) ([]*api.Service, error) {
 
 	// iterate through all query results
 	for _, service := range *w {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := service
-
-		services = append(services, tmp.ToAPI())
+		services = append(services, service.ToAPI())
 	}
 
 	return services, nil

@@ -46,11 +46,8 @@ func (e *Engine) ListWorkers(ctx context.Context, active string, before, after i
 
 	// iterate through all query results
 	for _, worker := range *results {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := worker
-
 		// convert query result to API type
-		workers = append(workers, tmp.ToAPI(convertToBuilds(tmp.RunningBuildIDs)))
+		workers = append(workers, worker.ToAPI(convertToBuilds(worker.RunningBuildIDs)))
 	}
 
 	return workers, nil

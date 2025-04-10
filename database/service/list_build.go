@@ -42,10 +42,7 @@ func (e *Engine) ListServicesForBuild(ctx context.Context, b *api.Build, filters
 
 	// iterate through all query results
 	for _, service := range *s {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := service
-
-		services = append(services, tmp.ToAPI())
+		services = append(services, service.ToAPI())
 	}
 
 	return services, nil

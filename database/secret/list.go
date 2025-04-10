@@ -30,20 +30,17 @@ func (e *Engine) ListSecrets(ctx context.Context) ([]*api.Secret, error) {
 
 	// iterate through all query results
 	for _, secret := range *s {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := secret
-
-		err = tmp.Decrypt(e.config.EncryptionKey)
+		err = secret.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
 			//
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted secrets
-			e.logger.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
+			e.logger.Errorf("unable to decrypt secret %d: %v", secret.ID.Int64, err)
 		}
 
-		secrets = append(secrets, tmp.ToAPI())
+		secrets = append(secrets, secret.ToAPI())
 	}
 
 	return secrets, nil

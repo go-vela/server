@@ -42,15 +42,12 @@ func (e *Engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, pe
 
 	// iterate through all query results
 	for _, pipeline := range *p {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := pipeline
-
-		err = tmp.Decompress()
+		err = pipeline.Decompress()
 		if err != nil {
 			return nil, err
 		}
 
-		result := tmp.ToAPI()
+		result := pipeline.ToAPI()
 		result.SetRepo(r)
 
 		pipelines = append(pipelines, result)

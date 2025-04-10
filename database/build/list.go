@@ -32,15 +32,12 @@ func (e *Engine) ListBuilds(ctx context.Context) ([]*api.Build, error) {
 
 	// iterate through all query results
 	for _, build := range *b {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := build
-
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		err = build.Repo.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			e.logger.Errorf("unable to decrypt repo: %v", err)
 		}
 
-		builds = append(builds, tmp.ToAPI())
+		builds = append(builds, build.ToAPI())
 	}
 
 	return builds, nil

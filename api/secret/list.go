@@ -188,11 +188,8 @@ func ListSecrets(c *gin.Context) {
 	secrets := []*types.Secret{}
 	// iterate through all secrets
 	for _, secret := range s {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := secret
-
 		// sanitize secret to ensure no value is provided
-		secrets = append(secrets, tmp.Sanitize())
+		secrets = append(secrets, secret.Sanitize())
 	}
 
 	logger.Infof("successfully listed secrets %s from %s service", entry, e)
