@@ -46,7 +46,7 @@ linters:
     - nolintlint # reports ill-formed or insufficient nolint directives
     - revive # linter for go
     - staticcheck # applies static analysis checks, go vet on steroids
-     # The linters stylecheck, gosimple, and staticcheck has been merged inside the staticcheck.
+      # The linters stylecheck, gosimple, and staticcheck has been merged inside the staticcheck.
     - tagalign # finds maligned struct tags
     - unconvert # remove unnecessary type conversions
     - unparam # reports unused function parameters
@@ -103,8 +103,9 @@ linters:
   # This section provides the configuration for each linter
   # we've instructed golangci to execute.
   settings:
+    # https://github.com/karamaru-alpha/copyloopvar
     copyloopvar:
-      check-alias: false
+      check-alias: true
     # https://github.com/mibk/dupl
     dupl:
       threshold: 100
@@ -115,7 +116,7 @@ linters:
       statements: 70
     # https://github.com/denis-tingaikin/go-header
     goheader:
-      template: 'SPDX-License-Identifier: Apache-2.0'
+      template: "SPDX-License-Identifier: Apache-2.0"
     # https://github.com/client9/misspell
     misspell:
       locale: US
@@ -132,10 +133,10 @@ linters:
     # static check to ignore QFI (Quality Function Interface) issues
     staticcheck:
       checks:
-        - '-QF1001' # ignore specific QFI issues
-        - '-QF1003'
-        - '-QF1004'
-        - '-QF1008'
+        - "-QF1001" # ignore specific QFI issues
+        - "-QF1003"
+        - "-QF1004"
+        - "-QF1008"
   exclusions:
     generated: lax
     presets:
