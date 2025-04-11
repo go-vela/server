@@ -26,6 +26,7 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/storage"
 	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/server/util"
 )
@@ -108,6 +109,11 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	st, err := storage.FromCLICommand(ctx, cmd)
+	if err != nil {
+		return err
+	}
+
 	metadata, err := setupMetadata(cmd)
 	if err != nil {
 		return err
@@ -183,10 +189,12 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.Metadata(metadata),
 		middleware.TokenManager(tm),
 		middleware.Queue(queue),
+		middleware.Storage(st),
 		middleware.RequestVersion,
 		middleware.Secret(cmd.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
+		middleware.Storage(st),
 		middleware.QueueSigningPrivateKey(cmd.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(cmd.String("queue.public-key")),
 		middleware.QueueAddress(cmd.String("queue.addr")),
@@ -203,6 +211,11 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.ScheduleFrequency(cmd.Duration("schedule-minimum-frequency")),
 		middleware.TracingClient(tc),
 		middleware.TracingInstrumentation(tc),
+		middleware.StorageAddress(cmd.String("storage.addr")),
+		middleware.StorageAccessKey(cmd.String("storage.access.key")),
+		middleware.StorageSecretKey(cmd.String("storage.secret.key")),
+		middleware.StorageBucket(cmd.String("storage.bucket.name")),
+		middleware.StorageEnable(cmd.Bool("storage.enable")),
 	)
 
 	addr, err := url.Parse(cmd.String("server-addr"))
