@@ -22,7 +22,7 @@ import (
 // includes information about the user.
 type Claims struct {
 	BuildID     int64  `json:"build_id,omitempty"`
-	BuildNumber int    `json:"build_number,omitempty"`
+	BuildNumber int64  `json:"build_number,omitempty"`
 	Actor       string `json:"actor,omitempty"`
 	IsActive    bool   `json:"is_active,omitempty"`
 	IsAdmin     bool   `json:"is_admin,omitempty"`
@@ -171,6 +171,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.Audience = mto.Audience
 	claims.TokenType = mto.TokenType
 	claims.Image = mto.Image
+	claims.CustomProps = mto.Build.GetRepo().GetCustomProps()
 
 	claims.ImageName, claims.ImageTag, err = imageParse(mto.Image)
 	if err != nil {

@@ -16,9 +16,9 @@ IF NOT EXISTS
 dashboards (
 	id            UUID PRIMARY KEY,
 	name          VARCHAR(250),
-	created_at    INTEGER,
+	created_at    BIGINT,
 	created_by    VARCHAR(250),
-	updated_at    INTEGER,
+	updated_at    BIGINT,
 	updated_by    VARCHAR(250),
 	admins        JSON DEFAULT NULL,
 	repos         JSON DEFAULT NULL
@@ -43,7 +43,7 @@ dashboards (
 )
 
 // CreateDashboardTable creates the dashboards table in the database.
-func (e *engine) CreateDashboardTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateDashboardTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating dashboards table")
 
 	// handle the driver provided to create the table

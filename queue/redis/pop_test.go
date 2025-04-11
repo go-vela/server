@@ -77,7 +77,7 @@ func TestRedis_Pop(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool
-		redis   *client
+		redis   *Client
 		want    *models.Item
 		routes  []string
 	}{

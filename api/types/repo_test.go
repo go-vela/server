@@ -33,6 +33,8 @@ func TestTypes_Repo_Environment(t *testing.T) {
 		"VELA_REPO_APPROVE_BUILD":    "never",
 		"VELA_REPO_APPROVAL_TIMEOUT": "7",
 		"VELA_REPO_OWNER":            "octocat",
+		"VELA_REPO_INSTALL_ID":       "123",
+		"VELA_REPO_CUSTOM_PROPS":     `{"foo":"bar"}`,
 		"REPOSITORY_ACTIVE":          "true",
 		"REPOSITORY_ALLOW_EVENTS":    "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,tag,comment:created,schedule,delete:branch",
 		"REPOSITORY_BRANCH":          "main",
@@ -160,6 +162,10 @@ func TestTypes_Repo_Getters(t *testing.T) {
 		if test.repo.GetInstallID() != test.want.GetInstallID() {
 			t.Errorf("GetInstallID is %v, want %v", test.repo.GetInstallID(), test.want.GetInstallID())
 		}
+
+		if !reflect.DeepEqual(test.repo.GetCustomProps(), test.want.GetCustomProps()) {
+			t.Errorf("GetCustomProps is %v, want %v", test.repo.GetCustomProps(), test.want.GetCustomProps())
+		}
 	}
 }
 
@@ -207,6 +213,7 @@ func TestTypes_Repo_Setters(t *testing.T) {
 		test.repo.SetApproveBuild(test.want.GetApproveBuild())
 		test.repo.SetApprovalTimeout(test.want.GetApprovalTimeout())
 		test.repo.SetInstallID(test.want.GetInstallID())
+		test.repo.SetCustomProps(test.want.GetCustomProps())
 
 		if test.repo.GetID() != test.want.GetID() {
 			t.Errorf("SetID is %v, want %v", test.repo.GetID(), test.want.GetID())
@@ -295,6 +302,10 @@ func TestTypes_Repo_Setters(t *testing.T) {
 		if test.repo.GetInstallID() != test.want.GetInstallID() {
 			t.Errorf("SetInstallID is %v, want %v", test.repo.GetInstallID(), test.want.GetInstallID())
 		}
+
+		if !reflect.DeepEqual(test.repo.GetCustomProps(), test.want.GetCustomProps()) {
+			t.Errorf("SetCustomProps is %v, want %v", test.repo.GetCustomProps(), test.want.GetCustomProps())
+		}
 	}
 }
 
@@ -324,7 +335,8 @@ func TestTypes_Repo_String(t *testing.T) {
   Topics: %s,
   Trusted: %t,
   Visibility: %s,
-  InstallID: %d
+  InstallID: %d,
+  CustomProps: %v
 }`,
 		r.GetActive(),
 		r.GetAllowEvents().List(),
@@ -348,6 +360,7 @@ func TestTypes_Repo_String(t *testing.T) {
 		r.GetTrusted(),
 		r.GetVisibility(),
 		r.GetInstallID(),
+		r.GetCustomProps(),
 	)
 
 	// run test
@@ -387,6 +400,7 @@ func testRepo() *Repo {
 	r.SetApproveBuild(constants.ApproveNever)
 	r.SetApprovalTimeout(7)
 	r.SetInstallID(123)
+	r.SetCustomProps(map[string]any{"foo": "bar"})
 
 	return r
 }

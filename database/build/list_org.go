@@ -15,31 +15,19 @@ import (
 // ListBuildsForOrg gets a list of builds by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[string]interface{}, page, perPage int) ([]*api.Build, int64, error) {
+func (e *Engine) ListBuildsForOrg(ctx context.Context, org string, filters map[string]interface{}, page, perPage int) ([]*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("listing builds for org %s", org)
 
 	// variables to store query results and return values
-	count := int64(0)
 	b := new([]types.Build)
 	builds := []*api.Build{}
-
-	// count the results
-	count, err := e.CountBuildsForOrg(ctx, org, filters)
-	if err != nil {
-		return builds, 0, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return builds, 0, nil
-	}
 
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableBuild).
 		Preload("Repo").
@@ -55,7 +43,7 @@ func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[s
 		Find(&b).
 		Error
 	if err != nil {
-		return nil, count, err
+		return nil, err
 	}
 
 	// iterate through all query results
@@ -71,5 +59,5 @@ func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[s
 		builds = append(builds, tmp.ToAPI())
 	}
 
-	return builds, count, nil
+	return builds, nil
 }

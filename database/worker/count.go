@@ -9,7 +9,7 @@ import (
 )
 
 // CountWorkers gets the count of all workers from the database.
-func (e *engine) CountWorkers(ctx context.Context) (int64, error) {
+func (e *Engine) CountWorkers(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all workers")
 
 	// variable to store query results

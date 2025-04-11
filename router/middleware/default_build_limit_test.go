@@ -13,9 +13,9 @@ import (
 
 func TestMiddleware_DefaultBuildLimit(t *testing.T) {
 	// setup types
-	var got int64
+	var got int32
 
-	want := int64(10)
+	want := int32(10)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -27,7 +27,7 @@ func TestMiddleware_DefaultBuildLimit(t *testing.T) {
 	// setup mock server
 	engine.Use(DefaultBuildLimit(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("defaultBuildLimit").(int64)
+		got = c.Value("defaultBuildLimit").(int32)
 
 		c.Status(http.StatusOK)
 	})

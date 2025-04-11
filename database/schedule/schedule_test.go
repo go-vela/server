@@ -51,7 +51,7 @@ func TestSchedule_New(t *testing.T) {
 		key          string
 		logger       *logrus.Entry
 		skipCreation bool
-		want         *engine
+		want         *Engine
 	}{
 		{
 			failure:      false,
@@ -59,7 +59,7 @@ func TestSchedule_New(t *testing.T) {
 			client:       _postgres,
 			logger:       logger,
 			skipCreation: false,
-			want: &engine{
+			want: &Engine{
 				ctx:    context.TODO(),
 				client: _postgres,
 				config: &config{SkipCreation: false},
@@ -72,7 +72,7 @@ func TestSchedule_New(t *testing.T) {
 			client:       _sqlite,
 			logger:       logger,
 			skipCreation: false,
-			want: &engine{
+			want: &Engine{
 				ctx:    context.TODO(),
 				client: _sqlite,
 				config: &config{SkipCreation: false},
@@ -111,7 +111,7 @@ func TestSchedule_New(t *testing.T) {
 }
 
 // testPostgres is a helper function to create a Postgres engine for testing.
-func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
+func testPostgres(t *testing.T) (*Engine, sqlmock.Sqlmock) {
 	// create the new mock sql database
 	//
 	// https://pkg.go.dev/github.com/DATA-DOG/go-sqlmock#New
@@ -148,7 +148,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 }
 
 // testSqlite is a helper function to create a Sqlite engine for testing.
-func testSqlite(t *testing.T) *engine {
+func testSqlite(t *testing.T) *Engine {
 	_sqlite, err := gorm.Open(
 		sqlite.Open("file::memory:?cache=shared"),
 		&gorm.Config{SkipDefaultTransaction: true},

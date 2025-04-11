@@ -16,7 +16,7 @@ ON workers (hostname, address);
 )
 
 // CreateWorkerIndexes creates the indexes for the workers table in the database.
-func (e *engine) CreateWorkerIndexes(ctx context.Context) error {
+func (e *Engine) CreateWorkerIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for workers table")
 
 	// create the hostname and address columns index for the workers table

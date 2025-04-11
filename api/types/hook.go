@@ -13,7 +13,7 @@ type Hook struct {
 	ID          *int64  `json:"id,omitempty"`
 	Repo        *Repo   `json:"repo,omitempty"`
 	Build       *Build  `json:"build,omitempty"`
-	Number      *int    `json:"number,omitempty"`
+	Number      *int64  `json:"number,omitempty"`
 	SourceID    *string `json:"source_id,omitempty"`
 	Created     *int64  `json:"created,omitempty"`
 	Host        *string `json:"host,omitempty"`
@@ -69,7 +69,7 @@ func (h *Hook) GetBuild() *Build {
 //
 // When the provided Hook type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (h *Hook) GetNumber() int {
+func (h *Hook) GetNumber() int64 {
 	// return zero value if Hook type or BuildID field is nil
 	if h == nil || h.Number == nil {
 		return 0
@@ -251,7 +251,7 @@ func (h *Hook) SetBuild(v *Build) {
 //
 // When the provided Hook type is nil, it
 // will set nothing and immediately return.
-func (h *Hook) SetNumber(v int) {
+func (h *Hook) SetNumber(v int64) {
 	// return if Hook type is nil
 	if h == nil {
 		return

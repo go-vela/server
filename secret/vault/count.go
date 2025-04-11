@@ -14,7 +14,7 @@ import (
 )
 
 // Count counts a list of secrets.
-func (c *client) Count(_ context.Context, sType, org, name string, _ []string) (i int64, err error) {
+func (c *Client) Count(_ context.Context, sType, org, name string, _ []string) (i int64, err error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":  org,

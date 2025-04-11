@@ -12,7 +12,7 @@ import (
 )
 
 // CountPipelinesForRepo gets the count of pipelines by repo ID from the database.
-func (e *engine) CountPipelinesForRepo(ctx context.Context, r *api.Repo) (int64, error) {
+func (e *Engine) CountPipelinesForRepo(ctx context.Context, r *api.Repo) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

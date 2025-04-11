@@ -12,7 +12,7 @@ import (
 )
 
 // CreateLog creates a new log in the database.
-func (e *engine) CreateLog(ctx context.Context, l *api.Log) error {
+func (e *Engine) CreateLog(ctx context.Context, l *api.Log) error {
 	// check what the log entry is for
 	switch {
 	case l.GetServiceID() > 0:

@@ -13,7 +13,7 @@ import (
 )
 
 // UpdateStep updates an existing step in the database.
-func (e *engine) UpdateStep(ctx context.Context, s *api.Step) (*api.Step, error) {
+func (e *Engine) UpdateStep(ctx context.Context, s *api.Step) (*api.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
 	}).Tracef("updating step %s in the database", s.GetName())

@@ -37,11 +37,11 @@ type StepInterface interface {
 	// GetStep defines a function that gets a step by ID.
 	GetStep(context.Context, int64) (*api.Step, error)
 	// GetStepForBuild defines a function that gets a step by number and build ID.
-	GetStepForBuild(context.Context, *api.Build, int) (*api.Step, error)
+	GetStepForBuild(context.Context, *api.Build, int32) (*api.Step, error)
 	// ListSteps defines a function that gets a list of all steps.
 	ListSteps(ctx context.Context) ([]*api.Step, error)
 	// ListStepsForBuild defines a function that gets a list of steps by build ID.
-	ListStepsForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*api.Step, int64, error)
+	ListStepsForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*api.Step, error)
 	// ListStepImageCount defines a function that gets a list of all step images and the count of their occurrence.
 	ListStepImageCount(context.Context) (map[string]float64, error)
 	// ListStepStatusCount defines a function that gets a list of all step statuses and the count of their occurrence.

@@ -15,7 +15,7 @@ const (
 )
 
 // CloneStage injects the clone stage process into a yaml configuration.
-func (c *client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
+func (c *Client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
 	// check if the compiler is setup for a local pipeline
 	if c.local {
 		// skip injecting the clone process
@@ -51,7 +51,7 @@ func (c *client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
 }
 
 // CloneStep injects the clone step process into a yaml configuration.
-func (c *client) CloneStep(p *yaml.Build) (*yaml.Build, error) {
+func (c *Client) CloneStep(p *yaml.Build) (*yaml.Build, error) {
 	// check if the compiler is setup for a local pipeline
 	if c.local {
 		// skip injecting the clone process

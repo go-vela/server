@@ -3,14 +3,13 @@
 package tracing
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"maps"
 	"os"
-	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
@@ -51,19 +50,19 @@ type Task struct {
 	Active bool
 }
 
-// FromCLIContext takes cli context and returns a tracing config to supply to traceable services.
-func FromCLIContext(c *cli.Context) (*Client, error) {
+// FromCLICommand takes cli context and returns a tracing config to supply to traceable services.
+func FromCLICommand(ctx context.Context, c *cli.Command) (*Client, error) {
 	cfg := Config{
 		EnableTracing:        c.Bool("tracing.enable"),
 		ServiceName:          c.String("tracing.service.name"),
 		ExporterURL:          c.String("tracing.exporter.endpoint"),
 		CertPath:             c.String("tracing.exporter.cert_path"),
 		TLSMinVersion:        c.String("tracing.exporter.tls-min-version"),
-		ResourceAttributes:   map[string]string{},
-		TraceStateAttributes: map[string]string{},
-		SpanAttributes:       map[string]string{},
+		ResourceAttributes:   c.StringMap("tracing.resource.attributes"),
+		TraceStateAttributes: c.StringMap("tracing.tracestate.attributes"),
+		SpanAttributes:       c.StringMap("tracing.span.attributes"),
 		Sampler: Sampler{
-			PerSecond: c.Float64("tracing.sampler.persecond"),
+			PerSecond: c.Float("tracing.sampler.persecond"),
 			Tasks:     Tasks{},
 		},
 	}
@@ -82,19 +81,15 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 		}
 	}
 
-	// identity func used to map a string back to itself
-	identityFn := func(s string) string { return s }
-
-	// span attributes
-	cfg.SpanAttributes = keyValueSliceToMap(c.StringSlice("tracing.span.attributes"), identityFn)
-
-	// tracestate attributes
-	cfg.TraceStateAttributes = keyValueSliceToMap(c.StringSlice("tracing.tracestate.attributes"), identityFn)
-
-	// merge static resource attributes with those fetched from the environment using os.Getenv
-	cfg.ResourceAttributes = keyValueSliceToMap(c.StringSlice("tracing.resource.attributes"), identityFn)
-	m := keyValueSliceToMap(c.StringSlice("tracing.resource.env_attributes"), os.Getenv)
-	maps.Copy(cfg.ResourceAttributes, m)
+	m := c.StringMap("tracing.resource.env_attributes")
+	for k, v := range m {
+		if len(v) > 0 {
+			envVar := os.Getenv(v)
+			if len(envVar) > 0 {
+				cfg.ResourceAttributes[k] = envVar
+			}
+		}
+	}
 
 	client := &Client{
 		Config: cfg,
@@ -102,7 +97,7 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 
 	if cfg.EnableTracing {
 		// initialize the tracer provider and assign it to the client
-		tracer, err := initTracer(c.Context, cfg)
+		tracer, err := initTracer(ctx, cfg)
 		if err != nil {
 			return nil, err
 		}
@@ -111,28 +106,4 @@ func FromCLIContext(c *cli.Context) (*Client, error) {
 	}
 
 	return client, nil
-}
-
-// keyValueSliceToMap converts a slice of key=value strings to a map of key to value using the supplied map function.
-func keyValueSliceToMap(kv []string, fn func(string) string) map[string]string {
-	m := map[string]string{}
-
-	for _, attr := range kv {
-		parts := strings.SplitN(attr, "=", 2)
-
-		if len(parts) != 2 || len(parts[1]) == 0 {
-			continue
-		}
-
-		k := parts[0]
-		v := fn(parts[1])
-
-		if len(v) == 0 {
-			continue
-		}
-
-		m[k] = v
-	}
-
-	return m
 }

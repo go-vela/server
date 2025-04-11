@@ -10,11 +10,11 @@ import (
 )
 
 // EngineOpt represents a configuration option to initialize the database engine for Settings.
-type EngineOpt func(*engine) error
+type EngineOpt func(*Engine) error
 
 // WithClient sets the gorm.io/gorm client in the database engine for Settings.
 func WithClient(client *gorm.DB) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the gorm.io/gorm client in the settings engine
 		e.client = client
 
@@ -24,7 +24,7 @@ func WithClient(client *gorm.DB) EngineOpt {
 
 // WithLogger sets the github.com/sirupsen/logrus logger in the database engine for Settings.
 func WithLogger(logger *logrus.Entry) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the github.com/sirupsen/logrus logger in the settings engine
 		e.logger = logger
 
@@ -34,7 +34,7 @@ func WithLogger(logger *logrus.Entry) EngineOpt {
 
 // WithSkipCreation sets the skip creation logic in the database engine for Settings.
 func WithSkipCreation(skipCreation bool) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set to skip creating tables and indexes in the settings engine
 		e.config.SkipCreation = skipCreation
 
@@ -44,7 +44,7 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 
 // WithContext sets the context in the database engine for Settings.
 func WithContext(ctx context.Context) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		e.ctx = ctx
 
 		return nil

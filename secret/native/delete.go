@@ -12,7 +12,7 @@ import (
 )
 
 // Delete deletes a secret.
-func (c *client) Delete(ctx context.Context, sType, org, name, path string) error {
+func (c *Client) Delete(ctx context.Context, sType, org, name, path string) error {
 	// capture the secret from the native service
 	s, err := c.Get(ctx, sType, org, name, path)
 	if err != nil {

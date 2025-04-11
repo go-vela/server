@@ -58,7 +58,7 @@ func TestRepo_Engine_CountReposForOrg(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

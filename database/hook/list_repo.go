@@ -13,33 +13,21 @@ import (
 )
 
 // ListHooksForRepo gets a list of hooks by repo ID from the database.
-func (e *engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Hook, int64, error) {
+func (e *Engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 	}).Tracef("listing hooks for repo %s", r.GetFullName())
 
 	// variables to store query results and return value
-	count := int64(0)
 	h := new([]types.Hook)
 	hooks := []*api.Hook{}
-
-	// count the results
-	count, err := e.CountHooksForRepo(ctx, r)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return hooks, 0, nil
-	}
 
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableHook).
 		Preload("Build").
@@ -50,7 +38,7 @@ func (e *engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPag
 		Find(&h).
 		Error
 	if err != nil {
-		return nil, count, err
+		return nil, err
 	}
 
 	// iterate through all query results
@@ -64,5 +52,5 @@ func (e *engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPag
 		hooks = append(hooks, result)
 	}
 
-	return hooks, count, nil
+	return hooks, nil
 }

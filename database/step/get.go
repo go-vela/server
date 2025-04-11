@@ -11,7 +11,7 @@ import (
 )
 
 // GetStep gets a step by ID from the database.
-func (e *engine) GetStep(ctx context.Context, id int64) (*api.Step, error) {
+func (e *Engine) GetStep(ctx context.Context, id int64) (*api.Step, error) {
 	e.logger.Tracef("getting step %d", id)
 
 	// variable to store query results

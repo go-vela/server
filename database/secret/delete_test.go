@@ -90,7 +90,7 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		secret   *api.Secret
 	}{
 		{

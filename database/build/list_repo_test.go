@@ -8,11 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
@@ -51,17 +50,8 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected count query result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3`).WithArgs(1, AnyArgument{}, 0).WillReturnRows(_rows)
-
 	// create expected query result in mock
-	_rows = sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
-		AddRow(2, 1, nil, 2, 0, "", "", "", "", 0, 2, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
-		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
+	_rows := testutils.CreateMockRows([]any{*types.BuildFromAPI(_buildTwo), *types.BuildFromAPI(_buildOne)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3 ORDER BY number DESC LIMIT $4`).WithArgs(1, AnyArgument{}, 0, 10).WillReturnRows(_rows)
@@ -83,7 +73,7 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Build
 	}{
 		{
@@ -105,7 +95,7 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListBuildsForRepo(context.TODO(), _repo, filters, time.Now().UTC().Unix(), 0, 1, 10)
+			got, err := test.database.ListBuildsForRepo(context.TODO(), _repo, filters, time.Now().UTC().Unix(), 0, 1, 10)
 
 			if test.failure {
 				if err == nil {

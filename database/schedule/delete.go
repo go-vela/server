@@ -13,7 +13,7 @@ import (
 )
 
 // DeleteSchedule deletes an existing schedule from the database.
-func (e *engine) DeleteSchedule(ctx context.Context, s *api.Schedule) error {
+func (e *Engine) DeleteSchedule(ctx context.Context, s *api.Schedule) error {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("deleting schedule %s in the database", s.GetName())

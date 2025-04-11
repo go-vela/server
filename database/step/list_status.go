@@ -10,7 +10,7 @@ import (
 )
 
 // ListStepStatusCount gets a list of all step statuses and the count of their occurrence from the database.
-func (e *engine) ListStepStatusCount(ctx context.Context) (map[string]float64, error) {
+func (e *Engine) ListStepStatusCount(ctx context.Context) (map[string]float64, error) {
 	e.logger.Tracef("getting count of all statuses for steps")
 
 	// variables to store query results and return value

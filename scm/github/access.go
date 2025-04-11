@@ -6,14 +6,14 @@ import (
 	"context"
 	"strings"
 
-	"github.com/google/go-github/v69/github"
+	"github.com/google/go-github/v71/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 )
 
 // OrgAccess captures the user's access level for an org.
-func (c *client) OrgAccess(ctx context.Context, u *api.User, org string) (string, error) {
+func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),
@@ -48,7 +48,7 @@ func (c *client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 }
 
 // RepoAccess captures the user's access level for a repo.
-func (c *client) RepoAccess(ctx context.Context, name, token, org, repo string) (string, error) {
+func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
@@ -79,7 +79,7 @@ func (c *client) RepoAccess(ctx context.Context, name, token, org, repo string) 
 }
 
 // TeamAccess captures the user's access level for a team.
-func (c *client) TeamAccess(ctx context.Context, u *api.User, org, team string) (string, error) {
+func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -141,7 +141,7 @@ func (c *client) TeamAccess(ctx context.Context, u *api.User, org, team string) 
 }
 
 // ListUsersTeamsForOrg captures the user's teams for an org.
-func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *api.User, org string) ([]string, error) {
+func (c *Client) ListUsersTeamsForOrg(ctx context.Context, u *api.User, org string) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),
@@ -185,7 +185,7 @@ func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *api.User, org stri
 }
 
 // RepoContributor lists all contributors from a repository and checks if the sender is one of the contributors.
-func (c *client) RepoContributor(ctx context.Context, owner *api.User, sender, org, repo string) (bool, error) {
+func (c *Client) RepoContributor(ctx context.Context, owner *api.User, sender, org, repo string) (bool, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,

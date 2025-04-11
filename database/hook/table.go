@@ -14,12 +14,12 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 hooks (
-	id           SERIAL PRIMARY KEY,
-	repo_id      INTEGER,
-	build_id     INTEGER,
-	number       INTEGER,
+	id           BIGSERIAL PRIMARY KEY,
+	repo_id      BIGINT,
+	build_id     BIGINT,
+	number       BIGINT,
 	source_id    VARCHAR(250),
-	created      INTEGER,
+	created      BIGINT,
 	host         VARCHAR(250),
 	event        VARCHAR(250),
 	event_action VARCHAR(250),
@@ -27,7 +27,7 @@ hooks (
 	error        VARCHAR(500),
 	status       VARCHAR(250),
 	link         VARCHAR(1000),
-	webhook_id   INTEGER,
+	webhook_id   BIGINT,
 	UNIQUE(repo_id, number)
 );
 `
@@ -57,7 +57,7 @@ hooks (
 )
 
 // CreateHookTable creates the hooks table in the database.
-func (e *engine) CreateHookTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateHookTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating hooks table")
 
 	// handle the driver provided to create the table

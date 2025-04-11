@@ -12,7 +12,7 @@ import (
 
 func TestExecutor_FromContext(t *testing.T) {
 	// setup types
-	_service, _ := New(&Setup{})
+	_service, _ := New(context.Background(), &Setup{})
 
 	// setup tests
 	tests := []struct {
@@ -20,7 +20,7 @@ func TestExecutor_FromContext(t *testing.T) {
 		want    Service
 	}{
 		{
-			//nolint:staticcheck,revive // ignore using string with context value
+			//nolint:revive // ignore using string with context value
 			context: context.WithValue(context.Background(), key, _service),
 			want:    _service,
 		},
@@ -29,7 +29,7 @@ func TestExecutor_FromContext(t *testing.T) {
 			want:    nil,
 		},
 		{
-			//nolint:staticcheck,revive // ignore using string with context value
+			//nolint:revive // ignore using string with context value
 			context: context.WithValue(context.Background(), key, "foo"),
 			want:    nil,
 		},
@@ -47,7 +47,7 @@ func TestExecutor_FromContext(t *testing.T) {
 
 func TestExecutor_FromGinContext(t *testing.T) {
 	// setup types
-	_service, _ := New(&Setup{})
+	_service, _ := New(context.Background(), &Setup{})
 
 	// setup tests
 	tests := []struct {
@@ -86,24 +86,9 @@ func TestExecutor_FromGinContext(t *testing.T) {
 	}
 }
 
-func TestExecutor_WithContext(t *testing.T) {
-	// setup types
-	_service, _ := New(&Setup{})
-
-	//nolint:staticcheck,revive // ignore using string with context value
-	want := context.WithValue(context.Background(), key, _service)
-
-	// run test
-	got := WithContext(context.Background(), _service)
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("WithContext is %v, want %v", got, want)
-	}
-}
-
 func TestExecutor_WithGinContext(t *testing.T) {
 	// setup types
-	_service, _ := New(&Setup{})
+	_service, _ := New(context.Background(), &Setup{})
 
 	want := new(gin.Context)
 	want.Set(key, _service)

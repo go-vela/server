@@ -41,7 +41,7 @@ type PipelineInterface interface {
 	// ListPipelines defines a function that gets a list of all pipelines.
 	ListPipelines(context.Context) ([]*api.Pipeline, error)
 	// ListPipelinesForRepo defines a function that gets a list of pipelines by repo ID.
-	ListPipelinesForRepo(context.Context, *api.Repo, int, int) ([]*api.Pipeline, int64, error)
+	ListPipelinesForRepo(context.Context, *api.Repo, int, int) ([]*api.Pipeline, error)
 	// UpdatePipeline defines a function that updates an existing pipeline.
 	UpdatePipeline(context.Context, *api.Pipeline) (*api.Pipeline, error)
 }

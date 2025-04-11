@@ -14,7 +14,7 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 secrets (
-	id                 SERIAL PRIMARY KEY,
+	id                 BIGSERIAL PRIMARY KEY,
 	type               VARCHAR(100),
 	org                VARCHAR(250),
 	repo               VARCHAR(250),
@@ -22,12 +22,12 @@ secrets (
 	name               VARCHAR(250),
 	value              BYTEA,
 	images             VARCHAR(1000),
-	allow_events       INTEGER,
+	allow_events       BIGINT,
 	allow_command      BOOLEAN,
 	allow_substitution BOOLEAN,
-	created_at         INTEGER,
+	created_at         BIGINT,
 	created_by         VARCHAR(250),
-	updated_at         INTEGER,
+	updated_at         BIGINT,
 	updated_by         VARCHAR(250),
 	UNIQUE(type, org, repo, name),
 	UNIQUE(type, org, team, name)
@@ -61,7 +61,7 @@ secrets (
 )
 
 // CreateSecretTable creates the secrets table in the database.
-func (e *engine) CreateSecretTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateSecretTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating secrets table")
 
 	// handle the driver provided to create the table

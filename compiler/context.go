@@ -52,7 +52,7 @@ func FromGinContext(c *gin.Context) Engine {
 func WithContext(c context.Context, e Engine) context.Context {
 	// set the compiler Engine in the context.Context
 	//
-	//nolint:revive,staticcheck // ignore using string with context value
+	//nolint:revive // ignore using string with context value
 	return context.WithValue(c, key, e)
 }
 

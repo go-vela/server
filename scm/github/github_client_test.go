@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/go-github/v69/github"
+	"github.com/google/go-github/v71/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
@@ -61,7 +61,7 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		name          string
-		client        *client
+		client        *Client
 		repo          *api.Repo
 		installation  *github.Installation
 		appsTransport bool

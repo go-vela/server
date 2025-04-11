@@ -11,30 +11,18 @@ import (
 )
 
 // ListLogsForBuild gets a list of logs by build ID from the database.
-func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPage int) ([]*api.Log, int64, error) {
+func (e *Engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPage int) ([]*api.Log, error) {
 	e.logger.Tracef("listing logs for build %d", b.GetID())
 
 	// variables to store query results and return value
-	count := int64(0)
 	l := new([]types.Log)
 	logs := []*api.Log{}
-
-	// count the results
-	count, err := e.CountLogsForBuild(ctx, b)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return logs, 0, nil
-	}
 
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableLog).
 		Where("build_id = ?", b.GetID()).
@@ -45,7 +33,7 @@ func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPa
 		Find(&l).
 		Error
 	if err != nil {
-		return nil, count, err
+		return nil, err
 	}
 
 	// iterate through all query results
@@ -66,5 +54,5 @@ func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPa
 		logs = append(logs, tmp.ToAPI())
 	}
 
-	return logs, count, nil
+	return logs, nil
 }

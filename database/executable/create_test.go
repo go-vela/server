@@ -35,7 +35,7 @@ VALUES ($1,$2,$3) RETURNING "id"`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

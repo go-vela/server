@@ -11,27 +11,15 @@ import (
 )
 
 // ListSteps gets a list of all steps from the database.
-func (e *engine) ListSteps(ctx context.Context) ([]*api.Step, error) {
+func (e *Engine) ListSteps(ctx context.Context) ([]*api.Step, error) {
 	e.logger.Trace("listing all steps")
 
 	// variables to store query results and return value
-	count := int64(0)
 	w := new([]types.Step)
 	steps := []*api.Step{}
 
-	// count the results
-	count, err := e.CountSteps(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return steps, nil
-	}
-
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableStep).
 		Find(&w).

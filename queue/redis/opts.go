@@ -10,11 +10,11 @@ import (
 )
 
 // ClientOpt represents a configuration option to initialize the queue client for Redis.
-type ClientOpt func(*client) error
+type ClientOpt func(*Client) error
 
 // WithAddress sets the address in the queue client for Redis.
 func WithAddress(address string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring address in redis queue client")
 
 		// check if the address provided is empty
@@ -31,7 +31,7 @@ func WithAddress(address string) ClientOpt {
 
 // WithRoutes sets the routes in the queue client for Redis.
 func WithRoutes(routes ...string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring routes in redis queue client")
 
 		// check if the routes provided are empty
@@ -48,7 +48,7 @@ func WithRoutes(routes ...string) ClientOpt {
 
 // WithCluster sets the clustering mode in the queue client for Redis.
 func WithCluster(cluster bool) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring clustering mode in redis queue client")
 
 		// set the queue clustering mode in the redis client
@@ -60,7 +60,7 @@ func WithCluster(cluster bool) ClientOpt {
 
 // WithTimeout sets the timeout in the queue client for Redis.
 func WithTimeout(timeout time.Duration) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring timeout in redis queue client")
 
 		// set the queue timeout in the redis client
@@ -72,7 +72,7 @@ func WithTimeout(timeout time.Duration) ClientOpt {
 
 // WithPrivateKey sets the private key in the queue client for Redis.
 func WithPrivateKey(key string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring private key in redis queue client")
 
 		if len(key) == 0 {
@@ -110,7 +110,7 @@ func WithPrivateKey(key string) ClientOpt {
 
 // WithPublicKey sets the public key in the queue client for Redis.
 func WithPublicKey(key string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Tracef("configuring public key in redis queue client")
 
 		if len(key) == 0 {

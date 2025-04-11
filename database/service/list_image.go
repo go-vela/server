@@ -10,7 +10,7 @@ import (
 )
 
 // ListServiceImageCount gets a list of all service images and the count of their occurrence from the database.
-func (e *engine) ListServiceImageCount(ctx context.Context) (map[string]float64, error) {
+func (e *Engine) ListServiceImageCount(ctx context.Context) (map[string]float64, error) {
 	e.logger.Tracef("getting count of all images for services")
 
 	// variables to store query results and return value

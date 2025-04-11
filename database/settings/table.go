@@ -14,14 +14,14 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 settings (
-	id				SERIAL PRIMARY KEY,
-	compiler			JSON DEFAULT NULL,
-	queue				JSON DEFAULT NULL,
-	repo_allowlist			VARCHAR(1000),
-	schedule_allowlist		VARCHAR(1000),
-	created_at			INTEGER,
-	updated_at			INTEGER,
-	updated_by			VARCHAR(250)
+	id                  SERIAL PRIMARY KEY,
+	compiler            JSON DEFAULT NULL,
+	queue               JSON DEFAULT NULL,
+	repo_allowlist      VARCHAR(1000),
+	schedule_allowlist  VARCHAR(1000),
+	created_at          BIGINT,
+	updated_at          BIGINT,
+	updated_by          VARCHAR(250)
 );
 `
 
@@ -43,7 +43,7 @@ settings (
 )
 
 // CreateSettingsTable creates the settings table in the database.
-func (e *engine) CreateSettingsTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateSettingsTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating settings table")
 
 	// handle the driver provided to create the table

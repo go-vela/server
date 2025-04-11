@@ -9,7 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	"github.com/go-vela/server/database/testutils"
 )
@@ -25,13 +25,18 @@ func TestJWK_Engine_GetJWK(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
+	kid, ok := _jwk.KeyID()
+	if !ok {
+		t.Errorf("unable to get key ID for jwk")
+	}
+
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "active", "key"},
-	).AddRow(_jwk.KeyID(), true, _jwkBytes)
+	).AddRow(kid, true, _jwkBytes)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs(_jwk.KeyID(), true, 1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs(kid, true, 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -45,7 +50,7 @@ func TestJWK_Engine_GetJWK(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     jwk.RSAPublicKey
 	}{
 		{
@@ -65,7 +70,7 @@ func TestJWK_Engine_GetJWK(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetActiveJWK(context.TODO(), _jwk.KeyID())
+			got, err := test.database.GetActiveJWK(context.TODO(), kid)
 
 			if test.failure {
 				if err == nil {

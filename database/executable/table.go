@@ -14,8 +14,8 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 build_executables (
-	id               SERIAL PRIMARY KEY,
-	build_id         INTEGER,
+	id               BIGSERIAL PRIMARY KEY,
+	build_id         BIGINT,
 	data             BYTEA,
 	UNIQUE(build_id)
 );
@@ -35,7 +35,7 @@ build_executables (
 )
 
 // CreateBuildExecutableTable creates the build executables table in the database.
-func (e *engine) CreateBuildExecutableTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateBuildExecutableTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating build_executables table")
 
 	// handle the driver provided to create the table
