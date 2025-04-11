@@ -276,7 +276,7 @@ func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	hook := &github.Hook{
 		Events: events,
 		Config: &github.HookConfig{
-			URL:         github.Ptr(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
+			URL:         github.Ptr(c.config.ServerWebhookAddress),
 			ContentType: github.Ptr("form"),
 			Secret:      github.Ptr(r.GetHash()),
 		},
