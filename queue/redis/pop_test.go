@@ -22,6 +22,7 @@ func TestRedis_Pop(t *testing.T) {
 	}
 
 	var signed []byte
+
 	var out []byte
 
 	// setup queue item

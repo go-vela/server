@@ -56,6 +56,7 @@ func TestRedis_RouteLength(t *testing.T) {
 				t.Errorf("unable to push item to queue: %v", err)
 			}
 		}
+
 		got, err := _redis.RouteLength(context.Background(), "vela")
 		if err != nil {
 			t.Errorf("RouteLength returned err: %v", err)

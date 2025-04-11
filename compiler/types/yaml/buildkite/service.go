@@ -4,6 +4,7 @@ package buildkite
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
@@ -57,7 +58,7 @@ func (s *ServiceSlice) ToPipeline() *pipeline.ContainerSlice {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the ServiceSlice type.
-func (s *ServiceSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *ServiceSlice) UnmarshalYAML(unmarshal func(any) error) error {
 	// service slice we try unmarshalling to
 	serviceSlice := new([]*Service)
 
@@ -124,11 +125,8 @@ func (s *Service) MergeEnv(environment map[string]string) error {
 		return fmt.Errorf("empty environment provided for service %s", s.Name)
 	}
 
-	// iterate through all environment variables provided
-	for key, value := range environment {
-		// set or update the service environment variable
-		s.Environment[key] = value
-	}
+	// apply environment to service environment
+	maps.Copy(s.Environment, environment)
 
 	return nil
 }

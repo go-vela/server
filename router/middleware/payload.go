@@ -15,7 +15,7 @@ import (
 func Payload() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// bind JSON payload from request to be added to context
-		var payload interface{}
+		var payload any
 		_ = c.BindJSON(&payload)
 
 		body, _ := json.Marshal(&payload)

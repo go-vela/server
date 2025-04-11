@@ -17,7 +17,7 @@ import (
 //
 // Explanation of type "starlark.StringDict":
 // https://pkg.go.dev/go.starlark.net/starlark#StringDict
-func convertTemplateVars(m map[string]interface{}) (*starlark.Dict, error) {
+func convertTemplateVars(m map[string]any) (*starlark.Dict, error) {
 	dict := starlark.NewDict(0)
 
 	// loop through user vars converting provided types to starlark primitives

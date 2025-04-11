@@ -188,10 +188,10 @@ func TestNative_Parse_Parameters(t *testing.T) {
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Image: "plugins/docker:18.09",
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"registry": "index.docker.io",
 					"repo":     "github/octocat",
-					"tags":     []interface{}{"latest", "dev"},
+					"tags":     []any{"latest", "dev"},
 				},
 				Name: "docker",
 				Pull: "always",
@@ -298,10 +298,10 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 				Steps: yaml.StepSlice{
 					&yaml.Step{
 						Image: "plugins/docker:18.09",
-						Parameters: map[string]interface{}{
+						Parameters: map[string]any{
 							"registry": "index.docker.io",
 							"repo":     "github/octocat",
-							"tags":     []interface{}{"latest", "dev"},
+							"tags":     []any{"latest", "dev"},
 						},
 						Name: "publish",
 						Pull: "always",
@@ -403,10 +403,10 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 			},
 			&yaml.Step{
 				Image: "plugins/docker:18.09",
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"registry": "index.docker.io",
 					"repo":     "github/octocat",
-					"tags":     []interface{}{"latest", "dev"},
+					"tags":     []any{"latest", "dev"},
 				},
 				Name: "publish",
 				Pull: "always",
@@ -517,7 +517,6 @@ func TestNative_Parse_Secrets(t *testing.T) {
 	}
 
 	got, _, _, err := client.Parse(b, "", new(yaml.Template))
-
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -594,7 +593,6 @@ func TestNative_Parse_Stages(t *testing.T) {
 	}
 
 	got, _, _, err := client.Parse(b, "", new(yaml.Template))
-
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -672,7 +670,6 @@ func TestNative_Parse_StagesLegacyMergeAnchor(t *testing.T) {
 	}
 
 	got, _, _, err := client.Parse(b, "", new(yaml.Template))
-
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -731,7 +728,6 @@ func TestNative_Parse_Steps(t *testing.T) {
 	}
 
 	got, _, _, err := client.Parse(b, "", new(yaml.Template))
-
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -760,7 +756,6 @@ func TestNative_ParseBytes_Metadata(t *testing.T) {
 	}
 
 	got, _, _, err := ParseBytes(b)
-
 	if err != nil {
 		t.Errorf("ParseBytes returned err: %v", err)
 	}
@@ -809,7 +804,6 @@ func TestNative_ParseFile_Metadata(t *testing.T) {
 	defer f.Close()
 
 	got, _, _, err := ParseFile(f)
-
 	if err != nil {
 		t.Errorf("ParseFile returned err: %v", err)
 	}
@@ -853,7 +847,6 @@ func TestNative_ParsePath_Metadata(t *testing.T) {
 
 	// run test
 	got, _, _, err := ParsePath("testdata/metadata.yml")
-
 	if err != nil {
 		t.Errorf("ParsePath returned err: %v", err)
 	}
@@ -895,7 +888,6 @@ func TestNative_ParseReader_Metadata(t *testing.T) {
 	}
 
 	got, _, _, err := ParseReader(bytes.NewReader(b))
-
 	if err != nil {
 		t.Errorf("ParseReader returned err: %v", err)
 	}
@@ -937,7 +929,6 @@ func TestNative_ParseString_Metadata(t *testing.T) {
 	}
 
 	got, _, _, err := ParseString(string(b))
-
 	if err != nil {
 		t.Errorf("ParseString returned err: %v", err)
 	}
@@ -968,7 +959,7 @@ func Test_client_Parse(t *testing.T) {
 				Name:  "foo",
 				Image: "alpine",
 				Pull:  "not_present",
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"registry": "foo",
 				},
 			},
@@ -1017,6 +1008,7 @@ func Test_client_Parse(t *testing.T) {
 				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("Parse() mismatch (-want +got):\n%s", diff)
 			}
@@ -1050,7 +1042,8 @@ func Test_client_ParseRaw(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var content interface{}
+			var content any
+
 			var err error
 			switch tt.args.kind {
 			case "byte":
@@ -1070,6 +1063,7 @@ func Test_client_ParseRaw(t *testing.T) {
 				}
 
 				content = bytes.NewReader(b)
+
 				if err != nil {
 					t.Errorf("Reading file returned err: %v", err)
 				}
@@ -1080,11 +1074,13 @@ func Test_client_ParseRaw(t *testing.T) {
 			}
 
 			c := &Client{}
+
 			got, err := c.ParseRaw(content)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseRaw() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("ParseRaw() got = %v, want %v", got, tt.want)
 			}

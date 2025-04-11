@@ -20,7 +20,7 @@ func TestSchedule_ActiveScheduleResp(t *testing.T) {
 
 	tSchedule := reflect.TypeOf(testSchedule)
 
-	for i := 0; i < tSchedule.NumField(); i++ {
+	for i := range tSchedule.NumField() {
 		if reflect.ValueOf(testSchedule).Field(i).IsNil() {
 			t.Errorf("ScheduleResp missing field %s", tSchedule.Field(i).Name)
 		}

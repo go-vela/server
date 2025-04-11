@@ -30,11 +30,8 @@ func (e *Engine) ListLogs(ctx context.Context) ([]*api.Log, error) {
 
 	// iterate through all query results
 	for _, log := range *l {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := log
-
 		// decompress log data
-		err = tmp.Decompress()
+		err = log.Decompress()
 		if err != nil {
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
@@ -43,7 +40,7 @@ func (e *Engine) ListLogs(ctx context.Context) ([]*api.Log, error) {
 		}
 
 		// convert query result to API type
-		logs = append(logs, tmp.ToAPI())
+		logs = append(logs, log.ToAPI())
 	}
 
 	return logs, nil

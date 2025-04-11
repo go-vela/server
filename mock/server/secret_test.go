@@ -20,7 +20,7 @@ func TestSecret_ActiveSecretResp(t *testing.T) {
 
 	tSecret := reflect.TypeOf(testSecret)
 
-	for i := 0; i < tSecret.NumField(); i++ {
+	for i := range tSecret.NumField() {
 		if reflect.ValueOf(testSecret).Field(i).IsNil() {
 			t.Errorf("SecretResp missing field %s", tSecret.Field(i).Name)
 		}

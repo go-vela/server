@@ -32,17 +32,14 @@ func (e *Engine) ListSchedules(ctx context.Context) ([]*api.Schedule, error) {
 
 	// iterate through all query results
 	for _, schedule := range *s {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := schedule
-
 		// decrypt hash value for repo
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		err = schedule.Repo.Decrypt(e.config.EncryptionKey)
 		if err != nil {
-			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
+			e.logger.Errorf("unable to decrypt repo %d: %v", schedule.ID.Int64, err)
 		}
 
 		// convert query result to API type
-		schedules = append(schedules, tmp.ToAPI())
+		schedules = append(schedules, schedule.ToAPI())
 	}
 
 	return schedules, nil

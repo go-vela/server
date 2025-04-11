@@ -15,7 +15,7 @@ import (
 // ListSecretsForRepo gets a list of secrets by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *Engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, page, perPage int) ([]*api.Secret, error) {
+func (e *Engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]any, page, perPage int) ([]*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -48,20 +48,17 @@ func (e *Engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 
 	// iterate through all query results
 	for _, secret := range *s {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := secret
-
-		err = tmp.Decrypt(e.config.EncryptionKey)
+		err = secret.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
 			//
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted secrets
-			e.logger.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
+			e.logger.Errorf("unable to decrypt secret %d: %v", secret.ID.Int64, err)
 		}
 
-		secrets = append(secrets, tmp.ToAPI())
+		secrets = append(secrets, secret.ToAPI())
 	}
 
 	return secrets, nil

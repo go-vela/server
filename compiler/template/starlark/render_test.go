@@ -78,11 +78,14 @@ func TestStarlark_Render(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
+
 			b := &yaml.Build{}
+
 			err = goyaml.Unmarshal(sFile, b)
 			if err != nil {
 				t.Error(err)
 			}
+
 			b.Steps[0].Environment = raw.StringSliceMap{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 			}
@@ -103,11 +106,14 @@ func TestStarlark_Render(t *testing.T) {
 				if err != nil {
 					t.Error(err)
 				}
+
 				w := &yaml.Build{}
+
 				err = goyaml.Unmarshal(wFile, w)
 				if err != nil {
 					t.Error(err)
 				}
+
 				wantSteps := w.Steps
 				wantSecrets := w.Secrets
 				wantServices := w.Services
@@ -116,12 +122,15 @@ func TestStarlark_Render(t *testing.T) {
 				if diff := cmp.Diff(wantSteps, tmplBuild.Steps); diff != "" {
 					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
+
 				if diff := cmp.Diff(wantSecrets, tmplBuild.Secrets); diff != "" {
 					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
+
 				if diff := cmp.Diff(wantServices, tmplBuild.Services); diff != "" {
 					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
+
 				if diff := cmp.Diff(wantEnvironment, tmplBuild.Environment); diff != "" {
 					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
@@ -211,7 +220,7 @@ func TestNative_RenderBuild(t *testing.T) {
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "main",
 				"VELA_REPO_ORG":       "octocat",
-			}, map[string]interface{}{}, tt.execLimit)
+			}, map[string]any{}, tt.execLimit)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RenderBuild() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -222,7 +231,9 @@ func TestNative_RenderBuild(t *testing.T) {
 				if err != nil {
 					t.Error(err)
 				}
+
 				want := &yaml.Build{}
+
 				err = goyaml.Unmarshal(wFile, want)
 				if err != nil {
 					t.Error(err)

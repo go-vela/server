@@ -20,7 +20,7 @@ func TestSettings_GetResp(t *testing.T) {
 
 	tSettings := reflect.TypeOf(testSettings)
 
-	for i := 0; i < tSettings.NumField(); i++ {
+	for i := range tSettings.NumField() {
 		f := reflect.ValueOf(testSettings).Field(i)
 		if f.IsNil() {
 			t.Errorf("SettingsResp missing field %s", tSettings.Field(i).Name)
@@ -38,7 +38,7 @@ func TestSettings_UpdateResp(t *testing.T) {
 
 	tSettings := reflect.TypeOf(testSettings)
 
-	for i := 0; i < tSettings.NumField(); i++ {
+	for i := range tSettings.NumField() {
 		f := reflect.ValueOf(testSettings).Field(i)
 		if f.IsNil() {
 			t.Errorf("UpdateSettingsResp missing field %s", tSettings.Field(i).Name)
@@ -56,7 +56,7 @@ func TestSettings_RestoreResp(t *testing.T) {
 
 	tSettings := reflect.TypeOf(testSettings)
 
-	for i := 0; i < tSettings.NumField(); i++ {
+	for i := range tSettings.NumField() {
 		f := reflect.ValueOf(testSettings).Field(i)
 		if f.IsNil() {
 			t.Errorf("RestoreSettingsResp missing field %s", tSettings.Field(i).Name)

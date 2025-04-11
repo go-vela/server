@@ -127,7 +127,7 @@ import (
 func ListBuildsForRepo(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
-		filters = map[string]interface{}{}
+		filters = map[string]any{}
 		b       []*types.Build
 	)
 

@@ -20,7 +20,7 @@ func TestHook_ActiveHookResp(t *testing.T) {
 
 	tHook := reflect.TypeOf(testHook)
 
-	for i := 0; i < tHook.NumField(); i++ {
+	for i := range tHook.NumField() {
 		if reflect.ValueOf(testHook).Field(i).IsNil() {
 			t.Errorf("HookResp missing field %s", tHook.Field(i).Name)
 		}

@@ -28,7 +28,6 @@ const (
 
 // Server and worker queue drivers.
 const (
-
 	// DriverKafka defines the driver type when integrating with a Kafka queue.
 	DriverKafka = "kafka"
 

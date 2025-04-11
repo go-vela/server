@@ -4,6 +4,7 @@ package internal
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	bkYaml "github.com/buildkite/yaml"
@@ -138,7 +139,7 @@ func collapseMergeAnchors(node *yaml.Node, warnings []string, warningPrefix stri
 				index := keysToRemove[i]
 
 				warnings = append(warnings, fmt.Sprintf("%s%d:duplicate << keys in single YAML map", warningPrefix, node.Content[index].Line))
-				node.Content = append(node.Content[:index], node.Content[index+2:]...)
+				node.Content = slices.Delete(node.Content, index, index+2)
 			}
 		}
 

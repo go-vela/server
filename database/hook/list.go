@@ -33,15 +33,12 @@ func (e *Engine) ListHooks(ctx context.Context) ([]*api.Hook, error) {
 
 	// iterate through all query results
 	for _, hook := range *h {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := hook
-
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		err = hook.Repo.Decrypt(e.config.EncryptionKey)
 		if err != nil {
-			e.logger.Errorf("unable to decrypt repo for hook %d: %v", tmp.ID.Int64, err)
+			e.logger.Errorf("unable to decrypt repo for hook %d: %v", hook.ID.Int64, err)
 		}
 
-		hooks = append(hooks, tmp.ToAPI())
+		hooks = append(hooks, hook.ToAPI())
 	}
 
 	return hooks, nil

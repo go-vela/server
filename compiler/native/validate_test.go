@@ -603,7 +603,7 @@ func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
 
 	reportSteps := pipeline.ContainerSlice{}
 
-	for i := 0; i < 12; i++ {
+	for i := range 12 {
 		reportStep := &pipeline.Container{
 			Commands: raw.StringSlice{"echo hello"},
 			Image:    "alpine",

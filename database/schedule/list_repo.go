@@ -42,10 +42,7 @@ func (e *Engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, pe
 
 	// iterate through all query results
 	for _, schedule := range *s {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := schedule
-
-		result := tmp.ToAPI()
+		result := schedule.ToAPI()
 		result.SetRepo(r)
 
 		// convert query result to API type

@@ -20,7 +20,7 @@ func TestLog_ActiveLogResp(t *testing.T) {
 
 	tLog := reflect.TypeOf(testLog)
 
-	for i := 0; i < tLog.NumField(); i++ {
+	for i := range tLog.NumField() {
 		if reflect.ValueOf(testLog).Field(i).IsNil() {
 			t.Errorf("LogResp missing field %s", tLog.Field(i).Name)
 		}

@@ -15,7 +15,7 @@ import (
 // ListReposForOrg gets a list of repos by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *Engine) ListReposForOrg(ctx context.Context, org, sortBy string, filters map[string]interface{}, page, perPage int) ([]*api.Repo, error) {
+func (e *Engine) ListReposForOrg(ctx context.Context, org, sortBy string, filters map[string]any, page, perPage int) ([]*api.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("listing repos for org %s", org)
@@ -72,22 +72,19 @@ func (e *Engine) ListReposForOrg(ctx context.Context, org, sortBy string, filter
 
 	// iterate through all query results
 	for _, repo := range *r {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := repo
-
 		// decrypt the fields for the repo
-		err := tmp.Decrypt(e.config.EncryptionKey)
+		err := repo.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
 			//
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted repos
-			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
+			e.logger.Errorf("unable to decrypt repo %d: %v", repo.ID.Int64, err)
 		}
 
 		// convert query result to API type
-		repos = append(repos, tmp.ToAPI())
+		repos = append(repos, repo.ToAPI())
 	}
 
 	return repos, nil

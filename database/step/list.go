@@ -30,10 +30,7 @@ func (e *Engine) ListSteps(ctx context.Context) ([]*api.Step, error) {
 
 	// iterate through all query results
 	for _, step := range *w {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := step
-
-		steps = append(steps, tmp.ToAPI())
+		steps = append(steps, step.ToAPI())
 	}
 
 	return steps, nil

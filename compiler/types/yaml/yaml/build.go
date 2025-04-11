@@ -63,7 +63,7 @@ func (b *Build) ToPipelineAPI() *api.Pipeline {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the Build type.
-func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (b *Build) UnmarshalYAML(unmarshal func(any) error) error {
 	// build we try unmarshalling to
 	build := new(struct {
 		Version     string

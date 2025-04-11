@@ -13,6 +13,7 @@ func TestDatabase_Flags(t *testing.T) {
 	// deep copy flags since they are global variables and will hold onto modifications during testing
 	deepCopyFlags := func(flags []cli.Flag) []cli.Flag {
 		copiedFlags := make([]cli.Flag, len(flags))
+
 		for i, flag := range flags {
 			switch f := flag.(type) {
 			case *cli.StringFlag:
@@ -31,6 +32,7 @@ func TestDatabase_Flags(t *testing.T) {
 				t.Fatalf("unsupported flag type: %T", f)
 			}
 		}
+
 		return copiedFlags
 	}
 
@@ -113,6 +115,7 @@ func TestDatabase_Flags(t *testing.T) {
 				if len(value) == 0 {
 					continue
 				}
+
 				args = append(args, `--`+key+"="+value)
 			}
 

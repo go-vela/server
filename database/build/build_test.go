@@ -135,6 +135,7 @@ func (t NowTimestamp) Match(v driver.Value) bool {
 	if !ok {
 		return false
 	}
+
 	now := time.Now().Unix()
 
 	return now-ts < 10

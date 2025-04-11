@@ -137,21 +137,21 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		failure  bool
 		name     string
 		database *Engine
-		filters  map[string]interface{}
+		filters  map[string]any
 		want     []*api.Build
 	}{
 		{
 			failure:  false,
 			name:     "postgres without filters",
 			database: _postgres,
-			filters:  map[string]interface{}{},
+			filters:  map[string]any{},
 			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
 			name:     "postgres with event filter",
 			database: _postgres,
-			filters: map[string]interface{}{
+			filters: map[string]any{
 				"event": "push",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -160,7 +160,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "postgres with visibility filter",
 			database: _postgres,
-			filters: map[string]interface{}{
+			filters: map[string]any{
 				"visibility": "public",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -169,14 +169,14 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "sqlite3 without filters",
 			database: _sqlite,
-			filters:  map[string]interface{}{},
+			filters:  map[string]any{},
 			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3 with event filter",
 			database: _sqlite,
-			filters: map[string]interface{}{
+			filters: map[string]any{
 				"event": "push",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -185,7 +185,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "sqlite3 with visibility filter",
 			database: _sqlite,
-			filters: map[string]interface{}{
+			filters: map[string]any{
 				"visibility": "public",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},

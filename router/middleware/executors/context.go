@@ -12,7 +12,7 @@ const key = "executors"
 
 // Setter defines a context that enables setting values.
 type Setter interface {
-	Set(string, interface{})
+	Set(string, any)
 }
 
 // FromContext returns the executors associated with this context.

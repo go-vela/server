@@ -47,10 +47,7 @@ func (e *Engine) ListBuildsForDashboardRepo(ctx context.Context, r *api.Repo, br
 
 	// iterate through all query results
 	for _, build := range *b {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := build
-
-		builds = append(builds, tmp.ToAPI())
+		builds = append(builds, build.ToAPI())
 	}
 
 	return builds, nil

@@ -20,7 +20,7 @@ func TestBuild_ActiveBuildResp(t *testing.T) {
 
 	tBuild := reflect.TypeOf(testBuild)
 
-	for i := 0; i < tBuild.NumField(); i++ {
+	for i := range tBuild.NumField() {
 		if reflect.ValueOf(testBuild).Field(i).IsNil() {
 			t.Errorf("BuildResp missing field %s", tBuild.Field(i).Name)
 		}

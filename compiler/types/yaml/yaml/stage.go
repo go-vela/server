@@ -4,6 +4,8 @@ package yaml
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 
 	"github.com/invopop/jsonschema"
 	"gopkg.in/yaml.v3"
@@ -78,10 +80,8 @@ func (s *StageSlice) UnmarshalYAML(v *yaml.Node) error {
 		if stage.Name != "clone" && stage.Name != "init" {
 			// add clone if not present
 			stage.Needs = func(needs []string) []string {
-				for _, s := range needs {
-					if s == "clone" {
-						return needs
-					}
+				if slices.Contains(needs, "clone") {
+					return needs
 				}
 
 				return append(needs, "clone")
@@ -95,7 +95,7 @@ func (s *StageSlice) UnmarshalYAML(v *yaml.Node) error {
 }
 
 // MarshalYAML implements the marshaler interface for the StageSlice type.
-func (s StageSlice) MarshalYAML() (interface{}, error) {
+func (s StageSlice) MarshalYAML() (any, error) {
 	output := new(yaml.Node)
 	output.Kind = yaml.MappingNode
 
@@ -159,11 +159,8 @@ func (s *Stage) MergeEnv(environment map[string]string) error {
 		return fmt.Errorf("empty environment provided for stage %s", s.Name)
 	}
 
-	// iterate through all environment variables provided
-	for key, value := range environment {
-		// set or update the stage environment variable
-		s.Environment[key] = value
-	}
+	// apply environment to stage environment
+	maps.Copy(s.Environment, environment)
 
 	return nil
 }

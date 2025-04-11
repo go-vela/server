@@ -81,7 +81,7 @@ func (c *Client) getAwsToken() (string, time.Duration, error) {
 
 // generateAwsAuthHeader will generate the necessary data
 // to send to the Vault server for generating a token.
-func (c *Client) generateAwsAuthHeader() (map[string]interface{}, error) {
+func (c *Client) generateAwsAuthHeader() (map[string]any, error) {
 	c.Logger.Trace("generating AWS auth headers for vault")
 
 	req, _ := c.AWS.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
@@ -108,7 +108,7 @@ func (c *Client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	// construct the vault STS auth header
 	//
 
-	loginData := map[string]interface{}{
+	loginData := map[string]any{
 		"role":                    c.AWS.Role,
 		"iam_http_request_method": req.HTTPRequest.Method,
 		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(req.HTTPRequest.URL.String())),

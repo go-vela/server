@@ -137,7 +137,7 @@ func (c *Client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 
 		// initialize variable map if not parsed from config
 		if len(step.Template.Variables) == 0 {
-			step.Template.Variables = make(map[string]interface{})
+			step.Template.Variables = make(map[string]any)
 		}
 
 		// inject template name into variables
@@ -251,7 +251,7 @@ func (c *Client) ExpandDeployment(ctx context.Context, b *yaml.Build, tmpls map[
 
 	// initialize variable map if not parsed from config
 	if len(b.Deployment.Template.Variables) == 0 {
-		b.Deployment.Template.Variables = make(map[string]interface{})
+		b.Deployment.Template.Variables = make(map[string]any)
 	}
 
 	tmplBuild, _, err := c.mergeDeployTemplate(bytes, tmpl, &b.Deployment)

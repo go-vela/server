@@ -670,6 +670,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 			request.Header.Set("X-GitHub-Event", "deployment")
 
 			client, _ := NewTest(s.URL)
+
 			wantBuild.SetDeployPayload(tt.args.deploymentPayload)
 
 			want := &internal.Webhook{
@@ -1575,6 +1576,7 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 func TestGitHub_ProcessWebhook_Installation(t *testing.T) {
 	// setup tests
 	var createdHook api.Hook
+
 	createdHook.SetNumber(1)
 	createdHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	createdHook.SetWebhookID(123456)
@@ -1667,6 +1669,7 @@ const (
 func TestGitHub_ProcessWebhook_InstallationRepositories(t *testing.T) {
 	// setup tests
 	var reposAddedHook api.Hook
+
 	reposAddedHook.SetNumber(1)
 	reposAddedHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	reposAddedHook.SetWebhookID(123456)

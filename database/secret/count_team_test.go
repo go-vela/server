@@ -83,7 +83,7 @@ func TestSecret_Engine_CountSecretsForTeam(t *testing.T) {
 		},
 	}
 
-	filters := map[string]interface{}{}
+	filters := map[string]any{}
 
 	// run tests
 	for _, test := range tests {
@@ -189,7 +189,7 @@ func TestSecret_Engine_CountSecretsForTeams(t *testing.T) {
 		},
 	}
 
-	filters := map[string]interface{}{}
+	filters := map[string]any{}
 
 	// run tests
 	for _, test := range tests {

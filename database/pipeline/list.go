@@ -32,20 +32,17 @@ func (e *Engine) ListPipelines(ctx context.Context) ([]*api.Pipeline, error) {
 
 	// iterate through all query results
 	for _, pipeline := range *p {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := pipeline
-
-		err = tmp.Decompress()
+		err = pipeline.Decompress()
 		if err != nil {
 			return nil, err
 		}
 
-		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		err = pipeline.Repo.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			e.logger.Errorf("unable to decrypt repo: %v", err)
 		}
 
-		pipelines = append(pipelines, tmp.ToAPI())
+		pipelines = append(pipelines, pipeline.ToAPI())
 	}
 
 	return pipelines, nil

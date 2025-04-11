@@ -43,12 +43,9 @@ func (e *Engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 
 	// iterate through all query results
 	for _, deployment := range *d {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := deployment
-
 		builds := []*api.Build{}
 
-		for _, a := range tmp.Builds {
+		for _, a := range deployment.Builds {
 			bID, err := strconv.ParseInt(a, 10, 64)
 			if err != nil {
 				return nil, err
@@ -70,7 +67,7 @@ func (e *Engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 			builds = append(builds, b.ToAPI())
 		}
 
-		result := tmp.ToAPI(builds)
+		result := deployment.ToAPI(builds)
 		result.SetRepo(r)
 
 		// convert query result to API type

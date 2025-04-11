@@ -34,6 +34,7 @@ func TestGithub_Config_YML(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/yml.json")
+
 			return
 		}
 
@@ -92,6 +93,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/yml.json")
+
 			return
 		}
 
@@ -149,6 +151,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/yaml.json")
+
 			return
 		}
 
@@ -203,6 +206,7 @@ func TestGithub_Config_Star(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/star.json")
+
 			return
 		}
 
@@ -318,6 +322,7 @@ func TestGithub_Config_Py(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/py.json")
+
 			return
 		}
 
@@ -464,6 +469,7 @@ func TestGithub_Config_BadEncoding(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/yml_bad_encoding.json")
+
 			return
 		}
 
@@ -629,6 +635,7 @@ func TestGithub_Disable_MultipleHooks(t *testing.T) {
 	})
 	engine.DELETE("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
 		count++
+
 		c.Status(http.StatusNoContent)
 	})
 
@@ -1754,6 +1761,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
 				return
 			}
+
 			if got != test.wantToken {
 				t.Errorf("GetNetrcPassword() = %v, want %v", got, test.wantToken)
 			}
@@ -1902,6 +1910,7 @@ func TestGithub_applyGitHubInstallationPermission(t *testing.T) {
 				t.Errorf("ToGitHubAppInstallationPermissions() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if diff := cmp.Diff(tt.wantPerms, got); diff != "" {
 				t.Errorf("ToGitHubAppInstallationPermissions() mismatch (-want +got):\n%s", diff)
 			}

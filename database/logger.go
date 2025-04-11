@@ -37,17 +37,17 @@ func (l *GormLogger) LogMode(logger.LogLevel) logger.Interface {
 }
 
 // Info implements the logger.Interface.
-func (l *GormLogger) Info(ctx context.Context, msg string, args ...interface{}) {
+func (l *GormLogger) Info(ctx context.Context, msg string, args ...any) {
 	l.entry.WithContext(ctx).Info(msg, args)
 }
 
 // Warn implements the logger.Interface.
-func (l *GormLogger) Warn(ctx context.Context, msg string, args ...interface{}) {
+func (l *GormLogger) Warn(ctx context.Context, msg string, args ...any) {
 	l.entry.WithContext(ctx).Warn(msg, args)
 }
 
 // Error implements the logger.Interface.
-func (l *GormLogger) Error(ctx context.Context, msg string, args ...interface{}) {
+func (l *GormLogger) Error(ctx context.Context, msg string, args ...any) {
 	l.entry.WithContext(ctx).Error(msg, args)
 }
 

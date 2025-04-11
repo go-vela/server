@@ -22,7 +22,7 @@ func TestStarlark_toStarlark(t *testing.T) {
 	a = append(a, starlark.Value(starlark.String("bar")))
 
 	type args struct {
-		value interface{}
+		value any
 	}
 
 	tests := []struct {
@@ -56,6 +56,7 @@ func TestStarlark_toStarlark(t *testing.T) {
 				t.Errorf("toStarlark() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("toStarlark() got = %v, want %v", got, tt.want)
 			}

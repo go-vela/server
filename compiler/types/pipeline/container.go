@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"math/rand"
 	"reflect"
 	"strings"
@@ -197,8 +198,8 @@ func (c *Container) Execute(r *RuleData) (bool, error) {
 
 		// check if you need to run a status failure ruleset
 
-		if ((!(c.Ruleset.If.Empty() && c.Ruleset.Unless.Empty()) &&
-			!(c.Ruleset.If.NoStatus() && c.Ruleset.Unless.NoStatus())) || c.Ruleset.If.Parallel) &&
+		if (((!c.Ruleset.If.Empty() || !c.Ruleset.Unless.Empty()) &&
+			(!c.Ruleset.If.NoStatus() || !c.Ruleset.Unless.NoStatus())) || c.Ruleset.If.Parallel) &&
 			match {
 			// approve the need to run the container
 			execute = true
@@ -214,8 +215,8 @@ func (c *Container) Execute(r *RuleData) (bool, error) {
 
 	// check if you need to skip a status failure ruleset
 	if strings.EqualFold(status, constants.StatusSuccess) &&
-		!(c.Ruleset.If.NoStatus() && c.Ruleset.Unless.NoStatus()) &&
-		!(c.Ruleset.If.Empty() && c.Ruleset.Unless.Empty()) && match {
+		(!c.Ruleset.If.NoStatus() || !c.Ruleset.Unless.NoStatus()) &&
+		(!c.Ruleset.If.Empty() || !c.Ruleset.Unless.Empty()) && match {
 		r.Status = constants.StatusSuccess
 
 		match, err = c.Ruleset.Match(r)
@@ -252,11 +253,8 @@ func (c *Container) MergeEnv(environment map[string]string) error {
 		return fmt.Errorf("empty environment provided for container %s", c.ID)
 	}
 
-	// iterate through all environment variables provided
-	for key, value := range environment {
-		// set or update the container environment variable
-		c.Environment[key] = value
-	}
+	// apply environment to container environment
+	maps.Copy(c.Environment, environment)
 
 	return nil
 }
@@ -389,7 +387,7 @@ func (c *Container) Substitute() error {
 // If an ID is too long, use this to generate a random suffix for a truncated ID.
 func dnsSafeRandomString(n int) string {
 	// this function is based on randomString in database/build_test.go
-	var letter = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
+	letter := []rune("abcdefghijklmnopqrstuvwxyz0123456789")
 
 	b := make([]rune, n)
 	for i := range b {

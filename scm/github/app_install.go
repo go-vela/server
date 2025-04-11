@@ -97,7 +97,7 @@ func updateRepoInstallationID(ctx context.Context, webhook *internal.Webhook, r 
 	// Some operations taken during the webhook workflow can lead to race conditions
 	// failing to successfully process the request. This logic ensures we attempt our
 	// best efforts to handle these cases gracefully.
-	for i := 0; i < retryLimit; i++ {
+	for i := range retryLimit {
 		// check if we're on the first iteration of the loop
 		if i > 0 {
 			// incrementally sleep in between retries

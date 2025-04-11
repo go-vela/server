@@ -33,10 +33,7 @@ func (e *Engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *a
 
 	// iterate through all query results
 	for _, build := range *b {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := build
-
-		result := tmp.ToAPI()
+		result := build.ToAPI()
 		result.SetRepo(repo)
 
 		builds = append(builds, result)

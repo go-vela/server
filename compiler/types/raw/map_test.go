@@ -175,7 +175,7 @@ func TestStringSliceMap_Value(t *testing.T) {
 
 func TestStringSliceMap_Scan(t *testing.T) {
 	type args struct {
-		value interface{}
+		value any
 	}
 
 	tests := []struct {

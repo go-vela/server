@@ -114,6 +114,7 @@ func TestSchedule_Engine_ListActiveSchedules(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
+
 	err = _sqlite.client.AutoMigrate(&types.Repo{})
 	if err != nil {
 		t.Errorf("unable to create build table for sqlite: %v", err)

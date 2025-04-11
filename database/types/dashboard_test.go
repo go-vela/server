@@ -94,7 +94,7 @@ func TestTypes_Dashboard_Validate(t *testing.T) {
 	dashRepo.SetName("dashboard-repo")
 
 	dashRepos := []*api.DashboardRepo{}
-	for i := 0; i < 11; i++ {
+	for range 11 {
 		dashRepos = append(dashRepos, dashRepo)
 	}
 

@@ -29,9 +29,9 @@ type RepoInterface interface {
 	// CountRepos defines a function that gets the count of all repos.
 	CountRepos(context.Context) (int64, error)
 	// CountReposForOrg defines a function that gets the count of repos by org name.
-	CountReposForOrg(context.Context, string, map[string]interface{}) (int64, error)
+	CountReposForOrg(context.Context, string, map[string]any) (int64, error)
 	// CountReposForUser defines a function that gets the count of repos by user ID.
-	CountReposForUser(context.Context, *api.User, map[string]interface{}) (int64, error)
+	CountReposForUser(context.Context, *api.User, map[string]any) (int64, error)
 	// CreateRepo defines a function that creates a new repo.
 	CreateRepo(context.Context, *api.Repo) (*api.Repo, error)
 	// DeleteRepo defines a function that deletes an existing repo.
@@ -43,9 +43,9 @@ type RepoInterface interface {
 	// ListRepos defines a function that gets a list of all repos.
 	ListRepos(context.Context) ([]*api.Repo, error)
 	// ListReposForOrg defines a function that gets a list of repos by org name.
-	ListReposForOrg(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Repo, error)
+	ListReposForOrg(context.Context, string, string, map[string]any, int, int) ([]*api.Repo, error)
 	// ListReposForUser defines a function that gets a list of repos by user ID.
-	ListReposForUser(context.Context, *api.User, string, map[string]interface{}, int, int) ([]*api.Repo, error)
+	ListReposForUser(context.Context, *api.User, string, map[string]any, int, int) ([]*api.Repo, error)
 	// UpdateRepo defines a function that updates an existing repo.
 	UpdateRepo(context.Context, *api.Repo) (*api.Repo, error)
 }

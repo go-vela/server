@@ -15,6 +15,7 @@ import (
 func TestMiddleware_ScheduleFrequency(t *testing.T) {
 	// setup types
 	var got time.Duration
+
 	want := 30 * time.Minute
 
 	// setup context

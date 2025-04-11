@@ -310,11 +310,13 @@ func TestNative_ScriptSteps(t *testing.T) {
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}
+
 			got, err := compiler.ScriptSteps(tt.args.s)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ScriptSteps() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("ScriptSteps() mismatch (-want +got):\n%s", diff)
 			}

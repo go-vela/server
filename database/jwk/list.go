@@ -30,11 +30,8 @@ func (e *Engine) ListJWKs(ctx context.Context) (jwk.Set, error) {
 
 	// iterate through all query results
 	for _, key := range *k {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := key
-
 		// convert query result to API type
-		err = keySet.AddKey(tmp.ToAPI())
+		err = keySet.AddKey(key.ToAPI())
 		if err != nil {
 			return nil, err
 		}

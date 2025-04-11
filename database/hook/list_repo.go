@@ -43,10 +43,7 @@ func (e *Engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPag
 
 	// iterate through all query results
 	for _, hook := range *h {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := hook
-
-		result := tmp.ToAPI()
+		result := hook.ToAPI()
 		result.SetRepo(r)
 
 		hooks = append(hooks, result)

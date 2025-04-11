@@ -13,7 +13,7 @@ import (
 
 // ToString is a helper function to convert
 // the provided interface value to a string.
-func ToString(v interface{}) string {
+func ToString(v any) string {
 	switch v := v.(type) {
 	case string:
 		return v
@@ -45,7 +45,7 @@ func ToString(v interface{}) string {
 		return strconv.FormatUint(uint64(v), 10)
 	case uint64:
 		return strconv.FormatUint(v, 10)
-	case []interface{}:
+	case []any:
 		return unmarshalSlice(v)
 	default:
 		return unmarshalMap(v)
@@ -53,7 +53,7 @@ func ToString(v interface{}) string {
 }
 
 // helper function to unmarshal a parameter in map format.
-func unmarshalMap(v interface{}) string {
+func unmarshalMap(v any) string {
 	yml, err := yaml.Marshal(v)
 	if err != nil {
 		return err.Error()
@@ -68,7 +68,7 @@ func unmarshalMap(v interface{}) string {
 }
 
 // helper function to unmarshal a parameter in slice format.
-func unmarshalSlice(v interface{}) string {
+func unmarshalSlice(v any) string {
 	out, err := yaml.Marshal(v)
 	if err != nil {
 		return err.Error()

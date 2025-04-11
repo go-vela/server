@@ -3,6 +3,8 @@
 package yaml
 
 import (
+	"slices"
+
 	"github.com/go-vela/server/compiler/types/pipeline"
 )
 
@@ -71,11 +73,5 @@ func (m *Metadata) ToPipeline() *pipeline.Metadata {
 // HasEnvironment checks if the container type
 // is contained within the environment list.
 func (m *Metadata) HasEnvironment(container string) bool {
-	for _, e := range m.Environment {
-		if e == container {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(m.Environment, container)
 }

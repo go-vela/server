@@ -20,10 +20,11 @@ func TestUser_ActiveUserResp(t *testing.T) {
 
 	tUser := reflect.TypeOf(testUser)
 
-	for i := 0; i < tUser.NumField(); i++ {
+	for i := range tUser.NumField() {
 		if tUser.Field(i).Name == "Token" || tUser.Field(i).Name == "RefreshToken" || tUser.Field(i).Name == "Hash" {
 			continue
 		}
+
 		if reflect.ValueOf(testUser).Field(i).IsNil() {
 			t.Errorf("UserResp missing field %s", tUser.Field(i).Name)
 		}

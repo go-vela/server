@@ -20,7 +20,7 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 
 	tDashboard := reflect.TypeOf(testDashboard)
 
-	for i := 0; i < tDashboard.NumField(); i++ {
+	for i := range tDashboard.NumField() {
 		if reflect.ValueOf(testDashboard).Field(i).IsNil() {
 			t.Errorf("DashboardResp missing field %s", tDashboard.Field(i).Name)
 		}
@@ -35,13 +35,14 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 
 	tDashCard := reflect.TypeOf(testDashCard)
 
-	for i := 0; i < tDashCard.NumField(); i++ {
+	for i := range tDashCard.NumField() {
 		if reflect.ValueOf(testDashCard).Field(i).IsNil() {
 			t.Errorf("DashCardResp missing field %s", tDashCard.Field(i).Name)
 		}
 	}
 
 	testDashCards := []api.DashCard{}
+
 	err = json.Unmarshal([]byte(DashCardsResp), &testDashCards)
 	if err != nil {
 		t.Errorf("error unmarshaling dash cards: %v", err)
@@ -50,7 +51,7 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 	for _, testDashCard := range testDashCards {
 		tDashCard := reflect.TypeOf(testDashCard)
 
-		for i := 0; i < tDashCard.NumField(); i++ {
+		for i := range tDashCard.NumField() {
 			if reflect.ValueOf(testDashCard).Field(i).IsNil() {
 				t.Errorf("DashboardsResp missing field %s", tDashboard.Field(i).Name)
 			}

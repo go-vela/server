@@ -50,7 +50,7 @@ func (r *Ruleset) ToPipeline() *pipeline.Ruleset {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the Ruleset type.
-func (r *Ruleset) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (r *Ruleset) UnmarshalYAML(unmarshal func(any) error) error {
 	// simple struct we try unmarshalling to
 	simple := new(Rules)
 
@@ -127,7 +127,7 @@ func (r *Rules) ToPipeline() *pipeline.Rules {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the Rules type.
-func (r *Rules) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (r *Rules) UnmarshalYAML(unmarshal func(any) error) error {
 	// rules struct we try unmarshalling to
 	rules := new(struct {
 		Branch   raw.StringSlice

@@ -92,7 +92,7 @@ func SyncReposForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).CountReposForOrg(ctx, o, map[string]interface{}{})
+	t, err := database.FromContext(c).CountReposForOrg(ctx, o, map[string]any{})
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
@@ -105,7 +105,7 @@ func SyncReposForOrg(c *gin.Context) {
 	page := 0
 	// capture all repos belonging to a certain org in database
 	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
-		r, err := database.FromContext(c).ListReposForOrg(ctx, o, "name", map[string]interface{}{}, page, 100)
+		r, err := database.FromContext(c).ListReposForOrg(ctx, o, "name", map[string]any{}, page, 100)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
