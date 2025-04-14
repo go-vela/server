@@ -14,18 +14,18 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 services (
-	id            SERIAL PRIMARY KEY,
-	repo_id       INTEGER,
-	build_id      INTEGER,
+	id            BIGSERIAL PRIMARY KEY,
+	repo_id       BIGINT,
+	build_id      BIGINT,
 	number        INTEGER,
 	name          VARCHAR(250),
 	image         VARCHAR(500),
 	status        VARCHAR(250),
 	error         VARCHAR(500),
 	exit_code     INTEGER,
-	created       INTEGER,
-	started       INTEGER,
-	finished      INTEGER,
+	created       BIGINT,
+	started       BIGINT,
+	finished      BIGINT,
 	host          VARCHAR(250),
 	runtime       VARCHAR(250),
 	distribution  VARCHAR(250),
@@ -59,7 +59,7 @@ services (
 )
 
 // CreateServiceTable creates the services table in the database.
-func (e *engine) CreateServiceTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateServiceTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating services table")
 
 	// handle the driver provided to create the table

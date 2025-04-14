@@ -11,7 +11,7 @@ import (
 )
 
 // ListPendingAndRunningBuilds gets a list of all pending and running builds in the provided timeframe from the database.
-func (e *engine) ListPendingApprovalBuilds(ctx context.Context, before string) ([]*api.Build, error) {
+func (e *Engine) ListPendingApprovalBuilds(ctx context.Context, before string) ([]*api.Build, error) {
 	e.logger.Trace("listing all pending and running builds")
 
 	// variables to store query results and return value

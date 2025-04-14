@@ -107,7 +107,6 @@ func ListBuildsForOrg(c *gin.Context) {
 	var (
 		filters = map[string]interface{}{}
 		b       []*types.Build
-		t       int64
 	)
 
 	// capture middleware values
@@ -199,7 +198,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
-	b, t, err = database.FromContext(c).ListBuildsForOrg(ctx, o, filters, page, perPage)
+	b, err = database.FromContext(c).ListBuildsForOrg(ctx, o, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for org %s: %w", o, err)
 
@@ -212,7 +211,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   t,
+		Results: len(b),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)

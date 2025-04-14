@@ -8,11 +8,11 @@ import (
 )
 
 // ClientOpt represents a configuration option to initialize the secret client for Vault.
-type ClientOpt func(*client) error
+type ClientOpt func(*Client) error
 
 // WithAddress sets the address in the secret client for Vault.
 func WithAddress(address string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring address in vault secret client")
 
 		// check if the Vault address provided is empty
@@ -29,7 +29,7 @@ func WithAddress(address string) ClientOpt {
 
 // WithAuthMethod sets the authentication method in the secret client for Vault.
 func WithAuthMethod(authMethod string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring authentication method in vault secret client")
 
 		// set the authentication method in the vault client
@@ -41,7 +41,7 @@ func WithAuthMethod(authMethod string) ClientOpt {
 
 // WithAWSRole sets the AWS role in the secret client for Vault.
 func WithAWSRole(awsRole string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring AWS role in vault secret client")
 
 		// set the AWS role in the vault client
@@ -53,7 +53,7 @@ func WithAWSRole(awsRole string) ClientOpt {
 
 // WithPrefix sets the prefix in the secret client for Vault.
 func WithPrefix(prefix string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring prefix in vault secret client")
 
 		// set the prefix in the vault client
@@ -65,7 +65,7 @@ func WithPrefix(prefix string) ClientOpt {
 
 // WithToken sets the token in the secret client for Vault.
 func WithToken(token string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring token in vault secret client")
 
 		// set the token in the vault client
@@ -77,7 +77,7 @@ func WithToken(token string) ClientOpt {
 
 // WithTokenDuration sets the token duration in the secret client for Vault.
 func WithTokenDuration(tokenDuration time.Duration) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring token duration in vault secret client")
 
 		// set the token duration in the vault client
@@ -89,7 +89,7 @@ func WithTokenDuration(tokenDuration time.Duration) ClientOpt {
 
 // WithVersion sets the version in the secret client for Vault.
 func WithVersion(version string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring version in vault secret client")
 
 		// check if the Vault version provided is empty

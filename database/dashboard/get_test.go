@@ -6,11 +6,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestRepo_Engine_GetDashboard(t *testing.T) {
@@ -43,9 +43,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "name", "created_at", "created_by", "updated_at", "updated_by", "admins", "repos"},
-	).AddRow("c8da1302-07d6-11ea-882f-4893bca275b8", "dash", 1, "user1", 1, "user2", []byte(`[{"id":1,"name":"octocat","active":true}]`), []byte(`[{"id":1,"branches":["main"],"events":["push"]}]`))
+	_rows := testutils.CreateMockRows([]any{*types.DashboardFromAPI(_dashboard)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "dashboards" WHERE id = $1 LIMIT $2`).WithArgs("c8da1302-07d6-11ea-882f-4893bca275b8", 1).WillReturnRows(_rows)
@@ -62,7 +60,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Dashboard
 	}{
 		{
@@ -96,7 +94,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 				t.Errorf("GetDashboard for %s returned err: %v", test.name, err)
 			}
 
-			if diff := cmp.Diff(got, test.want); diff != "" {
+			if diff := cmp.Diff(test.want, got); diff != "" {
 				t.Errorf("GetDashboard mismatch (-want +got):\n%s", diff)
 			}
 		})

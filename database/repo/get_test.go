@@ -7,8 +7,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
@@ -39,13 +37,9 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+	_rows := testutils.CreateMockRows([]any{*types.RepoFromAPI(_repo)})
 
-	_userRows := sqlmock.NewRows(
-		[]string{"id", "name", "token", "hash", "active", "admin"}).
-		AddRow(1, "foo", "bar", "baz", false, false)
+	_userRows := testutils.CreateMockRows([]any{*types.UserFromAPI(_owner)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)
@@ -73,7 +67,7 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Repo
 	}{
 		{

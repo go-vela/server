@@ -14,7 +14,7 @@ import (
 )
 
 // UpdateRepo updates an existing repo in the database.
-func (e *engine) UpdateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error) {
+func (e *Engine) UpdateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

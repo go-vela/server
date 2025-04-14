@@ -13,7 +13,7 @@ import (
 )
 
 // GetBuildForRepo gets a build by repo ID and number from the database.
-func (e *engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int) (*api.Build, error) {
+func (e *Engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int64) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": number,
 		"org":   r.GetOrg(),

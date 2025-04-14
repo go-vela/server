@@ -91,7 +91,7 @@ func TestHook_Engine_CountHooksForRepo(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

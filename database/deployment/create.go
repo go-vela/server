@@ -13,7 +13,7 @@ import (
 )
 
 // CreateDeployment creates a new deployment in the database.
-func (e *engine) CreateDeployment(ctx context.Context, d *api.Deployment) (*api.Deployment, error) {
+func (e *Engine) CreateDeployment(ctx context.Context, d *api.Deployment) (*api.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetID(),
 	}).Tracef("creating deployment %d", d.GetID())
@@ -27,11 +27,16 @@ func (e *engine) CreateDeployment(ctx context.Context, d *api.Deployment) (*api.
 		return nil, err
 	}
 
-	result := e.client.
+	err = e.client.
 		WithContext(ctx).
 		Table(constants.TableDeployment).
-		Create(deployment)
+		Create(deployment).Error
+	if err != nil {
+		return nil, err
+	}
 
-	// send query to the database
-	return deployment.ToAPI(d.Builds), result.Error
+	result := deployment.ToAPI(d.Builds)
+	result.SetRepo(d.GetRepo())
+
+	return result, nil
 }

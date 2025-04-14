@@ -13,7 +13,7 @@ import (
 )
 
 // CreateDashboard creates a new dashboard in the database.
-func (e *engine) CreateDashboard(ctx context.Context, d *api.Dashboard) (*api.Dashboard, error) {
+func (e *Engine) CreateDashboard(ctx context.Context, d *api.Dashboard) (*api.Dashboard, error) {
 	e.logger.WithFields(logrus.Fields{
 		"dashboard": d.GetName(),
 	}).Tracef("creating dashboard %s", d.GetName())

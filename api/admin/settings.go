@@ -250,7 +250,7 @@ func RestoreSettings(c *gin.Context) {
 
 	// capture middleware values
 	ctx := c.Request.Context()
-	cliCtx := cliMiddleware.FromContext(c)
+	cliCmd := cliMiddleware.FromContext(c)
 	s := sMiddleware.FromContext(c)
 	u := uMiddleware.FromContext(c)
 
@@ -264,7 +264,7 @@ func RestoreSettings(c *gin.Context) {
 		return
 	}
 
-	compiler, err := native.FromCLIContext(cliCtx)
+	compiler, err := native.FromCLICommand(ctx, cliCmd)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restore platform settings: %w", err)
 
@@ -273,7 +273,7 @@ func RestoreSettings(c *gin.Context) {
 		return
 	}
 
-	queue, err := queue.FromCLIContext(cliCtx)
+	queue, err := queue.FromCLICommand(ctx, cliCmd)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restore platform settings: %w", err)
 
@@ -283,7 +283,7 @@ func RestoreSettings(c *gin.Context) {
 	}
 
 	// initialize a new settings record
-	_s := settings.FromCLIContext(cliCtx)
+	_s := settings.FromCLICommand(cliCmd)
 
 	_s.SetUpdatedAt(time.Now().UTC().Unix())
 	_s.SetUpdatedBy(u.GetName())

@@ -12,7 +12,7 @@ import (
 )
 
 // CountSecretsForRepo gets the count of secrets by org and repo name from the database.
-func (e *engine) CountSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}) (int64, error) {
+func (e *Engine) CountSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

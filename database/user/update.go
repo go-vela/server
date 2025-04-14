@@ -14,7 +14,7 @@ import (
 )
 
 // UpdateUser updates an existing user in the database.
-func (e *engine) UpdateUser(ctx context.Context, u *api.User) (*api.User, error) {
+func (e *Engine) UpdateUser(ctx context.Context, u *api.User) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("updating user %s", u.GetName())

@@ -5,7 +5,7 @@ package github
 import (
 	"testing"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v71/github"
 )
 
 func TestGetInstallationPermission(t *testing.T) {
@@ -19,19 +19,19 @@ func TestGetInstallationPermission(t *testing.T) {
 		{
 			name:         "valid contents permission",
 			resource:     AppInstallResourceContents,
-			permissions:  &github.InstallationPermissions{Contents: github.String(AppInstallPermissionRead)},
+			permissions:  &github.InstallationPermissions{Contents: github.Ptr(AppInstallPermissionRead)},
 			expectedPerm: AppInstallPermissionRead,
 		},
 		{
 			name:         "valid checks permission",
 			resource:     AppInstallResourceChecks,
-			permissions:  &github.InstallationPermissions{Checks: github.String(AppInstallPermissionWrite)},
+			permissions:  &github.InstallationPermissions{Checks: github.Ptr(AppInstallPermissionWrite)},
 			expectedPerm: AppInstallPermissionWrite,
 		},
 		{
 			name:         "valid packages permission",
 			resource:     AppInstallResourcePackages,
-			permissions:  &github.InstallationPermissions{Packages: github.String(AppInstallPermissionNone)},
+			permissions:  &github.InstallationPermissions{Packages: github.Ptr(AppInstallPermissionNone)},
 			expectedPerm: AppInstallPermissionNone,
 		},
 		{
@@ -71,7 +71,7 @@ func TestApplyInstallationPermissions(t *testing.T) {
 			perm:         AppInstallPermissionRead,
 			initialPerms: &github.InstallationPermissions{},
 			expectedPerms: &github.InstallationPermissions{
-				Contents: github.String(AppInstallPermissionRead),
+				Contents: github.Ptr(AppInstallPermissionRead),
 			},
 		},
 		{
@@ -80,7 +80,7 @@ func TestApplyInstallationPermissions(t *testing.T) {
 			perm:         AppInstallPermissionWrite,
 			initialPerms: &github.InstallationPermissions{},
 			expectedPerms: &github.InstallationPermissions{
-				Checks: github.String(AppInstallPermissionWrite),
+				Checks: github.Ptr(AppInstallPermissionWrite),
 			},
 		},
 		{
@@ -89,7 +89,7 @@ func TestApplyInstallationPermissions(t *testing.T) {
 			perm:         AppInstallPermissionNone,
 			initialPerms: &github.InstallationPermissions{},
 			expectedPerms: &github.InstallationPermissions{
-				Packages: github.String(AppInstallPermissionNone),
+				Packages: github.Ptr(AppInstallPermissionNone),
 			},
 		},
 		{

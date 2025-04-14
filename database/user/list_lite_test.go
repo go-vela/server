@@ -33,13 +33,7 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "users"`).WillReturnRows(_rows)
-
-	// create expected result in mock
-	_rows = sqlmock.NewRows(
+	_rows := sqlmock.NewRows(
 		[]string{"id", "name"}).
 		AddRow(1, "foo").
 		AddRow(2, "baz")
@@ -75,7 +69,7 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.User
 	}{
 		{
@@ -95,7 +89,7 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListLiteUsers(context.TODO(), 1, 10)
+			got, err := test.database.ListLiteUsers(context.TODO(), 1, 10)
 
 			if test.failure {
 				if err == nil {

@@ -15,32 +15,20 @@ import (
 // ListPipelinesForRepo gets a list of pipelines by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Pipeline, int64, error) {
+func (e *Engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 	}).Tracef("listing pipelines for repo %s", r.GetFullName())
 
 	// variables to store query results and return values
-	count := int64(0)
 	p := new([]types.Pipeline)
 	pipelines := []*api.Pipeline{}
-
-	// count the results
-	count, err := e.CountPipelinesForRepo(ctx, r)
-	if err != nil {
-		return pipelines, 0, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return pipelines, 0, nil
-	}
 
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TablePipeline).
 		Where("repo_id = ?", r.GetID()).
@@ -49,7 +37,7 @@ func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, pe
 		Find(&p).
 		Error
 	if err != nil {
-		return nil, count, err
+		return nil, err
 	}
 
 	// iterate through all query results
@@ -59,7 +47,7 @@ func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, pe
 
 		err = tmp.Decompress()
 		if err != nil {
-			return nil, count, err
+			return nil, err
 		}
 
 		result := tmp.ToAPI()
@@ -68,5 +56,5 @@ func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, pe
 		pipelines = append(pipelines, result)
 	}
 
-	return pipelines, count, nil
+	return pipelines, nil
 }

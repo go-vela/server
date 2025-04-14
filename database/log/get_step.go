@@ -11,7 +11,7 @@ import (
 )
 
 // GetLogForStep gets a log by step ID from the database.
-func (e *engine) GetLogForStep(ctx context.Context, s *api.Step) (*api.Log, error) {
+func (e *Engine) GetLogForStep(ctx context.Context, s *api.Step) (*api.Log, error) {
 	e.logger.Tracef("getting log for step %d for build %d", s.GetID(), s.GetBuildID())
 
 	// variable to store query results

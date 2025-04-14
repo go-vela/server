@@ -13,7 +13,7 @@ import (
 )
 
 // PopBuildExecutable pops a build executable by build_id from the database.
-func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*api.BuildExecutable, error) {
+func (e *Engine) PopBuildExecutable(ctx context.Context, id int64) (*api.BuildExecutable, error) {
 	e.logger.Tracef("popping build executable for build %d", id)
 
 	// variable to store query results

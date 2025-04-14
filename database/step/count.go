@@ -9,7 +9,7 @@ import (
 )
 
 // CountSteps gets the count of all steps from the database.
-func (e *engine) CountSteps(ctx context.Context) (int64, error) {
+func (e *Engine) CountSteps(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all steps")
 
 	// variable to store query results

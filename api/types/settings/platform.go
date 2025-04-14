@@ -5,14 +5,14 @@ package settings
 import (
 	"fmt"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // Platform is the API representation of platform settingps.
 //
 // swagger:model Platform
 type Platform struct {
-	ID                *int64 `json:"id"`
+	ID                *int32 `json:"id"`
 	*Compiler         `json:"compiler,omitempty"           yaml:"compiler,omitempty"`
 	*Queue            `json:"queue,omitempty"              yaml:"queue,omitempty"`
 	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"     yaml:"repo_allowlist,omitempty"`
@@ -22,8 +22,8 @@ type Platform struct {
 	UpdatedBy         *string   `json:"updated_by,omitempty"         yaml:"updated_by,omitempty"`
 }
 
-// FromCLIContext returns a new Platform record from a cli context.
-func FromCLIContext(c *cli.Context) *Platform {
+// FromCLICommand returns a new Platform record from a cli command.
+func FromCLICommand(c *cli.Command) *Platform {
 	ps := new(Platform)
 
 	// set repos permitted to be added
@@ -39,7 +39,7 @@ func FromCLIContext(c *cli.Context) *Platform {
 //
 // When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (ps *Platform) GetID() int64 {
+func (ps *Platform) GetID() int32 {
 	// return zero value if Platform type or ID field is nil
 	if ps == nil || ps.ID == nil {
 		return 0
@@ -143,7 +143,7 @@ func (ps *Platform) GetUpdatedBy() string {
 //
 // When the provided Platform type is nil, it
 // will set nothing and immediately return.
-func (ps *Platform) SetID(v int64) {
+func (ps *Platform) SetID(v int32) {
 	// return if Platform type is nil
 	if ps == nil {
 		return

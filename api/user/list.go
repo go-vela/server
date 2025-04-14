@@ -95,7 +95,7 @@ func ListUsers(c *gin.Context) {
 	perPage = max(1, min(100, perPage))
 
 	// send API call to capture the list of users
-	users, t, err := database.FromContext(c).ListLiteUsers(ctx, page, perPage)
+	users, err := database.FromContext(c).ListLiteUsers(ctx, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get users: %w", err)
 
@@ -108,7 +108,7 @@ func ListUsers(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   t,
+		Results: len(users),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)

@@ -144,7 +144,7 @@ func (h *Hook) ToAPI() *api.Hook {
 
 	hook.SetID(h.ID.Int64)
 	hook.SetRepo(h.Repo.ToAPI())
-	hook.SetNumber(int(h.Number.Int64))
+	hook.SetNumber(h.Number.Int64)
 	hook.SetSourceID(h.SourceID.String)
 	hook.SetCreated(h.Created.Int64)
 	hook.SetHost(h.Host.String)
@@ -204,7 +204,7 @@ func HookFromAPI(h *api.Hook) *Hook {
 		ID:          sql.NullInt64{Int64: h.GetID(), Valid: true},
 		RepoID:      sql.NullInt64{Int64: h.GetRepo().GetID(), Valid: true},
 		BuildID:     sql.NullInt64{Int64: h.GetBuild().GetID(), Valid: true},
-		Number:      sql.NullInt64{Int64: int64(h.GetNumber()), Valid: true},
+		Number:      sql.NullInt64{Int64: h.GetNumber(), Valid: true},
 		SourceID:    sql.NullString{String: h.GetSourceID(), Valid: true},
 		Created:     sql.NullInt64{Int64: h.GetCreated(), Valid: true},
 		Host:        sql.NullString{String: h.GetHost(), Valid: true},

@@ -13,7 +13,7 @@ import (
 )
 
 // UpdateBuild updates an existing build in the database.
-func (e *engine) UpdateBuild(ctx context.Context, b *api.Build) (*api.Build, error) {
+func (e *Engine) UpdateBuild(ctx context.Context, b *api.Build) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("updating build %d", b.GetNumber())

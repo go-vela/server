@@ -6,7 +6,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v71/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -14,7 +14,7 @@ import (
 )
 
 // GetDeployment gets a deployment from the GitHub repo.
-func (c *client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id int64) (*api.Deployment, error) {
+func (c *Client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id int64) (*api.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -55,7 +55,7 @@ func (c *client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id
 }
 
 // GetDeploymentCount counts a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Repo) (int64, error) {
+func (c *Client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Repo) (int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -97,7 +97,7 @@ func (c *client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Rep
 }
 
 // GetDeploymentList gets a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo, page, perPage int) ([]*api.Deployment, error) {
+func (c *Client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo, page, perPage int) ([]*api.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -155,7 +155,7 @@ func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 }
 
 // CreateDeployment creates a new deployment for the GitHub repo.
-func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo, d *api.Deployment) error {
+func (c *Client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo, d *api.Deployment) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":     r.GetOrg(),
 		"repo":    r.GetName(),
@@ -177,7 +177,7 @@ func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	deployment := &github.DeploymentRequest{
 		Ref:              d.Ref,
 		Task:             d.Task,
-		AutoMerge:        github.Bool(false),
+		AutoMerge:        github.Ptr(false),
 		RequiredContexts: &[]string{},
 		Payload:          payload,
 		Environment:      d.Target,

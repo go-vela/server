@@ -4,7 +4,6 @@ package native
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -15,8 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v68/github"
-	"github.com/urfave/cli/v2"
+	"github.com/google/go-github/v71/github"
 	yml "gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
@@ -29,11 +27,6 @@ import (
 
 func TestNative_Compile_StagesPipeline(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	set.Int("max-template-depth", 5, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -245,7 +238,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -292,7 +285,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	// setup types
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -345,7 +338,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler := client{
+			compiler := Client{
 				ModificationService: ModificationConfig{
 					Timeout:  1 * time.Second,
 					Endpoint: tt.args.endpoint,
@@ -381,7 +374,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 	// setup types
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -434,7 +427,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler := client{
+			compiler := Client{
 				ModificationService: ModificationConfig{
 					Timeout:  1 * time.Second,
 					Endpoint: tt.args.endpoint,
@@ -454,11 +447,6 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 
 func TestNative_Compile_StepsPipeline(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	set.Int("max-template-depth", 5, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -625,7 +613,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -661,15 +649,14 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	set.Int("max-template-depth", 5, "doc")
-	c := cli.NewContext(nil, set, nil)
+	c := testCommand(t, s.URL)
 
+	err := c.Set("github-url", s.URL)
+	if err != nil {
+		t.Errorf("setting github-url returned err: %v", err)
+	}
+
+	// setup types
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -884,7 +871,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), c)
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -931,15 +918,6 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
-
-	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	set.Int("max-template-depth", 5, "doc")
-	c := cli.NewContext(nil, set, nil)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -1129,7 +1107,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -1167,14 +1145,6 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	set.Int("max-template-depth", 5, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -1250,7 +1220,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -1288,14 +1258,6 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	set.Int("max-template-depth", 5, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -1371,7 +1333,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -1408,14 +1370,6 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -1451,7 +1405,7 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -1466,13 +1420,6 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 
 func TestNative_Compile_Clone(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-token", "", "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	set.Int("max-template-depth", 5, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -1639,7 +1586,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
-			compiler, err := FromCLIContext(c)
+			compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}
@@ -1660,13 +1607,6 @@ func TestNative_Compile_Clone(t *testing.T) {
 
 func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-token", "", "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	set.Int("max-template-depth", 5, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -1847,7 +1787,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
-			compiler, err := FromCLIContext(c)
+			compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}
@@ -1869,14 +1809,11 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	}
 }
 
-func TestNative_Compile_NoStepsorStages(t *testing.T) {
+func TestNative_Compile_StageNameCollision(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -1899,19 +1836,18 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	}
 
 	// run test
-	yaml, err := os.ReadFile("testdata/metadata.yml")
+	yaml, err := os.ReadFile("testdata/stages_name_conflict.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
 
 	// todo: this needs to be fixed in compiler validation
 	// this is a dirty hack to make this test pass
-	compiler.SetCloneImage("")
 	compiler.WithMetadata(m)
 
 	compiler.repo = &api.Repo{Name: &author}
@@ -1927,14 +1863,312 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	}
 }
 
-func TestNative_Compile_StepsandStages(t *testing.T) {
+func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	compiler.WithMetadata(m)
+
+	build := new(api.Build)
+	build.SetID(1)
+	build.SetEvent("push")
+
+	compiler.WithBuild(build)
+
+	initEnv := environment(build, m, nil, nil, nil)
+
+	stepEnv := environment(build, m, nil, nil, nil)
+	stepEnv["HOME"] = "/root"
+	stepEnv["SHELL"] = "/bin/sh"
+	stepEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Building..."`})
+
+	want := &pipeline.Build{
+		Version: "1",
+		ID:      "__0",
+		Metadata: pipeline.Metadata{
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
+		},
+		Stages: pipeline.StageSlice{
+			&pipeline.Stage{
+				Name:        "init",
+				Environment: initEnv,
+				Steps: pipeline.ContainerSlice{
+					&pipeline.Container{
+						ID:          "__0_init_init",
+						Directory:   "/vela/src/foo//",
+						Environment: initEnv,
+						Image:       "#init",
+						Name:        "init",
+						Number:      1,
+						Pull:        "not_present",
+					},
+				},
+			},
+			&pipeline.Stage{
+				Name:        "clone",
+				Environment: initEnv,
+				Steps: pipeline.ContainerSlice{
+					&pipeline.Container{
+						ID:          "__0_clone_clone",
+						Directory:   "/vela/src/foo//",
+						Environment: initEnv,
+						Image:       defaultCloneImage,
+						Name:        "clone",
+						Number:      2,
+						Pull:        "not_present",
+					},
+				},
+			},
+			&pipeline.Stage{
+				Name:        "three",
+				Needs:       []string{"clone"},
+				Environment: initEnv,
+				Steps: pipeline.ContainerSlice{
+					&pipeline.Container{
+						ID:          "__0_three_word_key_build",
+						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Directory:   "/vela/src/foo//",
+						Entrypoint:  []string{"/bin/sh", "-c"},
+						Environment: stepEnv,
+						Image:       "alpine",
+						Name:        "word_key_build",
+						Number:      3,
+						Pull:        "not_present",
+					},
+				},
+			},
+		},
+	}
+
+	// run test
+	yaml, err := os.ReadFile("testdata/stages_name_conflict_purged.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	got, _, err := compiler.Compile(context.Background(), yaml)
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
+	}
+
+	// WARNING: hack to compare stages
+	//
+	// Channel values can only be compared for equality.
+	// Two channel values are considered equal if they
+	// originated from the same make call meaning they
+	// refer to the same channel value in memory.
+	for i, stage := range got.Stages {
+		tmp := want.Stages
+
+		tmp[i].Done = stage.Done
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
+	}
+}
+
+func TestNative_Compile_StepNameCollision(t *testing.T) {
+	// setup types
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
+
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	// run test
+	yaml, err := os.ReadFile("testdata/steps_name_conflict.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	// todo: this needs to be fixed in compiler validation
+	// this is a dirty hack to make this test pass
+	compiler.WithMetadata(m)
+
+	compiler.repo = &api.Repo{Name: &author}
+	compiler.build = &api.Build{Author: &name, Number: &number}
+
+	got, _, err := compiler.Compile(context.Background(), yaml)
+	if err == nil {
+		t.Errorf("Compile should have returned err")
+	}
+
+	if got != nil {
+		t.Errorf("Compile is %v, want %v", got, nil)
+	}
+}
+
+func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
+	// setup types
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	compiler.WithMetadata(m)
+
+	build := new(api.Build)
+	build.SetID(1)
+	build.SetEvent("push")
+
+	compiler.WithBuild(build)
+
+	initEnv := environment(build, m, nil, nil, nil)
+
+	buildEnv := environment(build, m, nil, nil, nil)
+	buildEnv["HOME"] = "/root"
+	buildEnv["SHELL"] = "/bin/sh"
+	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Building..."`})
+
+	testEnv := environment(build, m, nil, nil, nil)
+	testEnv["HOME"] = "/root"
+	testEnv["SHELL"] = "/bin/sh"
+	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Testing..."`})
+
+	want := &pipeline.Build{
+		Version: "1",
+		ID:      "__0",
+		Metadata: pipeline.Metadata{
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
+		},
+		Steps: pipeline.ContainerSlice{
+			&pipeline.Container{
+				ID:          "step___0_init",
+				Directory:   "/vela/src/foo//",
+				Environment: initEnv,
+				Image:       "#init",
+				Name:        "init",
+				Number:      1,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_clone",
+				Directory:   "/vela/src/foo//",
+				Environment: initEnv,
+				Image:       defaultCloneImage,
+				Name:        "clone",
+				Number:      2,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_build",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: buildEnv,
+				Image:       "alpine",
+				Name:        "build",
+				Number:      3,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_test",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: testEnv,
+				Image:       "alpine",
+				Name:        "test",
+				Number:      4,
+				Pull:        "not_present",
+			},
+		},
+	}
+
+	// run test
+	yaml, err := os.ReadFile("testdata/steps_name_conflict_purged.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	got, _, err := compiler.Compile(context.Background(), yaml)
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
+	}
+}
+
+func TestNative_Compile_StepsandStages(t *testing.T) {
+	// setup types
+	name := "foo"
+	author := "author"
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -1962,7 +2196,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -1983,13 +2217,10 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 
 func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
 	name := "foo"
 	author := "author"
 	event := "push"
-	number := 1
+	number := int64(1)
 
 	m := &internal.Metadata{
 		Database: &internal.Database{
@@ -2011,7 +2242,7 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 		},
 	}
 
-	compiler, err := FromCLIContext(c)
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -2364,7 +2595,7 @@ func Test_client_modifyConfig(t *testing.T) {
 
 	name := "foo"
 	author := "author"
-	number := 1
+	number := int64(1)
 
 	type args struct {
 		endpoint string
@@ -2419,7 +2650,7 @@ func Test_client_modifyConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler := client{
+			compiler := Client{
 				ModificationService: ModificationConfig{
 					Timeout:  2 * time.Second,
 					Retries:  2,
@@ -2446,8 +2677,8 @@ func convertFileToGithubResponse(file string) (github.RepositoryContent, error) 
 	}
 
 	content := github.RepositoryContent{
-		Encoding: github.String(""),
-		Content:  github.String(string(body)),
+		Encoding: github.Ptr(""),
+		Content:  github.Ptr(string(body)),
 	}
 
 	return content, nil
@@ -2483,14 +2714,6 @@ func Test_Compile_Inline(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	set.Int("max-template-depth", 5, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -3243,7 +3466,7 @@ func Test_Compile_Inline(t *testing.T) {
 			if err != nil {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
-			compiler, err := FromCLIContext(c)
+			compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}
@@ -3302,14 +3525,6 @@ func Test_CompileLite(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("github-driver", true, "doc")
-	set.String("github-url", s.URL, "doc")
-	set.String("github-token", "", "doc")
-	set.Int("max-template-depth", 5, "doc")
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
-
 	m := &internal.Metadata{
 		Database: &internal.Database{
 			Driver: "foo",
@@ -4233,7 +4448,7 @@ func Test_CompileLite(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler, err := FromCLIContext(c)
+			compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}

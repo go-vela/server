@@ -7,10 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestLog_Engine_GetLogForStep(t *testing.T) {
@@ -33,9 +32,7 @@ func TestLog_Engine_GetLogForStep(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "build_id", "repo_id", "step_id", "step_id", "data"}).
-		AddRow(1, 1, 1, 0, 1, []byte{})
+	_rows := testutils.CreateMockRows([]any{*types.LogFromAPI(_log)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE step_id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)
@@ -52,7 +49,7 @@ func TestLog_Engine_GetLogForStep(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Log
 	}{
 		{

@@ -66,7 +66,7 @@ func TestSecret_Engine_CountSecretsForTeam(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{
@@ -172,7 +172,7 @@ func TestSecret_Engine_CountSecretsForTeams(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

@@ -13,7 +13,7 @@ import (
 )
 
 // UpdateDashboard updates an existing dashboard in the database.
-func (e *engine) UpdateDashboard(ctx context.Context, d *api.Dashboard) (*api.Dashboard, error) {
+func (e *Engine) UpdateDashboard(ctx context.Context, d *api.Dashboard) (*api.Dashboard, error) {
 	e.logger.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
 	}).Tracef("creating dashboard %s", d.GetID())

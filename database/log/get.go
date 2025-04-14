@@ -11,7 +11,7 @@ import (
 )
 
 // GetLog gets a log by ID from the database.
-func (e *engine) GetLog(ctx context.Context, id int64) (*api.Log, error) {
+func (e *Engine) GetLog(ctx context.Context, id int64) (*api.Log, error) {
 	e.logger.Tracef("getting log %d", id)
 
 	// variable to store query results

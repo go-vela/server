@@ -48,16 +48,6 @@ func FromGinContext(c *gin.Context) Service {
 	return s
 }
 
-// WithContext inserts the queue Service into the context.Context.
-func WithContext(c context.Context, s Service) context.Context {
-	// set the queue Service in the context.Context
-	//
-	// https://pkg.go.dev/context?tab=doc#WithValue
-	//
-	//nolint:staticcheck,revive // ignore using string with context value
-	return context.WithValue(c, key, s)
-}
-
 // WithGinContext inserts the queue Service into the gin.Context.
 func WithGinContext(c *gin.Context, s Service) {
 	// set the queue Service in the gin.Context

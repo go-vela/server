@@ -50,7 +50,7 @@ func TestWorker_Engine_CountWorkers(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

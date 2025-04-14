@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestWorker_Engine_GetWorker(t *testing.T) {
@@ -25,9 +25,7 @@ func TestWorker_Engine_GetWorker(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "hostname", "address", "routes", "active", "last_checked_in", "build_limit"}).
-		AddRow(1, "worker_0", "localhost", nil, true, 0, 0)
+	_rows := testutils.CreateMockRows([]any{*types.WorkerFromAPI(_worker)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "workers" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)
@@ -44,7 +42,7 @@ func TestWorker_Engine_GetWorker(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Worker
 	}{
 		{

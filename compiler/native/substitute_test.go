@@ -3,11 +3,10 @@
 package native
 
 import (
-	"flag"
+	"context"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/urfave/cli/v2"
 
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
@@ -16,11 +15,6 @@ func Test_client_SubstituteStages(t *testing.T) {
 	type args struct {
 		stages yaml.StageSlice
 	}
-
-	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
 
 	tests := []struct {
 		name    string
@@ -113,7 +107,7 @@ func Test_client_SubstituteStages(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler, err := FromCLIContext(c)
+			compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}
@@ -135,11 +129,6 @@ func Test_client_SubstituteSteps(t *testing.T) {
 	type args struct {
 		steps yaml.StepSlice
 	}
-
-	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
 
 	tests := []struct {
 		name    string
@@ -238,7 +227,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler, err := FromCLIContext(c)
+			compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}

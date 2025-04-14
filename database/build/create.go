@@ -13,7 +13,7 @@ import (
 )
 
 // CreateBuild creates a new build in the database.
-func (e *engine) CreateBuild(ctx context.Context, b *api.Build) (*api.Build, error) {
+func (e *Engine) CreateBuild(ctx context.Context, b *api.Build) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("creating build %d", b.GetNumber())

@@ -8,8 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
@@ -62,41 +60,19 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected name count query result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the name count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "repos" WHERE user_id = $1`).WithArgs(1).WillReturnRows(_rows)
-
 	// create expected name query result in mock
-	_rows = sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil).
-		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil)
+	_rows := testutils.CreateMockRows([]any{*types.RepoFromAPI(_repoOne), *types.RepoFromAPI(_repoTwo)})
 
-	_userRows := sqlmock.NewRows(
-		[]string{"id", "name", "token", "hash", "active", "admin"}).
-		AddRow(1, "foo", "bar", "baz", false, false)
+	_userRows := testutils.CreateMockRows([]any{*types.UserFromAPI(_owner)})
 
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE user_id = $1 ORDER BY name LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
-	// create expected latest count query result in mock
-	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the latest count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "repos" WHERE user_id = $1`).WithArgs(1).WillReturnRows(_rows)
-
 	// create expected latest query result in mock
-	_rows = sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil).
-		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, 1, "yaml", nil, nil)
+	_rows = testutils.CreateMockRows([]any{*types.RepoFromAPI(_repoOne), *types.RepoFromAPI(_repoTwo)})
 
-	_userRows = sqlmock.NewRows(
-		[]string{"id", "name", "token", "hash", "active", "admin"}).
-		AddRow(1, "foo", "bar", "baz", false, false)
+	_userRows = testutils.CreateMockRows([]any{*types.UserFromAPI(_owner)})
 
 	// ensure the mock expects the latest query
 	_mock.ExpectQuery(`SELECT repos.* FROM "repos" LEFT JOIN (SELECT repos.id, MAX(builds.created) AS latest_build FROM "builds" INNER JOIN repos repos ON builds.repo_id = repos.id WHERE repos.user_id = $1 GROUP BY "repos"."id") t on repos.id = t.id ORDER BY latest_build DESC NULLS LAST LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
@@ -145,7 +121,7 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 		failure  bool
 		name     string
 		sort     string
-		database *engine
+		database *Engine
 		want     []*api.Repo
 	}{
 		{
@@ -183,7 +159,7 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListReposForUser(context.TODO(), _owner, test.sort, filters, 1, 10)
+			got, err := test.database.ListReposForUser(context.TODO(), _owner, test.sort, filters, 1, 10)
 
 			if test.failure {
 				if err == nil {

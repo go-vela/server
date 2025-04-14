@@ -7,7 +7,7 @@ import (
 	"crypto/rsa"
 
 	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
@@ -23,8 +23,8 @@ func APIBuild() *api.Build {
 		ID:           new(int64),
 		Repo:         APIRepo(),
 		PipelineID:   new(int64),
-		Number:       new(int),
-		Parent:       new(int),
+		Number:       new(int64),
+		Parent:       new(int64),
 		Event:        new(string),
 		EventAction:  new(string),
 		Status:       new(string),
@@ -108,9 +108,9 @@ func APIRepo() *api.Repo {
 	return &api.Repo{
 		ID:              new(int64),
 		Owner:           APIUser(),
-		BuildLimit:      new(int64),
-		Timeout:         new(int64),
-		Counter:         new(int),
+		BuildLimit:      new(int32),
+		Timeout:         new(int32),
+		Counter:         new(int64),
 		PipelineType:    new(string),
 		Hash:            new(string),
 		Org:             new(string),
@@ -127,8 +127,9 @@ func APIRepo() *api.Repo {
 		AllowEvents:     APIEvents(),
 		Topics:          new([]string),
 		ApproveBuild:    new(string),
-		ApprovalTimeout: new(int64),
+		ApprovalTimeout: new(int32),
 		InstallID:       new(int64),
+		CustomProps:     new(map[string]any),
 	}
 }
 
@@ -150,7 +151,7 @@ func APIHook() *api.Hook {
 		ID:          new(int64),
 		Repo:        APIRepo(),
 		Build:       APIBuild(),
-		Number:      new(int),
+		Number:      new(int64),
 		SourceID:    new(string),
 		Created:     new(int64),
 		Host:        new(string),
@@ -217,12 +218,12 @@ func APIService() *api.Service {
 		ID:           new(int64),
 		BuildID:      new(int64),
 		RepoID:       new(int64),
-		Number:       new(int),
+		Number:       new(int32),
 		Name:         new(string),
 		Image:        new(string),
 		Status:       new(string),
 		Error:        new(string),
-		ExitCode:     new(int),
+		ExitCode:     new(int32),
 		Created:      new(int64),
 		Started:      new(int64),
 		Finished:     new(int64),
@@ -237,13 +238,13 @@ func APIStep() *api.Step {
 		ID:           new(int64),
 		BuildID:      new(int64),
 		RepoID:       new(int64),
-		Number:       new(int),
+		Number:       new(int32),
 		Name:         new(string),
 		Image:        new(string),
 		Stage:        new(string),
 		Status:       new(string),
 		Error:        new(string),
-		ExitCode:     new(int),
+		ExitCode:     new(int32),
 		Created:      new(int64),
 		Started:      new(int64),
 		Finished:     new(int64),
@@ -302,7 +303,7 @@ func JWK() jwk.RSAPublicKey {
 		return nil
 	}
 
-	pubJwk, err := jwk.FromRaw(privateRSAKey.PublicKey)
+	pubJwk, err := jwk.Import(privateRSAKey.PublicKey)
 	if err != nil {
 		return nil
 	}

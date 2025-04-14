@@ -100,7 +100,7 @@ WHERE "id" = $15`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		secret   *api.Secret
 	}{
 		{

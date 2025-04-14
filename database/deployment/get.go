@@ -12,7 +12,7 @@ import (
 )
 
 // GetDeployment gets a deployment by ID from the database.
-func (e *engine) GetDeployment(ctx context.Context, id int64) (*api.Deployment, error) {
+func (e *Engine) GetDeployment(ctx context.Context, id int64) (*api.Deployment, error) {
 	e.logger.Tracef("getting deployment %d", id)
 
 	// variable to store query results

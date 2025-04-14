@@ -11,27 +11,15 @@ import (
 )
 
 // ListSchedules gets a list of all schedules from the database.
-func (e *engine) ListSchedules(ctx context.Context) ([]*api.Schedule, error) {
+func (e *Engine) ListSchedules(ctx context.Context) ([]*api.Schedule, error) {
 	e.logger.Trace("listing all schedules")
 
 	// variables to store query results and return value
-	count := int64(0)
 	s := new([]types.Schedule)
 	schedules := []*api.Schedule{}
 
-	// count the results
-	count, err := e.CountSchedules(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return schedules, nil
-	}
-
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableSchedule).
 		Preload("Repo").

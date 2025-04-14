@@ -10,14 +10,14 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v71/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/random"
 )
 
 // Authorize uses the given access token to authorize the user.
-func (c *client) Authorize(ctx context.Context, token string) (string, error) {
+func (c *Client) Authorize(ctx context.Context, token string) (string, error) {
 	c.Logger.Trace("authorizing user with token")
 
 	// create GitHub OAuth client with user's token
@@ -33,7 +33,7 @@ func (c *client) Authorize(ctx context.Context, token string) (string, error) {
 }
 
 // Login begins the authentication workflow for the session.
-func (c *client) Login(_ context.Context, w http.ResponseWriter, r *http.Request) (string, error) {
+func (c *Client) Login(_ context.Context, w http.ResponseWriter, r *http.Request) (string, error) {
 	c.Logger.Trace("processing login request")
 
 	// generate a random string for creating the OAuth state
@@ -56,7 +56,7 @@ func (c *client) Login(_ context.Context, w http.ResponseWriter, r *http.Request
 
 // Authenticate completes the authentication workflow for the session
 // and returns the remote user details.
-func (c *client) Authenticate(ctx context.Context, _ http.ResponseWriter, r *http.Request, oAuthState string) (*api.User, error) {
+func (c *Client) Authenticate(ctx context.Context, _ http.ResponseWriter, r *http.Request, oAuthState string) (*api.User, error) {
 	c.Logger.Trace("authenticating user")
 
 	// get the OAuth code
@@ -97,7 +97,7 @@ func (c *client) Authenticate(ctx context.Context, _ http.ResponseWriter, r *htt
 
 // AuthenticateToken completes the authentication workflow
 // for the session and returns the remote user details.
-func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*api.User, error) {
+func (c *Client) AuthenticateToken(ctx context.Context, r *http.Request) (*api.User, error) {
 	c.Logger.Trace("authenticating user via token")
 
 	token := r.Header.Get("Token")
@@ -130,7 +130,7 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*api.U
 // validates that it was created by the Vela OAuth app.
 // In essence, the function expects either a 200 or 404 from the GitHub API and returns
 // error in any other failure case.
-func (c *client) ValidateOAuthToken(ctx context.Context, token string) (bool, error) {
+func (c *Client) ValidateOAuthToken(ctx context.Context, token string) (bool, error) {
 	// create http client to connect to GitHub API
 	transport := github.BasicAuthTransport{
 		Username: c.config.ClientID,

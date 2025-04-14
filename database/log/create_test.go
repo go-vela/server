@@ -53,7 +53,7 @@ VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		logs     []*api.Log
 	}{
 		{

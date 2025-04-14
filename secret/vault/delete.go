@@ -13,7 +13,7 @@ import (
 )
 
 // Delete deletes a secret.
-func (c *client) Delete(_ context.Context, sType, org, name, path string) error {
+func (c *Client) Delete(_ context.Context, sType, org, name, path string) error {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
@@ -50,25 +50,25 @@ func (c *client) Delete(_ context.Context, sType, org, name, path string) error 
 
 // deleteOrg is a helper function to delete
 // the org secret for the provided path.
-func (c *client) deleteOrg(org, path string) error {
+func (c *Client) deleteOrg(org, path string) error {
 	return c.delete(fmt.Sprintf("%s/org/%s/%s", c.config.Prefix, org, path))
 }
 
 // deleteRepo is a helper function to delete
 // the repo secret for the provided path.
-func (c *client) deleteRepo(org, repo, path string) error {
+func (c *Client) deleteRepo(org, repo, path string) error {
 	return c.delete(fmt.Sprintf("%s/repo/%s/%s/%s", c.config.Prefix, org, repo, path))
 }
 
 // deleteShared is a helper function to delete
 // the shared secret for the provided path.
-func (c *client) deleteShared(org, team, path string) error {
+func (c *Client) deleteShared(org, team, path string) error {
 	return c.delete(fmt.Sprintf("%s/shared/%s/%s/%s", c.config.Prefix, org, team, path))
 }
 
 // delete is a helper function to delete
 // the secret for the provided path.
-func (c *client) delete(path string) error {
+func (c *Client) delete(path string) error {
 	// send API call to delete the secret
 	_, err := c.Vault.Logical().Delete(path)
 	if err != nil {

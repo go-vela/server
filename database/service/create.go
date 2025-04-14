@@ -13,7 +13,7 @@ import (
 )
 
 // CreateService creates a new service in the database.
-func (e *engine) CreateService(ctx context.Context, s *api.Service) (*api.Service, error) {
+func (e *Engine) CreateService(ctx context.Context, s *api.Service) (*api.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("creating service %s in the database", s.GetName())

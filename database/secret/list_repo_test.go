@@ -7,11 +7,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestSecret_Engine_ListSecretsForRepo(t *testing.T) {
@@ -55,18 +54,8 @@ func TestSecret_Engine_ListSecretsForRepo(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected name count query result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the name count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "secrets" WHERE type = $1 AND org = $2 AND repo = $3`).
-		WithArgs(constants.SecretRepo, "foo", "bar").WillReturnRows(_rows)
-
 	// create expected name query result in mock
-	_rows = sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2").
-		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2")
+	_rows := testutils.CreateMockRows([]any{*types.SecretFromAPI(_secretTwo), *types.SecretFromAPI(_secretOne)})
 
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND repo = $3 ORDER BY id DESC LIMIT $4`).
@@ -89,7 +78,7 @@ func TestSecret_Engine_ListSecretsForRepo(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Secret
 	}{
 		{
@@ -111,7 +100,7 @@ func TestSecret_Engine_ListSecretsForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListSecretsForRepo(context.TODO(), _repo, filters, 1, 10)
+			got, err := test.database.ListSecretsForRepo(context.TODO(), _repo, filters, 1, 10)
 
 			if test.failure {
 				if err == nil {

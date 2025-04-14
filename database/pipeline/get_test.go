@@ -7,11 +7,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestPipeline_Engine_GetPipeline(t *testing.T) {
@@ -46,17 +45,18 @@ func TestPipeline_Engine_GetPipeline(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "commit", "flavor", "platform", "ref", "type", "version", "services", "stages", "steps", "templates", "data"}).
-		AddRow(1, 1, "48afb5bdc41ad69bf22588491333f7cf71135163", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
+	dbPipeline := types.PipelineFromAPI(_pipeline)
 
-	_repoRows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+	err := dbPipeline.Compress(0)
+	if err != nil {
+		t.Errorf("unable to compress pipeline: %v", err)
+	}
 
-	_userRows := sqlmock.NewRows(
-		[]string{"id", "name", "token", "hash", "active", "admin"}).
-		AddRow(1, "foo", "bar", "baz", false, false)
+	_rows := testutils.CreateMockRows([]any{*dbPipeline})
+
+	_repoRows := testutils.CreateMockRows([]any{*types.RepoFromAPI(_repo)})
+
+	_userRows := testutils.CreateMockRows([]any{*types.UserFromAPI(_owner)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)
@@ -78,7 +78,7 @@ func TestPipeline_Engine_GetPipeline(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Pipeline
 	}{
 		{

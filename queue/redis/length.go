@@ -7,7 +7,7 @@ import (
 )
 
 // Length tallies all items present in the configured routes in the queue.
-func (c *client) Length(ctx context.Context) (int64, error) {
+func (c *Client) Length(ctx context.Context) (int64, error) {
 	c.Logger.Tracef("reading length of all configured routes in queue")
 
 	total := int64(0)

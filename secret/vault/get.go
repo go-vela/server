@@ -15,7 +15,7 @@ import (
 )
 
 // Get captures a secret.
-func (c *client) Get(_ context.Context, sType, org, name, path string) (s *velaAPI.Secret, err error) {
+func (c *Client) Get(_ context.Context, sType, org, name, path string) (s *velaAPI.Secret, err error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
@@ -60,25 +60,25 @@ func (c *client) Get(_ context.Context, sType, org, name, path string) (s *velaA
 
 // getOrg is a helper function to capture
 // the org secret for the provided path.
-func (c *client) getOrg(org, path string) (*api.Secret, error) {
+func (c *Client) getOrg(org, path string) (*api.Secret, error) {
 	return c.get(fmt.Sprintf("%s/%s/%s/%s", c.config.Prefix, constants.SecretOrg, org, path))
 }
 
 // getRepo is a helper function to capture
 // the repo secret for the provided path.
-func (c *client) getRepo(org, repo, path string) (*api.Secret, error) {
+func (c *Client) getRepo(org, repo, path string) (*api.Secret, error) {
 	return c.get(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretRepo, org, repo, path))
 }
 
 // getShared is a helper function to capture
 // the shared secret for the provided path.
-func (c *client) getShared(org, team, path string) (*api.Secret, error) {
+func (c *Client) getShared(org, team, path string) (*api.Secret, error) {
 	return c.get(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretShared, org, team, path))
 }
 
 // get is a helper function to capture
 // the secret for the provided path.
-func (c *client) get(path string) (*api.Secret, error) {
+func (c *Client) get(path string) (*api.Secret, error) {
 	// send API call to capture the secret
 	vault, err := c.Vault.Logical().Read(path)
 	if err != nil {

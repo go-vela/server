@@ -3,14 +3,14 @@
 package middleware
 
 import (
-	"flag"
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler"
@@ -23,14 +23,20 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 	defaultCloneImage := "target/vela-git-slim"
 	wantCloneImage := "target/vela-git-slim:latest"
 
-	set := flag.NewFlagSet("", flag.ExitOnError)
-	set.String("clone-image", defaultCloneImage, "doc")
+	c := new(cli.Command)
 
-	want, _ := native.FromCLIContext(cli.NewContext(nil, set, nil))
+	c.Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:  "clone-image",
+			Value: defaultCloneImage,
+		},
+	}
+
+	want, _ := native.FromCLICommand(context.Background(), c)
 	want.SetCloneImage(wantCloneImage)
 
 	var got compiler.Engine
-	got, _ = native.FromCLIContext(cli.NewContext(nil, set, nil))
+	got, _ = native.FromCLICommand(context.Background(), c)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -69,7 +75,7 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 		t.Errorf("Compiler returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
+	if !reflect.DeepEqual(got.GetSettings(), want.GetSettings()) {
 		t.Errorf("Compiler is %v, want %v", got, want)
 	}
 }

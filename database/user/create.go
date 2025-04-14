@@ -14,7 +14,7 @@ import (
 )
 
 // CreateUser creates a new user in the database.
-func (e *engine) CreateUser(ctx context.Context, u *api.User) (*api.User, error) {
+func (e *Engine) CreateUser(ctx context.Context, u *api.User) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("creating user %s", u.GetName())

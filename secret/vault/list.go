@@ -19,7 +19,7 @@ import (
 // We drop page and perPage as we are always returning all results.
 // Vault API doesn't seem to support pagination. Might result in undesired
 // behavior for fetching Vault secrets in paginated manner.
-func (c *client) List(ctx context.Context, sType, org, name string, _, _ int, _ []string) ([]*velaAPI.Secret, error) {
+func (c *Client) List(ctx context.Context, sType, org, name string, _, _ int, _ []string) ([]*velaAPI.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":  org,
@@ -89,25 +89,25 @@ func (c *client) List(ctx context.Context, sType, org, name string, _, _ int, _ 
 
 // listOrg is a helper function to capture the
 // list of org secrets for the provided path.
-func (c *client) listOrg(org string) (*api.Secret, error) {
+func (c *Client) listOrg(org string) (*api.Secret, error) {
 	return c.list(fmt.Sprintf("%s/%s/%s", c.config.Prefix, constants.SecretOrg, org))
 }
 
 // listRepo is a helper function to capture the
 // list of repo secrets for the provided path.
-func (c *client) listRepo(org, repo string) (*api.Secret, error) {
+func (c *Client) listRepo(org, repo string) (*api.Secret, error) {
 	return c.list(fmt.Sprintf("%s/%s/%s/%s", c.config.Prefix, constants.SecretRepo, org, repo))
 }
 
 // listShared is a helper function to capture the
 // list of shared secrets for the provided path.
-func (c *client) listShared(org, team string) (*api.Secret, error) {
+func (c *Client) listShared(org, team string) (*api.Secret, error) {
 	return c.list(fmt.Sprintf("%s/%s/%s/%s", c.config.Prefix, constants.SecretShared, org, team))
 }
 
 // list is a helper function to capture the
 // list of secrets for the provided path.
-func (c *client) list(path string) (*api.Secret, error) {
+func (c *Client) list(path string) (*api.Secret, error) {
 	// handle k/v v2
 	if strings.HasPrefix(path, "secret/data/") {
 		// remove secret/data/ prefix

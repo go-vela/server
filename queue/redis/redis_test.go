@@ -3,6 +3,7 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -12,86 +13,62 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-// The following functions were taken from
-// https://github.com/go-vela/sdk-go/blob/main/vela/go
-// which is the only reason go-vela/sdk-go is
-// a dependency for go-vela/server
-// TODO: consider moving to go-vela/types?
-
-// Bool is a helper routine that allocates a new boolean
-// value to store v and returns a pointer to it.
-func Bool(v bool) *bool { return &v }
-
-// Bytes is a helper routine that allocates a new byte
-// array value to store v and returns a pointer to it.
-func Bytes(v []byte) *[]byte { return &v }
-
-// Int is a helper routine that allocates a new integer
-// value to store v and returns a pointer to it.
-func Int(v int) *int { return &v }
-
-// Int64 is a helper routine that allocates a new 64 bit
-// integer value to store v and returns a pointer to it.
-func Int64(v int64) *int64 { return &v }
-
-// String is a helper routine that allocates a new string
-// value to store v and returns a pointer to it.
-func String(v string) *string { return &v }
-
-// Strings is a helper routine that allocates a new string
-// array value to store v and returns a pointer to it.
-func Strings(v []string) *[]string { return &v }
+// Ptr is a helper routine that allocates a new T value
+// to store v and returns a pointer to it.
+func Ptr[T any](v T) *T {
+	return &v
+}
 
 // setup global variables used for testing.
 var (
 	_signingPrivateKey = "tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=="
 	_signingPublicKey  = "DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko="
 	_build             = &api.Build{
-		ID: Int64(1),
+		ID: Ptr(int64(1)),
 		Repo: &api.Repo{
-			ID: Int64(1),
+			ID: Ptr(int64(1)),
 			Owner: &api.User{
-				ID:     Int64(1),
-				Name:   String("octocat"),
+				ID:     Ptr(int64(1)),
+				Name:   Ptr("octocat"),
 				Token:  nil,
-				Active: Bool(true),
-				Admin:  Bool(false),
+				Active: Ptr(true),
+				Admin:  Ptr(false),
 			},
-			Org:        String("github"),
-			Name:       String("octocat"),
-			FullName:   String("github/octocat"),
-			Link:       String("https://github.com/github/octocat"),
-			Clone:      String("https://github.com/github/octocat.git"),
-			Branch:     String("main"),
-			Timeout:    Int64(60),
-			Visibility: String("public"),
-			Private:    Bool(false),
-			Trusted:    Bool(false),
-			Active:     Bool(true),
+			Org:        Ptr("github"),
+			Name:       Ptr("octocat"),
+			FullName:   Ptr("github/octocat"),
+			Link:       Ptr("https://github.com/github/octocat"),
+			Clone:      Ptr("https://github.com/github/octocat.git"),
+			Branch:     Ptr("main"),
+			Timeout:    Ptr(int32(60)),
+			Visibility: Ptr("public"),
+			Private:    Ptr(false),
+			Trusted:    Ptr(false),
+			Active:     Ptr(true),
 		},
-		Number:       Int(1),
-		Parent:       Int(1),
-		Event:        String("push"),
-		Status:       String("success"),
-		Error:        String(""),
-		Enqueued:     Int64(1563474077),
-		Created:      Int64(1563474076),
-		Started:      Int64(1563474077),
-		Finished:     Int64(0),
-		Deploy:       String(""),
-		Clone:        String("https://github.com/github/octocat.git"),
-		Source:       String("https://github.com/github/octocat/abcdefghi123456789"),
-		Title:        String("push received from https://github.com/github/octocat"),
-		Message:      String("First commit..."),
-		Commit:       String("48afb5bdc41ad69bf22588491333f7cf71135163"),
-		Sender:       String("OctoKitty"),
-		Author:       String("OctoKitty"),
-		Branch:       String("main"),
-		Ref:          String("refs/heads/main"),
-		BaseRef:      String(""),
-		Host:         String("example.company.com"),
-		Runtime:      String("docker"),
-		Distribution: String("linux"),
+		Number:       Ptr(int64(2)),
+		Parent:       Ptr(int64(1)),
+		Event:        Ptr("push"),
+		Status:       Ptr("success"),
+		Error:        Ptr(""),
+		Enqueued:     Ptr(int64(1563474077)),
+		Created:      Ptr(int64(1563474076)),
+		Started:      Ptr(int64(1563474077)),
+		Finished:     Ptr(int64(0)),
+		Deploy:       Ptr(""),
+		Clone:        Ptr("https://github.com/github/octocat.git"),
+		Source:       Ptr("https://github.com/github/octocat/abcdefghi123456789"),
+		Title:        Ptr("push received from https://github.com/github/octocat"),
+		Message:      Ptr("First commit..."),
+		Commit:       Ptr("48afb5bdc41ad69bf22588491333f7cf71135163"),
+		Sender:       Ptr("OctoKitty"),
+		Author:       Ptr("OctoKitty"),
+		Branch:       Ptr("main"),
+		Ref:          Ptr("refs/heads/main"),
+		BaseRef:      Ptr(""),
+		Host:         Ptr("example.company.com"),
+		Runtime:      Ptr("docker"),
+		Distribution: Ptr("linux"),
 	}
 )
 
@@ -124,6 +101,7 @@ func TestRedis_New(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		_, err := New(
+			context.Background(),
 			WithAddress(test.address),
 			WithRoutes("foo"),
 			WithCluster(false),

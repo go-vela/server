@@ -14,17 +14,17 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 workers (
-	id                     SERIAL PRIMARY KEY,
+	id                     BIGSERIAL PRIMARY KEY,
 	hostname               VARCHAR(250),
 	address                VARCHAR(250),
 	routes                 VARCHAR(1000),
 	active                 BOOLEAN,
 	status                 VARCHAR(50),
-	last_status_update_at  INTEGER,
+	last_status_update_at  BIGINT,
 	running_build_ids      VARCHAR(500),
-	last_build_started_at  INTEGER,
-	last_build_finished_at INTEGER,
-	last_checked_in        INTEGER,
+	last_build_started_at  BIGINT,
+	last_build_finished_at BIGINT,
+	last_checked_in        BIGINT,
 	build_limit            INTEGER,
 	UNIQUE(hostname)
 );
@@ -52,7 +52,7 @@ workers (
 )
 
 // CreateWorkerTable creates the workers table in the database.
-func (e *engine) CreateWorkerTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateWorkerTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating workers table")
 
 	// handle the driver provided to create the table

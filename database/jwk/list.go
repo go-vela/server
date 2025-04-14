@@ -5,14 +5,14 @@ package jwk
 import (
 	"context"
 
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
 )
 
 // ListJWKs gets a list of all configured JWKs from the database.
-func (e *engine) ListJWKs(ctx context.Context) (jwk.Set, error) {
+func (e *Engine) ListJWKs(ctx context.Context) (jwk.Set, error) {
 	e.logger.Trace("listing all JWKs")
 
 	k := new([]types.JWK)

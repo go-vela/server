@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v71/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -21,7 +21,7 @@ import (
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
-func (c *client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, ref string) (data []byte, err error) {
+func (c *Client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, ref string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
 
@@ -49,7 +49,7 @@ func (c *client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, re
 }
 
 // Config gets the pipeline configuration from the GitHub repo.
-func (c *client) Config(ctx context.Context, u *api.User, r *api.Repo, ref string) ([]byte, error) {
+func (c *Client) Config(ctx context.Context, u *api.User, r *api.Repo, ref string) ([]byte, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -96,12 +96,12 @@ func (c *client) Config(ctx context.Context, u *api.User, r *api.Repo, ref strin
 }
 
 // Disable deactivates a repo by deleting the webhook.
-func (c *client) Disable(ctx context.Context, u *api.User, org, name string) error {
+func (c *Client) Disable(ctx context.Context, u *api.User, org, name string) error {
 	return c.DestroyWebhook(ctx, u, org, name)
 }
 
 // DestroyWebhook deletes a repo's webhook.
-func (c *client) DestroyWebhook(ctx context.Context, u *api.User, org, name string) error {
+func (c *Client) DestroyWebhook(ctx context.Context, u *api.User, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,
@@ -130,7 +130,7 @@ func (c *client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 		}
 
 		// capture hook ID if the hook url matches
-		if strings.EqualFold(hook.GetConfig().GetURL(), fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)) {
+		if strings.EqualFold(hook.GetConfig().GetURL(), c.config.ServerWebhookAddress) {
 			ids = append(ids, hook.GetID())
 		}
 	}
@@ -141,7 +141,7 @@ func (c *client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 			"org":  org,
 			"repo": name,
 			"user": u.GetName(),
-		}).Warnf("no repository webhooks matching %s/webhook found for %s/%s", c.config.ServerWebhookAddress, org, name)
+		}).Warnf("no repository webhooks matching %s found for %s/%s", c.config.ServerWebhookAddress, org, name)
 
 		return nil
 	}
@@ -156,12 +156,12 @@ func (c *client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
+func (c *Client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
 	return c.CreateWebhook(ctx, u, r, h)
 }
 
 // CreateWebhook creates a repo's webhook.
-func (c *client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
+func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -202,11 +202,11 @@ func (c *client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h 
 	hook := &github.Hook{
 		Events: events,
 		Config: &github.HookConfig{
-			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
-			ContentType: github.String("form"),
-			Secret:      github.String(r.GetHash()),
+			URL:         github.Ptr(c.config.ServerWebhookAddress),
+			ContentType: github.Ptr("form"),
+			Secret:      github.Ptr(r.GetHash()),
 		},
-		Active: github.Bool(true),
+		Active: github.Ptr(true),
 	}
 
 	// send API call to create the webhook
@@ -235,7 +235,7 @@ func (c *client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h 
 }
 
 // Update edits a repo webhook.
-func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID int64) (bool, error) {
+func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID int64) (bool, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -276,11 +276,11 @@ func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	hook := &github.Hook{
 		Events: events,
 		Config: &github.HookConfig{
-			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
-			ContentType: github.String("form"),
-			Secret:      github.String(r.GetHash()),
+			URL:         github.Ptr(c.config.ServerWebhookAddress),
+			ContentType: github.Ptr("form"),
+			Secret:      github.Ptr(r.GetHash()),
 		},
-		Active: github.Bool(true),
+		Active: github.Ptr(true),
 	}
 
 	// send API call to update the webhook
@@ -292,7 +292,7 @@ func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
-func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, name string) error {
+func (c *Client) Status(ctx context.Context, u *api.User, b *api.Build, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
@@ -378,14 +378,14 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 
 		// create the status object to make the API call
 		status := &github.DeploymentStatusRequest{
-			Description: github.String(description),
-			Environment: github.String(b.GetDeploy()),
-			State:       github.String(state),
+			Description: github.Ptr(description),
+			Environment: github.Ptr(b.GetDeploy()),
+			State:       github.Ptr(state),
 		}
 
 		// provide "Details" link in GitHub UI if server was configured with it
 		if len(c.config.WebUIAddress) > 0 {
-			status.LogURL = github.String(url)
+			status.LogURL = github.Ptr(url)
 		}
 
 		_, _, err = client.Repositories.CreateDeploymentStatus(ctx, org, name, int64(number), status)
@@ -395,14 +395,14 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 
 	// create the status object to make the API call
 	status := &github.RepoStatus{
-		Context:     github.String(context),
-		Description: github.String(description),
-		State:       github.String(state),
+		Context:     github.Ptr(context),
+		Description: github.Ptr(description),
+		State:       github.Ptr(state),
 	}
 
 	// provide "Details" link in GitHub UI if server was configured with it
 	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
-		status.TargetURL = github.String(url)
+		status.TargetURL = github.Ptr(url)
 	}
 
 	// send API call to create the status context for the commit
@@ -412,7 +412,7 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 }
 
 // StepStatus sends the commit status for the given SHA to the GitHub repo with the step as the context.
-func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *api.Step, org, name string) error {
+func (c *Client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *api.Step, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
@@ -464,14 +464,14 @@ func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *a
 
 	// create the status object to make the API call
 	status := &github.RepoStatus{
-		Context:     github.String(context),
-		Description: github.String(description),
-		State:       github.String(state),
+		Context:     github.Ptr(context),
+		Description: github.Ptr(description),
+		State:       github.Ptr(state),
 	}
 
 	// provide "Details" link in GitHub UI if server was configured with it
 	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
-		status.TargetURL = github.String(url)
+		status.TargetURL = github.Ptr(url)
 	}
 
 	// send API call to create the status context for the commit
@@ -481,7 +481,7 @@ func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *a
 }
 
 // GetRepo gets repo information from Github.
-func (c *client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Repo, int, error) {
+func (c *Client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Repo, int, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -501,7 +501,7 @@ func (c *client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Re
 }
 
 // GetOrgAndRepoName returns the name of the org and the repository in the SCM.
-func (c *client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r string) (string, string, error) {
+func (c *Client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
 		"repo": r,
@@ -521,7 +521,7 @@ func (c *client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r
 }
 
 // ListUserRepos returns a list of all repos the user has access to.
-func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, error) {
+func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing source repositories for %s", u.GetName())
@@ -599,7 +599,7 @@ func toAPIRepo(gr github.Repository) *api.Repo {
 
 // GetPullRequest defines a function that retrieves
 // a pull request for a repo.
-func (c *client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (string, string, string, string, error) {
+func (c *Client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (string, string, string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -623,7 +623,7 @@ func (c *client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (s
 }
 
 // GetHTMLURL retrieves the html_url from repository contents from the GitHub repo.
-func (c *client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, ref string) (string, error) {
+func (c *Client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, ref string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
@@ -655,7 +655,7 @@ func (c *client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, r
 }
 
 // GetBranch defines a function that retrieves a branch for a repo.
-func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (string, string, error) {
+func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -677,7 +677,7 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
-func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r *api.Repo, u *api.User, g yaml.Git) (string, error) {
+func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, r *api.Repo, u *api.User, g yaml.Git) (string, error) {
 	l := c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -719,8 +719,8 @@ func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 	//
 	// the default is contents:read and checks:write
 	ghPermissions := &github.InstallationPermissions{
-		Contents: github.String(AppInstallPermissionRead),
-		Checks:   github.String(AppInstallPermissionWrite),
+		Contents: github.Ptr(AppInstallPermissionRead),
+		Checks:   github.Ptr(AppInstallPermissionWrite),
 	}
 
 	permissions := g.Permissions
@@ -769,7 +769,7 @@ func (c *client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 }
 
 // SyncRepoWithInstallation ensures the repo is synchronized with the scm installation, if it exists.
-func (c *client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*api.Repo, error) {
+func (c *Client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*api.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
