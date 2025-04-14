@@ -45,6 +45,13 @@ services:
       VELA_OTEL_TRACING_ENABLE: true
       VELA_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
       VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND: 100
+      VELA_STORAGE_ENABLE: 'true'
+      VELA_STORAGE_DRIVER: minio
+      VELA_STORAGE_ADDRESS: "http://minio:9000" # Address of the MinIO server
+      VELA_STORAGE_ACCESS_KEY: minioadmin
+      VELA_STORAGE_SECRET_KEY: minioadmin
+      VELA_STORAGE_USE_SSL: 'false'
+      VELA_STORAGE_BUCKET: vela
     env_file:
       - .env
     restart: always
@@ -83,6 +90,11 @@ services:
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       WORKER_ADDR: 'http://worker:8080'
       WORKER_CHECK_IN: 2m
+      VELA_EXECUTOR_OUTPUTS_IMAGE: 'alpine:latest'
+      VELA_STORAGE_ENABLE: 'true'
+      VELA_STORAGE_DRIVER: minio
+      VELA_STORAGE_ADDRESS: "http://minio:9000"
+      VELA_STORAGE_BUCKET: vela
     restart: always
     ports:
       - '8081:8080'
@@ -176,6 +188,35 @@ services:
     ports:
       - '16686:16686'
       - '4318:4318'
+
+  minio:
+    container_name: minio
+    image: minio/minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - vela
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_SERVER_URL=http://minio
+    command: minio server --address ":9000" --console-address ":9001" /data
+
+  # The `nginx` compose service hosts the NGINX reverse proxy.
+  nginx:
+    image: nginx:latest
+    container_name: minio_nginx
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+     - "80:80"
+    depends_on:
+      - minio
+    networks:
+      - vela
 
 networks:
   vela:
