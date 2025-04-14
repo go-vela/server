@@ -14,13 +14,14 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 testattachments (
-	id             	SERIAL PRIMARY KEY,
-	testreport_id	INTEGER,
-	created        	INTEGER,
-	file_name	  	VARCHAR(1000),
-	object_path	  	VARCHAR(1000),
-	file_size	  	INTEGER,
-	file_type	  	TEXT,
+	id             		SERIAL PRIMARY KEY,
+	testreport_id		INTEGER,
+	created        		INTEGER,
+	file_name	  		VARCHAR(1000),
+	object_path	  		VARCHAR(1000),
+	file_size	  		INTEGER,
+	file_type	  		TEXT,
+	presigned_get_url	VARCHAR(2000),
 	CONSTRAINT fk_testreport
 	FOREIGN KEY (testreport_id)
 	REFERENCES testreports(id)
