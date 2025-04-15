@@ -319,7 +319,7 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 		}
 
 		// pull from github without auth when the host isn't provided or is set to github.com
-		if !c.UsePrivateGithub && (len(src.Host) == 0 || strings.Contains(src.Host, "github.com")) {
+		if !c.UsePrivateGithub && (len(src.Host) == 0 || !c.UsePrivateGithub && strings.Contains(src.Host, "github.com")) {
 			logrus.WithFields(logrus.Fields{
 				"org":  src.Org,
 				"repo": src.Repo,

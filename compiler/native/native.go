@@ -208,6 +208,7 @@ func (c *Client) WithPrivateGitHub(ctx context.Context, url, token string) compi
 		privGithub, _ := setupPrivateGithub(ctx, url, token)
 
 		c.PrivateGithub = privGithub
+		c.UsePrivateGithub = true
 	}
 
 	return c
