@@ -33,7 +33,7 @@ testreports (
 )
 
 // CreateTestReportsTable creates the testreports table in the database.
-func (e *engine) CreateTestReportsTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateTestReportsTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating testreports table")
 
 	// handle the driver provided to create the table

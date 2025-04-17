@@ -22,7 +22,7 @@ type (
 	}
 
 	// engine represents the testreports functionality that implements the TestReportsInterface interface.
-	engine struct {
+	Engine struct {
 		// engine configuration settings used in testreports functions
 		config *config
 
@@ -43,9 +43,9 @@ type (
 // New creates and returns a Vela service for integrating with testreports in the database.
 //
 //nolint:revive // ignore returning unexported engine
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new TestReports engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

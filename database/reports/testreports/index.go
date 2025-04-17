@@ -25,7 +25,7 @@ ON testreports (build_id);
 )
 
 // CreateTestReportsIndexes creates the indexes for the testreports table in the database.
-func (e *engine) CreateTestReportsIndexes(ctx context.Context) error {
+func (e *Engine) CreateTestReportsIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for testreports table")
 
 	// create the created column index for the testreports table

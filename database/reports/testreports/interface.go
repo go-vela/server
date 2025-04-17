@@ -4,6 +4,7 @@ package testreports
 
 import (
 	"context"
+	api "github.com/go-vela/server/api/types"
 )
 
 // TestReportsInterface represents the Vela interface for testreports
@@ -19,4 +20,36 @@ type TestReportsInterface interface {
 	CreateTestReportsIndexes(context.Context) error
 	// CreateTestReportsTable defines a function that creates the testreports table.
 	CreateTestReportsTable(context.Context, string) error
+
+	// TestReport Management Functions
+
+	// Count returns the count of all reports.
+	Count(context.Context) (int64, error)
+
+	// CountByBuild returns the count of reports by build ID.
+	CountByBuild(context.Context, *api.Build, map[string]interface{}) (int64, error)
+
+	// CountByRepo returns the count of reports by repo ID.
+	CountByRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64) (int64, error)
+
+	// CreateTestReport creates a new report.
+	CreateTestReport(context.Context, *api.TestReport) (*api.TestReport, error)
+
+	// DeleteByID removes a report by ID.
+	DeleteByID(context.Context, *api.TestReport) error
+
+	// Get returns a report by ID.
+	Get(context.Context, int64) (*api.TestReport, error)
+
+	// List returns a list of all reports.
+	List(context.Context, int, int) ([]*api.TestReport, int64, error)
+
+	// ListByBuild returns a list of reports by build ID.
+	ListByBuild(context.Context, *api.Build, int, int) ([]*api.TestReport, int64, error)
+
+	// ListByRepo returns a list of reports by repo ID.
+	ListByRepo(context.Context, *api.Repo, int, int) ([]*api.TestReport, int64, error)
+
+	// Update updates a report.
+	Update(context.Context, *api.TestReport) (*api.TestReport, error)
 }
