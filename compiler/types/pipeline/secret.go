@@ -83,7 +83,7 @@ func (s *SecretSlice) Purge(r *RuleData) (*SecretSlice, error) {
 			continue
 		}
 
-		match, err := secret.Origin.Ruleset.Match(r)
+		match, err := secret.Origin.Ruleset.Match(r, secret.Origin.Environment)
 		if err != nil {
 			return nil, fmt.Errorf("unable to process ruleset for secret %s: %w", secret.Name, err)
 		}
