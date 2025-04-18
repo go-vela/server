@@ -186,9 +186,9 @@ func CreateSecret(c *gin.Context) {
 		return
 	}
 
-	// this is not technically necessary but good practice to reject this bad configuration
-	if len(input.GetRepoAllowlist()) > 0 && strings.EqualFold(t, constants.SecretRepo) {
-		retErr := fmt.Errorf("repo secrets cannot have repository allowlists")
+	err = validateAllowlist(input)
+	if err != nil {
+		retErr := fmt.Errorf("invalid allowlist: %w", err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -283,4 +283,27 @@ func CreateSecret(c *gin.Context) {
 	l.WithFields(fields).Infof("created secret %s for %s service", entry, e)
 
 	c.JSON(http.StatusOK, s.Sanitize())
+}
+
+// validateAllowlist is a helper function for create/update secret API handlers to verify allowlist configurations.
+func validateAllowlist(s *types.Secret) error {
+	switch s.GetType() {
+	case constants.SecretRepo:
+		if len(s.GetRepoAllowlist()) > 0 {
+			return fmt.Errorf("repo secrets cannot have repository allowlists")
+		}
+	default:
+		for _, r := range s.GetRepoAllowlist() {
+			split := strings.Split(r, "/")
+			if len(split) != 2 {
+				return fmt.Errorf("repo %s in allowlist is in an invalid format. Must use `org`/`repo`", r)
+			}
+
+			if strings.EqualFold(s.GetType(), constants.SecretOrg) && split[0] != s.GetOrg() {
+				return fmt.Errorf("repo %s is not in org %s", r, s.GetOrg())
+			}
+		}
+	}
+
+	return nil
 }

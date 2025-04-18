@@ -129,9 +129,9 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
-	// this is not technically necessary but good practice to reject this bad configuration
-	if len(input.GetRepoAllowlist()) > 0 && strings.EqualFold(t, constants.SecretRepo) {
-		retErr := fmt.Errorf("repo secrets cannot have repository allowlists")
+	err = validateAllowlist(input)
+	if err != nil {
+		retErr := fmt.Errorf("invalid allowlist: %w", err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
