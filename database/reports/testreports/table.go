@@ -14,9 +14,9 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 testreports (
-	id             SERIAL PRIMARY KEY,
-	build_id       INTEGER,
-	created        INTEGER
+	id             BIGSERIAL PRIMARY KEY,
+	build_id       BIGINT,
+	created        BIGINT
 );
 `
 
@@ -26,8 +26,8 @@ CREATE TABLE
 IF NOT EXISTS
 testreports (
 	id             INTEGER PRIMARY KEY AUTOINCREMENT,
-	build_id       INTEGER,
-	created        INTEGER
+	build_id       BIGINT,
+	created        BIGINT
 );
 `
 )

@@ -24,10 +24,17 @@ func (e *Engine) CreateTestReport(ctx context.Context, r *api.TestReport) (*api.
 	}
 
 	// send query to the database
-	result := e.client.
+	err = e.client.
 		WithContext(ctx).
 		Table(constants.TableTestReports).
-		Create(report)
+		Create(report).Error
+	if err != nil {
+		return nil, err
+	}
 
-	return report.ToAPI(), result.Error
+	result := report.ToAPI()
+	result.SetBuildID(r.GetBuildID())
+
+
+	return report.ToAPI(), nil
 }

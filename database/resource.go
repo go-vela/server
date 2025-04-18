@@ -149,30 +149,6 @@ func (e *engine) NewResources(ctx context.Context) error {
 		return err
 	}
 
-	// create the database agnostic engine for testreports
-	e.TestReportsInterface, err = testreports.New(
-		testreports.WithContext(ctx),
-		testreports.WithClient(e.client),
-		testreports.WithEncryptionKey(e.config.EncryptionKey),
-		testreports.WithLogger(e.logger),
-		testreports.WithSkipCreation(e.config.SkipCreation),
-	)
-	if err != nil {
-		return err
-	}
-
-	// create the database agnostic engine for testattachments
-	e.TestAttachmentsInterface, err = testattachments.New(
-		testattachments.WithContext(ctx),
-		testattachments.WithClient(e.client),
-		testattachments.WithEncryptionKey(e.config.EncryptionKey),
-		testattachments.WithLogger(e.logger),
-		testattachments.WithSkipCreation(e.config.SkipCreation),
-	)
-	if err != nil {
-		return err
-	}
-
 	// create the database agnostic engine for schedules
 	e.ScheduleInterface, err = schedule.New(
 		schedule.WithContext(ctx),
@@ -238,6 +214,30 @@ func (e *engine) NewResources(ctx context.Context) error {
 		worker.WithClient(e.client),
 		worker.WithLogger(e.logger),
 		worker.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for testreports
+	e.TestReportsInterface, err = testreports.New(
+		testreports.WithContext(ctx),
+		testreports.WithClient(e.client),
+		testreports.WithEncryptionKey(e.config.EncryptionKey),
+		testreports.WithLogger(e.logger),
+		testreports.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for testattachments
+	e.TestAttachmentsInterface, err = testattachments.New(
+		testattachments.WithContext(ctx),
+		testattachments.WithClient(e.client),
+		testattachments.WithEncryptionKey(e.config.EncryptionKey),
+		testattachments.WithLogger(e.logger),
+		testattachments.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

@@ -14,9 +14,9 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 testattachments (
-	id             		SERIAL PRIMARY KEY,
-	testreport_id		INTEGER,
-	created        		INTEGER,
+	id             		BIGSERIAL PRIMARY KEY,
+	testreport_id		BIGINT,
+	created        		BIGINT,
 	file_name	  		VARCHAR(1000),
 	object_path	  		VARCHAR(1000),
 	file_size	  		INTEGER,
