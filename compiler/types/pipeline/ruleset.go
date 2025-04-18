@@ -78,7 +78,7 @@ type (
 // the function also returns true.
 func (r *Ruleset) Match(from *RuleData, envs raw.StringSliceMap) (bool, error) {
 	// return true when the if and unless rules are empty
-	if r.If.Empty() && r.Unless.Empty() {
+	if r.If.Empty() && r.Unless.Empty() && r.Eval == "" {
 		return true, nil
 	}
 
@@ -95,14 +95,13 @@ func (r *Ruleset) Match(from *RuleData, envs raw.StringSliceMap) (bool, error) {
 	}
 
 	// return true when the if rules are empty
-	if r.If.Empty() {
+	if r.If.Empty() && r.Eval == "" {
 		return true, nil
 	}
 
 	// return true when the if rules match
 	match, err := r.If.Match(from, r.Matcher, r.Operator)
-
-	if r.Eval != "" {
+	if match && r.Eval != "" {
 		eval, err := expr.Compile(r.Eval, expr.Env(envs), expr.AllowUndefinedVariables(), expr.AsBool())
 		if err != nil {
 			return false, fmt.Errorf("failed to compile expr of %s: %w", r.Eval, err)
@@ -119,6 +118,7 @@ func (r *Ruleset) Match(from *RuleData, envs raw.StringSliceMap) (bool, error) {
 		}
 
 		match = bResult
+		err = nil
 	}
 
 	return match, err

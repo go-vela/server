@@ -211,7 +211,7 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 		},
 		// Eval
 		{
-			ruleset: &Ruleset{Eval: "VELA_BUILD_AUTHOR == 'Octocat'"},
+			ruleset: &Ruleset{Eval: "VELA_BUILD_AUTHOR == 'Octocat'", Operator: "and"},
 			data:    &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
 			envs: map[string]string{
 				"VELA_BUILD_AUTHOR": "Octocat",
@@ -232,7 +232,6 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 
 	// run test
 	for _, test := range tests {
-		// TODO: update test to use environment variables for eval testing
 		got, err := test.ruleset.Match(test.data, test.envs)
 		if err != nil {
 			if !test.wantErr {
