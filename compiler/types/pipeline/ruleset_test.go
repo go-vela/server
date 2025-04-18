@@ -3,8 +3,9 @@
 package pipeline
 
 import (
-	"github.com/go-vela/server/compiler/types/raw"
 	"testing"
+
+	"github.com/go-vela/server/compiler/types/raw"
 
 	"github.com/go-vela/server/constants"
 )

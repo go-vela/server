@@ -4,10 +4,11 @@ package pipeline
 
 import (
 	"fmt"
-	"github.com/go-vela/server/compiler/types/raw"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/go-vela/server/compiler/types/raw"
 
 	"github.com/expr-lang/expr"
 
@@ -118,7 +119,6 @@ func (r *Ruleset) Match(from *RuleData, envs raw.StringSliceMap) (bool, error) {
 		}
 
 		match = bResult
-		err = nil
 	}
 
 	return match, err
