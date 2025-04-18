@@ -319,19 +319,7 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 		}
 
 		// pull from github without auth when the host isn't provided or is set to github.com
-		if !c.UsePrivateGithub && (len(src.Host) == 0 || strings.Contains(src.Host, "github.com")) {
-			logrus.WithFields(logrus.Fields{
-				"org":  src.Org,
-				"repo": src.Repo,
-				"path": src.Name,
-				"host": src.Host,
-			}).Tracef("Using GitHub client to pull template")
-
-			bytes, err = c.Github.Template(ctx, nil, src)
-			if err != nil {
-				return bytes, err
-			}
-		} else {
+		if c.UsePrivateGithub {
 			logrus.WithFields(logrus.Fields{
 				"org":  src.Org,
 				"repo": src.Repo,
@@ -346,6 +334,18 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(ctx, c.user, src)
+			if err != nil {
+				return bytes, err
+			}
+		} else {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
+				"host": src.Host,
+			}).Tracef("Using GitHub client to pull template")
+
+			bytes, err = c.Github.Template(ctx, nil, src)
 			if err != nil {
 				return bytes, err
 			}
