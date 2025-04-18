@@ -129,6 +129,15 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
+	err = validateAllowlist(input)
+	if err != nil {
+		retErr := fmt.Errorf("invalid allowlist: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	// update secret fields if provided
 	input.SetName(s)
 	input.SetOrg(o)

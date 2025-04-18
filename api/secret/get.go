@@ -5,6 +5,7 @@ package secret
 import (
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -118,6 +119,15 @@ func GetSecret(c *gin.Context) {
 
 	// only allow workers to access the full secret with the value
 	if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
+		// worker can only access secret val if the repo running the build is in the secret allowlist
+		if len(secret.GetRepoAllowlist()) > 0 && !slices.Contains(secret.GetRepoAllowlist(), cl.Repo) {
+			retErr := fmt.Errorf("unable to get secret %s: repository %s is not in secret allowlist", entry, cl.Repo)
+
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+
 		c.JSON(http.StatusOK, secret)
 
 		return

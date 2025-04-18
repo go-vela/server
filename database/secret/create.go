@@ -51,13 +51,12 @@ func (e *Engine) CreateSecret(ctx context.Context, s *api.Secret) (*api.Secret, 
 	}
 
 	// create secret record
-	result := e.client.
+	err = e.client.
 		WithContext(ctx).
 		Table(constants.TableSecret).
-		Create(secret.Nullify())
-
-	if result.Error != nil {
-		return nil, result.Error
+		Create(secret.Nullify()).Error
+	if err != nil {
+		return nil, err
 	}
 
 	// decrypt the fields for the secret to return
@@ -71,5 +70,13 @@ func (e *Engine) CreateSecret(ctx context.Context, s *api.Secret) (*api.Secret, 
 		}
 	}
 
-	return secret.ToAPI(), nil
+	err = e.InsertAllowlist(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+
+	result := secret.ToAPI()
+	result.SetRepoAllowlist(s.GetRepoAllowlist())
+
+	return result, nil
 }

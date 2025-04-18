@@ -47,5 +47,5 @@ func (e *Engine) GetSecretForOrg(ctx context.Context, org, name string) (*api.Se
 		e.logger.Errorf("unable to decrypt org secret %s/%s: %v", org, name, err)
 	}
 
-	return s.ToAPI(), nil
+	return e.FillSecretAllowlist(ctx, s.ToAPI())
 }

@@ -279,6 +279,15 @@ func secretFromVault(vault *api.Secret) *velaAPI.Secret {
 		}
 	}
 
+	// set repo_allowlist if found in Vault secret
+	v, ok = data["repo_allowlist"]
+	if ok {
+		allowlist, ok := v.([]string)
+		if ok {
+			s.SetRepoAllowlist(allowlist)
+		}
+	}
+
 	// set created_at if found in Vault secret
 	v, ok = data["created_at"]
 	if ok {
@@ -378,6 +387,11 @@ func vaultFromSecret(s *velaAPI.Secret) *api.Secret {
 	// set allow_substitution if found in Vela secret
 	if s.AllowSubstitution != nil {
 		vault.Data["allow_substitution"] = s.GetAllowSubstitution()
+	}
+
+	// set the repo_allowlist if found in Vela secret
+	if len(s.GetRepoAllowlist()) > 0 {
+		vault.Data["repo_allowlist"] = s.GetRepoAllowlist()
 	}
 
 	// set created_at if found in Vela secret

@@ -66,7 +66,7 @@ func New(opts ...EngineOpt) (*Engine, error) {
 	}
 
 	// create the secrets table
-	err := e.CreateSecretTable(e.ctx, e.client.Config.Dialector.Name())
+	err := e.CreateSecretTables(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableSecret, err)
 	}

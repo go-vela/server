@@ -37,9 +37,17 @@ func (e *Engine) DeleteSecret(ctx context.Context, s *api.Secret) error {
 	secret := types.SecretFromAPI(s)
 
 	// send query to the database
-	return e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableSecret).
 		Delete(secret).
 		Error
+	if err != nil {
+		return err
+	}
+
+	// empty allowlist
+	s.SetRepoAllowlist([]string{})
+
+	return e.PruneAllowlist(ctx, s)
 }

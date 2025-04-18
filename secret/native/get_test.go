@@ -25,6 +25,7 @@ func TestNative_Get(t *testing.T) {
 	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
 	want.SetAllowSubstitution(false)
+	want.SetRepoAllowlist([]string{})
 	want.SetCreatedAt(1)
 	want.SetCreatedBy("user")
 	want.SetUpdatedAt(1)

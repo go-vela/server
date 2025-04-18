@@ -49,6 +49,7 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_secretShared.SetCreatedBy("user")
 	_secretShared.SetUpdatedAt(1)
 	_secretShared.SetUpdatedBy("user2")
+	_secretShared.SetRepoAllowlist([]string{"github/octocat"})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -58,14 +59,26 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2)`).
+		WithArgs(1, nil).
+		WillReturnResult(sqlmock.NewResult(1, 0))
+
 	// ensure the mock expects the org query
 	_mock.ExpectExec(`DELETE FROM "secrets" WHERE "secrets"."id" = $1`).
 		WithArgs(2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2)`).
+		WithArgs(2, nil).
+		WillReturnResult(sqlmock.NewResult(1, 0))
+
 	// ensure the mock expects the shared query
 	_mock.ExpectExec(`DELETE FROM "secrets" WHERE "secrets"."id" = $1`).
 		WithArgs(3).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2)`).
+		WithArgs(3, nil).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
