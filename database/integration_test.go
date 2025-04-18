@@ -1678,6 +1678,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["CreateSecret"] = true
+	methods["InsertAllowlist"] = true
 
 	// count the secrets
 	count, err := db.CountSecrets(context.TODO())
@@ -1721,6 +1722,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 				t.Errorf("CountSecretsForTeam() is %v, want %v", count, 1)
 			}
 			methods["CountSecretsForTeam"] = true
+			methods["FillSecretAllowlist"] = true
 
 			// count the secrets for a list of teams
 			count, err = db.CountSecretsForTeams(context.TODO(), secret.GetOrg(), []string{secret.GetTeam()}, nil)
@@ -1778,6 +1780,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForTeam"] = true
+			methods["FillSecretsAllowlists"] = true
 
 			// list the secrets for a list of teams
 			list, err = db.ListSecretsForTeams(context.TODO(), secret.GetOrg(), []string{secret.GetTeam()}, nil, 1, 10)
@@ -1853,6 +1856,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["DeleteSecret"] = true
+	methods["PruneAllowlist"] = true
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -2832,6 +2836,7 @@ func newResources() *Resources {
 	secretOrg.SetCreatedBy("octocat")
 	secretOrg.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretOrg.SetUpdatedBy("octokitty")
+	secretOrg.SetRepoAllowlist([]string{})
 
 	secretRepo := new(api.Secret)
 	secretRepo.SetID(2)
@@ -2849,6 +2854,7 @@ func newResources() *Resources {
 	secretRepo.SetCreatedBy("octocat")
 	secretRepo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretRepo.SetUpdatedBy("octokitty")
+	secretRepo.SetRepoAllowlist([]string{})
 
 	secretShared := new(api.Secret)
 	secretShared.SetID(3)
@@ -2866,6 +2872,7 @@ func newResources() *Resources {
 	secretShared.SetCreatedBy("octocat")
 	secretShared.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretShared.SetUpdatedBy("octokitty")
+	secretShared.SetRepoAllowlist([]string{"github/octocat"})
 
 	serviceOne := new(api.Service)
 	serviceOne.SetID(1)

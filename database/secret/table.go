@@ -34,6 +34,18 @@ secrets (
 );
 `
 
+	// CreatePostgresAllowlistTable represents a query to create the Postgres secrets_repo_allowlist table.
+	CreatePostgresAllowlistTable = `
+CREATE TABLE
+IF NOT EXISTS
+secret_repo_allowlist (
+	id                 BIGSERIAL PRIMARY KEY,
+	secret_id          BIGINT,
+	repo               VARCHAR(500),
+	UNIQUE(secret_id, repo)
+);
+	`
+
 	// CreateSqliteTable represents a query to create the Sqlite secrets table.
 	CreateSqliteTable = `
 CREATE TABLE
@@ -58,15 +70,35 @@ secrets (
 	UNIQUE(type, org, team, name)
 );
 `
+
+	// CreateSqliteAllowlistTable represents a query to create the Sqlite secrets_allowlist table.
+	CreateSqliteAllowlistTable = `
+CREATE TABLE
+IF NOT EXISTS
+secret_repo_allowlist (
+	id                 BIGSERIAL PRIMARY KEY,
+	secret_id          INTEGER,
+	repo               TEXT,
+	UNIQUE(secret_id, repo)
+);
+`
 )
 
-// CreateSecretTable creates the secrets table in the database.
-func (e *Engine) CreateSecretTable(ctx context.Context, driver string) error {
+// CreateSecretTables creates the secrets and secret_repo_allowlist tables in the database.
+func (e *Engine) CreateSecretTables(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating secrets table")
 
 	// handle the driver provided to create the table
 	switch driver {
 	case constants.DriverPostgres:
+		// create the secrets allowlist table for Postgres
+		err := e.client.
+			WithContext(ctx).
+			Exec(CreatePostgresAllowlistTable).Error
+		if err != nil {
+			return err
+		}
+
 		// create the secrets table for Postgres
 		return e.client.
 			WithContext(ctx).
@@ -74,6 +106,14 @@ func (e *Engine) CreateSecretTable(ctx context.Context, driver string) error {
 	case constants.DriverSqlite:
 		fallthrough
 	default:
+		// create the secrets allowlist table for Sqlite
+		err := e.client.
+			WithContext(ctx).
+			Exec(CreateSqliteAllowlistTable).Error
+		if err != nil {
+			return err
+		}
+
 		// create the secrets table for Sqlite
 		return e.client.
 			WithContext(ctx).

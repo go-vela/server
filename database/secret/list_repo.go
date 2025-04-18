@@ -64,5 +64,5 @@ func (e *Engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 		secrets = append(secrets, tmp.ToAPI())
 	}
 
-	return secrets, nil
+	return e.FillSecretsAllowlists(ctx, secrets)
 }

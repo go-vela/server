@@ -7,52 +7,50 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/types"
 )
 
-func TestSecret_Engine_ListSecrets(t *testing.T) {
+func TestSecret_Engine_FillAllowlists(t *testing.T) {
 	// setup types
 	_secretOne := testutils.APISecret()
 	_secretOne.SetID(1)
 	_secretOne.SetOrg("foo")
-	_secretOne.SetRepo("bar")
+	_secretOne.SetRepo("*")
 	_secretOne.SetName("baz")
-	_secretOne.SetValue("foob")
-	_secretOne.SetType("repo")
+	_secretOne.SetValue("bar")
+	_secretOne.SetType("org")
 	_secretOne.SetCreatedAt(1)
 	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
 	_secretOne.SetAllowEvents(api.NewEventsFromMask(1))
-	_secretOne.SetRepoAllowlist([]string{})
+	_secretOne.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 
 	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
 	_secretTwo.SetOrg("foo")
-	_secretTwo.SetRepo("bar")
-	_secretTwo.SetName("foob")
-	_secretTwo.SetValue("baz")
-	_secretTwo.SetType("repo")
+	_secretTwo.SetRepo("*")
+	_secretTwo.SetName("bazzy")
+	_secretTwo.SetValue("barry")
+	_secretTwo.SetType("org")
 	_secretTwo.SetCreatedAt(1)
 	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy("user2")
 	_secretTwo.SetAllowEvents(api.NewEventsFromMask(1))
-	_secretTwo.SetRepoAllowlist([]string{})
+	_secretTwo.SetRepoAllowlist([]string{"alpha/beta", "gamma/delta"})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := testutils.CreateMockRows([]any{*types.SecretFromAPI(_secretOne), *types.SecretFromAPI(_secretTwo)})
+	_rows := testutils.CreateMockRows([]any{*types.SecretAllowlistFromAPI(_secretOne, "github/octocat"), *types.SecretAllowlistFromAPI(_secretOne, "github/octokitty")})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "secrets"`).WillReturnRows(_rows)
-
-	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlist" WHERE secret_id IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(sqlmock.NewRows([]string{}))
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlist" WHERE secret_id IN ($1,$2)`).
+		WithArgs(1, 2).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -91,22 +89,22 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListSecrets(context.TODO())
+			got, err := test.database.FillSecretsAllowlists(context.TODO(), []*api.Secret{_secretOne, _secretTwo})
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("ListSecrets for %s should have returned err", test.name)
+					t.Errorf("FillSecretsAllowlists for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("ListSecrets for %s returned err: %v", test.name, err)
+				t.Errorf("FillSecretsAllowlists for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("ListSecrets for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("FillSecretsAllowlists for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}

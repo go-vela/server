@@ -186,6 +186,15 @@ func CreateSecret(c *gin.Context) {
 		return
 	}
 
+	// this is not technically necessary but good practice to reject this bad configuration
+	if len(input.GetRepoAllowlist()) > 0 && strings.EqualFold(t, constants.SecretRepo) {
+		retErr := fmt.Errorf("repo secrets cannot have repository allowlists")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	// reject secrets with solely whitespace characters as its value
 	trimmed := strings.TrimSpace(input.GetValue())
 	if len(trimmed) == 0 {

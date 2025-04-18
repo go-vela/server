@@ -129,6 +129,15 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
+	// this is not technically necessary but good practice to reject this bad configuration
+	if len(input.GetRepoAllowlist()) > 0 && strings.EqualFold(t, constants.SecretRepo) {
+		retErr := fmt.Errorf("repo secrets cannot have repository allowlists")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	// update secret fields if provided
 	input.SetName(s)
 	input.SetOrg(o)

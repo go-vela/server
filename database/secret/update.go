@@ -68,5 +68,20 @@ func (e *Engine) UpdateSecret(ctx context.Context, s *api.Secret) (*api.Secret, 
 		}
 	}
 
-	return secret.ToAPI(), nil
+	// drop any allowlist records if they are not active post-update
+	err = e.PruneAllowlist(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+
+	// upsert allowlist
+	err = e.InsertAllowlist(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+
+	result := secret.ToAPI()
+	result.SetRepoAllowlist(s.GetRepoAllowlist())
+
+	return result, nil
 }

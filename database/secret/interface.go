@@ -19,8 +19,8 @@ type SecretInterface interface {
 
 	// CreateSecretIndexes defines a function that creates the indexes for the secrets table.
 	CreateSecretIndexes(context.Context) error
-	// CreateSecretTable defines a function that creates the secrets table.
-	CreateSecretTable(context.Context, string) error
+	// CreateSecretTables defines a function that creates the secrets table.
+	CreateSecretTables(context.Context, string) error
 
 	// Secret Data Manipulation Language Functions
 	//
@@ -40,6 +40,10 @@ type SecretInterface interface {
 	CreateSecret(context.Context, *api.Secret) (*api.Secret, error)
 	// DeleteSecret defines a function that deletes an existing secret.
 	DeleteSecret(context.Context, *api.Secret) error
+	// FillSecretAllowlist defines a function that fills a secret with its allowlist.
+	FillSecretAllowlist(context.Context, *api.Secret) (*api.Secret, error)
+	// FillSecretsAllowlists defines a function that takes a list of secrets and fills the allowlists on each.
+	FillSecretsAllowlists(context.Context, []*api.Secret) ([]*api.Secret, error)
 	// GetSecret defines a function that gets a secret by ID.
 	GetSecret(context.Context, int64) (*api.Secret, error)
 	// GetSecretForOrg defines a function that gets a secret by org name.
@@ -48,6 +52,8 @@ type SecretInterface interface {
 	GetSecretForRepo(context.Context, string, *api.Repo) (*api.Secret, error)
 	// GetSecretForTeam defines a function that gets a secret by org and team name.
 	GetSecretForTeam(context.Context, string, string, string) (*api.Secret, error)
+	// InsertAllowlist defines a function that upserts all allowlist records for a secret.
+	InsertAllowlist(context.Context, *api.Secret) error
 	// ListSecrets defines a function that gets a list of all secrets.
 	ListSecrets(context.Context) ([]*api.Secret, error)
 	// ListSecretsForOrg defines a function that gets a list of secrets by org name.
@@ -58,6 +64,8 @@ type SecretInterface interface {
 	ListSecretsForTeam(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Secret, error)
 	// ListSecretsForTeams defines a function that gets a list of secrets by teams within an org.
 	ListSecretsForTeams(context.Context, string, []string, map[string]interface{}, int, int) ([]*api.Secret, error)
+	// PruneAllowlist defines a function that removes all allowlist records that are no longer active for a secret.
+	PruneAllowlist(context.Context, *api.Secret) error
 	// UpdateSecret defines a function that updates an existing secret.
 	UpdateSecret(context.Context, *api.Secret) (*api.Secret, error)
 }

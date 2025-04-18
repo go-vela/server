@@ -5,6 +5,7 @@ package vault
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -64,6 +65,10 @@ func (c *Client) Update(ctx context.Context, sType, org, name string, s *api.Sec
 
 	if s.AllowSubstitution != nil {
 		vault.Data["allow_substitution"] = s.GetAllowSubstitution()
+	}
+
+	if !reflect.DeepEqual(s.GetRepoAllowlist(), sec.GetRepoAllowlist()) {
+		vault.Data["repo_allowlist"] = s.GetRepoAllowlist()
 	}
 
 	// validate the secret
