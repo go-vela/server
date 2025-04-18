@@ -105,17 +105,17 @@ func (r *Ruleset) Match(from *RuleData, envs raw.StringSliceMap) (bool, error) {
 	if match && r.Eval != "" {
 		eval, err := expr.Compile(r.Eval, expr.Env(envs), expr.AllowUndefinedVariables(), expr.AsBool())
 		if err != nil {
-			return false, fmt.Errorf("failed to compile expr of %s: %w", r.Eval, err)
+			return false, fmt.Errorf("failed to compile eval of %s: %w", r.Eval, err)
 		}
 
 		result, err := expr.Run(eval, envs)
 		if err != nil {
-			return false, fmt.Errorf("failed to run expr of %s: %w", r.Eval, err)
+			return false, fmt.Errorf("failed to run eval of %s: %w", r.Eval, err)
 		}
 
 		bResult, ok := result.(bool)
 		if !ok {
-			return false, fmt.Errorf("failed to parse expr of %s: expected bool but got %v", r.Eval, bResult)
+			return false, fmt.Errorf("failed to parse eval of %s: expected bool but got %v", r.Eval, bResult)
 		}
 
 		match = bResult
