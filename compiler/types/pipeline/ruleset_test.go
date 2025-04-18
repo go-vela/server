@@ -3,6 +3,7 @@
 package pipeline
 
 import (
+	"github.com/go-vela/server/compiler/types/raw"
 	"testing"
 
 	"github.com/go-vela/server/constants"
@@ -13,6 +14,7 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 	tests := []struct {
 		ruleset *Ruleset
 		data    *RuleData
+		envs    raw.StringSliceMap
 		want    bool
 		wantErr bool
 	}{
@@ -207,11 +209,31 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 			data:    &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
 			wantErr: true,
 		},
+		// Eval
+		{
+			ruleset: &Ruleset{Eval: "VELA_BUILD_AUTHOR == 'Octocat'"},
+			data:    &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
+			envs: map[string]string{
+				"VELA_BUILD_AUTHOR": "Octocat",
+			},
+			want:    true,
+			wantErr: false,
+		},
+		{
+			ruleset: &Ruleset{Eval: "VELA_BUILD_AUTHOR == 'Octocat'", Operator: "and"},
+			data:    &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
+			envs: map[string]string{
+				"VELA_BUILD_AUTHOR": "test",
+			},
+			want:    false,
+			wantErr: false,
+		},
 	}
 
 	// run test
 	for _, test := range tests {
-		got, err := test.ruleset.Match(test.data)
+		// TODO: update test to use environment variables for eval testing
+		got, err := test.ruleset.Match(test.data, test.envs)
 		if err != nil {
 			if !test.wantErr {
 				t.Errorf("Ruleset Match for %s operator returned err: %s", test.ruleset.Operator, err)

@@ -4,9 +4,12 @@ package pipeline
 
 import (
 	"fmt"
+	"github.com/go-vela/server/compiler/types/raw"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/expr-lang/expr"
 
 	"github.com/go-vela/server/constants"
 )
@@ -22,6 +25,7 @@ type (
 		Matcher  string `json:"matcher,omitempty"  yaml:"matcher,omitempty"`
 		Operator string `json:"operator,omitempty" yaml:"operator,omitempty"`
 		Continue bool   `json:"continue,omitempty" yaml:"continue,omitempty"`
+		Eval     string `json:"eval,omitempty"     yaml:"eval,omitempty"`
 	}
 
 	// Rules is the pipeline representation of the ruletypes
@@ -72,7 +76,7 @@ type (
 // When the provided if rules are empty, the function returns
 // true. When both the provided if and unless rules are empty,
 // the function also returns true.
-func (r *Ruleset) Match(from *RuleData) (bool, error) {
+func (r *Ruleset) Match(from *RuleData, envs raw.StringSliceMap) (bool, error) {
 	// return true when the if and unless rules are empty
 	if r.If.Empty() && r.Unless.Empty() {
 		return true, nil
@@ -97,6 +101,25 @@ func (r *Ruleset) Match(from *RuleData) (bool, error) {
 
 	// return true when the if rules match
 	match, err := r.If.Match(from, r.Matcher, r.Operator)
+
+	if r.Eval != "" {
+		eval, err := expr.Compile(r.Eval, expr.Env(envs), expr.AllowUndefinedVariables(), expr.AsBool())
+		if err != nil {
+			return false, fmt.Errorf("failed to compile expr of %s: %w", r.Eval, err)
+		}
+
+		result, err := expr.Run(eval, envs)
+		if err != nil {
+			return false, fmt.Errorf("failed to run expr of %s: %w", r.Eval, err)
+		}
+
+		bResult, ok := result.(bool)
+		if !ok {
+			return false, fmt.Errorf("failed to parse expr of %s: expected bool but got %v", r.Eval, bResult)
+		}
+
+		match = bResult
+	}
 
 	return match, err
 }
