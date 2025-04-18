@@ -8,10 +8,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-vela/server/compiler/types/raw"
-
 	"github.com/expr-lang/expr"
 
+	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/constants"
 )
 

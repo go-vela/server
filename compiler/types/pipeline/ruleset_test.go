@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/go-vela/server/compiler/types/raw"
-
 	"github.com/go-vela/server/constants"
 )
 
