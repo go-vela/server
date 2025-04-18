@@ -228,6 +228,13 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 			want:    false,
 			wantErr: false,
 		},
+		{
+			ruleset: &Ruleset{Eval: "VELA_MISSING_VAR == 'Octocat'", Operator: "and"},
+			data:    &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
+			envs:    map[string]string{},
+			want:    false,
+			wantErr: false,
+		},
 	}
 
 	// run test
