@@ -83,7 +83,7 @@ func (r *Ruleset) Match(from *RuleData, envs raw.StringSliceMap) (bool, error) {
 	}
 
 	// return false when the unless rules are not empty and match
-	if !r.Unless.Empty() {
+	if !r.Unless.Empty() && r.Eval == "" {
 		match, err := r.Unless.Match(from, r.Matcher, r.Operator)
 		if err != nil {
 			return false, err
