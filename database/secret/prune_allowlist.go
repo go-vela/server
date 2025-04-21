@@ -5,10 +5,11 @@ package secret
 import (
 	"context"
 
+	"gorm.io/gorm"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"gorm.io/gorm"
 )
 
 // PruneAllowlist deletes any allowlist record from the database that belongs to the secret but is not in the active allowlist.
