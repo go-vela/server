@@ -235,6 +235,24 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 			want:    false,
 			wantErr: false,
 		},
+		{
+			ruleset: &Ruleset{Eval: "VELA_BUILD_AUTHOR == 'Octocat'", If: Rules{Branch: []string{"main"}, Event: []string{"push"}}, Operator: "and"},
+			data:    &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
+			envs: map[string]string{
+				"VELA_BUILD_AUTHOR": "Octocat",
+			},
+			want:    true,
+			wantErr: false,
+		},
+		{
+			ruleset: &Ruleset{Eval: "VELA_BUILD_AUTHOR == 'Octocat'", If: Rules{Branch: []string{"main"}, Event: []string{"pull_request"}}, Operator: "and"},
+			data:    &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
+			envs: map[string]string{
+				"VELA_BUILD_AUTHOR": "Octocat",
+			},
+			want:    false,
+			wantErr: false,
+		},
 	}
 
 	// run test

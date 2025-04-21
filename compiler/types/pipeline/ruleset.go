@@ -101,6 +101,10 @@ func (r *Ruleset) Match(from *RuleData, envs raw.StringSliceMap) (bool, error) {
 
 	// return true when the if rules match
 	match, err := r.If.Match(from, r.Matcher, r.Operator)
+	if err != nil {
+		return match, err
+	}
+
 	if match && r.Eval != "" {
 		eval, err := expr.Compile(r.Eval, expr.Env(envs), expr.AllowUndefinedVariables(), expr.AsBool())
 		if err != nil {
