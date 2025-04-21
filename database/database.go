@@ -5,6 +5,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/go-vela/server/database/reports/testattachments"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -24,7 +25,6 @@ import (
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/reports/testreports"
-	"github.com/go-vela/server/database/reports/testreports/testattachments"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
