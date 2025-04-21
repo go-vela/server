@@ -60,6 +60,7 @@ func TestSecret_Engine_UpdateSecret(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
+	_mock.ExpectBegin()
 	// ensure the mock expects the repo query
 	_mock.ExpectExec(`UPDATE "secrets"
 SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"allow_events"=$8,"allow_command"=$9,"allow_substitution"=$10,"created_at"=$11,"created_by"=$12,"updated_at"=$13,"updated_by"=$14
@@ -71,6 +72,9 @@ WHERE "id" = $15`).
 		WithArgs(1, nil).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
+	_mock.ExpectCommit()
+	_mock.ExpectBegin()
+
 	// ensure the mock expects the org query
 	_mock.ExpectExec(`UPDATE "secrets"
 SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"allow_events"=$8,"allow_command"=$9,"allow_substitution"=$10,"created_at"=$11,"created_by"=$12,"updated_at"=$13,"updated_by"=$14
@@ -81,6 +85,9 @@ WHERE "id" = $15`).
 	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2)`).
 		WithArgs(2, nil).
 		WillReturnResult(sqlmock.NewResult(1, 0))
+
+	_mock.ExpectCommit()
+	_mock.ExpectBegin()
 
 	// ensure the mock expects the shared query
 	_mock.ExpectExec(`UPDATE "secrets"
@@ -102,6 +109,8 @@ WHERE "id" = $15`).
 VALUES ($1,$2),($3,$4) ON CONFLICT DO NOTHING RETURNING "id"`).
 		WithArgs(3, "github/octocat", 3, "github/octokitty").
 		WillReturnRows(_rows)
+
+	_mock.ExpectCommit()
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

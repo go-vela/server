@@ -8,12 +8,13 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
+	"gorm.io/gorm"
 )
 
 // PruneAllowlist deletes any allowlist record from the database that belongs to the secret but is not in the active allowlist.
-func (e *Engine) PruneAllowlist(ctx context.Context, s *api.Secret) error {
+func PruneAllowlist(ctx context.Context, tx *gorm.DB, s *api.Secret) error {
 	// send query to the database
-	return e.client.
+	return tx.
 		WithContext(ctx).
 		Table(constants.TableSecretRepoAllowlist).
 		Where("secret_id = ?", s.GetID()).

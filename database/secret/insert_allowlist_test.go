@@ -68,7 +68,7 @@ VALUES ($1,$2),($3,$4) ON CONFLICT DO NOTHING RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.InsertAllowlist(context.TODO(), test.secret)
+			err := InsertAllowlist(context.TODO(), test.database.client, test.secret)
 
 			if test.failure {
 				if err == nil {

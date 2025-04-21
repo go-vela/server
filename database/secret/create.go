@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
@@ -50,33 +51,43 @@ func (e *Engine) CreateSecret(ctx context.Context, s *api.Secret) (*api.Secret, 
 		}
 	}
 
-	// create secret record
-	err = e.client.
-		WithContext(ctx).
-		Table(constants.TableSecret).
-		Create(secret.Nullify()).Error
-	if err != nil {
-		return nil, err
-	}
+	var result *api.Secret
 
-	// decrypt the fields for the secret to return
-	err = secret.Decrypt(e.config.EncryptionKey)
-	if err != nil {
-		switch s.GetType() {
-		case constants.SecretShared:
-			return nil, fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
-		default:
-			return nil, fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
+	transactionErr := e.client.Transaction(func(tx *gorm.DB) error {
+		// create secret record
+		err = tx.
+			WithContext(ctx).
+			Table(constants.TableSecret).
+			Create(secret.Nullify()).Error
+		if err != nil {
+			return err
 		}
-	}
 
-	err = e.InsertAllowlist(ctx, s)
-	if err != nil {
-		return nil, err
-	}
+		// decrypt the fields for the secret to return
+		err = secret.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			switch s.GetType() {
+			case constants.SecretShared:
+				return fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
+			default:
+				return fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
+			}
+		}
 
-	result := secret.ToAPI()
-	result.SetRepoAllowlist(s.GetRepoAllowlist())
+		result = secret.ToAPI()
+		result.SetRepoAllowlist(s.GetRepoAllowlist())
+
+		err = InsertAllowlist(ctx, tx, result)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if transactionErr != nil {
+		return nil, transactionErr
+	}
 
 	return result, nil
 }

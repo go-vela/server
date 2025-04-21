@@ -54,6 +54,7 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
+	_mock.ExpectBegin()
 	// ensure the mock expects the repo query
 	_mock.ExpectExec(`DELETE FROM "secrets" WHERE "secrets"."id" = $1`).
 		WithArgs(1).
@@ -62,6 +63,9 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2)`).
 		WithArgs(1, nil).
 		WillReturnResult(sqlmock.NewResult(1, 0))
+
+	_mock.ExpectCommit()
+	_mock.ExpectBegin()
 
 	// ensure the mock expects the org query
 	_mock.ExpectExec(`DELETE FROM "secrets" WHERE "secrets"."id" = $1`).
@@ -72,6 +76,9 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 		WithArgs(2, nil).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
+	_mock.ExpectCommit()
+	_mock.ExpectBegin()
+
 	// ensure the mock expects the shared query
 	_mock.ExpectExec(`DELETE FROM "secrets" WHERE "secrets"."id" = $1`).
 		WithArgs(3).
@@ -80,6 +87,8 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2)`).
 		WithArgs(3, nil).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	_mock.ExpectCommit()
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

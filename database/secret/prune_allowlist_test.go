@@ -67,7 +67,7 @@ func TestSecret_Engine_PruneAllowlist(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.PruneAllowlist(context.TODO(), test.secret)
+			err = PruneAllowlist(context.TODO(), test.database.client, test.secret)
 
 			if test.failure {
 				if err == nil {

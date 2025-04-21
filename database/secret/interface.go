@@ -52,8 +52,6 @@ type SecretInterface interface {
 	GetSecretForRepo(context.Context, string, *api.Repo) (*api.Secret, error)
 	// GetSecretForTeam defines a function that gets a secret by org and team name.
 	GetSecretForTeam(context.Context, string, string, string) (*api.Secret, error)
-	// InsertAllowlist defines a function that upserts all allowlist records for a secret.
-	InsertAllowlist(context.Context, *api.Secret) error
 	// ListSecrets defines a function that gets a list of all secrets.
 	ListSecrets(context.Context) ([]*api.Secret, error)
 	// ListSecretsForOrg defines a function that gets a list of secrets by org name.
@@ -64,8 +62,6 @@ type SecretInterface interface {
 	ListSecretsForTeam(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Secret, error)
 	// ListSecretsForTeams defines a function that gets a list of secrets by teams within an org.
 	ListSecretsForTeams(context.Context, string, []string, map[string]interface{}, int, int) ([]*api.Secret, error)
-	// PruneAllowlist defines a function that removes all allowlist records that are no longer active for a secret.
-	PruneAllowlist(context.Context, *api.Secret) error
 	// UpdateSecret defines a function that updates an existing secret.
 	UpdateSecret(context.Context, *api.Secret) (*api.Secret, error)
 }

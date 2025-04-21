@@ -1678,7 +1678,6 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["CreateSecret"] = true
-	methods["InsertAllowlist"] = true
 
 	// count the secrets
 	count, err := db.CountSecrets(context.TODO())
@@ -1856,7 +1855,6 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["DeleteSecret"] = true
-	methods["PruneAllowlist"] = true
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {

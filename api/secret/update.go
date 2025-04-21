@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/util"
@@ -105,6 +106,15 @@ func UpdateSecret(c *gin.Context) {
 		"secret_type":   t,
 	}
 
+	dbSecret, err := secret.FromContext(c, e).Get(ctx, t, o, n, s)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get secret from database: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update log fields from API metadata
@@ -120,7 +130,7 @@ func UpdateSecret(c *gin.Context) {
 	// capture body from API request
 	input := new(types.Secret)
 
-	err := c.Bind(input)
+	err = c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for secret %s for %s service: %w", entry, e, err)
 
@@ -129,7 +139,7 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
-	err = validateAllowlist(input)
+	err = validateAllowlist(ctx, database.FromContext(c), dbSecret.GetRepoAllowlist(), input)
 	if err != nil {
 		retErr := fmt.Errorf("invalid allowlist: %w", err)
 

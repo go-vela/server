@@ -5,6 +5,7 @@ package secret
 import (
 	"context"
 
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	api "github.com/go-vela/server/api/types"
@@ -13,7 +14,7 @@ import (
 )
 
 // InsertAllowlist adds allowlist entries in the database.
-func (e *Engine) InsertAllowlist(ctx context.Context, s *api.Secret) error {
+func InsertAllowlist(ctx context.Context, tx *gorm.DB, s *api.Secret) error {
 	// only insert when there is an allowlist
 	if len(s.GetRepoAllowlist()) == 0 {
 		return nil
@@ -22,11 +23,18 @@ func (e *Engine) InsertAllowlist(ctx context.Context, s *api.Secret) error {
 	entries := []*types.SecretAllowlist{}
 
 	for _, r := range s.GetRepoAllowlist() {
+		entry := types.SecretAllowlistFromAPI(s, r)
+
+		err := entry.Validate()
+		if err != nil {
+			return err
+		}
+
 		entries = append(entries, types.SecretAllowlistFromAPI(s, r))
 	}
 
 	// upsert allowlist
-	return e.client.
+	return tx.
 		WithContext(ctx).
 		Table(constants.TableSecretRepoAllowlist).
 		Clauses(clause.OnConflict{DoNothing: true}).

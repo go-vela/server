@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
@@ -36,18 +37,20 @@ func (e *Engine) DeleteSecret(ctx context.Context, s *api.Secret) error {
 
 	secret := types.SecretFromAPI(s)
 
-	// send query to the database
-	err := e.client.
-		WithContext(ctx).
-		Table(constants.TableSecret).
-		Delete(secret).
-		Error
-	if err != nil {
-		return err
-	}
+	return e.client.Transaction(func(tx *gorm.DB) error {
+		// send query to the database
+		err := tx.
+			WithContext(ctx).
+			Table(constants.TableSecret).
+			Delete(secret).
+			Error
+		if err != nil {
+			return err
+		}
 
-	// empty allowlist
-	s.SetRepoAllowlist([]string{})
+		// empty allowlist
+		s.SetRepoAllowlist([]string{})
 
-	return e.PruneAllowlist(ctx, s)
+		return PruneAllowlist(ctx, tx, s)
+	})
 }
