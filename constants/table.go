@@ -38,7 +38,7 @@ const (
 	TableSecret = "secrets"
 
 	// TableSecretRepoAllowlist defines the table type for the database secrets repo allowlist table.
-	TableSecretRepoAllowlist = "secret_repo_allowlist"
+	TableSecretRepoAllowlist = "secret_repo_allowlists"
 
 	// TableService defines the table type for the database services table.
 	TableService = "services"

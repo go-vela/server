@@ -38,7 +38,7 @@ secrets (
 	CreatePostgresAllowlistTable = `
 CREATE TABLE
 IF NOT EXISTS
-secret_repo_allowlist (
+secret_repo_allowlists (
 	id                 BIGSERIAL PRIMARY KEY,
 	secret_id          BIGINT,
 	repo               VARCHAR(500),
@@ -75,7 +75,7 @@ secrets (
 	CreateSqliteAllowlistTable = `
 CREATE TABLE
 IF NOT EXISTS
-secret_repo_allowlist (
+secret_repo_allowlists (
 	id                 BIGSERIAL PRIMARY KEY,
 	secret_id          INTEGER,
 	repo               TEXT,

@@ -68,7 +68,7 @@ WHERE "id" = $15`).
 		WithArgs("foo", "bar", nil, "baz", testutils.AnyArgument{}, "repo", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2)`).
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
 		WithArgs(1, nil).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
@@ -82,7 +82,7 @@ WHERE "id" = $15`).
 		WithArgs("foo", "*", nil, "bar", testutils.AnyArgument{}, "org", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2)`).
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
 		WithArgs(2, nil).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
@@ -96,7 +96,7 @@ WHERE "id" = $15`).
 		WithArgs("foo", nil, "bar", "baz", testutils.AnyArgument{}, "shared", nil, 1, false, false, 1, "user", testutils.NowTimestamp{}, "user2", 3).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2,$3)`).
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2,$3)`).
 		WithArgs(3, "github/octocat", "github/octokitty").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -104,7 +104,7 @@ WHERE "id" = $15`).
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
 	// ensure the mock expects the repo secrets query
-	_mock.ExpectQuery(`INSERT INTO "secret_repo_allowlist"
+	_mock.ExpectQuery(`INSERT INTO "secret_repo_allowlists"
 ("secret_id","repo")
 VALUES ($1,$2),($3,$4) ON CONFLICT DO NOTHING RETURNING "id"`).
 		WithArgs(3, "github/octocat", 3, "github/octokitty").

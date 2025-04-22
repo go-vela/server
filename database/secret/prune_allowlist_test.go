@@ -31,7 +31,7 @@ func TestSecret_Engine_PruneAllowlist(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the repo query
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlist" WHERE secret_id = $1 AND repo NOT IN ($2,$3)`).
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2,$3)`).
 		WithArgs(1, "github/octocat", "github/octokitty").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 

@@ -1847,6 +1847,33 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	methods["UpdateSecret"] = true
 	methods["GetSecret"] = true
 
+	err = db.MigrateSecrets(t.Context(), "github", "octocat", "github", "octokitty")
+	if err != nil {
+		t.Errorf("unable to migrate secrets: %v", err)
+	}
+
+	newRepo := new(api.Repo)
+	newRepo.SetOrg("github")
+	newRepo.SetName("octokitty")
+
+	renamedRepoSecret, err := db.GetSecretForRepo(t.Context(), "foo", newRepo)
+	if err != nil {
+		t.Errorf("unable to get secret foo for repo: %v", err)
+	}
+	if renamedRepoSecret.GetOrg() != "github" && renamedRepoSecret.GetRepo() != "octokitty" {
+		t.Errorf("secret foo org/repo is %s/%s, want github/octokitty", renamedRepoSecret.GetOrg(), renamedRepoSecret.GetRepo())
+	}
+
+	adjustedSharedSecret, err := db.GetSecretForTeam(t.Context(), "github", "octocat", "foo")
+	if err != nil {
+		t.Errorf("unable to get secret foo for team %s: %v", "octocat", err)
+	}
+	if !reflect.DeepEqual(adjustedSharedSecret.GetRepoAllowlist(), []string{"github/octokitty"}) {
+		t.Errorf("secret foo repo allowlist is %v, want %v", adjustedSharedSecret.GetRepoAllowlist(), []string{"github/octokitty"})
+	}
+
+	methods["MigrateSecrets"] = true
+
 	// delete the secrets
 	for _, secret := range resources.Secrets {
 		err = db.DeleteSecret(context.TODO(), secret)

@@ -36,8 +36,8 @@ ON secrets (type, org);
 	CreateSecretID = `
 CREATE INDEX
 IF NOT EXISTS
-secret_repo_allowlist_secret_id
-ON secret_repo_allowlist (secret_id)
+secret_repo_allowlists_secret_id
+ON secret_repo_allowlists (secret_id)
 `
 )
 

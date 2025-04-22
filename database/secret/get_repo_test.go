@@ -51,7 +51,7 @@ func TestSecret_Engine_GetSecretForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND repo = $3 AND name = $4 LIMIT $5`).
 		WithArgs(constants.SecretRepo, "foo", "bar", "baz", 1).WillReturnRows(_rows)
 
-	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlist" WHERE secret_id = $1`).WithArgs(1).WillReturnRows(sqlmock.NewRows([]string{}))
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id = $1`).WithArgs(1).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

@@ -62,6 +62,8 @@ type SecretInterface interface {
 	ListSecretsForTeam(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Secret, error)
 	// ListSecretsForTeams defines a function that gets a list of secrets by teams within an org.
 	ListSecretsForTeams(context.Context, string, []string, map[string]interface{}, int, int) ([]*api.Secret, error)
+	// MigrateSecrets defines a function that updates the org and name of all repo secrets when there is a name change.
+	MigrateSecrets(context.Context, string, string, string, string) error
 	// UpdateSecret defines a function that updates an existing secret.
 	UpdateSecret(context.Context, *api.Secret) (*api.Secret, error)
 }

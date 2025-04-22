@@ -35,7 +35,7 @@ func TestSecret_Engine_FillAllowlist(t *testing.T) {
 	_rows := testutils.CreateMockRows([]any{*types.SecretAllowlistFromAPI(_secret, "github/octocat"), *types.SecretAllowlistFromAPI(_secret, "github/octokitty")})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlist" WHERE secret_id = $1`).
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id = $1`).
 		WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

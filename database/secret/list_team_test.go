@@ -57,7 +57,7 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND team = $3 ORDER BY id DESC LIMIT $4`).
 		WithArgs(constants.SecretShared, "foo", "bar", 10).WillReturnRows(_rows)
 
-	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlist" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(_allowlistRows)
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(_allowlistRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -170,7 +170,7 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND LOWER(team) IN ($3,$4) ORDER BY id DESC LIMIT $5`).
 		WithArgs(constants.SecretShared, "foo", "foo", "bar", 10).WillReturnRows(_rows)
 
-	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlist" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(_allowlistRows)
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(_allowlistRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

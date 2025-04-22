@@ -35,7 +35,7 @@ func TestSecret_Engine_InsertAllowlist(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
 	// ensure the mock expects the repo secrets query
-	_mock.ExpectQuery(`INSERT INTO "secret_repo_allowlist"
+	_mock.ExpectQuery(`INSERT INTO "secret_repo_allowlists"
 ("secret_id","repo")
 VALUES ($1,$2),($3,$4) ON CONFLICT DO NOTHING RETURNING "id"`).
 		WithArgs(1, "github/octocat", 1, "github/octokitty").

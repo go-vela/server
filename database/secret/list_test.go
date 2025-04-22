@@ -53,7 +53,7 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "secrets"`).WillReturnRows(_rows)
 
-	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlist" WHERE secret_id IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(sqlmock.NewRows([]string{}))
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
