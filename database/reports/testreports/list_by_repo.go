@@ -12,7 +12,7 @@ import (
 )
 
 // ListByRepo returns a list of test reports by repo ID from the database.
-func (e *Engine) ListByRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.TestReport, int64, error) {
+func (e *Engine) ListByRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.TestReport, error) {
 	e.logger.WithFields(logrus.Fields{
 		"repo_id": r.GetID(),
 	}).Tracef("listing test reports by repo ID %d", r.GetID())
@@ -28,6 +28,12 @@ func (e *Engine) ListByRepo(ctx context.Context, r *api.Repo, page, perPage int)
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableTestReports).
+		Preload("Build").
+		Preload("Build.Repo").
+		Preload("Build.Repo.Owner").
+		Select("testreports.*").
+		Joins("JOIN builds ON testreports.build_id = builds.id").
+		Joins("JOIN repos ON builds.repo_id = repos.id").
 		Where("repo_id = ?", r.GetID()).
 		Order("created DESC").
 		Limit(perPage).
@@ -35,7 +41,7 @@ func (e *Engine) ListByRepo(ctx context.Context, r *api.Repo, page, perPage int)
 		Find(&t).
 		Error
 	if err != nil {
-		return nil, 0, fmt.Errorf("unable to list test reports by repo ID: %w", err)
+		return nil, fmt.Errorf("unable to list test reports by repo ID: %w", err)
 	}
 
 	// iterate through all query results
@@ -46,17 +52,5 @@ func (e *Engine) ListByRepo(ctx context.Context, r *api.Repo, page, perPage int)
 		reports = append(reports, tmp.ToAPI())
 	}
 
-	// get the total count of reports for this repo
-	var count int64
-	err = e.client.
-		WithContext(ctx).
-		Table(constants.TableTestReports).
-		Where("repo_id = ?", r.GetID()).
-		Count(&count).
-		Error
-	if err != nil {
-		return nil, 0, fmt.Errorf("unable to count test reports by repo ID: %w", err)
-	}
-
-	return reports, count, nil
+	return reports, nil
 }
