@@ -28,8 +28,9 @@ type (
 		Compiler `json:"compiler" sql:"compiler"`
 		Queue    `json:"queue"    sql:"queue"`
 
-		RepoAllowlist     pq.StringArray `json:"repo_allowlist"     sql:"repo_allowlist"     gorm:"type:varchar(1000)"`
-		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist" sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
+		RepoAllowlist     pq.StringArray `json:"repo_allowlist"      sql:"repo_allowlist"     gorm:"type:varchar(1000)"`
+		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist"  sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
+		MaxDashboardRepos sql.NullInt32  `json:"max_dashboard_repos" sql:"max_dashboard_repos"`
 
 		CreatedAt sql.NullInt64  `sql:"created_at"`
 		UpdatedAt sql.NullInt64  `sql:"updated_at"`
@@ -106,6 +107,11 @@ func (ps *Platform) Nullify() *Platform {
 		ps.CloneImage.Valid = false
 	}
 
+	// check if the MaxDashboardRepos field should be false
+	if ps.MaxDashboardRepos.Int32 == 0 {
+		ps.MaxDashboardRepos.Valid = false
+	}
+
 	// check if the CreatedAt field should be false
 	if ps.CreatedAt.Int64 < 0 {
 		ps.CreatedAt.Valid = false
@@ -127,6 +133,7 @@ func (ps *Platform) ToAPI() *settings.Platform {
 
 	psAPI.SetRepoAllowlist(ps.RepoAllowlist)
 	psAPI.SetScheduleAllowlist(ps.ScheduleAllowlist)
+	psAPI.SetMaxDashboardRepos(ps.MaxDashboardRepos.Int32)
 
 	psAPI.Compiler = &settings.Compiler{}
 	psAPI.SetCloneImage(ps.CloneImage.String)
@@ -183,6 +190,10 @@ func (ps *Platform) Validate() error {
 		ps.ScheduleAllowlist[i] = util.Sanitize(v)
 	}
 
+	if ps.MaxDashboardRepos.Int32 <= 0 {
+		return fmt.Errorf("max dashboard repos must be greater than zero, got: %d", ps.MaxDashboardRepos.Int32)
+	}
+
 	if ps.CreatedAt.Int64 < 0 {
 		return fmt.Errorf("created_at must be greater than zero, got: %d", ps.CreatedAt.Int64)
 	}
@@ -209,6 +220,7 @@ func SettingsFromAPI(s *settings.Platform) *Platform {
 		},
 		RepoAllowlist:     pq.StringArray(s.GetRepoAllowlist()),
 		ScheduleAllowlist: pq.StringArray(s.GetScheduleAllowlist()),
+		MaxDashboardRepos: sql.NullInt32{Int32: s.GetMaxDashboardRepos(), Valid: true},
 		CreatedAt:         sql.NullInt64{Int64: s.GetCreatedAt(), Valid: true},
 		UpdatedAt:         sql.NullInt64{Int64: s.GetUpdatedAt(), Valid: true},
 		UpdatedBy:         sql.NullString{String: s.GetUpdatedBy(), Valid: true},

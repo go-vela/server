@@ -46,9 +46,6 @@ const (
 	// ReportStepStatusLimit defines the maximum number of steps in a pipeline that may report their status to the SCM.
 	ReportStepStatusLimit = 10
 
-	// DashboardRepoLimit defines the maximum number of repos that can be assigned to a dashboard.
-	DashboardRepoLimit = 10
-
 	// UserDashboardLimit defines the maximum number of dashboards that can be assigned to a user.
 	UserDashboardLimit = 10
 

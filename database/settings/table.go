@@ -19,6 +19,7 @@ settings (
 	queue               JSON DEFAULT NULL,
 	repo_allowlist      VARCHAR(1000),
 	schedule_allowlist  VARCHAR(1000),
+	max_dashboard_repos INTEGER,
 	created_at          BIGINT,
 	updated_at          BIGINT,
 	updated_by          VARCHAR(250)
@@ -35,6 +36,7 @@ settings (
 	queue         	   	   	TEXT,
 	repo_allowlist	   	   	VARCHAR(1000),
 	schedule_allowlist		VARCHAR(1000),
+	max_dashboard_repos     INTEGER,
 	created_at         		INTEGER,
 	updated_at         		INTEGER,
 	updated_by         		TEXT

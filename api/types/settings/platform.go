@@ -5,6 +5,7 @@ package settings
 import (
 	"fmt"
 
+	"github.com/go-vela/server/util"
 	"github.com/urfave/cli/v3"
 )
 
@@ -13,13 +14,14 @@ import (
 // swagger:model Platform
 type Platform struct {
 	ID                *int32 `json:"id"`
-	*Compiler         `json:"compiler,omitempty"           yaml:"compiler,omitempty"`
-	*Queue            `json:"queue,omitempty"              yaml:"queue,omitempty"`
-	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"     yaml:"repo_allowlist,omitempty"`
-	ScheduleAllowlist *[]string `json:"schedule_allowlist,omitempty" yaml:"schedule_allowlist,omitempty"`
-	CreatedAt         *int64    `json:"created_at,omitempty"         yaml:"created_at,omitempty"`
-	UpdatedAt         *int64    `json:"updated_at,omitempty"         yaml:"updated_at,omitempty"`
-	UpdatedBy         *string   `json:"updated_by,omitempty"         yaml:"updated_by,omitempty"`
+	*Compiler         `json:"compiler,omitempty"            yaml:"compiler,omitempty"`
+	*Queue            `json:"queue,omitempty"               yaml:"queue,omitempty"`
+	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"      yaml:"repo_allowlist,omitempty"`
+	ScheduleAllowlist *[]string `json:"schedule_allowlist,omitempty"  yaml:"schedule_allowlist,omitempty"`
+	MaxDashboardRepos *int32    `json:"max_dashboard_repos,omitempty" yaml:"max_dashboard_repos,omitempty"`
+	CreatedAt         *int64    `json:"created_at,omitempty"          yaml:"created_at,omitempty"`
+	UpdatedAt         *int64    `json:"updated_at,omitempty"          yaml:"updated_at,omitempty"`
+	UpdatedBy         *string   `json:"updated_by,omitempty"          yaml:"updated_by,omitempty"`
 }
 
 // FromCLICommand returns a new Platform record from a cli command.
@@ -31,6 +33,9 @@ func FromCLICommand(c *cli.Command) *Platform {
 
 	// set repos permitted to use schedules
 	ps.SetScheduleAllowlist(c.StringSlice("vela-schedule-allowlist"))
+
+	// set max repos per dashboard
+	ps.SetMaxDashboardRepos(util.Int32FromInt64(c.Int("max-dashboard-repos")))
 
 	return ps
 }
@@ -98,6 +103,19 @@ func (ps *Platform) GetScheduleAllowlist() []string {
 	}
 
 	return *ps.ScheduleAllowlist
+}
+
+// GetMaxDashboardRepos returns the MaxDashboardRepos field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (ps *Platform) GetMaxDashboardRepos() int32 {
+	// return zero value if Platform type or MaxDashboardRepos field is nil
+	if ps == nil || ps.MaxDashboardRepos == nil {
+		return 0
+	}
+
+	return *ps.MaxDashboardRepos
 }
 
 // GetCreatedAt returns the CreatedAt field.
@@ -204,6 +222,19 @@ func (ps *Platform) SetScheduleAllowlist(v []string) {
 	ps.ScheduleAllowlist = &v
 }
 
+// SetMaxDashboardRepos sets the MaxDashboardRepos field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (ps *Platform) SetMaxDashboardRepos(v int32) {
+	// return if Platform type is nil
+	if ps == nil {
+		return
+	}
+
+	ps.MaxDashboardRepos = &v
+}
+
 // SetCreatedAt sets the CreatedAt field.
 //
 // When the provided Platform type is nil, it
@@ -258,6 +289,7 @@ func (ps *Platform) FromSettings(_ps *Platform) {
 	ps.SetQueue(_ps.GetQueue())
 	ps.SetRepoAllowlist(_ps.GetRepoAllowlist())
 	ps.SetScheduleAllowlist(_ps.GetScheduleAllowlist())
+	ps.SetMaxDashboardRepos(_ps.GetMaxDashboardRepos())
 
 	ps.SetCreatedAt(_ps.GetCreatedAt())
 	ps.SetUpdatedAt(_ps.GetUpdatedAt())
@@ -275,6 +307,7 @@ func (ps *Platform) String() string {
   Queue: %v,
   RepoAllowlist: %v,
   ScheduleAllowlist: %v,
+  MaxDashboardRepos: %d,
   CreatedAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -284,6 +317,7 @@ func (ps *Platform) String() string {
 		qs.String(),
 		ps.GetRepoAllowlist(),
 		ps.GetScheduleAllowlist(),
+		ps.GetMaxDashboardRepos(),
 		ps.GetCreatedAt(),
 		ps.GetUpdatedAt(),
 		ps.GetUpdatedBy(),
@@ -299,6 +333,7 @@ func PlatformMockEmpty() Platform {
 
 	ps.SetRepoAllowlist([]string{})
 	ps.SetScheduleAllowlist([]string{})
+	ps.SetMaxDashboardRepos(0)
 
 	return ps
 }

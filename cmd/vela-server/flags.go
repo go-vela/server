@@ -217,6 +217,12 @@ var Flags = []cli.Flag{
 			return nil
 		},
 	},
+	&cli.IntFlag{
+		Name:    "max-dashboard-repos",
+		Usage:   "set the maximum amount of repos that can belong to a dashboard",
+		Sources: cli.EnvVars("VELA_MAX_DASHBOARD_REPOS"),
+		Value:   10,
+	},
 	// Token Manager Flags
 	&cli.DurationFlag{
 		Name:    "user-access-token-duration",
