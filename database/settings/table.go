@@ -31,15 +31,15 @@ settings (
 CREATE TABLE
 IF NOT EXISTS
 settings (
-	id                 	   	INTEGER PRIMARY KEY AUTOINCREMENT,
-	compiler           	   	TEXT,
-	queue         	   	   	TEXT,
-	repo_allowlist	   	   	VARCHAR(1000),
-	schedule_allowlist		VARCHAR(1000),
+	id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+	compiler                TEXT,
+	queue                   TEXT,
+	repo_allowlist          VARCHAR(1000),
+	schedule_allowlist      VARCHAR(1000),
 	max_dashboard_repos     INTEGER,
-	created_at         		INTEGER,
-	updated_at         		INTEGER,
-	updated_by         		TEXT
+	created_at              INTEGER,
+	updated_at              INTEGER,
+	updated_by              TEXT
 );
 `
 )
