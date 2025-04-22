@@ -6,12 +6,9 @@ import "fmt"
 //
 // swagger:model TestReport
 type TestReport struct {
-	ID                *int64                 `json:"id,omitempty"`
-	BuildID           *int64                 `json:"build_id,omitempty"`
-	Results           *string                `json:"results,omitempty"`
-	Attachments       *string                `json:"attachments,omitempty"`
-	Created           *int64                 `json:"created,omitempty"`
-	ReportAttachments *TestReportAttachments `json:"report_attachments,omitempty"`
+	ID      *int64 `json:"id,omitempty"`
+	BuildID *int64 `json:"build_id,omitempty"`
+	Created *int64 `json:"created,omitempty"`
 }
 
 type TestReportAttachments struct {
@@ -23,52 +20,6 @@ type TestReportAttachments struct {
 	FileType     *string `json:"file_type,omitempty"`
 	PresignedUrl *string `json:"presigned_url,omitempty"`
 	Created      *int64  `json:"created,omitempty"`
-}
-
-// GetResults returns the Results field.
-//
-// When the provided TestReport type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (t *TestReport) GetResults() string {
-	// return zero value if TestReport type or Results field is nil
-	if t == nil || t.Results == nil {
-		return ""
-	}
-
-	return *t.Results
-}
-
-// GetAttachments returns the Attachments field.
-//
-// When the provided TestReport type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (t *TestReport) GetAttachments() string {
-	// return zero value if TestReport type or Attachments field is nil
-	if t == nil || t.Attachments == nil {
-		return ""
-	}
-
-	return *t.Attachments
-}
-
-// SetResults sets the Results field.
-func (t *TestReport) SetResults(v string) {
-	// return if TestReport type is nil
-	if t == nil {
-		return
-	}
-	// set the Results field
-	t.Results = &v
-}
-
-// SetAttachments sets the Attachments field.
-func (t *TestReport) SetAttachments(v string) {
-	// return if TestReport type is nil
-	if t == nil {
-		return
-	}
-	// set the Attachments field
-	t.Attachments = &v
 }
 
 // GetID returns the ID field.
@@ -110,19 +61,6 @@ func (t *TestReport) GetCreated() int64 {
 	return *t.Created
 }
 
-// GetReportAttachments returns the TestReportAttachments field.
-//
-// When the provided TestReport type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (t *TestReport) GetReportAttachments() *TestReportAttachments {
-	// return zero value if TestReport type or TestReportAttachments field is nil
-	if t == nil {
-		return nil
-	}
-
-	return t.ReportAttachments
-}
-
 // SetID sets the ID field.
 func (t *TestReport) SetID(v int64) {
 	// return if TestReport type is nil
@@ -151,16 +89,6 @@ func (t *TestReport) SetCreated(v int64) {
 	}
 	// set the Created field
 	t.Created = &v
-}
-
-// SetReportAttachments sets the TestReportAttachments field.
-func (t *TestReport) SetReportAttachments(v *TestReportAttachments) {
-	// return if TestReport type is nil
-	if t == nil {
-		return
-	}
-	// set the TestReportAttachments field
-	t.ReportAttachments = v
 }
 
 // GetID returns the ID field.
@@ -350,9 +278,4 @@ func (r *TestReportAttachments) SetCreated(v int64) {
 // String implements the Stringer interface for the TestReportAttachments type.
 func (r *TestReportAttachments) String() string {
 	return fmt.Sprintf("Filename: %s, FilePath: %s, FileType: %s", r.GetFilename(), r.GetFilePath(), r.GetFileType())
-}
-
-// String implements the Stringer interface for the TestReport type.
-func (t *TestReport) String() string {
-	return fmt.Sprintf("Results: %s, Attachments: %s", t.GetResults(), t.GetAttachments())
 }

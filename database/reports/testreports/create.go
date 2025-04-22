@@ -10,8 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// CreateTestReport creates a new test report in the database.
-func (e *Engine) CreateTestReport(ctx context.Context, r *api.TestReport) (*api.TestReport, error) {
+// Create creates a new test report in the database.
+func (e *Engine) Create(ctx context.Context, r *api.TestReport) (*api.TestReport, error) {
 	e.logger.WithFields(logrus.Fields{
 		"test_report": r.GetID(),
 	}).Tracef("creating test report %d", r.GetID())
@@ -35,6 +35,5 @@ func (e *Engine) CreateTestReport(ctx context.Context, r *api.TestReport) (*api.
 	result := report.ToAPI()
 	result.SetBuildID(r.GetBuildID())
 
-
-	return report.ToAPI(), nil
+	return result, nil
 }

@@ -32,8 +32,8 @@ type TestReportsInterface interface {
 	// CountByRepo returns the count of reports by repo ID.
 	CountByRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64) (int64, error)
 
-	// CreateTestReport creates a new report.
-	CreateTestReport(context.Context, *api.TestReport) (*api.TestReport, error)
+	// Create creates a new report.
+	Create(context.Context, *api.TestReport) (*api.TestReport, error)
 
 	// DeleteByID removes a report by ID.
 	DeleteByID(context.Context, *api.TestReport) error

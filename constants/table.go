@@ -35,7 +35,7 @@ const (
 	TableTestReports = "testreports"
 
 	// TableAttachments defines the table type for the database testattachments table.
-	TableAttachments = "testattachments"
+	TableAttachments = "testreportattachments"
 
 	// TableSchedule defines the table type for the database schedules table.
 	TableSchedule = "schedules"

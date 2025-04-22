@@ -4,8 +4,8 @@ package database
 
 import (
 	"context"
+	testattachments2 "github.com/go-vela/server/database/reports/testattachments"
 	"github.com/go-vela/server/database/reports/testreports"
-	"github.com/go-vela/server/database/reports/testreports/testattachments"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -84,8 +84,8 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	_mock.ExpectExec(testreports.CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(testreports.CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// Add these expectations for testattachments
-	_mock.ExpectExec(testattachments.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(testattachments.CreateTestReportIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(testattachments2.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(testattachments2.CreateTestReportIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create a test database without mocking the call
 	_unmocked, _ := testPostgres(t)

@@ -15,7 +15,6 @@ ON testattachments (testreport_id);
 `
 )
 
-
 // CreateTestAttachmentsIndexes creates the indexes for the testattachments table in the database.
 func (e *engine) CreateTestAttachmentsIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for testattachments table")

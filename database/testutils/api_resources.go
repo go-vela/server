@@ -302,16 +302,6 @@ func APITestReport() *api.TestReport {
 		ID:      new(int64),
 		BuildID: new(int64),
 		Created: new(int64),
-		//ReportAttachments: &api.TestReportAttachments{
-		//	ID:           new(int64),
-		//	TestReportID: new(int64),
-		//	Filename:     new(string),
-		//	FilePath:     new(string),
-		//	FileSize:     new(int64),
-		//	FileType:     new(string),
-		//	PresignedUrl: new(string),
-		//	Created:      new(int64),
-		//},
 	}
 }
 

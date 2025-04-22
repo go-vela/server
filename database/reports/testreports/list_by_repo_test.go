@@ -41,7 +41,7 @@ func TestTestReports_Engine_ListByRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateTestReport(context.TODO(), _testReport)
+	_, err := _sqlite.Create(context.TODO(), _testReport)
 	if err != nil {
 		t.Errorf("unable to create test report for sqlite: %v", err)
 	}
@@ -104,21 +104,6 @@ func TestTestReports_Engine_ListByRepo(t *testing.T) {
 					t.Errorf("ListByRepo for %s returned unexpected report values: got %v, want %v",
 						test.name, got[0], test.want[0])
 				}
-
-				// Check attachment values if present
-				//if got[0].ReportAttachments != nil && test.want[0].ReportAttachments != nil {
-				//	if !reflect.DeepEqual(got[0].ReportAttachments.GetID(), test.want[0].ReportAttachments.GetID()) ||
-				//		!reflect.DeepEqual(got[0].ReportAttachments.GetTestReportID(), test.want[0].ReportAttachments.GetTestReportID()) ||
-				//		!reflect.DeepEqual(got[0].ReportAttachments.GetFilename(), test.want[0].ReportAttachments.GetFilename()) ||
-				//		!reflect.DeepEqual(got[0].ReportAttachments.GetFilePath(), test.want[0].ReportAttachments.GetFilePath()) ||
-				//		!reflect.DeepEqual(got[0].ReportAttachments.GetFileSize(), test.want[0].ReportAttachments.GetFileSize()) ||
-				//		!reflect.DeepEqual(got[0].ReportAttachments.GetFileType(), test.want[0].ReportAttachments.GetFileType()) ||
-				//		!reflect.DeepEqual(got[0].ReportAttachments.GetPresignedUrl(), test.want[0].ReportAttachments.GetPresignedUrl()) ||
-				//		!reflect.DeepEqual(got[0].ReportAttachments.GetCreated(), test.want[0].ReportAttachments.GetCreated()) {
-				//		t.Errorf("ListByRepo for %s returned unexpected attachment values: got %v, want %v",
-				//			test.name, got[0].ReportAttachments, test.want[0].ReportAttachments)
-				//	}
-				//}
 			}
 		})
 	}
