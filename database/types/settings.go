@@ -28,8 +28,8 @@ type (
 		Compiler `json:"compiler" sql:"compiler"`
 		Queue    `json:"queue"    sql:"queue"`
 
-		RepoAllowlist     pq.StringArray `json:"repo_allowlist"      sql:"repo_allowlist"     gorm:"type:varchar(1000)"`
-		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist"  sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
+		RepoAllowlist     pq.StringArray `json:"repo_allowlist"      sql:"repo_allowlist"      gorm:"type:varchar(1000)"`
+		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist"  sql:"schedule_allowlist"  gorm:"type:varchar(1000)"`
 		MaxDashboardRepos sql.NullInt32  `json:"max_dashboard_repos" sql:"max_dashboard_repos"`
 
 		CreatedAt sql.NullInt64  `sql:"created_at"`
