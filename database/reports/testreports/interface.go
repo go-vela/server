@@ -42,13 +42,13 @@ type TestReportsInterface interface {
 	Get(context.Context, int64) (*api.TestReport, error)
 
 	// List returns a list of all reports.
-	List(context.Context, int, int) ([]*api.TestReport, int64, error)
+	List(context.Context) ([]*api.TestReport, error)
 
 	// ListByBuild returns a list of reports by build ID.
-	ListByBuild(context.Context, *api.Build, int, int) ([]*api.TestReport, int64, error)
+	ListByBuild(context.Context, *api.Build, int, int) ([]*api.TestReport, error)
 
 	// ListByRepo returns a list of reports by repo ID.
-	ListByRepo(context.Context, *api.Repo, int, int) ([]*api.TestReport, int64, error)
+	ListByRepo(context.Context, *api.Repo, int, int) ([]*api.TestReport, error)
 
 	// Update updates a report.
 	Update(context.Context, *api.TestReport) (*api.TestReport, error)

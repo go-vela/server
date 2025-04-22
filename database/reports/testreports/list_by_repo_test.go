@@ -4,6 +4,8 @@ package testreports
 
 import (
 	"context"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 	"reflect"
 	"testing"
 
@@ -22,58 +24,102 @@ func TestTestReports_Engine_ListByRepo(t *testing.T) {
 	_repo := testutils.APIRepo()
 	_repo.SetID(1)
 
+	_buildOne := testutils.APIBuild()
+	_buildOne.SetID(1)
+	_buildOne.SetRepo(_repo)
+
 	_postgres, _mock := testPostgres(t)
+	ctx := context.TODO()
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query for the test_reports table
 	_rows := sqlmock.NewRows([]string{"id", "repo_id", "build_id", "created"}).
 		AddRow(1, 1, 1, 1)
-	_mock.ExpectQuery(`SELECT .* FROM "test_reports" WHERE repo_id = \$1 ORDER BY created DESC LIMIT \$2 OFFSET \$3`).
-		WithArgs(1, 10, 0).
+	_mock.ExpectQuery(`SELECT testreports.* FROM "testreports" 
+    JOIN builds ON testreports.build_id = builds.id 
+    JOIN repos ON builds.repo_id = repos.id WHERE repo_id = $1 ORDER BY created DESC LIMIT $2`).
+		WithArgs(1, 10).
 		WillReturnRows(_rows)
 
-	// Mock for count query
-	_countRows := sqlmock.NewRows([]string{"count"}).AddRow(1)
-	_mock.ExpectQuery(`SELECT count\(\*\) FROM "test_reports" WHERE repo_id = \$1`).
+	// Mock for Build preload query
+	_buildRows := testutils.CreateMockRows([]any{*types.BuildFromAPI(_buildOne)})
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE "builds"."id" = $1`).
 		WithArgs(1).
-		WillReturnRows(_countRows)
+		WillReturnRows(_buildRows)
 
+	// Mock for Repo preload query
+	_repoRows := testutils.CreateMockRows([]any{*types.RepoFromAPI(_repo)})
+	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" = $1`).
+		WithArgs(1).
+		WillReturnRows(_repoRows)
+
+	// Mock for Owner preload query (using _repo.Owner)
+	_ownerRows := testutils.CreateMockRows([]any{*types.UserFromAPI(_repo.GetOwner())})
+	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).
+		WithArgs(1).
+		WillReturnRows(_ownerRows)
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.Create(context.TODO(), _testReport)
+
+	// Create necessary SQLite tables for relationship testing
+	err := _sqlite.client.AutoMigrate(&types.TestReport{}, &types.Build{}, &types.Repo{}, &types.User{})
+	if err != nil {
+		t.Errorf("unable to create tables for sqlite: %v", err)
+	}
+
+	// Set up owner
+	_owner := testutils.APIUser().Crop()
+	_owner.SetID(1)
+	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
+	if err != nil {
+		t.Errorf("unable to create test owner for sqlite: %v", err)
+	}
+
+	// Set up repo with owner
+	_repo.SetOwner(_owner)
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
+	if err != nil {
+		t.Errorf("unable to create test repo for sqlite: %v", err)
+	}
+
+	// Set up build with repo
+	_buildOne.SetRepo(_repo)
+	err = _sqlite.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_buildOne)).Error
+	if err != nil {
+		t.Errorf("unable to create test build for sqlite: %v", err)
+	}
+
+	// Then create the test report with the build_id
+	_, err = _sqlite.Create(ctx, _testReport)
 	if err != nil {
 		t.Errorf("unable to create test report for sqlite: %v", err)
 	}
-
 	// setup tests
 	tests := []struct {
-		failure   bool
-		name      string
-		database  *Engine
-		want      []*api.TestReport
-		wantCount int64
+		failure  bool
+		name     string
+		database *Engine
+		want     []*api.TestReport
 	}{
 		{
-			failure:   false,
-			name:      "postgres",
-			database:  _postgres,
-			want:      []*api.TestReport{_testReport},
-			wantCount: 1,
+			failure:  false,
+			name:     "postgres",
+			database: _postgres,
+			want:     []*api.TestReport{_testReport},
 		},
 		{
-			failure:   false,
-			name:      "sqlite3",
-			database:  _sqlite,
-			want:      []*api.TestReport{_testReport},
-			wantCount: 1,
+			failure:  false,
+			name:     "sqlite3",
+			database: _sqlite,
+			want:     []*api.TestReport{_testReport},
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, count, err := test.database.ListByRepo(context.TODO(), _repo, 1, 10)
+			got, err := test.database.ListByRepo(ctx, _repo, 1, 10)
 
 			if test.failure {
 				if err == nil {
@@ -85,10 +131,6 @@ func TestTestReports_Engine_ListByRepo(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("ListByRepo for %s returned err: %v", test.name, err)
-			}
-
-			if count != test.wantCount {
-				t.Errorf("ListByRepo count for %s is %d, want %d", test.name, count, test.wantCount)
 			}
 
 			if len(got) != len(test.want) {

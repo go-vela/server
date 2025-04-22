@@ -12,7 +12,7 @@ import (
 )
 
 // ListByBuild returns a list of test reports by build ID from the database.
-func (e *Engine) ListByBuild(ctx context.Context, b *api.Build, page, perPage int) ([]*api.TestReport, int64, error) {
+func (e *Engine) ListByBuild(ctx context.Context, b *api.Build, page, perPage int) ([]*api.TestReport, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build_id": b.GetID(),
 	}).Tracef("listing test reports by build number %v", b.GetNumber())
@@ -35,7 +35,7 @@ func (e *Engine) ListByBuild(ctx context.Context, b *api.Build, page, perPage in
 		Find(&t).
 		Error
 	if err != nil {
-		return nil, 0, fmt.Errorf("unable to list test reports by build ID: %w", err)
+		return nil, fmt.Errorf("unable to list test reports by build ID: %w", err)
 	}
 
 	// iterate through all query results
@@ -46,17 +46,5 @@ func (e *Engine) ListByBuild(ctx context.Context, b *api.Build, page, perPage in
 		reports = append(reports, tmp.ToAPI())
 	}
 
-	// get the total count of reports for this build
-	var count int64
-	err = e.client.
-		WithContext(ctx).
-		Table(constants.TableTestReports).
-		Where("build_id = ?", b.GetID()).
-		Count(&count).
-		Error
-	if err != nil {
-		return nil, 0, fmt.Errorf("unable to count test reports by build ID: %w", err)
-	}
-
-	return reports, count, nil
+	return reports, nil
 }
