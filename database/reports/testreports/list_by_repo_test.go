@@ -62,7 +62,6 @@ func TestTestReports_Engine_ListByRepo(t *testing.T) {
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 
-	// After
 	// Create necessary SQLite tables for relationship testing
 	err := _sqlite.client.AutoMigrate(&types.TestReport{}, &types.Build{}, &types.Repo{}, &types.User{})
 	if err != nil {
