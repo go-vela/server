@@ -32,6 +32,7 @@ const (
 			"schedule_allowlist": [
 				"octocat/hello-world"
 			],
+			"max_dashboard_repos": 10,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -57,6 +58,7 @@ const (
 				"octocat/hello-world",
 				"octocat/*"
 			],
+			"max_dashboard_repos": 10,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -82,6 +84,7 @@ const (
 			"octocat/hello-world",
 			"octocat/*"
 		],
+		"max_dashboard_repos": 10,
 		"created_at": 1,
 		"updated_at": 1,
 		"updated_by": "octocat"

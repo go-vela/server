@@ -198,6 +198,12 @@ func UpdateSettings(c *gin.Context) {
 		l.Infof("platform admin: updating schedule allowlist to: %s", input.GetScheduleAllowlist())
 	}
 
+	if input.MaxDashboardRepos != nil {
+		_s.SetMaxDashboardRepos(input.GetMaxDashboardRepos())
+
+		l.Infof("platform admin: updating max dashboard repos to: %d", input.GetMaxDashboardRepos())
+	}
+
 	_s.SetUpdatedBy(u.GetName())
 
 	// send API call to update the settings
