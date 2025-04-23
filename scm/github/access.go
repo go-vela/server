@@ -26,7 +26,6 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 			"user": u.GetName(),
 		}).Debugf("skipping access level check for user %s with org %s", u.GetName(), org)
 
-		//nolint:goconst // ignore making constant
 		return "admin", nil
 	}
 
