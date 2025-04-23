@@ -27,10 +27,10 @@ type TestReportsInterface interface {
 	Count(context.Context) (int64, error)
 
 	// CountByBuild returns the count of reports by build ID.
-	CountByBuild(context.Context, *api.Build, map[string]interface{}) (int64, error)
+	CountByBuild(context.Context, *api.Build, map[string]interface{}, int64, int64) (int64, error)
 
 	// CountByRepo returns the count of reports by repo ID.
-	CountByRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64) (int64, error)
+	CountByRepo(context.Context, *api.Repo, map[string]interface{}) (int64, error)
 
 	// Create creates a new report.
 	Create(context.Context, *api.TestReport) (*api.TestReport, error)

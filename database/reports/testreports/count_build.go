@@ -11,7 +11,7 @@ import (
 )
 
 // CountByBuild gets the count of all test reports by build ID from the database.
-func (e *Engine) CountByBuild(ctx context.Context, b *api.Build, filters map[string]interface{}) (int64, error) {
+func (e *Engine) CountByBuild(ctx context.Context, b *api.Build, filters map[string]interface{}, before, after int64) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("getting count of all test reports for build %d", b.GetNumber())
@@ -24,6 +24,8 @@ func (e *Engine) CountByBuild(ctx context.Context, b *api.Build, filters map[str
 		WithContext(ctx).
 		Table(constants.TableTestReports).
 		Where("build_id = ?", b.GetID()).
+		Where("created < ?", before).
+		Where("created > ?", after).
 		Where(filters).
 		Count(&s).
 		Error

@@ -11,7 +11,7 @@ import (
 )
 
 // CountByRepo gets the count of all test reports by repo ID from the database.
-func (e *Engine) CountByRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, before, after int64) (int64, error) {
+func (e *Engine) CountByRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -24,9 +24,9 @@ func (e *Engine) CountByRepo(ctx context.Context, r *api.Repo, filters map[strin
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableTestReports).
+		Joins("JOIN builds ON testreports.build_id = builds.id").
+		Joins("JOIN repos ON builds.repo_id = repos.id").
 		Where("repo_id = ?", r.GetID()).
-		Where("created < ?", before).
-		Where("created > ?", after).
 		Where(filters).
 		Count(&s).
 		Error
