@@ -1,5 +1,6 @@
 {
   "permission": "admin",
+  "role_name": "admin",
   "user": {
     "login": "foo",
     "id": 1,

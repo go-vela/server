@@ -10,10 +10,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 )
 
 // OrgAccess captures the user's access level for an org.
-func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string, error) {
+func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string, roleMap map[string]string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),
@@ -26,7 +27,7 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 			"user": u.GetName(),
 		}).Debugf("skipping access level check for user %s with org %s", u.GetName(), org)
 
-		return "admin", nil
+		return constants.PermissionAdmin, nil
 	}
 
 	// create GitHub OAuth client with user's token
@@ -35,19 +36,24 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 	// send API call to capture org access level for user
 	membership, _, err := client.Organizations.GetOrgMembership(ctx, *u.Name, org)
 	if err != nil {
-		return "", err
+		return constants.PermissionNone, err
 	}
 
 	// return their access level if they are an active user
 	if membership.GetState() == "active" {
-		return membership.GetRole(), nil
+		role, ok := roleMap[membership.GetRole()]
+		if !ok {
+			return constants.PermissionNone, nil
+		}
+
+		return role, nil
 	}
 
-	return "", nil
+	return constants.PermissionNone, nil
 }
 
 // RepoAccess captures the user's access level for a repo.
-func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string) (string, error) {
+func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string, roleMap map[string]string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
@@ -62,7 +68,7 @@ func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string) 
 			"user": name,
 		}).Debugf("skipping access level check for user %s with repo %s/%s", name, org, repo)
 
-		return "admin", nil
+		return constants.PermissionAdmin, nil
 	}
 
 	// create github oauth client with the given token
@@ -71,14 +77,19 @@ func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string) 
 	// send API call to capture repo access level for user
 	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, name)
 	if err != nil {
-		return "", err
+		return constants.PermissionNone, err
 	}
 
-	return perm.GetPermission(), nil
+	role, ok := roleMap[perm.GetRoleName()]
+	if !ok {
+		return constants.PermissionNone, nil
+	}
+
+	return role, nil
 }
 
 // TeamAccess captures the user's access level for a team.
-func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string) (string, error) {
+func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string, roleMap map[string]string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -93,50 +104,23 @@ func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string) 
 			"user": u.GetName(),
 		}).Debugf("skipping access level check for user %s with team %s/%s", u.GetName(), org, team)
 
-		return "admin", nil
+		return constants.PermissionAdmin, nil
 	}
 
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, u.GetToken())
-	teams := []*github.Team{}
 
-	// set the max per page for the options to capture the list of repos
-	opts := github.ListOptions{PerPage: 100} // 100 is max
-
-	for {
-		// send API call to list all teams for the user
-		uTeams, resp, err := client.Teams.ListUserTeams(ctx, &opts)
-		if err != nil {
-			return "", err
-		}
-
-		teams = append(teams, uTeams...)
-
-		// break the loop if there is no more results to page through
-		if resp.NextPage == 0 {
-			break
-		}
-
-		opts.Page = resp.NextPage
+	membership, _, err := client.Teams.GetTeamMembershipBySlug(ctx, org, team, u.GetName())
+	if err != nil {
+		return constants.PermissionNone, err
 	}
 
-	// iterate through each element in the teams
-	for _, t := range teams {
-		// skip the team if does not match the team we are checking
-		if !strings.EqualFold(team, t.GetName()) {
-			continue
-		}
-
-		// skip the org if does not match the org we are checking
-		if !strings.EqualFold(org, t.GetOrganization().GetLogin()) {
-			continue
-		}
-
-		// return admin access if the user is a part of that team
-		return "admin", nil
+	role, ok := roleMap[membership.GetRole()]
+	if !ok {
+		return constants.PermissionNone, nil
 	}
 
-	return "", nil
+	return role, nil
 }
 
 // ListUsersTeamsForOrg captures the user's teams for an org.

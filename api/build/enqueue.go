@@ -82,8 +82,8 @@ func ShouldEnqueue(c *gin.Context, l *logrus.Entry, b *types.Build, r *types.Rep
 			return false, nil
 		case constants.ApproveForkNoWrite:
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
-			level, err := scm.FromContext(c).RepoAccess(c.Request.Context(), b.GetSender(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
-			if err != nil || (level != "admin" && level != "write") {
+			level, err := scm.FromContext(c).RepoAccess(c.Request.Context(), b.GetSender(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName(), c.MustGet("repo.roles-map").(map[string]string))
+			if err != nil || (level != constants.PermissionAdmin && level != constants.PermissionWrite) {
 				//nolint:nilerr // an error here is not something we want to return since we are gating it anyway
 				return false, nil
 			}

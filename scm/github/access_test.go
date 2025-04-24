@@ -14,6 +14,26 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
+var (
+	repoRoleMap = map[string]string{
+		"admin":    "admin",
+		"write":    "write",
+		"maintain": "write",
+		"triage":   "read",
+		"read":     "read",
+	}
+
+	orgRoleMap = map[string]string{
+		"admin":  "admin",
+		"member": "read",
+	}
+
+	teamRoleMap = map[string]string{
+		"maintainer": "admin",
+		"member":     "read",
+	}
+)
+
 func TestGithub_OrgAccess_Admin(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -41,7 +61,7 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "github")
+	got, err := client.OrgAccess(context.TODO(), u, "github", orgRoleMap)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("OrgAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -74,7 +94,7 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "member"
+	want := "read"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -83,7 +103,7 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "github")
+	got, err := client.OrgAccess(context.TODO(), u, "github", orgRoleMap)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("OrgAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -104,7 +124,7 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := "none"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -113,7 +133,7 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "github")
+	got, err := client.OrgAccess(context.TODO(), u, "github", orgRoleMap)
 
 	if err == nil {
 		t.Errorf("OrgAccess should have returned err")
@@ -142,7 +162,7 @@ func TestGithub_OrgAccess_Pending(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := "none"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -151,7 +171,7 @@ func TestGithub_OrgAccess_Pending(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "github")
+	got, err := client.OrgAccess(context.TODO(), u, "github", orgRoleMap)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("OrgAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -181,7 +201,7 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "foo")
+	got, err := client.OrgAccess(context.TODO(), u, "foo", orgRoleMap)
 
 	if err != nil {
 		t.Errorf("OrgAccess returned err: %v", err)
@@ -219,7 +239,7 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat")
+	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat", repoRoleMap)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("RepoAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -240,7 +260,7 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := "none"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -249,7 +269,7 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat")
+	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat", repoRoleMap)
 
 	if err == nil {
 		t.Errorf("RepoAccess should have returned err")
@@ -268,7 +288,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/user/teams", func(c *gin.Context) {
+	engine.GET("/api/v3/orgs/:org/teams/:team/memberships/:username", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/team_admin.json")
@@ -287,7 +307,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat")
+	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat", teamRoleMap)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -302,7 +322,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	}
 }
 
-func TestGithub_TeamAccess_NoAccess(t *testing.T) {
+func TestGithub_TeamAccess_Read(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -310,17 +330,17 @@ func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/user/teams", func(c *gin.Context) {
+	engine.GET("/api/v3/orgs/:org/teams/:team/memberships/:username", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/team_admin.json")
+		c.File("testdata/team_member.json")
 	})
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := "read"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -329,7 +349,7 @@ func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(context.TODO(), u, "github", "baz")
+	got, err := client.TeamAccess(context.TODO(), u, "github", "baz", teamRoleMap)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -350,7 +370,7 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := "none"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -359,7 +379,7 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat")
+	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat", teamRoleMap)
 
 	if err == nil {
 		t.Errorf("TeamAccess should have returned err")
@@ -381,7 +401,7 @@ func TestGithub_TeamList(t *testing.T) {
 	engine.GET("/api/v3/user/teams", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/team_admin.json")
+		c.File("testdata/user_teams.json")
 	})
 
 	s := httptest.NewServer(engine)

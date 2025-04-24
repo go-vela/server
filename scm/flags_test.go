@@ -30,6 +30,9 @@ func TestDatabase_Flags(t *testing.T) {
 			case *cli.StringSliceFlag:
 				copyFlag := *f
 				copiedFlags[i] = &copyFlag
+			case *cli.StringMapFlag:
+				copyFlag := *f
+				copiedFlags[i] = &copyFlag
 			default:
 				t.Fatalf("unsupported flag type: %T", f)
 			}
@@ -160,6 +163,159 @@ func TestDatabase_Flags(t *testing.T) {
 				"vela-disable-webhook-validation": "true",
 			},
 			wantErr: false,
+		},
+		{
+			name: "repo role map",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.repo.roles-map":       "custom-admin=admin,custom-write=write,custom-read=read",
+			},
+		},
+		{
+			name: "bad repo role map (missing read)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.repo.roles-map":       "admin=admin,write=write",
+			},
+			wantErr: true,
+		},
+		{
+			name: "bad repo role map (missing write)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.repo.roles-map":       "admin=admin,foo=read",
+			},
+			wantErr: true,
+		},
+		{
+			name: "bad repo role map (missing admin)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.repo.roles-map":       "write=write,foo=read",
+			},
+			wantErr: true,
+		},
+		{
+			name: "bad repo role map (non standard value)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.repo.roles-map":       "admin=foo,write=write,read=read",
+			},
+			wantErr: true,
+		},
+		{
+			name: "org role map",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.org.roles-map":        "custom-admin=admin,custom-read=read",
+			},
+		},
+		{
+			name: "bad org role map (missing admin)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.org.roles-map":        "read=read",
+			},
+			wantErr: true,
+		},
+		{
+			name: "bad org role map (missing read)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.org.roles-map":        "admin=admin",
+			},
+			wantErr: true,
+		},
+		{
+			name: "bad org role map (non standard value)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.org.roles-map":        "admin=foo,read=read",
+			},
+			wantErr: true,
+		},
+		{
+			name: "team role map",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.team.roles-map":       "custom-admin=admin,custom-read=read",
+			},
+		},
+		{
+			name: "bad team role map (missing admin)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.team.roles-map":       "read=read",
+			},
+			wantErr: true,
+		},
+		{
+			name: "bad team role map (missing read)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.team.roles-map":       "admin=admin",
+			},
+			wantErr: true,
+		},
+		{
+			name: "bad team role map (non standard value)",
+			flags: map[string]string{
+				"scm.client":               "myClientID",
+				"scm.secret":               "myClientSecret",
+				"scm.app.id":               "42",
+				"scm.app.private-key.path": "/secrets/key.pem",
+				"scm.app.webhook-secret":   "myWebhookSecret",
+				"scm.team.roles-map":       "admin=foo,read=read",
+			},
+			wantErr: true,
 		},
 	}
 

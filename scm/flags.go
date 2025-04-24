@@ -170,4 +170,130 @@ var Flags = []cli.Flag{
 		),
 		Value: []string{"contents:read", "checks:write"},
 	},
+	&cli.StringMapFlag{
+		Name:  "scm.repo.roles-map",
+		Usage: "map of SCM roles to Vela permissions for repositories",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_REPO_ROLES_MAP"),
+			cli.EnvVar("SCM_REPO_ROLES_MAP"),
+			cli.File("/vela/scm/repo/roles_map"),
+		),
+		Value: map[string]string{
+			"admin":    constants.PermissionAdmin,
+			"write":    constants.PermissionWrite,
+			"maintain": constants.PermissionWrite,
+			"triage":   constants.PermissionRead,
+			"read":     constants.PermissionRead,
+		},
+		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
+			// verify that the core 4 roles for Vela are mapped to an SCM role
+			var admin, write, read bool
+			admin, write, read = false, false, false
+
+			for _, role := range v {
+				switch role {
+				case constants.PermissionAdmin:
+					admin = true
+				case constants.PermissionWrite:
+					write = true
+				case constants.PermissionRead:
+					read = true
+				default:
+					return fmt.Errorf("invalid role %s in roles map", role)
+				}
+			}
+
+			if !admin {
+				return fmt.Errorf("admin role is required in repo roles map")
+			}
+
+			if !write {
+				return fmt.Errorf("write role is required in repo roles map")
+			}
+
+			if !read {
+				return fmt.Errorf("read role is required in repo roles map")
+			}
+
+			return nil
+		},
+	},
+	&cli.StringMapFlag{
+		Name:  "scm.org.roles-map",
+		Usage: "map of SCM roles to Vela permissions for organizations",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_ORG_ROLES_MAP"),
+			cli.EnvVar("SCM_ORG_ROLES_MAP"),
+			cli.File("/vela/scm/org/roles_map"),
+		),
+		Value: map[string]string{
+			"admin":  constants.PermissionAdmin,
+			"member": constants.PermissionRead,
+		},
+		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
+			// verify that the core 4 roles for Vela are mapped to an SCM role
+			var admin, read bool
+			admin, read = false, false
+
+			for _, role := range v {
+				switch role {
+				case constants.PermissionAdmin:
+					admin = true
+				case constants.PermissionRead:
+					read = true
+				default:
+					return fmt.Errorf("invalid role %s in roles map", role)
+				}
+			}
+
+			if !admin {
+				return fmt.Errorf("admin role is required in org roles map")
+			}
+
+			if !read {
+				return fmt.Errorf("read role is required in org roles map")
+			}
+
+			return nil
+		},
+	},
+	&cli.StringMapFlag{
+		Name:  "scm.team.roles-map",
+		Usage: "map of SCM roles to Vela permissions for teams",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_TEAM_ROLES_MAP"),
+			cli.EnvVar("SCM_TEAM_ROLES_MAP"),
+			cli.File("/vela/scm/team/roles_map"),
+		),
+		Value: map[string]string{
+			"maintainer": constants.PermissionAdmin,
+			"member":     constants.PermissionRead,
+		},
+		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
+			// verify that the core 4 roles for Vela are mapped to an SCM role
+			var admin, read bool
+			admin, read = false, false
+
+			for _, role := range v {
+				switch role {
+				case constants.PermissionAdmin:
+					admin = true
+				case constants.PermissionRead:
+					read = true
+				default:
+					return fmt.Errorf("invalid role %s in roles map", role)
+				}
+			}
+
+			if !admin {
+				return fmt.Errorf("admin role is required in team roles map")
+			}
+
+			if !read {
+				return fmt.Errorf("read role is required in team roles map")
+			}
+
+			return nil
+		},
+	},
 }

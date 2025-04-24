@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/user"
@@ -77,13 +78,13 @@ func SyncReposForOrg(c *gin.Context) {
 	l.Debugf("syncing repos for org %s", o)
 
 	// see if the user is an org admin
-	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
+	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o, c.MustGet("org.roles-map").(map[string]string))
 	if err != nil {
 		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
 	// only allow org-wide syncing if user is admin of org
-	if perm != "admin" {
+	if perm != constants.PermissionAdmin {
 		retErr := fmt.Errorf("unable to sync repos in org %s: must be an org admin", o)
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)

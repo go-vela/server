@@ -29,6 +29,7 @@ type CompileAndPublishConfig struct {
 	Build      *types.Build
 	Deployment *types.Deployment
 	Metadata   *internal.Metadata
+	RoleMap    map[string]string
 	BaseErr    string
 	Source     string
 	Comment    string
@@ -66,7 +67,7 @@ func CompileAndPublish(
 	baseErr := cfg.BaseErr
 
 	// confirm current repo owner has at least write access to repo (needed for status update later)
-	_, err := scm.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
+	_, err := scm.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName(), cfg.RoleMap)
 	if err != nil {
 		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
 

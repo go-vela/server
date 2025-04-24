@@ -52,13 +52,13 @@ type Service interface {
 
 	// OrgAccess defines a function that captures
 	// the user's access level for an org.
-	OrgAccess(context.Context, *api.User, string) (string, error)
+	OrgAccess(context.Context, *api.User, string, map[string]string) (string, error)
 	// RepoAccess defines a function that captures
 	// the user's access level for a repo.
-	RepoAccess(context.Context, string, string, string, string) (string, error)
+	RepoAccess(context.Context, string, string, string, string, map[string]string) (string, error)
 	// TeamAccess defines a function that captures
 	// the user's access level for a team.
-	TeamAccess(context.Context, *api.User, string, string) (string, error)
+	TeamAccess(context.Context, *api.User, string, string, map[string]string) (string, error)
 	// RepoContributor defines a function that captures
 	// whether the user is a contributor for a repo.
 	RepoContributor(context.Context, *api.User, string, string, string) (bool, error)

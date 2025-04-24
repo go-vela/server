@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -116,12 +117,12 @@ func SyncRepo(c *gin.Context) {
 
 	// verify the user is an admin of the repo
 	// we cannot use our normal permissions check due to the possibility the repo was deleted
-	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, r.GetName())
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, r.GetName(), c.MustGet("repo.roles-map").(map[string]string))
 	if err != nil {
 		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
-	if !strings.EqualFold(perm, "admin") {
+	if !strings.EqualFold(perm, constants.PermissionAdmin) {
 		retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)

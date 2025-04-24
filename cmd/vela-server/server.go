@@ -184,6 +184,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.TokenManager(tm),
 		middleware.Queue(queue),
 		middleware.RequestVersion,
+		middleware.RoleMaps(cmd.StringMap("scm.repo.roles-map"), cmd.StringMap("scm.org.roles-map"), cmd.StringMap("scm.team.roles-map")),
 		middleware.Secret(cmd.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),

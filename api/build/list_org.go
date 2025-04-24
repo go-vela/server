@@ -188,12 +188,12 @@ func ListBuildsForOrg(c *gin.Context) {
 	perPage = max(1, min(100, perPage))
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
+	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o, c.MustGet("org.roles-map").(map[string]string))
 	if err != nil {
 		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
-	if perm != "admin" {
+	if perm != constants.PermissionAdmin {
 		filters["visibility"] = constants.VisibilityPublic
 	}
 
