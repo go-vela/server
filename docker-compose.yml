@@ -83,8 +83,6 @@ services:
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       WORKER_ADDR: 'http://worker:8080'
       WORKER_CHECK_IN: 2m
-      QUEUE_PUBLIC_KEY: 'DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko='
-      QUEUE_ADDR: 'redis://redis:6379'
     restart: always
     ports:
       - '8081:8080'
