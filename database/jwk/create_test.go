@@ -42,7 +42,7 @@ VALUES ($1,$2,$3)`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

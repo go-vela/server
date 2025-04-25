@@ -21,8 +21,8 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the user functionality that implements the UserInterface interface.
-	engine struct {
+	// Engine represents the user functionality that implements the UserInterface interface.
+	Engine struct {
 		// engine configuration settings used in user functions
 		config *config
 
@@ -41,11 +41,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with users in the database.
-//
-
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new User engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

@@ -1,0 +1,15 @@
+version: "1"
+
+stages:
+  three_word_key:
+    steps:
+      - name: build
+        image: alpine
+        commands:
+          - echo "Building..."
+  three:
+    steps:
+      - name: word_key_build
+        image: alpine
+        commands:
+          - echo "Building..."

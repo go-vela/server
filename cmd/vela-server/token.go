@@ -3,15 +3,17 @@
 package main
 
 import (
+	"context"
+
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 )
 
 // helper function to setup the tokenmanager from the CLI arguments.
-func setupTokenManager(c *cli.Context, db database.Interface) (*token.Manager, error) {
+func setupTokenManager(ctx context.Context, c *cli.Command, db database.Interface) (*token.Manager, error) {
 	logrus.Debug("creating token manager from CLI configuration")
 
 	tm := &token.Manager{
@@ -25,7 +27,7 @@ func setupTokenManager(c *cli.Context, db database.Interface) (*token.Manager, e
 	}
 
 	// generate a new RSA key pair
-	err := tm.GenerateRSA(c.Context, db)
+	err := tm.GenerateRSA(ctx, db)
 	if err != nil {
 		return nil, err
 	}

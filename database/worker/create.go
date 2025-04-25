@@ -13,7 +13,7 @@ import (
 )
 
 // CreateWorker creates a new worker in the database.
-func (e *engine) CreateWorker(ctx context.Context, w *api.Worker) (*api.Worker, error) {
+func (e *Engine) CreateWorker(ctx context.Context, w *api.Worker) (*api.Worker, error) {
 	e.logger.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
 	}).Tracef("creating worker %s", w.GetHostname())

@@ -3,13 +3,12 @@
 package database
 
 import (
-	"flag"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/tracing"
 )
@@ -102,50 +101,77 @@ func TestDatabase_ToContext(t *testing.T) {
 	}
 }
 
-func TestDatabase_FromCLIContext(t *testing.T) {
-	flags := flag.NewFlagSet("test", 0)
-	flags.String("database.driver", "sqlite3", "doc")
-	flags.String("database.addr", "file::memory:?cache=shared", "doc")
-	flags.Int("database.compression.level", 3, "doc")
-	flags.Duration("database.connection.life", 10*time.Second, "doc")
-	flags.Int("database.connection.idle", 5, "doc")
-	flags.Int("database.connection.open", 20, "doc")
-	flags.String("database.encryption.key", "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW", "doc")
-	flags.Bool("database.skip_creation", true, "doc")
+func TestDatabase_FromCLICommand(t *testing.T) {
+	happyPath := new(cli.Command)
+
+	happyPath.Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:  "database.addr",
+			Value: "file::memory:?cache=shared",
+		},
+		&cli.StringFlag{
+			Name:  "database.driver",
+			Value: "sqlite3",
+		},
+		&cli.IntFlag{
+			Name:  "database.compression.level",
+			Value: 3,
+		},
+		&cli.DurationFlag{
+			Name:  "database.connection.life",
+			Value: 10 * time.Second,
+		},
+		&cli.IntFlag{
+			Name:  "database.connection.idle",
+			Value: 5,
+		},
+		&cli.IntFlag{
+			Name:  "database.connection.open",
+			Value: 20,
+		},
+		&cli.StringFlag{
+			Name:  "database.encryption.key",
+			Value: "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+		},
+		&cli.BoolFlag{
+			Name:  "database.skip_creation",
+			Value: true,
+		},
+	}
 
 	// setup tests
 	tests := []struct {
 		name    string
 		failure bool
-		context *cli.Context
+		command *cli.Command
 	}{
 		{
 			name:    "success",
 			failure: false,
-			context: cli.NewContext(&cli.App{Name: "vela"}, flags, nil),
+			command: happyPath,
 		},
 		{
 			name:    "failure",
 			failure: true,
-			context: cli.NewContext(&cli.App{Name: "vela"}, flag.NewFlagSet("test", 0), nil),
+			command: new(cli.Command),
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := FromCLIContext(test.context, &tracing.Client{Config: tracing.Config{EnableTracing: false}})
+			_, err := FromCLICommand(test.command, &tracing.Client{Config: tracing.Config{EnableTracing: false}})
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("FromCLIContext for %s should have returned err", test.name)
+					t.Errorf("FromCLICommand for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("FromCLIContext for %s returned err: %v", test.name, err)
+				t.Errorf("FromCLICommand for %s returned err: %v", test.name, err)
 			}
 		})
 	}

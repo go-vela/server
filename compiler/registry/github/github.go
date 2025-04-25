@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/google/go-github/v70/github"
+	"github.com/google/go-github/v71/github"
 	"golang.org/x/oauth2"
 )
 
@@ -17,23 +17,21 @@ const (
 	defaultAPI = "https://api.github.com/" // Default GitHub API URL
 )
 
-type client struct {
-	Github *github.Client
-	URL    string
-	API    string
+type Client struct {
+	githubClient *github.Client
+	URL          string
+	API          string
 }
 
-func (c *client) Equal(other *client) bool {
-	return (reflect.DeepEqual(c.Github.Client(), other.Github.Client())) && c.URL == other.URL && c.API == other.API
+func (c *Client) Equal(other *Client) bool {
+	return (reflect.DeepEqual(c.githubClient.Client(), other.githubClient.Client())) && c.URL == other.URL && c.API == other.API
 }
 
 // New returns a Registry implementation that integrates
 // with GitHub or a GitHub Enterprise instance.
-//
-
-func New(ctx context.Context, address, token string) (*client, error) {
+func New(ctx context.Context, address, token string) (*Client, error) {
 	// create the client object
-	c := &client{
+	c := &Client{
 		URL: defaultURL,
 		API: defaultAPI,
 	}
@@ -59,13 +57,13 @@ func New(ctx context.Context, address, token string) (*client, error) {
 	}
 
 	// overwrite the github client
-	c.Github = gitClient
+	c.githubClient = gitClient
 
 	return c, nil
 }
 
 // newOAuthTokenClient is a helper function to return the GitHub oauth2 client.
-func (c *client) newOAuthTokenClient(ctx context.Context, token string) *github.Client {
+func (c *Client) newOAuthTokenClient(ctx context.Context, token string) *github.Client {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},

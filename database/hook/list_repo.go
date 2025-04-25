@@ -13,7 +13,7 @@ import (
 )
 
 // ListHooksForRepo gets a list of hooks by repo ID from the database.
-func (e *engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Hook, error) {
+func (e *Engine) ListHooksForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

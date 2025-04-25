@@ -21,8 +21,8 @@ type (
 		Driver string
 	}
 
-	// engine represents the key set functionality that implements the JWKService interface.
-	engine struct {
+	// Engine represents the key set functionality that implements the JWKService interface.
+	Engine struct {
 		// engine configuration settings used in key set functions
 		config *config
 
@@ -41,11 +41,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with key sets in the database.
-//
-
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new JWK engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

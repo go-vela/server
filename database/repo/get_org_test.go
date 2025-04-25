@@ -68,7 +68,7 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Repo
 	}{
 		{

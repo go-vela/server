@@ -3,9 +3,12 @@
 package queue
 
 import (
+	"context"
+	"fmt"
+	"strings"
 	"time"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/constants"
 )
@@ -18,47 +21,83 @@ var Flags = []cli.Flag{
 	// Queue Flags
 
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_QUEUE_DRIVER", "QUEUE_DRIVER"},
-		FilePath: "/vela/queue/driver",
-		Name:     "queue.driver",
-		Usage:    "driver to be used for the queue",
+		Name:  "queue.driver",
+		Usage: "driver to be used for the queue",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_QUEUE_DRIVER"),
+			cli.EnvVar("QUEUE_DRIVER"),
+			cli.File("/vela/queue/driver"),
+		),
+		Required: true,
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_QUEUE_ADDR", "QUEUE_ADDR"},
-		FilePath: "/vela/queue/addr",
-		Name:     "queue.addr",
-		Usage:    "fully qualified url (<scheme>://<host>) for the queue",
+		Name:  "queue.addr",
+		Usage: "fully qualified url (<scheme>://<host>) for the queue",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_QUEUE_ADDR"),
+			cli.EnvVar("QUEUE_ADDR"),
+			cli.File("/vela/queue/addr"),
+		),
+		Required: true,
+		Action: func(_ context.Context, _ *cli.Command, v string) error {
+			// check if the queue address has a scheme
+			if !strings.Contains(v, "://") {
+				return fmt.Errorf("queue address must be fully qualified (<scheme>://<host>)")
+			}
+
+			// check if the queue address has a trailing slash
+			if strings.HasSuffix(v, "/") {
+				return fmt.Errorf("queue address must not have trailing slash")
+			}
+
+			return nil
+		},
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"VELA_QUEUE_CLUSTER", "QUEUE_CLUSTER"},
-		FilePath: "/vela/queue/cluster",
-		Name:     "queue.cluster",
-		Usage:    "enables connecting to a queue cluster",
+		Name:  "queue.cluster",
+		Usage: "enables connecting to a queue cluster",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_QUEUE_CLUSTER"),
+			cli.EnvVar("QUEUE_CLUSTER"),
+			cli.File("/vela/queue/cluster"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"VELA_QUEUE_ROUTES", "QUEUE_ROUTES"},
-		FilePath: "/vela/queue/routes",
-		Name:     "queue.routes",
-		Usage:    "list of routes (channels/topics) to publish builds",
-		Value:    cli.NewStringSlice(constants.DefaultRoute),
+		Name:  "queue.routes",
+		Usage: "list of routes (channels/topics) to publish builds",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_QUEUE_ROUTES"),
+			cli.EnvVar("QUEUE_ROUTES"),
+			cli.File("/vela/queue/routes"),
+		),
+		Value: []string{constants.DefaultRoute},
 	},
 	&cli.DurationFlag{
-		EnvVars:  []string{"VELA_QUEUE_POP_TIMEOUT", "QUEUE_POP_TIMEOUT"},
-		FilePath: "/vela/queue/pop_timeout",
-		Name:     "queue.pop.timeout",
-		Usage:    "timeout for requests that pop items off the queue",
-		Value:    60 * time.Second,
+		Name:  "queue.pop.timeout",
+		Usage: "timeout for requests that pop items off the queue",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_QUEUE_POP_TIMEOUT"),
+			cli.EnvVar("QUEUE_POP_TIMEOUT"),
+			cli.File("/vela/queue/pop_timeout"),
+		),
+		Value: 60 * time.Second,
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_QUEUE_PRIVATE_KEY", "QUEUE_PRIVATE_KEY"},
-		FilePath: "/vela/signing.key",
-		Name:     "queue.private-key",
-		Usage:    "set value of base64 encoded queue signing private key",
+		Name:  "queue.private-key",
+		Usage: "set value of base64 encoded queue signing private key",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_QUEUE_PRIVATE_KEY"),
+			cli.EnvVar("QUEUE_PRIVATE_KEY"),
+			cli.File("/vela/signing.key"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_QUEUE_PUBLIC_KEY", "QUEUE_PUBLIC_KEY"},
-		FilePath: "/vela/signing.pub",
-		Name:     "queue.public-key",
-		Usage:    "set value of base64 encoded queue signing public key",
+		Name:  "queue.public-key",
+		Usage: "set value of base64 encoded queue signing public key",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_QUEUE_PUBLIC_KEY"),
+			cli.EnvVar("QUEUE_PUBLIC_KEY"),
+			cli.File("/vela/signing.pub"),
+		),
 	},
 }

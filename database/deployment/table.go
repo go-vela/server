@@ -55,7 +55,7 @@ deployments (
 )
 
 // CreateDeploymentTable creates the deployments table in the database.
-func (e *engine) CreateDeploymentTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateDeploymentTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating deployments table")
 
 	// handle the driver provided to create the table

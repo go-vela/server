@@ -15,7 +15,7 @@ import (
 // ListPipelinesForRepo gets a list of pipelines by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Pipeline, error) {
+func (e *Engine) ListPipelinesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

@@ -21,8 +21,8 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the secret functionality that implements the SecretInterface interface.
-	engine struct {
+	// Engine represents the secret functionality that implements the SecretInterface interface.
+	Engine struct {
 		// engine configuration settings used in secret functions
 		config *config
 
@@ -41,11 +41,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with secrets in the database.
-//
-
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new Secret engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

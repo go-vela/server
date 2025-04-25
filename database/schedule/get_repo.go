@@ -13,7 +13,7 @@ import (
 )
 
 // GetScheduleForRepo gets a schedule by repo ID and name from the database.
-func (e *engine) GetScheduleForRepo(ctx context.Context, r *api.Repo, name string) (*api.Schedule, error) {
+func (e *Engine) GetScheduleForRepo(ctx context.Context, r *api.Repo, name string) (*api.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":      r.GetOrg(),
 		"repo":     r.GetName(),

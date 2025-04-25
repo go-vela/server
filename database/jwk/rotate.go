@@ -11,7 +11,7 @@ import (
 )
 
 // RotateKeys removes all inactive keys and sets active keys to inactive.
-func (e *engine) RotateKeys(ctx context.Context) error {
+func (e *Engine) RotateKeys(ctx context.Context) error {
 	e.logger.Trace("rotating jwks")
 
 	k := types.JWK{}

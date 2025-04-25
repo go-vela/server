@@ -6,14 +6,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v70/github"
+	"github.com/google/go-github/v71/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 )
 
 // Changeset captures the list of files changed for a commit.
-func (c *client) Changeset(ctx context.Context, r *api.Repo, sha string) ([]string, error) {
+func (c *Client) Changeset(ctx context.Context, r *api.Repo, sha string) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -42,7 +42,7 @@ func (c *client) Changeset(ctx context.Context, r *api.Repo, sha string) ([]stri
 }
 
 // ChangesetPR captures the list of files changed for a pull request.
-func (c *client) ChangesetPR(ctx context.Context, r *api.Repo, number int) ([]string, error) {
+func (c *Client) ChangesetPR(ctx context.Context, r *api.Repo, number int) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

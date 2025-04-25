@@ -63,7 +63,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Log
 	}{
 		{

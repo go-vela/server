@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-github/v70/github"
+	"github.com/google/go-github/v71/github"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
@@ -21,7 +21,7 @@ import (
 )
 
 // newOAuthTokenClient returns the GitHub OAuth client.
-func (c *client) newOAuthTokenClient(ctx context.Context, token string) *github.Client {
+func (c *Client) newOAuthTokenClient(ctx context.Context, token string) *github.Client {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -49,7 +49,7 @@ func (c *client) newOAuthTokenClient(ctx context.Context, token string) *github.
 }
 
 // newGithubAppClient returns the GitHub App client for authenticating as the GitHub App itself using the RoundTripper.
-func (c *client) newGithubAppClient() (*github.Client, error) {
+func (c *Client) newGithubAppClient() (*github.Client, error) {
 	if c.AppsTransport == nil {
 		return nil, errors.New("unable to create github app client: no AppsTransport configured")
 	}
@@ -68,7 +68,7 @@ func (c *client) newGithubAppClient() (*github.Client, error) {
 }
 
 // newGithubAppInstallationRepoToken returns the GitHub App installation token for a particular repo with granular permissions.
-func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions *github.InstallationPermissions) (*github.InstallationToken, int64, error) {
+func (c *Client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions *github.InstallationPermissions) (*github.InstallationToken, int64, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := c.newGithubAppClient()
 	if err != nil {
@@ -126,7 +126,7 @@ func (c *client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 }
 
 // installationCanReadRepo checks if the installation can read the repo.
-func (c *client) installationCanReadRepo(ctx context.Context, r *api.Repo, installation *github.Installation) (bool, error) {
+func (c *Client) installationCanReadRepo(ctx context.Context, r *api.Repo, installation *github.Installation) (bool, error) {
 	installationCanReadRepo := false
 
 	if installation.GetRepositorySelection() == constants.AppInstallRepositoriesSelectionSelected {

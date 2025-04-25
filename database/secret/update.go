@@ -14,7 +14,7 @@ import (
 )
 
 // UpdateSecret updates an existing secret in the database.
-func (e *engine) UpdateSecret(ctx context.Context, s *api.Secret) (*api.Secret, error) {
+func (e *Engine) UpdateSecret(ctx context.Context, s *api.Secret) (*api.Secret, error) {
 	// handle the secret based off the type
 	switch s.GetType() {
 	case constants.SecretShared:

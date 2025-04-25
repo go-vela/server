@@ -20,6 +20,7 @@ func TestSettings_Engine_CreateSettings(t *testing.T) {
 	_settings.SetRoutes([]string{"vela"})
 	_settings.SetRepoAllowlist([]string{"octocat/hello-world"})
 	_settings.SetScheduleAllowlist([]string{"*"})
+	_settings.SetMaxDashboardRepos(10)
 	_settings.SetCreatedAt(1)
 	_settings.SetUpdatedAt(1)
 	_settings.SetUpdatedBy("")
@@ -31,9 +32,9 @@ func TestSettings_Engine_CreateSettings(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "settings" ("compiler","queue","repo_allowlist","schedule_allowlist","created_at","updated_at","updated_by","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
+	_mock.ExpectQuery(`INSERT INTO "settings" ("compiler","queue","repo_allowlist","schedule_allowlist","max_dashboard_repos","created_at","updated_at","updated_by","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "id"`).
 		WithArgs(`{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
-			`{"routes":["vela"]}`, `{"octocat/hello-world"}`, `{"*"}`, 1, 1, ``, 1).
+			`{"routes":["vela"]}`, `{"octocat/hello-world"}`, `{"*"}`, 10, 1, 1, ``, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
@@ -43,7 +44,7 @@ func TestSettings_Engine_CreateSettings(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

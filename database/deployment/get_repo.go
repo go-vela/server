@@ -14,7 +14,7 @@ import (
 )
 
 // GetDeploymentForRepo gets a deployment by repo ID and number from the database.
-func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number int64) (*api.Deployment, error) {
+func (e *Engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number int64) (*api.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": number,
 		"org":        r.GetOrg(),

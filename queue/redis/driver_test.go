@@ -27,6 +27,7 @@ func TestRedis_Driver(t *testing.T) {
 	want := constants.DriverRedis
 
 	_service, err := New(
+		t.Context(),
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
 		WithRoutes("foo"),
 		WithCluster(false),

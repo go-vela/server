@@ -2,13 +2,18 @@
 
 package pipeline
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/go-vela/server/compiler/types/raw"
+)
 
 func TestPipeline_Ruleset_Match(t *testing.T) {
 	// setup types
 	tests := []struct {
 		ruleset *Ruleset
 		data    *RuleData
+		envs    raw.StringSliceMap
 		want    bool
 		wantErr bool
 	}{

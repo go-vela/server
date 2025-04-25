@@ -19,8 +19,8 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the service functionality that implements the ServiceInterface interface.
-	engine struct {
+	// Engine represents the service functionality that implements the ServiceInterface interface.
+	Engine struct {
 		// engine configuration settings used in service functions
 		config *config
 
@@ -39,11 +39,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with services in the database.
-//
-
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new Service engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

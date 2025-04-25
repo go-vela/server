@@ -11,7 +11,7 @@ import (
 )
 
 // GetLogForService gets a log by service ID from the database.
-func (e *engine) GetLogForService(ctx context.Context, s *api.Service) (*api.Log, error) {
+func (e *Engine) GetLogForService(ctx context.Context, s *api.Service) (*api.Log, error) {
 	e.logger.Tracef("getting log for service %d for build %d", s.GetID(), s.GetBuildID())
 
 	// variable to store query results

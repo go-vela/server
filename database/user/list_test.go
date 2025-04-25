@@ -54,7 +54,7 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.User
 	}{
 		{

@@ -70,7 +70,7 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Secret
 	}{
 		{
@@ -171,7 +171,7 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Secret
 	}{
 		{

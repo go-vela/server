@@ -23,8 +23,8 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the pipeline functionality that implements the PipelineInterface interface.
-	engine struct {
+	// Engine represents the pipeline functionality that implements the PipelineInterface interface.
+	Engine struct {
 		// engine configuration settings used in pipeline functions
 		config *config
 
@@ -43,11 +43,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with pipelines in the database.
-//
-
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new Pipeline engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

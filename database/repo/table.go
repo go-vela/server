@@ -77,7 +77,7 @@ repos (
 )
 
 // CreateRepoTable creates the repos table in the database.
-func (e *engine) CreateRepoTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateRepoTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating repos table")
 
 	// handle the driver provided to create the table

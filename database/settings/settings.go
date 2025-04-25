@@ -21,8 +21,8 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the settings functionality that implements the SettingsInterface interface.
-	engine struct {
+	// Engine represents the settings functionality that implements the SettingsInterface interface.
+	Engine struct {
 		// engine configuration settings used in settings functions
 		config *config
 
@@ -41,11 +41,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with settings in the database.
-//
-
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new Settings engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

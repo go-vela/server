@@ -15,7 +15,7 @@ import (
 )
 
 // LastHookForRepo gets the last hook by repo ID from the database.
-func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*api.Hook, error) {
+func (e *Engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*api.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

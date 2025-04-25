@@ -23,7 +23,7 @@ func TestUser_Engine_CreateUserTable(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

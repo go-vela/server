@@ -13,7 +13,7 @@ import (
 )
 
 // ListSchedulesForRepo gets a list of schedules by repo ID from the database.
-func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Schedule, error) {
+func (e *Engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

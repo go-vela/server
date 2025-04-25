@@ -22,6 +22,7 @@ func TestSettings_Engine_GetSettings(t *testing.T) {
 	_settings.SetRoutes([]string{"vela"})
 	_settings.SetRepoAllowlist([]string{"octocat/hello-world"})
 	_settings.SetScheduleAllowlist([]string{"*"})
+	_settings.SetMaxDashboardRepos(10)
 	_settings.SetCreatedAt(1)
 	_settings.SetUpdatedAt(1)
 	_settings.SetUpdatedBy("octocat")
@@ -47,7 +48,7 @@ func TestSettings_Engine_GetSettings(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *settings.Platform
 	}{
 		{

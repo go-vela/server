@@ -21,8 +21,8 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the build functionality that implements the BuildInterface interface.
-	engine struct {
+	// Engine represents the build functionality that implements the BuildInterface interface.
+	Engine struct {
 		// engine configuration settings used in build functions
 		config *config
 
@@ -41,11 +41,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with builds in the database.
-//
-
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new Build engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

@@ -13,7 +13,7 @@ import (
 )
 
 // CreateHook creates a new hook in the database.
-func (e *engine) CreateHook(ctx context.Context, h *api.Hook) (*api.Hook, error) {
+func (e *Engine) CreateHook(ctx context.Context, h *api.Hook) (*api.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
 	}).Tracef("creating hook %d", h.GetNumber())

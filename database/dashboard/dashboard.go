@@ -32,8 +32,8 @@ type (
 		Driver string
 	}
 
-	// engine represents the dashboard functionality that implements the DashboardService interface.
-	engine struct {
+	// Engine represents the dashboard functionality that implements the DashboardService interface.
+	Engine struct {
 		// engine configuration settings used in dashboard functions
 		config *config
 
@@ -52,11 +52,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with dashboards in the database.
-//
-
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new Dashboard engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

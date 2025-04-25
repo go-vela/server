@@ -13,7 +13,7 @@ import (
 // ListLiteUsers gets a lite (only: id, name) list of users from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*api.User, error) {
+func (e *Engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*api.User, error) {
 	e.logger.Trace("listing lite users")
 
 	// variables to store query results and return values

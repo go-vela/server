@@ -21,8 +21,8 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the hook functionality that implements the HookInterface interface.
-	engine struct {
+	// Engine represents the hook functionality that implements the HookInterface interface.
+	Engine struct {
 		// engine configuration settings used in hook functions
 		config *config
 
@@ -41,11 +41,9 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with hooks in the database.
-//
-
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (*Engine, error) {
 	// create new Hook engine
-	e := new(engine)
+	e := new(Engine)
 
 	// create new fields
 	e.client = new(gorm.DB)

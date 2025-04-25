@@ -16,7 +16,7 @@ import (
 
 // EnvironmentStages injects environment variables
 // for each stage in a yaml configuration.
-func (c *client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceMap) (yaml.StageSlice, error) {
+func (c *Client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceMap) (yaml.StageSlice, error) {
 	// iterate through all stages
 	for _, stage := range s {
 		_, err := c.EnvironmentStage(stage, globalEnv)
@@ -30,7 +30,7 @@ func (c *client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceM
 
 // EnvironmentStage injects environment variables
 // for each stage in a yaml configuration.
-func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (*yaml.Stage, error) {
+func (c *Client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (*yaml.Stage, error) {
 	// make empty map of environment variables
 	env := make(map[string]string)
 
@@ -71,7 +71,7 @@ func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 
 // EnvironmentSteps injects environment variables
 // for each step in a stage for the yaml configuration.
-func (c *client) EnvironmentSteps(s yaml.StepSlice, stageEnv raw.StringSliceMap) (yaml.StepSlice, error) {
+func (c *Client) EnvironmentSteps(s yaml.StepSlice, stageEnv raw.StringSliceMap) (yaml.StepSlice, error) {
 	// iterate through all steps
 	for _, step := range s {
 		_, err := c.EnvironmentStep(step, stageEnv)
@@ -85,7 +85,7 @@ func (c *client) EnvironmentSteps(s yaml.StepSlice, stageEnv raw.StringSliceMap)
 
 // EnvironmentStep injects environment variables
 // a single step in a yaml configuration.
-func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*yaml.Step, error) {
+func (c *Client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*yaml.Step, error) {
 	// make empty map of environment variables
 	env := make(map[string]string)
 
@@ -145,7 +145,7 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 
 // EnvironmentServices injects environment variables
 // for each service in a yaml configuration.
-func (c *client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSliceMap) (yaml.ServiceSlice, error) {
+func (c *Client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSliceMap) (yaml.ServiceSlice, error) {
 	// iterate through all services
 	for _, service := range s {
 		// make empty map of environment variables
@@ -181,7 +181,7 @@ func (c *client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSl
 
 // EnvironmentSecrets injects environment variables
 // for each secret plugin in a yaml configuration.
-func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSliceMap) (yaml.SecretSlice, error) {
+func (c *Client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSliceMap) (yaml.SecretSlice, error) {
 	// iterate through all secrets
 	for _, secret := range s {
 		// skip non plugin secrets
@@ -249,7 +249,7 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 
 // EnvironmentBuild injects environment variables
 // for the build in a yaml configuration.
-func (c *client) EnvironmentBuild() map[string]string {
+func (c *Client) EnvironmentBuild() map[string]string {
 	// make empty map of environment variables
 	env := make(map[string]string)
 

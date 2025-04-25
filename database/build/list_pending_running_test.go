@@ -95,7 +95,7 @@ func TestBuild_Engine_ListPendingAndRunningBuilds(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.QueueBuild
 	}{
 		{

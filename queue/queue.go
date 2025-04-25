@@ -3,16 +3,17 @@
 package queue
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/constants"
 )
 
-// FromCLIContext helper function to setup the queue from the CLI arguments.
-func FromCLIContext(c *cli.Context) (Service, error) {
+// FromCLICommand helper function to setup the queue from the CLI arguments.
+func FromCLICommand(ctx context.Context, c *cli.Command) (Service, error) {
 	logrus.Debug("creating queue client from CLI configuration")
 
 	// queue configuration
@@ -29,7 +30,7 @@ func FromCLIContext(c *cli.Context) (Service, error) {
 	// setup the queue
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/queue?tab=doc#New
-	return New(_setup)
+	return New(ctx, _setup)
 }
 
 // New creates and returns a Vela service capable of
@@ -38,7 +39,7 @@ func FromCLIContext(c *cli.Context) (Service, error) {
 //
 // * redis
 // .
-func New(s *Setup) (Service, error) {
+func New(ctx context.Context, s *Setup) (Service, error) {
 	// validate the setup being provided
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/queue?tab=doc#Setup.Validate
@@ -59,7 +60,7 @@ func New(s *Setup) (Service, error) {
 		// handle the Redis queue driver being provided
 		//
 		// https://pkg.go.dev/github.com/go-vela/server/queue?tab=doc#Setup.Redis
-		return s.Redis()
+		return s.Redis(ctx)
 	default:
 		// handle an invalid queue driver being provided
 		return nil, fmt.Errorf("invalid queue driver provided: %s", s.Driver)

@@ -13,7 +13,7 @@ import (
 )
 
 // UpdatePipeline updates an existing pipeline in the database.
-func (e *engine) UpdatePipeline(ctx context.Context, p *api.Pipeline) (*api.Pipeline, error) {
+func (e *Engine) UpdatePipeline(ctx context.Context, p *api.Pipeline) (*api.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("updating pipeline %s in the database", p.GetCommit())

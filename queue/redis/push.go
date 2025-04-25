@@ -10,7 +10,7 @@ import (
 )
 
 // Push inserts an item to the specified channel in the queue.
-func (c *client) Push(ctx context.Context, channel string, item []byte) error {
+func (c *Client) Push(ctx context.Context, channel string, item []byte) error {
 	c.Logger.Tracef("pushing item to queue %s", channel)
 
 	// ensure the item to be pushed is valid

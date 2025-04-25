@@ -7,7 +7,7 @@ import (
 )
 
 // RouteLength returns count of all items present in the given route.
-func (c *client) RouteLength(ctx context.Context, channel string) (int64, error) {
+func (c *Client) RouteLength(ctx context.Context, channel string) (int64, error) {
 	c.Logger.Tracef("reading length of all configured routes in queue")
 
 	items, err := c.Redis.LLen(ctx, channel).Result()

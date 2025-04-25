@@ -21,6 +21,7 @@ func TestRedis_Ping_Good(t *testing.T) {
 
 	// setup redis mock
 	goodRedis, err := New(
+		context.Background(),
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
 		WithRoutes("foo"),
 		WithCluster(false),
@@ -48,6 +49,7 @@ func TestRedis_Ping_Bad(t *testing.T) {
 
 	// setup redis mock
 	badRedis, _ := New(
+		context.Background(),
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
 		WithRoutes("foo"),
 		WithCluster(false),

@@ -85,7 +85,7 @@ func TestBuild_Engine_GetBuild(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Build
 	}{
 		{

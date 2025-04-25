@@ -23,7 +23,7 @@ func TestSettings_Engine_CreateSettingsTable(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

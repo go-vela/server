@@ -13,7 +13,7 @@ import (
 )
 
 // Create creates a new secret.
-func (c *client) Create(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
+func (c *Client) Create(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:
