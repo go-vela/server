@@ -400,6 +400,13 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 				Image: "openjdk:latest",
 				Name:  "build",
 				Pull:  "always",
+				Ruleset: yaml.Ruleset{
+					If: yaml.Rules{
+						Eval:     `HELLO == "Hello, Global Environment"`,
+						Operator: "and",
+						Matcher:  "filepath",
+					},
+				},
 			},
 			&yaml.Step{
 				Image: "plugins/docker:18.09",
