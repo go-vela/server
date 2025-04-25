@@ -37,7 +37,7 @@ type (
 		Target   []string `yaml:"target,omitempty,flow"   json:"target,omitempty"   jsonschema:"description=Limits the execution of a step to matching build deployment targets.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Label    []string `yaml:"label,omitempty,flow"    json:"label,omitempty"    jsonschema:"description=Limits step execution to match on pull requests labels.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Instance []string `yaml:"instance,omitempty,flow" json:"instance,omitempty" jsonschema:"description=Limits step execution to match on certain instances.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
-		Eval     string   `yaml:"eval,omitempty"     json:"eval,omitempty"     jsonschema:"description=The expression to evaluate the ruleset against.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Eval     string   `yaml:"eval,omitempty"          json:"eval,omitempty"     jsonschema:"description=The expression to evaluate the ruleset against.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Operator string   `yaml:"operator,omitempty"      json:"operator,omitempty" jsonschema:"description=Whether all rule conditions must be met or just any one of them.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Matcher  string   `yaml:"matcher,omitempty"       json:"matcher,omitempty"  jsonschema:"description=Use the defined matching method.\nReference: coming soon"`
 	}
