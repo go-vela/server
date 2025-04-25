@@ -630,6 +630,199 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 	}
 }
 
+func TestNative_Compile_StepsPipelineEval(t *testing.T) {
+	// setup types
+	m := &internal.Metadata{
+		Database: &internal.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &internal.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &internal.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &internal.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	initEnv := environment(nil, m, nil, nil, nil)
+	initEnv["HELLO"] = "Hello, Global Environment"
+
+	cloneEnv := environment(nil, m, nil, nil, nil)
+	cloneEnv["HELLO"] = "Hello, Global Environment"
+
+	installEnv := environment(nil, m, nil, nil, nil)
+	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
+	installEnv["GRADLE_USER_HOME"] = ".gradle"
+	installEnv["HOME"] = "/root"
+	installEnv["SHELL"] = "/bin/sh"
+	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
+	installEnv["HELLO"] = "Hello, Global Environment"
+
+	testEnv := environment(nil, m, nil, nil, nil)
+	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
+	testEnv["GRADLE_USER_HOME"] = ".gradle"
+	testEnv["HOME"] = "/root"
+	testEnv["SHELL"] = "/bin/sh"
+	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew check"})
+	testEnv["HELLO"] = "Hello, Global Environment"
+
+	buildEnv := environment(nil, m, nil, nil, nil)
+	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
+	buildEnv["GRADLE_USER_HOME"] = ".gradle"
+	buildEnv["HOME"] = "/root"
+	buildEnv["SHELL"] = "/bin/sh"
+	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build"})
+	buildEnv["HELLO"] = "Hello, Global Environment"
+
+	dockerEnv := environment(nil, m, nil, nil, nil)
+	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
+	dockerEnv["PARAMETER_REPO"] = "github/octocat"
+	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
+	dockerEnv["HELLO"] = "Hello, Global Environment"
+
+	want := &pipeline.Build{
+		Version: "1",
+		ID:      "__0",
+		Metadata: pipeline.Metadata{
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel: &pipeline.CancelOptions{
+				Running: true,
+				Pending: true,
+			},
+		},
+		Steps: pipeline.ContainerSlice{
+			&pipeline.Container{
+				ID:          "step___0_init",
+				Directory:   "/vela/src/foo//",
+				Environment: initEnv,
+				Image:       "#init",
+				Name:        "init",
+				Number:      1,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_clone",
+				Directory:   "/vela/src/foo//",
+				Environment: cloneEnv,
+				Image:       defaultCloneImage,
+				Name:        "clone",
+				Number:      2,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_install",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: installEnv,
+				Image:       "openjdk:latest",
+				Name:        "install",
+				Number:      3,
+				Pull:        "always",
+			},
+			&pipeline.Container{
+				ID:          "step___0_test",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: testEnv,
+				Image:       "openjdk:latest",
+				Name:        "test",
+				Number:      4,
+				Pull:        "always",
+			},
+			&pipeline.Container{
+				ID:          "step___0_build",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Directory:   "/vela/src/foo//",
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: buildEnv,
+				Image:       "openjdk:latest",
+				Name:        "build",
+				Number:      5,
+				Pull:        "always",
+				Ruleset: pipeline.Ruleset{
+					If: pipeline.Rules{
+						Event:    pipeline.Ruletype{},
+						Eval:     `HELLO == "Hello, Global Environment"`,
+						Matcher:  "filepath",
+						Operator: "and",
+					},
+				},
+			},
+			&pipeline.Container{
+				ID:          "step___0_publish",
+				Directory:   "/vela/src/foo//",
+				Image:       "plugins/docker:18.09",
+				Environment: dockerEnv,
+				Name:        "publish",
+				Number:      6,
+				Pull:        "always",
+				Secrets: pipeline.StepSecretSlice{
+					&pipeline.StepSecret{
+						Source: "docker_username",
+						Target: "REGISTRY_USERNAME",
+					},
+					&pipeline.StepSecret{
+						Source: "docker_password",
+						Target: "REGISTRY_PASSWORD",
+					},
+				},
+			},
+		},
+		Secrets: pipeline.SecretSlice{
+			&pipeline.Secret{
+				Name:   "docker_username",
+				Key:    "org/repo/docker/username",
+				Engine: "native",
+				Type:   "repo",
+				Origin: &pipeline.Container{},
+				Pull:   "build_start",
+			},
+			&pipeline.Secret{
+				Name:   "docker_password",
+				Key:    "org/repo/docker/password",
+				Engine: "vault",
+				Type:   "repo",
+				Origin: &pipeline.Container{},
+				Pull:   "build_start",
+			},
+		},
+	}
+
+	// run test
+	yaml, err := os.ReadFile("testdata/steps_pipeline.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	compiler.WithMetadata(m)
+
+	got, _, err := compiler.Compile(context.Background(), yaml)
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile mismatch (-want +got):\n%s", diff)
+	}
+}
+
 func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)

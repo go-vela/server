@@ -33,6 +33,7 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Target:   []string{"production"},
 					Label:    []string{"enhancement"},
 					Instance: []string{"http://localhost:8080"},
+					Eval:     "foo == bar",
 					Matcher:  "filepath",
 					Operator: "and",
 				},
@@ -47,6 +48,7 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Tag:      []string{"v0.2.0"},
 					Target:   []string{"production"},
 					Instance: []string{"http://localhost:8080"},
+					Eval:     "foo == bar",
 					Matcher:  "regexp",
 					Operator: "or",
 				},
@@ -65,6 +67,7 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Target:   []string{"production"},
 					Label:    []string{"enhancement"},
 					Instance: []string{"http://localhost:8080"},
+					Eval:     "foo == bar",
 					Matcher:  "filepath",
 					Operator: "and",
 				},
@@ -79,6 +82,7 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Tag:      []string{"v0.2.0"},
 					Target:   []string{"production"},
 					Instance: []string{"http://localhost:8080"},
+					Eval:     "foo == bar",
 					Matcher:  "regexp",
 					Operator: "or",
 				},
@@ -110,6 +114,7 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 				If: Rules{
 					Branch:   []string{"main"},
 					Comment:  []string{"test comment"},
+					Eval:     `foo == "bar"`,
 					Event:    []string{"push"},
 					Instance: []string{"vela-server"},
 					Label:    []string{"bug"},
@@ -130,6 +135,7 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 			want: &Ruleset{
 				If: Rules{
 					Branch:   []string{"main"},
+					Eval:     `foo == "bar"`,
 					Event:    []string{"push"},
 					Tag:      []string{"^refs/tags/(\\d+\\.)+\\d+$"},
 					Matcher:  "regexp",
@@ -237,6 +243,7 @@ func TestYaml_Rules_ToPipeline(t *testing.T) {
 			rules: &Rules{
 				Branch:   []string{"main"},
 				Comment:  []string{"test comment"},
+				Eval:     `foo == "bar"`,
 				Event:    []string{"push", "pull_request:labeled"},
 				Instance: []string{"vela-server"},
 				Path:     []string{"foo.txt"},
@@ -250,6 +257,7 @@ func TestYaml_Rules_ToPipeline(t *testing.T) {
 			want: &pipeline.Rules{
 				Branch:   []string{"main"},
 				Comment:  []string{"test comment"},
+				Eval:     `foo == "bar"`,
 				Event:    []string{"push", "pull_request:labeled"},
 				Instance: []string{"vela-server"},
 				Path:     []string{"foo.txt"},
@@ -292,6 +300,7 @@ func TestYaml_Rules_UnmarshalYAML(t *testing.T) {
 			want: &Rules{
 				Branch:   []string{"main"},
 				Comment:  []string{"test comment"},
+				Eval:     `foo == "bar"`,
 				Event:    []string{"push"},
 				Instance: []string{"vela-server"},
 				Label:    []string{"bug"},

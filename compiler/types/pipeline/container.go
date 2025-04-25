@@ -64,6 +64,9 @@ func (c *ContainerSlice) Purge(r *RuleData) (*ContainerSlice, error) {
 
 	// iterate through each Container in the pipeline
 	for _, container := range *c {
+		// use the container environment as ruledata env for matching
+		r.Env = container.Environment
+
 		// verify ruleset matches
 		match, err := r.Match(container.Ruleset)
 		if err != nil {

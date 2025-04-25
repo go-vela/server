@@ -25,7 +25,6 @@ type (
 		Matcher  string `json:"matcher,omitempty"  yaml:"matcher,omitempty"`
 		Operator string `json:"operator,omitempty" yaml:"operator,omitempty"`
 		Continue bool   `json:"continue,omitempty" yaml:"continue,omitempty"`
-		Eval     string `json:"eval,omitempty"     yaml:"eval,omitempty"`
 	}
 
 	// Rules is the pipeline representation of the ruletypes
