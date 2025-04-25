@@ -8,6 +8,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/expr-lang/expr"
+
+	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/constants"
 )
 
@@ -40,6 +43,7 @@ type (
 		Target   Ruletype `json:"target,omitempty"   yaml:"target,omitempty"`
 		Label    Ruletype `json:"label,omitempty"    yaml:"label,omitempty"`
 		Instance Ruletype `json:"instance,omitempty" yaml:"instance,omitempty"`
+		Eval     string   `json:"eval,omitempty"     yaml:"eval,omitempty"`
 		Operator string   `json:"operator,omitempty" yaml:"operator,omitempty"`
 		Matcher  string   `json:"matcher,omitempty"  yaml:"matcher,omitempty"`
 	}
@@ -53,20 +57,22 @@ type (
 	// RuleData is the data to check our ruleset
 	// against for a step in a pipeline.
 	RuleData struct {
-		Branch   string   `json:"branch,omitempty"   yaml:"branch,omitempty"`
-		Comment  string   `json:"comment,omitempty"  yaml:"comment,omitempty"`
-		Event    string   `json:"event,omitempty"    yaml:"event,omitempty"`
-		Path     []string `json:"path,omitempty"     yaml:"path,omitempty"`
-		Repo     string   `json:"repo,omitempty"     yaml:"repo,omitempty"`
-		Sender   string   `json:"sender,omitempty"   yaml:"sender,omitempty"`
-		Status   string   `json:"status,omitempty"   yaml:"status,omitempty"`
-		Tag      string   `json:"tag,omitempty"      yaml:"tag,omitempty"`
-		Target   string   `json:"target,omitempty"   yaml:"target,omitempty"`
-		Label    []string `json:"label,omitempty"    yaml:"label,omitempty"`
-		Instance string   `json:"instance,omitempty" yaml:"instance,omitempty"`
+		Branch   string             `json:"branch,omitempty"   yaml:"branch,omitempty"`
+		Comment  string             `json:"comment,omitempty"  yaml:"comment,omitempty"`
+		Event    string             `json:"event,omitempty"    yaml:"event,omitempty"`
+		Path     []string           `json:"path,omitempty"     yaml:"path,omitempty"`
+		Repo     string             `json:"repo,omitempty"     yaml:"repo,omitempty"`
+		Sender   string             `json:"sender,omitempty"   yaml:"sender,omitempty"`
+		Status   string             `json:"status,omitempty"   yaml:"status,omitempty"`
+		Tag      string             `json:"tag,omitempty"      yaml:"tag,omitempty"`
+		Target   string             `json:"target,omitempty"   yaml:"target,omitempty"`
+		Label    []string           `json:"label,omitempty"    yaml:"label,omitempty"`
+		Instance string             `json:"instance,omitempty" yaml:"instance,omitempty"`
+		Env      raw.StringSliceMap `json:"env,omitempty"      yaml:"env,omitempty"`
 	}
 )
 
+// Match checks if the context data of a given pipeline compilation matches the ruleset defined.
 func (data *RuleData) Match(set Ruleset) (bool, error) {
 	if set.If.Empty() && set.Unless.Empty() {
 		return true, nil
@@ -95,6 +101,7 @@ func (data *RuleData) Match(set Ruleset) (bool, error) {
 	return match, nil
 }
 
+// MatchRules iterates through the defined rules in a ruleset and determines if the data matches.
 func (data *RuleData) MatchRules(rules Rules) (bool, error) {
 	isOr := strings.EqualFold(rules.Operator, constants.OperatorOr)
 
@@ -111,6 +118,36 @@ func (data *RuleData) MatchRules(rules Rules) (bool, error) {
 	// set running to success on ruleset evaluations (c.Execute)
 	if len(rules.Status) > 0 && data.Status == constants.StatusRunning {
 		data.Status = constants.StatusSuccess
+	}
+
+	// run eval first
+	if len(rules.Eval) > 0 && data.Env != nil {
+		eval, err := expr.Compile(rules.Eval, expr.Env(data.Env), expr.AllowUndefinedVariables(), expr.AsBool())
+		if err != nil {
+			return false, fmt.Errorf("failed to compile eval of %s: %w", rules.Eval, err)
+		}
+
+		result, err := expr.Run(eval, data.Env)
+		if err != nil {
+			return false, fmt.Errorf("failed to run eval of %s: %w", rules.Eval, err)
+		}
+
+		bResult, ok := result.(bool)
+		if !ok {
+			return false, fmt.Errorf("failed to parse eval of %s: expected bool but got %v", rules.Eval, bResult)
+		}
+
+		match = bResult
+
+		// early exit if OR + truthy
+		if isOr && match {
+			return true, nil
+		}
+
+		// early exit if AND + falsy
+		if !isOr && !match {
+			return false, nil
+		}
 	}
 
 	// define rule data type
@@ -156,6 +193,7 @@ func (data *RuleData) MatchRules(rules Rules) (bool, error) {
 	return match, nil
 }
 
+// MatchRule determines the truthy value of a rule compared to incoming data given the matcher type.
 func MatchRule(data []string, comparator []string, matcher string) (bool, error) {
 	var err error
 
@@ -206,7 +244,8 @@ func (r *Rules) Empty() bool {
 		len(r.Tag) == 0 &&
 		len(r.Target) == 0 &&
 		len(r.Label) == 0 &&
-		len(r.Instance) == 0 {
+		len(r.Instance) == 0 &&
+		len(r.Eval) == 0 {
 		return true
 	}
 

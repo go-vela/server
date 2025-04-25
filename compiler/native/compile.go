@@ -86,6 +86,7 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 		Target:  c.build.GetDeploy(),
 		Label:   c.labels,
 		Status:  c.build.GetStatus(),
+		Env:     make(raw.StringSliceMap),
 	}
 
 	// add instance when we have the metadata (local exec will not)
@@ -430,6 +431,9 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 		return nil, _pipeline, err
 	}
 
+	// set ruledata environment for eval
+	r.Env = p.Environment
+
 	// inject the scripts into the steps
 	p.Steps, err = c.ScriptSteps(p.Steps)
 	if err != nil {
@@ -531,6 +535,9 @@ func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 	if err != nil {
 		return nil, _pipeline, err
 	}
+
+	// set ruledata environment for eval
+	r.Env = p.Environment
 
 	// inject the scripts into the stages
 	p.Stages, err = c.ScriptStages(p.Stages)

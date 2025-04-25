@@ -192,6 +192,74 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 			data: &RuleData{Branch: "main", Comment: "rerun", Event: "tag", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
 			want: false,
 		},
+		// Eval
+		{
+			ruleset: &Ruleset{
+				If: Rules{
+					Eval:     "VELA_BUILD_AUTHOR == 'Octocat'",
+					Operator: "and",
+				},
+			},
+			data: &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: "", Env: map[string]string{"VELA_BUILD_AUTHOR": "Octocat"}},
+			want: true,
+		},
+		{
+			ruleset: &Ruleset{
+				If: Rules{
+					Eval:     "VELA_BUILD_AUTHOR == 'Octocat'",
+					Operator: "and",
+				},
+			},
+			data: &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: "", Env: map[string]string{"VELA_BUILD_AUTHOR": "test"}},
+			want: false,
+		},
+		{
+			ruleset: &Ruleset{
+				If: Rules{
+					Eval:     "VELA_MISSING_VAR == 'Octocat'",
+					Operator: "and",
+				},
+			},
+			data: &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: "", Env: map[string]string{}},
+			want: false,
+		},
+		{
+			ruleset: &Ruleset{
+				If: Rules{
+					Eval:     "VELA_BUILD_AUTHOR == 'Octocat'",
+					Branch:   []string{"main"},
+					Event:    []string{"push"},
+					Operator: "and",
+				},
+			},
+			data: &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: "", Env: map[string]string{"VELA_BUILD_AUTHOR": "Octocat"}},
+			want: true,
+		},
+		{
+			ruleset: &Ruleset{
+				If: Rules{
+					Eval:     "VELA_BUILD_AUTHOR == 'Octocat'",
+					Branch:   []string{"main"},
+					Event:    []string{"pull_request"},
+					Operator: "and",
+				},
+			},
+			data: &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: "", Env: map[string]string{"VELA_BUILD_AUTHOR": "Octocat"}},
+			want: false,
+		},
+		{
+			ruleset: &Ruleset{
+				If: Rules{
+					Eval:     "1 + bad-eval",
+					Branch:   []string{"main"},
+					Event:    []string{"pull_request"},
+					Operator: "and",
+				},
+			},
+			data:    &RuleData{Branch: "main", Comment: "rerun", Event: "push", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: "", Env: map[string]string{"VELA_BUILD_AUTHOR": "Octocat"}},
+			want:    false,
+			wantErr: true,
+		},
 		// Bad regexp
 		{
 			ruleset: &Ruleset{If: Rules{Branch: []string{"*-dev"}, Matcher: "regexp"}},
