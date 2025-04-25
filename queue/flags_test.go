@@ -63,13 +63,12 @@ func TestDatabase_Flags(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "empty addr",
+			name: "empty addr - validated in opts",
 			flags: map[string]string{
 				"queue.driver":     "redis",
 				"queue.routes":     "vela,worker",
 				"queue.public-key": "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 			},
-			wantErr: true,
 		},
 		{
 			name: "invalid addr",
@@ -92,7 +91,7 @@ func TestDatabase_Flags(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "empty public key",
+			name: "empty public key - validated in opts",
 			flags: map[string]string{
 				"queue.driver": "redis",
 				"queue.addr":   "redis://redis.example.com",
