@@ -66,7 +66,7 @@ func (c *ContainerSlice) Purge(r *RuleData) (*ContainerSlice, error) {
 	// iterate through each Container in the pipeline
 	for _, container := range *c {
 		// verify ruleset matches
-		match, err := container.Ruleset.Match(r)
+		match, err := container.Ruleset.Match(r, container.Environment)
 		if err != nil {
 			return nil, fmt.Errorf("unable to process ruleset for step %s: %w", container.Name, err)
 		}
@@ -178,7 +178,7 @@ func (c *Container) Execute(r *RuleData) (bool, error) {
 		r.Status = constants.StatusSuccess
 
 		// return if the container ruleset matches the conditions
-		return c.Ruleset.Match(r)
+		return c.Ruleset.Match(r, c.Environment)
 	}
 
 	// assume you will execute the container
@@ -192,7 +192,7 @@ func (c *Container) Execute(r *RuleData) (bool, error) {
 		// disregard the need to run the container
 		execute = false
 
-		match, err := c.Ruleset.Match(r)
+		match, err := c.Ruleset.Match(r, c.Environment)
 		if err != nil {
 			return false, err
 		}
@@ -209,7 +209,7 @@ func (c *Container) Execute(r *RuleData) (bool, error) {
 
 	r.Status = constants.StatusFailure
 
-	match, err := c.Ruleset.Match(r)
+	match, err := c.Ruleset.Match(r, c.Environment)
 	if err != nil {
 		return false, err
 	}
@@ -220,7 +220,7 @@ func (c *Container) Execute(r *RuleData) (bool, error) {
 		!(c.Ruleset.If.Empty() && c.Ruleset.Unless.Empty()) && match {
 		r.Status = constants.StatusSuccess
 
-		match, err = c.Ruleset.Match(r)
+		match, err = c.Ruleset.Match(r, c.Environment)
 		if err != nil {
 			return false, err
 		}

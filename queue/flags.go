@@ -38,7 +38,6 @@ var Flags = []cli.Flag{
 			cli.EnvVar("QUEUE_ADDR"),
 			cli.File("/vela/queue/addr"),
 		),
-		Required: true,
 		Action: func(_ context.Context, _ *cli.Command, v string) error {
 			// check if the queue address has a scheme
 			if !strings.Contains(v, "://") {
