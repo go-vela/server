@@ -339,7 +339,7 @@ func BenchmarkMatch_FullRuleset(b *testing.B) {
 	}
 
 	// run the benchmark
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := data.Match(ruleset)
 		if err != nil {
 			b.Fatalf("unexpected error: %v", err)
@@ -383,7 +383,7 @@ func BenchmarkMatch_FullRulesetEarlyAndExit(b *testing.B) {
 	}
 
 	// run the benchmark
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := data.Match(ruleset)
 		if err != nil {
 			b.Fatalf("unexpected error: %v", err)
@@ -427,7 +427,7 @@ func BenchmarkMatch_FullRulesetEarlyOrExit(b *testing.B) {
 	}
 
 	// run the benchmark
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := data.Match(ruleset)
 		if err != nil {
 			b.Fatalf("unexpected error: %v", err)
