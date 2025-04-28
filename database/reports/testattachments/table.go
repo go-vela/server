@@ -15,15 +15,15 @@ CREATE TABLE
 IF NOT EXISTS
 testattachments (
 	id             		BIGSERIAL PRIMARY KEY,
-	testreport_id		BIGINT,
+	test_report_id		BIGINT,
 	created        		BIGINT,
 	file_name	  		VARCHAR(1000),
 	object_path	  		VARCHAR(1000),
 	file_size	  		INTEGER,
 	file_type	  		TEXT,
-	presigned_get_url	VARCHAR(2000),
+	presigned_url		VARCHAR(2000),
 	CONSTRAINT fk_testreport
-	FOREIGN KEY (testreport_id)
+	FOREIGN KEY (test_report_id)
 	REFERENCES testreports(id)
 	ON DELETE CASCADE
 );
@@ -35,13 +35,14 @@ CREATE TABLE
 IF NOT EXISTS
 testattachments (
 	id             	INTEGER PRIMARY KEY AUTOINCREMENT,
-	testreport_id	INTEGER,
+	test_report_id	INTEGER,
 	created        	INTEGER,
 	file_name	   	TEXT,
 	object_path	   	TEXT,
 	file_size	   	INTEGER,
-    file_type TEXT,
-    FOREIGN KEY (testreport_id) 
+    file_type 		TEXT,
+	presigned_url	VARCHAR(2000),
+    FOREIGN KEY (test_report_id) 
     REFERENCES testreports(id)
     ON DELETE CASCADE
 );
@@ -49,7 +50,7 @@ testattachments (
 )
 
 // CreateTestAttachmentsTable creates the testattachments table in the database.
-func (e *engine) CreateTestAttachmentsTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateTestAttachmentsTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating testattachments table")
 
 	// handle the driver provided to create the table

@@ -76,8 +76,8 @@ func (r *TestReport) ToAPI() *api.TestReport {
 	//attachment := new(api.TestReportAttachments)
 	//attachment.SetID(r.Attachments.ID.Int64)
 	//attachment.SetTestReportID(report.GetID())
-	//attachment.SetFilename(r.Attachments.Filename.String)
-	//attachment.SetFilePath(r.Attachments.FilePath.String)
+	//attachment.SetFileName(r.Attachments.FileName.String)
+	//attachment.SetObjectPath(r.Attachments.ObjectPath.String)
 	//attachment.SetFileSize(r.Attachments.FileSize.Int64)
 	//attachment.SetFileType(r.Attachments.FileType.String)
 	//attachment.SetPresignedUrl(r.Attachments.PresignedUrl.String)
@@ -95,8 +95,8 @@ func (r *TestReport) Validate() error {
 	}
 
 	// Also validate any attachments
-	//r.Attachments.Filename = sql.NullString{String: util.Sanitize(r.Attachments.Filename.String), Valid: r.Attachments.Filename.Valid}
-	//r.Attachments.FilePath = sql.NullString{String: util.Sanitize(r.Attachments.FilePath.String), Valid: r.Attachments.FilePath.Valid}
+	//r.Attachments.FileName = sql.NullString{String: util.Sanitize(r.Attachments.FileName.String), Valid: r.Attachments.FileName.Valid}
+	//r.Attachments.ObjectPath = sql.NullString{String: util.Sanitize(r.Attachments.ObjectPath.String), Valid: r.Attachments.ObjectPath.Valid}
 	//r.Attachments.FileType = sql.NullString{String: util.Sanitize(r.Attachments.FileType.String), Valid: r.Attachments.FileType.Valid}
 	//r.Attachments.PresignedUrl = sql.NullString{String: util.Sanitize(r.Attachments.PresignedUrl.String), Valid: r.Attachments.PresignedUrl.Valid}
 

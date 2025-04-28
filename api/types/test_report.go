@@ -14,8 +14,8 @@ type TestReport struct {
 type TestReportAttachments struct {
 	ID           *int64  `json:"id,omitempty"`
 	TestReportID *int64  `json:"test_report_id,omitempty"`
-	Filename     *string `json:"filename,omitempty"`
-	FilePath     *string `json:"file_path,omitempty"`
+	FileName     *string `json:"file_name,omitempty"`
+	ObjectPath   *string `json:"object_path,omitempty"`
 	FileSize     *int64  `json:"file_size,omitempty"`
 	FileType     *string `json:"file_type,omitempty"`
 	PresignedUrl *string `json:"presigned_url,omitempty"`
@@ -117,30 +117,30 @@ func (r *TestReportAttachments) GetTestReportID() int64 {
 	return *r.TestReportID
 }
 
-// GetFilename returns the Filename field.
+// GetFileName returns the FileName field.
 //
 // When the provided TestReportAttachments type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetFilename() string {
-	// return zero value if TestReportAttachments type or Filename field is nil
-	if r == nil || r.Filename == nil {
+func (r *TestReportAttachments) GetFileName() string {
+	// return zero value if TestReportAttachments type or FileName field is nil
+	if r == nil || r.FileName == nil {
 		return ""
 	}
 
-	return *r.Filename
+	return *r.FileName
 }
 
-// GetFilePath returns the FilePath field.
+// GetObjectPath returns the FilePath field.
 //
 // When the provided TestReportAttachments type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetFilePath() string {
+func (r *TestReportAttachments) GetObjectPath() string {
 	// return zero value if TestReportAttachments type or FilePath field is nil
-	if r == nil || r.FilePath == nil {
+	if r == nil || r.ObjectPath == nil {
 		return ""
 	}
 
-	return *r.FilePath
+	return *r.ObjectPath
 }
 
 // GetFileSize returns the FileSize field.
@@ -215,24 +215,24 @@ func (r *TestReportAttachments) SetTestReportID(v int64) {
 	r.TestReportID = &v
 }
 
-// SetFilename sets the Filename field.
-func (r *TestReportAttachments) SetFilename(v string) {
+// SetFileName sets the FileName field.
+func (r *TestReportAttachments) SetFileName(v string) {
 	// return if TestReportAttachments type is nil
 	if r == nil {
 		return
 	}
-	// set the Filename field
-	r.Filename = &v
+	// set the FileName field
+	r.FileName = &v
 }
 
-// SetFilePath sets the FilePath field.
-func (r *TestReportAttachments) SetFilePath(v string) {
+// SetObjectPath sets the ObjectPath field.
+func (r *TestReportAttachments) SetObjectPath(v string) {
 	// return if TestReportAttachments type is nil
 	if r == nil {
 		return
 	}
-	// set the FilePath field
-	r.FilePath = &v
+	// set the ObjectPath field
+	r.ObjectPath = &v
 }
 
 // SetFileSize sets the FileSize field.
@@ -277,5 +277,5 @@ func (r *TestReportAttachments) SetCreated(v int64) {
 
 // String implements the Stringer interface for the TestReportAttachments type.
 func (r *TestReportAttachments) String() string {
-	return fmt.Sprintf("Filename: %s, FilePath: %s, FileType: %s", r.GetFilename(), r.GetFilePath(), r.GetFileType())
+	return fmt.Sprintf("FileName: %s, ObjectPath: %s, FileType: %s", r.GetFileName(), r.GetObjectPath(), r.GetFileType())
 }

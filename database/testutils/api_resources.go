@@ -309,8 +309,8 @@ func APITestReportAttachment() *api.TestReportAttachments {
 	return &api.TestReportAttachments{
 		ID:           new(int64),
 		TestReportID: new(int64),
-		Filename:     new(string),
-		FilePath:     new(string),
+		FileName:     new(string),
+		ObjectPath:   new(string),
 		FileSize:     new(int64),
 		FileType:     new(string),
 		PresignedUrl: new(string),

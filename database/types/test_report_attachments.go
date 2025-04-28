@@ -5,6 +5,7 @@ package types
 import (
 	"database/sql"
 	"errors"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/util"
 )
@@ -13,12 +14,12 @@ var (
 	// ErrEmptyReportID defines the error type when a
 	// TestReportAttachment type has an empty ReportID field provided.
 	ErrEmptyReportID = errors.New("empty report_id provided")
-	// ErrEmptyFilename defines the error type when a
-	// TestReportAttachment type has an empty Filename field provided.
-	ErrEmptyFilename = errors.New("empty filename provided")
-	// ErrEmptyFilePath defines the error type when a
-	// TestReportAttachment type has an empty FilePath field provided.
-	ErrEmptyFilePath = errors.New("empty file_path provided")
+	// ErrEmptyFileName defines the error type when a
+	// TestReportAttachment type has an empty FileName field provided.
+	ErrEmptyFileName = errors.New("empty file_name provided")
+	// ErrEmptyObjectPath defines the error type when a
+	// TestReportAttachment type has an empty ObjectPath field provided.
+	ErrEmptyObjectPath = errors.New("empty object_path provided")
 	// ErrEmptyFileSize defines the error type when a
 	// TestReportAttachment type has an empty FileSize field provided.
 	ErrEmptyFileSize = errors.New("empty file_size provided")
@@ -33,8 +34,8 @@ var (
 type TestReportAttachment struct {
 	ID           sql.NullInt64  `sql:"id"`
 	TestReportID sql.NullInt64  `sql:"test_report_id"`
-	Filename     sql.NullString `sql:"filename"`
-	FilePath     sql.NullString `sql:"file_path"`
+	FileName     sql.NullString `sql:"file_name"`
+	ObjectPath   sql.NullString `sql:"object_path"`
 	FileSize     sql.NullInt64  `sql:"file_size"`
 	FileType     sql.NullString `sql:"file_type"`
 	PresignedUrl sql.NullString `sql:"presigned_url"`
@@ -78,17 +79,17 @@ func (a *TestReportAttachment) ToAPI() *api.TestReportAttachments {
 	attachment := new(api.TestReportAttachments)
 	attachment.SetID(a.ID.Int64)
 
-	var tr *api.TestReport
-	if a.TestReport.ID.Valid {
-		tr = a.TestReport.ToAPI()
-	} else {
-		tr = new(api.TestReport)
-		tr.SetID(a.TestReportID.Int64)
-	}
+	// var tr *api.TestReport
+	// if a.TestReport.ID.Valid {
+	// 	tr = a.TestReport.ToAPI()
+	// } else {
+	// 	tr = new(api.TestReport)
+	// tr.SetID(a.TestReportID.Int64)
+	// }
 
 	attachment.SetTestReportID(a.TestReportID.Int64)
-	attachment.SetFilename(a.Filename.String)
-	attachment.SetFilePath(a.FilePath.String)
+	attachment.SetFileName(a.FileName.String)
+	attachment.SetObjectPath(a.ObjectPath.String)
 	attachment.SetFileSize(a.FileSize.Int64)
 	attachment.SetFileType(a.FileType.String)
 	attachment.SetPresignedUrl(a.PresignedUrl.String)
@@ -104,12 +105,12 @@ func (a *TestReportAttachment) Validate() error {
 		return ErrEmptyReportID
 	}
 
-	if !a.Filename.Valid {
-		return ErrEmptyFilename
+	if !a.FileName.Valid {
+		return ErrEmptyFileName
 	}
 
-	if !a.FilePath.Valid {
-		return ErrEmptyFilePath
+	if !a.ObjectPath.Valid {
+		return ErrEmptyObjectPath
 	}
 
 	if !a.FileSize.Valid {
@@ -127,8 +128,8 @@ func (a *TestReportAttachment) Validate() error {
 	// ensure that all ReportAttachment fields
 	// that can be returned as JSON are sanitized
 	// to avoid unsafe HTML content
-	a.Filename = sql.NullString{String: util.Sanitize(a.Filename.String), Valid: a.Filename.Valid}
-	a.FilePath = sql.NullString{String: util.Sanitize(a.FilePath.String), Valid: a.FilePath.Valid}
+	a.FileName = sql.NullString{String: util.Sanitize(a.FileName.String), Valid: a.FileName.Valid}
+	a.ObjectPath = sql.NullString{String: util.Sanitize(a.ObjectPath.String), Valid: a.ObjectPath.Valid}
 	a.FileType = sql.NullString{String: util.Sanitize(a.FileType.String), Valid: a.FileType.Valid}
 	a.PresignedUrl = sql.NullString{String: util.Sanitize(a.PresignedUrl.String), Valid: a.PresignedUrl.Valid}
 
@@ -141,8 +142,8 @@ func TestReportAttachmentFromAPI(r *api.TestReportAttachments) *TestReportAttach
 	attachment := &TestReportAttachment{
 		ID:           sql.NullInt64{Int64: r.GetID(), Valid: r.GetID() > 0},
 		TestReportID: sql.NullInt64{Int64: r.GetTestReportID(), Valid: r.GetTestReportID() > 0},
-		Filename:     sql.NullString{String: r.GetFilename(), Valid: len(r.GetFilename()) > 0},
-		FilePath:     sql.NullString{String: r.GetFilePath(), Valid: len(r.GetFilePath()) > 0},
+		FileName:     sql.NullString{String: r.GetFileName(), Valid: len(r.GetFileName()) > 0},
+		ObjectPath:   sql.NullString{String: r.GetObjectPath(), Valid: len(r.GetObjectPath()) > 0},
 		FileSize:     sql.NullInt64{Int64: r.GetFileSize(), Valid: r.GetFileSize() > 0},
 		FileType:     sql.NullString{String: r.GetFileType(), Valid: len(r.GetFileType()) > 0},
 		PresignedUrl: sql.NullString{String: r.GetPresignedUrl(), Valid: len(r.GetPresignedUrl()) > 0},
