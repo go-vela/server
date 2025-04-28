@@ -66,6 +66,19 @@ func TestTypes_Platform_ToAPI(t *testing.T) {
 	want.Queue = new(api.Queue)
 	want.SetRoutes([]string{"vela"})
 
+	want.SCM = new(api.SCM)
+	want.SetRepoRoleMap(map[string]string{
+		"admin":  "admin",
+		"triage": "read",
+	})
+	want.SetOrgRoleMap(map[string]string{
+		"admin":  "admin",
+		"member": "read",
+	})
+	want.SetTeamRoleMap(map[string]string{
+		"admin": "admin",
+	})
+
 	// run test
 	got := testPlatform().ToAPI()
 
@@ -180,6 +193,19 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 	s.Queue = new(api.Queue)
 	s.SetRoutes([]string{"vela"})
 
+	s.SCM = new(api.SCM)
+	s.SetRepoRoleMap(map[string]string{
+		"admin":  "admin",
+		"triage": "read",
+	})
+	s.SetOrgRoleMap(map[string]string{
+		"admin":  "admin",
+		"member": "read",
+	})
+	s.SetTeamRoleMap(map[string]string{
+		"admin": "admin",
+	})
+
 	want := testPlatform()
 
 	// run test
@@ -202,6 +228,19 @@ func testPlatform() *Platform {
 		},
 		Queue: Queue{
 			Routes: []string{"vela"},
+		},
+		SCM: SCM{
+			RepoRoleMap: map[string]string{
+				"admin":  "admin",
+				"triage": "read",
+			},
+			OrgRoleMap: map[string]string{
+				"admin":  "admin",
+				"member": "read",
+			},
+			TeamRoleMap: map[string]string{
+				"admin": "admin",
+			},
 		},
 		RepoAllowlist:     []string{"github/octocat"},
 		ScheduleAllowlist: []string{"*"},

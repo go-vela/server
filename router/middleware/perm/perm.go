@@ -266,7 +266,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 		case constants.SecretOrg:
 			logger.Debugf("verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
 
-			perm, err := scm.FromContext(c).OrgAccess(ctx, u, o, c.MustGet("org.roles-map").(map[string]string))
+			perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for org %s: %v", u.GetName(), o, err)
 			}
@@ -281,7 +281,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 		case constants.SecretRepo:
 			logger.Debugf("verifying user %s has 'admin' permissions for repo %s/%s", u.GetName(), o, n)
 
-			perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, n, c.MustGet("repo.roles-map").(map[string]string))
+			perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, n)
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
 			}
@@ -321,7 +321,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 			} else {
 				logger.Debugf("verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
 
-				perm, err := scm.FromContext(c).TeamAccess(ctx, u, o, n, c.MustGet("team.roles-map").(map[string]string))
+				perm, err := scm.FromContext(c).TeamAccess(ctx, u, o, n)
 				if err != nil {
 					logger.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
 				}
@@ -349,7 +349,6 @@ func MustSecretAdmin() gin.HandlerFunc {
 func MustAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
-		rMap := c.MustGet("repo.roles-map").(map[string]string)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
@@ -361,13 +360,13 @@ func MustAdmin() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName(), rMap)
+		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName(), rMap)
+			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				l.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -390,7 +389,6 @@ func MustAdmin() gin.HandlerFunc {
 func MustWrite() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
-		rMap := c.MustGet("repo.roles-map").(map[string]string)
 
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
@@ -403,13 +401,13 @@ func MustWrite() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName(), rMap)
+		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName(), rMap)
+			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				l.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -434,7 +432,6 @@ func MustWrite() gin.HandlerFunc {
 func MustRead() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
-		rMap := c.MustGet("repo.roles-map").(map[string]string)
 
 		cl := claims.Retrieve(c)
 		r := repo.Retrieve(c)
@@ -470,13 +467,13 @@ func MustRead() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName(), rMap)
+		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName(), rMap)
+			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				l.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}

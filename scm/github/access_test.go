@@ -14,26 +14,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-var (
-	repoRoleMap = map[string]string{
-		"admin":    "admin",
-		"write":    "write",
-		"maintain": "write",
-		"triage":   "read",
-		"read":     "read",
-	}
-
-	orgRoleMap = map[string]string{
-		"admin":  "admin",
-		"member": "read",
-	}
-
-	teamRoleMap = map[string]string{
-		"maintainer": "admin",
-		"member":     "read",
-	}
-)
-
 func TestGithub_OrgAccess_Admin(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -61,7 +41,7 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "github", orgRoleMap)
+	got, err := client.OrgAccess(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("OrgAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -103,7 +83,7 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "github", orgRoleMap)
+	got, err := client.OrgAccess(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("OrgAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -133,7 +113,7 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "github", orgRoleMap)
+	got, err := client.OrgAccess(context.TODO(), u, "github")
 
 	if err == nil {
 		t.Errorf("OrgAccess should have returned err")
@@ -171,7 +151,7 @@ func TestGithub_OrgAccess_Pending(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "github", orgRoleMap)
+	got, err := client.OrgAccess(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("OrgAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -201,7 +181,7 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(context.TODO(), u, "foo", orgRoleMap)
+	got, err := client.OrgAccess(context.TODO(), u, "foo")
 
 	if err != nil {
 		t.Errorf("OrgAccess returned err: %v", err)
@@ -239,7 +219,7 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat", repoRoleMap)
+	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("RepoAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -269,7 +249,7 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat", repoRoleMap)
+	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat")
 
 	if err == nil {
 		t.Errorf("RepoAccess should have returned err")
@@ -307,7 +287,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat", teamRoleMap)
+	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -349,7 +329,7 @@ func TestGithub_TeamAccess_Read(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(context.TODO(), u, "github", "baz", teamRoleMap)
+	got, err := client.TeamAccess(context.TODO(), u, "github", "baz")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -379,7 +359,7 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat", teamRoleMap)
+	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat")
 
 	if err == nil {
 		t.Errorf("TeamAccess should have returned err")

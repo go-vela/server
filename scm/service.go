@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -52,13 +53,13 @@ type Service interface {
 
 	// OrgAccess defines a function that captures
 	// the user's access level for an org.
-	OrgAccess(context.Context, *api.User, string, map[string]string) (string, error)
+	OrgAccess(context.Context, *api.User, string) (string, error)
 	// RepoAccess defines a function that captures
 	// the user's access level for a repo.
-	RepoAccess(context.Context, string, string, string, string, map[string]string) (string, error)
+	RepoAccess(context.Context, string, string, string, string) (string, error)
 	// TeamAccess defines a function that captures
 	// the user's access level for a team.
-	TeamAccess(context.Context, *api.User, string, string, map[string]string) (string, error)
+	TeamAccess(context.Context, *api.User, string, string) (string, error)
 	// RepoContributor defines a function that captures
 	// whether the user is a contributor for a repo.
 	RepoContributor(context.Context, *api.User, string, string, string) (bool, error)
@@ -169,6 +170,14 @@ type Service interface {
 	// FinishInstallation defines a function that
 	// finishes an installation event and returns a web redirect.
 	FinishInstallation(context.Context, *http.Request, int64) (string, error)
+
+	// GetSettings defines a function that returns
+	// scm settings.
+	GetSettings() settings.SCM
+
+	// SetSettings defines a function that takes api settings
+	// and updates the compiler Engine.
+	SetSettings(*settings.Platform)
 
 	// TODO: Add convert functions to interface?
 }

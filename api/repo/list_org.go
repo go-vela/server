@@ -135,7 +135,7 @@ func ListReposForOrg(c *gin.Context) {
 	}
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o, c.MustGet("org.roles-map").(map[string]string))
+	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
 	if err != nil {
 		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/util"
 )
 
 // Flags represents all supported command line
@@ -186,36 +187,7 @@ var Flags = []cli.Flag{
 			"read":     constants.PermissionRead,
 		},
 		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
-			// verify that the roles for Vela are mapped to an SCM role
-			var admin, write, read bool
-			admin, write, read = false, false, false
-
-			for _, role := range v {
-				switch role {
-				case constants.PermissionAdmin:
-					admin = true
-				case constants.PermissionWrite:
-					write = true
-				case constants.PermissionRead:
-					read = true
-				default:
-					return fmt.Errorf("invalid role %s in roles map", role)
-				}
-			}
-
-			if !admin {
-				return fmt.Errorf("admin role is required in repo roles map")
-			}
-
-			if !write {
-				return fmt.Errorf("write role is required in repo roles map")
-			}
-
-			if !read {
-				return fmt.Errorf("read role is required in repo roles map")
-			}
-
-			return nil
+			return util.ValidateRoleMap(v, "repo")
 		},
 	},
 	&cli.StringMapFlag{
@@ -231,30 +203,7 @@ var Flags = []cli.Flag{
 			"member": constants.PermissionRead,
 		},
 		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
-			// verify that the roles for Vela are mapped to an SCM role
-			var admin, read bool
-			admin, read = false, false
-
-			for _, role := range v {
-				switch role {
-				case constants.PermissionAdmin:
-					admin = true
-				case constants.PermissionRead:
-					read = true
-				default:
-					return fmt.Errorf("invalid role %s in roles map", role)
-				}
-			}
-
-			if !admin {
-				return fmt.Errorf("admin role is required in org roles map")
-			}
-
-			if !read {
-				return fmt.Errorf("read role is required in org roles map")
-			}
-
-			return nil
+			return util.ValidateRoleMap(v, "org")
 		},
 	},
 	&cli.StringMapFlag{
@@ -270,30 +219,7 @@ var Flags = []cli.Flag{
 			"member":     constants.PermissionRead,
 		},
 		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
-			// verify that the roles for Vela are mapped to an SCM role
-			var admin, read bool
-			admin, read = false, false
-
-			for _, role := range v {
-				switch role {
-				case constants.PermissionAdmin:
-					admin = true
-				case constants.PermissionRead:
-					read = true
-				default:
-					return fmt.Errorf("invalid role %s in roles map", role)
-				}
-			}
-
-			if !admin {
-				return fmt.Errorf("admin role is required in team roles map")
-			}
-
-			if !read {
-				return fmt.Errorf("read role is required in team roles map")
-			}
-
-			return nil
+			return util.ValidateRoleMap(v, "team")
 		},
 	},
 }

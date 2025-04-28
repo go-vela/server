@@ -81,7 +81,7 @@ func GetBuildByID(c *gin.Context) {
 
 	// Capture user access from SCM. We do this in order to ensure user has access and is not
 	// just retrieving any build using a random id number.
-	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), b.GetRepo().GetOrg(), b.GetRepo().GetName(), c.MustGet("repo.roles-map").(map[string]string))
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), b.GetRepo().GetOrg(), b.GetRepo().GetName())
 	if err != nil {
 		l.Errorf("unable to get user %s access level for repo %s", u.GetName(), b.GetRepo().GetFullName())
 	}

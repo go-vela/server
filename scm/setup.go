@@ -46,6 +46,12 @@ type Setup struct {
 	WebUIAddress string
 	// specifies the OAuth scopes to use for the scm client
 	OAuthScopes []string
+	// specifies the repo role map to use for the scm client
+	RepoRoleMap map[string]string
+	// specifies the org role map to use for the scm client
+	OrgRoleMap map[string]string
+	// specifies the team role map to use for the scm client
+	TeamRoleMap map[string]string
 	// specifies OTel tracing configurations
 	Tracing *tracing.Client
 }
@@ -73,6 +79,9 @@ func (s *Setup) Github(ctx context.Context) (Service, error) {
 		github.WithGithubPrivateKey(s.AppPrivateKey),
 		github.WithGithubPrivateKeyPath(s.AppPrivateKeyPath),
 		github.WithGitHubAppPermissions(s.AppPermissions),
+		github.WithRepoRoleMap(s.RepoRoleMap),
+		github.WithOrgRoleMap(s.OrgRoleMap),
+		github.WithTeamRoleMap(s.TeamRoleMap),
 	)
 }
 

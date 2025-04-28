@@ -186,6 +186,53 @@ func UpdateSettings(c *gin.Context) {
 		l.Infof("platform admin: updating queue routes to: %s", input.GetRoutes())
 	}
 
+	if input.SCM != nil {
+		if input.SCM.RepoRoleMap != nil {
+			err = util.ValidateRoleMap(input.GetRepoRoleMap(), "repo")
+			if err != nil {
+				retErr := fmt.Errorf("invalid repo role map for platform settings: %w", err)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+
+			_s.SetRepoRoleMap(input.GetRepoRoleMap())
+
+			l.Infof("platform admin: updating repo role map to: %s", input.GetRepoRoleMap())
+		}
+
+		if input.SCM.OrgRoleMap != nil {
+			err = util.ValidateRoleMap(input.GetOrgRoleMap(), "org")
+			if err != nil {
+				retErr := fmt.Errorf("invalid org role map for platform settings: %w", err)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+
+			_s.SetOrgRoleMap(input.GetOrgRoleMap())
+
+			l.Infof("platform admin: updating org role map to: %s", input.GetOrgRoleMap())
+		}
+
+		if input.SCM.TeamRoleMap != nil {
+			err = util.ValidateRoleMap(input.GetTeamRoleMap(), "team")
+			if err != nil {
+				retErr := fmt.Errorf("invalid team role map for platform settings: %w", err)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+
+			_s.SetTeamRoleMap(input.GetTeamRoleMap())
+
+			l.Infof("platform admin: updating team role map to: %s", input.GetTeamRoleMap())
+		}
+	}
+
 	if input.RepoAllowlist != nil {
 		_s.SetRepoAllowlist(input.GetRepoAllowlist())
 

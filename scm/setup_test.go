@@ -20,6 +20,9 @@ func TestSCM_Setup_Github(t *testing.T) {
 		StatusContext:        "continuous-integration/vela",
 		WebUIAddress:         "https://vela.example.com",
 		OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+		RepoRoleMap:          map[string]string{"read": "read", "write": "write", "admin": "admin"},
+		OrgRoleMap:           map[string]string{"read": "read", "admin": "admin"},
+		TeamRoleMap:          map[string]string{"admin": "admin"},
 	}
 
 	_github, err := _setup.Github(context.Background())

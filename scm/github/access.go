@@ -14,7 +14,7 @@ import (
 )
 
 // OrgAccess captures the user's access level for an org.
-func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string, roleMap map[string]string) (string, error) {
+func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),
@@ -41,7 +41,7 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string, roleMap
 
 	// return their access level if they are an active user
 	if membership.GetState() == "active" {
-		role, ok := roleMap[membership.GetRole()]
+		role, ok := c.GetOrgRoleMap()[membership.GetRole()]
 		if !ok {
 			return constants.PermissionNone, nil
 		}
@@ -53,7 +53,7 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string, roleMap
 }
 
 // RepoAccess captures the user's access level for a repo.
-func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string, roleMap map[string]string) (string, error) {
+func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
@@ -80,7 +80,7 @@ func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string, 
 		return constants.PermissionNone, err
 	}
 
-	role, ok := roleMap[perm.GetRoleName()]
+	role, ok := c.GetRepoRoleMap()[perm.GetRoleName()]
 	if !ok {
 		return constants.PermissionNone, nil
 	}
@@ -89,7 +89,7 @@ func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string, 
 }
 
 // TeamAccess captures the user's access level for a team.
-func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string, roleMap map[string]string) (string, error) {
+func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -115,7 +115,7 @@ func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string, 
 		return constants.PermissionNone, err
 	}
 
-	role, ok := roleMap[membership.GetRole()]
+	role, ok := c.GetTeamRoleMap()[membership.GetRole()]
 	if !ok {
 		return constants.PermissionNone, nil
 	}
