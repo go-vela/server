@@ -186,7 +186,7 @@ var Flags = []cli.Flag{
 			"read":     constants.PermissionRead,
 		},
 		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
-			// verify that the core 4 roles for Vela are mapped to an SCM role
+			// verify that the roles for Vela are mapped to an SCM role
 			var admin, write, read bool
 			admin, write, read = false, false, false
 
@@ -231,7 +231,7 @@ var Flags = []cli.Flag{
 			"member": constants.PermissionRead,
 		},
 		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
-			// verify that the core 4 roles for Vela are mapped to an SCM role
+			// verify that the roles for Vela are mapped to an SCM role
 			var admin, read bool
 			admin, read = false, false
 
@@ -270,7 +270,7 @@ var Flags = []cli.Flag{
 			"member":     constants.PermissionRead,
 		},
 		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
-			// verify that the core 4 roles for Vela are mapped to an SCM role
+			// verify that the roles for Vela are mapped to an SCM role
 			var admin, read bool
 			admin, read = false, false
 
