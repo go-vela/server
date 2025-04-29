@@ -5,10 +5,12 @@ package testreports
 import (
 	"context"
 	"fmt"
+
+	"github.com/sirupsen/logrus"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/sirupsen/logrus"
 )
 
 // ListByBuild returns a list of test reports by build ID from the database.

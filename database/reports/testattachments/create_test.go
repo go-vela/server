@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package testattachments
 
 import (
@@ -6,11 +8,11 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
 	"github.com/go-vela/server/database/testutils"
 )
 
 func TestEngine_CreateTestReportAttachment(t *testing.T) {
-
 	_testReportAttachment := testutils.APITestReportAttachment()
 	_testReportAttachment.SetID(1)
 	_testReportAttachment.SetTestReportID(1)

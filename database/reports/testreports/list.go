@@ -4,6 +4,7 @@ package testreports
 
 import (
 	"context"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
@@ -15,6 +16,7 @@ func (e *Engine) List(ctx context.Context) ([]*api.TestReport, error) {
 
 	// variables to store query results and return value
 	t := new([]types.TestReport)
+
 	var reports []*api.TestReport
 
 	// send query to the database and store result in variable

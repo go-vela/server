@@ -81,7 +81,6 @@ func TestTestReports_Engine_Update(t *testing.T) {
 				!reflect.DeepEqual(got.GetCreated(), _testReport.GetCreated()) {
 				t.Errorf("Update for %s returned unexpected report values: got %v, want %v", test.name, got, _testReport)
 			}
-
 		})
 	}
 }

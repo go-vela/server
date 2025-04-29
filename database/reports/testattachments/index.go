@@ -23,5 +23,4 @@ func (e *Engine) CreateTestAttachmentsIndexes(ctx context.Context) error {
 	return e.client.
 		WithContext(ctx).
 		Exec(CreateTestReportIDIndex).Error
-
 }

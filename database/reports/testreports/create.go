@@ -4,10 +4,12 @@ package testreports
 
 import (
 	"context"
+
+	"github.com/sirupsen/logrus"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/sirupsen/logrus"
 )
 
 // Create creates a new test report in the database.

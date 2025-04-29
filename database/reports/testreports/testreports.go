@@ -42,7 +42,7 @@ type (
 
 // New creates and returns a Vela service for integrating with testreports in the database.
 //
-//nolint:revive // ignore returning unexported engine
+
 func New(opts ...EngineOpt) (*Engine, error) {
 	// create new TestReports engine
 	e := new(Engine)

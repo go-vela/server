@@ -40,5 +40,4 @@ func (e *Engine) CreateTestReportsIndexes(ctx context.Context) error {
 	return e.client.
 		WithContext(ctx).
 		Exec(CreateBuildIDIndex).Error
-
 }

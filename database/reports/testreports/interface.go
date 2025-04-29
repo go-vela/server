@@ -4,6 +4,7 @@ package testreports
 
 import (
 	"context"
+
 	api "github.com/go-vela/server/api/types"
 )
 

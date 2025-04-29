@@ -4,10 +4,12 @@ package testreports
 
 import (
 	"context"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/server/database/testutils"
 	"testing"
 	"time"
+
+	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestTestReports_Engine_CountByBuild(t *testing.T) {
@@ -79,5 +81,4 @@ func TestTestReports_Engine_CountByBuild(t *testing.T) {
 			}
 		})
 	}
-
 }

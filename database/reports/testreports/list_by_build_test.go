@@ -4,12 +4,14 @@ package testreports
 
 import (
 	"context"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/types"
-	"testing"
 )
 
 func TestTestReports_Engine_ListByBuild(t *testing.T) {

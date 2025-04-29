@@ -4,11 +4,13 @@ package testreports
 
 import (
 	"context"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
+
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/types"
-	"testing"
 )
 
 func TestTestReports_Engine_CountByRepo(t *testing.T) {

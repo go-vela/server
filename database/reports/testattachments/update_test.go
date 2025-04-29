@@ -87,7 +87,6 @@ func TestTestReportsAttachment_Engine_Update(t *testing.T) {
 			if diff := cmp.Diff(test.want, got); diff != "" {
 				t.Errorf("GetTestReportAttachment mismatch (-want +got):\n%s", diff)
 			}
-
 		})
 	}
 }

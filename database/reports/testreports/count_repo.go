@@ -4,9 +4,10 @@ package testreports
 
 import (
 	"context"
-	api "github.com/go-vela/server/api/types"
+
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 )
 

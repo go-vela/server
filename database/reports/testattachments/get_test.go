@@ -1,17 +1,19 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package testattachments
 
 import (
 	"context"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/types"
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestEngine_GetTestReportAttachment(t *testing.T) {
-
 	_testReportAttachment := testutils.APITestReportAttachment()
 	_testReportAttachment.SetID(1)
 	_testReportAttachment.SetTestReportID(1)

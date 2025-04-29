@@ -42,7 +42,7 @@ type (
 
 // New creates and returns a Vela service for integrating with testattachments in the database.
 //
-//nolint:revive // ignore returning unexported engine
+
 func New(opts ...EngineOpt) (*Engine, error) {
 	// create new TestAttachments engine
 	e := new(Engine)
