@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package testreports
+package testattachments
 
 import (
 	"context"
@@ -10,18 +10,23 @@ import (
 	"github.com/go-vela/server/database/testutils"
 )
 
-func TestTestReports_Engine_Delete(t *testing.T) {
+func TestTestReportsAttachment_Engine_Delete(t *testing.T) {
 	// setup types
-	_report := testutils.APITestReport()
-	_report.SetID(1)
-	_report.SetBuildID(1)
-	_report.SetCreated(1)
+	_testReportAttachment := testutils.APITestReportAttachment()
+	_testReportAttachment.SetID(1)
+	_testReportAttachment.SetTestReportID(1)
+	_testReportAttachment.SetFileName("foo")
+	_testReportAttachment.SetObjectPath("foo/bar")
+	_testReportAttachment.SetFileSize(1)
+	_testReportAttachment.SetFileType("xml")
+	_testReportAttachment.SetPresignedUrl("foobar")
+	_testReportAttachment.SetCreated(1)
 
 	_postgres, _mock := testPostgres(t)
 	ctx := context.TODO()
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	_mock.ExpectExec(`DELETE FROM "testreports" WHERE "testreports"."id" = $1`).
+	_mock.ExpectExec(`DELETE FROM "testattachments" WHERE "testattachments"."id" = $1`).
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -49,7 +54,7 @@ func TestTestReports_Engine_Delete(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.DeleteByID(ctx, _report)
+			err := test.database.DeleteByID(ctx, _testReportAttachment)
 
 			if test.failure {
 				if err == nil {
