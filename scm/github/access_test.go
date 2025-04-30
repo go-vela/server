@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 )
 
 func TestGithub_OrgAccess_Admin(t *testing.T) {
@@ -32,7 +33,7 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "admin"
+	want := constants.PermissionAdmin
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -74,7 +75,7 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "read"
+	want := constants.PermissionRead
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -172,7 +173,7 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "admin"
+	want := constants.PermissionAdmin
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -210,7 +211,7 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "admin"
+	want := constants.PermissionAdmin
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -278,7 +279,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "admin"
+	want := constants.PermissionAdmin
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -320,7 +321,7 @@ func TestGithub_TeamAccess_Read(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "read"
+	want := constants.PermissionRead
 
 	u := new(api.User)
 	u.SetName("foo")

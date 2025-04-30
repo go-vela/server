@@ -6,6 +6,8 @@ import (
 	"context"
 	"reflect"
 	"testing"
+
+	"github.com/go-vela/server/constants"
 )
 
 func TestSCM_Setup_Github(t *testing.T) {
@@ -20,9 +22,9 @@ func TestSCM_Setup_Github(t *testing.T) {
 		StatusContext:        "continuous-integration/vela",
 		WebUIAddress:         "https://vela.example.com",
 		OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
-		RepoRoleMap:          map[string]string{"read": "read", "write": "write", "admin": "admin"},
-		OrgRoleMap:           map[string]string{"read": "read", "admin": "admin"},
-		TeamRoleMap:          map[string]string{"admin": "admin"},
+		RepoRoleMap:          map[string]string{"read": constants.PermissionRead, "write": constants.PermissionWrite, "admin": constants.PermissionAdmin},
+		OrgRoleMap:           map[string]string{"read": constants.PermissionRead, "admin": constants.PermissionAdmin},
+		TeamRoleMap:          map[string]string{"admin": constants.PermissionAdmin},
 	}
 
 	_github, err := _setup.Github(context.Background())

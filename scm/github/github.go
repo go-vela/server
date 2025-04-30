@@ -17,6 +17,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/tracing"
 )
 
@@ -242,21 +243,21 @@ func (c *Client) ValidateGitHubApp(ctx context.Context) error {
 func NewTest(urls ...string) (*Client, error) {
 	var (
 		repoRoleMap = map[string]string{
-			"admin":    "admin",
-			"write":    "write",
-			"maintain": "write",
-			"triage":   "read",
-			"read":     "read",
+			"admin":    constants.PermissionAdmin,
+			"write":    constants.PermissionWrite,
+			"maintain": constants.PermissionWrite,
+			"triage":   constants.PermissionRead,
+			"read":     constants.PermissionRead,
 		}
 
 		orgRoleMap = map[string]string{
-			"admin":  "admin",
-			"member": "read",
+			"admin":  constants.PermissionAdmin,
+			"member": constants.PermissionRead,
 		}
 
 		teamRoleMap = map[string]string{
-			"maintainer": "admin",
-			"member":     "read",
+			"maintainer": constants.PermissionAdmin,
+			"member":     constants.PermissionRead,
 		}
 	)
 

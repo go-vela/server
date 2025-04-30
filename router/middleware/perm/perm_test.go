@@ -1288,7 +1288,6 @@ func TestPerm_MustAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -1389,7 +1388,6 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -1490,7 +1488,6 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -1591,7 +1588,6 @@ func TestPerm_MustWrite(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -1692,7 +1688,6 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -1793,7 +1788,6 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -1894,7 +1888,6 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -1995,7 +1988,6 @@ func TestPerm_MustRead(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -2096,7 +2088,6 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -2186,7 +2177,6 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
@@ -2287,7 +2277,6 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -2388,7 +2377,6 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -2489,7 +2477,6 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -2590,7 +2577,6 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-	engine.Use(func(c *gin.Context) { c.Set("repo.roles-map", repoRoleMap) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
@@ -2611,14 +2597,6 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	if resp.Code != http.StatusUnauthorized {
 		t.Errorf("MustRead returned %v, want %v", resp.Code, http.StatusUnauthorized)
 	}
-}
-
-var repoRoleMap = map[string]string{
-	"admin":    "admin",
-	"maintain": "write",
-	"write":    "write",
-	"triage":   "read",
-	"read":     "read",
 }
 
 const permAdminPayload = `
