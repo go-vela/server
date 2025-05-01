@@ -27,6 +27,7 @@ type (
 		ID       sql.NullInt32 `sql:"id"`
 		Compiler `json:"compiler" sql:"compiler"`
 		Queue    `json:"queue"    sql:"queue"`
+		SCM      `json:"scm"      sql:"scm"`
 
 		RepoAllowlist     pq.StringArray `json:"repo_allowlist"      sql:"repo_allowlist"      gorm:"type:varchar(1000)"`
 		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist"  sql:"schedule_allowlist"  gorm:"type:varchar(1000)"`
@@ -47,6 +48,13 @@ type (
 	// Queue is the database representation of queue settings.
 	Queue struct {
 		Routes pq.StringArray `json:"routes" sql:"routes" gorm:"type:varchar(1000)"`
+	}
+
+	// SCM is the database representation of SCM settings.
+	SCM struct {
+		RepoRoleMap map[string]string `json:"repo_role_map" sql:"repo_role_map"`
+		OrgRoleMap  map[string]string `json:"org_role_map"  sql:"org_role_map"`
+		TeamRoleMap map[string]string `json:"team_role_map" sql:"team_role_map"`
 	}
 )
 
@@ -83,6 +91,24 @@ func (r *Queue) Scan(value interface{}) error {
 		return json.Unmarshal([]byte(v), &r)
 	default:
 		return fmt.Errorf("wrong type for queue: %T", v)
+	}
+}
+
+// Value - Implementation of valuer for database/sql for SCM.
+func (s SCM) Value() (driver.Value, error) {
+	valueString, err := json.Marshal(s)
+	return string(valueString), err
+}
+
+// Scan - Implement the database/sql scanner interface for Queue.
+func (s *SCM) Scan(value interface{}) error {
+	switch v := value.(type) {
+	case []byte:
+		return json.Unmarshal(v, &s)
+	case string:
+		return json.Unmarshal([]byte(v), &s)
+	default:
+		return fmt.Errorf("wrong type for scm: %T", v)
 	}
 }
 
@@ -135,13 +161,18 @@ func (ps *Platform) ToAPI() *settings.Platform {
 	psAPI.SetScheduleAllowlist(ps.ScheduleAllowlist)
 	psAPI.SetMaxDashboardRepos(ps.MaxDashboardRepos.Int32)
 
-	psAPI.Compiler = &settings.Compiler{}
+	psAPI.Compiler = new(settings.Compiler)
 	psAPI.SetCloneImage(ps.CloneImage.String)
 	psAPI.SetTemplateDepth(int(ps.TemplateDepth.Int64))
 	psAPI.SetStarlarkExecLimit(ps.StarlarkExecLimit.Int64)
 
-	psAPI.Queue = &settings.Queue{}
+	psAPI.Queue = new(settings.Queue)
 	psAPI.SetRoutes(ps.Routes)
+
+	psAPI.SCM = new(settings.SCM)
+	psAPI.SetRepoRoleMap(ps.RepoRoleMap)
+	psAPI.SetOrgRoleMap(ps.OrgRoleMap)
+	psAPI.SetTeamRoleMap(ps.TeamRoleMap)
 
 	psAPI.SetCreatedAt(ps.CreatedAt.Int64)
 	psAPI.SetUpdatedAt(ps.UpdatedAt.Int64)
@@ -217,6 +248,11 @@ func SettingsFromAPI(s *settings.Platform) *Platform {
 		},
 		Queue: Queue{
 			Routes: pq.StringArray(s.GetRoutes()),
+		},
+		SCM: SCM{
+			RepoRoleMap: s.GetRepoRoleMap(),
+			OrgRoleMap:  s.GetOrgRoleMap(),
+			TeamRoleMap: s.GetTeamRoleMap(),
 		},
 		RepoAllowlist:     pq.StringArray(s.GetRepoAllowlist()),
 		ScheduleAllowlist: pq.StringArray(s.GetScheduleAllowlist()),

@@ -434,3 +434,132 @@ func TestGithub_ClientOpt_WithGitHubAppPermissions(t *testing.T) {
 		}
 	}
 }
+
+func TestGithub_ClientOpt_WithRepoRoleMap(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure bool
+		mapping map[string]string
+		want    map[string]string
+	}{
+		{
+			failure: false,
+			mapping: map[string]string{"vela": "vela"},
+			want:    map[string]string{"vela": "vela"},
+		},
+		{
+			failure: false,
+			mapping: map[string]string{},
+			want:    map[string]string{},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(context.Background(),
+			WithRepoRoleMap(test.mapping),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithRepoRoleMap should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithRepoRoleMap returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(test.want, _service.GetRepoRoleMap()); diff != "" {
+			t.Errorf("WithRepoRoleMap mismatch (-want +got):\n%s", diff)
+		}
+	}
+}
+
+func TestGithub_ClientOpt_WithOrgRoleMap(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure bool
+		mapping map[string]string
+		want    map[string]string
+	}{
+		{
+			failure: false,
+			mapping: map[string]string{"vela": "vela"},
+			want:    map[string]string{"vela": "vela"},
+		},
+		{
+			failure: false,
+			mapping: map[string]string{},
+			want:    map[string]string{},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(context.Background(),
+			WithOrgRoleMap(test.mapping),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithOrgRoleMap should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithOrgRoleMap returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(test.want, _service.GetOrgRoleMap()); diff != "" {
+			t.Errorf("WithOrgRoleMap mismatch (-want +got):\n%s", diff)
+		}
+	}
+}
+
+func TestGithub_ClientOpt_WithTeamRoleMap(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure bool
+		mapping map[string]string
+		want    map[string]string
+	}{
+		{
+			failure: false,
+			mapping: map[string]string{"vela": "vela"},
+			want:    map[string]string{"vela": "vela"},
+		},
+		{
+			failure: false,
+			mapping: map[string]string{},
+			want:    map[string]string{},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(context.Background(),
+			WithTeamRoleMap(test.mapping),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithTeamRoleMap should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithTeamRoleMap returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(test.want, _service.GetTeamRoleMap()); diff != "" {
+			t.Errorf("WithTeamRoleMap mismatch (-want +got):\n%s", diff)
+		}
+	}
+}

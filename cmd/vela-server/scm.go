@@ -31,6 +31,9 @@ func setupSCM(ctx context.Context, c *cli.Command, tc *tracing.Client) (scm.Serv
 		StatusContext:        c.String("scm.context"),
 		WebUIAddress:         c.String("webui-addr"),
 		OAuthScopes:          c.StringSlice("scm.scopes"),
+		RepoRoleMap:          c.StringMap("scm.repo.roles-map"),
+		OrgRoleMap:           c.StringMap("scm.org.roles-map"),
+		TeamRoleMap:          c.StringMap("scm.team.roles-map"),
 		Tracing:              tc,
 	}
 

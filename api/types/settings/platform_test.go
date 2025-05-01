@@ -36,6 +36,10 @@ func TestTypes_Platform_Getters(t *testing.T) {
 			t.Errorf("GetQueue is %v, want %v", test.platform.GetQueue(), test.want.GetQueue())
 		}
 
+		if !reflect.DeepEqual(test.platform.GetSCM(), test.want.GetSCM()) {
+			t.Errorf("GetSCM is %v, want %v", test.platform.GetSCM(), test.want.GetSCM())
+		}
+
 		if !reflect.DeepEqual(test.platform.GetRepoAllowlist(), test.want.GetRepoAllowlist()) {
 			t.Errorf("GetRepoAllowlist is %v, want %v", test.platform.GetRepoAllowlist(), test.want.GetRepoAllowlist())
 		}
@@ -83,6 +87,12 @@ func TestTypes_Platform_Setters(t *testing.T) {
 			t.Errorf("SetQueue is %v, want %v", test.platform.GetQueue(), test.want.GetQueue())
 		}
 
+		test.platform.SetSCM(test.want.GetSCM())
+
+		if !reflect.DeepEqual(test.platform.GetSCM(), test.want.GetSCM()) {
+			t.Errorf("SetSCM is %v, want %v", test.platform.GetSCM(), test.want.GetSCM())
+		}
+
 		test.platform.SetRepoAllowlist(test.want.GetRepoAllowlist())
 
 		if !reflect.DeepEqual(test.platform.GetRepoAllowlist(), test.want.GetRepoAllowlist()) {
@@ -111,6 +121,7 @@ func TestTypes_Platform_Update(t *testing.T) {
 	sUpdate := testPlatformSettings()
 	sUpdate.SetCompiler(Compiler{})
 	sUpdate.SetQueue(Queue{})
+	sUpdate.SetSCM(SCM{})
 	sUpdate.SetRepoAllowlist([]string{"foo"})
 	sUpdate.SetScheduleAllowlist([]string{"bar"})
 	sUpdate.SetMaxDashboardRepos(20)
@@ -145,11 +156,13 @@ func TestTypes_Platform_String(t *testing.T) {
 	s := testPlatformSettings()
 	cs := s.GetCompiler()
 	qs := s.GetQueue()
+	scms := s.GetSCM()
 
 	want := fmt.Sprintf(`{
   ID: %d,
   Compiler: %v,
   Queue: %v,
+  SCM: %v,
   RepoAllowlist: %v,
   ScheduleAllowlist: %v,
   MaxDashboardRepos: %d,
@@ -160,6 +173,7 @@ func TestTypes_Platform_String(t *testing.T) {
 		s.GetID(),
 		cs.String(),
 		qs.String(),
+		scms.String(),
 		s.GetRepoAllowlist(),
 		s.GetScheduleAllowlist(),
 		s.GetMaxDashboardRepos(),
@@ -202,8 +216,16 @@ func testPlatformSettings() *Platform {
 
 	qs.SetRoutes([]string{"vela"})
 
+	// setup scm
+	scms := new(SCM)
+
+	scms.SetRepoRoleMap(map[string]string{"foo": "bar"})
+	scms.SetOrgRoleMap(map[string]string{"foo": "bar"})
+	scms.SetTeamRoleMap(map[string]string{"foo": "bar"})
+
 	s.SetCompiler(*cs)
 	s.SetQueue(*qs)
+	s.SetSCM(*scms)
 
 	return s
 }

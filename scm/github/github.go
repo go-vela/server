@@ -16,6 +16,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 
+	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/tracing"
 )
 
@@ -67,6 +69,9 @@ type Client struct {
 	AuthReq       *github.AuthorizationRequest
 	Tracing       *tracing.Client
 	AppsTransport *AppsTransport
+
+	settings.SCM
+
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }
@@ -236,6 +241,26 @@ func (c *Client) ValidateGitHubApp(ctx context.Context) error {
 //
 // This function is intended for running tests only.
 func NewTest(urls ...string) (*Client, error) {
+	var (
+		repoRoleMap = map[string]string{
+			"admin":    constants.PermissionAdmin,
+			"write":    constants.PermissionWrite,
+			"maintain": constants.PermissionWrite,
+			"triage":   constants.PermissionRead,
+			"read":     constants.PermissionRead,
+		}
+
+		orgRoleMap = map[string]string{
+			"admin":  constants.PermissionAdmin,
+			"member": constants.PermissionRead,
+		}
+
+		teamRoleMap = map[string]string{
+			"maintainer": constants.PermissionAdmin,
+			"member":     constants.PermissionRead,
+		}
+	)
+
 	address := urls[0]
 	server := address
 
@@ -244,7 +269,7 @@ func NewTest(urls ...string) (*Client, error) {
 		server = urls[1]
 	}
 
-	return New(
+	c, err := New(
 		context.Background(),
 		WithAddress(address),
 		WithClientID("foo"),
@@ -255,4 +280,13 @@ func NewTest(urls ...string) (*Client, error) {
 		WithWebUIAddress(address),
 		WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	c.SetRepoRoleMap(repoRoleMap)
+	c.SetOrgRoleMap(orgRoleMap)
+	c.SetTeamRoleMap(teamRoleMap)
+
+	return c, nil
 }
