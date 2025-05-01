@@ -5,11 +5,11 @@ package scm
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -121,7 +121,7 @@ func SyncRepo(c *gin.Context) {
 		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
-	if !strings.EqualFold(perm, "admin") {
+	if perm != constants.PermissionAdmin {
 		retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)

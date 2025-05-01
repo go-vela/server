@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -169,6 +170,14 @@ type Service interface {
 	// FinishInstallation defines a function that
 	// finishes an installation event and returns a web redirect.
 	FinishInstallation(context.Context, *http.Request, int64) (string, error)
+
+	// GetSettings defines a function that returns
+	// scm settings.
+	GetSettings() settings.SCM
+
+	// SetSettings defines a function that takes api settings
+	// and updates the compiler Engine.
+	SetSettings(*settings.Platform)
 
 	// TODO: Add convert functions to interface?
 }

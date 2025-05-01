@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 )
 
 func TestGithub_OrgAccess_Admin(t *testing.T) {
@@ -32,7 +33,7 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "admin"
+	want := constants.PermissionAdmin
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -74,7 +75,7 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "member"
+	want := constants.PermissionRead
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -104,7 +105,7 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := "none"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -142,7 +143,7 @@ func TestGithub_OrgAccess_Pending(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := "none"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -172,7 +173,7 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "admin"
+	want := constants.PermissionAdmin
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -210,7 +211,7 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "admin"
+	want := constants.PermissionAdmin
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -240,7 +241,7 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := "none"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -268,7 +269,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/user/teams", func(c *gin.Context) {
+	engine.GET("/api/v3/orgs/:org/teams/:team/memberships/:username", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/team_admin.json")
@@ -278,7 +279,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := "admin"
+	want := constants.PermissionAdmin
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -302,7 +303,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	}
 }
 
-func TestGithub_TeamAccess_NoAccess(t *testing.T) {
+func TestGithub_TeamAccess_Read(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -310,17 +311,17 @@ func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/user/teams", func(c *gin.Context) {
+	engine.GET("/api/v3/orgs/:org/teams/:team/memberships/:username", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/team_admin.json")
+		c.File("testdata/team_member.json")
 	})
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := constants.PermissionRead
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -350,7 +351,7 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := ""
+	want := "none"
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -381,7 +382,7 @@ func TestGithub_TeamList(t *testing.T) {
 	engine.GET("/api/v3/user/teams", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/team_admin.json")
+		c.File("testdata/user_teams.json")
 	})
 
 	s := httptest.NewServer(engine)

@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/user"
@@ -83,7 +84,7 @@ func SyncReposForOrg(c *gin.Context) {
 	}
 
 	// only allow org-wide syncing if user is admin of org
-	if perm != "admin" {
+	if perm != constants.PermissionAdmin {
 		retErr := fmt.Errorf("unable to sync repos in org %s: must be an org admin", o)
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
