@@ -2602,6 +2602,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 const permAdminPayload = `
 {
   "permission": "admin",
+  "role_name": "admin",
   "user": {
     "login": "foo",
     "id": 1,
@@ -2628,6 +2629,7 @@ const permAdminPayload = `
 const permWritePayload = `
 {
   "permission": "write",
+  "role_name": "maintain",
   "user": {
     "login": "foo",
     "id": 1,
@@ -2654,6 +2656,7 @@ const permWritePayload = `
 const permReadPayload = `
 {
   "permission": "read",
+  "role_name": "triage",
   "user": {
     "login": "foo",
     "id": 1,
@@ -2680,6 +2683,7 @@ const permReadPayload = `
 const permNonePayload = `
 {
   "permission": "none",
+  "role_name": "none",
   "user": {
     "login": "foo",
     "id": 1,

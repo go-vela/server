@@ -2409,6 +2409,7 @@ func testSettings(t *testing.T, db Interface, resources *Resources) {
 	// update the settings
 	for _, s := range resources.Platform {
 		s.SetCloneImage("target/vela-git-slim:abc123")
+		s.SetRepoRoleMap(map[string]string{"foo": "bar"})
 		got, err := db.UpdateSettings(context.TODO(), s)
 		if err != nil {
 			t.Errorf("unable to update settings %d: %v", s.GetID(), err)
