@@ -214,3 +214,36 @@ func WithGitHubAppPermissions(permissions []string) ClientOpt {
 		return nil
 	}
 }
+
+// WithRepoRoleMap sets the repository role mapping in the scm client for GitHub.
+func WithRepoRoleMap(mapping map[string]string) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring repository role mapping in github scm client")
+
+		c.SetRepoRoleMap(mapping)
+
+		return nil
+	}
+}
+
+// WithOrgRoleMap sets the organization role mapping in the scm client for GitHub.
+func WithOrgRoleMap(mapping map[string]string) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring organization role mapping in github scm client")
+
+		c.SetOrgRoleMap(mapping)
+
+		return nil
+	}
+}
+
+// WithTeamRoleMap sets the team role mapping in the scm client for GitHub.
+func WithTeamRoleMap(mapping map[string]string) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring team role mapping in github scm client")
+
+		c.SetTeamRoleMap(mapping)
+
+		return nil
+	}
+}

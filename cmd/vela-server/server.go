@@ -165,6 +165,9 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		queueSettings := queue.GetSettings()
 		ps.SetQueue(queueSettings)
 
+		scmSettings := scm.GetSettings()
+		ps.SetSCM(scmSettings)
+
 		// create the settings record in the database
 		_, err = database.CreateSettings(ctx, ps)
 		if err != nil {
@@ -178,6 +181,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 	// to keep settings refreshed for each request
 	queue.SetSettings(ps)
 	compiler.SetSettings(ps)
+	scm.SetSettings(ps)
 
 	router := router.Load(
 		middleware.AppWebhookSecret(cmd.String("scm.app.webhook-secret")),
