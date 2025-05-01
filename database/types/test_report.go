@@ -17,9 +17,9 @@ var (
 
 // TestReport is the database representation of a report.
 type TestReport struct {
-	ID      sql.NullInt64 `sql:"id"`
-	BuildID sql.NullInt64 `sql:"build_id"`
-	Created sql.NullInt64 `sql:"created"`
+	ID        sql.NullInt64 `sql:"id"`
+	BuildID   sql.NullInt64 `sql:"build_id"`
+	CreatedAt sql.NullInt64 `sql:"created_at"`
 
 	// References to related objects
 	Build *Build `gorm:"foreignKey:BuildID"`
@@ -47,8 +47,8 @@ func (r *TestReport) Nullify() *TestReport {
 	}
 
 	// check if the Created field should be false
-	if r.Created.Int64 == 0 {
-		r.Created.Valid = false
+	if r.CreatedAt.Int64 == 0 {
+		r.CreatedAt.Valid = false
 	}
 
 	return r
@@ -60,20 +60,20 @@ func (r *TestReport) ToAPI() *api.TestReport {
 	report := new(api.TestReport)
 	report.SetID(r.ID.Int64)
 	report.SetBuildID(r.BuildID.Int64)
-	report.SetCreated(r.Created.Int64)
+	report.SetCreatedAt(r.CreatedAt.Int64)
 
 	// set Repo based on presence of repo data
-	//var tra *api.TestReportAttachments
+	//var tra *api.TestAttachment
 	//if r.Attachments.ID.Valid {
 	//	tra = r.Attachments.ToAPI()
 	//} else {
-	//	tra = new(api.TestReportAttachments)
+	//	tra = new(api.TestAttachment)
 	//	tra.SetID(r.Attachments.ID.Int64)
 	//}
 	//
 	//report.SetReportAttachments(tra)
 	//// Convert attachments if available
-	//attachment := new(api.TestReportAttachments)
+	//attachment := new(api.TestAttachment)
 	//attachment.SetID(r.Attachments.ID.Int64)
 	//attachment.SetTestReportID(report.GetID())
 	//attachment.SetFileName(r.Attachments.FileName.String)
@@ -107,9 +107,9 @@ func (r *TestReport) Validate() error {
 // to a database report type.
 func TestReportFromAPI(r *api.TestReport) *TestReport {
 	report := &TestReport{
-		ID:      sql.NullInt64{Int64: r.GetID(), Valid: r.GetID() > 0},
-		BuildID: sql.NullInt64{Int64: r.GetBuildID(), Valid: r.GetBuildID() > 0},
-		Created: sql.NullInt64{Int64: r.GetCreated(), Valid: r.GetCreated() > 0},
+		ID:        sql.NullInt64{Int64: r.GetID(), Valid: r.GetID() > 0},
+		BuildID:   sql.NullInt64{Int64: r.GetBuildID(), Valid: r.GetBuildID() > 0},
+		CreatedAt: sql.NullInt64{Int64: r.GetCreatedAt(), Valid: r.GetCreatedAt() > 0},
 	}
 
 	return report.Nullify()

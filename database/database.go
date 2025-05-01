@@ -5,7 +5,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/go-vela/server/database/reports/testattachments"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -24,7 +23,8 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
-	"github.com/go-vela/server/database/reports/testreports"
+	"github.com/go-vela/server/database/reports/testattachment"
+	"github.com/go-vela/server/database/reports/testreport"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
@@ -87,8 +87,8 @@ type (
 		log.LogInterface
 		pipeline.PipelineInterface
 		repo.RepoInterface
-		testreports.TestReportsInterface
-		testattachments.TestAttachmentsInterface
+		testreport.TestReportInterface
+		testattachment.TestAttachmentInterface
 		schedule.ScheduleInterface
 		secret.SecretInterface
 		service.ServiceInterface

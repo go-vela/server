@@ -4,8 +4,6 @@ package database
 
 import (
 	"context"
-	testattachments2 "github.com/go-vela/server/database/reports/testattachments"
-	"github.com/go-vela/server/database/reports/testreports"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -19,6 +17,8 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/reports/testattachment"
+	"github.com/go-vela/server/database/reports/testreport"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
@@ -80,12 +80,12 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	_mock.ExpectExec(worker.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(worker.CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the test report queries
-	_mock.ExpectExec(testreports.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(testreports.CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(testreports.CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	// Add these expectations for testattachments
-	_mock.ExpectExec(testattachments2.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(testattachments2.CreateTestReportIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(testreport.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(testreport.CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(testreport.CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// Add these expectations for test attachment queries
+	_mock.ExpectExec(testattachment.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(testattachment.CreateTestReportIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create a test database without mocking the call
 	_unmocked, _ := testPostgres(t)

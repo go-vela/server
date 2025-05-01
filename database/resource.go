@@ -4,7 +4,6 @@ package database
 
 import (
 	"context"
-	testattachments2 "github.com/go-vela/server/database/reports/testattachments"
 
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
@@ -15,7 +14,8 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
-	"github.com/go-vela/server/database/reports/testreports"
+	"github.com/go-vela/server/database/reports/testattachment"
+	"github.com/go-vela/server/database/reports/testreport"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
@@ -219,25 +219,25 @@ func (e *engine) NewResources(ctx context.Context) error {
 		return err
 	}
 
-	// create the database agnostic engine for testreports
-	e.TestReportsInterface, err = testreports.New(
-		testreports.WithContext(ctx),
-		testreports.WithClient(e.client),
-		testreports.WithEncryptionKey(e.config.EncryptionKey),
-		testreports.WithLogger(e.logger),
-		testreports.WithSkipCreation(e.config.SkipCreation),
+	// create the database agnostic engine for test_reports
+	e.TestReportInterface, err = testreport.New(
+		testreport.WithContext(ctx),
+		testreport.WithClient(e.client),
+		testreport.WithEncryptionKey(e.config.EncryptionKey),
+		testreport.WithLogger(e.logger),
+		testreport.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
 	}
 
-	// create the database agnostic engine for testattachments
-	e.TestAttachmentsInterface, err = testattachments2.New(
-		testattachments2.WithContext(ctx),
-		testattachments2.WithClient(e.client),
-		testattachments2.WithEncryptionKey(e.config.EncryptionKey),
-		testattachments2.WithLogger(e.logger),
-		testattachments2.WithSkipCreation(e.config.SkipCreation),
+	// create the database agnostic engine for test_attachments
+	e.TestAttachmentInterface, err = testattachment.New(
+		testattachment.WithContext(ctx),
+		testattachment.WithClient(e.client),
+		testattachment.WithEncryptionKey(e.config.EncryptionKey),
+		testattachment.WithLogger(e.logger),
+		testattachment.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

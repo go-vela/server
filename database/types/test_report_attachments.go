@@ -12,26 +12,26 @@ import (
 
 var (
 	// ErrEmptyReportID defines the error type when a
-	// TestReportAttachment type has an empty ReportID field provided.
+	// TestAttachment type has an empty ReportID field provided.
 	ErrEmptyReportID = errors.New("empty report_id provided")
 	// ErrEmptyFileName defines the error type when a
-	// TestReportAttachment type has an empty FileName field provided.
+	// TestAttachment type has an empty FileName field provided.
 	ErrEmptyFileName = errors.New("empty file_name provided")
 	// ErrEmptyObjectPath defines the error type when a
-	// TestReportAttachment type has an empty ObjectPath field provided.
+	// TestAttachment type has an empty ObjectPath field provided.
 	ErrEmptyObjectPath = errors.New("empty object_path provided")
 	// ErrEmptyFileSize defines the error type when a
-	// TestReportAttachment type has an empty FileSize field provided.
+	// TestAttachment type has an empty FileSize field provided.
 	ErrEmptyFileSize = errors.New("empty file_size provided")
 	// ErrEmptyFileType defines the error type when a
-	// TestReportAttachment type has an empty FileType field provided.
+	// TestAttachment type has an empty FileType field provided.
 	ErrEmptyFileType = errors.New("empty file_type provided")
 	// ErrEmptyPresignedUrl defines the error type when a
-	// TestReportAttachment type has an empty PresignedUrl field provided.
+	// TestAttachment type has an empty PresignedUrl field provided.
 	ErrEmptyPresignedUrl = errors.New("empty presigned_url provided")
 )
 
-type TestReportAttachment struct {
+type TestAttachment struct {
 	ID           sql.NullInt64  `sql:"id"`
 	TestReportID sql.NullInt64  `sql:"test_report_id"`
 	FileName     sql.NullString `sql:"file_name"`
@@ -39,7 +39,7 @@ type TestReportAttachment struct {
 	FileSize     sql.NullInt64  `sql:"file_size"`
 	FileType     sql.NullString `sql:"file_type"`
 	PresignedUrl sql.NullString `sql:"presigned_url"`
-	Created      sql.NullInt64  `sql:"created"`
+	CreatedAt    sql.NullInt64  `sql:"created_at"`
 
 	// References to related objects
 	TestReport *TestReport `gorm:"foreignKey:TestReportID"`
@@ -47,10 +47,10 @@ type TestReportAttachment struct {
 
 // Nullify ensures the valid flag for
 // the sql.Null types are properly set.
-// When a field within the TestReportAttachment type is the zero
+// When a field within the TestAttachment type is the zero
 // value for the field, the valid flag is set to
 // false causing it to be NULL in the database.
-func (a *TestReportAttachment) Nullify() *TestReportAttachment {
+func (a *TestAttachment) Nullify() *TestAttachment {
 	if a == nil {
 		return nil
 	}
@@ -66,17 +66,17 @@ func (a *TestReportAttachment) Nullify() *TestReportAttachment {
 	}
 
 	// check if the Created field should be false
-	if a.Created.Int64 == 0 {
-		a.Created.Valid = false
+	if a.CreatedAt.Int64 == 0 {
+		a.CreatedAt.Valid = false
 	}
 
 	return a
 }
 
-// ToAPI converts the TestReportAttachment type
+// ToAPI converts the TestAttachment type
 // to the API representation of the type.
-func (a *TestReportAttachment) ToAPI() *api.TestReportAttachments {
-	attachment := new(api.TestReportAttachments)
+func (a *TestAttachment) ToAPI() *api.TestAttachment {
+	attachment := new(api.TestAttachment)
 	attachment.SetID(a.ID.Int64)
 
 	// var tr *api.TestReport
@@ -93,14 +93,14 @@ func (a *TestReportAttachment) ToAPI() *api.TestReportAttachments {
 	attachment.SetFileSize(a.FileSize.Int64)
 	attachment.SetFileType(a.FileType.String)
 	attachment.SetPresignedUrl(a.PresignedUrl.String)
-	attachment.SetCreated(a.Created.Int64)
+	attachment.SetCreatedAt(a.CreatedAt.Int64)
 
 	return attachment
 }
 
-// Validate ensures the TestReportAttachment type is valid
+// Validate ensures the TestAttachment type is valid
 // by checking if the required fields are set.
-func (a *TestReportAttachment) Validate() error {
+func (a *TestAttachment) Validate() error {
 	if !a.TestReportID.Valid {
 		return ErrEmptyReportID
 	}
@@ -136,10 +136,10 @@ func (a *TestReportAttachment) Validate() error {
 	return nil
 }
 
-// TestReportAttachmentFromAPI converts the API TestReportAttachments type
+// TestAttachmentFromAPI converts the API TestAttachment type
 // to a database report attachment type.
-func TestReportAttachmentFromAPI(r *api.TestReportAttachments) *TestReportAttachment {
-	attachment := &TestReportAttachment{
+func TestAttachmentFromAPI(r *api.TestAttachment) *TestAttachment {
+	attachment := &TestAttachment{
 		ID:           sql.NullInt64{Int64: r.GetID(), Valid: r.GetID() > 0},
 		TestReportID: sql.NullInt64{Int64: r.GetTestReportID(), Valid: r.GetTestReportID() > 0},
 		FileName:     sql.NullString{String: r.GetFileName(), Valid: len(r.GetFileName()) > 0},
@@ -147,7 +147,7 @@ func TestReportAttachmentFromAPI(r *api.TestReportAttachments) *TestReportAttach
 		FileSize:     sql.NullInt64{Int64: r.GetFileSize(), Valid: r.GetFileSize() > 0},
 		FileType:     sql.NullString{String: r.GetFileType(), Valid: len(r.GetFileType()) > 0},
 		PresignedUrl: sql.NullString{String: r.GetPresignedUrl(), Valid: len(r.GetPresignedUrl()) > 0},
-		Created:      sql.NullInt64{Int64: r.GetCreated(), Valid: r.GetCreated() > 0},
+		CreatedAt:    sql.NullInt64{Int64: r.GetCreatedAt(), Valid: r.GetCreatedAt() > 0},
 	}
 
 	return attachment.Nullify()

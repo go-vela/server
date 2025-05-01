@@ -8,12 +8,12 @@ import "fmt"
 //
 // swagger:model TestReport
 type TestReport struct {
-	ID      *int64 `json:"id,omitempty"`
-	BuildID *int64 `json:"build_id,omitempty"`
-	Created *int64 `json:"created,omitempty"`
+	ID        *int64 `json:"id,omitempty"`
+	BuildID   *int64 `json:"build_id,omitempty"`
+	CreatedAt *int64 `json:"created_at,omitempty"`
 }
 
-type TestReportAttachments struct {
+type TestAttachment struct {
 	ID           *int64  `json:"id,omitempty"`
 	TestReportID *int64  `json:"test_report_id,omitempty"`
 	FileName     *string `json:"file_name,omitempty"`
@@ -21,7 +21,7 @@ type TestReportAttachments struct {
 	FileSize     *int64  `json:"file_size,omitempty"`
 	FileType     *string `json:"file_type,omitempty"`
 	PresignedUrl *string `json:"presigned_url,omitempty"`
-	Created      *int64  `json:"created,omitempty"`
+	CreatedAt    *int64  `json:"created_at,omitempty"`
 }
 
 // GetID returns the ID field.
@@ -50,17 +50,17 @@ func (t *TestReport) GetBuildID() int64 {
 	return *t.BuildID
 }
 
-// GetCreated returns the Created field.
+// GetCreatedAt returns the CreatedAt field.
 //
 // When the provided TestReport type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (t *TestReport) GetCreated() int64 {
-	// return zero value if TestReport type or Created field is nil
-	if t == nil || t.Created == nil {
+func (t *TestReport) GetCreatedAt() int64 {
+	// return zero value if TestReport type or CreatedAt field is nil
+	if t == nil || t.CreatedAt == nil {
 		return 0
 	}
 
-	return *t.Created
+	return *t.CreatedAt
 }
 
 // SetID sets the ID field.
@@ -83,22 +83,22 @@ func (t *TestReport) SetBuildID(v int64) {
 	t.BuildID = &v
 }
 
-// SetCreated sets the Created field.
-func (t *TestReport) SetCreated(v int64) {
+// SetCreatedAt sets the CreatedAt field.
+func (t *TestReport) SetCreatedAt(v int64) {
 	// return if TestReport type is nil
 	if t == nil {
 		return
 	}
-	// set the Created field
-	t.Created = &v
+	// set the CreatedAt field
+	t.CreatedAt = &v
 }
 
 // GetID returns the ID field.
 //
-// When the provided TestReportAttachments type is nil, or the field within
+// When the provided TestAttachment type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetID() int64 {
-	// return zero value if TestReportAttachments type or ID field is nil
+func (r *TestAttachment) GetID() int64 {
+	// return zero value if TestAttachment type or ID field is nil
 	if r == nil || r.ID == nil {
 		return 0
 	}
@@ -108,10 +108,10 @@ func (r *TestReportAttachments) GetID() int64 {
 
 // GetTestReportID returns the TestReportID field.
 //
-// When the provided TestReportAttachments type is nil, or the field within
+// When the provided TestAttachment type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetTestReportID() int64 {
-	// return zero value if TestReportAttachments type or TestReportID field is nil
+func (r *TestAttachment) GetTestReportID() int64 {
+	// return zero value if TestAttachment type or TestReportID field is nil
 	if r == nil || r.TestReportID == nil {
 		return 0
 	}
@@ -121,10 +121,10 @@ func (r *TestReportAttachments) GetTestReportID() int64 {
 
 // GetFileName returns the FileName field.
 //
-// When the provided TestReportAttachments type is nil, or the field within
+// When the provided TestAttachment type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetFileName() string {
-	// return zero value if TestReportAttachments type or FileName field is nil
+func (r *TestAttachment) GetFileName() string {
+	// return zero value if TestAttachment type or FileName field is nil
 	if r == nil || r.FileName == nil {
 		return ""
 	}
@@ -134,10 +134,10 @@ func (r *TestReportAttachments) GetFileName() string {
 
 // GetObjectPath returns the FilePath field.
 //
-// When the provided TestReportAttachments type is nil, or the field within
+// When the provided TestAttachment type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetObjectPath() string {
-	// return zero value if TestReportAttachments type or FilePath field is nil
+func (r *TestAttachment) GetObjectPath() string {
+	// return zero value if TestAttachment type or FilePath field is nil
 	if r == nil || r.ObjectPath == nil {
 		return ""
 	}
@@ -147,10 +147,10 @@ func (r *TestReportAttachments) GetObjectPath() string {
 
 // GetFileSize returns the FileSize field.
 //
-// When the provided TestReportAttachments type is nil, or the field within
+// When the provided TestAttachment type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetFileSize() int64 {
-	// return zero value if TestReportAttachments type or FileSize field is nil
+func (r *TestAttachment) GetFileSize() int64 {
+	// return zero value if TestAttachment type or FileSize field is nil
 	if r == nil || r.FileSize == nil {
 		return 0
 	}
@@ -160,10 +160,10 @@ func (r *TestReportAttachments) GetFileSize() int64 {
 
 // GetFileType returns the FileType field.
 //
-// When the provided TestReportAttachments type is nil, or the field within
+// When the provided TestAttachment type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetFileType() string {
-	// return zero value if TestReportAttachments type or FileType field is nil
+func (r *TestAttachment) GetFileType() string {
+	// return zero value if TestAttachment type or FileType field is nil
 	if r == nil || r.FileType == nil {
 		return ""
 	}
@@ -173,10 +173,10 @@ func (r *TestReportAttachments) GetFileType() string {
 
 // GetPresignedUrl returns the PresignedUrl field.
 //
-// When the provided TestReportAttachments type is nil, or the field within
+// When the provided TestAttachment type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetPresignedUrl() string {
-	// return zero value if TestReportAttachments type or PresignedUrl field is nil
+func (r *TestAttachment) GetPresignedUrl() string {
+	// return zero value if TestAttachment type or PresignedUrl field is nil
 	if r == nil || r.PresignedUrl == nil {
 		return ""
 	}
@@ -184,22 +184,22 @@ func (r *TestReportAttachments) GetPresignedUrl() string {
 	return *r.PresignedUrl
 }
 
-// GetCreated returns the Created field.
+// GetCreatedAt returns the CreatedAt field.
 //
-// When the provided TestReportAttachments type is nil, or the field within
+// When the provided TestAttachment type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *TestReportAttachments) GetCreated() int64 {
-	// return zero value if TestReportAttachments type or Created field is nil
-	if r == nil || r.Created == nil {
+func (r *TestAttachment) GetCreatedAt() int64 {
+	// return zero value if TestAttachment type or CreatedAt field is nil
+	if r == nil || r.CreatedAt == nil {
 		return 0
 	}
 
-	return *r.Created
+	return *r.CreatedAt
 }
 
 // SetID sets the ID field.
-func (r *TestReportAttachments) SetID(v int64) {
-	// return if TestReportAttachments type is nil
+func (r *TestAttachment) SetID(v int64) {
+	// return if TestAttachment type is nil
 	if r == nil {
 		return
 	}
@@ -208,8 +208,8 @@ func (r *TestReportAttachments) SetID(v int64) {
 }
 
 // SetTestReportID sets the TestReportID field.
-func (r *TestReportAttachments) SetTestReportID(v int64) {
-	// return if TestReportAttachments type is nil
+func (r *TestAttachment) SetTestReportID(v int64) {
+	// return if TestAttachment type is nil
 	if r == nil {
 		return
 	}
@@ -218,8 +218,8 @@ func (r *TestReportAttachments) SetTestReportID(v int64) {
 }
 
 // SetFileName sets the FileName field.
-func (r *TestReportAttachments) SetFileName(v string) {
-	// return if TestReportAttachments type is nil
+func (r *TestAttachment) SetFileName(v string) {
+	// return if TestAttachment type is nil
 	if r == nil {
 		return
 	}
@@ -228,8 +228,8 @@ func (r *TestReportAttachments) SetFileName(v string) {
 }
 
 // SetObjectPath sets the ObjectPath field.
-func (r *TestReportAttachments) SetObjectPath(v string) {
-	// return if TestReportAttachments type is nil
+func (r *TestAttachment) SetObjectPath(v string) {
+	// return if TestAttachment type is nil
 	if r == nil {
 		return
 	}
@@ -238,8 +238,8 @@ func (r *TestReportAttachments) SetObjectPath(v string) {
 }
 
 // SetFileSize sets the FileSize field.
-func (r *TestReportAttachments) SetFileSize(v int64) {
-	// return if TestReportAttachments type is nil
+func (r *TestAttachment) SetFileSize(v int64) {
+	// return if TestAttachment type is nil
 	if r == nil {
 		return
 	}
@@ -248,8 +248,8 @@ func (r *TestReportAttachments) SetFileSize(v int64) {
 }
 
 // SetFileType sets the FileType field.
-func (r *TestReportAttachments) SetFileType(v string) {
-	// return if TestReportAttachments type is nil
+func (r *TestAttachment) SetFileType(v string) {
+	// return if TestAttachment type is nil
 	if r == nil {
 		return
 	}
@@ -258,8 +258,8 @@ func (r *TestReportAttachments) SetFileType(v string) {
 }
 
 // SetPresignedUrl sets the PresignedUrl field.
-func (r *TestReportAttachments) SetPresignedUrl(v string) {
-	// return if TestReportAttachments type is nil
+func (r *TestAttachment) SetPresignedUrl(v string) {
+	// return if TestAttachment type is nil
 	if r == nil {
 		return
 	}
@@ -267,17 +267,17 @@ func (r *TestReportAttachments) SetPresignedUrl(v string) {
 	r.PresignedUrl = &v
 }
 
-// SetCreated sets the Created field.
-func (r *TestReportAttachments) SetCreated(v int64) {
-	// return if TestReportAttachments type is nil
+// SetCreatedAt sets the CreatedAt field.
+func (r *TestAttachment) SetCreatedAt(v int64) {
+	// return if TestAttachment type is nil
 	if r == nil {
 		return
 	}
-	// set the Created field
-	r.Created = &v
+	// set the CreatedAt field
+	r.CreatedAt = &v
 }
 
-// String implements the Stringer interface for the TestReportAttachments type.
-func (r *TestReportAttachments) String() string {
+// String implements the Stringer interface for the TestAttachment type.
+func (r *TestAttachment) String() string {
 	return fmt.Sprintf("FileName: %s, ObjectPath: %s, FileType: %s", r.GetFileName(), r.GetObjectPath(), r.GetFileType())
 }

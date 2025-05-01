@@ -299,14 +299,14 @@ func APIDashboardRepo() *api.DashboardRepo {
 
 func APITestReport() *api.TestReport {
 	return &api.TestReport{
-		ID:      new(int64),
-		BuildID: new(int64),
-		Created: new(int64),
+		ID:        new(int64),
+		BuildID:   new(int64),
+		CreatedAt: new(int64),
 	}
 }
 
-func APITestReportAttachment() *api.TestReportAttachments {
-	return &api.TestReportAttachments{
+func APITestAttachment() *api.TestAttachment {
+	return &api.TestAttachment{
 		ID:           new(int64),
 		TestReportID: new(int64),
 		FileName:     new(string),
@@ -314,7 +314,7 @@ func APITestReportAttachment() *api.TestReportAttachments {
 		FileSize:     new(int64),
 		FileType:     new(string),
 		PresignedUrl: new(string),
-		Created:      new(int64),
+		CreatedAt:    new(int64),
 	}
 }
 
