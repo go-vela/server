@@ -108,6 +108,8 @@ func GetSettings(c *gin.Context) {
 
 // UpdateSettings represents the API handler to update the
 // platform settings singleton.
+//
+//nolint:funlen // nil checks throughout handler make this function long
 func UpdateSettings(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
