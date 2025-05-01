@@ -14,6 +14,8 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/reports/testattachment"
+	"github.com/go-vela/server/database/reports/testreport"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
@@ -212,6 +214,30 @@ func (e *engine) NewResources(ctx context.Context) error {
 		worker.WithClient(e.client),
 		worker.WithLogger(e.logger),
 		worker.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for test_reports
+	e.TestReportInterface, err = testreport.New(
+		testreport.WithContext(ctx),
+		testreport.WithClient(e.client),
+		testreport.WithEncryptionKey(e.config.EncryptionKey),
+		testreport.WithLogger(e.logger),
+		testreport.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for test_attachments
+	e.TestAttachmentInterface, err = testattachment.New(
+		testattachment.WithContext(ctx),
+		testattachment.WithClient(e.client),
+		testattachment.WithEncryptionKey(e.config.EncryptionKey),
+		testattachment.WithLogger(e.logger),
+		testattachment.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
