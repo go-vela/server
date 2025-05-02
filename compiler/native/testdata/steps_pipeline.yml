@@ -29,6 +29,8 @@ steps:
     pull: true
 
   - name: build
+    ruleset:
+      eval: HELLO == "Hello, Global Environment"
     commands:
       - ./gradlew build
     environment:
