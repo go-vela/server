@@ -57,18 +57,18 @@ type (
 	// RuleData is the data to check our ruleset
 	// against for a step in a pipeline.
 	RuleData struct {
-		Branch   string             `json:"branch,omitempty"   yaml:"branch,omitempty"`
-		Comment  string             `json:"comment,omitempty"  yaml:"comment,omitempty"`
-		Event    string             `json:"event,omitempty"    yaml:"event,omitempty"`
-		Path     []string           `json:"path,omitempty"     yaml:"path,omitempty"`
-		Repo     string             `json:"repo,omitempty"     yaml:"repo,omitempty"`
-		Sender   string             `json:"sender,omitempty"   yaml:"sender,omitempty"`
-		Status   string             `json:"status,omitempty"   yaml:"status,omitempty"`
-		Tag      string             `json:"tag,omitempty"      yaml:"tag,omitempty"`
-		Target   string             `json:"target,omitempty"   yaml:"target,omitempty"`
-		Label    []string           `json:"label,omitempty"    yaml:"label,omitempty"`
-		Instance string             `json:"instance,omitempty" yaml:"instance,omitempty"`
-		Env      raw.StringSliceMap `json:"env,omitempty"      yaml:"env,omitempty"`
+		Branch   string
+		Comment  string
+		Event    string
+		Path     []string
+		Repo     string
+		Sender   string
+		Status   string
+		Tag      string
+		Target   string
+		Label    []string
+		Instance string
+		Env      raw.StringSliceMap
 	}
 )
 
