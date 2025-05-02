@@ -149,6 +149,9 @@ type Service interface {
 	// SyncRepoWithInstallation defines a function that syncs
 	// a repo with the installation, if it exists.
 	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)
+	// ListTeamRepositories defines a function that retrieves
+	// a list of 10 repositories for a team at a specified page.
+	ListTeamRepositories(context.Context, string, string, string, int, int) ([]string, int, error)
 
 	// Webhook SCM Interface Functions
 

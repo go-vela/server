@@ -11,6 +11,7 @@ import (
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/perm"
 	rmiddleware "github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/team"
 )
 
 // RepoHandlers is a function that extends the provided base router group
@@ -64,6 +65,12 @@ func RepoHandlers(base *gin.RouterGroup) {
 		{
 			org.GET("", repo.ListReposForOrg)
 			org.GET("/builds", build.ListBuildsForOrg)
+
+			// Team endpoints
+			_team := org.Group("/teams/:team", team.Establish())
+			{
+				_team.GET("", repo.ListReposForTeam)
+			}
 
 			// Repo endpoints
 			_repo := org.Group("/:repo", rmiddleware.Establish())

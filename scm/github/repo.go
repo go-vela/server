@@ -813,3 +813,31 @@ func (c *Client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 
 	return r, nil
 }
+
+// ListTeamRepositories returns a list of 10 repositories for a team at a specific page.
+func (c *Client) ListTeamRepositories(ctx context.Context, tkn, org, slug string, page, perPage int) ([]string, int, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  org,
+		"slug": slug,
+	}).Tracef("listing repositories for team %s/%s", org, slug)
+
+	client := c.newOAuthTokenClient(ctx, tkn)
+
+	opts := &github.ListOptions{
+		Page:    page,
+		PerPage: perPage,
+	}
+
+	repos, resp, err := client.Teams.ListTeamReposBySlug(ctx, org, slug, opts)
+	if err != nil {
+		return nil, resp.StatusCode, err
+	}
+
+	var names []string
+
+	for _, repo := range repos {
+		names = append(names, repo.GetFullName())
+	}
+
+	return names, resp.StatusCode, nil
+}
