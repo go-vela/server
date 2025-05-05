@@ -6,11 +6,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/types"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestRepo_Engine_GetReposInList(t *testing.T) {
