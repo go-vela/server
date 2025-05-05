@@ -79,7 +79,7 @@ var Flags = []cli.Flag{
 		),
 		Value: 30 * time.Minute,
 	},
-	&cli.IntFlag{
+	&cli.Int64Flag{
 		Name:  "database.compression.level",
 		Usage: "level of compression for logs stored in the database",
 		Sources: cli.NewValueSourceChain(

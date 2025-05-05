@@ -6,8 +6,6 @@ import (
 	"fmt"
 
 	"github.com/urfave/cli/v3"
-
-	"github.com/go-vela/server/util"
 )
 
 // Platform is the API representation of platform settingps.
@@ -37,7 +35,7 @@ func FromCLICommand(c *cli.Command) *Platform {
 	ps.SetScheduleAllowlist(c.StringSlice("vela-schedule-allowlist"))
 
 	// set max repos per dashboard
-	ps.SetMaxDashboardRepos(util.Int32FromInt64(c.Int("max-dashboard-repos")))
+	ps.SetMaxDashboardRepos(c.Int32("max-dashboard-repos"))
 
 	return ps
 }

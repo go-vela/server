@@ -18,6 +18,12 @@ func TestDatabase_Flags(t *testing.T) {
 			case *cli.StringFlag:
 				copyFlag := *f
 				copiedFlags[i] = &copyFlag
+			case *cli.Int64Flag:
+				copyFlag := *f
+				copiedFlags[i] = &copyFlag
+			case *cli.Int32Flag:
+				copyFlag := *f
+				copiedFlags[i] = &copyFlag
 			case *cli.IntFlag:
 				copyFlag := *f
 				copiedFlags[i] = &copyFlag
