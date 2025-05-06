@@ -110,7 +110,7 @@ var Flags = []cli.Flag{
 			cli.File("/vela/scm/webhook_addr"),
 		),
 	},
-	&cli.IntFlag{
+	&cli.Int64Flag{
 		Name:  "scm.app.id",
 		Usage: "set ID for the SCM App integration (GitHub App)",
 		Sources: cli.NewValueSourceChain(
