@@ -33,6 +33,9 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Target:   []string{"production"},
 					Label:    []string{"enhancement"},
 					Instance: []string{"http://localhost:8080"},
+					Eval:     "foo == bar",
+					Matcher:  "filepath",
+					Operator: "and",
 				},
 				Unless: Rules{
 					Branch:   []string{"main"},
@@ -45,9 +48,10 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Tag:      []string{"v0.2.0"},
 					Target:   []string{"production"},
 					Instance: []string{"http://localhost:8080"},
+					Eval:     "foo == bar",
+					Matcher:  "regexp",
+					Operator: "or",
 				},
-				Matcher:  "filepath",
-				Operator: "and",
 				Continue: false,
 			},
 			want: &pipeline.Ruleset{
@@ -63,6 +67,9 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Target:   []string{"production"},
 					Label:    []string{"enhancement"},
 					Instance: []string{"http://localhost:8080"},
+					Eval:     "foo == bar",
+					Matcher:  "filepath",
+					Operator: "and",
 				},
 				Unless: pipeline.Rules{
 					Branch:   []string{"main"},
@@ -75,9 +82,10 @@ func TestYaml_Ruleset_ToPipeline(t *testing.T) {
 					Tag:      []string{"v0.2.0"},
 					Target:   []string{"production"},
 					Instance: []string{"http://localhost:8080"},
+					Eval:     "foo == bar",
+					Matcher:  "regexp",
+					Operator: "or",
 				},
-				Matcher:  "filepath",
-				Operator: "and",
 				Continue: false,
 			},
 		},
@@ -106,6 +114,7 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 				If: Rules{
 					Branch:   []string{"main"},
 					Comment:  []string{"test comment"},
+					Eval:     `foo == "bar"`,
 					Event:    []string{"push"},
 					Instance: []string{"vela-server"},
 					Label:    []string{"bug"},
@@ -115,9 +124,9 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 					Status:   []string{"success"},
 					Tag:      []string{"v0.1.0"},
 					Target:   []string{"production"},
+					Matcher:  "filepath",
+					Operator: "and",
 				},
-				Matcher:  "filepath",
-				Operator: "and",
 				Continue: true,
 			},
 		},
@@ -125,16 +134,38 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 			file: "testdata/ruleset_advanced.yml",
 			want: &Ruleset{
 				If: Rules{
-					Branch: []string{"main"},
-					Event:  []string{"push"},
-					Tag:    []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Branch:   []string{"main"},
+					Eval:     `foo == "bar"`,
+					Event:    []string{"push"},
+					Tag:      []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Matcher:  "regexp",
+					Operator: "or",
 				},
 				Unless: Rules{
-					Event: []string{"deployment:created", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened", "comment:created", "comment:edited", "schedule"},
-					Path:  []string{"foo.txt", "/foo/bar.txt"},
+					Event:    []string{"deployment:created", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened", "comment:created", "comment:edited", "schedule"},
+					Path:     []string{"foo.txt", "/foo/bar.txt"},
+					Matcher:  "regexp",
+					Operator: "or",
 				},
-				Matcher:  "regexp",
-				Operator: "or",
+				Continue: true,
+			},
+		},
+		{
+			file: "testdata/ruleset_op_match.yml",
+			want: &Ruleset{
+				If: Rules{
+					Branch:   []string{"main"},
+					Event:    []string{"push"},
+					Tag:      []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Matcher:  "regexp",
+					Operator: "and",
+				},
+				Unless: Rules{
+					Event:    []string{"deployment:created", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened", "comment:created", "comment:edited", "schedule"},
+					Path:     []string{"foo.txt", "/foo/bar.txt"},
+					Matcher:  "filepath",
+					Operator: "or",
+				},
 				Continue: true,
 			},
 		},
@@ -142,23 +173,23 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 			file: "testdata/ruleset_regex.yml",
 			want: &Ruleset{
 				If: Rules{
-					Branch: []string{"main"},
-					Event:  []string{"tag"},
-					Tag:    []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Branch:   []string{"main"},
+					Event:    []string{"tag"},
+					Tag:      []string{"^refs/tags/(\\d+\\.)+\\d+$"},
+					Operator: "and",
+					Matcher:  "regex",
 				},
-				Operator: "and",
-				Matcher:  "regex",
 			},
 		},
 		{
 			file: "testdata/ruleset_unknown_field.yml",
 			want: &Ruleset{
 				If: Rules{
-					Branch: []string{"main"},
-					Event:  []string{"push"},
+					Branch:   []string{"main"},
+					Event:    []string{"push"},
+					Matcher:  "filepath",
+					Operator: "and",
 				},
-				Matcher:  "filepath",
-				Operator: "and",
 			},
 		},
 		{
@@ -197,7 +228,7 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 		}
 
 		if diff := cmp.Diff(got, test.want); diff != "" {
-			t.Errorf("UnmarshalYAML mismatch (-got +want):\n%s", diff)
+			t.Errorf("UnmarshalYAML mismatch for file %s (-got +want):\n%s", test.file, diff)
 		}
 	}
 }
@@ -212,6 +243,7 @@ func TestYaml_Rules_ToPipeline(t *testing.T) {
 			rules: &Rules{
 				Branch:   []string{"main"},
 				Comment:  []string{"test comment"},
+				Eval:     `foo == "bar"`,
 				Event:    []string{"push", "pull_request:labeled"},
 				Instance: []string{"vela-server"},
 				Path:     []string{"foo.txt"},
@@ -225,6 +257,7 @@ func TestYaml_Rules_ToPipeline(t *testing.T) {
 			want: &pipeline.Rules{
 				Branch:   []string{"main"},
 				Comment:  []string{"test comment"},
+				Eval:     `foo == "bar"`,
 				Event:    []string{"push", "pull_request:labeled"},
 				Instance: []string{"vela-server"},
 				Path:     []string{"foo.txt"},
@@ -267,6 +300,7 @@ func TestYaml_Rules_UnmarshalYAML(t *testing.T) {
 			want: &Rules{
 				Branch:   []string{"main"},
 				Comment:  []string{"test comment"},
+				Eval:     `foo == "bar"`,
 				Event:    []string{"push"},
 				Instance: []string{"vela-server"},
 				Label:    []string{"bug"},

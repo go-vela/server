@@ -137,9 +137,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Name:  "install",
 						Pull:  "always",
 						Ruleset: Ruleset{
-							If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:edited"}},
-							Matcher:  "filepath",
-							Operator: "and",
+							If: Rules{
+								Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:edited"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
 						},
 						Ulimits: UlimitSlice{
 							{
@@ -166,9 +168,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Image: "openjdk:latest",
 						Pull:  "always",
 						Ruleset: Ruleset{
-							If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-							Matcher:  "filepath",
-							Operator: "and",
+							If: Rules{
+								Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
 						},
 						Volumes: VolumeSlice{
 							{
@@ -195,9 +199,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Image: "openjdk:latest",
 						Pull:  "always",
 						Ruleset: Ruleset{
-							If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-							Matcher:  "filepath",
-							Operator: "and",
+							If: Rules{
+								Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
 						},
 						Volumes: VolumeSlice{
 							{
@@ -225,9 +231,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Image: "plugins/docker:18.09",
 						Pull:  "always",
 						Ruleset: Ruleset{
-							If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-							Matcher:  "filepath",
-							Operator: "and",
+							If: Rules{
+								Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
 						},
 					},
 					{
@@ -240,9 +248,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Image: "plugins/docker:18.09",
 						Pull:  "always",
 						Ruleset: Ruleset{
-							If:       Rules{Branch: []string{"main"}, Event: []string{"push"}},
-							Matcher:  "filepath",
-							Operator: "and",
+							If: Rules{
+								Branch: []string{"main"}, Event: []string{"push"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
 						},
 						Secrets: StepSecretSlice{
 							{
@@ -353,9 +363,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 								Name:  "install",
 								Pull:  "always",
 								Ruleset: Ruleset{
-									If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-									Matcher:  "filepath",
-									Operator: "and",
+									If: Rules{
+										Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+										Matcher:  "filepath",
+										Operator: "and",
+									},
 								},
 								Volumes: VolumeSlice{
 									{
@@ -389,9 +401,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 								Image: "openjdk:latest",
 								Pull:  "always",
 								Ruleset: Ruleset{
-									If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-									Matcher:  "filepath",
-									Operator: "and",
+									If: Rules{
+										Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+										Matcher:  "filepath",
+										Operator: "and",
+									},
 								},
 								Volumes: VolumeSlice{
 									{
@@ -425,9 +439,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 								Image: "openjdk:latest",
 								Pull:  "always",
 								Ruleset: Ruleset{
-									If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-									Matcher:  "filepath",
-									Operator: "and",
+									If: Rules{
+										Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+										Matcher:  "filepath",
+										Operator: "and",
+									},
 								},
 								Volumes: VolumeSlice{
 									{
@@ -469,9 +485,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Name:  "install",
 						Pull:  "always",
 						Ruleset: Ruleset{
-							If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-							Matcher:  "filepath",
-							Operator: "and",
+							If: Rules{
+								Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
 						},
 						Volumes: VolumeSlice{
 							{
@@ -498,9 +516,10 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Image: "openjdk:latest",
 						Pull:  "always",
 						Ruleset: Ruleset{
-							If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-							Matcher:  "filepath",
-							Operator: "and",
+							If: Rules{
+								Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+								Matcher:  "filepath",
+								Operator: "and"},
 						},
 						Volumes: VolumeSlice{
 							{
@@ -527,9 +546,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Image: "openjdk:latest",
 						Pull:  "always",
 						Ruleset: Ruleset{
-							If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-							Matcher:  "filepath",
-							Operator: "and",
+							If: Rules{
+								Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
 						},
 						Volumes: VolumeSlice{
 							{
@@ -575,9 +596,10 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Name:  "install",
 						Pull:  "always",
 						Ruleset: Ruleset{
-							If:       Rules{Event: []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"}},
-							Matcher:  "filepath",
-							Operator: "and",
+							If: Rules{
+								Event:    []string{"push", "pull_request:opened", "pull_request:synchronize", "pull_request:reopened"},
+								Matcher:  "filepath",
+								Operator: "and"},
 						},
 						Ulimits: UlimitSlice{
 							{
@@ -671,10 +693,10 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Pull:     "not_present",
 						Ruleset: Ruleset{
 							If: Rules{
-								Event: []string{"push"},
+								Event:    []string{"push"},
+								Matcher:  "filepath",
+								Operator: "and",
 							},
-							Matcher:  "filepath",
-							Operator: "and",
 						},
 					},
 					{
@@ -684,10 +706,10 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						Pull:     "not_present",
 						Ruleset: Ruleset{
 							If: Rules{
-								Event: []string{"push"},
+								Event:    []string{"push"},
+								Matcher:  "filepath",
+								Operator: "and",
 							},
-							Matcher:  "filepath",
-							Operator: "and",
 						},
 					},
 					{
@@ -700,10 +722,10 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 						},
 						Ruleset: Ruleset{
 							If: Rules{
-								Event: []string{"push"},
+								Event:    []string{"push"},
+								Matcher:  "filepath",
+								Operator: "and",
 							},
-							Matcher:  "filepath",
-							Operator: "and",
 						},
 					},
 				},

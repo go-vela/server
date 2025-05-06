@@ -22,7 +22,7 @@ func setupSCM(ctx context.Context, c *cli.Command, tc *tracing.Client) (scm.Serv
 		Address:              c.String("scm.addr"),
 		ClientID:             c.String("scm.client"),
 		ClientSecret:         c.String("scm.secret"),
-		AppID:                c.Int("scm.app.id"),
+		AppID:                c.Int64("scm.app.id"),
 		AppPrivateKey:        c.String("scm.app.private-key"),
 		AppPrivateKeyPath:    c.String("scm.app.private-key.path"),
 		AppPermissions:       c.StringSlice("scm.app.permissions"),
@@ -31,6 +31,9 @@ func setupSCM(ctx context.Context, c *cli.Command, tc *tracing.Client) (scm.Serv
 		StatusContext:        c.String("scm.context"),
 		WebUIAddress:         c.String("webui-addr"),
 		OAuthScopes:          c.StringSlice("scm.scopes"),
+		RepoRoleMap:          c.StringMap("scm.repo.roles-map"),
+		OrgRoleMap:           c.StringMap("scm.org.roles-map"),
+		TeamRoleMap:          c.StringMap("scm.team.roles-map"),
 		Tracing:              tc,
 	}
 

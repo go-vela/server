@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/util"
 )
 
 // Flags represents all supported command line
@@ -109,7 +110,7 @@ var Flags = []cli.Flag{
 			cli.File("/vela/scm/webhook_addr"),
 		),
 	},
-	&cli.IntFlag{
+	&cli.Int64Flag{
 		Name:  "scm.app.id",
 		Usage: "set ID for the SCM App integration (GitHub App)",
 		Sources: cli.NewValueSourceChain(
@@ -169,5 +170,56 @@ var Flags = []cli.Flag{
 			cli.File("/vela/scm/app/permissions"),
 		),
 		Value: []string{"contents:read", "checks:write"},
+	},
+	&cli.StringMapFlag{
+		Name:  "scm.repo.roles-map",
+		Usage: "map of SCM roles to Vela permissions for repositories",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_REPO_ROLES_MAP"),
+			cli.EnvVar("SCM_REPO_ROLES_MAP"),
+			cli.File("/vela/scm/repo/roles_map"),
+		),
+		Value: map[string]string{
+			"admin":    constants.PermissionAdmin,
+			"write":    constants.PermissionWrite,
+			"maintain": constants.PermissionWrite,
+			"triage":   constants.PermissionRead,
+			"read":     constants.PermissionRead,
+		},
+		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
+			return util.ValidateRoleMap(v, "repo")
+		},
+	},
+	&cli.StringMapFlag{
+		Name:  "scm.org.roles-map",
+		Usage: "map of SCM roles to Vela permissions for organizations",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_ORG_ROLES_MAP"),
+			cli.EnvVar("SCM_ORG_ROLES_MAP"),
+			cli.File("/vela/scm/org/roles_map"),
+		),
+		Value: map[string]string{
+			"admin":  constants.PermissionAdmin,
+			"member": constants.PermissionRead,
+		},
+		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
+			return util.ValidateRoleMap(v, "org")
+		},
+	},
+	&cli.StringMapFlag{
+		Name:  "scm.team.roles-map",
+		Usage: "map of SCM roles to Vela permissions for teams",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_SCM_TEAM_ROLES_MAP"),
+			cli.EnvVar("SCM_TEAM_ROLES_MAP"),
+			cli.File("/vela/scm/team/roles_map"),
+		),
+		Value: map[string]string{
+			"maintainer": constants.PermissionAdmin,
+			"member":     constants.PermissionRead,
+		},
+		Action: func(_ context.Context, _ *cli.Command, v map[string]string) error {
+			return util.ValidateRoleMap(v, "team")
+		},
 	},
 }

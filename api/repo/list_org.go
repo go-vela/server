@@ -140,7 +140,7 @@ func ListReposForOrg(c *gin.Context) {
 		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
-	if perm != "admin" {
+	if perm != constants.PermissionAdmin {
 		filters["visibility"] = constants.VisibilityPublic
 	}
 

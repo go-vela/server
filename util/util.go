@@ -4,8 +4,8 @@ package util
 
 import (
 	"context"
+	"fmt"
 	"html"
-	"math"
 	"net/url"
 	"strings"
 
@@ -13,6 +13,7 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 )
 
 // HandleError appends the error to the handler chain for logging and outputs it.
@@ -116,6 +117,39 @@ func CheckAllowlist(r *api.Repo, allowlist []string) bool {
 	return false
 }
 
+// ValidateRoleMap is a util function that takes an input map and determines if
+// the required roles are present in the map as values.
+func ValidateRoleMap(input map[string]string, level string) error {
+	var inAdmin, inWrite, inRead bool
+
+	for _, v := range input {
+		switch v {
+		case constants.PermissionAdmin:
+			inAdmin = true
+		case constants.PermissionWrite:
+			inWrite = true
+		case constants.PermissionRead:
+			inRead = true
+		default:
+			return fmt.Errorf("invalid role %s in roles map", v)
+		}
+	}
+
+	if !inAdmin {
+		return fmt.Errorf("admin role is required in %s roles map", level)
+	}
+
+	if level == "repo" && !inWrite {
+		return fmt.Errorf("write role is required in repo roles map")
+	}
+
+	if !inRead {
+		return fmt.Errorf("read role is required in %s roles map", level)
+	}
+
+	return nil
+}
+
 // Sanitize is a helper function to verify the provided input
 // field does not contain HTML content. If the input field
 // does contain HTML, then the function will sanitize and
@@ -145,18 +179,4 @@ func Sanitize(field string) string {
 
 	// return the unmodified field
 	return field
-}
-
-// Int32FromInt64 is a helper function that takes an int64 and safely converts it to an int32.
-// This function is necessary specifically for urfave/cli v3 using only int64 flag inputs.
-func Int32FromInt64(v int64) int32 {
-	if v > math.MaxInt32 {
-		return math.MaxInt32
-	}
-
-	if v < math.MinInt32 {
-		return math.MinInt32
-	}
-
-	return int32(v)
 }

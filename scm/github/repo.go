@@ -576,11 +576,20 @@ func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 
 // toAPIRepo does a partial conversion of a github repo to a API repo.
 func toAPIRepo(gr github.Repository) *api.Repo {
-	// setting the visbility to match the SCM visbility
 	var visibility string
-	if *gr.Private {
+
+	// setting the visbility to match the SCM visbility
+	switch gr.GetVisibility() {
+	// if gh resp does not have visibility field, use private
+	case "":
+		if gr.GetPrivate() {
+			visibility = constants.VisibilityPrivate
+		} else {
+			visibility = constants.VisibilityPublic
+		}
+	case "private":
 		visibility = constants.VisibilityPrivate
-	} else {
+	default:
 		visibility = constants.VisibilityPublic
 	}
 

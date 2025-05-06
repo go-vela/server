@@ -26,6 +26,19 @@ const (
 					"vela"
 				]
 			},
+			"scm": {
+				"repo_role_map": {
+					"admin": "admin",
+					"triage": "read"
+				},
+				"org_role_map": {
+					"admin": "admin",
+					"member": "read"
+				},
+				"team_role_map": {
+					"admin": "admin"
+				}
+			},
 			"repo_allowlist": [
 				"*"
 			],
@@ -53,6 +66,19 @@ const (
 					"large"
 				]
 			},
+			"scm": {
+				"repo_role_map": {
+					"admin": "admin",
+					"triage": "read"
+				},
+				"org_role_map": {
+					"admin": "admin",
+					"member": "read"
+				},
+				"team_role_map": {
+					"admin": "admin"
+				}
+			},
 			"repo_allowlist": [],
 			"schedule_allowlist": [
 				"octocat/hello-world",
@@ -78,6 +104,19 @@ const (
 				"vela",
 				"large"
 			]
+		},
+		"scm": {
+			"repo_role_map": {
+				"admin": "admin",
+				"triage": "read"
+			},
+			"org_role_map": {
+				"admin": "admin",
+				"member": "read"
+			},
+			"team_role_map": {
+				"admin": "admin"
+			}
 		},
 		"repo_allowlist": [],
 		"schedule_allowlist": [

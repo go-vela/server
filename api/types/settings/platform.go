@@ -6,8 +6,6 @@ import (
 	"fmt"
 
 	"github.com/urfave/cli/v3"
-
-	"github.com/go-vela/server/util"
 )
 
 // Platform is the API representation of platform settingps.
@@ -17,6 +15,7 @@ type Platform struct {
 	ID                *int32 `json:"id"`
 	*Compiler         `json:"compiler,omitempty"            yaml:"compiler,omitempty"`
 	*Queue            `json:"queue,omitempty"               yaml:"queue,omitempty"`
+	*SCM              `json:"scm,omitempty"                 yaml:"scm,omitempty"`
 	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"      yaml:"repo_allowlist,omitempty"`
 	ScheduleAllowlist *[]string `json:"schedule_allowlist,omitempty"  yaml:"schedule_allowlist,omitempty"`
 	MaxDashboardRepos *int32    `json:"max_dashboard_repos,omitempty" yaml:"max_dashboard_repos,omitempty"`
@@ -36,7 +35,7 @@ func FromCLICommand(c *cli.Command) *Platform {
 	ps.SetScheduleAllowlist(c.StringSlice("vela-schedule-allowlist"))
 
 	// set max repos per dashboard
-	ps.SetMaxDashboardRepos(util.Int32FromInt64(c.Int("max-dashboard-repos")))
+	ps.SetMaxDashboardRepos(c.Int32("max-dashboard-repos"))
 
 	return ps
 }
@@ -78,6 +77,19 @@ func (ps *Platform) GetQueue() Queue {
 	}
 
 	return *ps.Queue
+}
+
+// GetSCM returns the SCM field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (ps *Platform) GetSCM() SCM {
+	// return zero value if Platform type or SCM field is nil
+	if ps == nil || ps.SCM == nil {
+		return SCM{}
+	}
+
+	return *ps.SCM
 }
 
 // GetRepoAllowlist returns the RepoAllowlist field.
@@ -197,6 +209,19 @@ func (ps *Platform) SetQueue(qs Queue) {
 	ps.Queue = &qs
 }
 
+// SetSCM sets the SCM field.
+//
+// When the provided SCM type is nil, it
+// will set nothing and immediately return.
+func (ps *Platform) SetSCM(scm SCM) {
+	// return if Platform type is nil
+	if ps == nil {
+		return
+	}
+
+	ps.SCM = &scm
+}
+
 // SetRepoAllowlist sets the RepoAllowlist field.
 //
 // When the provided Platform type is nil, it
@@ -288,6 +313,7 @@ func (ps *Platform) FromSettings(_ps *Platform) {
 
 	ps.SetCompiler(_ps.GetCompiler())
 	ps.SetQueue(_ps.GetQueue())
+	ps.SetSCM(_ps.GetSCM())
 	ps.SetRepoAllowlist(_ps.GetRepoAllowlist())
 	ps.SetScheduleAllowlist(_ps.GetScheduleAllowlist())
 	ps.SetMaxDashboardRepos(_ps.GetMaxDashboardRepos())
@@ -301,11 +327,13 @@ func (ps *Platform) FromSettings(_ps *Platform) {
 func (ps *Platform) String() string {
 	cs := ps.GetCompiler()
 	qs := ps.GetQueue()
+	scms := ps.GetSCM()
 
 	return fmt.Sprintf(`{
   ID: %d,
   Compiler: %v,
   Queue: %v,
+  SCM: %v,
   RepoAllowlist: %v,
   ScheduleAllowlist: %v,
   MaxDashboardRepos: %d,
@@ -316,6 +344,7 @@ func (ps *Platform) String() string {
 		ps.GetID(),
 		cs.String(),
 		qs.String(),
+		scms.String(),
 		ps.GetRepoAllowlist(),
 		ps.GetScheduleAllowlist(),
 		ps.GetMaxDashboardRepos(),
@@ -331,6 +360,7 @@ func PlatformMockEmpty() Platform {
 
 	ps.SetCompiler(CompilerMockEmpty())
 	ps.SetQueue(QueueMockEmpty())
+	ps.SetSCM(SCMMockEmpty())
 
 	ps.SetRepoAllowlist([]string{})
 	ps.SetScheduleAllowlist([]string{})
