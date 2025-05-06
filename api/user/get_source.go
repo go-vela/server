@@ -82,6 +82,12 @@ func GetSourceRepos(c *gin.Context) {
 		// local variables to avoid bad memory address de-referencing
 		// initialize active to false
 		splitR := strings.Split(r, "/")
+
+		// safety check
+		if len(splitR) != 2 {
+			continue
+		}
+
 		org := splitR[0]
 		name := splitR[1]
 		active := lookup[r]
