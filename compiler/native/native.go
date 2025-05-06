@@ -64,7 +64,7 @@ func FromCLICommand(ctx context.Context, cmd *cli.Command) (*Client, error) {
 			Timeout:  cmd.Duration("modification-timeout"),
 			Endpoint: cmd.String("modification-addr"),
 			Secret:   cmd.String("modification-secret"),
-			Retries:  int(cmd.Int("modification-retries")),
+			Retries:  cmd.Int("modification-retries"),
 		}
 	}
 
@@ -90,10 +90,10 @@ func FromCLICommand(ctx context.Context, cmd *cli.Command) (*Client, error) {
 	c.SetCloneImage(cloneImage)
 
 	// set the template depth to use for nested templates
-	c.SetTemplateDepth(int(cmd.Int("max-template-depth")))
+	c.SetTemplateDepth(cmd.Int("max-template-depth"))
 
 	// set the starlark execution step limit for compiling starlark pipelines
-	c.SetStarlarkExecLimit(cmd.Int("compiler-starlark-exec-limit"))
+	c.SetStarlarkExecLimit(cmd.Int64("compiler-starlark-exec-limit"))
 
 	if cmd.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", cmd.String("github-url"))

@@ -133,12 +133,12 @@ var Flags = []cli.Flag{
 		Sources: cli.EnvVars("VELA_ENABLE_SECURE_COOKIE"),
 		Value:   true,
 	},
-	&cli.IntFlag{
+	&cli.Int32Flag{
 		Name:    "default-build-limit",
 		Usage:   "override default build limit",
 		Sources: cli.EnvVars("VELA_DEFAULT_BUILD_LIMIT"),
 		Value:   constants.BuildLimitDefault,
-		Action: func(_ context.Context, _ *cli.Command, v int64) error {
+		Action: func(_ context.Context, _ *cli.Command, v int32) error {
 			if v <= 0 {
 				return fmt.Errorf("default-build-limit (VELA_DEFAULT_BUILD_LIMIT) flag must be greater than 0")
 			}
@@ -146,30 +146,30 @@ var Flags = []cli.Flag{
 			return nil
 		},
 	},
-	&cli.IntFlag{
+	&cli.Int32Flag{
 		Name:    "max-build-limit",
 		Usage:   "override max build limit",
 		Sources: cli.EnvVars("VELA_MAX_BUILD_LIMIT"),
 		Value:   constants.BuildLimitMax,
-		Action: func(_ context.Context, cmd *cli.Command, v int64) error {
+		Action: func(_ context.Context, cmd *cli.Command, v int32) error {
 			if v <= 0 {
 				return fmt.Errorf("max-build-limit (VELA_MAX_BUILD_LIMIT) flag must be greater than 0")
 			}
 
-			if cmd.Int("default-build-limit") > v {
+			if cmd.Int32("default-build-limit") > v {
 				return fmt.Errorf("max-build-limit (VELA_MAX_BUILD_LIMIT) must be greater than default-build-limit (VELA_DEFAULT_BUILD_LIMIT)")
 			}
 
 			return nil
 		},
 	},
-	&cli.IntFlag{
+	&cli.Int32Flag{
 		Name:    "default-build-timeout",
 		Usage:   "override default build timeout (minutes)",
 		Sources: cli.EnvVars("VELA_DEFAULT_BUILD_TIMEOUT"),
 		Value:   constants.BuildTimeoutDefault,
 	},
-	&cli.IntFlag{
+	&cli.Int32Flag{
 		Name:    "default-approval-timeout",
 		Usage:   "override default approval timeout (days)",
 		Sources: cli.EnvVars("VELA_DEFAULT_APPROVAL_TIMEOUT"),
@@ -196,7 +196,7 @@ var Flags = []cli.Flag{
 			return nil
 		},
 	},
-	&cli.IntFlag{
+	&cli.Int64Flag{
 		Name:    "default-repo-events-mask",
 		Usage:   "set default event mask for newly activated repositories",
 		Sources: cli.EnvVars("VELA_DEFAULT_REPO_EVENTS_MASK"),
@@ -217,7 +217,7 @@ var Flags = []cli.Flag{
 			return nil
 		},
 	},
-	&cli.IntFlag{
+	&cli.Int32Flag{
 		Name:    "max-dashboard-repos",
 		Usage:   "set the maximum amount of repos that can belong to a dashboard",
 		Sources: cli.EnvVars("VELA_MAX_DASHBOARD_REPOS"),
@@ -316,7 +316,7 @@ var Flags = []cli.Flag{
 		Usage:   "github token, used by compiler, for pulling registry templates",
 		Sources: cli.EnvVars("VELA_COMPILER_GITHUB_TOKEN", "COMPILER_GITHUB_TOKEN"),
 	},
-	&cli.IntFlag{
+	&cli.Int64Flag{
 		Name:    "compiler-starlark-exec-limit",
 		Usage:   "set the starlark execution step limit for compiling starlark pipelines",
 		Sources: cli.EnvVars("VELA_COMPILER_STARLARK_EXEC_LIMIT", "COMPILER_STARLARK_EXEC_LIMIT"),
@@ -349,7 +349,7 @@ var Flags = []cli.Flag{
 		Usage:   "max template depth, used by compiler, maximum number of templates that can be called in a template chain",
 		Sources: cli.EnvVars("VELA_MAX_TEMPLATE_DEPTH", "MAX_TEMPLATE_DEPTH"),
 		Value:   3,
-		Action: func(_ context.Context, _ *cli.Command, v int64) error {
+		Action: func(_ context.Context, _ *cli.Command, v int) error {
 			if v < 1 {
 				return fmt.Errorf("max-template-depth (VELA_MAX_TEMPLATE_DEPTH) or (MAX_TEMPLATE_DEPTH) flag must be greater than 0")
 			}
