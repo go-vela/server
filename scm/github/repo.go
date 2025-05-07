@@ -521,7 +521,7 @@ func (c *Client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r
 }
 
 // ListUserRepos returns a list of all repos the user has access to.
-func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, error) {
+func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing source repositories for %s", u.GetName())
@@ -530,7 +530,7 @@ func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	r := []*github.Repository{}
-	f := []*api.Repo{}
+	f := []string{}
 
 	// set the max per page for the options to capture the list of repos
 	opts := &github.RepositoryListByAuthenticatedUserOptions{
@@ -568,7 +568,7 @@ func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 			continue
 		}
 
-		f = append(f, toAPIRepo(*repo))
+		f = append(f, repo.GetFullName())
 	}
 
 	return f, nil
