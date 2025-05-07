@@ -1467,7 +1467,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	r.SetVisibility("public")
 
-	want := []*api.Repo{r}
+	want := []string{"octocat/Hello-World"}
 
 	client, _ := NewTest(s.URL)
 
@@ -1504,7 +1504,7 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	want := []*api.Repo{}
+	want := []string{}
 
 	client, _ := NewTest(s.URL)
 
