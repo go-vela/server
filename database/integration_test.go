@@ -12,6 +12,7 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	api "github.com/go-vela/server/api/types"
@@ -1420,6 +1421,15 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("ListRepos() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListRepos"] = true
+
+	list, err = db.GetReposInList(t.Context(), []string{"github/octocat", "github/octokitty"})
+	if err != nil {
+		t.Errorf("unable to get repos in list: %v", err)
+	}
+	if diff := cmp.Diff(resources.Repos, list, cmpopts.IgnoreFields(api.Repo{}, "Owner", "Hash")); diff != "" {
+		t.Errorf("GetReposInList() mismatch (-want +got):\n%s", diff)
+	}
+	methods["GetReposInList"] = true
 
 	// list the repos for an org
 	list, err = db.ListReposForOrg(context.TODO(), resources.Repos[0].GetOrg(), "name", nil, 1, 10)

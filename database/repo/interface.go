@@ -40,6 +40,8 @@ type RepoInterface interface {
 	GetRepo(context.Context, int64) (*api.Repo, error)
 	// GetRepoForOrg defines a function that gets a repo by org and repo name.
 	GetRepoForOrg(context.Context, string, string) (*api.Repo, error)
+	// GetReposInList defines a function that gets a list of repos from a list of full names.
+	GetReposInList(context.Context, []string) ([]*api.Repo, error)
 	// ListRepos defines a function that gets a list of all repos.
 	ListRepos(context.Context) ([]*api.Repo, error)
 	// ListReposForOrg defines a function that gets a list of repos by org name.

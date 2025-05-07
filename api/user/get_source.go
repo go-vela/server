@@ -5,6 +5,7 @@ package user
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -49,7 +50,6 @@ func GetSourceRepos(c *gin.Context) {
 	l.Debugf("reading available SCM repos for user %s", u.GetName())
 
 	// variables to capture requested data
-	dbRepos := []*types.Repo{}
 	output := make(map[string][]types.Repo)
 
 	// send API call to capture the list of repos for the user
@@ -62,62 +62,43 @@ func GetSourceRepos(c *gin.Context) {
 		return
 	}
 
-	// create a map
-	// TODO: clean this up
-	for _, srepo := range srcRepos {
+	dbRepos, err := database.FromContext(c).GetReposInList(ctx, srcRepos)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get repos from database: %w", err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// create a lookup map to store the active status of each repo
+	lookup := make(map[string]bool, len(dbRepos))
+
+	for _, repo := range dbRepos {
+		key := repo.GetFullName()
+		lookup[key] = repo.GetActive()
+	}
+
+	for _, r := range srcRepos {
 		// local variables to avoid bad memory address de-referencing
 		// initialize active to false
-		org := srepo.Org
-		name := srepo.Name
-		active := false
+		splitR := strings.Split(r, "/")
+
+		// safety check
+		if len(splitR) != 2 {
+			continue
+		}
+
+		org := splitR[0]
+		name := splitR[1]
+		active := lookup[r]
 
 		// API struct to omit optional fields
 		repo := types.Repo{
-			Org:    org,
-			Name:   name,
+			Org:    &org,
+			Name:   &name,
 			Active: &active,
 		}
-		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
-	}
-
-	for org := range output {
-		// capture source repos from the database backend, grouped by org
-		page := 1
-		filters := map[string]interface{}{}
-
-		for page > 0 {
-			// send API call to capture the list of repos for the org
-			dbReposPart, err := database.FromContext(c).ListReposForOrg(ctx, org, "name", filters, page, 100)
-			if err != nil {
-				retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
-
-				util.HandleError(c, http.StatusNotFound, retErr)
-
-				return
-			}
-
-			// add repos to list of database org repos
-			dbRepos = append(dbRepos, dbReposPart...)
-
-			// assume no more pages exist if under 100 results are returned
-			if len(dbReposPart) < 100 {
-				page = 0
-			} else {
-				page++
-			}
-		}
-
-		// apply org repos active status to output map
-		for _, dbRepo := range dbRepos {
-			if orgRepos, ok := output[dbRepo.GetOrg()]; ok {
-				for i := range orgRepos {
-					if orgRepos[i].GetName() == dbRepo.GetName() {
-						active := dbRepo.GetActive()
-						(&orgRepos[i]).Active = &active
-					}
-				}
-			}
-		}
+		output[org] = append(output[org], repo)
 	}
 
 	c.JSON(http.StatusOK, output)
