@@ -48,6 +48,7 @@ const (
   },
   "allow_command": true,
   "allow_substitution": true,
+  "repo_allowlist": ["github/octocat","github/octokitty"],
   "created_at": 1,
   "created_by": "Octocat",
   "updated_at": 2,

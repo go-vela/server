@@ -9,11 +9,12 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestSecret_Engine_CreateSecretTable(t *testing.T) {
+func TestSecret_Engine_CreateSecretTables(t *testing.T) {
 	// setup types
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
+	_mock.ExpectExec(CreatePostgresAllowlistTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
@@ -40,18 +41,18 @@ func TestSecret_Engine_CreateSecretTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateSecretTable(context.TODO(), test.name)
+			err := test.database.CreateSecretTables(context.TODO(), test.name)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateSecretTable for %s should have returned err", test.name)
+					t.Errorf("CreateSecretTables for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateSecretTable for %s returned err: %v", test.name, err)
+				t.Errorf("CreateSecretTables for %s returned err: %v", test.name, err)
 			}
 		})
 	}

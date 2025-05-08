@@ -206,6 +206,7 @@ func APISecret() *api.Secret {
 		AllowEvents:       APIEvents(),
 		AllowCommand:      new(bool),
 		AllowSubstitution: new(bool),
+		RepoAllowlist:     new([]string),
 		CreatedAt:         new(int64),
 		CreatedBy:         new(string),
 		UpdatedAt:         new(int64),
