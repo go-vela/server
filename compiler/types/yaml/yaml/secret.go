@@ -157,7 +157,7 @@ func (o *Origin) Empty() bool {
 
 // MergeEnv takes a list of environment variables and attempts
 // to set them in the secret environment. If the environment
-// variable already exists in the secret, than this will
+// variable already exists in the secret, then this will
 // overwrite the existing environment variable.
 func (o *Origin) MergeEnv(environment map[string]string) error {
 	// check if the secret container is empty
