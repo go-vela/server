@@ -19,7 +19,8 @@ type Log struct {
 	ServiceID *int64 `json:"service_id,omitempty"`
 	StepID    *int64 `json:"step_id,omitempty"`
 	// swagger:strfmt base64
-	Data *[]byte `json:"data,omitempty"`
+	Data      *[]byte `json:"data,omitempty"`
+	CreatedAt *int64  `json:"created_at,omitempty"`
 }
 
 // AppendData adds the provided data to the end of
@@ -137,6 +138,19 @@ func (l *Log) GetData() []byte {
 	return *l.Data
 }
 
+// GetCreatedAt returns the CreatedAt field.
+//
+// When the provided log type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (l *Log) GetCreatedAt() int64 {
+	// return zero value if log type or CreatedAt field is nil
+	if l == nil || l.CreatedAt == nil {
+		return 0
+	}
+
+	return *l.CreatedAt
+}
+
 // SetID sets the ID field.
 //
 // When the provided Log type is nil, it
@@ -215,6 +229,19 @@ func (l *Log) SetData(v []byte) {
 	l.Data = &v
 }
 
+// SetCreatedAt sets the CreatedAt field.
+//
+// When the provided log type is nil, it
+// will set nothing and immediately return.
+func (l *Log) SetCreatedAt(v int64) {
+	// return if Secret type is nil
+	if l == nil {
+		return
+	}
+
+	l.CreatedAt = &v
+}
+
 // String implements the Stringer interface for the Log type.
 func (l *Log) String() string {
 	return fmt.Sprintf(`{
@@ -224,6 +251,7 @@ func (l *Log) String() string {
   RepoID: %d,
   ServiceID: %d,
   StepID: %d,
+  CreatedAt: %d,
 }`,
 		l.GetBuildID(),
 		l.GetData(),
@@ -231,5 +259,6 @@ func (l *Log) String() string {
 		l.GetRepoID(),
 		l.GetServiceID(),
 		l.GetStepID(),
+		l.GetCreatedAt(),
 	)
 }
