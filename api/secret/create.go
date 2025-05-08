@@ -309,7 +309,7 @@ func validateAllowlist(ctx context.Context, db database.Interface, currentAllowl
 			if !slices.Contains(currentAllowlist, r) {
 				_, err := db.GetRepoForOrg(ctx, split[0], split[1])
 				if err != nil {
-					return fmt.Errorf("repo %s in allowlist does not exist", r)
+					return fmt.Errorf("repo %s in allowlist does not exist. Enable the repo in Vela and be sure to check casing", r)
 				}
 			}
 		}
