@@ -31,6 +31,12 @@ const (
 	// TableRepo defines the table type for the database repos table.
 	TableRepo = "repos"
 
+	// TableTestReports defines the table type for the database testreports table.
+	TableTestReports = "testreports"
+
+	// TableAttachments defines the table type for the database testattachments table.
+	TableAttachments = "testattachments"
+
 	// TableSchedule defines the table type for the database schedules table.
 	TableSchedule = "schedules"
 
