@@ -6,10 +6,17 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: read
+
 # pipeline to execute
 jobs:
   schema:
     runs-on: ubuntu-latest
+
+    permissions:
+      actions: write # for skx/github-action-publish-binaries to attach binaries to release artifacts
+      contents: read # for actions/checkout to fetch code
 
     steps:
       - name: clone

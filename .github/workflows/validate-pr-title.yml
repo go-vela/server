@@ -6,6 +6,9 @@ on:
   pull_request:
     types: [opened, synchronize, edited, reopened]
 
+permissions:
+  contents: read
+
 # pipeline to execute
 jobs:
   validate:
