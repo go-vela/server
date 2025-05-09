@@ -5,8 +5,11 @@ name: integration-test
 on:
   pull_request:
     paths:
-      - '.github/workflows/integration-test.yml'
-      - 'database/**'
+      - ".github/workflows/integration-test.yml"
+      - "database/**"
+
+permissions:
+  contents: read
 
 # pipeline to execute
 jobs:
@@ -46,7 +49,7 @@ jobs:
         uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
         with:
           # use version from go.mod file
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
           cache: true
           check-latest: true
 
@@ -68,7 +71,7 @@ jobs:
         uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
         with:
           # use version from go.mod file
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
           cache: true
           check-latest: true
 

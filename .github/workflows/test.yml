@@ -6,6 +6,9 @@ on:
   pull_request:
   push:
 
+permissions:
+  contents: read
+
 # pipeline to execute
 jobs:
   test:
@@ -37,4 +40,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: coverage.out
-
