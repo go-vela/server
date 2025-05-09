@@ -1,5 +1,5 @@
 # name of the action
-name: spec
+name: api-spec
 
 # trigger on release events
 on:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write # for actions/checkout to fetch code
+      contents: write # for actions/github-script to attach files to release artifacts
 
     steps:
       - name: clone
@@ -38,9 +38,27 @@ jobs:
           make spec-install
           make spec
 
-      - name: upload spec
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: upload api spec
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          args: "api-spec.json"
+          retries: 3
+          script: |
+            const fs = require('fs');
+            const path = './api-spec.json';
+            const name = 'api-spec.json';
+
+            const fileContent = fs.readFileSync(path);
+
+            const response = await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              name: name,
+              data: fileContent,
+              headers: {
+                'content-type': 'text/plain',
+                'content-length': fileContent.length,
+              },
+            });
+
+            core.info(`Uploaded asset: ${response.data.browser_download_url}`);
