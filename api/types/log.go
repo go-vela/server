@@ -234,7 +234,7 @@ func (l *Log) SetData(v []byte) {
 // When the provided log type is nil, it
 // will set nothing and immediately return.
 func (l *Log) SetCreatedAt(v int64) {
-	// return if Secret type is nil
+	// return if log type is nil
 	if l == nil {
 		return
 	}
