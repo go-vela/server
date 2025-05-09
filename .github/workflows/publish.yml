@@ -4,49 +4,55 @@ name: publish
 # trigger on push events with branch main
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
 
 # pipeline to execute
 jobs:
   publish:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read # for actions/checkout to fetch code
+
     steps:
-    - name: clone
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      with:
-        # ensures we fetch tag history for the repository
-        fetch-depth: 0
+      - name: clone
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # ensures we fetch tag history for the repository
+          fetch-depth: 0
 
-    - name: install go
-      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
-      with:
-        # use version from go.mod file
-        go-version-file: 'go.mod'
-        cache: true
-        check-latest: true
+      - name: install go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          # use version from go.mod file
+          go-version-file: "go.mod"
+          cache: true
+          check-latest: true
 
-    - name: build
-      env:
-        GOOS: linux
-        CGO_ENABLED: '1'
-      run: |
-        make build-static-ci
+      - name: build
+        env:
+          GOOS: linux
+          CGO_ENABLED: "1"
+        run: |
+          make build-static-ci
 
-    - name: publish
-      uses: elgohr/Publish-Docker-Github-Action@eb53b3ec07136a6ebaed78d8135806da64f7c7e2 # v5
-      with:
-        name: target/vela-server
-        cache: true
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: publish
+        uses: elgohr/Publish-Docker-Github-Action@eb53b3ec07136a6ebaed78d8135806da64f7c7e2 # v5
+        with:
+          name: target/vela-server
+          cache: true
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: publish-alpine
-      uses: elgohr/Publish-Docker-Github-Action@eb53b3ec07136a6ebaed78d8135806da64f7c7e2 # v5
-      with:
-        name: target/vela-server
-        cache: true
-        tags: "latest-alpine"
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        dockerfile: Dockerfile-alpine
+      - name: publish-alpine
+        uses: elgohr/Publish-Docker-Github-Action@eb53b3ec07136a6ebaed78d8135806da64f7c7e2 # v5
+        with:
+          name: target/vela-server
+          cache: true
+          tags: "latest-alpine"
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          dockerfile: Dockerfile-alpine

@@ -4,37 +4,43 @@ name: spec
 # trigger on release events
 on:
   release:
-    types: [ created ]
+    types: [created]
+
+permissions:
+  contents: read
 
 # pipeline to execute
 jobs:
   schema:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write # for actions/checkout to fetch code
+
     steps:
-    - name: clone
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: clone
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-    - name: install go
-      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
-      with:
-        # use version from go.mod file
-        go-version-file: 'go.mod'
-        cache: true
-        check-latest: true
+      - name: install go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          # use version from go.mod file
+          go-version-file: "go.mod"
+          cache: true
+          check-latest: true
 
-    - name: tags
-      run: |
-        git fetch --tags
+      - name: tags
+        run: |
+          git fetch --tags
 
-    - name: create spec
-      run: |
-        make spec-install
-        make spec
+      - name: create spec
+        run: |
+          make spec-install
+          make spec
 
-    - name: upload spec
-      uses: skx/github-action-publish-binaries@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        args: 'api-spec.json'
+      - name: upload spec
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: "api-spec.json"
