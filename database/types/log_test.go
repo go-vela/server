@@ -233,6 +233,7 @@ func TestDatabase_Log_Nullify(t *testing.T) {
 		RepoID:    sql.NullInt64{Int64: 0, Valid: false},
 		ServiceID: sql.NullInt64{Int64: 0, Valid: false},
 		StepID:    sql.NullInt64{Int64: 0, Valid: false},
+		CreatedAt: sql.NullInt64{Int64: 0, Valid: false},
 	}
 
 	// setup tests
@@ -274,6 +275,7 @@ func TestDatabase_Log_ToAPI(t *testing.T) {
 	want.SetBuildID(1)
 	want.SetRepoID(1)
 	want.SetData([]byte("foo"))
+	want.SetCreatedAt(tsCreate)
 
 	// run test
 	got := testLog().ToAPI()
@@ -349,6 +351,7 @@ func TestDatabase_LogFromAPI(t *testing.T) {
 	l.SetBuildID(1)
 	l.SetRepoID(1)
 	l.SetData([]byte("foo"))
+	l.SetCreatedAt(tsCreate)
 
 	want := testLog()
 
@@ -370,5 +373,6 @@ func testLog() *Log {
 		ServiceID: sql.NullInt64{Int64: 1, Valid: true},
 		StepID:    sql.NullInt64{Int64: 1, Valid: true},
 		Data:      []byte("foo"),
+		CreatedAt: sql.NullInt64{Int64: tsCreate, Valid: true},
 	}
 }

@@ -20,6 +20,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
 	_service.SetData([]byte{})
+	_service.SetCreatedAt(1)
 
 	_step := testutils.APILog()
 	_step.SetID(2)
@@ -27,6 +28,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
 	_step.SetData([]byte{})
+	_step.SetCreatedAt(1)
 
 	_repo := testutils.APIRepo()
 	_repo.SetID(1)

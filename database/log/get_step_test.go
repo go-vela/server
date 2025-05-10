@@ -20,6 +20,7 @@ func TestLog_Engine_GetLogForStep(t *testing.T) {
 	_log.SetBuildID(1)
 	_log.SetStepID(1)
 	_log.SetData([]byte{})
+	_log.SetCreatedAt(1)
 
 	_step := testutils.APIStep()
 	_step.SetID(1)

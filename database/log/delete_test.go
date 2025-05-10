@@ -18,6 +18,7 @@ func TestLog_Engine_DeleteLog(t *testing.T) {
 	_log.SetRepoID(1)
 	_log.SetBuildID(1)
 	_log.SetStepID(1)
+	_log.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

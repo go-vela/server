@@ -20,6 +20,7 @@ func TestLog_Engine_UpdateLog(t *testing.T) {
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
 	_service.SetData([]byte{})
+	_service.SetCreatedAt(1)
 
 	_step := testutils.APILog()
 	_step.SetID(2)
@@ -27,22 +28,23 @@ func TestLog_Engine_UpdateLog(t *testing.T) {
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
 	_step.SetData([]byte{})
+	_step.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the service query
 	_mock.ExpectExec(`UPDATE "logs"
-SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"data"=$5
-WHERE "id" = $6`).
-		WithArgs(1, 1, 1, nil, AnyArgument{}, 1).
+SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"data"=$5,"created_at"=$6
+WHERE "id" = $7`).
+		WithArgs(1, 1, 1, nil, AnyArgument{}, 1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the step query
 	_mock.ExpectExec(`UPDATE "logs"
-SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"data"=$5
-WHERE "id" = $6`).
-		WithArgs(1, 1, nil, 1, AnyArgument{}, 2).
+SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"data"=$5,"created_at"=$6
+WHERE "id" = $7`).
+		WithArgs(1, 1, nil, 1, AnyArgument{}, 1, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

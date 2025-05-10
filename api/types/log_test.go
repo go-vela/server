@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestTypes_Log_AppendData(t *testing.T) {
@@ -176,6 +179,10 @@ func TestTypes_Log_Getters(t *testing.T) {
 		if !reflect.DeepEqual(test.log.GetData(), test.want.GetData()) {
 			t.Errorf("GetData is %v, want %v", test.log.GetData(), test.want.GetData())
 		}
+
+		if test.log.GetCreatedAt() != test.want.GetCreatedAt() {
+			t.Errorf("GetCreatedAt is %v, want %v", test.log.GetCreatedAt(), test.want.GetCreatedAt())
+		}
 	}
 }
 
@@ -206,6 +213,7 @@ func TestTypes_Log_Setters(t *testing.T) {
 		test.log.SetBuildID(test.want.GetBuildID())
 		test.log.SetRepoID(test.want.GetRepoID())
 		test.log.SetData(test.want.GetData())
+		test.log.SetCreatedAt(test.want.GetCreatedAt())
 
 		if test.log.GetID() != test.want.GetID() {
 			t.Errorf("SetID is %v, want %v", test.log.GetID(), test.want.GetID())
@@ -230,6 +238,10 @@ func TestTypes_Log_Setters(t *testing.T) {
 		if !reflect.DeepEqual(test.log.GetData(), test.want.GetData()) {
 			t.Errorf("SetData is %v, want %v", test.log.GetData(), test.want.GetData())
 		}
+
+		if test.log.GetCreatedAt() != test.want.GetCreatedAt() {
+			t.Errorf("SetCreatedAt is %v, want %v", test.log.GetCreatedAt(), test.want.GetCreatedAt())
+		}
 	}
 }
 
@@ -244,6 +256,7 @@ func TestTypes_Log_String(t *testing.T) {
   RepoID: %d,
   ServiceID: %d,
   StepID: %d,
+  CreatedAt: %d,
 }`,
 		l.GetBuildID(),
 		l.GetData(),
@@ -251,19 +264,22 @@ func TestTypes_Log_String(t *testing.T) {
 		l.GetRepoID(),
 		l.GetServiceID(),
 		l.GetStepID(),
+		l.GetCreatedAt(),
 	)
 
 	// run test
 	got := l.String()
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("String is %v, want %v", got, want)
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("String Mismatch: -want +got):\n%s", diff)
 	}
 }
 
 // testLog is a test helper function to create a Log
 // type with all fields set to a fake value.
 func testLog() *Log {
+	currentTime := time.Now()
+	tsCreate := currentTime.UTC().Unix()
 	l := new(Log)
 
 	l.SetID(1)
@@ -272,6 +288,7 @@ func testLog() *Log {
 	l.SetBuildID(1)
 	l.SetRepoID(1)
 	l.SetData([]byte("foo"))
+	l.SetCreatedAt(tsCreate)
 
 	return l
 }
