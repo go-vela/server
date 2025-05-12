@@ -20,6 +20,7 @@ func TestLog_Engine_GetLogForService(t *testing.T) {
 	_log.SetBuildID(1)
 	_log.SetServiceID(1)
 	_log.SetData([]byte{})
+	_log.SetCreatedAt(1)
 
 	_service := testutils.APIService()
 	_service.SetID(1)

@@ -2759,6 +2759,7 @@ func newResources() *Resources {
 	logServiceOne.SetServiceID(1)
 	logServiceOne.SetStepID(0)
 	logServiceOne.SetData([]byte("foo"))
+	logServiceOne.SetCreatedAt(time.Now().UTC().Unix())
 
 	logServiceTwo := new(api.Log)
 	logServiceTwo.SetID(2)
@@ -2767,6 +2768,7 @@ func newResources() *Resources {
 	logServiceTwo.SetServiceID(2)
 	logServiceTwo.SetStepID(0)
 	logServiceTwo.SetData([]byte("foo"))
+	logServiceTwo.SetCreatedAt(time.Now().UTC().Unix())
 
 	logStepOne := new(api.Log)
 	logStepOne.SetID(3)
@@ -2775,6 +2777,7 @@ func newResources() *Resources {
 	logStepOne.SetServiceID(0)
 	logStepOne.SetStepID(1)
 	logStepOne.SetData([]byte("foo"))
+	logStepOne.SetCreatedAt(time.Now().UTC().Unix())
 
 	logStepTwo := new(api.Log)
 	logStepTwo.SetID(4)
@@ -2783,6 +2786,7 @@ func newResources() *Resources {
 	logStepTwo.SetServiceID(0)
 	logStepTwo.SetStepID(2)
 	logStepTwo.SetData([]byte("foo"))
+	logStepTwo.SetCreatedAt(time.Now().UTC().Unix())
 
 	pipelineOne := new(api.Pipeline)
 	pipelineOne.SetID(1)
