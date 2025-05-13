@@ -282,9 +282,14 @@ func secretFromVault(vault *api.Secret) *velaAPI.Secret {
 	// set repo_allowlist if found in Vault secret
 	v, ok = data["repo_allowlist"]
 	if ok {
-		allowlist, ok := v.([]string)
+		allowlist, ok := v.([]any)
 		if ok {
-			s.SetRepoAllowlist(allowlist)
+			for _, element := range allowlist {
+				repo, ok := element.(string)
+				if ok {
+					s.SetRepoAllowlist(append(s.GetRepoAllowlist(), repo))
+				}
+			}
 		}
 	}
 

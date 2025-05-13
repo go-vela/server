@@ -110,7 +110,7 @@ func UpdateSecret(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to get secret from database: %w", err)
 
-		util.HandleError(c, http.StatusBadRequest, retErr)
+		util.HandleError(c, http.StatusNotFound, retErr)
 
 		return
 	}
