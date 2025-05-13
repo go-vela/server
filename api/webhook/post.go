@@ -623,7 +623,7 @@ func PostWebhook(c *gin.Context) {
 			b.GetHost(),
 		)
 	} else {
-		err := build.GatekeepBuild(c, b, repo)
+		err := build.GatekeepBuild(c, item.Build, item.Build.GetRepo())
 		if err != nil {
 			retErr := fmt.Errorf("unable to gate build: %w", err)
 			util.HandleError(c, http.StatusInternalServerError, err)
