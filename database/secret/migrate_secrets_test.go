@@ -12,7 +12,7 @@ import (
 	"github.com/go-vela/server/database/testutils"
 )
 
-func TestSecret_Engine_DeleteSecret(t *testing.T) {
+func TestSecret_Engine_MigrateSecrets(t *testing.T) {
 	// setup types
 	_secretRepo := testutils.APISecret()
 	_secretRepo.SetID(1)
@@ -25,6 +25,8 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_secretRepo.SetCreatedBy("user")
 	_secretRepo.SetUpdatedAt(1)
 	_secretRepo.SetUpdatedBy("user2")
+	_secretRepo.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretRepo.SetRepoAllowlist([]string{})
 
 	_secretOrg := testutils.APISecret()
 	_secretOrg.SetID(2)
@@ -37,6 +39,8 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_secretOrg.SetCreatedBy("user")
 	_secretOrg.SetUpdatedAt(1)
 	_secretOrg.SetUpdatedBy("user2")
+	_secretOrg.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretOrg.SetRepoAllowlist([]string{})
 
 	_secretShared := testutils.APISecret()
 	_secretShared.SetID(3)
@@ -49,43 +53,22 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_secretShared.SetCreatedBy("user")
 	_secretShared.SetUpdatedAt(1)
 	_secretShared.SetUpdatedBy("user2")
-	_secretShared.SetRepoAllowlist([]string{"github/octocat"})
+	_secretShared.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretShared.SetRepoAllowlist([]string{"foo/bar", "github/octokitty"})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	_mock.ExpectBegin()
 	// ensure the mock expects the repo query
-	_mock.ExpectExec(`DELETE FROM "secrets" WHERE "secrets"."id" = $1`).
-		WithArgs(1).
+	_mock.ExpectExec(`UPDATE "secrets"
+SET "org"=$1,"repo"=$2 WHERE type = $3 AND org = $4 AND repo = $5`).
+		WithArgs("foob", "baz", "repo", "foo", "bar").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
-		WithArgs(1, nil).
-		WillReturnResult(sqlmock.NewResult(1, 0))
-
-	_mock.ExpectCommit()
-	_mock.ExpectBegin()
-
-	// ensure the mock expects the org query
-	_mock.ExpectExec(`DELETE FROM "secrets" WHERE "secrets"."id" = $1`).
-		WithArgs(2).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
-		WithArgs(2, nil).
-		WillReturnResult(sqlmock.NewResult(1, 0))
-
-	_mock.ExpectCommit()
-	_mock.ExpectBegin()
-
-	// ensure the mock expects the shared query
-	_mock.ExpectExec(`DELETE FROM "secrets" WHERE "secrets"."id" = $1`).
-		WithArgs(3).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
-		WithArgs(3, nil).
+	_mock.ExpectExec(`UPDATE "secret_repo_allowlists"
+SET "repo"=$1 WHERE repo = $2`).
+		WithArgs("foob/baz", "foo/bar").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_mock.ExpectCommit()
@@ -113,61 +96,34 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 		failure  bool
 		name     string
 		database *Engine
-		secret   *api.Secret
 	}{
 		{
 			failure:  false,
-			name:     "postgres with repo",
+			name:     "postgres",
 			database: _postgres,
-			secret:   _secretRepo,
 		},
 		{
 			failure:  false,
-			name:     "postgres with org",
-			database: _postgres,
-			secret:   _secretOrg,
-		},
-		{
-			failure:  false,
-			name:     "postgres with shared",
-			database: _postgres,
-			secret:   _secretShared,
-		},
-		{
-			failure:  false,
-			name:     "sqlite3 with repo",
+			name:     "sqlite3",
 			database: _sqlite,
-			secret:   _secretRepo,
-		},
-		{
-			failure:  false,
-			name:     "sqlite3 with org",
-			database: _sqlite,
-			secret:   _secretOrg,
-		},
-		{
-			failure:  false,
-			name:     "sqlite3 with shared",
-			database: _sqlite,
-			secret:   _secretShared,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteSecret(context.TODO(), test.secret)
+			err := test.database.MigrateSecrets(t.Context(), "foo", "bar", "foob", "baz")
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("DeleteSecret for %s should have returned err", test.name)
+					t.Errorf("UpdateSecret for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("DeleteSecret for %s returned err: %v", test.name, err)
+				t.Errorf("UpdateSecret for %s returned err: %v", test.name, err)
 			}
 		})
 	}

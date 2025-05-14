@@ -4,8 +4,10 @@ package secret
 
 import (
 	"context"
-	"reflect"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
@@ -27,6 +29,7 @@ func TestSecret_Engine_GetSecretForOrg(t *testing.T) {
 	_secret.SetUpdatedAt(1)
 	_secret.SetUpdatedBy("user2")
 	_secret.SetAllowEvents(api.NewEventsFromMask(1))
+	_secret.SetRepoAllowlist([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -37,6 +40,8 @@ func TestSecret_Engine_GetSecretForOrg(t *testing.T) {
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND name = $3 LIMIT $4`).
 		WithArgs(constants.SecretOrg, "foo", "baz", 1).WillReturnRows(_rows)
+
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id = $1`).WithArgs(1).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -84,8 +89,8 @@ func TestSecret_Engine_GetSecretForOrg(t *testing.T) {
 				t.Errorf("GetSecretForOrg for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetSecretForOrg for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("GetSecretForOrg mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

@@ -4,17 +4,15 @@ package secret
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
-	"github.com/go-vela/server/database/types"
 )
 
-func TestSecret_Engine_GetSecret(t *testing.T) {
+func TestSecret_Engine_PruneAllowlist(t *testing.T) {
 	// setup types
 	_secret := testutils.APISecret()
 	_secret.SetID(1)
@@ -27,26 +25,22 @@ func TestSecret_Engine_GetSecret(t *testing.T) {
 	_secret.SetCreatedBy("user")
 	_secret.SetUpdatedAt(1)
 	_secret.SetUpdatedBy("user2")
-	_secret.SetAllowEvents(api.NewEventsFromMask(1))
-	_secret.SetRepoAllowlist([]string{})
+	_secret.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected result in mock
-	_rows := testutils.CreateMockRows([]any{*types.SecretFromAPI(_secret)})
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)
-
-	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id = $1`).WithArgs(1).WillReturnRows(sqlmock.NewRows([]string{}))
+	// ensure the mock expects the repo query
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2,$3)`).
+		WithArgs(1, "github/octocat", "github/octokitty").
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secret)
 	if err != nil {
-		t.Errorf("unable to create test secret for sqlite: %v", err)
+		t.Errorf("unable to create test repo secret for sqlite: %v", err)
 	}
 
 	// setup tests
@@ -54,41 +48,37 @@ func TestSecret_Engine_GetSecret(t *testing.T) {
 		failure  bool
 		name     string
 		database *Engine
-		want     *api.Secret
+		secret   *api.Secret
 	}{
 		{
 			failure:  false,
-			name:     "postgres",
+			name:     "postgres with repo",
 			database: _postgres,
-			want:     _secret,
+			secret:   _secret,
 		},
 		{
 			failure:  false,
-			name:     "sqlite3",
+			name:     "sqlite3 with repo",
 			database: _sqlite,
-			want:     _secret,
+			secret:   _secret,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetSecret(context.TODO(), 1)
+			err = PruneAllowlist(context.TODO(), test.database.client, test.secret)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("GetSecret for %s should have returned err", test.name)
+					t.Errorf("PruneAllowlist for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("GetSecret for %s returned err: %v", test.name, err)
-			}
-
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetSecret for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("PruneAllowlist for %s returned err: %v", test.name, err)
 			}
 		})
 	}

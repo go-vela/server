@@ -48,5 +48,5 @@ func (e *Engine) GetSecretForRepo(ctx context.Context, name string, r *api.Repo)
 		e.logger.Errorf("unable to decrypt repo secret %s/%s: %v", r.GetFullName(), name, err)
 	}
 
-	return s.ToAPI(), nil
+	return e.FillSecretAllowlist(ctx, s.ToAPI())
 }

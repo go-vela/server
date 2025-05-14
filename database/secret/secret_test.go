@@ -23,7 +23,9 @@ func TestSecret_New(t *testing.T) {
 	}
 	defer _sql.Close()
 
+	_mock.ExpectExec(CreatePostgresAllowlistTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateSecretID).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -119,7 +121,9 @@ func testPostgres(t *testing.T) (*Engine, sqlmock.Sqlmock) {
 		t.Errorf("unable to create new SQL mock: %v", err)
 	}
 
+	_mock.ExpectExec(CreatePostgresAllowlistTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateSecretID).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
