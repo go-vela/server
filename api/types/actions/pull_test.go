@@ -50,6 +50,14 @@ func TestActions_Pull_Getters(t *testing.T) {
 		if test.actions.GetUnlabeled() != test.want.GetUnlabeled() {
 			t.Errorf("GetUnlabeled is %v, want %v", test.actions.GetUnlabeled(), test.want.GetUnlabeled())
 		}
+
+		if test.actions.GetMerged() != test.want.GetMerged() {
+			t.Errorf("GetMerged is %v, want %v", test.actions.GetMerged(), test.want.GetMerged())
+		}
+
+		if test.actions.GetClosed() != test.want.GetClosed() {
+			t.Errorf("GetClosed is %v, want %v", test.actions.GetClosed(), test.want.GetClosed())
+		}
 	}
 }
 
@@ -80,6 +88,8 @@ func TestActions_Pull_Setters(t *testing.T) {
 		test.actions.SetReopened(test.want.GetReopened())
 		test.actions.SetLabeled(test.want.GetLabeled())
 		test.actions.SetUnlabeled(test.want.GetUnlabeled())
+		test.actions.SetMerged(test.want.GetMerged())
+		test.actions.SetClosed(test.want.GetClosed())
 
 		if test.actions.GetOpened() != test.want.GetOpened() {
 			t.Errorf("SetOpened is %v, want %v", test.actions.GetOpened(), test.want.GetOpened())
@@ -104,6 +114,14 @@ func TestActions_Pull_Setters(t *testing.T) {
 		if test.actions.GetUnlabeled() != test.want.GetUnlabeled() {
 			t.Errorf("SetUnlabeled is %v, want %v", test.actions.GetUnlabeled(), test.want.GetUnlabeled())
 		}
+
+		if test.actions.GetMerged() != test.want.GetMerged() {
+			t.Errorf("SetMerged is %v, want %v", test.actions.GetMerged(), test.want.GetMerged())
+		}
+
+		if test.actions.GetClosed() != test.want.GetClosed() {
+			t.Errorf("SetClosed is %v, want %v", test.actions.GetClosed(), test.want.GetClosed())
+		}
 	}
 }
 
@@ -125,7 +143,7 @@ func TestActions_Pull_ToMask(t *testing.T) {
 	// setup types
 	actions := testPull()
 
-	want := int64(constants.AllowPullOpen | constants.AllowPullSync | constants.AllowPullReopen | constants.AllowPullUnlabel)
+	want := int64(constants.AllowPullOpen | constants.AllowPullSync | constants.AllowPullReopen | constants.AllowPullUnlabel | constants.AllowPullMerged)
 
 	// run test
 	got := actions.ToMask()
@@ -143,6 +161,8 @@ func testPull() *Pull {
 	pr.SetReopened(true)
 	pr.SetLabeled(false)
 	pr.SetUnlabeled(true)
+	pr.SetMerged(true)
+	pr.SetClosed(false)
 
 	return pr
 }

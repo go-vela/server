@@ -74,6 +74,10 @@ func NewEventsFromSlice(events []string) (*Events, error) {
 			mask = mask | constants.AllowPullLabel
 		case constants.EventPull + ":" + constants.ActionUnlabeled:
 			mask = mask | constants.AllowPullUnlabel
+		case constants.EventPull + ":" + constants.ActionMerged:
+			mask = mask | constants.AllowPullMerged
+		case constants.EventPull + ":" + constants.ActionClosed:
+			mask = mask | constants.AllowPullClosedUnmerged
 
 		// deployment actions
 		case constants.EventDeploy, constants.EventDeployAlternate, constants.EventDeploy + ":" + constants.ActionCreated:
@@ -124,6 +128,10 @@ func (e *Events) Allowed(event, action string) bool {
 		allowed = e.GetPullRequest().GetLabeled()
 	case constants.EventPull + ":" + constants.ActionUnlabeled:
 		allowed = e.GetPullRequest().GetUnlabeled()
+	case constants.EventPull + ":" + constants.ActionMerged:
+		allowed = e.GetPullRequest().GetMerged()
+	case constants.EventPull + ":" + constants.ActionClosed:
+		allowed = e.GetPullRequest().GetClosed()
 	case constants.EventTag:
 		allowed = e.GetPush().GetTag()
 	case constants.EventComment + ":" + constants.ActionCreated:
@@ -174,6 +182,14 @@ func (e *Events) List() []string {
 
 	if e.GetPullRequest().GetUnlabeled() {
 		eventSlice = append(eventSlice, constants.EventPull+":"+constants.ActionUnlabeled)
+	}
+
+	if e.GetPullRequest().GetMerged() {
+		eventSlice = append(eventSlice, constants.EventPull+":"+constants.ActionMerged)
+	}
+
+	if e.GetPullRequest().GetClosed() {
+		eventSlice = append(eventSlice, constants.EventPull+":"+constants.ActionClosed)
 	}
 
 	if e.GetPush().GetTag() {
