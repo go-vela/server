@@ -1,40 +1,64 @@
 # name of the action
-name: spec
+name: api-spec
 
 # trigger on release events
 on:
   release:
-    types: [ created ]
+    types: [created]
+
+permissions:
+  contents: read
 
 # pipeline to execute
 jobs:
   schema:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write # for actions/github-script to attach files to release artifacts
+
     steps:
-    - name: clone
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: clone
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-    - name: install go
-      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
-      with:
-        # use version from go.mod file
-        go-version-file: 'go.mod'
-        cache: true
-        check-latest: true
+      - name: install go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          # use version from go.mod file
+          go-version-file: "go.mod"
+          cache: true
+          check-latest: true
 
-    - name: tags
-      run: |
-        git fetch --tags
+      - name: tags
+        run: |
+          git fetch --tags
 
-    - name: create spec
-      run: |
-        make spec-install
-        make spec
+      - name: create spec
+        run: |
+          make spec-install
+          make spec
 
-    - name: upload spec
-      uses: skx/github-action-publish-binaries@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        args: 'api-spec.json'
+      - name: upload api spec
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          retries: 3
+          script: |
+            const fs = require('fs');
+            const path = './api-spec.json';
+            const name = 'api-spec.json';
+
+            const fileContent = fs.readFileSync(path);
+
+            const response = await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              name: name,
+              data: fileContent,
+              headers: {
+                'content-type': 'text/plain',
+                'content-length': fileContent.length,
+              },
+            });
+
+            core.info(`Uploaded asset: ${response.data.browser_download_url}`);
