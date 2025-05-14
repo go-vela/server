@@ -80,6 +80,8 @@ func (c *Client) ProcessWebhook(ctx context.Context, request *http.Request) (*in
 		return c.processInstallationEvent(ctx, h, event)
 	case *github.InstallationRepositoriesEvent:
 		return c.processInstallationRepositoriesEvent(ctx, h, event)
+	case *github.CustomPropertyValuesEvent:
+		return c.processCustomPropertiesEvent(h, event)
 	}
 
 	return &internal.Webhook{Hook: h}, nil
@@ -550,6 +552,34 @@ func (c *Client) processRepositoryEvent(h *api.Hook, payload *github.RepositoryE
 	h.SetEvent(constants.EventRepository)
 	h.SetEventAction(payload.GetAction())
 	h.SetBranch(r.GetBranch())
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
+	)
+
+	return &internal.Webhook{
+		Hook: h,
+		Repo: r,
+	}, nil
+}
+
+// processCustomPropertiesEvent is a helper function to process the custom properties event.
+func (c *Client) processCustomPropertiesEvent(h *api.Hook, payload *github.CustomPropertyValuesEvent) (*internal.Webhook, error) {
+	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
+
+	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
+
+	// convert payload to API repo
+	r := new(api.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetCustomProps(repo.CustomProperties)
+
+	h.SetEvent(constants.EventCustomProperties)
+	h.SetEventAction(payload.GetAction())
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
