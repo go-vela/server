@@ -25,6 +25,7 @@ type Secret struct {
 	AllowEvents       *Events   `json:"allow_events,omitempty"       yaml:"allow_events"`
 	AllowCommand      *bool     `json:"allow_command,omitempty"`
 	AllowSubstitution *bool     `json:"allow_substitution,omitempty"`
+	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"`
 	CreatedAt         *int64    `json:"created_at,omitempty"`
 	CreatedBy         *string   `json:"created_by,omitempty"`
 	UpdatedAt         *int64    `json:"updated_at,omitempty"`
@@ -69,6 +70,7 @@ func (s *Secret) Sanitize() *Secret {
 		AllowEvents:       s.AllowEvents,
 		AllowCommand:      s.AllowCommand,
 		AllowSubstitution: s.AllowSubstitution,
+		RepoAllowlist:     s.RepoAllowlist,
 		CreatedAt:         s.CreatedAt,
 		CreatedBy:         s.CreatedBy,
 		UpdatedAt:         s.UpdatedAt,
@@ -259,6 +261,19 @@ func (s *Secret) GetAllowSubstitution() bool {
 	}
 
 	return *s.AllowSubstitution
+}
+
+// GetRepoAllowlist returns the RepoAllowlist field.
+//
+// When the provided Secret type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Secret) GetRepoAllowlist() []string {
+	// return zero value if Secret type or RepoAllowlist field is nil
+	if s == nil || s.RepoAllowlist == nil {
+		return []string{}
+	}
+
+	return *s.RepoAllowlist
 }
 
 // GetCreatedAt returns the CreatedAt field.
@@ -456,6 +471,19 @@ func (s *Secret) SetAllowSubstitution(v bool) {
 	s.AllowSubstitution = &v
 }
 
+// SetRepoAllowlist sets the RepoAllowlist field.
+//
+// When the provided Secret type is nil, it
+// will set nothing and immediately return.
+func (s *Secret) SetRepoAllowlist(v []string) {
+	// return if Secret type is nil
+	if s == nil {
+		return
+	}
+
+	s.RepoAllowlist = &v
+}
+
 // SetCreatedAt sets the CreatedAt field.
 //
 // When the provided Secret type is nil, it
@@ -519,6 +547,7 @@ func (s *Secret) String() string {
 	Name: %s,
 	Org: %s,
 	Repo: %s,
+	RepoAllowlist: %v,
 	Team: %s,
 	Type: %s,
 	Value: %s,
@@ -535,6 +564,7 @@ func (s *Secret) String() string {
 		s.GetName(),
 		s.GetOrg(),
 		s.GetRepo(),
+		s.GetRepoAllowlist(),
 		s.GetTeam(),
 		s.GetType(),
 		s.GetValue(),

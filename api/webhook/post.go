@@ -776,51 +776,20 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 		)
 	}
 
-	// get total number of secrets associated with repository
-	t, err := db.CountSecretsForRepo(ctx, dbR, map[string]interface{}{})
+	// migrate repo secrets and allowlists
+	err = db.MigrateSecrets(ctx, dbR.GetOrg(), dbR.GetName(), r.GetOrg(), r.GetName())
 	if err != nil {
-		return nil, fmt.Errorf("unable to get secret count for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
-	}
-
-	secrets := []*types.Secret{}
-	page := 1
-	// capture all secrets belonging to certain repo in database
-	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
-		s, err := db.ListSecretsForRepo(ctx, dbR, map[string]interface{}{}, page, 100)
-		if err != nil {
-			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
-		}
-
-		secrets = append(secrets, s...)
-
-		page++
-	}
-
-	// update secrets to point to the new repository name
-	for _, secret := range secrets {
-		secret.SetOrg(r.GetOrg())
-		secret.SetRepo(r.GetName())
-
-		_, err = db.UpdateSecret(ctx, secret)
-		if err != nil {
-			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
-		}
-
-		l.WithFields(logrus.Fields{
-			"secret_id": secret.GetID(),
-			"repo":      secret.GetRepo(),
-			"org":       secret.GetOrg(),
-		}).Info("secret updated")
+		return nil, fmt.Errorf("unable to migrate secrets for repo %s: %w", dbR.GetFullName(), err)
 	}
 
 	// get total number of builds associated with repository
-	t, err = db.CountBuildsForRepo(ctx, dbR, nil, time.Now().Unix(), 0)
+	t, err := db.CountBuildsForRepo(ctx, dbR, nil, time.Now().Unix(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get build count for repo %s: %w", dbR.GetFullName(), err)
 	}
 
 	builds := []*types.Build{}
-	page = 1
+	page := 1
 	// capture all builds belonging to repo in database
 	for build := int64(0); build < t; build += 100 {
 		b, err := db.ListBuildsForRepo(ctx, dbR, nil, time.Now().Unix(), 0, page, 100)

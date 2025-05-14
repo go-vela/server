@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
@@ -27,6 +29,7 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
 	_secretOne.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretOne.SetRepoAllowlist([]string{})
 
 	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
@@ -40,6 +43,7 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy("user2")
 	_secretTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretTwo.SetRepoAllowlist([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -50,6 +54,8 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 ORDER BY id DESC LIMIT $3`).
 		WithArgs(constants.SecretOrg, "foo", 10).WillReturnRows(_rows)
+
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

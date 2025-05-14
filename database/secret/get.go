@@ -38,5 +38,5 @@ func (e *Engine) GetSecret(ctx context.Context, id int64) (*api.Secret, error) {
 		e.logger.Errorf("unable to decrypt secret %d: %v", id, err)
 	}
 
-	return s.ToAPI(), nil
+	return e.FillSecretAllowlist(ctx, s.ToAPI())
 }

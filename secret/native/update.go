@@ -45,6 +45,11 @@ func (c *Client) Update(ctx context.Context, sType, org, name string, s *api.Sec
 		secret.SetAllowSubstitution(s.GetAllowSubstitution())
 	}
 
+	// update repo_allowlist if set
+	if s.RepoAllowlist != nil {
+		secret.SetRepoAllowlist(s.GetRepoAllowlist())
+	}
+
 	// update updated_at if set
 	secret.SetUpdatedAt(s.GetUpdatedAt())
 

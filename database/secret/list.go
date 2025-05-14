@@ -46,5 +46,5 @@ func (e *Engine) ListSecrets(ctx context.Context) ([]*api.Secret, error) {
 		secrets = append(secrets, tmp.ToAPI())
 	}
 
-	return secrets, nil
+	return e.FillSecretsAllowlists(ctx, secrets)
 }
