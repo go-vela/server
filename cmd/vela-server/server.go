@@ -28,7 +28,6 @@ import (
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/storage"
 	"github.com/go-vela/server/tracing"
-	"github.com/go-vela/server/util"
 )
 
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
@@ -202,15 +201,15 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.QueueSigningPrivateKey(cmd.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(cmd.String("queue.public-key")),
 		middleware.QueueAddress(cmd.String("queue.addr")),
-		middleware.DefaultBuildLimit(util.Int32FromInt64(cmd.Int("default-build-limit"))),
-		middleware.DefaultTimeout(util.Int32FromInt64(cmd.Int("default-build-timeout"))),
-		middleware.DefaultApprovalTimeout(util.Int32FromInt64(cmd.Int("default-approval-timeout"))),
-		middleware.MaxBuildLimit(util.Int32FromInt64(cmd.Int("max-build-limit"))),
+		middleware.DefaultBuildLimit(cmd.Int32("default-build-limit")),
+		middleware.DefaultTimeout(cmd.Int32("default-build-timeout")),
+		middleware.DefaultApprovalTimeout(cmd.Int32("default-approval-timeout")),
+		middleware.MaxBuildLimit(cmd.Int32("max-build-limit")),
 		middleware.WebhookValidation(!cmd.Bool("vela-disable-webhook-validation")),
 		middleware.SecureCookie(cmd.Bool("vela-enable-secure-cookie")),
 		middleware.Worker(cmd.Duration("worker-active-interval")),
 		middleware.DefaultRepoEvents(cmd.StringSlice("default-repo-events")),
-		middleware.DefaultRepoEventsMask(cmd.Int("default-repo-events-mask")),
+		middleware.DefaultRepoEventsMask(cmd.Int64("default-repo-events-mask")),
 		middleware.DefaultRepoApproveBuild(cmd.String("default-repo-approve-build")),
 		middleware.ScheduleFrequency(cmd.Duration("schedule-minimum-frequency")),
 		middleware.TracingClient(tc),

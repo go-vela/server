@@ -5,6 +5,7 @@ package log
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -104,6 +105,7 @@ func CreateStepLog(c *gin.Context) {
 	input.SetStepID(s.GetID())
 	input.SetBuildID(b.GetID())
 	input.SetRepoID(r.GetID())
+	input.SetCreatedAt(time.Now().UTC().Unix())
 
 	// send API call to create the logs
 	err = database.FromContext(c).CreateLog(ctx, input)

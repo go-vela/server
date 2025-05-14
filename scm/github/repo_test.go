@@ -14,7 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v71/github"
+	"github.com/google/go-github/v72/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
@@ -1467,7 +1467,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	r.SetVisibility("public")
 
-	want := []*api.Repo{r}
+	want := []string{"octocat/Hello-World"}
 
 	client, _ := NewTest(s.URL)
 
@@ -1504,7 +1504,7 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	want := []*api.Repo{}
+	want := []string{}
 
 	client, _ := NewTest(s.URL)
 

@@ -3,6 +3,7 @@ if:
   branch: [ main ]
   event: push
   tag: "^refs/tags/(\\d+\\.)+\\d+$"
+  eval: 'foo == "bar"'
 unless:
   event:
     - deployment

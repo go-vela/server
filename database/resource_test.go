@@ -65,7 +65,9 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	_mock.ExpectExec(schedule.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(schedule.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the secret queries
+	_mock.ExpectExec(secret.CreatePostgresAllowlistTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(secret.CreateSecretID).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))

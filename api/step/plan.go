@@ -89,6 +89,7 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	l.SetBuildID(b.GetID())
 	l.SetRepoID(b.GetRepo().GetID())
 	l.SetData([]byte{})
+	l.SetCreatedAt(time.Now().UTC().Unix())
 
 	// send API call to create the step logs
 	err = database.CreateLog(ctx, l)

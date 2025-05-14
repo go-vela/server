@@ -45,10 +45,10 @@ func FromCLICommand(c *cli.Command, tc *tracing.Client) (Interface, error) {
 
 	return New(
 		WithAddress(c.String("database.addr")),
-		WithCompressionLevel(int(c.Int("database.compression.level"))),
+		WithCompressionLevel(c.Int("database.compression.level")),
 		WithConnectionLife(c.Duration("database.connection.life")),
-		WithConnectionIdle(int(c.Int("database.connection.idle"))),
-		WithConnectionOpen(int(c.Int("database.connection.open"))),
+		WithConnectionIdle(c.Int("database.connection.idle")),
+		WithConnectionOpen(c.Int("database.connection.open")),
 		WithDriver(c.String("database.driver")),
 		WithEncryptionKey(c.String("database.encryption.key")),
 		WithLogLevel(c.String("database.log.level")),

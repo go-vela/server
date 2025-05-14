@@ -11,3 +11,4 @@ sender: octocat
 status: success
 tag: v0.1.0
 target: production
+eval: 'foo == "bar"'

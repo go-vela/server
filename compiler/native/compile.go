@@ -85,6 +85,8 @@ func (c *Client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
 		Target:  c.build.GetDeploy(),
 		Label:   c.labels,
+		Status:  c.build.GetStatus(),
+		Env:     make(raw.StringSliceMap),
 	}
 
 	// add instance when we have the metadata (local exec will not)
@@ -178,7 +180,7 @@ func (c *Client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 
 				for _, s := range stg.Steps {
 					cRuleset := s.Ruleset.ToPipeline()
-					if match, err := cRuleset.Match(ruleData, stg.Environment); err == nil && match {
+					if match, err := ruleData.Match(*cRuleset); err == nil && match {
 						*purgedSteps = append(*purgedSteps, s)
 					}
 				}
@@ -215,7 +217,7 @@ func (c *Client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 
 			for _, s := range p.Steps {
 				cRuleset := s.Ruleset.ToPipeline()
-				if match, err := cRuleset.Match(ruleData, s.Environment); err == nil && match {
+				if match, err := ruleData.Match(*cRuleset); err == nil && match {
 					*purgedSteps = append(*purgedSteps, s)
 				}
 			}

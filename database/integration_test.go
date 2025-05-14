@@ -12,6 +12,7 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	api "github.com/go-vela/server/api/types"
@@ -1421,6 +1422,15 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["ListRepos"] = true
 
+	list, err = db.GetReposInList(t.Context(), []string{"github/octocat", "github/octokitty"})
+	if err != nil {
+		t.Errorf("unable to get repos in list: %v", err)
+	}
+	if diff := cmp.Diff(resources.Repos, list, cmpopts.IgnoreFields(api.Repo{}, "Owner", "Hash")); diff != "" {
+		t.Errorf("GetReposInList() mismatch (-want +got):\n%s", diff)
+	}
+	methods["GetReposInList"] = true
+
 	// list the repos for an org
 	list, err = db.ListReposForOrg(context.TODO(), resources.Repos[0].GetOrg(), "name", nil, 1, 10)
 	if err != nil {
@@ -1721,6 +1731,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 				t.Errorf("CountSecretsForTeam() is %v, want %v", count, 1)
 			}
 			methods["CountSecretsForTeam"] = true
+			methods["FillSecretAllowlist"] = true
 
 			// count the secrets for a list of teams
 			count, err = db.CountSecretsForTeams(context.TODO(), secret.GetOrg(), []string{secret.GetTeam()}, nil)
@@ -1778,6 +1789,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForTeam"] = true
+			methods["FillSecretsAllowlists"] = true
 
 			// list the secrets for a list of teams
 			list, err = db.ListSecretsForTeams(context.TODO(), secret.GetOrg(), []string{secret.GetTeam()}, nil, 1, 10)
@@ -1844,6 +1856,33 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["UpdateSecret"] = true
 	methods["GetSecret"] = true
+
+	err = db.MigrateSecrets(t.Context(), "github", "octocat", "github", "octokitty")
+	if err != nil {
+		t.Errorf("unable to migrate secrets: %v", err)
+	}
+
+	newRepo := new(api.Repo)
+	newRepo.SetOrg("github")
+	newRepo.SetName("octokitty")
+
+	renamedRepoSecret, err := db.GetSecretForRepo(t.Context(), "foo", newRepo)
+	if err != nil {
+		t.Errorf("unable to get secret foo for repo: %v", err)
+	}
+	if renamedRepoSecret.GetOrg() != "github" && renamedRepoSecret.GetRepo() != "octokitty" {
+		t.Errorf("secret foo org/repo is %s/%s, want github/octokitty", renamedRepoSecret.GetOrg(), renamedRepoSecret.GetRepo())
+	}
+
+	adjustedSharedSecret, err := db.GetSecretForTeam(t.Context(), "github", "octocat", "foo")
+	if err != nil {
+		t.Errorf("unable to get secret foo for team %s: %v", "octocat", err)
+	}
+	if !reflect.DeepEqual(adjustedSharedSecret.GetRepoAllowlist(), []string{"github/octokitty"}) {
+		t.Errorf("secret foo repo allowlist is %v, want %v", adjustedSharedSecret.GetRepoAllowlist(), []string{"github/octokitty"})
+	}
+
+	methods["MigrateSecrets"] = true
 
 	// delete the secrets
 	for _, secret := range resources.Secrets {
@@ -2720,6 +2759,7 @@ func newResources() *Resources {
 	logServiceOne.SetServiceID(1)
 	logServiceOne.SetStepID(0)
 	logServiceOne.SetData([]byte("foo"))
+	logServiceOne.SetCreatedAt(time.Now().UTC().Unix())
 
 	logServiceTwo := new(api.Log)
 	logServiceTwo.SetID(2)
@@ -2728,6 +2768,7 @@ func newResources() *Resources {
 	logServiceTwo.SetServiceID(2)
 	logServiceTwo.SetStepID(0)
 	logServiceTwo.SetData([]byte("foo"))
+	logServiceTwo.SetCreatedAt(time.Now().UTC().Unix())
 
 	logStepOne := new(api.Log)
 	logStepOne.SetID(3)
@@ -2736,6 +2777,7 @@ func newResources() *Resources {
 	logStepOne.SetServiceID(0)
 	logStepOne.SetStepID(1)
 	logStepOne.SetData([]byte("foo"))
+	logStepOne.SetCreatedAt(time.Now().UTC().Unix())
 
 	logStepTwo := new(api.Log)
 	logStepTwo.SetID(4)
@@ -2744,6 +2786,7 @@ func newResources() *Resources {
 	logStepTwo.SetServiceID(0)
 	logStepTwo.SetStepID(2)
 	logStepTwo.SetData([]byte("foo"))
+	logStepTwo.SetCreatedAt(time.Now().UTC().Unix())
 
 	pipelineOne := new(api.Pipeline)
 	pipelineOne.SetID(1)
@@ -2833,6 +2876,7 @@ func newResources() *Resources {
 	secretOrg.SetCreatedBy("octocat")
 	secretOrg.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretOrg.SetUpdatedBy("octokitty")
+	secretOrg.SetRepoAllowlist([]string{})
 
 	secretRepo := new(api.Secret)
 	secretRepo.SetID(2)
@@ -2850,6 +2894,7 @@ func newResources() *Resources {
 	secretRepo.SetCreatedBy("octocat")
 	secretRepo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretRepo.SetUpdatedBy("octokitty")
+	secretRepo.SetRepoAllowlist([]string{})
 
 	secretShared := new(api.Secret)
 	secretShared.SetID(3)
@@ -2867,6 +2912,7 @@ func newResources() *Resources {
 	secretShared.SetCreatedBy("octocat")
 	secretShared.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretShared.SetUpdatedBy("octokitty")
+	secretShared.SetRepoAllowlist([]string{"github/octocat"})
 
 	serviceOne := new(api.Service)
 	serviceOne.SetID(1)

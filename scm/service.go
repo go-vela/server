@@ -124,7 +124,7 @@ type Service interface {
 	StepStatus(context.Context, *api.User, *api.Build, *api.Step, string, string) error
 	// ListUserRepos defines a function that retrieves
 	// all repos with admin rights for the user.
-	ListUserRepos(context.Context, *api.User) ([]*api.Repo, error)
+	ListUserRepos(context.Context, *api.User) ([]string, error)
 	// GetBranch defines a function that retrieves
 	// a branch for a repo.
 	GetBranch(context.Context, *api.Repo, string) (string, string, error)

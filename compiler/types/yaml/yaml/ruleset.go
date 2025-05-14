@@ -19,7 +19,6 @@ type (
 		Matcher  string `yaml:"matcher,omitempty"  json:"matcher,omitempty"  jsonschema:"enum=filepath,enum=regexp,default=filepath,description=Use the defined matching method.\nReference: coming soon"`
 		Operator string `yaml:"operator,omitempty" json:"operator,omitempty" jsonschema:"enum=or,enum=and,default=and,description=Whether all rule conditions must be met or just any one of them.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Continue bool   `yaml:"continue,omitempty" json:"continue,omitempty" jsonschema:"default=false,description=Limits the execution of a step to continuing on any failure.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
-		Eval     string `yaml:"eval,omitempty"     json:"eval,omitempty"     jsonschema:"description=The expression to evaluate the ruleset against.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 	}
 
 	// Rules is the yaml representation of the ruletypes
@@ -38,6 +37,9 @@ type (
 		Target   []string `yaml:"target,omitempty,flow"   json:"target,omitempty"   jsonschema:"description=Limits the execution of a step to matching build deployment targets.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Label    []string `yaml:"label,omitempty,flow"    json:"label,omitempty"    jsonschema:"description=Limits step execution to match on pull requests labels.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 		Instance []string `yaml:"instance,omitempty,flow" json:"instance,omitempty" jsonschema:"description=Limits step execution to match on certain instances.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Eval     string   `yaml:"eval,omitempty"          json:"eval,omitempty"     jsonschema:"description=The expression to evaluate the ruleset against.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Operator string   `yaml:"operator,omitempty"      json:"operator,omitempty" jsonschema:"description=Whether all rule conditions must be met or just any one of them.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Matcher  string   `yaml:"matcher,omitempty"       json:"matcher,omitempty"  jsonschema:"description=Use the defined matching method.\nReference: coming soon"`
 	}
 )
 
@@ -47,10 +49,7 @@ func (r *Ruleset) ToPipeline() *pipeline.Ruleset {
 	return &pipeline.Ruleset{
 		If:       *r.If.ToPipeline(),
 		Unless:   *r.Unless.ToPipeline(),
-		Matcher:  r.Matcher,
-		Operator: r.Operator,
 		Continue: r.Continue,
-		Eval:     r.Eval,
 	}
 }
 
@@ -62,11 +61,10 @@ func (r *Ruleset) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	// advanced struct we try unmarshalling to
 	advanced := new(struct {
 		If       Rules
-		Unless   Rules
+		Unless   *Rules
 		Matcher  string
 		Operator string
 		Continue bool
-		Eval     string
 	})
 
 	// attempt to unmarshal simple ruleset
@@ -80,16 +78,22 @@ func (r *Ruleset) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 
-	// set ruleset `unless` to advanced `unless` rules
-	r.Unless = advanced.Unless
-	// set ruleset `matcher` to advanced `matcher`
+	// set ruleset `unless` to advanced `unless` rules if they were parsed
+	if advanced.Unless != nil {
+		r.Unless = *advanced.Unless
+	}
+	// parse ruleset matcher and set to default if empty
 	r.Matcher = advanced.Matcher
-	// set ruleset `operator` to advanced `operator`
+	if r.Matcher == "" {
+		r.Matcher = constants.MatcherFilepath
+	}
+	// parse ruleset operator and set to default if empty
 	r.Operator = advanced.Operator
+	if r.Operator == "" {
+		r.Operator = constants.OperatorAnd
+	}
 	// set ruleset `continue` to advanced `continue`
 	r.Continue = advanced.Continue
-	// set ruleset `eval` to advanced `eval`
-	r.Eval = advanced.Eval
 
 	// implicitly add simple ruleset to the advanced ruleset for each rule type
 	advanced.If.Branch = append(advanced.If.Branch, simple.Branch...)
@@ -104,18 +108,35 @@ func (r *Ruleset) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	advanced.If.Label = append(advanced.If.Label, simple.Label...)
 	advanced.If.Instance = append(advanced.If.Instance, simple.Instance...)
 
+	if len(simple.Eval) > 0 {
+		advanced.If.Eval = simple.Eval
+	}
+
 	// set ruleset `if` to advanced `if` rules
 	r.If = advanced.If
 
-	// implicitly set `matcher` field if empty for ruleset
-	if len(r.Matcher) == 0 {
-		r.Matcher = constants.MatcherFilepath
+	// inherit Ruleset operator/matcher if none specified
+	if r.If.Operator == "" {
+		r.If.Operator = r.Operator
 	}
 
-	// implicitly set `operator` field if empty for ruleset
-	if len(r.Operator) == 0 {
-		r.Operator = constants.OperatorAnd
+	if r.If.Matcher == "" {
+		r.If.Matcher = r.Matcher
 	}
+
+	if advanced.Unless != nil {
+		if r.Unless.Operator == "" {
+			r.Unless.Operator = r.Operator
+		}
+
+		if r.Unless.Matcher == "" {
+			r.Unless.Matcher = r.Matcher
+		}
+	}
+
+	// zero out Ruleset level operator/matcher
+	r.Operator = ""
+	r.Matcher = ""
 
 	return nil
 }
@@ -135,6 +156,9 @@ func (r *Rules) ToPipeline() *pipeline.Rules {
 		Target:   r.Target,
 		Label:    r.Label,
 		Instance: r.Instance,
+		Eval:     r.Eval,
+		Matcher:  r.Matcher,
+		Operator: r.Operator,
 	}
 }
 
@@ -153,6 +177,9 @@ func (r *Rules) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Target   raw.StringSlice
 		Label    raw.StringSlice
 		Instance raw.StringSlice
+		Eval     string
+		Matcher  string
+		Operator string
 	})
 
 	// attempt to unmarshal rules
@@ -168,6 +195,9 @@ func (r *Rules) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		r.Target = rules.Target
 		r.Label = rules.Label
 		r.Instance = rules.Instance
+		r.Eval = rules.Eval
+		r.Matcher = rules.Matcher
+		r.Operator = rules.Operator
 
 		// account for users who use non-scoped pull_request event
 		events := []string{}

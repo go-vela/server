@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v71/github"
+	"github.com/google/go-github/v72/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -521,7 +521,7 @@ func (c *Client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r
 }
 
 // ListUserRepos returns a list of all repos the user has access to.
-func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, error) {
+func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing source repositories for %s", u.GetName())
@@ -530,7 +530,7 @@ func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	r := []*github.Repository{}
-	f := []*api.Repo{}
+	f := []string{}
 
 	// set the max per page for the options to capture the list of repos
 	opts := &github.RepositoryListByAuthenticatedUserOptions{
@@ -568,7 +568,7 @@ func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 			continue
 		}
 
-		f = append(f, toAPIRepo(*repo))
+		f = append(f, repo.GetFullName())
 	}
 
 	return f, nil
@@ -576,11 +576,20 @@ func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 
 // toAPIRepo does a partial conversion of a github repo to a API repo.
 func toAPIRepo(gr github.Repository) *api.Repo {
-	// setting the visbility to match the SCM visbility
 	var visibility string
-	if *gr.Private {
+
+	// setting the visbility to match the SCM visbility
+	switch gr.GetVisibility() {
+	// if gh resp does not have visibility field, use private
+	case "":
+		if gr.GetPrivate() {
+			visibility = constants.VisibilityPrivate
+		} else {
+			visibility = constants.VisibilityPublic
+		}
+	case "private":
 		visibility = constants.VisibilityPrivate
-	} else {
+	default:
 		visibility = constants.VisibilityPublic
 	}
 

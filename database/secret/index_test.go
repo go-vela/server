@@ -14,6 +14,7 @@ func TestSecret_Engine_CreateSecretIndexes(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
+	_mock.ExpectExec(CreateSecretID).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
