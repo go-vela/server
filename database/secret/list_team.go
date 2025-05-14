@@ -65,7 +65,7 @@ func (e *Engine) ListSecretsForTeam(ctx context.Context, org, team string, filte
 		secrets = append(secrets, tmp.ToAPI())
 	}
 
-	return secrets, nil
+	return e.FillSecretsAllowlists(ctx, secrets)
 }
 
 // ListSecretsForTeams gets a list of secrets by teams within an org from the database.
@@ -124,5 +124,5 @@ func (e *Engine) ListSecretsForTeams(ctx context.Context, org string, teams []st
 		secrets = append(secrets, tmp.ToAPI())
 	}
 
-	return secrets, nil
+	return e.FillSecretsAllowlists(ctx, secrets)
 }

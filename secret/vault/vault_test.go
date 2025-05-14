@@ -110,19 +110,20 @@ func TestVault_secretFromVault(t *testing.T) {
 	inputLegacy := &api.Secret{
 		Data: map[string]interface{}{
 			"data": map[string]interface{}{
-				"events":        []interface{}{"push", "tag", "deployment"},
-				"images":        []interface{}{"foo", "bar"},
-				"name":          "bar",
-				"org":           "foo",
-				"repo":          "*",
-				"team":          "foob",
-				"type":          "org",
-				"value":         "baz",
-				"allow_command": true,
-				"created_at":    json.Number("1563474077"),
-				"created_by":    "octocat",
-				"updated_at":    json.Number("1563474079"),
-				"updated_by":    "octocat2",
+				"events":         []interface{}{"push", "tag", "deployment"},
+				"images":         []interface{}{"foo", "bar"},
+				"name":           "bar",
+				"org":            "foo",
+				"repo":           "*",
+				"team":           "foob",
+				"type":           "org",
+				"value":          "baz",
+				"allow_command":  true,
+				"repo_allowlist": []any{"github/octocat", "github/octokitty"},
+				"created_at":     json.Number("1563474077"),
+				"created_by":     "octocat",
+				"updated_at":     json.Number("1563474079"),
+				"updated_by":     "octocat2",
 			},
 		},
 	}
@@ -138,6 +139,7 @@ func TestVault_secretFromVault(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(true)
 	want.SetAllowSubstitution(true)
+	want.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 	want.SetCreatedAt(1563474077)
 	want.SetCreatedBy("octocat")
 	want.SetUpdatedAt(1563474079)
@@ -180,6 +182,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 	s.SetImages([]string{"foo", "bar"})
 	s.SetAllowCommand(true)
 	s.SetAllowSubstitution(true)
+	s.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 	s.SetCreatedAt(1563474077)
 	s.SetCreatedBy("octocat")
 	s.SetUpdatedAt(1563474079)
@@ -197,6 +200,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 			"value":              "baz",
 			"allow_command":      true,
 			"allow_substitution": true,
+			"repo_allowlist":     []string{"github/octocat", "github/octokitty"},
 			"created_at":         int64(1563474077),
 			"created_by":         "octocat",
 			"updated_at":         int64(1563474079),
@@ -251,6 +255,7 @@ func testVaultSecretData() map[string]interface{} {
 		"value":              "baz",
 		"allow_command":      true,
 		"allow_substitution": true,
+		"repo_allowlist":     []any{"github/octocat", "github/octokitty"},
 		"created_at":         json.Number("1563474077"),
 		"created_by":         "octocat",
 		"updated_at":         json.Number("1563474079"),

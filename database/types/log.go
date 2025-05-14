@@ -32,6 +32,7 @@ type Log struct {
 	ServiceID sql.NullInt64 `sql:"service_id"`
 	StepID    sql.NullInt64 `sql:"step_id"`
 	Data      []byte        `sql:"data"`
+	CreatedAt sql.NullInt64 `sql:"created_at"`
 }
 
 // Compress will manipulate the existing data for the
@@ -104,6 +105,11 @@ func (l *Log) Nullify() *Log {
 		l.StepID.Valid = false
 	}
 
+	// check if the CreatedAt field should be false
+	if l.CreatedAt.Int64 == 0 {
+		l.CreatedAt.Valid = false
+	}
+
 	return l
 }
 
@@ -118,6 +124,7 @@ func (l *Log) ToAPI() *api.Log {
 	log.SetServiceID(l.ServiceID.Int64)
 	log.SetStepID(l.StepID.Int64)
 	log.SetData(l.Data)
+	log.SetCreatedAt(l.CreatedAt.Int64)
 
 	return log
 }
@@ -153,6 +160,7 @@ func LogFromAPI(l *api.Log) *Log {
 		ServiceID: sql.NullInt64{Int64: l.GetServiceID(), Valid: true},
 		StepID:    sql.NullInt64{Int64: l.GetStepID(), Valid: true},
 		Data:      l.GetData(),
+		CreatedAt: sql.NullInt64{Int64: l.GetCreatedAt(), Valid: true},
 	}
 
 	return log.Nullify()

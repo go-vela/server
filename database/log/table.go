@@ -20,6 +20,7 @@ logs (
 	service_id    BIGINT,
 	step_id       BIGINT,
 	data          BYTEA,
+	created_at    BIGINT,
 	UNIQUE(step_id),
 	UNIQUE(service_id)
 );
@@ -36,6 +37,7 @@ logs (
 	service_id    INTEGER,
 	step_id       INTEGER,
 	data          BLOB,
+	created_at    INTEGER,
 	UNIQUE(step_id),
 	UNIQUE(service_id)
 );

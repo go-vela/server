@@ -453,6 +453,10 @@ func TestTypes_Secret_Getters(t *testing.T) {
 			t.Errorf("GetAllowSubstitution is %v, want %v", test.secret.GetAllowSubstitution(), test.want.GetAllowSubstitution())
 		}
 
+		if !reflect.DeepEqual(test.secret.GetRepoAllowlist(), test.want.GetRepoAllowlist()) {
+			t.Errorf("GetRepoAllowlist is %v, want %v", test.secret.GetRepoAllowlist(), test.want.GetRepoAllowlist())
+		}
+
 		if test.secret.GetCreatedAt() != test.want.GetCreatedAt() {
 			t.Errorf("GetCreatedAt is %v, want %v", test.secret.GetCreatedAt(), test.want.GetCreatedAt())
 		}
@@ -503,6 +507,7 @@ func TestTypes_Secret_Setters(t *testing.T) {
 		test.secret.SetAllowEvents(test.want.GetAllowEvents())
 		test.secret.SetAllowCommand(test.want.GetAllowCommand())
 		test.secret.SetAllowSubstitution(test.want.GetAllowSubstitution())
+		test.secret.SetRepoAllowlist(test.want.GetRepoAllowlist())
 		test.secret.SetCreatedAt(test.want.GetCreatedAt())
 		test.secret.SetCreatedBy(test.want.GetCreatedBy())
 		test.secret.SetUpdatedAt(test.want.GetUpdatedAt())
@@ -552,6 +557,10 @@ func TestTypes_Secret_Setters(t *testing.T) {
 			t.Errorf("SetAllowSubstitution is %v, want %v", test.secret.GetAllowSubstitution(), test.want.GetAllowSubstitution())
 		}
 
+		if !reflect.DeepEqual(test.secret.GetRepoAllowlist(), test.want.GetRepoAllowlist()) {
+			t.Errorf("SetRepoAllowlist is %v, want %v", test.secret.GetRepoAllowlist(), test.want.GetRepoAllowlist())
+		}
+
 		if test.secret.GetCreatedAt() != test.want.GetCreatedAt() {
 			t.Errorf("SetCreatedAt is %v, want %v", test.secret.GetCreatedAt(), test.want.GetCreatedAt())
 		}
@@ -583,6 +592,7 @@ func TestTypes_Secret_String(t *testing.T) {
 	Name: %s,
 	Org: %s,
 	Repo: %s,
+	RepoAllowlist: %v,
 	Team: %s,
 	Type: %s,
 	Value: %s,
@@ -599,6 +609,7 @@ func TestTypes_Secret_String(t *testing.T) {
 		s.GetName(),
 		s.GetOrg(),
 		s.GetRepo(),
+		s.GetRepoAllowlist(),
 		s.GetTeam(),
 		s.GetType(),
 		s.GetValue(),
@@ -635,6 +646,7 @@ func testSecret() *Secret {
 	s.SetAllowEvents(NewEventsFromMask(1))
 	s.SetAllowCommand(true)
 	s.SetAllowSubstitution(true)
+	s.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 	s.SetCreatedAt(tsCreate)
 	s.SetCreatedBy("octocat")
 	s.SetUpdatedAt(tsUpdate)

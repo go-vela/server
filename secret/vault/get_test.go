@@ -234,6 +234,7 @@ func TestVault_Get_Shared(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 	want.SetAllowSubstitution(false)
+	want.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetCreatedAt(1563474077)
 	want.SetCreatedBy("octocat")

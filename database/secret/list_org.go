@@ -62,5 +62,5 @@ func (e *Engine) ListSecretsForOrg(ctx context.Context, org string, filters map[
 		secrets = append(secrets, tmp.ToAPI())
 	}
 
-	return secrets, nil
+	return e.FillSecretsAllowlists(ctx, secrets)
 }
