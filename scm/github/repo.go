@@ -172,7 +172,7 @@ func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h 
 	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	// always listen to repository events in case of repo name change
-	events := []string{eventRepository}
+	events := []string{eventRepository, constants.EventCustomProperties}
 
 	// subscribe to comment event if any comment action is allowed
 	if r.GetAllowEvents().GetComment().GetCreated() ||
@@ -246,7 +246,7 @@ func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	// always listen to repository events in case of repo name change
-	events := []string{eventRepository}
+	events := []string{eventRepository, constants.EventCustomProperties}
 
 	// subscribe to comment event if any comment action is allowed
 	if r.GetAllowEvents().GetComment().GetCreated() ||
