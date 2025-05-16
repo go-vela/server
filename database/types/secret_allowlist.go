@@ -7,6 +7,7 @@ import (
 	"errors"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/util"
 )
 
 // SecretAllowlist is the database representation of a secret allowlist.
@@ -65,7 +66,7 @@ func (s *SecretAllowlist) Validate() error {
 func SecretAllowlistFromAPI(s *api.Secret, repo string) *SecretAllowlist {
 	secret := &SecretAllowlist{
 		SecretID: sql.NullInt64{Int64: s.GetID(), Valid: true},
-		Repo:     sql.NullString{String: repo, Valid: true},
+		Repo:     sql.NullString{String: util.Sanitize(repo), Valid: true},
 	}
 
 	return secret.Nullify()

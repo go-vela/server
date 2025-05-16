@@ -139,6 +139,10 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
+	if input.RepoAllowlist != nil {
+		input.SetRepoAllowlist(util.Unique(input.GetRepoAllowlist()))
+	}
+
 	err = validateAllowlist(ctx, database.FromContext(c), dbSecret.GetRepoAllowlist(), input)
 	if err != nil {
 		retErr := fmt.Errorf("invalid allowlist: %w", err)

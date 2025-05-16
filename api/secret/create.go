@@ -189,6 +189,10 @@ func CreateSecret(c *gin.Context) {
 		return
 	}
 
+	if len(input.GetRepoAllowlist()) > 0 {
+		input.SetRepoAllowlist(util.Unique(input.GetRepoAllowlist()))
+	}
+
 	err = validateAllowlist(ctx, database.FromContext(c), []string{}, input)
 	if err != nil {
 		retErr := fmt.Errorf("invalid allowlist: %w", err)
