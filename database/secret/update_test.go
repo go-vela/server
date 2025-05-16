@@ -68,8 +68,8 @@ WHERE "id" = $15`).
 		WithArgs("foo", "bar", nil, "baz", testutils.AnyArgument{}, "repo", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
-		WithArgs(1, nil).
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1`).
+		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
 	_mock.ExpectCommit()
@@ -82,8 +82,8 @@ WHERE "id" = $15`).
 		WithArgs("foo", "*", nil, "bar", testutils.AnyArgument{}, "org", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
-		WithArgs(2, nil).
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1`).
+		WithArgs(2).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
 	_mock.ExpectCommit()

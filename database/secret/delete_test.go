@@ -60,8 +60,8 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
-		WithArgs(1, nil).
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1`).
+		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
 	_mock.ExpectCommit()
@@ -72,8 +72,8 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 		WithArgs(2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
-		WithArgs(2, nil).
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1`).
+		WithArgs(2).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
 	_mock.ExpectCommit()
@@ -84,8 +84,8 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 		WithArgs(3).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1 AND repo NOT IN ($2)`).
-		WithArgs(3, nil).
+	_mock.ExpectExec(`DELETE FROM "secret_repo_allowlists" WHERE secret_id = $1`).
+		WithArgs(3).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_mock.ExpectCommit()
