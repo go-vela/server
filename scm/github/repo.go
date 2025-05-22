@@ -740,6 +740,10 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 	//
 	// this prevents an app installed across the org from bypassing restrictions
 	for _, repo := range g.Repositories {
+		if repo == r.GetName() {
+			continue
+		}
+
 		access, err := c.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), repo)
 		if err != nil || (access != constants.PermissionAdmin && access != constants.PermissionWrite) {
 			return u.GetToken(), fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)

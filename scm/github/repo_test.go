@@ -1661,6 +1661,11 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 	installedRepo.SetName("Hello-World")
 	installedRepo.SetInstallID(1)
 
+	otherRepo := new(api.Repo)
+	otherRepo.SetOrg("octocat")
+	otherRepo.SetName("Hi-World")
+	otherRepo.SetInstallID(2)
+
 	oauthRepo := new(api.Repo)
 	oauthRepo.SetOrg("octocat")
 	oauthRepo.SetName("Hello-World2")
@@ -1755,7 +1760,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 		},
 		{
 			name: "owner with inadequate permission to other repo",
-			repo: installedRepo,
+			repo: otherRepo,
 			user: badUser,
 			git: yaml.Git{
 				Token: yaml.Token{
