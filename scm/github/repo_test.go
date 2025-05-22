@@ -1643,6 +1643,15 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/installations_access_tokens.json")
 	})
+	engine.GET("/api/v3/repos/:org/:repo/collaborators/foo/permission", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/repo_admin.json")
+	})
+	engine.GET("/api/v3/repos/:org/:repo/collaborators/charlatan/permission", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusForbidden)
+	})
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
@@ -1660,6 +1669,10 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
+
+	badUser := new(api.User)
+	badUser.SetName("charlatan")
+	badUser.SetToken("bar")
 
 	tests := []struct {
 		name          string
@@ -1734,6 +1747,19 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 				Token: yaml.Token{
 					Repositories: []string{"Hello-World"},
 					Permissions:  map[string]string{"contents": "invalid"},
+				},
+			},
+			appsTransport: true,
+			wantToken:     "bar",
+			wantErr:       true,
+		},
+		{
+			name: "owner with inadequate permission to other repo",
+			repo: installedRepo,
+			user: badUser,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
 				},
 			},
 			appsTransport: true,
