@@ -5,8 +5,9 @@ package yaml
 import (
 	"testing"
 
-	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/go-vela/server/compiler/types/pipeline"
 )
 
 func TestYaml_Git_ToPipeline(t *testing.T) {
