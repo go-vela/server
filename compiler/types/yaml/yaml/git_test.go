@@ -3,8 +3,9 @@
 package yaml
 
 import (
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
 )
@@ -41,6 +42,18 @@ func TestYaml_Git_ToPipeline(t *testing.T) {
 		},
 		{
 			git: &Git{
+				Token: Token{
+					Repositories: []string{"foo/bar"},
+				},
+			},
+			want: &pipeline.Git{
+				Token: &pipeline.Token{
+					Repositories: []string{"bar"},
+				},
+			},
+		},
+		{
+			git: &Git{
 				Token: Token{},
 			},
 			want: &pipeline.Git{
@@ -53,8 +66,8 @@ func TestYaml_Git_ToPipeline(t *testing.T) {
 	for _, test := range tests {
 		got := test.git.ToPipeline()
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("ToPipeline is %v, want %v", got, test.want)
+		if diff := cmp.Diff(test.want, got); diff != "" {
+			t.Errorf("ToPipeline is %s", diff)
 		}
 	}
 }

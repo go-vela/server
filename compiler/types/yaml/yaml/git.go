@@ -2,7 +2,11 @@
 
 package yaml
 
-import "github.com/go-vela/server/compiler/types/pipeline"
+import (
+	"strings"
+
+	"github.com/go-vela/server/compiler/types/pipeline"
+)
 
 // Git is the yaml representation of git configurations for a pipeline.
 type Git struct {
@@ -19,6 +23,13 @@ type Token struct {
 // ToPipeline converts the Git type
 // to a pipeline Git type.
 func (g *Git) ToPipeline() *pipeline.Git {
+	for i, repo := range g.Repositories {
+		split := strings.Split(repo, "/")
+		if len(split) == 2 {
+			g.Repositories[i] = split[1]
+		}
+	}
+
 	return &pipeline.Git{
 		Token: &pipeline.Token{
 			Repositories: g.Repositories,
