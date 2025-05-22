@@ -5,42 +5,32 @@ package redis
 import (
 	"context"
 	"errors"
+	"strconv"
+	"time"
 
-	"golang.org/x/crypto/nacl/sign"
+	"github.com/redis/go-redis/v9"
 )
 
 // Push inserts an item to the specified channel in the queue.
-func (c *Client) Push(ctx context.Context, channel string, item []byte) error {
+func (c *Client) Push(ctx context.Context, channel string, item int64) error {
 	c.Logger.Tracef("pushing item to queue %s", channel)
 
 	// ensure the item to be pushed is valid
 	// go-redis RPush does not support nil as of v9.0.2
 	//
 	// https://github.com/redis/go-redis/pull/1960
-	if item == nil {
+	if item == 0 {
 		return errors.New("item is nil")
 	}
 
-	var signed []byte
+	zMember := redis.Z{
+		Score:  float64(time.Now().Unix()),
+		Member: strconv.FormatInt(item, 10),
+	}
 
-	var out []byte
+	zAddCmd := c.Redis.ZAdd(ctx, channel, zMember)
 
-	c.Logger.Tracef("signing item for queue %s", channel)
-
-	// sign the item using the private key generated using sign
-	//
-	// https://pkg.go.dev/golang.org/x/crypto@v0.1.0/nacl/sign
-	signed = sign.Sign(out, item, c.config.PrivateKey)
-
-	// build a redis queue command to push an item to queue
-	//
-	// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#Client.RPush
-	pushCmd := c.Redis.RPush(ctx, channel, signed)
-
-	// blocking call to push an item to queue and return err
-	//
-	// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#IntCmd.Err
-	err := pushCmd.Err()
+	err := zAddCmd.Err()
 	if err != nil {
 		return err
 	}

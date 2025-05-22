@@ -4,7 +4,6 @@ package build
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,24 +29,12 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 
 	l.Debug("adding item to queue")
 
-	byteItem, err := json.Marshal(item)
-	if err != nil {
-		l.Errorf("failed to convert item to json: %v", err)
-
-		// error out the build
-		CleanBuild(ctx, db, item.Build, nil, nil, err)
-
-		return
-	}
-
-	l.Debugf("pushing item for build to queue route %s", route)
-
 	// push item on to the queue
-	err = queue.Push(ctx, route, byteItem)
+	err := queue.Push(ctx, route, item.Build.GetID())
 	if err != nil {
 		l.Errorf("retrying; failed to publish build: %v", err)
 
-		err = queue.Push(ctx, route, byteItem)
+		err = queue.Push(ctx, route, item.Build.GetID())
 		if err != nil {
 			l.Errorf("failed to publish build: %v", err)
 

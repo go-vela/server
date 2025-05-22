@@ -4,7 +4,6 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 
 	"github.com/go-vela/server/queue/models"
@@ -15,12 +14,6 @@ func TestRedis_Push(t *testing.T) {
 	// use global variables in redis_test.go
 	_item := &models.Item{
 		Build: _build,
-	}
-
-	// setup queue item
-	_bytes, err := json.Marshal(_item)
-	if err != nil {
-		t.Errorf("unable to marshal queue item: %v", err)
 	}
 
 	// setup redis mock
@@ -39,23 +32,23 @@ func TestRedis_Push(t *testing.T) {
 	tests := []struct {
 		failure bool
 		redis   *Client
-		bytes   []byte
+		id      int64
 	}{
 		{
 			failure: false,
 			redis:   _redis,
-			bytes:   _bytes,
+			id:      _item.Build.GetID(),
 		},
 		{
 			failure: true,
 			redis:   badItem,
-			bytes:   nil,
+			id:      0,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		err := test.redis.Push(context.Background(), "vela", test.bytes)
+		err := test.redis.Push(context.Background(), "vela", test.id)
 
 		if test.failure {
 			if err == nil {

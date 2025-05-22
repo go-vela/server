@@ -4,17 +4,13 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
 	"github.com/redis/go-redis/v9"
-	"golang.org/x/crypto/nacl/sign"
-
-	"github.com/go-vela/server/queue/models"
 )
 
 // Pop grabs an item from the specified channel off the queue.
-func (c *Client) Pop(ctx context.Context, inRoutes []string) (*models.Item, error) {
+func (c *Client) Pop(ctx context.Context, inRoutes []string) (int64, error) {
 	// define routes to pop from
 	var routes []string
 
@@ -27,44 +23,22 @@ func (c *Client) Pop(ctx context.Context, inRoutes []string) (*models.Item, erro
 
 	c.Logger.Tracef("popping item from queue %s", routes)
 
-	// build a redis queue command to pop an item from queue
-	//
-	// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#Client.BLPop
-	popCmd := c.Redis.BLPop(ctx, c.config.Timeout, routes...)
+	zPopCmd := c.Redis.BZPopMin(ctx, c.config.Timeout, routes...)
 
-	// blocking call to pop item from queue
-	//
-	// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#StringSliceCmd.Result
-	result, err := popCmd.Result()
+	result, err := zPopCmd.Result()
 	if err != nil {
 		// BLPOP timeout
 		if errors.Is(err, redis.Nil) {
-			return nil, nil
+			return 0, nil
 		}
 
-		return nil, err
+		return 0, err
 	}
 
-	// extract signed item from pop results
-	signed := []byte(result[1])
-
-	var opened, out []byte
-
-	// open the item using the public key generated using sign
-	//
-	// https://pkg.go.dev/golang.org/x/crypto@v0.1.0/nacl/sign
-	opened, ok := sign.Open(out, signed, c.config.PublicKey)
+	bID, ok := result.Member.(int64)
 	if !ok {
-		return nil, errors.New("unable to open signed item")
+		return 0, errors.New("failed to convert item to int64")
 	}
 
-	// unmarshal result into queue item
-	item := new(models.Item)
-
-	err = json.Unmarshal(opened, item)
-	if err != nil {
-		return nil, err
-	}
-
-	return item, nil
+	return bID, nil
 }

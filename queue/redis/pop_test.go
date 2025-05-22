@@ -4,48 +4,27 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"golang.org/x/crypto/nacl/sign"
-
-	"github.com/go-vela/server/queue/models"
 )
 
 func TestRedis_Pop(t *testing.T) {
-	// setup types
-	// use global variables in redis_test.go
-	_item := &models.Item{
-		Build: _build,
-	}
-
-	var signed []byte
-	var out []byte
-
-	// setup queue item
-	bytes, err := json.Marshal(_item)
-	if err != nil {
-		t.Errorf("unable to marshal queue item: %v", err)
-	}
-
 	// setup redis mock
 	_redis, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela", "custom")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
-	signed = sign.Sign(out, bytes, _redis.config.PrivateKey)
-
 	// push item to queue
-	err = _redis.Redis.RPush(context.Background(), "vela", signed).Err()
+	err = _redis.Push(t.Context(), "vela", int64(1))
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
 
 	// push item to queue with custom channel
-	err = _redis.Redis.RPush(context.Background(), "custom", signed).Err()
+	err = _redis.Push(context.Background(), "custom", int64(2))
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
@@ -66,10 +45,8 @@ func TestRedis_Pop(t *testing.T) {
 	// overwrite channel to be invalid
 	badChannel.SetRoutes(nil)
 
-	signed = sign.Sign(out, bytes, badChannel.config.PrivateKey)
-
 	// push something to badChannel queue
-	err = badChannel.Redis.RPush(context.Background(), "vela", signed).Err()
+	err = badChannel.Push(context.Background(), "vela", int64(3))
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
@@ -78,29 +55,29 @@ func TestRedis_Pop(t *testing.T) {
 	tests := []struct {
 		failure bool
 		redis   *Client
-		want    *models.Item
+		want    int64
 		routes  []string
 	}{
 		{
 			failure: false,
 			redis:   _redis,
-			want:    _item,
+			want:    int64(1),
 		},
 		{
 			failure: false,
 			redis:   _redis,
-			want:    _item,
+			want:    int64(2),
 			routes:  []string{"custom"},
 		},
 		{
 			failure: false,
 			redis:   timeout,
-			want:    nil,
+			want:    0,
 		},
 		{
 			failure: true,
 			redis:   badChannel,
-			want:    nil,
+			want:    0,
 		},
 	}
 

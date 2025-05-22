@@ -10,7 +10,7 @@ import (
 func (c *Client) RouteLength(ctx context.Context, channel string) (int64, error) {
 	c.Logger.Tracef("reading length of all configured routes in queue")
 
-	items, err := c.Redis.LLen(ctx, channel).Result()
+	items, err := c.Redis.ZCount(ctx, channel, "-inf", "+inf").Result()
 	if err != nil {
 		return 0, err
 	}

@@ -10,8 +10,8 @@ import (
 //
 // swagger:model BuildExecutable
 type BuildExecutable struct {
-	ID      *int64 `json:"id,omitempty"`
-	BuildID *int64 `json:"build_id,omitempty"`
+	ID    *int64 `json:"id,omitempty"`
+	Build *Build `json:"build,omitempty"`
 	// swagger:strfmt base64
 	Data *[]byte `json:"data,omitempty"`
 }
@@ -29,17 +29,17 @@ func (b *BuildExecutable) GetID() int64 {
 	return *b.ID
 }
 
-// GetBuildID returns the BuildID field.
+// GetBuild returns the Build field.
 //
 // When the provided BuildExecutable type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (b *BuildExecutable) GetBuildID() int64 {
+func (b *BuildExecutable) GetBuild() *Build {
 	// return zero value if BuildExecutable type or BuildID field is nil
-	if b == nil || b.BuildID == nil {
-		return 0
+	if b == nil || b.Build == nil {
+		return nil
 	}
 
-	return *b.BuildID
+	return b.Build
 }
 
 // GetData returns the Data field.
@@ -72,13 +72,13 @@ func (b *BuildExecutable) SetID(v int64) {
 //
 // When the provided BuildExecutable type is nil, it
 // will set nothing and immediately return.
-func (b *BuildExecutable) SetBuildID(v int64) {
+func (b *BuildExecutable) SetBuild(v *Build) {
 	// return if BuildExecutable type is nil
 	if b == nil {
 		return
 	}
 
-	b.BuildID = &v
+	b.Build = v
 }
 
 // SetData sets the Data field.
@@ -98,11 +98,11 @@ func (b *BuildExecutable) SetData(v []byte) {
 func (b *BuildExecutable) String() string {
 	return fmt.Sprintf(`{
   ID: %d,
-  BuildID: %d,
+  Build: %v,
   Data: %s,
 }`,
 		b.GetID(),
-		b.GetBuildID(),
+		b.GetBuild(),
 		b.GetData(),
 	)
 }

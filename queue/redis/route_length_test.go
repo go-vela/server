@@ -4,25 +4,10 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
-
-	"github.com/go-vela/server/queue/models"
 )
 
 func TestRedis_RouteLength(t *testing.T) {
-	// setup types
-	// use global variables in redis_test.go
-	_item := &models.Item{
-		Build: _build,
-	}
-
-	// setup queue item
-	bytes, err := json.Marshal(_item)
-	if err != nil {
-		t.Errorf("unable to marshal queue item: %v", err)
-	}
-
 	// setup redis mock
 	_redis, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela", "vela:second", "vela:third")
 	if err != nil {
@@ -49,9 +34,11 @@ func TestRedis_RouteLength(t *testing.T) {
 	}
 
 	// run tests
+	id := int64(0)
 	for _, test := range tests {
 		for _, channel := range test.routes {
-			err := _redis.Push(context.Background(), channel, bytes)
+			id++
+			err := _redis.Push(context.Background(), channel, id)
 			if err != nil {
 				t.Errorf("unable to push item to queue: %v", err)
 			}

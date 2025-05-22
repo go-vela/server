@@ -7,7 +7,8 @@ import (
 
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/types/pipeline"
-	"github.com/go-vela/server/queue/models"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 // Service represents the interface for Vela integrating
@@ -29,11 +30,15 @@ type Service interface {
 
 	// Pop defines a function that grabs an
 	// item off the queue.
-	Pop(context.Context, []string) (*models.Item, error)
+	Pop(context.Context, []string) (int64, error)
+
+	// Position defines a function that returns
+	// the position of a build in the queue.
+	Position(context.Context, *api.Build) int64
 
 	// Push defines a function that publishes an
 	// item to the specified route in the queue.
-	Push(context.Context, string, []byte) error
+	Push(context.Context, string, int64) error
 
 	// Ping defines a function that checks the
 	// connection to the queue.
