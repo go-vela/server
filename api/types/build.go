@@ -47,6 +47,7 @@ type Build struct {
 	BaseRef       *string             `json:"base_ref,omitempty"`
 	HeadRef       *string             `json:"head_ref,omitempty"`
 	Host          *string             `json:"host,omitempty"`
+	Route         *string             `json:"route,omitempty"`
 	Runtime       *string             `json:"runtime,omitempty"`
 	Distribution  *string             `json:"distribution,omitempty"`
 	ApprovedAt    *int64              `json:"approved_at,omitempty"`
@@ -102,6 +103,7 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 		"VELA_BUILD_EVENT":         ToString(b.GetEvent()),
 		"VELA_BUILD_EVENT_ACTION":  ToString(b.GetEventAction()),
 		"VELA_BUILD_HOST":          ToString(b.GetHost()),
+		"VELA_BUILD_ROUTE":         ToString(b.GetRoute()),
 		"VELA_BUILD_LINK":          ToString(b.GetLink()),
 		"VELA_BUILD_MESSAGE":       ToString(b.GetMessage()),
 		"VELA_BUILD_NUMBER":        ToString(b.GetNumber()),
@@ -635,6 +637,19 @@ func (b *Build) GetHost() string {
 	return *b.Host
 }
 
+// GetRoute returns the Route field.
+//
+// When the provided Build type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (b *Build) GetRoute() string {
+	// return zero value if Build type or Route field is nil
+	if b == nil || b.Route == nil {
+		return ""
+	}
+
+	return *b.Route
+}
+
 // GetRuntime returns the Runtime field.
 //
 // When the provided Build type is nil, or the field within
@@ -1103,6 +1118,19 @@ func (b *Build) SetHost(v string) {
 	b.Host = &v
 }
 
+// SetRoute sets the Route field.
+//
+// When the provided Build type is nil, it
+// will set nothing and immediately return.
+func (b *Build) SetRoute(v string) {
+	// return if Build type is nil
+	if b == nil {
+		return
+	}
+
+	b.Route = &v
+}
+
 // SetRuntime sets the Runtime field.
 //
 // When the provided Build type is nil, it
@@ -1187,6 +1215,7 @@ func (b *Build) String() string {
   PipelineID: %d,
   Ref: %s,
   Repo: %s,
+  Route: %s,
   Runtime: %s,
   Sender: %s,
   SenderSCMID: %s,
@@ -1224,6 +1253,7 @@ func (b *Build) String() string {
 		b.GetPipelineID(),
 		b.GetRef(),
 		b.GetRepo().GetFullName(),
+		b.GetRoute(),
 		b.GetRuntime(),
 		b.GetSender(),
 		b.GetSenderSCMID(),

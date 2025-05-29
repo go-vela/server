@@ -21,6 +21,7 @@ settings (
 	repo_allowlist      VARCHAR(1000),
 	schedule_allowlist  VARCHAR(1000),
 	max_dashboard_repos INTEGER,
+	queue_restart_limit INTEGER,
 	created_at          BIGINT,
 	updated_at          BIGINT,
 	updated_by          VARCHAR(250)
@@ -39,6 +40,7 @@ settings (
 	repo_allowlist          VARCHAR(1000),
 	schedule_allowlist      VARCHAR(1000),
 	max_dashboard_repos     INTEGER,
+	queue_restart_limit     INTEGER,
 	created_at              INTEGER,
 	updated_at              INTEGER,
 	updated_by              TEXT
