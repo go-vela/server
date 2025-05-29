@@ -1506,9 +1506,15 @@ func TestGitHub_ProcessWebhook_CustomPropertyValuesUpdated(t *testing.T) {
 	wantHook.SetLink("https://github.com/github/octocat/settings/hooks")
 
 	wantRepo := new(api.Repo)
+	wantRepo.SetActive(true)
 	wantRepo.SetOrg("github")
 	wantRepo.SetName("octocat")
 	wantRepo.SetFullName("github/octocat")
+	wantRepo.SetLink("https://github.com/github/octocat")
+	wantRepo.SetClone("https://github.com/github/octocat.git")
+	wantRepo.SetBranch("main")
+	wantRepo.SetPrivate(true)
+	wantRepo.SetTopics([]string{})
 	wantRepo.SetCustomProps(map[string]any{"FOO": "testing"})
 
 	want := &internal.Webhook{
