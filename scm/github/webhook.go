@@ -576,6 +576,12 @@ func (c *Client) processCustomPropertiesEvent(h *api.Hook, payload *github.Custo
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
 	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
+	r.SetActive(!repo.GetArchived())
+	r.SetTopics(repo.Topics)
 	r.SetCustomProps(repo.CustomProperties)
 
 	h.SetEvent(constants.EventCustomProperties)

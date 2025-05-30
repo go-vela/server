@@ -707,16 +707,8 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 	repos := g.Repositories
 
 	// use triggering repo as a restrictive default
-	if repos == nil {
+	if len(repos) == 0 {
 		repos = []string{r.GetName()}
-	}
-
-	// convert repo fullname org/name to just name for usability
-	for i, repo := range repos {
-		split := strings.Split(repo, "/")
-		if len(split) == 2 {
-			repos[i] = split[1]
-		}
 	}
 
 	// permissions that are applied to the token for every repo provided
@@ -741,6 +733,20 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 		ghPermissions, err = ApplyInstallationPermissions(resource, perm, ghPermissions)
 		if err != nil {
 			return u.GetToken(), err
+		}
+	}
+
+	// verify repo owner has `write` access to listed repositories before provisioning install token
+	//
+	// this prevents an app installed across the org from bypassing restrictions
+	for _, repo := range g.Repositories {
+		if repo == r.GetName() {
+			continue
+		}
+
+		access, err := c.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), repo)
+		if err != nil || (access != constants.PermissionAdmin && access != constants.PermissionWrite) {
+			return u.GetToken(), fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)
 		}
 	}
 
