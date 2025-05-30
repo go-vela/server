@@ -64,6 +64,7 @@ type Build struct {
 	BaseRef       sql.NullString     `sql:"base_ref"`
 	HeadRef       sql.NullString     `sql:"head_ref"`
 	Host          sql.NullString     `sql:"host"`
+	Route         sql.NullString     `sql:"route"`
 	Runtime       sql.NullString     `sql:"runtime"`
 	Distribution  sql.NullString     `sql:"distribution"`
 	ApprovedAt    sql.NullInt64      `sql:"approved_at"`
@@ -256,6 +257,11 @@ func (b *Build) Nullify() *Build {
 		b.Host.Valid = false
 	}
 
+	// check if the Route field should be false
+	if len(b.Route.String) == 0 {
+		b.Route.Valid = false
+	}
+
 	// check if the Runtime field should be false
 	if len(b.Runtime.String) == 0 {
 		b.Runtime.Valid = false
@@ -325,6 +331,7 @@ func (b *Build) ToAPI() *api.Build {
 	build.SetBaseRef(b.BaseRef.String)
 	build.SetHeadRef(b.HeadRef.String)
 	build.SetHost(b.Host.String)
+	build.SetRoute(b.Route.String)
 	build.SetRuntime(b.Runtime.String)
 	build.SetDistribution(b.Distribution.String)
 	build.SetApprovedAt(b.ApprovedAt.Int64)
@@ -369,6 +376,7 @@ func (b *Build) Validate() error {
 	b.BaseRef = sql.NullString{String: util.Sanitize(b.BaseRef.String), Valid: b.BaseRef.Valid}
 	b.HeadRef = sql.NullString{String: util.Sanitize(b.HeadRef.String), Valid: b.HeadRef.Valid}
 	b.Host = sql.NullString{String: util.Sanitize(b.Host.String), Valid: b.Host.Valid}
+	b.Route = sql.NullString{String: util.Sanitize(b.Route.String), Valid: b.Route.Valid}
 	b.Runtime = sql.NullString{String: util.Sanitize(b.Runtime.String), Valid: b.Runtime.Valid}
 	b.Distribution = sql.NullString{String: util.Sanitize(b.Distribution.String), Valid: b.Distribution.Valid}
 	b.ApprovedBy = sql.NullString{String: util.Sanitize(b.ApprovedBy.String), Valid: b.ApprovedBy.Valid}
@@ -412,6 +420,7 @@ func BuildFromAPI(b *api.Build) *Build {
 		BaseRef:       sql.NullString{String: b.GetBaseRef(), Valid: true},
 		HeadRef:       sql.NullString{String: b.GetHeadRef(), Valid: true},
 		Host:          sql.NullString{String: b.GetHost(), Valid: true},
+		Route:         sql.NullString{String: b.GetRoute(), Valid: true},
 		Runtime:       sql.NullString{String: b.GetRuntime(), Valid: true},
 		Distribution:  sql.NullString{String: b.GetDistribution(), Valid: true},
 		ApprovedAt:    sql.NullInt64{Int64: b.GetApprovedAt(), Valid: true},

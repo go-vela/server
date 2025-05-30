@@ -223,6 +223,12 @@ var Flags = []cli.Flag{
 		Sources: cli.EnvVars("VELA_MAX_DASHBOARD_REPOS"),
 		Value:   10,
 	},
+	&cli.Int32Flag{
+		Name:    "queue-restart-limit",
+		Usage:   "set the max queue size before pending builds are no longer allowed to be restarted (set to 0 to not enforce)",
+		Sources: cli.EnvVars("VELA_QUEUE_RESTART_LIMIT"),
+		Value:   30,
+	},
 	// Token Manager Flags
 	&cli.DurationFlag{
 		Name:    "user-access-token-duration",

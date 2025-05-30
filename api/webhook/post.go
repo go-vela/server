@@ -620,7 +620,7 @@ func PostWebhook(c *gin.Context) {
 			queue.FromGinContext(c),
 			database.FromContext(c),
 			item,
-			b.GetHost(),
+			b.GetRoute(),
 		)
 	} else {
 		err := build.GatekeepBuild(c, item.Build, item.Build.GetRepo())

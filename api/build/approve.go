@@ -115,7 +115,7 @@ func ApproveBuild(c *gin.Context) {
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		models.ToItem(b),
-		b.GetHost(),
+		b.GetRoute(),
 	)
 
 	c.JSON(http.StatusOK, fmt.Sprintf("Successfully approved build %s/%d", r.GetFullName(), b.GetNumber()))

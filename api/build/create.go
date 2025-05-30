@@ -154,6 +154,6 @@ func CreateBuild(c *gin.Context) {
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		item,
-		item.Build.GetHost(),
+		item.Build.GetRoute(),
 	)
 }
