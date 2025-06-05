@@ -77,5 +77,6 @@ func New(opts ...EngineOpt) (*Engine, error) {
 		return nil, fmt.Errorf("unable to create indexes for %s table: %w", constants.TableDeployment, err)
 	}
 
+	//nolint:revive // ignore returning unexported engine
 	return e, nil
 }
