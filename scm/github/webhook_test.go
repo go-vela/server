@@ -1470,6 +1470,69 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	}
 }
 
+func TestGitHub_ProcessWebhook_CustomPropertyValuesUpdated(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/hooks/custom_property_values.json")
+	if err != nil {
+		t.Errorf("unable to open file: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
+	request.Header.Set("X-GitHub-Event", "custom_property_values")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(api.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent(constants.EventCustomProperties)
+	wantHook.SetEventAction("updated")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/github/octocat/settings/hooks")
+
+	wantRepo := new(api.Repo)
+	wantRepo.SetActive(true)
+	wantRepo.SetOrg("github")
+	wantRepo.SetName("octocat")
+	wantRepo.SetFullName("github/octocat")
+	wantRepo.SetLink("https://github.com/github/octocat")
+	wantRepo.SetClone("https://github.com/github/octocat.git")
+	wantRepo.SetBranch("main")
+	wantRepo.SetPrivate(true)
+	wantRepo.SetTopics([]string{})
+	wantRepo.SetCustomProps(map[string]any{"FOO": "testing"})
+
+	want := &internal.Webhook{
+		Hook: wantHook,
+		Repo: wantRepo,
+	}
+
+	got, err := client.ProcessWebhook(context.TODO(), request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
+	}
+}
+
 func TestGithub_Redeliver_Webhook(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)

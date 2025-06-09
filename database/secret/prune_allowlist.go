@@ -14,7 +14,16 @@ import (
 
 // PruneAllowlist deletes any allowlist record from the database that belongs to the secret but is not in the active allowlist.
 func PruneAllowlist(ctx context.Context, tx *gorm.DB, s *api.Secret) error {
-	// send query to the database
+	// if allowlist is 0, do not use NOT IN clause
+	if len(s.GetRepoAllowlist()) == 0 {
+		return tx.
+			WithContext(ctx).
+			Table(constants.TableSecretRepoAllowlist).
+			Where("secret_id = ?", s.GetID()).
+			Delete(&types.SecretAllowlist{}).
+			Error
+	}
+
 	return tx.
 		WithContext(ctx).
 		Table(constants.TableSecretRepoAllowlist).
