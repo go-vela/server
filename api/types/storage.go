@@ -13,6 +13,7 @@ type Bucket struct {
 	BucketName         string                   `json:"bucket_name,omitempty"`
 	MakeBucketOptions  minio.MakeBucketOptions  `json:"make_bucket_options,omitempty"`
 	ListObjectsOptions minio.ListObjectsOptions `json:"list_objects_options,omitempty"`
+	Recursive          bool                     `json:"recursive"`
 }
 
 type Object struct {
