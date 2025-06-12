@@ -155,6 +155,15 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 		// Queue endpoints
 		QueueHandlers(baseAPI)
+
+		// Storage endpoints
+		StorageHandlers(baseAPI)
+
+		// Test report endpoints
+		TestReportHandlers(baseAPI)
+
+		// Test attachment endpoints
+		TestAttachmentHandlers(baseAPI)
 	} // end of api
 
 	return r
