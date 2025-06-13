@@ -87,6 +87,7 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetBaseRef("")
 	want.SetHeadRef("")
 	want.SetHost("")
+	want.SetRoute("")
 	want.SetRuntime("")
 	want.SetDistribution("")
 	want.SetDeployPayload(nil)

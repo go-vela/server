@@ -46,6 +46,7 @@ const (
 				"octocat/hello-world"
 			],
 			"max_dashboard_repos": 10,
+			"queue_restart_limit": 5,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -85,6 +86,7 @@ const (
 				"octocat/*"
 			],
 			"max_dashboard_repos": 10,
+			"queue_restart_limit": 5,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -124,6 +126,7 @@ const (
 			"octocat/*"
 		],
 		"max_dashboard_repos": 10,
+		"queue_restart_limit": 5,
 		"created_at": 1,
 		"updated_at": 1,
 		"updated_by": "octocat"
