@@ -159,10 +159,8 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		// Storage endpoints
 		StorageHandlers(baseAPI)
 
-		// Test report endpoints
-		TestReportHandlers(baseAPI)
-
 		// Test attachment endpoints
+		// TODO: this will get moved out of here
 		TestAttachmentHandlers(baseAPI)
 	} // end of api
 

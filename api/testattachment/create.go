@@ -3,7 +3,6 @@ package testattachment
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api/types"
@@ -30,11 +29,8 @@ func CreateTestAttachment(c *gin.Context) {
 
 	l.Debugf("creating new test attachment")
 
+	// TODO this isn't working yet, but will compile
 	ta := new(types.TestAttachment)
-
-	// update fields in test attachment object
-	ta.SetTestReportID(input.GetTestReportID())
-	ta.SetCreatedAt(time.Now().UTC().Unix())
 
 	// create the test attachment in the database
 	ta, err = database.FromContext(c).CreateTestAttachment(c, ta)

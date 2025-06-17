@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
 )
@@ -15,6 +17,13 @@ import (
 func CreateTestReport(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
+	b := build.Retrieve(c)
+	r := repo.Retrieve(c)
+	ctx := c.Request.Context()
+
+	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
+
+	l.Debugf("creating new test report for build %s", entry)
 
 	// capture the test report from the request body
 	input := new(types.TestReport)
@@ -28,16 +37,18 @@ func CreateTestReport(c *gin.Context) {
 		return
 	}
 
-	l.Debugf("creating new test report")
+	if b.GetNumber() == 0 {
+		retErr := fmt.Errorf("unable to retrieve build number: %w", err)
 
-	tr := new(types.TestReport)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
 
-	// update fields in test report object
-	tr.SetBuildID((input.GetBuildID()))
-	tr.SetCreatedAt(time.Now().UTC().Unix())
+		return
+	}
+	input.SetBuildID(b.GetID())
+	input.SetCreatedAt(time.Now().UTC().Unix())
 
 	// create the test report in the database
-	tr, err = database.FromContext(c).CreateTestReport(c, tr)
+	tr, err := database.FromContext(c).CreateTestReport(ctx, input)
 	if err != nil {
 
 		retErr := fmt.Errorf("unable to create new test report: %w", err)
