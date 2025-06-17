@@ -51,6 +51,7 @@ func APIBuild() *api.Build {
 		BaseRef:      new(string),
 		HeadRef:      new(string),
 		Host:         new(string),
+		Route:        new(string),
 		Runtime:      new(string),
 		Distribution: new(string),
 		ApprovedAt:   new(int64),

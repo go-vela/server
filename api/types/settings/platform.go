@@ -19,6 +19,7 @@ type Platform struct {
 	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"      yaml:"repo_allowlist,omitempty"`
 	ScheduleAllowlist *[]string `json:"schedule_allowlist,omitempty"  yaml:"schedule_allowlist,omitempty"`
 	MaxDashboardRepos *int32    `json:"max_dashboard_repos,omitempty" yaml:"max_dashboard_repos,omitempty"`
+	QueueRestartLimit *int32    `json:"queue_restart_limit,omitempty" yaml:"queue_restart_limit,omitempty"`
 	CreatedAt         *int64    `json:"created_at,omitempty"          yaml:"created_at,omitempty"`
 	UpdatedAt         *int64    `json:"updated_at,omitempty"          yaml:"updated_at,omitempty"`
 	UpdatedBy         *string   `json:"updated_by,omitempty"          yaml:"updated_by,omitempty"`
@@ -36,6 +37,9 @@ func FromCLICommand(c *cli.Command) *Platform {
 
 	// set max repos per dashboard
 	ps.SetMaxDashboardRepos(c.Int32("max-dashboard-repos"))
+
+	// set queue restart limit
+	ps.SetQueueRestartLimit(c.Int32("queue-restart-limit"))
 
 	return ps
 }
@@ -129,6 +133,19 @@ func (ps *Platform) GetMaxDashboardRepos() int32 {
 	}
 
 	return *ps.MaxDashboardRepos
+}
+
+// GetQueueRestartLimit returns the QueueRestartLimit field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (ps *Platform) GetQueueRestartLimit() int32 {
+	// return zero value if Platform type or QueueRestartLimit field is nil
+	if ps == nil || ps.QueueRestartLimit == nil {
+		return 0
+	}
+
+	return *ps.QueueRestartLimit
 }
 
 // GetCreatedAt returns the CreatedAt field.
@@ -261,6 +278,19 @@ func (ps *Platform) SetMaxDashboardRepos(v int32) {
 	ps.MaxDashboardRepos = &v
 }
 
+// SetQueueRestartLimit sets the QueueRestartLimit field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (ps *Platform) SetQueueRestartLimit(v int32) {
+	// return if Platform type is nil
+	if ps == nil {
+		return
+	}
+
+	ps.QueueRestartLimit = &v
+}
+
 // SetCreatedAt sets the CreatedAt field.
 //
 // When the provided Platform type is nil, it
@@ -317,6 +347,7 @@ func (ps *Platform) FromSettings(_ps *Platform) {
 	ps.SetRepoAllowlist(_ps.GetRepoAllowlist())
 	ps.SetScheduleAllowlist(_ps.GetScheduleAllowlist())
 	ps.SetMaxDashboardRepos(_ps.GetMaxDashboardRepos())
+	ps.SetQueueRestartLimit(_ps.GetQueueRestartLimit())
 
 	ps.SetCreatedAt(_ps.GetCreatedAt())
 	ps.SetUpdatedAt(_ps.GetUpdatedAt())
@@ -337,6 +368,7 @@ func (ps *Platform) String() string {
   RepoAllowlist: %v,
   ScheduleAllowlist: %v,
   MaxDashboardRepos: %d,
+  QueueRestartLimit: %d,
   CreatedAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -348,6 +380,7 @@ func (ps *Platform) String() string {
 		ps.GetRepoAllowlist(),
 		ps.GetScheduleAllowlist(),
 		ps.GetMaxDashboardRepos(),
+		ps.GetQueueRestartLimit(),
 		ps.GetCreatedAt(),
 		ps.GetUpdatedAt(),
 		ps.GetUpdatedBy(),
@@ -365,6 +398,7 @@ func PlatformMockEmpty() Platform {
 	ps.SetRepoAllowlist([]string{})
 	ps.SetScheduleAllowlist([]string{})
 	ps.SetMaxDashboardRepos(0)
+	ps.SetQueueRestartLimit(0)
 
 	return ps
 }

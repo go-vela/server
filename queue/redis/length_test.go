@@ -51,8 +51,8 @@ func TestRedis_Length(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		for _, channel := range test.routes {
-			err := _redis.Push(context.Background(), channel, bytes)
+		for _, route := range test.routes {
+			err := _redis.Push(context.Background(), route, bytes)
 			if err != nil {
 				t.Errorf("unable to push item to queue: %v", err)
 			}

@@ -230,7 +230,7 @@ func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Pl
 		queue,
 		database,
 		item,
-		item.Build.GetHost(),
+		item.Build.GetRoute(),
 	)
 
 	return nil
