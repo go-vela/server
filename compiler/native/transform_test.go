@@ -20,9 +20,8 @@ func TestNative_TransformStages(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -257,9 +256,8 @@ func TestNative_TransformSteps(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",

@@ -90,7 +90,7 @@ func RedeliverHook(c *gin.Context) {
 		}
 
 		if queueLength >= int64(ps.GetQueueRestartLimit()) {
-			retErr := fmt.Errorf("unable to restart build %s: queue length %d exceeds configured limit %d", entry, queueLength, ps.GetQueueRestartLimit())
+			retErr := fmt.Errorf("unable to restart build %s: queue length %d exceeds configured limit %d. Please wait for the queue to decrease in size before retrying", entry, queueLength, ps.GetQueueRestartLimit())
 
 			util.HandleError(c, http.StatusTooManyRequests, retErr)
 

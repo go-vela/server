@@ -86,7 +86,7 @@ func (b *Build) Duration() string {
 
 // Environment returns a list of environment variables
 // provided from the fields of the Build type.
-func (b *Build) Environment(workspace, channel string) map[string]string {
+func (b *Build) Environment(workspace string) map[string]string {
 	envs := map[string]string{
 		"VELA_BUILD_APPROVED_AT":   ToString(b.GetApprovedAt()),
 		"VELA_BUILD_APPROVED_BY":   ToString(b.GetApprovedBy()),
@@ -94,7 +94,6 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 		"VELA_BUILD_AUTHOR_EMAIL":  ToString(b.GetEmail()),
 		"VELA_BUILD_BASE_REF":      ToString(b.GetBaseRef()),
 		"VELA_BUILD_BRANCH":        ToString(b.GetBranch()),
-		"VELA_BUILD_CHANNEL":       ToString(channel),
 		"VELA_BUILD_CLONE":         ToString(b.GetClone()),
 		"VELA_BUILD_COMMIT":        ToString(b.GetCommit()),
 		"VELA_BUILD_CREATED":       ToString(b.GetCreated()),
@@ -103,12 +102,12 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 		"VELA_BUILD_EVENT":         ToString(b.GetEvent()),
 		"VELA_BUILD_EVENT_ACTION":  ToString(b.GetEventAction()),
 		"VELA_BUILD_HOST":          ToString(b.GetHost()),
-		"VELA_BUILD_ROUTE":         ToString(b.GetRoute()),
 		"VELA_BUILD_LINK":          ToString(b.GetLink()),
 		"VELA_BUILD_MESSAGE":       ToString(b.GetMessage()),
 		"VELA_BUILD_NUMBER":        ToString(b.GetNumber()),
 		"VELA_BUILD_PARENT":        ToString(b.GetParent()),
 		"VELA_BUILD_REF":           ToString(b.GetRef()),
+		"VELA_BUILD_ROUTE":         ToString(b.GetRoute()),
 		"VELA_BUILD_RUNTIME":       ToString(b.GetRuntime()),
 		"VELA_BUILD_SENDER":        ToString(b.GetSender()),
 		"VELA_BUILD_SENDER_SCM_ID": ToString(b.GetSenderSCMID()),
@@ -123,7 +122,6 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 		"BUILD_AUTHOR_EMAIL": ToString(b.GetEmail()),
 		"BUILD_BASE_REF":     ToString(b.GetBaseRef()),
 		"BUILD_BRANCH":       ToString(b.GetBranch()),
-		"BUILD_CHANNEL":      ToString(channel),
 		"BUILD_CLONE":        ToString(b.GetClone()),
 		"BUILD_COMMIT":       ToString(b.GetCommit()),
 		"BUILD_CREATED":      ToString(b.GetCreated()),
