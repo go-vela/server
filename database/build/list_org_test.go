@@ -80,7 +80,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_userRows = testutils.CreateMockRows([]any{*types.UserFromAPI(_owner)})
 
 	// ensure the mock expects the query with event filter
-	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "event" = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "push", 10).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND builds.event = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "push", 10).WillReturnRows(_rows)
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
@@ -90,7 +90,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_userRows = testutils.CreateMockRows([]any{*types.UserFromAPI(_owner)})
 
 	// ensure the mock expects the query with visibility filter
-	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "visibility" = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "public", 10).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND repos.visibility = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "public", 10).WillReturnRows(_rows)
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
@@ -134,24 +134,24 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 
 	// setup tests
 	tests := []struct {
-		failure  bool
-		name     string
-		database *Engine
-		filters  map[string]interface{}
-		want     []*api.Build
+		failure      bool
+		name         string
+		database     *Engine
+		repoFilters  map[string]any
+		buildFilters map[string]any
+		want         []*api.Build
 	}{
 		{
 			failure:  false,
 			name:     "postgres without filters",
 			database: _postgres,
-			filters:  map[string]interface{}{},
 			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
 			name:     "postgres with event filter",
 			database: _postgres,
-			filters: map[string]interface{}{
+			buildFilters: map[string]any{
 				"event": "push",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -160,7 +160,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "postgres with visibility filter",
 			database: _postgres,
-			filters: map[string]interface{}{
+			repoFilters: map[string]any{
 				"visibility": "public",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -169,14 +169,13 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "sqlite3 without filters",
 			database: _sqlite,
-			filters:  map[string]interface{}{},
 			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3 with event filter",
 			database: _sqlite,
-			filters: map[string]interface{}{
+			buildFilters: map[string]any{
 				"event": "push",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -185,7 +184,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "sqlite3 with visibility filter",
 			database: _sqlite,
-			filters: map[string]interface{}{
+			repoFilters: map[string]any{
 				"visibility": "public",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -195,7 +194,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListBuildsForOrg(context.TODO(), "foo", test.filters, 1, 10)
+			got, err := test.database.ListBuildsForOrg(context.TODO(), "foo", test.repoFilters, test.buildFilters, 1, 10)
 
 			if test.failure {
 				if err == nil {

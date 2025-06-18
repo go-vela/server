@@ -51,7 +51,7 @@ type BuildInterface interface {
 	// ListBuilds defines a function that gets a list of all builds.
 	ListBuilds(context.Context) ([]*api.Build, error)
 	// ListBuildsForOrg defines a function that gets a list of builds by org name.
-	ListBuildsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Build, error)
+	ListBuildsForOrg(context.Context, string, map[string]any, map[string]any, int, int) ([]*api.Build, error)
 	// ListBuildsForDashboardRepo defines a function that gets a list of builds based on dashboard filters.
 	ListBuildsForDashboardRepo(context.Context, *api.Repo, []string, []string) ([]*api.Build, error)
 	// ListBuildsForRepo defines a function that gets a list of builds by repo ID.

@@ -289,7 +289,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListBuilds"] = true
 
 	// list the builds for an org
-	list, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, 1, 10)
+	list, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list builds for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
