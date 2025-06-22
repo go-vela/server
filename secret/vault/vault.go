@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 	"github.com/hashicorp/vault/api"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	velaAPI "github.com/go-vela/server/api/types"
@@ -119,7 +118,7 @@ func New(opts ...ClientOpt) (*Client, error) {
 		// initialize the Vault client
 		err = c.initialize()
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to initialize vault token")
+			return nil, fmt.Errorf("failed to initialize vault token: %w", err)
 		}
 
 		// start the routine to refresh the token

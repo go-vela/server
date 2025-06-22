@@ -12,7 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/pkg/errors"
 )
 
 // initialize obtains the vault token from the given auth method
@@ -37,7 +36,7 @@ func (c *Client) initialize() error {
 			SharedConfigState: session.SharedConfigEnable,
 		})
 		if err != nil {
-			return errors.Wrap(err, "failed to create aws session for vault")
+			return fmt.Errorf("failed to create AWS session for vault: %w", err)
 		}
 
 		// generate sts client for future API calls
@@ -46,7 +45,7 @@ func (c *Client) initialize() error {
 		// obtain token from vault
 		token, ttl, err = c.getAwsToken()
 		if err != nil {
-			return errors.Wrap(err, "failed to get AWS token from vault")
+			return fmt.Errorf("failed to get AWS token from vault: %w", err)
 		}
 	}
 

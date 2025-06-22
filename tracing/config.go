@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pkg/errors"
 	"github.com/urfave/cli/v3"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
@@ -72,12 +71,12 @@ func FromCLICommand(ctx context.Context, c *cli.Command) (*Client, error) {
 	if len(tasksConfigPath) > 0 {
 		f, err := os.ReadFile(tasksConfigPath)
 		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("unable to read tracing tasks config file from path %s", tasksConfigPath))
+			return nil, fmt.Errorf("unable to read tracing tasks config file from path %s: %w", tasksConfigPath, err)
 		}
 
 		err = json.Unmarshal(f, &cfg.Sampler.Tasks)
 		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("unable to parse tracing tasks config file from path %s", tasksConfigPath))
+			return nil, fmt.Errorf("unable to parse tracing tasks config file from path %s: %w", tasksConfigPath, err)
 		}
 	}
 

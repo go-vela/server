@@ -26,6 +26,7 @@ linters:
     - bodyclose # checks whether HTTP response body is closed successfully
     - contextcheck # check the function whether use a non-inherited context
     - copyloopvar # checks for loop variables
+    - depguard # checks for dependencies that are not allowed
     - errcheck # checks for unchecked errors
     - errorlint # find misuses of errors
     - funlen # detects long functions
@@ -46,7 +47,7 @@ linters:
     - nolintlint # reports ill-formed or insufficient nolint directives
     - revive # linter for go
     - staticcheck # applies static analysis checks, go vet on steroids
-     # The linters stylecheck, gosimple, and staticcheck has been merged inside the staticcheck.
+      # The linters stylecheck, gosimple, and staticcheck has been merged inside the staticcheck.
     - tagalign # finds maligned struct tags
     - unconvert # remove unnecessary type conversions
     - unparam # reports unused function parameters
@@ -58,7 +59,6 @@ linters:
   # chosen to leave disabled for now
   # - asciicheck          - non-critical
   # - cyclop              - unused complexity metric
-  # - depguard            - unused
   # - dogsled             - blanks allowed
   # - durationcheck       - unused
   # - errname             - unused
@@ -103,6 +103,13 @@ linters:
   # This section provides the configuration for each linter
   # we've instructed golangci to execute.
   settings:
+    # https://golangci-lint.run/usage/linters/#depguard
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: "github.com/pkg/errors"
+              desc: Should be replaced by standard lib errors package
     # https://github.com/mibk/dupl
     dupl:
       threshold: 100
@@ -113,7 +120,7 @@ linters:
       statements: 70
     # https://github.com/denis-tingaikin/go-header
     goheader:
-      template: 'SPDX-License-Identifier: Apache-2.0'
+      template: "SPDX-License-Identifier: Apache-2.0"
     # https://github.com/client9/misspell
     misspell:
       locale: US
@@ -130,10 +137,10 @@ linters:
     # static check to ignore QFI (Quality Function Interface) issues
     staticcheck:
       checks:
-        - '-QF1001' # ignore specific QFI issues
-        - '-QF1003'
-        - '-QF1004'
-        - '-QF1008'
+        - "-QF1001" # ignore specific QFI issues
+        - "-QF1003"
+        - "-QF1004"
+        - "-QF1008"
   exclusions:
     generated: lax
     presets:

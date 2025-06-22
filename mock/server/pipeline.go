@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	yml "gopkg.in/yaml.v3"
+	yml "go.yaml.in/yaml/v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
