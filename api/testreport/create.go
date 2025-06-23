@@ -28,22 +28,6 @@ func CreateTestReport(c *gin.Context) {
 	// capture the test report from the request body
 	input := new(types.TestReport)
 
-	err := c.Bind(input)
-	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for new testreport: %w", err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	if b.GetNumber() == 0 {
-		retErr := fmt.Errorf("unable to retrieve build number: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
 	input.SetBuildID(b.GetID())
 	input.SetCreatedAt(time.Now().UTC().Unix())
 
