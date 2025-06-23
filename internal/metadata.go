@@ -13,9 +13,8 @@ type (
 
 	// Queue is the extra set of queue data passed to the compiler.
 	Queue struct {
-		Channel string `json:"channel"`
-		Driver  string `json:"driver"`
-		Host    string `json:"host"`
+		Driver string `json:"driver"`
+		Host   string `json:"host"`
 	}
 
 	// Source is the extra set of source data passed to the compiler.

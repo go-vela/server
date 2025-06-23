@@ -99,7 +99,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_AUTHOR_EMAIL":  "OctoKitty@github.com",
 				"VELA_BUILD_BASE_REF":      "",
 				"VELA_BUILD_BRANCH":        "main",
-				"VELA_BUILD_CHANNEL":       "TODO",
 				"VELA_BUILD_CLONE":         "https://github.com/github/octocat.git",
 				"VELA_BUILD_COMMIT":        "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"VELA_BUILD_CREATED":       "1563474076",
@@ -108,6 +107,7 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_EVENT":         "push",
 				"VELA_BUILD_EVENT_ACTION":  "",
 				"VELA_BUILD_HOST":          "example.company.com",
+				"VELA_BUILD_ROUTE":         "vela",
 				"VELA_BUILD_LINK":          "https://example.company.com/github/octocat/1",
 				"VELA_BUILD_MESSAGE":       "First commit...",
 				"VELA_BUILD_NUMBER":        "1",
@@ -125,7 +125,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"BUILD_AUTHOR_EMAIL":       "OctoKitty@github.com",
 				"BUILD_BASE_REF":           "",
 				"BUILD_BRANCH":             "main",
-				"BUILD_CHANNEL":            "TODO",
 				"BUILD_CLONE":              "https://github.com/github/octocat.git",
 				"BUILD_COMMIT":             "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"BUILD_CREATED":            "1563474076",
@@ -154,7 +153,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_AUTHOR_EMAIL":   "OctoKitty@github.com",
 				"VELA_BUILD_BASE_REF":       "main",
 				"VELA_BUILD_BRANCH":         "main",
-				"VELA_BUILD_CHANNEL":        "TODO",
 				"VELA_BUILD_CLONE":          "https://github.com/github/octocat.git",
 				"VELA_BUILD_COMMIT":         "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"VELA_BUILD_CREATED":        "1563474076",
@@ -163,6 +161,7 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_EVENT":          "comment",
 				"VELA_BUILD_EVENT_ACTION":   "created",
 				"VELA_BUILD_HOST":           "example.company.com",
+				"VELA_BUILD_ROUTE":          "vela",
 				"VELA_BUILD_LINK":           "https://example.company.com/github/octocat/1",
 				"VELA_BUILD_MESSAGE":        "First commit...",
 				"VELA_BUILD_NUMBER":         "1",
@@ -184,7 +183,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"BUILD_AUTHOR_EMAIL":        "OctoKitty@github.com",
 				"BUILD_BASE_REF":            "main",
 				"BUILD_BRANCH":              "main",
-				"BUILD_CHANNEL":             "TODO",
 				"BUILD_CLONE":               "https://github.com/github/octocat.git",
 				"BUILD_COMMIT":              "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"BUILD_CREATED":             "1563474076",
@@ -214,7 +212,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_AUTHOR_EMAIL":  "OctoKitty@github.com",
 				"VELA_BUILD_BASE_REF":      "",
 				"VELA_BUILD_BRANCH":        "main",
-				"VELA_BUILD_CHANNEL":       "TODO",
 				"VELA_BUILD_CLONE":         "https://github.com/github/octocat.git",
 				"VELA_BUILD_COMMIT":        "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"VELA_BUILD_CREATED":       "1563474076",
@@ -223,6 +220,7 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_EVENT":         "deployment",
 				"VELA_BUILD_EVENT_ACTION":  "",
 				"VELA_BUILD_HOST":          "example.company.com",
+				"VELA_BUILD_ROUTE":         "vela",
 				"VELA_BUILD_LINK":          "https://example.company.com/github/octocat/1",
 				"VELA_BUILD_MESSAGE":       "First commit...",
 				"VELA_BUILD_NUMBER":        "1",
@@ -244,7 +242,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"BUILD_AUTHOR_EMAIL":       "OctoKitty@github.com",
 				"BUILD_BASE_REF":           "",
 				"BUILD_BRANCH":             "main",
-				"BUILD_CHANNEL":            "TODO",
 				"BUILD_CLONE":              "https://github.com/github/octocat.git",
 				"BUILD_COMMIT":             "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"BUILD_CREATED":            "1563474076",
@@ -275,7 +272,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_AUTHOR_EMAIL":  "OctoKitty@github.com",
 				"VELA_BUILD_BASE_REF":      "",
 				"VELA_BUILD_BRANCH":        "main",
-				"VELA_BUILD_CHANNEL":       "TODO",
 				"VELA_BUILD_CLONE":         "https://github.com/github/octocat.git",
 				"VELA_BUILD_COMMIT":        "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"VELA_BUILD_CREATED":       "1563474076",
@@ -284,6 +280,7 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_EVENT":         "deployment",
 				"VELA_BUILD_EVENT_ACTION":  "",
 				"VELA_BUILD_HOST":          "example.company.com",
+				"VELA_BUILD_ROUTE":         "vela",
 				"VELA_BUILD_LINK":          "https://example.company.com/github/octocat/1",
 				"VELA_BUILD_MESSAGE":       "First commit...",
 				"VELA_BUILD_NUMBER":        "1",
@@ -305,7 +302,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"BUILD_AUTHOR_EMAIL":       "OctoKitty@github.com",
 				"BUILD_BASE_REF":           "",
 				"BUILD_BRANCH":             "main",
-				"BUILD_CHANNEL":            "TODO",
 				"BUILD_CLONE":              "https://github.com/github/octocat.git",
 				"BUILD_COMMIT":             "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"BUILD_CREATED":            "1563474076",
@@ -338,7 +334,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_AUTHOR_EMAIL":   "OctoKitty@github.com",
 				"VELA_BUILD_BASE_REF":       "",
 				"VELA_BUILD_BRANCH":         "main",
-				"VELA_BUILD_CHANNEL":        "TODO",
 				"VELA_BUILD_CLONE":          "https://github.com/github/octocat.git",
 				"VELA_BUILD_COMMIT":         "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"VELA_BUILD_CREATED":        "1563474076",
@@ -347,6 +342,7 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_EVENT":          "pull_request",
 				"VELA_BUILD_EVENT_ACTION":   "opened",
 				"VELA_BUILD_HOST":           "example.company.com",
+				"VELA_BUILD_ROUTE":          "vela",
 				"VELA_BUILD_LINK":           "https://example.company.com/github/octocat/1",
 				"VELA_BUILD_MESSAGE":        "First commit...",
 				"VELA_BUILD_NUMBER":         "1",
@@ -369,7 +365,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"BUILD_AUTHOR_EMAIL":        "OctoKitty@github.com",
 				"BUILD_BASE_REF":            "",
 				"BUILD_BRANCH":              "main",
-				"BUILD_CHANNEL":             "TODO",
 				"BUILD_CLONE":               "https://github.com/github/octocat.git",
 				"BUILD_COMMIT":              "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"BUILD_CREATED":             "1563474076",
@@ -399,7 +394,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_AUTHOR_EMAIL":  "OctoKitty@github.com",
 				"VELA_BUILD_BASE_REF":      "",
 				"VELA_BUILD_BRANCH":        "main",
-				"VELA_BUILD_CHANNEL":       "TODO",
 				"VELA_BUILD_CLONE":         "https://github.com/github/octocat.git",
 				"VELA_BUILD_COMMIT":        "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"VELA_BUILD_CREATED":       "1563474076",
@@ -408,6 +402,7 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"VELA_BUILD_EVENT":         "tag",
 				"VELA_BUILD_EVENT_ACTION":  "",
 				"VELA_BUILD_HOST":          "example.company.com",
+				"VELA_BUILD_ROUTE":         "vela",
 				"VELA_BUILD_LINK":          "https://example.company.com/github/octocat/1",
 				"VELA_BUILD_MESSAGE":       "First commit...",
 				"VELA_BUILD_NUMBER":        "1",
@@ -426,7 +421,6 @@ func TestTypes_Build_Environment(t *testing.T) {
 				"BUILD_AUTHOR_EMAIL":       "OctoKitty@github.com",
 				"BUILD_BASE_REF":           "",
 				"BUILD_BRANCH":             "main",
-				"BUILD_CHANNEL":            "TODO",
 				"BUILD_CLONE":              "https://github.com/github/octocat.git",
 				"BUILD_COMMIT":             "48afb5bdc41ad69bf22588491333f7cf71135163",
 				"BUILD_CREATED":            "1563474076",
@@ -451,7 +445,7 @@ func TestTypes_Build_Environment(t *testing.T) {
 
 	// run test
 	for _, test := range tests {
-		got := test.build.Environment("TODO", "TODO")
+		got := test.build.Environment("TODO")
 
 		if diff := cmp.Diff(test.want, got); diff != "" {
 			t.Errorf("(Environment: -want +got):\n%s", diff)
@@ -605,6 +599,10 @@ func TestTypes_Build_Getters(t *testing.T) {
 			t.Errorf("GetHost is %v, want %v", test.build.GetHost(), test.want.GetHost())
 		}
 
+		if test.build.GetRoute() != test.want.GetRoute() {
+			t.Errorf("GetRoute is %v, want %v", test.build.GetRoute(), test.want.GetRoute())
+		}
+
 		if test.build.GetRuntime() != test.want.GetRuntime() {
 			t.Errorf("GetRuntime is %v, want %v", test.build.GetRuntime(), test.want.GetRuntime())
 		}
@@ -676,6 +674,7 @@ func TestTypes_Build_Setters(t *testing.T) {
 		test.build.SetBaseRef(test.want.GetBaseRef())
 		test.build.SetHeadRef(test.want.GetHeadRef())
 		test.build.SetHost(test.want.GetHost())
+		test.build.SetRoute(test.want.GetRoute())
 		test.build.SetRuntime(test.want.GetRuntime())
 		test.build.SetDistribution(test.want.GetDistribution())
 		test.build.SetApprovedAt(test.want.GetApprovedAt())
@@ -809,6 +808,10 @@ func TestTypes_Build_Setters(t *testing.T) {
 			t.Errorf("SetHost is %v, want %v", test.build.GetHost(), test.want.GetHost())
 		}
 
+		if test.build.GetRoute() != test.want.GetRoute() {
+			t.Errorf("SetRoute is %v, want %v", test.build.GetRoute(), test.want.GetRoute())
+		}
+
 		if test.build.GetRuntime() != test.want.GetRuntime() {
 			t.Errorf("SetRuntime is %v, want %v", test.build.GetRuntime(), test.want.GetRuntime())
 		}
@@ -861,6 +864,7 @@ func TestTypes_Build_String(t *testing.T) {
   PipelineID: %d,
   Ref: %s,
   Repo: %s,
+  Route: %s,
   Runtime: %s,
   Sender: %s,
   SenderSCMID: %s,
@@ -898,6 +902,7 @@ func TestTypes_Build_String(t *testing.T) {
 		b.GetPipelineID(),
 		b.GetRef(),
 		b.GetRepo().GetFullName(),
+		b.GetRoute(),
 		b.GetRuntime(),
 		b.GetSender(),
 		b.GetSenderSCMID(),
@@ -951,6 +956,7 @@ func testBuild() *Build {
 	b.SetBaseRef("")
 	b.SetHeadRef("changes")
 	b.SetHost("example.company.com")
+	b.SetRoute("vela")
 	b.SetRuntime("docker")
 	b.SetDistribution("linux")
 	b.SetApprovedAt(1563474076)

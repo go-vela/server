@@ -430,8 +430,7 @@ func CompileAndPublish(
 		return nil, nil, http.StatusBadRequest, retErr
 	}
 
-	// temporarily set host to the route before it gets picked up by a worker
-	b.SetHost(route)
+	b.SetRoute(route)
 
 	// publish the pipeline.Build to the build_executables table to be requested by a worker
 	err = PublishBuildExecutable(ctx, database, p, b)

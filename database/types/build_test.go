@@ -74,6 +74,7 @@ func TestTypes_Build_Nullify(t *testing.T) {
 		BaseRef:       sql.NullString{String: "", Valid: false},
 		HeadRef:       sql.NullString{String: "", Valid: false},
 		Host:          sql.NullString{String: "", Valid: false},
+		Route:         sql.NullString{String: "", Valid: false},
 		Runtime:       sql.NullString{String: "", Valid: false},
 		Distribution:  sql.NullString{String: "", Valid: false},
 	}
@@ -143,6 +144,7 @@ func TestTypes_Build_ToAPI(t *testing.T) {
 	want.SetBaseRef("")
 	want.SetHeadRef("")
 	want.SetHost("example.company.com")
+	want.SetRoute("vela")
 	want.SetRuntime("docker")
 	want.SetDistribution("linux")
 	want.SetDeployPayload(raw.StringSliceMap{"foo": "test1", "bar": "test2"})
@@ -240,6 +242,7 @@ func TestTypes_Build_BuildFromAPI(t *testing.T) {
 	b.SetBaseRef("")
 	b.SetHeadRef("")
 	b.SetHost("example.company.com")
+	b.SetRoute("vela")
 	b.SetRuntime("docker")
 	b.SetDistribution("linux")
 	b.SetDeployPayload(raw.StringSliceMap{"foo": "test1", "bar": "test2"})
@@ -305,6 +308,7 @@ func testBuild() *Build {
 		BaseRef:       sql.NullString{String: "", Valid: false},
 		HeadRef:       sql.NullString{String: "", Valid: false},
 		Host:          sql.NullString{String: "example.company.com", Valid: true},
+		Route:         sql.NullString{String: "vela", Valid: true},
 		Runtime:       sql.NullString{String: "docker", Valid: true},
 		Distribution:  sql.NullString{String: "linux", Valid: true},
 		ApprovedAt:    sql.NullInt64{Int64: 1563474076, Valid: true},

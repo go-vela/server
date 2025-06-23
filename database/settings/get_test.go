@@ -26,6 +26,7 @@ func TestSettings_Engine_GetSettings(t *testing.T) {
 	_settings.SetRepoAllowlist([]string{"octocat/hello-world"})
 	_settings.SetScheduleAllowlist([]string{"*"})
 	_settings.SetMaxDashboardRepos(10)
+	_settings.SetQueueRestartLimit(30)
 	_settings.SetCreatedAt(1)
 	_settings.SetUpdatedAt(1)
 	_settings.SetUpdatedBy("octocat")

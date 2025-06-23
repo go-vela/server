@@ -51,6 +51,10 @@ func TestTypes_Platform_Getters(t *testing.T) {
 		if test.platform.GetMaxDashboardRepos() != test.want.GetMaxDashboardRepos() {
 			t.Errorf("GetMaxDashboardRepos is %v, want %v", test.platform.GetMaxDashboardRepos(), test.want.GetMaxDashboardRepos())
 		}
+
+		if test.platform.GetQueueRestartLimit() != test.want.GetQueueRestartLimit() {
+			t.Errorf("GetQueueRestartLimit is %v, want %v", test.platform.GetQueueRestartLimit(), test.want.GetQueueRestartLimit())
+		}
 	}
 }
 
@@ -110,6 +114,12 @@ func TestTypes_Platform_Setters(t *testing.T) {
 		if test.platform.GetMaxDashboardRepos() != test.want.GetMaxDashboardRepos() {
 			t.Errorf("SetMaxDashboardRepos is %v, want %v", test.platform.GetMaxDashboardRepos(), test.want.GetMaxDashboardRepos())
 		}
+
+		test.platform.SetQueueRestartLimit(test.want.GetQueueRestartLimit())
+
+		if test.platform.GetQueueRestartLimit() != test.want.GetQueueRestartLimit() {
+			t.Errorf("SetQueueRestartLimit is %v, want %v", test.platform.GetQueueRestartLimit(), test.want.GetQueueRestartLimit())
+		}
 	}
 }
 
@@ -125,6 +135,7 @@ func TestTypes_Platform_Update(t *testing.T) {
 	sUpdate.SetRepoAllowlist([]string{"foo"})
 	sUpdate.SetScheduleAllowlist([]string{"bar"})
 	sUpdate.SetMaxDashboardRepos(20)
+	sUpdate.SetQueueRestartLimit(60)
 
 	// setup tests
 	tests := []struct {
@@ -166,6 +177,7 @@ func TestTypes_Platform_String(t *testing.T) {
   RepoAllowlist: %v,
   ScheduleAllowlist: %v,
   MaxDashboardRepos: %d,
+  QueueRestartLimit: %d,
   CreatedAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -177,6 +189,7 @@ func TestTypes_Platform_String(t *testing.T) {
 		s.GetRepoAllowlist(),
 		s.GetScheduleAllowlist(),
 		s.GetMaxDashboardRepos(),
+		s.GetQueueRestartLimit(),
 		s.GetCreatedAt(),
 		s.GetUpdatedAt(),
 		s.GetUpdatedBy(),
@@ -202,6 +215,7 @@ func testPlatformSettings() *Platform {
 	s.SetRepoAllowlist([]string{"foo", "bar"})
 	s.SetScheduleAllowlist([]string{"*"})
 	s.SetMaxDashboardRepos(10)
+	s.SetQueueRestartLimit(30)
 
 	// setup types
 	// setup compiler

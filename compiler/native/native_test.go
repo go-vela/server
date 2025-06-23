@@ -236,9 +236,8 @@ func TestNative_WithMetadata(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
