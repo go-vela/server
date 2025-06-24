@@ -59,6 +59,7 @@ func New(ctx context.Context, address, token string) (*Client, error) {
 	// overwrite the github client
 	c.githubClient = gitClient
 
+	//nolint:revive // ignore returning unexported engine
 	return c, nil
 }
 
