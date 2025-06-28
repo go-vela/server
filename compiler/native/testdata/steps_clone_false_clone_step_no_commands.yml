@@ -1,0 +1,8 @@
+version: "1"
+
+metadata:
+  clone: false
+
+steps:
+  - name: clone
+    image: alpine:latest
