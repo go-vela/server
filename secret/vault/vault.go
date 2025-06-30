@@ -3,11 +3,12 @@
 package vault
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/sts/stsiface"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -21,10 +22,15 @@ const (
 	PrefixVaultV2 = "secret/data"
 )
 
+// STSClient interface for mocking STS operations for AWS
+type STSClient interface {
+	GetCallerIdentity(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error)
+}
+
 type (
 	awsCfg struct {
 		Role      string
-		StsClient stsiface.STSAPI
+		StsClient STSClient
 	}
 
 	config struct {

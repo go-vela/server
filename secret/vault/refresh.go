@@ -3,15 +3,18 @@
 package vault
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
+	"net/http"
+	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	awssign "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/pkg/errors"
 )
 
@@ -21,6 +24,8 @@ import (
 func (c *Client) initialize() error {
 	c.Logger.Trace("initializing token for vault")
 
+	ctx := context.Background()
+
 	// declare variables to be utilized within the switch
 	var (
 		token string
@@ -29,22 +34,17 @@ func (c *Client) initialize() error {
 
 	switch c.config.AuthMethod {
 	case "aws":
-		// create session for AWS
-		sess, err := session.NewSessionWithOptions(session.Options{
-			Config: aws.Config{
-				CredentialsChainVerboseErrors: aws.Bool(true),
-			},
-			SharedConfigState: session.SharedConfigEnable,
-		})
+		// load AWS config using SDK v2
+		cfg, err := awsconfig.LoadDefaultConfig(ctx)
 		if err != nil {
-			return errors.Wrap(err, "failed to create aws session for vault")
+			return errors.Wrap(err, "failed to load AWS config for vault")
 		}
 
 		// generate sts client for future API calls
-		c.AWS.StsClient = sts.New(sess)
+		c.AWS.StsClient = sts.NewFromConfig(cfg)
 
-		// obtain token from vault
-		token, ttl, err = c.getAwsToken()
+		// obtain token from vault, passing the loaded config to avoid reloading
+		token, ttl, err = c.getAwsTokenWithConfig(ctx, &cfg)
 		if err != nil {
 			return errors.Wrap(err, "failed to get AWS token from vault")
 		}
@@ -56,11 +56,9 @@ func (c *Client) initialize() error {
 	return nil
 }
 
-// getAwsToken will retrieve a Vault token for the given IAM principal
-//
-// docs: https://www.vaultproject.io/docs/auth/aws
-func (c *Client) getAwsToken() (string, time.Duration, error) {
-	headers, err := c.generateAwsAuthHeader()
+// getAwsTokenWithConfig allows passing a pre-loaded AWS config
+func (c *Client) getAwsTokenWithConfig(ctx context.Context, cfg *aws.Config) (string, time.Duration, error) {
+	headers, err := c.generateAwsAuthHeaders(ctx, *cfg)
 	if err != nil {
 		return "", 0, err
 	}
@@ -79,41 +77,48 @@ func (c *Client) getAwsToken() (string, time.Duration, error) {
 	return secret.Auth.ClientToken, time.Duration(secret.Auth.LeaseDuration) * time.Second, nil
 }
 
-// generateAwsAuthHeader will generate the necessary data
-// to send to the Vault server for generating a token.
-func (c *Client) generateAwsAuthHeader() (map[string]interface{}, error) {
+// generateAwsAuthHeaders gets AWS auth headers for Vault authentication (requires config)
+func (c *Client) generateAwsAuthHeaders(ctx context.Context, cfg aws.Config) (map[string]interface{}, error) {
 	c.Logger.Trace("generating AWS auth headers for vault")
 
-	req, _ := c.AWS.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
-
-	// sign the request
-	err := req.Sign()
-	// will return error if credentials are invalid or expired
+	// create credentials from the provided config
+	creds, err := cfg.Credentials.Retrieve(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// extract headers from the STS Request
-	headersJSON, err := json.Marshal(req.HTTPRequest.Header)
+	stsURL := "https://sts.amazonaws.com/"
+	requestBody := "Action=GetCallerIdentity&Version=2011-06-15"
+
+	reqCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+
+	httpReq, err := http.NewRequestWithContext(reqCtx, "POST", stsURL, strings.NewReader(requestBody))
 	if err != nil {
 		return nil, err
 	}
 
-	// read the STS request body
-	requestBody, err := io.ReadAll(req.Body)
+	httpReq.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
+
+	signer := awssign.NewSigner()
+	err = signer.SignHTTP(ctx, creds, httpReq, requestBody, "sts", cfg.Region, time.Now())
 	if err != nil {
 		return nil, err
 	}
 
-	// construct the vault STS auth header
-	//
+	headersJSON, err := json.Marshal(httpReq.Header)
+	if err != nil {
+		return nil, err
+	}
 
-	loginData := map[string]interface{}{
+	// see https://developer.hashicorp.com/vault/docs/auth/aws#perform-the-login-operation
+	// or https://developer.hashicorp.com/vault/api-docs/auth/aws#iam_request_headers
+	loginData := map[string]any{
 		"role":                    c.AWS.Role,
-		"iam_http_request_method": req.HTTPRequest.Method,
-		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(req.HTTPRequest.URL.String())),
+		"iam_http_request_method": httpReq.Method,
+		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(httpReq.URL.String())),
 		"iam_request_headers":     base64.StdEncoding.EncodeToString(headersJSON),
-		"iam_request_body":        base64.StdEncoding.EncodeToString(requestBody),
+		"iam_request_body":        base64.StdEncoding.EncodeToString([]byte(requestBody)),
 	}
 
 	return loginData, nil

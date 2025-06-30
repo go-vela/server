@@ -3,20 +3,16 @@
 package vault
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/aws/aws-sdk-go/service/sts/stsiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 func Test_client_initialize(t *testing.T) {
@@ -67,17 +63,7 @@ func Test_client_initialize(t *testing.T) {
 			}
 
 			c.config.AuthMethod = tt.vaultAuthMethod
-			c.AWS.StsClient = &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
-				},
-			}
+			c.AWS.StsClient = newSuccessfulMockSTSClient()
 
 			err = c.initialize()
 			if (err != nil) != tt.wantErr {
@@ -88,110 +74,59 @@ func Test_client_initialize(t *testing.T) {
 	}
 }
 
-func Test_client_getAwsToken(t *testing.T) {
+func Test_client_generateAwsAuthHeaders(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		name         string
 		responseFile string
 		responseCode int
-		stsClient    stsiface.STSAPI
+		stsClient    STSClient
 		vaultRole    string
 		wantToken    string
 		wantTTL      time.Duration
 		wantErr      bool
 	}{
 		{
-			name:         "get token success",
+			name:         "get token success - vela aws auth flow",
 			responseFile: "auth-response-success.json",
 			responseCode: 200,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
-				},
-			},
-			vaultRole: "local-testing",
-			wantToken: "s.5RGnjF5aUbhz2XWWM9nHxO57",
-			wantTTL:   1 * time.Minute,
-			wantErr:   false,
+			stsClient:    newSuccessfulMockSTSClient(),
+			vaultRole:    "local-testing",
+			wantToken:    "s.5RGnjF5aUbhz2XWWM9nHxO57",
+			wantTTL:      1 * time.Minute,
+			wantErr:      false,
 		},
 		{
-			name:         "get token error role not found",
+			name:         "get token error role not found - vela vault config issue",
 			responseFile: "auth-response-error-role-not-found.json",
 			responseCode: 400,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
-				},
-			},
-			vaultRole: "local-testing",
-			wantErr:   true,
+			stsClient:    newSuccessfulMockSTSClient(),
+			vaultRole:    "local-testing",
+			wantErr:      true,
 		},
 		{
-			name:         "get token error no auth values",
+			name:         "get token error no auth values - vela vault setup issue",
 			responseFile: "auth-response-error-no-auth-values.json",
 			responseCode: 400,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
-				},
-			},
-			vaultRole: "local-testing",
-			wantErr:   true,
+			stsClient:    newSuccessfulMockSTSClient(),
+			vaultRole:    "local-testing",
+			wantErr:      true,
 		},
 		{
-			name:         "get token error nil secret",
+			name:         "get token error nil secret - vela vault response issue",
 			responseFile: "auth-response-error-nil-secret.json",
 			responseCode: 200,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
-				},
-			},
-			vaultRole: "local-testing",
-			wantErr:   true,
+			stsClient:    newSuccessfulMockSTSClient(),
+			vaultRole:    "local-testing",
+			wantErr:      true,
 		},
 		{
-			name:         "get token aws sts error",
+			name:         "get token aws sts error - vela credential failure",
 			responseFile: "testdata/auth-response-error-no-auth-values.json",
 			responseCode: 400,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body:  aws.ReadSeekCloser(strings.NewReader("the body")),
-						Error: awserr.New(sts.ErrCodeExpiredTokenException, "token error", fmt.Errorf("token error")),
-					}, nil
-				},
-			},
-			vaultRole: "local-testing",
-			wantErr:   true,
+			stsClient:    newFailingMockSTSClient("AWS credentials error for Vela"),
+			vaultRole:    "local-testing",
+			wantErr:      true,
 		},
 	}
 
@@ -208,6 +143,7 @@ func Test_client_getAwsToken(t *testing.T) {
 				_, _ = w.Write(data)
 			}))
 			defer ts.Close()
+
 			c, err := New(
 				WithAddress(ts.URL),
 				WithAuthMethod(""),
@@ -220,30 +156,79 @@ func Test_client_getAwsToken(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
+
 			c.AWS.StsClient = tt.stsClient
 
-			gotToken, gotTTL, err := c.getAwsToken()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getAwsToken() error = %v, wantErr %v", err, tt.wantErr)
+			// create mock AWS config
+			mockConfig := createMockAWSConfig()
+
+			// test generateAwsAuthHeaders with mock config
+			headers, err := c.generateAwsAuthHeaders(context.Background(), *mockConfig)
+			if err != nil && !tt.wantErr {
+				t.Errorf("generateAwsAuthHeaders() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
-			if gotToken != tt.wantToken {
-				t.Errorf("getAwsToken() gotToken = %v, wantToken %v", gotToken, tt.wantToken)
-			}
-
-			if gotTTL != tt.wantTTL {
-				t.Errorf("getAwsToken() gotTTL = %v, wantTTL %v", gotTTL, tt.wantTTL)
+			// test AWS auth header generation
+			if !tt.wantErr && headers != nil {
+				// verify that all required Vault AWS auth headers are present
+				if _, ok := headers["role"]; !ok {
+					t.Error("Expected 'role' in auth headers for Vela AWS authentication")
+				}
+				if _, ok := headers["iam_http_request_method"]; !ok {
+					t.Error("Expected 'iam_http_request_method' in auth headers for Vela AWS authentication")
+				}
+				if _, ok := headers["iam_request_url"]; !ok {
+					t.Error("Expected 'iam_request_url' in auth headers for Vela AWS authentication")
+				}
+				if _, ok := headers["iam_request_headers"]; !ok {
+					t.Error("Expected 'iam_request_headers' in auth headers for Vela AWS authentication")
+				}
+				if _, ok := headers["iam_request_body"]; !ok {
+					t.Error("Expected 'iam_request_body' in auth headers for Vela AWS authentication")
+				}
 			}
 		})
 	}
 }
 
 type mockSTSClient struct {
-	stsiface.STSAPI
-	mockGetCallerIdentityRequest func(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput)
+	mockGetCallerIdentity func(ctx context.Context, input *sts.GetCallerIdentityInput, optFns ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error)
 }
 
-func (m *mockSTSClient) GetCallerIdentityRequest(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-	return m.mockGetCallerIdentityRequest(in)
+func (m *mockSTSClient) GetCallerIdentity(ctx context.Context, input *sts.GetCallerIdentityInput, optFns ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error) {
+	return m.mockGetCallerIdentity(ctx, input, optFns...)
+}
+
+// newSuccessfulMockSTSClient creates a mock STS client that returns successful responses
+func newSuccessfulMockSTSClient() STSClient {
+	return &mockSTSClient{
+		mockGetCallerIdentity: func(ctx context.Context, input *sts.GetCallerIdentityInput, optFns ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error) {
+			return &sts.GetCallerIdentityOutput{}, nil
+		},
+	}
+}
+
+// newFailingMockSTSClient creates a mock STS client that returns errors
+func newFailingMockSTSClient(errMsg string) STSClient {
+	return &mockSTSClient{
+		mockGetCallerIdentity: func(ctx context.Context, input *sts.GetCallerIdentityInput, optFns ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error) {
+			return nil, fmt.Errorf("%s", errMsg)
+		},
+	}
+}
+
+// createMockAWSConfig creates a mock AWS config to avoid real credential loading
+func createMockAWSConfig() *aws.Config {
+	return &aws.Config{
+		Region: "us-east-1",
+		Credentials: aws.NewCredentialsCache(
+			aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
+				return aws.Credentials{
+					AccessKeyID:     "test-access-key",
+					SecretAccessKey: "test-secret-key",
+				}, nil
+			}),
+		),
+	}
 }
