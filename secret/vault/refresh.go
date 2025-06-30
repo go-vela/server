@@ -56,7 +56,7 @@ func (c *Client) initialize() error {
 	return nil
 }
 
-// getAwsTokenWithConfig allows passing a pre-loaded AWS config
+// getAwsTokenWithConfig allows passing a pre-loaded AWS config.
 func (c *Client) getAwsTokenWithConfig(ctx context.Context, cfg *aws.Config) (string, time.Duration, error) {
 	headers, err := c.generateAwsAuthHeaders(ctx, *cfg)
 	if err != nil {
@@ -77,8 +77,8 @@ func (c *Client) getAwsTokenWithConfig(ctx context.Context, cfg *aws.Config) (st
 	return secret.Auth.ClientToken, time.Duration(secret.Auth.LeaseDuration) * time.Second, nil
 }
 
-// generateAwsAuthHeaders gets AWS auth headers for Vault authentication (requires config)
-func (c *Client) generateAwsAuthHeaders(ctx context.Context, cfg aws.Config) (map[string]interface{}, error) {
+// generateAwsAuthHeaders gets AWS auth headers for Vault authentication (requires config).
+func (c *Client) generateAwsAuthHeaders(ctx context.Context, cfg aws.Config) (map[string]any, error) {
 	c.Logger.Trace("generating AWS auth headers for vault")
 
 	// create credentials from the provided config
@@ -101,6 +101,7 @@ func (c *Client) generateAwsAuthHeaders(ctx context.Context, cfg aws.Config) (ma
 	httpReq.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
 
 	signer := awssign.NewSigner()
+
 	err = signer.SignHTTP(ctx, creds, httpReq, requestBody, "sts", cfg.Region, time.Now())
 	if err != nil {
 		return nil, err

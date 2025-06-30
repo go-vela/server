@@ -200,30 +200,30 @@ func (m *mockSTSClient) GetCallerIdentity(ctx context.Context, input *sts.GetCal
 	return m.mockGetCallerIdentity(ctx, input, optFns...)
 }
 
-// newSuccessfulMockSTSClient creates a mock STS client that returns successful responses
+// newSuccessfulMockSTSClient creates a mock STS client that returns successful responses.
 func newSuccessfulMockSTSClient() STSClient {
 	return &mockSTSClient{
-		mockGetCallerIdentity: func(ctx context.Context, input *sts.GetCallerIdentityInput, optFns ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error) {
+		mockGetCallerIdentity: func(_ context.Context, _ *sts.GetCallerIdentityInput, _ ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error) {
 			return &sts.GetCallerIdentityOutput{}, nil
 		},
 	}
 }
 
-// newFailingMockSTSClient creates a mock STS client that returns errors
+// newFailingMockSTSClient creates a mock STS client that returns errors.
 func newFailingMockSTSClient(errMsg string) STSClient {
 	return &mockSTSClient{
-		mockGetCallerIdentity: func(ctx context.Context, input *sts.GetCallerIdentityInput, optFns ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error) {
+		mockGetCallerIdentity: func(_ context.Context, _ *sts.GetCallerIdentityInput, _ ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error) {
 			return nil, fmt.Errorf("%s", errMsg)
 		},
 	}
 }
 
-// createMockAWSConfig creates a mock AWS config to avoid real credential loading
+// createMockAWSConfig creates a mock AWS config to avoid real credential loading.
 func createMockAWSConfig() *aws.Config {
 	return &aws.Config{
 		Region: "us-east-1",
 		Credentials: aws.NewCredentialsCache(
-			aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
+			aws.CredentialsProviderFunc(func(_ context.Context) (aws.Credentials, error) {
 				return aws.Credentials{
 					AccessKeyID:     "test-access-key",
 					SecretAccessKey: "test-secret-key",

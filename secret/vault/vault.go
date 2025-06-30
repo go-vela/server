@@ -22,7 +22,7 @@ const (
 	PrefixVaultV2 = "secret/data"
 )
 
-// STSClient interface for mocking STS operations for AWS
+// STSClient interface for mocking STS operations for AWS.
 type STSClient interface {
 	GetCallerIdentity(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error)
 }
