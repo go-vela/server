@@ -206,11 +206,11 @@ func validateReservedNames(p *pipeline.Build) error {
 	}
 
 	if shouldValidateClone && cloneCount > 1 {
-		return fmt.Errorf("only one clone step is allowed")
+		return fmt.Errorf("only one clone step/stage is allowed - rename duplicate clone steps/stages to avoid conflicts with the reserved 'clone' name")
 	}
 
 	if initCount > 1 {
-		return fmt.Errorf("only one init step is allowed")
+		return fmt.Errorf("only one init step/stage is allowed - rename duplicate init steps/stages to avoid conflicts with the reserved 'init' name")
 	}
 
 	return nil
