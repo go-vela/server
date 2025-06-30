@@ -87,8 +87,9 @@ func (c *Client) generateAwsAuthHeaders(ctx context.Context, cfg aws.Config) (ma
 		return nil, err
 	}
 
+	// see https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html
 	stsURL := "https://sts.amazonaws.com/"
-	requestBody := "Action=GetCallerIdentity&Version=2011-06-15"
+	requestBody := "Action=GetCallerIdentity&Version=2011-06-15" // yes, that is the latest version
 
 	reqCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
