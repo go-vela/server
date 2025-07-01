@@ -45,7 +45,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.37.0
 	go.opentelemetry.io/otel/sdk v1.37.0
 	go.opentelemetry.io/otel/trace v1.37.0
-	go.starlark.net v0.0.0-20250623223156-8bf495bf4e9a
+	go.starlark.net v0.0.0-20250701195324-d457b4515e0e
 	go.yaml.in/yaml/v3 v3.0.4
 	golang.org/x/crypto v0.39.0
 	golang.org/x/oauth2 v0.30.0
