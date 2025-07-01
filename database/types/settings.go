@@ -32,6 +32,7 @@ type (
 		RepoAllowlist     pq.StringArray `json:"repo_allowlist"      sql:"repo_allowlist"      gorm:"type:varchar(1000)"`
 		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist"  sql:"schedule_allowlist"  gorm:"type:varchar(1000)"`
 		MaxDashboardRepos sql.NullInt32  `json:"max_dashboard_repos" sql:"max_dashboard_repos"`
+		QueueRestartLimit sql.NullInt32  `json:"queue_restart_limit" sql:"queue_restart_limit"`
 
 		CreatedAt sql.NullInt64  `sql:"created_at"`
 		UpdatedAt sql.NullInt64  `sql:"updated_at"`
@@ -138,6 +139,11 @@ func (ps *Platform) Nullify() *Platform {
 		ps.MaxDashboardRepos.Valid = false
 	}
 
+	// check if the QueueRestartLimit field should be false
+	if ps.QueueRestartLimit.Int32 < 0 {
+		ps.QueueRestartLimit.Valid = false
+	}
+
 	// check if the CreatedAt field should be false
 	if ps.CreatedAt.Int64 < 0 {
 		ps.CreatedAt.Valid = false
@@ -160,6 +166,7 @@ func (ps *Platform) ToAPI() *settings.Platform {
 	psAPI.SetRepoAllowlist(ps.RepoAllowlist)
 	psAPI.SetScheduleAllowlist(ps.ScheduleAllowlist)
 	psAPI.SetMaxDashboardRepos(ps.MaxDashboardRepos.Int32)
+	psAPI.SetQueueRestartLimit(ps.QueueRestartLimit.Int32)
 
 	psAPI.Compiler = new(settings.Compiler)
 	psAPI.SetCloneImage(ps.CloneImage.String)
@@ -225,6 +232,10 @@ func (ps *Platform) Validate() error {
 		return fmt.Errorf("max dashboard repos must be greater than zero, got: %d", ps.MaxDashboardRepos.Int32)
 	}
 
+	if ps.QueueRestartLimit.Int32 < 0 {
+		return fmt.Errorf("queue restart limit must be greater than or equal to zero, got: %d", ps.QueueRestartLimit.Int32)
+	}
+
 	if ps.CreatedAt.Int64 < 0 {
 		return fmt.Errorf("created_at must be greater than zero, got: %d", ps.CreatedAt.Int64)
 	}
@@ -257,6 +268,7 @@ func SettingsFromAPI(s *settings.Platform) *Platform {
 		RepoAllowlist:     pq.StringArray(s.GetRepoAllowlist()),
 		ScheduleAllowlist: pq.StringArray(s.GetScheduleAllowlist()),
 		MaxDashboardRepos: sql.NullInt32{Int32: s.GetMaxDashboardRepos(), Valid: true},
+		QueueRestartLimit: sql.NullInt32{Int32: s.GetQueueRestartLimit(), Valid: true},
 		CreatedAt:         sql.NullInt64{Int64: s.GetCreatedAt(), Valid: true},
 		UpdatedAt:         sql.NullInt64{Int64: s.GetUpdatedAt(), Valid: true},
 		UpdatedBy:         sql.NullString{String: s.GetUpdatedBy(), Valid: true},

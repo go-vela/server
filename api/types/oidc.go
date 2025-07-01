@@ -24,15 +24,15 @@ type OpenIDClaims struct {
 	Actor       string         `json:"actor,omitempty"`
 	ActorSCMID  string         `json:"actor_scm_id,omitempty"`
 	Branch      string         `json:"branch,omitempty"`
-	BuildID     int64          `json:"build_id,omitempty"`
-	BuildNumber int64          `json:"build_number,omitempty"`
-	Commands    bool           `json:"commands,omitempty"`
+	BuildID     string         `json:"build_id,omitempty"`
+	BuildNumber string         `json:"build_number,omitempty"`
+	Commands    string         `json:"commands,omitempty"`
 	CustomProps map[string]any `json:"custom_properties,omitempty"`
 	Event       string         `json:"event,omitempty"`
 	Image       string         `json:"image,omitempty"`
 	ImageName   string         `json:"image_name,omitempty"`
 	ImageTag    string         `json:"image_tag,omitempty"`
-	PullFork    bool           `json:"pull_fork,omitempty"`
+	PullFork    string         `json:"pull_fork,omitempty"`
 	Ref         string         `json:"ref,omitempty"`
 	Repo        string         `json:"repo,omitempty"`
 	Request     string         `json:"request,omitempty"`

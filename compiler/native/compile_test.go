@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-github/v72/github"
-	yml "gopkg.in/yaml.v3"
+	yml "go.yaml.in/yaml/v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
@@ -33,9 +33,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -293,9 +292,8 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -382,9 +380,8 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -453,9 +450,8 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -671,9 +667,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -933,9 +928,8 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -1159,9 +1153,8 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -1272,9 +1265,8 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -1384,9 +1376,8 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -1434,9 +1425,8 @@ func TestNative_Compile_Clone(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -1621,9 +1611,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -1829,9 +1818,8 @@ func TestNative_Compile_StageNameCollision(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -1879,9 +1867,8 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -2014,9 +2001,8 @@ func TestNative_Compile_StepNameCollision(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -2064,9 +2050,8 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -2184,9 +2169,8 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -2236,9 +2220,8 @@ func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -2455,9 +2438,8 @@ func Test_client_modifyConfig(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -2728,9 +2710,8 @@ func Test_Compile_Inline(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -3539,9 +3520,8 @@ func Test_CompileLite(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",

@@ -7,6 +7,9 @@ const (
 	// EventComment defines the event type for comments added to a pull request.
 	EventComment = "comment"
 
+	// EventCustomProperties defines the event type for custom properties value updates.
+	EventCustomProperties = "custom_property_values"
+
 	// EventDelete defines the event type for build and repo delete events.
 	EventDelete = "delete"
 

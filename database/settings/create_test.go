@@ -24,6 +24,7 @@ func TestSettings_Engine_CreateSettings(t *testing.T) {
 	_settings.SetRepoAllowlist([]string{"octocat/hello-world"})
 	_settings.SetScheduleAllowlist([]string{"*"})
 	_settings.SetMaxDashboardRepos(10)
+	_settings.SetQueueRestartLimit(30)
 	_settings.SetCreatedAt(1)
 	_settings.SetUpdatedAt(1)
 	_settings.SetUpdatedBy("")
@@ -35,9 +36,9 @@ func TestSettings_Engine_CreateSettings(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "settings" ("compiler","queue","scm","repo_allowlist","schedule_allowlist","max_dashboard_repos","created_at","updated_at","updated_by","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
+	_mock.ExpectQuery(`INSERT INTO "settings" ("compiler","queue","scm","repo_allowlist","schedule_allowlist","max_dashboard_repos","queue_restart_limit","created_at","updated_at","updated_by","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING "id"`).
 		WithArgs(`{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
-			`{"routes":["vela"]}`, `{"repo_role_map":{"admin":"admin","triage":"read"},"org_role_map":{"admin":"admin","member":"read"},"team_role_map":{"admin":"admin"}}`, `{"octocat/hello-world"}`, `{"*"}`, 10, 1, 1, ``, 1).
+			`{"routes":["vela"]}`, `{"repo_role_map":{"admin":"admin","triage":"read"},"org_role_map":{"admin":"admin","member":"read"},"team_role_map":{"admin":"admin"}}`, `{"octocat/hello-world"}`, `{"*"}`, 10, 30, 1, 1, ``, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

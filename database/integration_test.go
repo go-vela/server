@@ -289,7 +289,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListBuilds"] = true
 
 	// list the builds for an org
-	list, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, 1, 10)
+	list, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list builds for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
@@ -2575,6 +2575,7 @@ func newResources() *Resources {
 	buildOne.SetBaseRef("")
 	buildOne.SetHeadRef("changes")
 	buildOne.SetHost("example.company.com")
+	buildOne.SetRoute("vela")
 	buildOne.SetRuntime("docker")
 	buildOne.SetDistribution("linux")
 	buildOne.SetApprovedAt(1563474078)
@@ -2613,6 +2614,7 @@ func newResources() *Resources {
 	buildTwo.SetBaseRef("")
 	buildTwo.SetHeadRef("changes")
 	buildTwo.SetHost("example.company.com")
+	buildTwo.SetRoute("vela")
 	buildTwo.SetRuntime("docker")
 	buildTwo.SetDistribution("linux")
 	buildTwo.SetApprovedAt(1563474078)

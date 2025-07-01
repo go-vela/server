@@ -175,7 +175,7 @@ func PostWebhook(c *gin.Context) {
 	l.Debugf("repo generated from SCM: %v", r)
 
 	// check if build was parsed from webhook.
-	if b == nil && h.GetEvent() != constants.EventRepository {
+	if b == nil && h.GetEvent() != constants.EventRepository && h.GetEvent() != constants.EventCustomProperties {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
 		c.JSON(http.StatusOK, "no build to process")
@@ -238,7 +238,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// if event is repository event, handle separately and return
-	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {
+	if h.GetEvent() == constants.EventRepository || h.GetEvent() == constants.EventCustomProperties {
 		r, err = handleRepositoryEvent(ctx, l, db, m, h, r, repo)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
@@ -620,7 +620,7 @@ func PostWebhook(c *gin.Context) {
 			queue.FromGinContext(c),
 			database.FromContext(c),
 			item,
-			b.GetHost(),
+			b.GetRoute(),
 		)
 	} else {
 		err := build.GatekeepBuild(c, item.Build, item.Build.GetRepo())
@@ -677,6 +677,13 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 		}
 
 		return r, nil
+	// custom_property_values.updated should be treated like we treat non-rename repo events
+	case "updated":
+		if h.GetEvent() != constants.EventCustomProperties {
+			return r, nil
+		}
+
+		fallthrough
 	// if action is archived, unarchived, or edited, perform edits to relevant repo fields
 	case "archived", "unarchived", constants.ActionEdited:
 		l.Debugf("repository action %s for %s", h.GetEventAction(), r.GetFullName())
