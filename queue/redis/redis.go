@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 
@@ -165,7 +164,7 @@ func pingQueue(ctx context.Context, c *Client) error {
 	}
 
 	// capture last seen non-nil error
-	return errors.Wrap(err, "unable to establish connection to Redis queue")
+	return fmt.Errorf("unable to establish connection to Redis queue: %w", err)
 }
 
 // NewTest returns a Queue implementation that
