@@ -1,0 +1,9 @@
+version: "1"
+
+stages:
+  clone:
+    steps:
+      - name: clone
+        image: alpine:latest
+        commands:
+          - echo 'hello'
