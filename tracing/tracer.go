@@ -6,11 +6,11 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -71,7 +71,7 @@ func initTracer(ctx context.Context, cfg Config) (*sdktrace.TracerProvider, erro
 
 	exporterURL, err := url.Parse(cfg.ExporterURL)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("unable to parse otel exporter URL (ex. scheme://host:port): %s", cfg.ExporterURL))
+		return nil, fmt.Errorf("unable to parse otel exporter URL (ex. scheme://host:port): %s", cfg.ExporterURL)
 	}
 
 	if len(exporterURL.Hostname()) == 0 {

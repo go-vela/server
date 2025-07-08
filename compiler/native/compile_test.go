@@ -14,8 +14,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v72/github"
-	yml "gopkg.in/yaml.v3"
+	"github.com/google/go-github/v73/github"
+	yml "go.yaml.in/yaml/v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
