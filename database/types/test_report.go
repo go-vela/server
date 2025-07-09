@@ -31,36 +31,36 @@ type TestReport struct {
 // When a field within the TestReport type is the zero
 // value for the field, the valid flag is set to
 // false causing it to be NULL in the database.
-func (r *TestReport) Nullify() *TestReport {
-	if r == nil {
+func (tr *TestReport) Nullify() *TestReport {
+	if tr == nil {
 		return nil
 	}
 
 	// check if the ID field should be false
-	if r.ID.Int64 == 0 {
-		r.ID.Valid = false
+	if tr.ID.Int64 == 0 {
+		tr.ID.Valid = false
 	}
 
 	// check if the BuildID field should be false
-	if r.BuildID.Int64 == 0 {
-		r.BuildID.Valid = false
+	if tr.BuildID.Int64 == 0 {
+		tr.BuildID.Valid = false
 	}
 
 	// check if the Created field should be false
-	if r.CreatedAt.Int64 == 0 {
-		r.CreatedAt.Valid = false
+	if tr.CreatedAt.Int64 == 0 {
+		tr.CreatedAt.Valid = false
 	}
 
-	return r
+	return tr
 }
 
 // ToAPI converts the TestReport type
 // to an API TestReport type.
-func (r *TestReport) ToAPI() *api.TestReport {
+func (tr *TestReport) ToAPI() *api.TestReport {
 	report := new(api.TestReport)
-	report.SetID(r.ID.Int64)
-	report.SetBuildID(r.BuildID.Int64)
-	report.SetCreatedAt(r.CreatedAt.Int64)
+	report.SetID(tr.ID.Int64)
+	report.SetBuildID(tr.BuildID.Int64)
+	report.SetCreatedAt(tr.CreatedAt.Int64)
 
 	// set Repo based on presence of repo data
 	//var tra *api.TestAttachment
@@ -88,9 +88,9 @@ func (r *TestReport) ToAPI() *api.TestReport {
 
 // Validate verifies the necessary fields for
 // the TestReport type are populated correctly.
-func (r *TestReport) Validate() error {
+func (tr *TestReport) Validate() error {
 	// verify the BuildID field is populated
-	if r.BuildID.Int64 <= 0 {
+	if tr.BuildID.Int64 <= 0 {
 		return ErrEmptyReportBuildID
 	}
 
@@ -105,11 +105,11 @@ func (r *TestReport) Validate() error {
 
 // TestReportFromAPI converts the API TestReport type
 // to a database report type.
-func TestReportFromAPI(r *api.TestReport) *TestReport {
+func TestReportFromAPI(tr *api.TestReport) *TestReport {
 	report := &TestReport{
-		ID:        sql.NullInt64{Int64: r.GetID(), Valid: r.GetID() > 0},
-		BuildID:   sql.NullInt64{Int64: r.GetBuildID(), Valid: r.GetBuildID() > 0},
-		CreatedAt: sql.NullInt64{Int64: r.GetCreatedAt(), Valid: r.GetCreatedAt() > 0},
+		ID:        sql.NullInt64{Int64: tr.GetID(), Valid: tr.GetID() > 0},
+		BuildID:   sql.NullInt64{Int64: tr.GetBuildID(), Valid: tr.GetBuildID() > 0},
+		CreatedAt: sql.NullInt64{Int64: tr.GetCreatedAt(), Valid: tr.GetCreatedAt() > 0},
 	}
 
 	return report.Nullify()

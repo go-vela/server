@@ -42,11 +42,14 @@ type TestReportInterface interface {
 	// GetTestReport returns a test report by ID.
 	GetTestReport(context.Context, int64) (*api.TestReport, error)
 
+	// GetTestReportForBuild defines a function that gets a test report by number and build ID.
+	GetTestReportForBuild(context.Context, *api.Build) (*api.TestReport, error)
+
 	// ListTestReports returns a list of all test reports.
 	ListTestReports(context.Context) ([]*api.TestReport, error)
 
 	// ListTestReportsByBuild returns a list of test reports by build ID.
-	ListTestReportsByBuild(context.Context, *api.Build, int, int) ([]*api.TestReport, error)
+	ListTestReportsByBuild(context.Context, *api.Build, int, int) ([]*api.TestReport, error) // TODO atm,  there will only be 1 test report per build.
 
 	// ListTestReportsByRepo returns a list of test reports by repo ID.
 	ListTestReportsByRepo(context.Context, *api.Repo, int, int) ([]*api.TestReport, error)

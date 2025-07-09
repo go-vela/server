@@ -11,11 +11,10 @@ import (
 // TestAttachmentHandlers is a function that extends the provided base router group
 // with the API handlers for test attachment functionality.
 //
-// POST   /api/v1/reports/testreport/:build_id/attachments/:attachment_id
-// TODO: this will be modified to follow a pattern similar to test report
+// POST   /api/v1/repos/:org/:repo/builds/:build/reports/testreport/attachments
 func TestAttachmentHandlers(base *gin.RouterGroup) {
 	// test attachment endpoints
-	_testattachment := base.Group("/reports/testreport/:testreport_id")
+	_testattachment := base.Group("/reports/testreport/attachments")
 	{
 		_testattachment.POST("", testattachment.CreateTestAttachment)
 

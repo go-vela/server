@@ -3,6 +3,7 @@ package testattachment
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api/types"
@@ -14,6 +15,7 @@ import (
 func CreateTestAttachment(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
+	ctx := c.Request.Context()
 
 	// capture the test attachment from the request body
 	input := new(types.TestAttachment)
@@ -27,16 +29,22 @@ func CreateTestAttachment(c *gin.Context) {
 		return
 	}
 
+	// ensure test_report_id is defined
+	if input.GetTestReportID() <= 0 {
+		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("test_report_id must set and greater than 0"))
+		return
+	}
+
+	input.SetCreatedAt(time.Now().UTC().Unix())
+
 	l.Debugf("creating new test attachment")
 
-	// TODO this isn't working yet, but will compile
-	ta := new(types.TestAttachment)
+	// create the test attachment in the database using the input from request
+	ta, err := database.FromContext(c).CreateTestAttachment(ctx, input)
 
-	// create the test attachment in the database
-	ta, err = database.FromContext(c).CreateTestAttachment(c, ta)
 	if err != nil {
 
-		retErr := fmt.Errorf("unable to create new test report: %w", err)
+		retErr := fmt.Errorf("unable to create new test attachment: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

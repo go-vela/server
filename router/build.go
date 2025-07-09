@@ -45,6 +45,9 @@ func BuildHandlers(base *gin.RouterGroup) {
 			// * Log endpoints
 			StepHandlers(b)
 
+			// Test attachment endpoints
+			TestAttachmentHandlers(b)
+
 			// Test report endpoints
 			TestReportHandlers(b)
 		} // end of build endpoints

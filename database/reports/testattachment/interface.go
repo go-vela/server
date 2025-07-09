@@ -36,6 +36,9 @@ type TestAttachmentInterface interface {
 	// GetTestAttachment returns a test attachment by ID.
 	GetTestAttachment(context.Context, int64) (*api.TestAttachment, error)
 
+	// GetTestAttachmentForBuild defines a function that gets a test report by number and build ID.
+	GetTestAttachmentForBuild(context.Context, *api.Build) (*api.TestAttachment, error)
+
 	// ListTestAttachments returns a list of all test attachments.
 	ListTestAttachments(context.Context) ([]*api.TestAttachment, error)
 
