@@ -213,7 +213,7 @@ func ExplainPipeline(c *gin.Context) {
 	aiClient.Timeout = 30 * time.Second
 
 	// set the API endpoint path we send the request to
-	url := "https://thinktank.prod.target.com/v1/chat/completions"
+	url := os.Getenv("OPENAI_API_URL")
 
 	req, err := http.NewRequestWithContext(context.Background(), "POST", url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
