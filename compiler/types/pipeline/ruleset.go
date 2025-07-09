@@ -8,6 +8,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/expr-lang/expr"
+
+	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/constants"
 )
 
@@ -40,7 +43,9 @@ type (
 		Target   Ruletype `json:"target,omitempty"   yaml:"target,omitempty"`
 		Label    Ruletype `json:"label,omitempty"    yaml:"label,omitempty"`
 		Instance Ruletype `json:"instance,omitempty" yaml:"instance,omitempty"`
-		Parallel bool     `json:"-"                  yaml:"-"`
+		Eval     string   `json:"eval,omitempty"     yaml:"eval,omitempty"`
+		Operator string   `json:"operator,omitempty" yaml:"operator,omitempty"`
+		Matcher  string   `json:"matcher,omitempty"  yaml:"matcher,omitempty"`
 	}
 
 	// Ruletype is the pipeline representation of an element
@@ -52,35 +57,29 @@ type (
 	// RuleData is the data to check our ruleset
 	// against for a step in a pipeline.
 	RuleData struct {
-		Branch   string   `json:"branch,omitempty"   yaml:"branch,omitempty"`
-		Comment  string   `json:"comment,omitempty"  yaml:"comment,omitempty"`
-		Event    string   `json:"event,omitempty"    yaml:"event,omitempty"`
-		Path     []string `json:"path,omitempty"     yaml:"path,omitempty"`
-		Repo     string   `json:"repo,omitempty"     yaml:"repo,omitempty"`
-		Sender   string   `json:"sender,omitempty"   yaml:"sender,omitempty"`
-		Status   string   `json:"status,omitempty"   yaml:"status,omitempty"`
-		Tag      string   `json:"tag,omitempty"      yaml:"tag,omitempty"`
-		Target   string   `json:"target,omitempty"   yaml:"target,omitempty"`
-		Label    []string `json:"label,omitempty"    yaml:"label,omitempty"`
-		Instance string   `json:"instance,omitempty" yaml:"instance,omitempty"`
-		Parallel bool     `json:"-"                  yaml:"-"`
+		Branch   string
+		Comment  string
+		Event    string
+		Path     []string
+		Repo     string
+		Sender   string
+		Status   string
+		Tag      string
+		Target   string
+		Label    []string
+		Instance string
+		Env      raw.StringSliceMap
 	}
 )
 
-// Match returns true when the provided ruledata matches
-// the if rules and does not match any of the unless rules.
-// When the provided if rules are empty, the function returns
-// true. When both the provided if and unless rules are empty,
-// the function also returns true.
-func (r *Ruleset) Match(from *RuleData) (bool, error) {
-	// return true when the if and unless rules are empty
-	if r.If.Empty() && r.Unless.Empty() {
+// Match checks if the context data of a given pipeline compilation matches the ruleset defined.
+func (data *RuleData) Match(set Ruleset) (bool, error) {
+	if set.If.Empty() && set.Unless.Empty() {
 		return true, nil
 	}
 
-	// return false when the unless rules are not empty and match
-	if !r.Unless.Empty() {
-		match, err := r.Unless.Match(from, r.Matcher, r.Operator)
+	if !set.Unless.Empty() {
+		match, err := data.MatchRules(set.Unless)
 		if err != nil {
 			return false, err
 		}
@@ -90,21 +89,146 @@ func (r *Ruleset) Match(from *RuleData) (bool, error) {
 		}
 	}
 
-	// return true when the if rules are empty
-	if r.If.Empty() {
+	if set.If.Empty() {
 		return true, nil
 	}
 
-	// return true when the if rules match
-	match, err := r.If.Match(from, r.Matcher, r.Operator)
+	match, err := data.MatchRules(set.If)
+	if err != nil {
+		return false, err
+	}
 
-	return match, err
+	return match, nil
 }
 
-// NoStatus returns true if the status field is empty.
-func (r *Rules) NoStatus() bool {
-	// return true if every ruletype is empty
-	return len(r.Status) == 0
+// MatchRules iterates through the defined rules in a ruleset and determines if the data matches.
+func (data *RuleData) MatchRules(rules Rules) (bool, error) {
+	isOr := strings.EqualFold(rules.Operator, constants.OperatorOr)
+
+	var (
+		match bool
+		err   error
+	)
+
+	// build is being compiled - status does not matter
+	if len(rules.Status) > 0 && data.Status == constants.StatusPending {
+		return true, nil
+	}
+
+	// set running to success on ruleset evaluations (c.Execute)
+	if len(rules.Status) > 0 && data.Status == constants.StatusRunning {
+		data.Status = constants.StatusSuccess
+	}
+
+	// run eval first
+	if len(rules.Eval) > 0 && data.Env != nil {
+		eval, err := expr.Compile(rules.Eval, expr.Env(data.Env), expr.AllowUndefinedVariables(), expr.AsBool())
+		if err != nil {
+			return false, fmt.Errorf("failed to compile eval of %s: %w", rules.Eval, err)
+		}
+
+		result, err := expr.Run(eval, data.Env)
+		if err != nil {
+			return false, fmt.Errorf("failed to run eval of %s: %w", rules.Eval, err)
+		}
+
+		bResult, ok := result.(bool)
+		if !ok {
+			return false, fmt.Errorf("failed to parse eval of %s: expected bool but got %v", rules.Eval, bResult)
+		}
+
+		match = bResult
+
+		// early exit if OR + truthy
+		if isOr && match {
+			return true, nil
+		}
+
+		// early exit if AND + falsy
+		if !isOr && !match {
+			return false, nil
+		}
+	}
+
+	// define rule data type
+	ruleSets := []struct {
+		data []string
+		rule Ruletype
+	}{
+		{[]string{data.Branch}, rules.Branch},
+		{[]string{data.Comment}, rules.Comment},
+		{[]string{data.Event}, rules.Event},
+		{data.Path, rules.Path},
+		{[]string{data.Repo}, rules.Repo},
+		{[]string{data.Sender}, rules.Sender},
+		{[]string{data.Status}, rules.Status},
+		{[]string{data.Tag}, rules.Tag},
+		{[]string{data.Target}, rules.Target},
+		{data.Label, rules.Label},
+		{[]string{data.Instance}, rules.Instance},
+	}
+
+	for _, rs := range ruleSets {
+		// if user has specified no rule, continue
+		if len(rs.rule) == 0 {
+			continue
+		}
+
+		match, err = MatchRule(rs.data, rs.rule, rules.Matcher)
+		if err != nil {
+			return false, err
+		}
+
+		// early exit if OR + truthy
+		if isOr && match {
+			return true, nil
+		}
+
+		// early exit if AND + falsy
+		if !isOr && !match {
+			return false, nil
+		}
+	}
+
+	return match, nil
+}
+
+// MatchRule determines the truthy value of a rule compared to incoming data given the matcher type.
+func MatchRule(data []string, comparator []string, matcher string) (bool, error) {
+	var err error
+
+	// for each defined pattern by user
+	for _, c := range comparator {
+		// if matcher is regex, compile the pattern
+		var pattern *regexp.Regexp
+		if matcher == constants.MatcherRegex || matcher == "regex" {
+			pattern, err = regexp.Compile(c)
+			if err != nil {
+				return false, fmt.Errorf("error in regex pattern %s: %w", c, err)
+			}
+		}
+
+		// for each rule data value
+		for _, d := range data {
+			switch matcher {
+			case constants.MatcherRegex, "regex":
+				if pattern.MatchString(d) {
+					return true, nil
+				}
+			default:
+				match, err := filepath.Match(c, d)
+				if err != nil {
+					return false, err
+				}
+
+				if match {
+					return true, nil
+				}
+			}
+		}
+	}
+
+	return false, nil
 }
 
 // Empty returns true if the provided ruletypes are empty.
@@ -120,188 +244,11 @@ func (r *Rules) Empty() bool {
 		len(r.Tag) == 0 &&
 		len(r.Target) == 0 &&
 		len(r.Label) == 0 &&
-		len(r.Instance) == 0 {
+		len(r.Instance) == 0 &&
+		len(r.Eval) == 0 {
 		return true
 	}
 
 	// return false if any of the ruletype is provided
 	return false
-}
-
-// Match returns true for the `or` operator when one of the
-// ruletypes from the rules match the provided ruledata.
-// Match returns true for the `and` operator when all of the
-// ruletypes from the rules match the provided ruledata. For
-// both operators, when none of the ruletypes from the rules
-// match the provided ruledata, the function returns false.
-func (r *Rules) Match(from *RuleData, matcher, op string) (bool, error) {
-	status, err := r.matchStatus(from, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchBranch, err := r.Branch.MatchSingle(from.Branch, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchComment, err := r.Comment.MatchSingle(from.Comment, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchEvent, err := r.Event.MatchSingle(from.Event, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchPath, err := r.Path.MatchMultiple(from.Path, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchRepo, err := r.Repo.MatchSingle(from.Repo, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchSender, err := r.Sender.MatchSingle(from.Sender, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchTag, err := r.Tag.MatchSingle(from.Tag, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchTarget, err := r.Target.MatchSingle(from.Target, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchLabel, err := r.Label.MatchMultiple(from.Label, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	matchInstance, err := r.Instance.MatchSingle(from.Instance, matcher, op)
-	if err != nil {
-		return false, err
-	}
-
-	return r.evaluateMatches(op, status, matchBranch, matchComment, matchEvent, matchPath, matchRepo, matchSender, matchTag, matchTarget, matchLabel, matchInstance), nil
-}
-
-func (r *Rules) matchStatus(from *RuleData, matcher, op string) (bool, error) {
-	if len(from.Status) == 0 {
-		return true, nil
-	}
-
-	return r.Status.MatchSingle(from.Status, matcher, op)
-}
-
-func (r *Rules) evaluateMatches(op string, matches ...bool) bool {
-	switch op {
-	case constants.OperatorOr:
-		for _, match := range matches {
-			if match {
-				return true
-			}
-		}
-
-		return false
-	default:
-		for _, match := range matches {
-			if !match {
-				return false
-			}
-		}
-
-		return true
-	}
-}
-
-// MatchSingle returns true when the provided ruletype
-// matches the provided ruledata. When the provided
-// ruletype is empty, the function returns true for
-// the `and` operator and false for the `or` operator.
-func (r *Ruletype) MatchSingle(data, matcher, logic string) (bool, error) {
-	// return true for `and`, false for `or` if an empty ruletype is provided
-	if len(*r) == 0 {
-		return strings.EqualFold(logic, constants.OperatorAnd), nil
-	}
-
-	// iterate through each pattern in the ruletype
-	for _, pattern := range *r {
-		match, err := match(data, matcher, pattern)
-		if err != nil {
-			return false, err
-		}
-
-		if match {
-			return true, nil
-		}
-	}
-
-	// return false if no match is found
-	return false, nil
-}
-
-// MatchMultiple returns true when the provided ruletype
-// matches the provided ruledata. When the provided
-// ruletype is empty, the function returns true for
-// the `and` operator and false for the `or` operator.
-func (r *Ruletype) MatchMultiple(data []string, matcher, logic string) (bool, error) {
-	// return true for `and`, false for `or` if an empty ruletype is provided
-	if len(*r) == 0 {
-		return strings.EqualFold(logic, constants.OperatorAnd), nil
-	}
-
-	// iterate through each pattern in the ruletype
-	for _, pattern := range *r {
-		for _, value := range data {
-			match, err := match(value, matcher, pattern)
-			if err != nil {
-				return false, err
-			}
-
-			if match {
-				return true, nil
-			}
-		}
-	}
-
-	// return false if no match is found
-	return false, nil
-}
-
-// match is a helper function that compares data against a pattern
-// and returns true if the data matches the pattern, depending on
-// matcher specified.
-func match(data, matcher, pattern string) (bool, error) {
-	// handle the pattern based off the matcher provided
-	switch matcher {
-	case constants.MatcherRegex, "regex":
-		regExpPattern, err := regexp.Compile(pattern)
-		if err != nil {
-			return false, fmt.Errorf("error in regex pattern %s: %w", pattern, err)
-		}
-
-		// return true if the regexp pattern matches the ruledata
-		if regExpPattern.MatchString(data) {
-			return true, nil
-		}
-	case constants.MatcherFilepath:
-		fallthrough
-	default:
-		// return true if the pattern matches the ruledata
-		ok, _ := filepath.Match(pattern, data)
-		if ok {
-			return true, nil
-		}
-	}
-
-	// return false if no match is found
-	return false, nil
 }

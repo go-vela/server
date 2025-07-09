@@ -60,12 +60,18 @@ func TestSecret_Engine_CreateSecret(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
+	_mock.ExpectBegin()
+
 	// ensure the mock expects the repo secrets query
 	_mock.ExpectQuery(`INSERT INTO "secrets"
 ("org","repo","team","name","value","type","images","allow_events","allow_command","allow_substitution","created_at","created_by","updated_at","updated_by","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 		WithArgs("foo", "bar", nil, "baz", testutils.AnyArgument{}, "repo", nil, 1, false, false, 1, "user", 1, "user2", 1).
 		WillReturnRows(_rows)
+
+	_mock.ExpectCommit()
+
+	_mock.ExpectBegin()
 
 	// ensure the mock expects the org secrets query
 	_mock.ExpectQuery(`INSERT INTO "secrets"
@@ -74,12 +80,18 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 		WithArgs("foo", "*", nil, "bar", testutils.AnyArgument{}, "org", nil, 3, false, false, 1, "user", 1, "user2", 2).
 		WillReturnRows(_rows)
 
+	_mock.ExpectCommit()
+
+	_mock.ExpectBegin()
+
 	// ensure the mock expects the shared secrets query
 	_mock.ExpectQuery(`INSERT INTO "secrets"
 ("org","repo","team","name","value","type","images","allow_events","allow_command","allow_substitution","created_at","created_by","updated_at","updated_by","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 		WithArgs("foo", nil, "bar", "baz", testutils.AnyArgument{}, "shared", nil, 1, false, false, 1, "user", 1, "user2", 3).
 		WillReturnRows(_rows)
+
+	_mock.ExpectCommit()
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -88,7 +100,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		secret   *api.Secret
 	}{
 		{

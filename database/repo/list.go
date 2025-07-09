@@ -11,27 +11,15 @@ import (
 )
 
 // ListRepos gets a list of all repos from the database.
-func (e *engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
+func (e *Engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
 	e.logger.Trace("listing all repos")
 
 	// variables to store query results and return value
-	count := int64(0)
 	r := new([]types.Repo)
 	repos := []*api.Repo{}
 
-	// count the results
-	count, err := e.CountRepos(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return repos, nil
-	}
-
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableRepo).
 		Preload("Owner").

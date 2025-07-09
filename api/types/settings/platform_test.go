@@ -36,12 +36,24 @@ func TestTypes_Platform_Getters(t *testing.T) {
 			t.Errorf("GetQueue is %v, want %v", test.platform.GetQueue(), test.want.GetQueue())
 		}
 
+		if !reflect.DeepEqual(test.platform.GetSCM(), test.want.GetSCM()) {
+			t.Errorf("GetSCM is %v, want %v", test.platform.GetSCM(), test.want.GetSCM())
+		}
+
 		if !reflect.DeepEqual(test.platform.GetRepoAllowlist(), test.want.GetRepoAllowlist()) {
 			t.Errorf("GetRepoAllowlist is %v, want %v", test.platform.GetRepoAllowlist(), test.want.GetRepoAllowlist())
 		}
 
 		if !reflect.DeepEqual(test.platform.GetScheduleAllowlist(), test.want.GetScheduleAllowlist()) {
 			t.Errorf("GetScheduleAllowlist is %v, want %v", test.platform.GetScheduleAllowlist(), test.want.GetScheduleAllowlist())
+		}
+
+		if test.platform.GetMaxDashboardRepos() != test.want.GetMaxDashboardRepos() {
+			t.Errorf("GetMaxDashboardRepos is %v, want %v", test.platform.GetMaxDashboardRepos(), test.want.GetMaxDashboardRepos())
+		}
+
+		if test.platform.GetQueueRestartLimit() != test.want.GetQueueRestartLimit() {
+			t.Errorf("GetQueueRestartLimit is %v, want %v", test.platform.GetQueueRestartLimit(), test.want.GetQueueRestartLimit())
 		}
 	}
 }
@@ -79,6 +91,12 @@ func TestTypes_Platform_Setters(t *testing.T) {
 			t.Errorf("SetQueue is %v, want %v", test.platform.GetQueue(), test.want.GetQueue())
 		}
 
+		test.platform.SetSCM(test.want.GetSCM())
+
+		if !reflect.DeepEqual(test.platform.GetSCM(), test.want.GetSCM()) {
+			t.Errorf("SetSCM is %v, want %v", test.platform.GetSCM(), test.want.GetSCM())
+		}
+
 		test.platform.SetRepoAllowlist(test.want.GetRepoAllowlist())
 
 		if !reflect.DeepEqual(test.platform.GetRepoAllowlist(), test.want.GetRepoAllowlist()) {
@@ -89,6 +107,18 @@ func TestTypes_Platform_Setters(t *testing.T) {
 
 		if !reflect.DeepEqual(test.platform.GetScheduleAllowlist(), test.want.GetScheduleAllowlist()) {
 			t.Errorf("SetScheduleAllowlist is %v, want %v", test.platform.GetScheduleAllowlist(), test.want.GetScheduleAllowlist())
+		}
+
+		test.platform.SetMaxDashboardRepos(test.want.GetMaxDashboardRepos())
+
+		if test.platform.GetMaxDashboardRepos() != test.want.GetMaxDashboardRepos() {
+			t.Errorf("SetMaxDashboardRepos is %v, want %v", test.platform.GetMaxDashboardRepos(), test.want.GetMaxDashboardRepos())
+		}
+
+		test.platform.SetQueueRestartLimit(test.want.GetQueueRestartLimit())
+
+		if test.platform.GetQueueRestartLimit() != test.want.GetQueueRestartLimit() {
+			t.Errorf("SetQueueRestartLimit is %v, want %v", test.platform.GetQueueRestartLimit(), test.want.GetQueueRestartLimit())
 		}
 	}
 }
@@ -101,8 +131,11 @@ func TestTypes_Platform_Update(t *testing.T) {
 	sUpdate := testPlatformSettings()
 	sUpdate.SetCompiler(Compiler{})
 	sUpdate.SetQueue(Queue{})
+	sUpdate.SetSCM(SCM{})
 	sUpdate.SetRepoAllowlist([]string{"foo"})
 	sUpdate.SetScheduleAllowlist([]string{"bar"})
+	sUpdate.SetMaxDashboardRepos(20)
+	sUpdate.SetQueueRestartLimit(60)
 
 	// setup tests
 	tests := []struct {
@@ -134,13 +167,17 @@ func TestTypes_Platform_String(t *testing.T) {
 	s := testPlatformSettings()
 	cs := s.GetCompiler()
 	qs := s.GetQueue()
+	scms := s.GetSCM()
 
 	want := fmt.Sprintf(`{
   ID: %d,
   Compiler: %v,
   Queue: %v,
+  SCM: %v,
   RepoAllowlist: %v,
   ScheduleAllowlist: %v,
+  MaxDashboardRepos: %d,
+  QueueRestartLimit: %d,
   CreatedAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -148,8 +185,11 @@ func TestTypes_Platform_String(t *testing.T) {
 		s.GetID(),
 		cs.String(),
 		qs.String(),
+		scms.String(),
 		s.GetRepoAllowlist(),
 		s.GetScheduleAllowlist(),
+		s.GetMaxDashboardRepos(),
+		s.GetQueueRestartLimit(),
 		s.GetCreatedAt(),
 		s.GetUpdatedAt(),
 		s.GetUpdatedBy(),
@@ -174,6 +214,8 @@ func testPlatformSettings() *Platform {
 	s.SetUpdatedBy("vela-server")
 	s.SetRepoAllowlist([]string{"foo", "bar"})
 	s.SetScheduleAllowlist([]string{"*"})
+	s.SetMaxDashboardRepos(10)
+	s.SetQueueRestartLimit(30)
 
 	// setup types
 	// setup compiler
@@ -188,8 +230,16 @@ func testPlatformSettings() *Platform {
 
 	qs.SetRoutes([]string{"vela"})
 
+	// setup scm
+	scms := new(SCM)
+
+	scms.SetRepoRoleMap(map[string]string{"foo": "bar"})
+	scms.SetOrgRoleMap(map[string]string{"foo": "bar"})
+	scms.SetTeamRoleMap(map[string]string{"foo": "bar"})
+
 	s.SetCompiler(*cs)
 	s.SetQueue(*qs)
+	s.SetSCM(*scms)
 
 	return s
 }

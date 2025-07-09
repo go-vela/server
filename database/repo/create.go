@@ -14,7 +14,7 @@ import (
 )
 
 // CreateRepo creates a new repo in the database.
-func (e *engine) CreateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error) {
+func (e *Engine) CreateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

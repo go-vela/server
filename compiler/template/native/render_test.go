@@ -6,11 +6,11 @@ import (
 	"os"
 	"testing"
 
-	goyaml "github.com/buildkite/yaml"
 	"github.com/google/go-cmp/cmp"
+	goyaml "go.yaml.in/yaml/v3"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 func TestNative_Render(t *testing.T) {
@@ -37,6 +37,7 @@ func TestNative_Render(t *testing.T) {
 		{"invalid yml", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/invalid.yml"}, "", true},
 		{"disallowed env func", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/disallowed/tmpl_env.yml"}, "", true},
 		{"disallowed expandenv func", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/disallowed/tmpl_expandenv.yml"}, "", true},
+		{"bad ruleset formatting", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/bad_ruleset_format.yml"}, "", true},
 	}
 
 	for _, tt := range tests {
@@ -59,7 +60,7 @@ func TestNative_Render(t *testing.T) {
 				t.Error(err)
 			}
 
-			tmplBuild, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables)
+			tmplBuild, _, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -120,7 +121,7 @@ func TestNative_RenderBuild(t *testing.T) {
 				t.Error(err)
 			}
 
-			got, err := RenderBuild("build", string(sFile), map[string]string{
+			got, _, err := RenderBuild("build", string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "main",
 			}, map[string]interface{}{})

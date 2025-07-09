@@ -13,9 +13,8 @@ type (
 
 	// Queue is the extra set of queue data passed to the compiler.
 	Queue struct {
-		Channel string `json:"channel"`
-		Driver  string `json:"driver"`
-		Host    string `json:"host"`
+		Driver string `json:"driver"`
+		Host   string `json:"host"`
 	}
 
 	// Source is the extra set of source data passed to the compiler.
@@ -32,6 +31,7 @@ type (
 		AccessTokenDuration  time.Duration `json:"access_token_duration"`
 		RefreshTokenDuration time.Duration `json:"refresh_token_duration"`
 		OpenIDIssuer         string        `json:"oidc_issuer"`
+		CorsAllowOrigins     []string      `json:"cors_allow_origins"`
 	}
 
 	// Metadata is the extra set of data passed to the compiler for

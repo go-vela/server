@@ -15,7 +15,7 @@ func TestTypes_Platform_Nullify(t *testing.T) {
 	var ps *Platform
 
 	want := &Platform{
-		ID: sql.NullInt64{Int64: 0, Valid: false},
+		ID: sql.NullInt32{Int32: 0, Valid: false},
 	}
 
 	// setup tests
@@ -53,6 +53,8 @@ func TestTypes_Platform_ToAPI(t *testing.T) {
 	want.SetID(1)
 	want.SetRepoAllowlist([]string{"github/octocat"})
 	want.SetScheduleAllowlist([]string{"*"})
+	want.SetMaxDashboardRepos(10)
+	want.SetQueueRestartLimit(30)
 	want.SetCreatedAt(0)
 	want.SetUpdatedAt(0)
 	want.SetUpdatedBy("")
@@ -64,6 +66,19 @@ func TestTypes_Platform_ToAPI(t *testing.T) {
 
 	want.Queue = new(api.Queue)
 	want.SetRoutes([]string{"vela"})
+
+	want.SCM = new(api.SCM)
+	want.SetRepoRoleMap(map[string]string{
+		"admin":  "admin",
+		"triage": "read",
+	})
+	want.SetOrgRoleMap(map[string]string{
+		"admin":  "admin",
+		"member": "read",
+	})
+	want.SetTeamRoleMap(map[string]string{
+		"admin": "admin",
+	})
 
 	// run test
 	got := testPlatform().ToAPI()
@@ -86,7 +101,8 @@ func TestTypes_Platform_Validate(t *testing.T) {
 		{ // no CloneImage set for settings
 			failure: true,
 			settings: &Platform{
-				ID: sql.NullInt64{Int64: 1, Valid: true},
+				ID:                sql.NullInt32{Int32: 1, Valid: true},
+				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
 				Compiler: Compiler{
 					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
 					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
@@ -96,7 +112,8 @@ func TestTypes_Platform_Validate(t *testing.T) {
 		{ // no TemplateDepth set for settings
 			failure: true,
 			settings: &Platform{
-				ID: sql.NullInt64{Int64: 1, Valid: true},
+				ID:                sql.NullInt32{Int32: 1, Valid: true},
+				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
 				Compiler: Compiler{
 					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
@@ -106,17 +123,43 @@ func TestTypes_Platform_Validate(t *testing.T) {
 		{ // no StarlarkExecLimit set for settings
 			failure: true,
 			settings: &Platform{
-				ID: sql.NullInt64{Int64: 1, Valid: true},
+				ID:                sql.NullInt32{Int32: 1, Valid: true},
+				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
 				Compiler: Compiler{
 					CloneImage:    sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 					TemplateDepth: sql.NullInt64{Int64: 10, Valid: true},
 				},
 			},
 		},
+		{ // no MaxDashboardRepos set for settings
+			failure: true,
+			settings: &Platform{
+				ID: sql.NullInt32{Int32: 1, Valid: true},
+				Compiler: Compiler{
+					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
+					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
+					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
+				},
+			},
+		},
+		{ // negative QueueRestartLimit set for settings
+			failure: true,
+			settings: &Platform{
+				ID:                sql.NullInt32{Int32: 1, Valid: true},
+				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
+				QueueRestartLimit: sql.NullInt32{Int32: -1, Valid: true},
+				Compiler: Compiler{
+					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
+					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
+					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
+				},
+			},
+		},
 		{ // no queue fields set for settings
 			failure: false,
 			settings: &Platform{
-				ID: sql.NullInt64{Int64: 1, Valid: true},
+				ID:                sql.NullInt32{Int32: 1, Valid: true},
+				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
 				Compiler: Compiler{
 					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
@@ -151,6 +194,8 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 	s.SetID(1)
 	s.SetRepoAllowlist([]string{"github/octocat"})
 	s.SetScheduleAllowlist([]string{"*"})
+	s.SetMaxDashboardRepos(10)
+	s.SetQueueRestartLimit(30)
 	s.SetCreatedAt(0)
 	s.SetUpdatedAt(0)
 	s.SetUpdatedBy("")
@@ -162,6 +207,19 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 
 	s.Queue = new(api.Queue)
 	s.SetRoutes([]string{"vela"})
+
+	s.SCM = new(api.SCM)
+	s.SetRepoRoleMap(map[string]string{
+		"admin":  "admin",
+		"triage": "read",
+	})
+	s.SetOrgRoleMap(map[string]string{
+		"admin":  "admin",
+		"member": "read",
+	})
+	s.SetTeamRoleMap(map[string]string{
+		"admin": "admin",
+	})
 
 	want := testPlatform()
 
@@ -177,7 +235,7 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 // type with all fields set to a fake value.
 func testPlatform() *Platform {
 	return &Platform{
-		ID: sql.NullInt64{Int64: 1, Valid: true},
+		ID: sql.NullInt32{Int32: 1, Valid: true},
 		Compiler: Compiler{
 			CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 			TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
@@ -186,8 +244,23 @@ func testPlatform() *Platform {
 		Queue: Queue{
 			Routes: []string{"vela"},
 		},
+		SCM: SCM{
+			RepoRoleMap: map[string]string{
+				"admin":  "admin",
+				"triage": "read",
+			},
+			OrgRoleMap: map[string]string{
+				"admin":  "admin",
+				"member": "read",
+			},
+			TeamRoleMap: map[string]string{
+				"admin": "admin",
+			},
+		},
 		RepoAllowlist:     []string{"github/octocat"},
 		ScheduleAllowlist: []string{"*"},
+		MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
+		QueueRestartLimit: sql.NullInt32{Int32: 30, Valid: true},
 		CreatedAt:         sql.NullInt64{Int64: 0, Valid: true},
 		UpdatedAt:         sql.NullInt64{Int64: 0, Valid: true},
 		UpdatedBy:         sql.NullString{String: "", Valid: true},

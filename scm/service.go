@@ -7,6 +7,9 @@ import (
 	"net/http"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 )
 
@@ -121,7 +124,7 @@ type Service interface {
 	StepStatus(context.Context, *api.User, *api.Build, *api.Step, string, string) error
 	// ListUserRepos defines a function that retrieves
 	// all repos with admin rights for the user.
-	ListUserRepos(context.Context, *api.User) ([]*api.Repo, error)
+	ListUserRepos(context.Context, *api.User) ([]string, error)
 	// GetBranch defines a function that retrieves
 	// a branch for a repo.
 	GetBranch(context.Context, *api.Repo, string) (string, string, error)
@@ -140,6 +143,12 @@ type Service interface {
 	// GetHTMLURL defines a function that retrieves
 	// a repository file's html_url.
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
+	// GetNetrcPassword defines a function that returns the netrc
+	// password injected into build steps.
+	GetNetrcPassword(context.Context, database.Interface, *api.Repo, *api.User, yaml.Git) (string, error)
+	// SyncRepoWithInstallation defines a function that syncs
+	// a repo with the installation, if it exists.
+	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)
 
 	// Webhook SCM Interface Functions
 
@@ -148,10 +157,27 @@ type Service interface {
 	ProcessWebhook(context.Context, *http.Request) (*internal.Webhook, error)
 	// VerifyWebhook defines a function that
 	// verifies the webhook from a repo.
-	VerifyWebhook(context.Context, *http.Request, *api.Repo) error
+	VerifyWebhook(context.Context, *http.Request, []byte) error
 	// RedeliverWebhook defines a function that
 	// redelivers the webhook from the SCM.
 	RedeliverWebhook(context.Context, *api.User, *api.Hook) error
+
+	// App Integration SCM Interface Functions
+
+	// ProcessInstallation defines a function that
+	// processes an installation event.
+	ProcessInstallation(context.Context, *http.Request, *internal.Webhook, database.Interface) error
+	// FinishInstallation defines a function that
+	// finishes an installation event and returns a web redirect.
+	FinishInstallation(context.Context, *http.Request, int64) (string, error)
+
+	// GetSettings defines a function that returns
+	// scm settings.
+	GetSettings() settings.SCM
+
+	// SetSettings defines a function that takes api settings
+	// and updates the compiler Engine.
+	SetSettings(*settings.Platform)
 
 	// TODO: Add convert functions to interface?
 }

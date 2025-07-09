@@ -77,7 +77,7 @@ func UpdateRepo(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	maxBuildLimit := c.Value("maxBuildLimit").(int64)
+	maxBuildLimit := c.Value("maxBuildLimit").(int32)
 	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
 	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
 	ctx := c.Request.Context()
@@ -115,6 +115,12 @@ func UpdateRepo(c *gin.Context) {
 		// update build timeout if set
 		limit := max(constants.BuildTimeoutMin, min(input.GetTimeout(), constants.BuildTimeoutMax))
 		r.SetTimeout(limit)
+	}
+
+	if input.GetApprovalTimeout() > 0 {
+		// update build approval timeout if set
+		limit := max(constants.ApprovalTimeoutMin, min(input.GetApprovalTimeout(), constants.ApprovalTimeoutMax))
+		r.SetApprovalTimeout(limit)
 	}
 
 	if input.GetCounter() > 0 {

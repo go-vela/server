@@ -4,14 +4,15 @@ package secret
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
@@ -28,6 +29,7 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
 	_secretOne.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretOne.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 
 	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
@@ -41,26 +43,21 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy("user2")
 	_secretTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretTwo.SetRepoAllowlist([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected name count query result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the name count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "secrets" WHERE type = $1 AND org = $2 AND team = $3`).
-		WithArgs(constants.SecretShared, "foo", "bar").WillReturnRows(_rows)
-
 	// create expected name query result in mock
-	_rows = sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(2, "shared", "foo", "", "bar", "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2").
-		AddRow(1, "shared", "foo", "", "bar", "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2")
+	_rows := testutils.CreateMockRows([]any{*types.SecretFromAPI(_secretTwo), *types.SecretFromAPI(_secretOne)})
+
+	_allowlistRows := testutils.CreateMockRows([]any{*types.SecretAllowlistFromAPI(_secretOne, "github/octocat"), *types.SecretAllowlistFromAPI(_secretOne, "github/octokitty")})
 
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND team = $3 ORDER BY id DESC LIMIT $4`).
 		WithArgs(constants.SecretShared, "foo", "bar", 10).WillReturnRows(_rows)
+
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(_allowlistRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -79,7 +76,7 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Secret
 	}{
 		{
@@ -101,7 +98,7 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListSecretsForTeam(context.TODO(), "foo", "bar", filters, 1, 10)
+			got, err := test.database.ListSecretsForTeam(context.TODO(), "foo", "bar", filters, 1, 10)
 
 			if test.failure {
 				if err == nil {
@@ -115,8 +112,8 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 				t.Errorf("ListSecretsForTeam for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("ListSecretsForTeam for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("ListSecretsForTeam mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -136,6 +133,7 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
 	_secretOne.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretOne.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 
 	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
@@ -149,26 +147,30 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy("user2")
 	_secretTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretTwo.SetRepoAllowlist([]string{"alpha/beta", "github/octocat"})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected name count query result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the name count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "secrets" WHERE type = $1 AND org = $2 AND LOWER(team) IN ($3,$4)`).
-		WithArgs(constants.SecretShared, "foo", "foo", "bar").WillReturnRows(_rows)
-
 	// create expected name query result in mock
-	_rows = sqlmock.NewRows(
+	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
 		AddRow(2, "shared", "foo", "", "bar", "foob", "baz", nil, 1, false, 1, "user", 1, "user2").
 		AddRow(1, "shared", "foo", "", "bar", "baz", "foob", nil, 1, false, 1, "user", 1, "user2")
 
+	_allowlistRows := testutils.CreateMockRows(
+		[]any{
+			*types.SecretAllowlistFromAPI(_secretOne, "github/octocat"),
+			*types.SecretAllowlistFromAPI(_secretOne, "github/octokitty"),
+			*types.SecretAllowlistFromAPI(_secretTwo, "alpha/beta"),
+			*types.SecretAllowlistFromAPI(_secretTwo, "github/octocat"),
+		})
+
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND LOWER(team) IN ($3,$4) ORDER BY id DESC LIMIT $5`).
 		WithArgs(constants.SecretShared, "foo", "foo", "bar", 10).WillReturnRows(_rows)
+
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(_allowlistRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -187,7 +189,7 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Secret
 	}{
 		{
@@ -209,7 +211,7 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListSecretsForTeams(context.TODO(), "foo", []string{"foo", "bar"}, filters, 1, 10)
+			got, err := test.database.ListSecretsForTeams(context.TODO(), "foo", []string{"foo", "bar"}, filters, 1, 10)
 
 			if test.failure {
 				if err == nil {
@@ -223,8 +225,8 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 				t.Errorf("ListSecretsForTeams for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("ListSecretsForTeams for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("ListSecretsForTeams mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

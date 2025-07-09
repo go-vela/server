@@ -11,7 +11,7 @@ import (
 )
 
 // GetSecret gets a secret by ID from the database.
-func (e *engine) GetSecret(ctx context.Context, id int64) (*api.Secret, error) {
+func (e *Engine) GetSecret(ctx context.Context, id int64) (*api.Secret, error) {
 	e.logger.Tracef("getting secret %d", id)
 
 	// variable to store query results
@@ -38,5 +38,5 @@ func (e *engine) GetSecret(ctx context.Context, id int64) (*api.Secret, error) {
 		e.logger.Errorf("unable to decrypt secret %d: %v", id, err)
 	}
 
-	return s.ToAPI(), nil
+	return e.FillSecretAllowlist(ctx, s.ToAPI())
 }

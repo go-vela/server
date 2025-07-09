@@ -13,7 +13,7 @@ import (
 )
 
 // CreateStep creates a new step in the database.
-func (e *engine) CreateStep(ctx context.Context, s *api.Step) (*api.Step, error) {
+func (e *Engine) CreateStep(ctx context.Context, s *api.Step) (*api.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
 	}).Tracef("creating step %s in the database", s.GetName())

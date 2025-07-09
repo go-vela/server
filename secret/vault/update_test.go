@@ -281,6 +281,7 @@ func TestVault_Update_Shared(t *testing.T) {
 	sec.SetAllowCommand(false)
 	sec.SetAllowSubstitution(false)
 	sec.SetAllowEvents(api.NewEventsFromMask(1))
+	sec.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 	sec.SetCreatedAt(1563474077)
 	sec.SetCreatedBy("octocat")
 	sec.SetUpdatedAt(1563474079)

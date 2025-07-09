@@ -93,6 +93,7 @@ const (
   "head_ref": "",
   "base_ref": "",
   "host": "example.company.com",
+  "route": "vela",
   "runtime": "docker",
   "distribution": "linux",
   "approved_at": 0,

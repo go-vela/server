@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 const (
@@ -36,7 +36,7 @@ const (
 )
 
 // TransformStages converts a yaml configuration with stages into an executable pipeline.
-func (c *client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline.Build, error) {
+func (c *Client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline.Build, error) {
 	// capture variables for setting the unique ID fields
 	org := c.repo.GetOrg()
 	name := c.repo.GetName()
@@ -65,12 +65,13 @@ func (c *client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline
 
 	// create new executable pipeline
 	pipeline := &pipeline.Build{
-		Version:  p.Version,
-		Metadata: *p.Metadata.ToPipeline(),
-		Stages:   *p.Stages.ToPipeline(),
-		Secrets:  *p.Secrets.ToPipeline(),
-		Services: *p.Services.ToPipeline(),
-		Worker:   *p.Worker.ToPipeline(),
+		Version:    p.Version,
+		Metadata:   *p.Metadata.ToPipeline(),
+		Stages:     *p.Stages.ToPipeline(),
+		Secrets:    *p.Secrets.ToPipeline(),
+		Services:   *p.Services.ToPipeline(),
+		Worker:     *p.Worker.ToPipeline(),
+		Deployment: *p.Deployment.ToPipeline(),
 	}
 
 	// set the unique ID for the executable pipeline
@@ -122,7 +123,7 @@ func (c *client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline
 }
 
 // TransformSteps converts a yaml configuration with steps into an executable pipeline.
-func (c *client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.Build, error) {
+func (c *Client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.Build, error) {
 	// capture variables for setting the unique ID fields
 	org := c.repo.GetOrg()
 	name := c.repo.GetName()
@@ -151,12 +152,13 @@ func (c *client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.
 
 	// create new executable pipeline
 	pipeline := &pipeline.Build{
-		Version:  p.Version,
-		Metadata: *p.Metadata.ToPipeline(),
-		Steps:    *p.Steps.ToPipeline(),
-		Secrets:  *p.Secrets.ToPipeline(),
-		Services: *p.Services.ToPipeline(),
-		Worker:   *p.Worker.ToPipeline(),
+		Version:    p.Version,
+		Metadata:   *p.Metadata.ToPipeline(),
+		Deployment: *p.Deployment.ToPipeline(),
+		Steps:      *p.Steps.ToPipeline(),
+		Secrets:    *p.Secrets.ToPipeline(),
+		Services:   *p.Services.ToPipeline(),
+		Worker:     *p.Worker.ToPipeline(),
 	}
 
 	// set the unique ID for the executable pipeline

@@ -13,7 +13,7 @@ import (
 )
 
 // Count counts a list of secrets.
-func (c *client) Count(ctx context.Context, sType, org, name string, teams []string) (int64, error) {
+func (c *Client) Count(ctx context.Context, sType, org, name string, teams []string) (int64, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:

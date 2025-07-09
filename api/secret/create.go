@@ -3,8 +3,10 @@
 package secret
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -14,6 +16,7 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
@@ -186,6 +189,19 @@ func CreateSecret(c *gin.Context) {
 		return
 	}
 
+	if len(input.GetRepoAllowlist()) > 0 {
+		input.SetRepoAllowlist(util.Unique(input.GetRepoAllowlist()))
+	}
+
+	err = validateAllowlist(ctx, database.FromContext(c), []string{}, input)
+	if err != nil {
+		retErr := fmt.Errorf("invalid allowlist: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	// reject secrets with solely whitespace characters as its value
 	trimmed := strings.TrimSpace(input.GetValue())
 	if len(trimmed) == 0 {
@@ -274,4 +290,34 @@ func CreateSecret(c *gin.Context) {
 	l.WithFields(fields).Infof("created secret %s for %s service", entry, e)
 
 	c.JSON(http.StatusOK, s.Sanitize())
+}
+
+// validateAllowlist is a helper function for create/update secret API handlers to verify allowlist configurations.
+func validateAllowlist(ctx context.Context, db database.Interface, currentAllowlist []string, s *types.Secret) error {
+	switch s.GetType() {
+	case constants.SecretRepo:
+		if len(s.GetRepoAllowlist()) > 0 {
+			return fmt.Errorf("repo secrets cannot have repository allowlists")
+		}
+	default:
+		for _, r := range s.GetRepoAllowlist() {
+			split := strings.Split(r, "/")
+			if len(split) != 2 {
+				return fmt.Errorf("repo %s in allowlist is in an invalid format. Must use `org`/`repo`", r)
+			}
+
+			if strings.EqualFold(s.GetType(), constants.SecretOrg) && split[0] != s.GetOrg() {
+				return fmt.Errorf("repo %s is not in org %s", r, s.GetOrg())
+			}
+
+			if !slices.Contains(currentAllowlist, r) {
+				_, err := db.GetRepoForOrg(ctx, split[0], split[1])
+				if err != nil {
+					return fmt.Errorf("repo %s in allowlist does not exist. Enable the repo in Vela and be sure to check casing", r)
+				}
+			}
+		}
+	}
+
+	return nil
 }

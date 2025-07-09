@@ -22,6 +22,15 @@ const (
 	// BuildTimeoutDefault defines the default value in minutes for repo build timeout.
 	BuildTimeoutDefault = 30
 
+	// ApprovalTimeoutMin defines the minimum value in days for the repo build approval timeout.
+	ApprovalTimeoutMin = 1
+
+	// ApprovalTimeoutMax defines the maximum value in days for the repo build approval timeout.
+	ApprovalTimeoutMax = 60
+
+	// ApprovalTimeout defines the default value in days for repo build approval timeout.
+	ApprovalTimeoutDefault = 7
+
 	// FavoritesMaxSize defines the maximum size in characters for user favorites.
 	FavoritesMaxSize = 5000
 
@@ -37,12 +46,12 @@ const (
 	// ReportStepStatusLimit defines the maximum number of steps in a pipeline that may report their status to the SCM.
 	ReportStepStatusLimit = 10
 
-	// DashboardRepoLimit defines the maximum number of repos that can be assigned to a dashboard.
-	DashboardRepoLimit = 10
-
 	// UserDashboardLimit defines the maximum number of dashboards that can be assigned to a user.
 	UserDashboardLimit = 10
 
 	// DashboardAdminMaxSize defines the maximum size in characters for dashboard admins.
 	DashboardAdminMaxSize = 5000
+
+	// PipelineWarningsMaxSize defines the maximum size in characters for the pipeline warnings.
+	PipelineWarningsMaxSize = 5000
 )

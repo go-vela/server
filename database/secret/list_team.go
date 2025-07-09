@@ -16,7 +16,7 @@ import (
 // ListSecretsForTeam gets a list of secrets by org and team name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListSecretsForTeam(ctx context.Context, org, team string, filters map[string]interface{}, page, perPage int) ([]*api.Secret, int64, error) {
+func (e *Engine) ListSecretsForTeam(ctx context.Context, org, team string, filters map[string]interface{}, page, perPage int) ([]*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -24,26 +24,14 @@ func (e *engine) ListSecretsForTeam(ctx context.Context, org, team string, filte
 	}).Tracef("listing secrets for team %s/%s", org, team)
 
 	// variables to store query results and return values
-	count := int64(0)
 	s := new([]types.Secret)
 	secrets := []*api.Secret{}
-
-	// count the results
-	count, err := e.CountSecretsForTeam(ctx, org, team, filters)
-	if err != nil {
-		return secrets, 0, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return secrets, 0, nil
-	}
 
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretShared).
@@ -56,7 +44,7 @@ func (e *engine) ListSecretsForTeam(ctx context.Context, org, team string, filte
 		Find(&s).
 		Error
 	if err != nil {
-		return nil, count, err
+		return nil, err
 	}
 
 	// iterate through all query results
@@ -77,11 +65,11 @@ func (e *engine) ListSecretsForTeam(ctx context.Context, org, team string, filte
 		secrets = append(secrets, tmp.ToAPI())
 	}
 
-	return secrets, count, nil
+	return e.FillSecretsAllowlists(ctx, secrets)
 }
 
 // ListSecretsForTeams gets a list of secrets by teams within an org from the database.
-func (e *engine) ListSecretsForTeams(ctx context.Context, org string, teams []string, filters map[string]interface{}, page, perPage int) ([]*api.Secret, int64, error) {
+func (e *Engine) ListSecretsForTeams(ctx context.Context, org string, teams []string, filters map[string]interface{}, page, perPage int) ([]*api.Secret, error) {
 	// iterate through the list of teams provided
 	for index, team := range teams {
 		// ensure the team name is lower case
@@ -95,26 +83,14 @@ func (e *engine) ListSecretsForTeams(ctx context.Context, org string, teams []st
 	}).Tracef("listing secrets for teams %s in org %s", teams, org)
 
 	// variables to store query results and return values
-	count := int64(0)
 	s := new([]types.Secret)
 	secrets := []*api.Secret{}
-
-	// count the results
-	count, err := e.CountSecretsForTeams(ctx, org, teams, filters)
-	if err != nil {
-		return secrets, 0, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return secrets, 0, nil
-	}
 
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretShared).
@@ -127,7 +103,7 @@ func (e *engine) ListSecretsForTeams(ctx context.Context, org string, teams []st
 		Find(&s).
 		Error
 	if err != nil {
-		return nil, count, err
+		return nil, err
 	}
 
 	// iterate through all query results
@@ -148,5 +124,5 @@ func (e *engine) ListSecretsForTeams(ctx context.Context, org string, teams []st
 		secrets = append(secrets, tmp.ToAPI())
 	}
 
-	return secrets, count, nil
+	return e.FillSecretsAllowlists(ctx, secrets)
 }

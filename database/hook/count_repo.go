@@ -12,7 +12,7 @@ import (
 )
 
 // CountHooksForRepo gets the count of hooks by repo ID from the database.
-func (e *engine) CountHooksForRepo(ctx context.Context, r *api.Repo) (int64, error) {
+func (e *Engine) CountHooksForRepo(ctx context.Context, r *api.Repo) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

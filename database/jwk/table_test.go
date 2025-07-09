@@ -23,7 +23,7 @@ func TestJWK_Engine_CreateJWKTable(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,

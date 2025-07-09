@@ -4,24 +4,24 @@ package native
 
 import (
 	"bytes"
+	"context"
 	"errors"
-	"flag"
 	"os"
 	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
 )
 
 func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -38,7 +38,7 @@ func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", new(yaml.Template))
+	got, _, _, err := client.Parse(b, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -50,7 +50,7 @@ func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 
 func TestNative_Parse_Metadata_File(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -69,7 +69,7 @@ func TestNative_Parse_Metadata_File(t *testing.T) {
 
 	defer f.Close()
 
-	got, _, err := client.Parse(f, "", new(yaml.Template))
+	got, _, _, err := client.Parse(f, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -81,10 +81,10 @@ func TestNative_Parse_Metadata_File(t *testing.T) {
 
 func TestNative_Parse_Metadata_Invalid(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 
 	// run test
-	got, _, err := client.Parse(nil, "", new(yaml.Template))
+	got, _, _, err := client.Parse(nil, "", new(yaml.Template))
 
 	if err == nil {
 		t.Error("Parse should have returned err")
@@ -97,7 +97,7 @@ func TestNative_Parse_Metadata_Invalid(t *testing.T) {
 
 func TestNative_Parse_Metadata_Path(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -109,7 +109,7 @@ func TestNative_Parse_Metadata_Path(t *testing.T) {
 	}
 
 	// run test
-	got, _, err := client.Parse("testdata/metadata.yml", "", new(yaml.Template))
+	got, _, _, err := client.Parse("testdata/metadata.yml", "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -121,7 +121,7 @@ func TestNative_Parse_Metadata_Path(t *testing.T) {
 
 func TestNative_Parse_Metadata_Reader(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -138,7 +138,7 @@ func TestNative_Parse_Metadata_Reader(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(bytes.NewReader(b), "", new(yaml.Template))
+	got, _, _, err := client.Parse(bytes.NewReader(b), "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -150,7 +150,7 @@ func TestNative_Parse_Metadata_Reader(t *testing.T) {
 
 func TestNative_Parse_Metadata_String(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -167,7 +167,7 @@ func TestNative_Parse_Metadata_String(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(string(b), "", new(yaml.Template))
+	got, _, _, err := client.Parse(string(b), "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -179,7 +179,7 @@ func TestNative_Parse_Metadata_String(t *testing.T) {
 
 func TestNative_Parse_Parameters(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -215,7 +215,7 @@ func TestNative_Parse_Parameters(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", new(yaml.Template))
+	got, _, _, err := client.Parse(b, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -227,7 +227,7 @@ func TestNative_Parse_Parameters(t *testing.T) {
 
 func TestNative_Parse_StagesPipeline(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -343,7 +343,7 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", new(yaml.Template))
+	got, _, _, err := client.Parse(b, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -356,7 +356,7 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 func TestNative_Parse_StepsPipeline(t *testing.T) {
 	// setup types
 	tBool := true
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Version: "1",
 		Metadata: yaml.Metadata{
@@ -400,6 +400,13 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 				Image: "openjdk:latest",
 				Name:  "build",
 				Pull:  "always",
+				Ruleset: yaml.Ruleset{
+					If: yaml.Rules{
+						Eval:     `HELLO == "Hello, Global Environment"`,
+						Operator: "and",
+						Matcher:  "filepath",
+					},
+				},
 			},
 			&yaml.Step{
 				Image: "plugins/docker:18.09",
@@ -446,7 +453,7 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", new(yaml.Template))
+	got, _, _, err := client.Parse(b, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -458,7 +465,7 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 
 func TestNative_Parse_Secrets(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -516,7 +523,7 @@ func TestNative_Parse_Secrets(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", new(yaml.Template))
+	got, _, _, err := client.Parse(b, "", new(yaml.Template))
 
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
@@ -529,7 +536,7 @@ func TestNative_Parse_Secrets(t *testing.T) {
 
 func TestNative_Parse_Stages(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -593,7 +600,7 @@ func TestNative_Parse_Stages(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", new(yaml.Template))
+	got, _, _, err := client.Parse(b, "", new(yaml.Template))
 
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
@@ -604,9 +611,87 @@ func TestNative_Parse_Stages(t *testing.T) {
 	}
 }
 
+func TestNative_Parse_StagesLegacyMergeAnchor(t *testing.T) {
+	// setup types
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
+	want := &yaml.Build{
+		Version: "legacy",
+		Metadata: yaml.Metadata{
+			Environment: []string{"steps", "services", "secrets"},
+		},
+		Environment: raw.StringSliceMap{},
+		Stages: yaml.StageSlice{
+			&yaml.Stage{
+				Name:  "install",
+				Needs: raw.StringSlice{"clone"},
+				Steps: yaml.StepSlice{
+					&yaml.Step{
+						Commands: []string{"./gradlew downloadDependencies"},
+						Environment: map[string]string{
+							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+							"GRADLE_USER_HOME": ".gradle",
+						},
+						Image: "openjdk:latest",
+						Name:  "install",
+						Pull:  "always",
+					},
+				},
+			},
+			&yaml.Stage{
+				Name:  "test",
+				Needs: []string{"install", "clone"},
+				Steps: yaml.StepSlice{
+					&yaml.Step{
+						Commands: []string{"./gradlew check"},
+						Environment: map[string]string{
+							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+							"GRADLE_USER_HOME": ".gradle",
+						},
+						Image: "openjdk:latest",
+						Name:  "test",
+						Pull:  "always",
+					},
+				},
+			},
+			&yaml.Stage{
+				Name:  "build",
+				Needs: []string{"install", "clone"},
+				Steps: yaml.StepSlice{
+					&yaml.Step{
+						Commands: []string{"./gradlew build"},
+						Environment: map[string]string{
+							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+							"GRADLE_USER_HOME": ".gradle",
+						},
+						Image: "openjdk:latest",
+						Name:  "build",
+						Pull:  "always",
+					},
+				},
+			},
+		},
+	}
+
+	// run test
+	b, err := os.ReadFile("testdata/stages_merged.yml")
+	if err != nil {
+		t.Errorf("Reading file returned err: %v", err)
+	}
+
+	got, _, _, err := client.Parse(b, "", new(yaml.Template))
+
+	if err != nil {
+		t.Errorf("Parse returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Parse() mismatch (-want +got):\n%s", diff)
+	}
+}
+
 func TestNative_Parse_Steps(t *testing.T) {
 	// setup types
-	client, _ := FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	client, _ := FromCLICommand(context.Background(), new(cli.Command))
 	want := &yaml.Build{
 		Metadata: yaml.Metadata{
 			Environment: []string{"steps", "services", "secrets"},
@@ -652,7 +737,7 @@ func TestNative_Parse_Steps(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", new(yaml.Template))
+	got, _, _, err := client.Parse(b, "", new(yaml.Template))
 
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
@@ -681,7 +766,7 @@ func TestNative_ParseBytes_Metadata(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := ParseBytes(b)
+	got, _, _, err := ParseBytes(b)
 
 	if err != nil {
 		t.Errorf("ParseBytes returned err: %v", err)
@@ -699,7 +784,7 @@ func TestNative_ParseBytes_Invalid(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := ParseBytes(b)
+	got, _, _, err := ParseBytes(b)
 
 	if err == nil {
 		t.Error("ParseBytes should have returned err")
@@ -730,7 +815,7 @@ func TestNative_ParseFile_Metadata(t *testing.T) {
 
 	defer f.Close()
 
-	got, _, err := ParseFile(f)
+	got, _, _, err := ParseFile(f)
 
 	if err != nil {
 		t.Errorf("ParseFile returned err: %v", err)
@@ -750,7 +835,7 @@ func TestNative_ParseFile_Invalid(t *testing.T) {
 
 	f.Close()
 
-	got, _, err := ParseFile(f)
+	got, _, _, err := ParseFile(f)
 
 	if err == nil {
 		t.Error("ParseFile should have returned err")
@@ -774,7 +859,7 @@ func TestNative_ParsePath_Metadata(t *testing.T) {
 	}
 
 	// run test
-	got, _, err := ParsePath("testdata/metadata.yml")
+	got, _, _, err := ParsePath("testdata/metadata.yml")
 
 	if err != nil {
 		t.Errorf("ParsePath returned err: %v", err)
@@ -787,7 +872,7 @@ func TestNative_ParsePath_Metadata(t *testing.T) {
 
 func TestNative_ParsePath_Invalid(t *testing.T) {
 	// run test
-	got, _, err := ParsePath("testdata/foobar.yml")
+	got, _, _, err := ParsePath("testdata/foobar.yml")
 
 	if err == nil {
 		t.Error("ParsePath should have returned err")
@@ -816,7 +901,7 @@ func TestNative_ParseReader_Metadata(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := ParseReader(bytes.NewReader(b))
+	got, _, _, err := ParseReader(bytes.NewReader(b))
 
 	if err != nil {
 		t.Errorf("ParseReader returned err: %v", err)
@@ -829,7 +914,7 @@ func TestNative_ParseReader_Metadata(t *testing.T) {
 
 func TestNative_ParseReader_Invalid(t *testing.T) {
 	// run test
-	got, _, err := ParseReader(FailReader{})
+	got, _, _, err := ParseReader(FailReader{})
 
 	if err == nil {
 		t.Error("ParseFile should have returned err")
@@ -858,7 +943,7 @@ func TestNative_ParseString_Metadata(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := ParseString(string(b))
+	got, _, _, err := ParseString(string(b))
 
 	if err != nil {
 		t.Errorf("ParseString returned err: %v", err)
@@ -923,18 +1008,18 @@ func Test_client_Parse(t *testing.T) {
 				t.Errorf("Reading file returned err: %v", err)
 			}
 
-			var c *client
+			var c *Client
 
 			pipelineType := tt.args.pipelineType
 			if pipelineType == "nil" {
-				c = &client{}
+				c = &Client{}
 			} else {
-				c = &client{
+				c = &Client{
 					repo: &api.Repo{PipelineType: &pipelineType},
 				}
 			}
 
-			got, _, err := c.Parse(content, tt.args.pipelineType, new(yaml.Template))
+			got, _, _, err := c.Parse(content, tt.args.pipelineType, new(yaml.Template))
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -1001,7 +1086,7 @@ func Test_client_ParseRaw(t *testing.T) {
 				content = tt.want
 			}
 
-			c := &client{}
+			c := &Client{}
 			got, err := c.ParseRaw(content)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseRaw() error = %v, wantErr %v", err, tt.wantErr)

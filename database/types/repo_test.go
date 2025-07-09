@@ -124,7 +124,7 @@ func TestTypes_Repo_Nullify(t *testing.T) {
 		Link:         sql.NullString{String: "", Valid: false},
 		Clone:        sql.NullString{String: "", Valid: false},
 		Branch:       sql.NullString{String: "", Valid: false},
-		Timeout:      sql.NullInt64{Int64: 0, Valid: false},
+		Timeout:      sql.NullInt32{Int32: 0, Valid: false},
 		AllowEvents:  sql.NullInt64{Int64: 0, Valid: false},
 		Visibility:   sql.NullString{String: "", Valid: false},
 		PipelineType: sql.NullString{String: "", Valid: false},
@@ -193,6 +193,9 @@ func TestTypes_Repo_ToAPI(t *testing.T) {
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("oldName")
 	want.SetApproveBuild(constants.ApproveNever)
+	want.SetApprovalTimeout(7)
+	want.SetInstallID(0)
+	want.SetCustomProps(map[string]any{"foo": "bar"})
 
 	// run test
 	got := testRepo().ToAPI()
@@ -345,6 +348,9 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 	r.SetPipelineType("yaml")
 	r.SetPreviousName("oldName")
 	r.SetApproveBuild(constants.ApproveNever)
+	r.SetApprovalTimeout(7)
+	r.SetInstallID(0)
+	r.SetCustomProps(map[string]any{"foo": "bar"})
 
 	want := testRepo()
 	want.Owner = User{}
@@ -361,27 +367,30 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 // type with all fields set to a fake value.
 func testRepo() *Repo {
 	return &Repo{
-		ID:           sql.NullInt64{Int64: 1, Valid: true},
-		UserID:       sql.NullInt64{Int64: 1, Valid: true},
-		Hash:         sql.NullString{String: "superSecretHash", Valid: true},
-		Org:          sql.NullString{String: "github", Valid: true},
-		Name:         sql.NullString{String: "octocat", Valid: true},
-		FullName:     sql.NullString{String: "github/octocat", Valid: true},
-		Link:         sql.NullString{String: "https://github.com/github/octocat", Valid: true},
-		Clone:        sql.NullString{String: "https://github.com/github/octocat.git", Valid: true},
-		Branch:       sql.NullString{String: "main", Valid: true},
-		Topics:       []string{"cloud", "security"},
-		BuildLimit:   sql.NullInt64{Int64: 10, Valid: true},
-		Timeout:      sql.NullInt64{Int64: 30, Valid: true},
-		Counter:      sql.NullInt64{Int64: 0, Valid: true},
-		Visibility:   sql.NullString{String: "public", Valid: true},
-		Private:      sql.NullBool{Bool: false, Valid: true},
-		Trusted:      sql.NullBool{Bool: false, Valid: true},
-		Active:       sql.NullBool{Bool: true, Valid: true},
-		AllowEvents:  sql.NullInt64{Int64: 1, Valid: true},
-		PipelineType: sql.NullString{String: "yaml", Valid: true},
-		PreviousName: sql.NullString{String: "oldName", Valid: true},
-		ApproveBuild: sql.NullString{String: constants.ApproveNever, Valid: true},
+		ID:              sql.NullInt64{Int64: 1, Valid: true},
+		UserID:          sql.NullInt64{Int64: 1, Valid: true},
+		Hash:            sql.NullString{String: "superSecretHash", Valid: true},
+		Org:             sql.NullString{String: "github", Valid: true},
+		Name:            sql.NullString{String: "octocat", Valid: true},
+		FullName:        sql.NullString{String: "github/octocat", Valid: true},
+		Link:            sql.NullString{String: "https://github.com/github/octocat", Valid: true},
+		Clone:           sql.NullString{String: "https://github.com/github/octocat.git", Valid: true},
+		Branch:          sql.NullString{String: "main", Valid: true},
+		Topics:          []string{"cloud", "security"},
+		BuildLimit:      sql.NullInt32{Int32: 10, Valid: true},
+		Timeout:         sql.NullInt32{Int32: 30, Valid: true},
+		Counter:         sql.NullInt64{Int64: 0, Valid: true},
+		Visibility:      sql.NullString{String: "public", Valid: true},
+		Private:         sql.NullBool{Bool: false, Valid: true},
+		Trusted:         sql.NullBool{Bool: false, Valid: true},
+		Active:          sql.NullBool{Bool: true, Valid: true},
+		AllowEvents:     sql.NullInt64{Int64: 1, Valid: true},
+		PipelineType:    sql.NullString{String: "yaml", Valid: true},
+		PreviousName:    sql.NullString{String: "oldName", Valid: true},
+		ApproveBuild:    sql.NullString{String: constants.ApproveNever, Valid: true},
+		ApprovalTimeout: sql.NullInt32{Int32: 7, Valid: true},
+		InstallID:       sql.NullInt64{Int64: 0, Valid: true},
+		CustomProps:     CustomPropsJSON{"foo": "bar"},
 
 		Owner: *testUser(),
 	}

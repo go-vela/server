@@ -24,12 +24,15 @@ var (
 type (
 	// Platform is the database representation of platform settings.
 	Platform struct {
-		ID sql.NullInt64 `sql:"id"`
-		Compiler
-		Queue
+		ID       sql.NullInt32 `sql:"id"`
+		Compiler `json:"compiler" sql:"compiler"`
+		Queue    `json:"queue"    sql:"queue"`
+		SCM      `json:"scm"      sql:"scm"`
 
-		RepoAllowlist     pq.StringArray `json:"repo_allowlist"     sql:"repo_allowlist"     gorm:"type:varchar(1000)"`
-		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist" sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
+		RepoAllowlist     pq.StringArray `json:"repo_allowlist"      sql:"repo_allowlist"      gorm:"type:varchar(1000)"`
+		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist"  sql:"schedule_allowlist"  gorm:"type:varchar(1000)"`
+		MaxDashboardRepos sql.NullInt32  `json:"max_dashboard_repos" sql:"max_dashboard_repos"`
+		QueueRestartLimit sql.NullInt32  `json:"queue_restart_limit" sql:"queue_restart_limit"`
 
 		CreatedAt sql.NullInt64  `sql:"created_at"`
 		UpdatedAt sql.NullInt64  `sql:"updated_at"`
@@ -46,6 +49,13 @@ type (
 	// Queue is the database representation of queue settings.
 	Queue struct {
 		Routes pq.StringArray `json:"routes" sql:"routes" gorm:"type:varchar(1000)"`
+	}
+
+	// SCM is the database representation of SCM settings.
+	SCM struct {
+		RepoRoleMap map[string]string `json:"repo_role_map" sql:"repo_role_map"`
+		OrgRoleMap  map[string]string `json:"org_role_map"  sql:"org_role_map"`
+		TeamRoleMap map[string]string `json:"team_role_map" sql:"team_role_map"`
 	}
 )
 
@@ -85,6 +95,24 @@ func (r *Queue) Scan(value interface{}) error {
 	}
 }
 
+// Value - Implementation of valuer for database/sql for SCM.
+func (s SCM) Value() (driver.Value, error) {
+	valueString, err := json.Marshal(s)
+	return string(valueString), err
+}
+
+// Scan - Implement the database/sql scanner interface for Queue.
+func (s *SCM) Scan(value interface{}) error {
+	switch v := value.(type) {
+	case []byte:
+		return json.Unmarshal(v, &s)
+	case string:
+		return json.Unmarshal([]byte(v), &s)
+	default:
+		return fmt.Errorf("wrong type for scm: %T", v)
+	}
+}
+
 // Nullify ensures the valid flag for
 // the sql.Null types are properly set.
 //
@@ -97,13 +125,23 @@ func (ps *Platform) Nullify() *Platform {
 	}
 
 	// check if the ID field should be false
-	if ps.ID.Int64 == 0 {
+	if ps.ID.Int32 == 0 {
 		ps.ID.Valid = false
 	}
 
 	// check if the CloneImage field should be false
 	if len(ps.CloneImage.String) == 0 {
 		ps.CloneImage.Valid = false
+	}
+
+	// check if the MaxDashboardRepos field should be false
+	if ps.MaxDashboardRepos.Int32 == 0 {
+		ps.MaxDashboardRepos.Valid = false
+	}
+
+	// check if the QueueRestartLimit field should be false
+	if ps.QueueRestartLimit.Int32 < 0 {
+		ps.QueueRestartLimit.Valid = false
 	}
 
 	// check if the CreatedAt field should be false
@@ -123,18 +161,25 @@ func (ps *Platform) Nullify() *Platform {
 // to an API Settings type.
 func (ps *Platform) ToAPI() *settings.Platform {
 	psAPI := new(settings.Platform)
-	psAPI.SetID(ps.ID.Int64)
+	psAPI.SetID(ps.ID.Int32)
 
 	psAPI.SetRepoAllowlist(ps.RepoAllowlist)
 	psAPI.SetScheduleAllowlist(ps.ScheduleAllowlist)
+	psAPI.SetMaxDashboardRepos(ps.MaxDashboardRepos.Int32)
+	psAPI.SetQueueRestartLimit(ps.QueueRestartLimit.Int32)
 
-	psAPI.Compiler = &settings.Compiler{}
+	psAPI.Compiler = new(settings.Compiler)
 	psAPI.SetCloneImage(ps.CloneImage.String)
 	psAPI.SetTemplateDepth(int(ps.TemplateDepth.Int64))
 	psAPI.SetStarlarkExecLimit(ps.StarlarkExecLimit.Int64)
 
-	psAPI.Queue = &settings.Queue{}
+	psAPI.Queue = new(settings.Queue)
 	psAPI.SetRoutes(ps.Routes)
+
+	psAPI.SCM = new(settings.SCM)
+	psAPI.SetRepoRoleMap(ps.RepoRoleMap)
+	psAPI.SetOrgRoleMap(ps.OrgRoleMap)
+	psAPI.SetTeamRoleMap(ps.TeamRoleMap)
 
 	psAPI.SetCreatedAt(ps.CreatedAt.Int64)
 	psAPI.SetUpdatedAt(ps.UpdatedAt.Int64)
@@ -183,6 +228,14 @@ func (ps *Platform) Validate() error {
 		ps.ScheduleAllowlist[i] = util.Sanitize(v)
 	}
 
+	if ps.MaxDashboardRepos.Int32 <= 0 {
+		return fmt.Errorf("max dashboard repos must be greater than zero, got: %d", ps.MaxDashboardRepos.Int32)
+	}
+
+	if ps.QueueRestartLimit.Int32 < 0 {
+		return fmt.Errorf("queue restart limit must be greater than or equal to zero, got: %d", ps.QueueRestartLimit.Int32)
+	}
+
 	if ps.CreatedAt.Int64 < 0 {
 		return fmt.Errorf("created_at must be greater than zero, got: %d", ps.CreatedAt.Int64)
 	}
@@ -198,7 +251,7 @@ func (ps *Platform) Validate() error {
 // to a database Settings type.
 func SettingsFromAPI(s *settings.Platform) *Platform {
 	settings := &Platform{
-		ID: sql.NullInt64{Int64: s.GetID(), Valid: true},
+		ID: sql.NullInt32{Int32: s.GetID(), Valid: true},
 		Compiler: Compiler{
 			CloneImage:        sql.NullString{String: s.GetCloneImage(), Valid: true},
 			TemplateDepth:     sql.NullInt64{Int64: int64(s.GetTemplateDepth()), Valid: true},
@@ -207,8 +260,15 @@ func SettingsFromAPI(s *settings.Platform) *Platform {
 		Queue: Queue{
 			Routes: pq.StringArray(s.GetRoutes()),
 		},
+		SCM: SCM{
+			RepoRoleMap: s.GetRepoRoleMap(),
+			OrgRoleMap:  s.GetOrgRoleMap(),
+			TeamRoleMap: s.GetTeamRoleMap(),
+		},
 		RepoAllowlist:     pq.StringArray(s.GetRepoAllowlist()),
 		ScheduleAllowlist: pq.StringArray(s.GetScheduleAllowlist()),
+		MaxDashboardRepos: sql.NullInt32{Int32: s.GetMaxDashboardRepos(), Valid: true},
+		QueueRestartLimit: sql.NullInt32{Int32: s.GetQueueRestartLimit(), Valid: true},
 		CreatedAt:         sql.NullInt64{Int64: s.GetCreatedAt(), Valid: true},
 		UpdatedAt:         sql.NullInt64{Int64: s.GetUpdatedAt(), Valid: true},
 		UpdatedBy:         sql.NullString{String: s.GetUpdatedBy(), Valid: true},

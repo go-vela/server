@@ -6,11 +6,11 @@ import (
 	"os"
 	"testing"
 
-	goyaml "github.com/buildkite/yaml"
 	"github.com/google/go-cmp/cmp"
+	goyaml "go.yaml.in/yaml/v3"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 func TestStarlark_Render(t *testing.T) {
@@ -92,7 +92,7 @@ func TestStarlark_Render(t *testing.T) {
 				t.Error(err)
 			}
 
-			tmplBuild, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables, 7500)
+			tmplBuild, _, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables, 7500)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -207,7 +207,7 @@ func TestNative_RenderBuild(t *testing.T) {
 				t.Error(err)
 			}
 
-			got, err := RenderBuild("build", string(sFile), map[string]string{
+			got, _, err := RenderBuild("build", string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "main",
 				"VELA_REPO_ORG":       "octocat",

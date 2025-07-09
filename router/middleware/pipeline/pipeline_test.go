@@ -4,7 +4,6 @@ package pipeline
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -15,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
@@ -98,6 +97,7 @@ func TestPipeline_Establish(t *testing.T) {
 	want.SetStages(false)
 	want.SetSteps(false)
 	want.SetTemplates(false)
+	want.SetWarnings([]string{})
 	want.SetData([]byte{})
 
 	got := new(api.Pipeline)
@@ -264,9 +264,8 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 			Host:   "foo",
 		},
 		Queue: &internal.Queue{
-			Channel: "foo",
-			Driver:  "foo",
-			Host:    "foo",
+			Driver: "foo",
+			Host:   "foo",
 		},
 		Source: &internal.Source{
 			Driver: "foo",
@@ -289,10 +288,16 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 		t.Errorf("unable to mint user access token: %v", err)
 	}
 
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", "target/vela-git-slim:latest", "doc")
+	cmd := new(cli.Command)
 
-	comp, err := native.FromCLIContext(cli.NewContext(nil, set, nil))
+	cmd.Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:  "clone-image",
+			Value: "target/vela-git-slim:latest",
+		},
+	}
+
+	comp, err := native.FromCLICommand(context.Background(), cmd)
 	if err != nil {
 		t.Errorf("unable to create compiler: %v", err)
 	}

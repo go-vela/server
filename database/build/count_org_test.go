@@ -68,7 +68,7 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	// create expected result with event filter in mock
 	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
 	// ensure the mock expects the query with event filter
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "event" = $2`).WithArgs("foo", "push").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "builds"."event" = $2`).WithArgs("foo", "push").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -102,7 +102,7 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		filters  map[string]interface{}
 		want     int64
 	}{

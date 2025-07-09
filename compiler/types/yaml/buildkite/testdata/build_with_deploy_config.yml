@@ -1,0 +1,36 @@
+version: "1"
+
+deployment:
+  targets: [ dev, stage, production ]
+  parameters:
+    alpha:
+      description: primary node name
+      required: true
+      type: string
+      options:
+        - north
+        - south
+
+    beta:
+      description: secondary node name
+      required: false
+      type: string
+      options:
+        - east
+        - west
+
+    cluster_count:
+      description: number of clusters to deploy
+      required: false
+      type: integer
+
+    canary:
+      description: deploy with canary strategy
+      required: true
+      type: boolean
+
+steps:
+  - name: deploy plugin
+    image: awesome-plugin:latest
+    commands:
+      - ./deploy.sh

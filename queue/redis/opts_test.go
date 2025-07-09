@@ -3,6 +3,7 @@
 package redis
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"reflect"
@@ -43,6 +44,7 @@ func TestRedis_ClientOpt_WithAddress(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		_service, err := New(
+			context.Background(),
 			WithAddress(test.address),
 		)
 
@@ -95,6 +97,7 @@ func TestRedis_ClientOpt_WithRoutes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		_service, err := New(
+			t.Context(),
 			WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
 			WithRoutes(test.routes...),
 		)
@@ -166,6 +169,7 @@ func TestRedis_ClientOpt_WithCluster(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		_service, err := New(
+			t.Context(),
 			WithAddress(test.address),
 			WithCluster(test.cluster),
 		)
@@ -216,6 +220,7 @@ func TestRedis_ClientOpt_WithSigningPrivateKey(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		_service, err := New(
+			t.Context(),
 			WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
 			WithPrivateKey(test.privKey),
 		)
@@ -284,6 +289,7 @@ func TestRedis_ClientOpt_WithSigningPublicKey(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		_service, err := New(
+			t.Context(),
 			WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
 			WithPublicKey(test.pubKey),
 		)

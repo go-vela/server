@@ -34,7 +34,7 @@ type (
 // If all steps from a stage are removed, then the
 // entire stage is removed from the pipeline.
 func (s *StageSlice) Purge(r *RuleData) (*StageSlice, error) {
-	counter := 1
+	counter := int32(1)
 	stages := new(StageSlice)
 
 	// iterate through each stage for the pipeline
@@ -43,7 +43,10 @@ func (s *StageSlice) Purge(r *RuleData) (*StageSlice, error) {
 
 		// iterate through each step for the stage in the pipeline
 		for _, step := range stage.Steps {
-			match, err := step.Ruleset.Match(r)
+			// use the container environment as ruledata env for matching
+			r.Env = step.Environment
+
+			match, err := r.Match(step.Ruleset)
 			if err != nil {
 				return nil, fmt.Errorf("unable to process ruleset for step %s: %w", step.Name, err)
 			}

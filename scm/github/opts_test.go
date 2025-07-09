@@ -3,8 +3,11 @@
 package github
 
 import (
+	"context"
 	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/go-vela/server/tracing"
 )
@@ -33,7 +36,7 @@ func TestGithub_ClientOpt_WithAddress(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithAddress(test.address),
 		)
 
@@ -72,7 +75,7 @@ func TestGithub_ClientOpt_WithClientID(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithClientID(test.id),
 		)
 
@@ -115,7 +118,7 @@ func TestGithub_ClientOpt_WithClientSecret(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithClientSecret(test.secret),
 		)
 
@@ -158,7 +161,7 @@ func TestGithub_ClientOpt_WithServerAddress(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithServerAddress(test.address),
 		)
 
@@ -192,13 +195,13 @@ func TestGithub_ClientOpt_WithServerWebhookAddress(t *testing.T) {
 			failure:        false,
 			address:        "https://vela.example.com",
 			webhookAddress: "",
-			want:           "https://vela.example.com",
+			want:           "https://vela.example.com/webhook",
 		},
 		{
 			failure:        false,
 			address:        "https://vela.example.com",
 			webhookAddress: "https://vela.example.com",
-			want:           "https://vela.example.com",
+			want:           "https://vela.example.com/webhook",
 		},
 		{
 			failure:        false,
@@ -210,7 +213,7 @@ func TestGithub_ClientOpt_WithServerWebhookAddress(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithServerAddress(test.address),
 			WithServerWebhookAddress(test.webhookAddress),
 		)
@@ -254,7 +257,7 @@ func TestGithub_ClientOpt_WithStatusContext(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithStatusContext(test.context),
 		)
 
@@ -294,7 +297,7 @@ func TestGithub_ClientOpt_WithWebUIAddress(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithWebUIAddress(test.address),
 		)
 
@@ -308,7 +311,7 @@ func TestGithub_ClientOpt_WithWebUIAddress(t *testing.T) {
 	}
 }
 
-func TestGithub_ClientOpt_WithScopes(t *testing.T) {
+func TestGithub_ClientOpt_WithOAuthScopes(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool
@@ -329,24 +332,24 @@ func TestGithub_ClientOpt_WithScopes(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
-			WithScopes(test.scopes),
+		_service, err := New(context.Background(),
+			WithOAuthScopes(test.scopes),
 		)
 
 		if test.failure {
 			if err == nil {
-				t.Errorf("WithScopes should have returned err")
+				t.Errorf("WithOAuthScopes should have returned err")
 			}
 
 			continue
 		}
 
 		if err != nil {
-			t.Errorf("WithScopes returned err: %v", err)
+			t.Errorf("WithOAuthScopes returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(_service.config.Scopes, test.want) {
-			t.Errorf("WithScopes is %v, want %v", _service.config.Scopes, test.want)
+		if !reflect.DeepEqual(_service.config.OAuthScopes, test.want) {
+			t.Errorf("WithOAuthScopes is %v, want %v", _service.config.OAuthScopes, test.want)
 		}
 	}
 }
@@ -367,7 +370,7 @@ func TestGithub_ClientOpt_WithTracing(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_service, err := New(
+		_service, err := New(context.Background(),
 			WithTracing(test.tracing),
 		)
 
@@ -385,6 +388,178 @@ func TestGithub_ClientOpt_WithTracing(t *testing.T) {
 
 		if !reflect.DeepEqual(_service.Tracing, test.want) {
 			t.Errorf("WithTracing is %v, want %v", _service.Tracing, test.want)
+		}
+	}
+}
+
+func TestGithub_ClientOpt_WithGitHubAppPermissions(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure     bool
+		permissions []string
+		want        []string
+	}{
+		{
+			failure:     false,
+			permissions: []string{"contents:read"},
+			want:        []string{"contents:read"},
+		},
+		{
+			failure:     false,
+			permissions: []string{},
+			want:        []string{},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(context.Background(),
+			WithGitHubAppPermissions(test.permissions),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithGitHubAppPermissions should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithGitHubAppPermissions returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(test.want, _service.config.AppPermissions); diff != "" {
+			t.Errorf("WithGitHubAppPermissions mismatch (-want +got):\n%s", diff)
+		}
+	}
+}
+
+func TestGithub_ClientOpt_WithRepoRoleMap(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure bool
+		mapping map[string]string
+		want    map[string]string
+	}{
+		{
+			failure: false,
+			mapping: map[string]string{"vela": "vela"},
+			want:    map[string]string{"vela": "vela"},
+		},
+		{
+			failure: false,
+			mapping: map[string]string{},
+			want:    map[string]string{},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(context.Background(),
+			WithRepoRoleMap(test.mapping),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithRepoRoleMap should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithRepoRoleMap returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(test.want, _service.GetRepoRoleMap()); diff != "" {
+			t.Errorf("WithRepoRoleMap mismatch (-want +got):\n%s", diff)
+		}
+	}
+}
+
+func TestGithub_ClientOpt_WithOrgRoleMap(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure bool
+		mapping map[string]string
+		want    map[string]string
+	}{
+		{
+			failure: false,
+			mapping: map[string]string{"vela": "vela"},
+			want:    map[string]string{"vela": "vela"},
+		},
+		{
+			failure: false,
+			mapping: map[string]string{},
+			want:    map[string]string{},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(context.Background(),
+			WithOrgRoleMap(test.mapping),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithOrgRoleMap should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithOrgRoleMap returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(test.want, _service.GetOrgRoleMap()); diff != "" {
+			t.Errorf("WithOrgRoleMap mismatch (-want +got):\n%s", diff)
+		}
+	}
+}
+
+func TestGithub_ClientOpt_WithTeamRoleMap(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure bool
+		mapping map[string]string
+		want    map[string]string
+	}{
+		{
+			failure: false,
+			mapping: map[string]string{"vela": "vela"},
+			want:    map[string]string{"vela": "vela"},
+		},
+		{
+			failure: false,
+			mapping: map[string]string{},
+			want:    map[string]string{},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(context.Background(),
+			WithTeamRoleMap(test.mapping),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithTeamRoleMap should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithTeamRoleMap returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(test.want, _service.GetTeamRoleMap()); diff != "" {
+			t.Errorf("WithTeamRoleMap mismatch (-want +got):\n%s", diff)
 		}
 	}
 }

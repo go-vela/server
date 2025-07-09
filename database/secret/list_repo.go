@@ -15,7 +15,7 @@ import (
 // ListSecretsForRepo gets a list of secrets by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, page, perPage int) ([]*api.Secret, int64, error) {
+func (e *Engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, page, perPage int) ([]*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -23,26 +23,14 @@ func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 	}).Tracef("listing secrets for repo %s", r.GetFullName())
 
 	// variables to store query results and return values
-	count := int64(0)
 	s := new([]types.Secret)
 	secrets := []*api.Secret{}
-
-	// count the results
-	count, err := e.CountSecretsForRepo(ctx, r, filters)
-	if err != nil {
-		return secrets, 0, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return secrets, 0, nil
-	}
 
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableSecret).
 		Where("type = ?", constants.SecretRepo).
@@ -55,7 +43,7 @@ func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 		Find(&s).
 		Error
 	if err != nil {
-		return nil, count, err
+		return nil, err
 	}
 
 	// iterate through all query results
@@ -76,5 +64,5 @@ func (e *engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters ma
 		secrets = append(secrets, tmp.ToAPI())
 	}
 
-	return secrets, count, nil
+	return e.FillSecretsAllowlists(ctx, secrets)
 }

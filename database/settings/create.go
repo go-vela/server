@@ -10,7 +10,7 @@ import (
 )
 
 // CreateSettings creates a platform settings record in the database.
-func (e *engine) CreateSettings(ctx context.Context, s *settings.Platform) (*settings.Platform, error) {
+func (e *Engine) CreateSettings(ctx context.Context, s *settings.Platform) (*settings.Platform, error) {
 	e.logger.Tracef("creating platform settings with %v", s.String())
 
 	// cast the api type to database type

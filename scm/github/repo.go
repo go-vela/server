@@ -10,16 +10,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v65/github"
+	"github.com/google/go-github/v73/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
-func (c *client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, ref string) (data []byte, err error) {
+func (c *Client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, ref string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
 
@@ -47,7 +49,7 @@ func (c *client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, re
 }
 
 // Config gets the pipeline configuration from the GitHub repo.
-func (c *client) Config(ctx context.Context, u *api.User, r *api.Repo, ref string) ([]byte, error) {
+func (c *Client) Config(ctx context.Context, u *api.User, r *api.Repo, ref string) ([]byte, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -55,7 +57,7 @@ func (c *client) Config(ctx context.Context, u *api.User, r *api.Repo, ref strin
 	}).Tracef("capturing configuration file for %s/commit/%s", r.GetFullName(), ref)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	// default pipeline file names
 	files := []string{".vela.yml", ".vela.yaml"}
@@ -94,7 +96,12 @@ func (c *client) Config(ctx context.Context, u *api.User, r *api.Repo, ref strin
 }
 
 // Disable deactivates a repo by deleting the webhook.
-func (c *client) Disable(ctx context.Context, u *api.User, org, name string) error {
+func (c *Client) Disable(ctx context.Context, u *api.User, org, name string) error {
+	return c.DestroyWebhook(ctx, u, org, name)
+}
+
+// DestroyWebhook deletes a repo's webhook.
+func (c *Client) DestroyWebhook(ctx context.Context, u *api.User, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,
@@ -102,7 +109,7 @@ func (c *client) Disable(ctx context.Context, u *api.User, org, name string) err
 	}).Tracef("deleting repository webhooks for %s/%s", org, name)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	// send API call to capture the hooks for the repo
 	hooks, _, err := client.Repositories.ListHooks(ctx, org, name, nil)
@@ -123,7 +130,7 @@ func (c *client) Disable(ctx context.Context, u *api.User, org, name string) err
 		}
 
 		// capture hook ID if the hook url matches
-		if strings.EqualFold(hook.GetConfig().GetURL(), fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)) {
+		if strings.EqualFold(hook.GetConfig().GetURL(), c.config.ServerWebhookAddress) {
 			ids = append(ids, hook.GetID())
 		}
 	}
@@ -134,7 +141,7 @@ func (c *client) Disable(ctx context.Context, u *api.User, org, name string) err
 			"org":  org,
 			"repo": name,
 			"user": u.GetName(),
-		}).Warnf("no repository webhooks matching %s/webhook found for %s/%s", c.config.ServerWebhookAddress, org, name)
+		}).Warnf("no repository webhooks matching %s found for %s/%s", c.config.ServerWebhookAddress, org, name)
 
 		return nil
 	}
@@ -149,7 +156,12 @@ func (c *client) Disable(ctx context.Context, u *api.User, org, name string) err
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
+func (c *Client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
+	return c.CreateWebhook(ctx, u, r, h)
+}
+
+// CreateWebhook creates a repo's webhook.
+func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -157,10 +169,10 @@ func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Ho
 	}).Tracef("creating repository webhook for %s/%s", r.GetOrg(), r.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	// always listen to repository events in case of repo name change
-	events := []string{eventRepository}
+	events := []string{eventRepository, constants.EventCustomProperties}
 
 	// subscribe to comment event if any comment action is allowed
 	if r.GetAllowEvents().GetComment().GetCreated() ||
@@ -190,11 +202,11 @@ func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Ho
 	hook := &github.Hook{
 		Events: events,
 		Config: &github.HookConfig{
-			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
-			ContentType: github.String("form"),
-			Secret:      github.String(r.GetHash()),
+			URL:         github.Ptr(c.config.ServerWebhookAddress),
+			ContentType: github.Ptr("form"),
+			Secret:      github.Ptr(r.GetHash()),
 		},
-		Active: github.Bool(true),
+		Active: github.Ptr(true),
 	}
 
 	// send API call to create the webhook
@@ -223,7 +235,7 @@ func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Ho
 }
 
 // Update edits a repo webhook.
-func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID int64) (bool, error) {
+func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID int64) (bool, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -231,10 +243,10 @@ func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	}).Tracef("updating repository webhook for %s/%s", r.GetOrg(), r.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	// always listen to repository events in case of repo name change
-	events := []string{eventRepository}
+	events := []string{eventRepository, constants.EventCustomProperties}
 
 	// subscribe to comment event if any comment action is allowed
 	if r.GetAllowEvents().GetComment().GetCreated() ||
@@ -264,11 +276,11 @@ func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	hook := &github.Hook{
 		Events: events,
 		Config: &github.HookConfig{
-			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
-			ContentType: github.String("form"),
-			Secret:      github.String(r.GetHash()),
+			URL:         github.Ptr(c.config.ServerWebhookAddress),
+			ContentType: github.Ptr("form"),
+			Secret:      github.Ptr(r.GetHash()),
 		},
-		Active: github.Bool(true),
+		Active: github.Ptr(true),
 	}
 
 	// send API call to update the webhook
@@ -280,7 +292,7 @@ func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
-func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, name string) error {
+func (c *Client) Status(ctx context.Context, u *api.User, b *api.Build, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
@@ -295,7 +307,7 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	context := fmt.Sprintf("%s/%s", c.config.StatusContext, b.GetEvent())
 	url := fmt.Sprintf("%s/%s/%s/%d", c.config.WebUIAddress, org, name, b.GetNumber())
@@ -366,14 +378,14 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 
 		// create the status object to make the API call
 		status := &github.DeploymentStatusRequest{
-			Description: github.String(description),
-			Environment: github.String(b.GetDeploy()),
-			State:       github.String(state),
+			Description: github.Ptr(description),
+			Environment: github.Ptr(b.GetDeploy()),
+			State:       github.Ptr(state),
 		}
 
 		// provide "Details" link in GitHub UI if server was configured with it
 		if len(c.config.WebUIAddress) > 0 {
-			status.LogURL = github.String(url)
+			status.LogURL = github.Ptr(url)
 		}
 
 		_, _, err = client.Repositories.CreateDeploymentStatus(ctx, org, name, int64(number), status)
@@ -383,14 +395,14 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 
 	// create the status object to make the API call
 	status := &github.RepoStatus{
-		Context:     github.String(context),
-		Description: github.String(description),
-		State:       github.String(state),
+		Context:     github.Ptr(context),
+		Description: github.Ptr(description),
+		State:       github.Ptr(state),
 	}
 
 	// provide "Details" link in GitHub UI if server was configured with it
 	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
-		status.TargetURL = github.String(url)
+		status.TargetURL = github.Ptr(url)
 	}
 
 	// send API call to create the status context for the commit
@@ -400,7 +412,7 @@ func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 }
 
 // StepStatus sends the commit status for the given SHA to the GitHub repo with the step as the context.
-func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *api.Step, org, name string) error {
+func (c *Client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *api.Step, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
@@ -414,7 +426,7 @@ func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *a
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	context := fmt.Sprintf("%s/%s/%s", c.config.StatusContext, b.GetEvent(), s.GetReportAs())
 	url := fmt.Sprintf("%s/%s/%s/%d#%d", c.config.WebUIAddress, org, name, b.GetNumber(), s.GetNumber())
@@ -452,14 +464,14 @@ func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *a
 
 	// create the status object to make the API call
 	status := &github.RepoStatus{
-		Context:     github.String(context),
-		Description: github.String(description),
-		State:       github.String(state),
+		Context:     github.Ptr(context),
+		Description: github.Ptr(description),
+		State:       github.Ptr(state),
 	}
 
 	// provide "Details" link in GitHub UI if server was configured with it
 	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
-		status.TargetURL = github.String(url)
+		status.TargetURL = github.Ptr(url)
 	}
 
 	// send API call to create the status context for the commit
@@ -469,7 +481,7 @@ func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *a
 }
 
 // GetRepo gets repo information from Github.
-func (c *client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Repo, int, error) {
+func (c *Client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Repo, int, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -477,7 +489,7 @@ func (c *client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Re
 	}).Tracef("retrieving repository information for %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, u.GetToken())
+	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	// send an API call to get the repo info
 	repo, resp, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
@@ -489,7 +501,7 @@ func (c *client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Re
 }
 
 // GetOrgAndRepoName returns the name of the org and the repository in the SCM.
-func (c *client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r string) (string, string, error) {
+func (c *Client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
 		"repo": r,
@@ -497,7 +509,7 @@ func (c *client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r
 	}).Tracef("retrieving repository information for %s/%s", o, r)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, u.GetToken())
+	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	// send an API call to get the repo info
 	repo, _, err := client.Repositories.Get(ctx, o, r)
@@ -509,16 +521,16 @@ func (c *client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r
 }
 
 // ListUserRepos returns a list of all repos the user has access to.
-func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, error) {
+func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing source repositories for %s", u.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, u.GetToken())
+	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	r := []*github.Repository{}
-	f := []*api.Repo{}
+	f := []string{}
 
 	// set the max per page for the options to capture the list of repos
 	opts := &github.RepositoryListByAuthenticatedUserOptions{
@@ -556,7 +568,7 @@ func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 			continue
 		}
 
-		f = append(f, toAPIRepo(*repo))
+		f = append(f, repo.GetFullName())
 	}
 
 	return f, nil
@@ -564,11 +576,20 @@ func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, e
 
 // toAPIRepo does a partial conversion of a github repo to a API repo.
 func toAPIRepo(gr github.Repository) *api.Repo {
-	// setting the visbility to match the SCM visbility
 	var visibility string
-	if *gr.Private {
+
+	// setting the visbility to match the SCM visbility
+	switch gr.GetVisibility() {
+	// if gh resp does not have visibility field, use private
+	case "":
+		if gr.GetPrivate() {
+			visibility = constants.VisibilityPrivate
+		} else {
+			visibility = constants.VisibilityPublic
+		}
+	case "private":
 		visibility = constants.VisibilityPrivate
-	} else {
+	default:
 		visibility = constants.VisibilityPublic
 	}
 
@@ -587,7 +608,7 @@ func toAPIRepo(gr github.Repository) *api.Repo {
 
 // GetPullRequest defines a function that retrieves
 // a pull request for a repo.
-func (c *client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (string, string, string, string, error) {
+func (c *Client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (string, string, string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -595,7 +616,7 @@ func (c *client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (s
 	}).Tracef("retrieving pull request %d for repo %s", number, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, r.GetOwner().GetToken())
+	client := c.newOAuthTokenClient(ctx, r.GetOwner().GetToken())
 
 	pull, _, err := client.PullRequests.Get(ctx, r.GetOrg(), r.GetName(), number)
 	if err != nil {
@@ -611,7 +632,7 @@ func (c *client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (s
 }
 
 // GetHTMLURL retrieves the html_url from repository contents from the GitHub repo.
-func (c *client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, ref string) (string, error) {
+func (c *Client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, ref string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
@@ -619,7 +640,7 @@ func (c *client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, r
 	}).Tracef("capturing html_url for %s/%s/%s@%s", org, repo, name, ref)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	// set the reference for the options to capture the repository contents
 	opts := &github.RepositoryContentGetOptions{
@@ -643,7 +664,7 @@ func (c *client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, r
 }
 
 // GetBranch defines a function that retrieves a branch for a repo.
-func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (string, string, error) {
+func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -651,7 +672,7 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 	}).Tracef("retrieving branch %s for repo %s", branch, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, r.GetOwner().GetToken())
+	client := c.newOAuthTokenClient(ctx, r.GetOwner().GetToken())
 
 	maxRedirects := 3
 
@@ -661,4 +682,149 @@ func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 	}
 
 	return data.GetName(), data.GetCommit().GetSHA(), nil
+}
+
+// GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
+// If not, it defaults to the user OAuth token.
+func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, r *api.Repo, u *api.User, g yaml.Git) (string, error) {
+	l := c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	})
+
+	l.Tracef("getting netrc password for %s/%s", r.GetOrg(), r.GetName())
+
+	// no GitHub App configured, use legacy oauth token
+	if c.AppsTransport == nil {
+		return u.GetToken(), nil
+	}
+
+	var err error
+
+	// repos that the token has access to
+	// providing no repos, nil, or empty slice will default the token permissions to the list
+	// of repos added to the installation
+	repos := g.Repositories
+
+	// use triggering repo as a restrictive default
+	if len(repos) == 0 {
+		repos = []string{r.GetName()}
+	}
+
+	// permissions that are applied to the token for every repo provided
+	// providing no permissions, nil, or empty map will default to the permissions
+	// of the GitHub App installation
+	//
+	// the Vela compiler follows a least-privileged-defaults model where
+	// the list contains only the triggering repo, unless provided in the git yaml block
+	//
+	// the default is contents:read and checks:write
+	ghPermissions := &github.InstallationPermissions{
+		Contents: github.Ptr(AppInstallPermissionRead),
+		Checks:   github.Ptr(AppInstallPermissionWrite),
+	}
+
+	permissions := g.Permissions
+	if permissions == nil {
+		permissions = map[string]string{}
+	}
+
+	for resource, perm := range permissions {
+		ghPermissions, err = ApplyInstallationPermissions(resource, perm, ghPermissions)
+		if err != nil {
+			return u.GetToken(), err
+		}
+	}
+
+	// verify repo owner has `write` access to listed repositories before provisioning install token
+	//
+	// this prevents an app installed across the org from bypassing restrictions
+	for _, repo := range g.Repositories {
+		if repo == r.GetName() {
+			continue
+		}
+
+		access, err := c.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), repo)
+		if err != nil || (access != constants.PermissionAdmin && access != constants.PermissionWrite) {
+			return u.GetToken(), fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)
+		}
+	}
+
+	// the app might not be installed therefore we retain backwards compatibility via the user oauth token
+	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
+	// the optional list of repos and permissions are driven by yaml
+	installToken, installID, err := c.newGithubAppInstallationRepoToken(ctx, r, repos, ghPermissions)
+	if err != nil {
+		// return the legacy token along with no error for backwards compatibility
+		// todo: return an error based based on app installation requirements
+		l.Tracef("unable to create github app installation token for repos %v with permissions %v: %v", repos, permissions, err)
+
+		return u.GetToken(), nil
+	}
+
+	if installToken != nil && len(installToken.GetToken()) != 0 {
+		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
+
+		// (optional) sync the install ID with the repo
+		if db != nil && r.GetInstallID() != installID {
+			r.SetInstallID(installID)
+
+			_, err = db.UpdateRepo(ctx, r)
+			if err != nil {
+				c.Logger.Tracef("unable to update repo with install ID %d: %v", installID, err)
+			}
+		}
+
+		return installToken.GetToken(), nil
+	}
+
+	l.Tracef("using user oauth token for %s/%s", r.GetOrg(), r.GetName())
+
+	return u.GetToken(), nil
+}
+
+// SyncRepoWithInstallation ensures the repo is synchronized with the scm installation, if it exists.
+func (c *Client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*api.Repo, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("syncing app installation for repo %s/%s", r.GetOrg(), r.GetName())
+
+	// no GitHub App configured, skip
+	if c.AppsTransport == nil {
+		return r, nil
+	}
+
+	client, err := c.newGithubAppClient()
+	if err != nil {
+		return r, err
+	}
+
+	installations, _, err := client.Apps.ListInstallations(ctx, &github.ListOptions{})
+	if err != nil {
+		return r, err
+	}
+
+	var installation *github.Installation
+
+	for _, install := range installations {
+		if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
+			installation = install
+		}
+	}
+
+	if installation == nil {
+		return r, nil
+	}
+
+	installationCanReadRepo, err := c.installationCanReadRepo(ctx, r, installation)
+	if err != nil {
+		return r, err
+	}
+
+	if installationCanReadRepo {
+		r.SetInstallID(installation.GetID())
+	}
+
+	return r, nil
 }

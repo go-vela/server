@@ -71,7 +71,7 @@ var (
 // Purge removes the secrets that have a ruleset
 // that do not match the provided ruledata.
 func (s *SecretSlice) Purge(r *RuleData) (*SecretSlice, error) {
-	counter := 1
+	counter := int32(1)
 	secrets := new(SecretSlice)
 
 	// iterate through each Secret in the pipeline
@@ -83,7 +83,7 @@ func (s *SecretSlice) Purge(r *RuleData) (*SecretSlice, error) {
 			continue
 		}
 
-		match, err := secret.Origin.Ruleset.Match(r)
+		match, err := r.Match(secret.Origin.Ruleset)
 		if err != nil {
 			return nil, fmt.Errorf("unable to process ruleset for secret %s: %w", secret.Name, err)
 		}

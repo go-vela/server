@@ -19,12 +19,14 @@ func TestLog_Engine_CountLogs(t *testing.T) {
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
+	_service.SetCreatedAt(1)
 
 	_step := testutils.APILog()
 	_step.SetID(2)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
+	_step.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -52,7 +54,7 @@ func TestLog_Engine_CountLogs(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

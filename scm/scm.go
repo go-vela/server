@@ -3,6 +3,7 @@
 package scm
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -17,7 +18,7 @@ import (
 //
 // * Github
 // .
-func New(s *Setup) (Service, error) {
+func New(ctx context.Context, s *Setup) (Service, error) {
 	// validate the setup being provided
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/scm?tab=doc#Setup.Validate
@@ -33,12 +34,12 @@ func New(s *Setup) (Service, error) {
 		// handle the Github scm driver being provided
 		//
 		// https://pkg.go.dev/github.com/go-vela/server/scm?tab=doc#Setup.Github
-		return s.Github()
+		return s.Github(ctx)
 	case constants.DriverGitlab:
 		// handle the Gitlab scm driver being provided
 		//
 		// https://pkg.go.dev/github.com/go-vela/server/scm?tab=doc#Setup.Gitlab
-		return s.Gitlab()
+		return s.Gitlab(ctx)
 	default:
 		// handle an invalid scm driver being provided
 		return nil, fmt.Errorf("invalid scm driver provided: %s", s.Driver)

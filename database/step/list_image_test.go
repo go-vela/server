@@ -58,7 +58,7 @@ func TestStep_Engine_ListStepImageCount(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     map[string]float64
 	}{
 		{

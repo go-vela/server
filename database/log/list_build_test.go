@@ -7,10 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestLog_Engine_ListLogsForBuild(t *testing.T) {
@@ -21,6 +20,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
 	_service.SetData([]byte{})
+	_service.SetCreatedAt(1)
 
 	_step := testutils.APILog()
 	_step.SetID(2)
@@ -28,6 +28,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
 	_step.SetData([]byte{})
+	_step.SetCreatedAt(1)
 
 	_repo := testutils.APIRepo()
 	_repo.SetID(1)
@@ -42,15 +43,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "logs" WHERE build_id = $1`).WithArgs(1).WillReturnRows(_rows)
-
-	// create expected result in mock
-	_rows = sqlmock.NewRows(
-		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "data"}).
-		AddRow(1, 1, 1, 1, 0, []byte{}).AddRow(2, 1, 1, 0, 1, []byte{})
+	_rows := testutils.CreateMockRows([]any{*types.LogFromAPI(_service), *types.LogFromAPI(_step)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE build_id = $1 ORDER BY service_id ASC NULLS LAST,step_id ASC LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
@@ -72,7 +65,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Log
 	}{
 		{
@@ -92,7 +85,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListLogsForBuild(context.TODO(), _build, 1, 10)
+			got, err := test.database.ListLogsForBuild(context.TODO(), _build, 1, 10)
 
 			if test.failure {
 				if err == nil {

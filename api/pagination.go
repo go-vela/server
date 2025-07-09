@@ -4,7 +4,6 @@ package api
 
 import (
 	"fmt"
-	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,7 +15,7 @@ import (
 type Pagination struct {
 	PerPage int
 	Page    int
-	Total   int64
+	Results int
 }
 
 // HeaderLink will hold the information needed to form a link element in the header.
@@ -30,9 +29,11 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 	l := []string{}
 	r := c.Request
 
+	// grab the current query params
+	q := r.URL.Query()
+
 	hl := HeaderLink{
 		"first": 1,
-		"last":  p.TotalPages(),
 		"next":  p.NextPage(),
 		"prev":  p.PrevPage(),
 	}
@@ -42,6 +43,9 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 		return
 	}
 
+	// reset per config
+	q.Set("per_page", strconv.Itoa(p.PerPage))
+
 	// drop first, prev on the first page
 	if p.Page == 1 {
 		delete(hl, "first")
@@ -49,26 +53,28 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 	}
 
 	// drop last, next on the last page
-	if p.Page == p.TotalPages() {
+	if p.Results < p.PerPage {
 		delete(hl, "last")
 		delete(hl, "next")
 	}
 
+	// loop over the fields that make up the header links
 	for rel, page := range hl {
+		// set the page info for the current field
+		q.Set("page", strconv.Itoa(page))
+
 		ls := fmt.Sprintf(
-			`<%s://%s%s?per_page=%d&page=%d>; rel="%s"`,
+			`<%s://%s%s?%s>; rel="%s"`,
 			resolveScheme(r),
 			r.Host,
 			r.URL.Path,
-			p.PerPage,
-			page,
+			q.Encode(),
 			rel,
 		)
 
 		l = append(l, ls)
 	}
 
-	c.Header("X-Total-Count", strconv.FormatInt(p.Total, 10))
 	c.Header("Link", strings.Join(l, ", "))
 }
 
@@ -97,22 +103,12 @@ func (p *Pagination) HasPrev() bool {
 
 // HasNext will return true if there is a next page.
 func (p *Pagination) HasNext() bool {
-	return p.Page < p.TotalPages()
+	return p.PerPage == p.Results
 }
 
 // HasPages returns true if there is need to deal with pagination.
 func (p *Pagination) HasPages() bool {
-	return p.Total > int64(p.PerPage)
-}
-
-// TotalPages will return the total number of pages.
-func (p *Pagination) TotalPages() int {
-	n := int(math.Ceil(float64(p.Total) / float64(p.PerPage)))
-	if n == 0 {
-		n = 1
-	}
-
-	return n
+	return !(p.Page == 1 && p.Results < p.PerPage)
 }
 
 // resolveScheme is a helper to determine the protocol scheme

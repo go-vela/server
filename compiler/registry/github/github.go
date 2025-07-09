@@ -5,9 +5,10 @@ package github
 import (
 	"context"
 	"net/url"
+	"reflect"
 	"strings"
 
-	"github.com/google/go-github/v65/github"
+	"github.com/google/go-github/v73/github"
 	"golang.org/x/oauth2"
 )
 
@@ -16,19 +17,21 @@ const (
 	defaultAPI = "https://api.github.com/" // Default GitHub API URL
 )
 
-type client struct {
-	Github *github.Client
-	URL    string
-	API    string
+type Client struct {
+	githubClient *github.Client
+	URL          string
+	API          string
+}
+
+func (c *Client) Equal(other *Client) bool {
+	return (reflect.DeepEqual(c.githubClient.Client(), other.githubClient.Client())) && c.URL == other.URL && c.API == other.API
 }
 
 // New returns a Registry implementation that integrates
 // with GitHub or a GitHub Enterprise instance.
-//
-//nolint:revive // ignore returning unexported client
-func New(ctx context.Context, address, token string) (*client, error) {
+func New(ctx context.Context, address, token string) (*Client, error) {
 	// create the client object
-	c := &client{
+	c := &Client{
 		URL: defaultURL,
 		API: defaultAPI,
 	}
@@ -50,17 +53,17 @@ func New(ctx context.Context, address, token string) (*client, error) {
 
 	if len(token) > 0 {
 		// create GitHub OAuth client with user's token
-		gitClient = c.newClientToken(ctx, token)
+		gitClient = c.newOAuthTokenClient(ctx, token)
 	}
 
 	// overwrite the github client
-	c.Github = gitClient
+	c.githubClient = gitClient
 
 	return c, nil
 }
 
-// newClientToken is a helper function to return the GitHub oauth2 client.
-func (c *client) newClientToken(ctx context.Context, token string) *github.Client {
+// newOAuthTokenClient is a helper function to return the GitHub oauth2 client.
+func (c *Client) newOAuthTokenClient(ctx context.Context, token string) *github.Client {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -68,14 +71,6 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 
 	// create the OAuth client
 	tc := oauth2.NewClient(ctx, ts)
-	// if c.SkipVerify {
-	// 	tc.Transport.(*oauth2.Transport).Base = &http.Transport{
-	// 		Proxy: http.ProxyFromEnvironment,
-	// 		TLSClientConfig: &tls.Config{
-	// 			InsecureSkipVerify: true,
-	// 		},
-	// 	}
-	// }
 
 	// create the GitHub client from the OAuth client
 	github := github.NewClient(tc)

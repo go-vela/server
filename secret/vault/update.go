@@ -5,6 +5,7 @@ package vault
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -15,7 +16,7 @@ import (
 )
 
 // Update updates a secret.
-func (c *client) Update(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
+func (c *Client) Update(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
@@ -66,6 +67,10 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *api.Sec
 		vault.Data["allow_substitution"] = s.GetAllowSubstitution()
 	}
 
+	if s.RepoAllowlist != nil && !reflect.DeepEqual(s.GetRepoAllowlist(), sec.GetRepoAllowlist()) {
+		vault.Data["repo_allowlist"] = s.GetRepoAllowlist()
+	}
+
 	// validate the secret
 	err = database.SecretFromAPI(secretFromVault(vault)).Validate()
 	if err != nil {
@@ -87,25 +92,25 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *api.Sec
 
 // updateOrg is a helper function to update
 // the org secret for the provided path.
-func (c *client) updateOrg(org, path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) updateOrg(org, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.update(fmt.Sprintf("%s/%s/%s/%s", c.config.Prefix, constants.SecretOrg, org, path), data)
 }
 
 // updateRepo is a helper function to update
 // the repo secret for the provided path.
-func (c *client) updateRepo(org, repo, path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) updateRepo(org, repo, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretRepo, org, repo, path), data)
 }
 
 // updateShared is a helper function to update
 // the shared secret for the provided path.
-func (c *client) updateShared(org, team, path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) updateShared(org, team, path string, data map[string]interface{}) (*api.Secret, error) {
 	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretShared, org, team, path), data)
 }
 
 // update is a helper function to update
 // the secret for the provided path.
-func (c *client) update(path string, data map[string]interface{}) (*api.Secret, error) {
+func (c *Client) update(path string, data map[string]interface{}) (*api.Secret, error) {
 	if strings.HasPrefix("secret/data", c.config.Prefix) {
 		data = map[string]interface{}{
 			"data": data,

@@ -12,7 +12,8 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
@@ -258,7 +259,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CountBuildsForOrg"] = true
 
 	// count the builds for a repo
-	count, err = db.CountBuildsForRepo(context.TODO(), resources.Repos[0], nil)
+	count, err = db.CountBuildsForRepo(context.TODO(), resources.Repos[0], nil, time.Now().Unix(), 0)
 	if err != nil {
 		t.Errorf("unable to count builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -288,12 +289,9 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListBuilds"] = true
 
 	// list the builds for an org
-	list, count, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, 1, 10)
+	list, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list builds for org %s: %v", resources.Repos[0].GetOrg(), err)
-	}
-	if int(count) != len(resources.Builds) {
-		t.Errorf("ListBuildsForOrg() is %v, want %v", count, len(resources.Builds))
 	}
 	if diff := cmp.Diff(resources.Builds, list); diff != "" {
 		t.Errorf("ListBuildsForOrg() mismatch (-want +got):\n%s", diff)
@@ -301,12 +299,9 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListBuildsForOrg"] = true
 
 	// list the builds for a repo
-	list, count, err = db.ListBuildsForRepo(context.TODO(), resources.Repos[0], nil, time.Now().UTC().Unix(), 0, 1, 10)
+	list, err = db.ListBuildsForRepo(context.TODO(), resources.Repos[0], nil, time.Now().UTC().Unix(), 0, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list builds for repo %d: %v", resources.Repos[0].GetID(), err)
-	}
-	if int(count) != len(resources.Builds) {
-		t.Errorf("ListBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
 	if diff := cmp.Diff([]*api.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
 		t.Errorf("ListBuildsForRepo() mismatch (-want +got):\n%s", diff)
@@ -383,10 +378,10 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CleanBuilds"] = true
 
 	// update the builds
-	for _, build := range resources.Builds {
+	for i, build := range resources.Builds {
 		prevStatus := build.GetStatus()
 
-		build.SetStatus("success")
+		build.SetStatus("pending approval")
 		_, err = db.UpdateBuild(context.TODO(), build)
 		if err != nil {
 			t.Errorf("unable to update build %d: %v", build.GetID(), err)
@@ -401,10 +396,22 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetBuild() mismatch (-want +got):\n%s", diff)
 		}
 
+		if i == 1 {
+			pABuilds, err := db.ListPendingApprovalBuilds(context.TODO(), "1663474076")
+			if err != nil {
+				t.Errorf("unable to list pending approval builds: %v", err)
+			}
+
+			if len(pABuilds) != 2 {
+				t.Errorf("ListPendingApprovalBuilds() is %v, want %v", len(pABuilds), 2)
+			}
+		}
+
 		build.SetStatus(prevStatus)
 	}
 	methods["UpdateBuild"] = true
 	methods["GetBuild"] = true
+	methods["ListPendingApprovalBuilds"] = true
 
 	// delete the builds
 	for _, build := range resources.Builds {
@@ -861,13 +868,9 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	methods["ListHooks"] = true
 
 	// list the hooks for a repo
-	list, count, err = db.ListHooksForRepo(context.TODO(), resources.Repos[0], 1, 10)
+	list, err = db.ListHooksForRepo(context.TODO(), resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to list hooks for repo %d: %v", resources.Repos[0].GetID(), err)
-	}
-	// only 2 of 3 hooks belong to Repos[0] repo
-	if int(count) != len(resources.Hooks)-1 {
-		t.Errorf("ListHooksForRepo() is %v, want %v", count, len(resources.Hooks))
 	}
 	if diff := cmp.Diff([]*api.Hook{resources.Hooks[2], resources.Hooks[0]}, list); diff != "" {
 		t.Errorf("ListHooksForRepo() mismatch (-want +got):\n%s", diff)
@@ -989,9 +992,14 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
+		kid, ok := jkPub.KeyID()
+		if !ok {
+			t.Errorf("unable to get key ID for jwk")
+		}
+
 		err := db.CreateJWK(context.TODO(), jkPub)
 		if err != nil {
-			t.Errorf("unable to create jwk %s: %v", jkPub.KeyID(), err)
+			t.Errorf("unable to create jwk %s: %v", kid, err)
 		}
 	}
 	methods["CreateJWK"] = true
@@ -1012,9 +1020,14 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
-		got, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		kid, ok := jkPub.KeyID()
+		if !ok {
+			t.Errorf("unable to get key ID for jwk")
+		}
+
+		got, err := db.GetActiveJWK(context.TODO(), kid)
 		if err != nil {
-			t.Errorf("unable to get jwk %s: %v", jkPub.KeyID(), err)
+			t.Errorf("unable to get jwk %s: %v", kid, err)
 		}
 
 		if !cmp.Equal(jkPub, got, testutils.JwkKeyOpts) {
@@ -1034,7 +1047,12 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
-		_, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		kid, ok := jkPub.KeyID()
+		if !ok {
+			t.Errorf("unable to get key ID for jwk")
+		}
+
+		_, err := db.GetActiveJWK(context.TODO(), kid)
 		if err == nil {
 			t.Errorf("GetActiveJWK() should return err after rotation")
 		}
@@ -1108,12 +1126,9 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["ListLogs"] = true
 
 	// list the logs for a build
-	list, count, err = db.ListLogsForBuild(context.TODO(), resources.Builds[0], 1, 10)
+	list, err = db.ListLogsForBuild(context.TODO(), resources.Builds[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to list logs for build %d: %v", resources.Builds[0].GetID(), err)
-	}
-	if int(count) != len(resources.Logs) {
-		t.Errorf("ListLogsForBuild() is %v, want %v", count, len(resources.Logs))
 	}
 	if diff := cmp.Diff(resources.Logs, list); diff != "" {
 		t.Errorf("ListLogsForBuild() mismatch (-want +got):\n%s", diff)
@@ -1257,12 +1272,9 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	methods["ListPipelines"] = true
 
 	// list the pipelines for a repo
-	list, count, err = db.ListPipelinesForRepo(context.TODO(), resources.Repos[0], 1, 10)
+	list, err = db.ListPipelinesForRepo(context.TODO(), resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to list pipelines for repo %d: %v", resources.Repos[0].GetID(), err)
-	}
-	if int(count) != len(resources.Pipelines) {
-		t.Errorf("ListPipelinesForRepo() is %v, want %v", count, len(resources.Pipelines))
 	}
 	if diff := cmp.Diff(resources.Pipelines, list); diff != "" {
 		t.Errorf("ListPipelines() mismatch (-want +got):\n%s", diff)
@@ -1410,13 +1422,19 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["ListRepos"] = true
 
+	list, err = db.GetReposInList(t.Context(), []string{"github/octocat", "github/octokitty"})
+	if err != nil {
+		t.Errorf("unable to get repos in list: %v", err)
+	}
+	if diff := cmp.Diff(resources.Repos, list, cmpopts.IgnoreFields(api.Repo{}, "Owner", "Hash")); diff != "" {
+		t.Errorf("GetReposInList() mismatch (-want +got):\n%s", diff)
+	}
+	methods["GetReposInList"] = true
+
 	// list the repos for an org
-	list, count, err = db.ListReposForOrg(context.TODO(), resources.Repos[0].GetOrg(), "name", nil, 1, 10)
+	list, err = db.ListReposForOrg(context.TODO(), resources.Repos[0].GetOrg(), "name", nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list repos for org %s: %v", resources.Repos[0].GetOrg(), err)
-	}
-	if int(count) != len(resources.Repos) {
-		t.Errorf("ListReposForOrg() is %v, want %v", count, len(resources.Repos))
 	}
 	if diff := cmp.Diff(resources.Repos, list); diff != "" {
 		t.Errorf("ListReposForOrg() mismatch (-want +got):\n%s", diff)
@@ -1424,12 +1442,9 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	methods["ListReposForOrg"] = true
 
 	// list the repos for a user
-	list, count, err = db.ListReposForUser(context.TODO(), resources.Users[0], "name", nil, 1, 10)
+	list, err = db.ListReposForUser(context.TODO(), resources.Users[0], "name", nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list repos for user %d: %v", resources.Users[0].GetID(), err)
-	}
-	if int(count) != len(resources.Repos) {
-		t.Errorf("ListReposForUser() is %v, want %v", count, len(resources.Repos))
 	}
 	if diff := cmp.Diff(resources.Repos, list); diff != "" {
 		t.Errorf("ListReposForUser() mismatch (-want +got):\n%s", diff)
@@ -1577,12 +1592,9 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListActiveSchedules"] = true
 
 	// list the schedules for a repo
-	list, count, err = db.ListSchedulesForRepo(context.TODO(), resources.Repos[0], 1, 10)
+	list, err = db.ListSchedulesForRepo(context.TODO(), resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
-	}
-	if int(count) != len(resources.Schedules) {
-		t.Errorf("ListSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
 	}
 	if !cmp.Equal(list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]}, CmpOptApproxUpdatedAt()) {
 		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]})
@@ -1719,6 +1731,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 				t.Errorf("CountSecretsForTeam() is %v, want %v", count, 1)
 			}
 			methods["CountSecretsForTeam"] = true
+			methods["FillSecretAllowlist"] = true
 
 			// count the secrets for a list of teams
 			count, err = db.CountSecretsForTeams(context.TODO(), secret.GetOrg(), []string{secret.GetTeam()}, nil)
@@ -1748,12 +1761,9 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 		switch secret.GetType() {
 		case constants.SecretOrg:
 			// list the secrets for an org
-			list, count, err = db.ListSecretsForOrg(context.TODO(), secret.GetOrg(), nil, 1, 10)
+			list, err = db.ListSecretsForOrg(context.TODO(), secret.GetOrg(), nil, 1, 10)
 			if err != nil {
 				t.Errorf("unable to list secrets for org %s: %v", secret.GetOrg(), err)
-			}
-			if int(count) != 1 {
-				t.Errorf("ListSecretsForOrg() is %v, want %v", count, 1)
 			}
 			if !cmp.Equal(list, []*api.Secret{secret}) {
 				t.Errorf("ListSecretsForOrg() is %v, want %v", list, []*api.Secret{secret})
@@ -1761,12 +1771,9 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["ListSecretsForOrg"] = true
 		case constants.SecretRepo:
 			// list the secrets for a repo
-			list, count, err = db.ListSecretsForRepo(context.TODO(), resources.Repos[0], nil, 1, 10)
+			list, err = db.ListSecretsForRepo(context.TODO(), resources.Repos[0], nil, 1, 10)
 			if err != nil {
 				t.Errorf("unable to list secrets for repo %d: %v", resources.Repos[0].GetID(), err)
-			}
-			if int(count) != 1 {
-				t.Errorf("ListSecretsForRepo() is %v, want %v", count, 1)
 			}
 			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
 				t.Errorf("ListSecretsForRepo() is %v, want %v", list, []*api.Secret{secret})
@@ -1774,25 +1781,20 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["ListSecretsForRepo"] = true
 		case constants.SecretShared:
 			// list the secrets for a team
-			list, count, err = db.ListSecretsForTeam(context.TODO(), secret.GetOrg(), secret.GetTeam(), nil, 1, 10)
+			list, err = db.ListSecretsForTeam(context.TODO(), secret.GetOrg(), secret.GetTeam(), nil, 1, 10)
 			if err != nil {
 				t.Errorf("unable to list secrets for team %s: %v", secret.GetTeam(), err)
-			}
-			if int(count) != 1 {
-				t.Errorf("ListSecretsForTeam() is %v, want %v", count, 1)
 			}
 			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
 				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*api.Secret{secret})
 			}
 			methods["ListSecretsForTeam"] = true
+			methods["FillSecretsAllowlists"] = true
 
 			// list the secrets for a list of teams
-			list, count, err = db.ListSecretsForTeams(context.TODO(), secret.GetOrg(), []string{secret.GetTeam()}, nil, 1, 10)
+			list, err = db.ListSecretsForTeams(context.TODO(), secret.GetOrg(), []string{secret.GetTeam()}, nil, 1, 10)
 			if err != nil {
 				t.Errorf("unable to list secrets for teams %s: %v", []string{secret.GetTeam()}, err)
-			}
-			if int(count) != 1 {
-				t.Errorf("ListSecretsForTeams() is %v, want %v", count, 1)
 			}
 			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
 				t.Errorf("ListSecretsForTeams() is %v, want %v", list, []*api.Secret{secret})
@@ -1854,6 +1856,33 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["UpdateSecret"] = true
 	methods["GetSecret"] = true
+
+	err = db.MigrateSecrets(t.Context(), "github", "octocat", "github", "octokitty")
+	if err != nil {
+		t.Errorf("unable to migrate secrets: %v", err)
+	}
+
+	newRepo := new(api.Repo)
+	newRepo.SetOrg("github")
+	newRepo.SetName("octokitty")
+
+	renamedRepoSecret, err := db.GetSecretForRepo(t.Context(), "foo", newRepo)
+	if err != nil {
+		t.Errorf("unable to get secret foo for repo: %v", err)
+	}
+	if renamedRepoSecret.GetOrg() != "github" && renamedRepoSecret.GetRepo() != "octokitty" {
+		t.Errorf("secret foo org/repo is %s/%s, want github/octokitty", renamedRepoSecret.GetOrg(), renamedRepoSecret.GetRepo())
+	}
+
+	adjustedSharedSecret, err := db.GetSecretForTeam(t.Context(), "github", "octocat", "foo")
+	if err != nil {
+		t.Errorf("unable to get secret foo for team %s: %v", "octocat", err)
+	}
+	if !reflect.DeepEqual(adjustedSharedSecret.GetRepoAllowlist(), []string{"github/octokitty"}) {
+		t.Errorf("secret foo repo allowlist is %v, want %v", adjustedSharedSecret.GetRepoAllowlist(), []string{"github/octokitty"})
+	}
+
+	methods["MigrateSecrets"] = true
 
 	// delete the secrets
 	for _, secret := range resources.Secrets {
@@ -1930,15 +1959,12 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	methods["ListServices"] = true
 
 	// list the services for a build
-	list, count, err = db.ListServicesForBuild(context.TODO(), resources.Builds[0], nil, 1, 10)
+	list, err = db.ListServicesForBuild(context.TODO(), resources.Builds[0], nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
 	if !cmp.Equal(list, []*api.Service{resources.Services[1], resources.Services[0]}) {
 		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*api.Service{resources.Services[1], resources.Services[0]})
-	}
-	if int(count) != len(resources.Services) {
-		t.Errorf("ListServicesForBuild() is %v, want %v", count, len(resources.Services))
 	}
 	methods["ListServicesForBuild"] = true
 
@@ -2085,15 +2111,12 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["ListSteps"] = true
 
 	// list the steps for a build
-	list, count, err = db.ListStepsForBuild(ctx, resources.Builds[0], nil, 1, 10)
+	list, err = db.ListStepsForBuild(ctx, resources.Builds[0], nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
 	if !cmp.Equal(list, []*api.Step{resources.Steps[1], resources.Steps[0]}) {
 		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*api.Step{resources.Steps[1], resources.Steps[0]})
-	}
-	if int(count) != len(resources.Steps) {
-		t.Errorf("ListStepsForBuild() is %v, want %v", count, len(resources.Steps))
 	}
 	methods["ListStepsForBuild"] = true
 
@@ -2251,15 +2274,12 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	methods["ListUsers"] = true
 
 	// lite list the users
-	list, count, err = db.ListLiteUsers(context.TODO(), 1, 10)
+	list, err = db.ListLiteUsers(context.TODO(), 1, 10)
 	if err != nil {
 		t.Errorf("unable to list lite users: %v", err)
 	}
 	if !cmp.Equal(list, liteUsers) {
 		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
-	}
-	if int(count) != len(liteUsers) {
-		t.Errorf("ListLiteUsers() is %v, want %v", count, len(liteUsers))
 	}
 	methods["ListLiteUsers"] = true
 
@@ -2428,6 +2448,7 @@ func testSettings(t *testing.T, db Interface, resources *Resources) {
 	// update the settings
 	for _, s := range resources.Platform {
 		s.SetCloneImage("target/vela-git-slim:abc123")
+		s.SetRepoRoleMap(map[string]string{"foo": "bar"})
 		got, err := db.UpdateSettings(context.TODO(), s)
 		if err != nil {
 			t.Errorf("unable to update settings %d: %v", s.GetID(), err)
@@ -2491,6 +2512,9 @@ func newResources() *Resources {
 	repoOne.SetPreviousName("")
 	repoOne.SetApproveBuild(constants.ApproveNever)
 	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
+	repoOne.SetApprovalTimeout(7)
+	repoOne.SetInstallID(0)
+	repoOne.SetCustomProps(map[string]any{"foo": "bar"})
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
@@ -2514,6 +2538,9 @@ func newResources() *Resources {
 	repoTwo.SetPreviousName("")
 	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
 	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	repoTwo.SetApprovalTimeout(7)
+	repoTwo.SetInstallID(0)
+	repoTwo.SetCustomProps(map[string]any{"foo": "bar"})
 
 	buildOne := new(api.Build)
 	buildOne.SetID(1)
@@ -2548,6 +2575,7 @@ func newResources() *Resources {
 	buildOne.SetBaseRef("")
 	buildOne.SetHeadRef("changes")
 	buildOne.SetHost("example.company.com")
+	buildOne.SetRoute("vela")
 	buildOne.SetRuntime("docker")
 	buildOne.SetDistribution("linux")
 	buildOne.SetApprovedAt(1563474078)
@@ -2586,6 +2614,7 @@ func newResources() *Resources {
 	buildTwo.SetBaseRef("")
 	buildTwo.SetHeadRef("changes")
 	buildTwo.SetHost("example.company.com")
+	buildTwo.SetRoute("vela")
 	buildTwo.SetRuntime("docker")
 	buildTwo.SetDistribution("linux")
 	buildTwo.SetApprovedAt(1563474078)
@@ -2732,6 +2761,7 @@ func newResources() *Resources {
 	logServiceOne.SetServiceID(1)
 	logServiceOne.SetStepID(0)
 	logServiceOne.SetData([]byte("foo"))
+	logServiceOne.SetCreatedAt(time.Now().UTC().Unix())
 
 	logServiceTwo := new(api.Log)
 	logServiceTwo.SetID(2)
@@ -2740,6 +2770,7 @@ func newResources() *Resources {
 	logServiceTwo.SetServiceID(2)
 	logServiceTwo.SetStepID(0)
 	logServiceTwo.SetData([]byte("foo"))
+	logServiceTwo.SetCreatedAt(time.Now().UTC().Unix())
 
 	logStepOne := new(api.Log)
 	logStepOne.SetID(3)
@@ -2748,6 +2779,7 @@ func newResources() *Resources {
 	logStepOne.SetServiceID(0)
 	logStepOne.SetStepID(1)
 	logStepOne.SetData([]byte("foo"))
+	logStepOne.SetCreatedAt(time.Now().UTC().Unix())
 
 	logStepTwo := new(api.Log)
 	logStepTwo.SetID(4)
@@ -2756,6 +2788,7 @@ func newResources() *Resources {
 	logStepTwo.SetServiceID(0)
 	logStepTwo.SetStepID(2)
 	logStepTwo.SetData([]byte("foo"))
+	logStepTwo.SetCreatedAt(time.Now().UTC().Unix())
 
 	pipelineOne := new(api.Pipeline)
 	pipelineOne.SetID(1)
@@ -2772,6 +2805,7 @@ func newResources() *Resources {
 	pipelineOne.SetStages(false)
 	pipelineOne.SetSteps(true)
 	pipelineOne.SetTemplates(false)
+	pipelineOne.SetWarnings([]string{})
 	pipelineOne.SetData([]byte("version: 1"))
 
 	pipelineTwo := new(api.Pipeline)
@@ -2789,6 +2823,7 @@ func newResources() *Resources {
 	pipelineTwo.SetStages(false)
 	pipelineTwo.SetSteps(true)
 	pipelineTwo.SetTemplates(false)
+	pipelineTwo.SetWarnings([]string{"42:this is a warning"})
 	pipelineTwo.SetData([]byte("version: 1"))
 
 	currTime := time.Now().UTC()
@@ -2843,6 +2878,7 @@ func newResources() *Resources {
 	secretOrg.SetCreatedBy("octocat")
 	secretOrg.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretOrg.SetUpdatedBy("octokitty")
+	secretOrg.SetRepoAllowlist([]string{})
 
 	secretRepo := new(api.Secret)
 	secretRepo.SetID(2)
@@ -2860,6 +2896,7 @@ func newResources() *Resources {
 	secretRepo.SetCreatedBy("octocat")
 	secretRepo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretRepo.SetUpdatedBy("octokitty")
+	secretRepo.SetRepoAllowlist([]string{})
 
 	secretShared := new(api.Secret)
 	secretShared.SetID(3)
@@ -2877,6 +2914,7 @@ func newResources() *Resources {
 	secretShared.SetCreatedBy("octocat")
 	secretShared.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretShared.SetUpdatedBy("octokitty")
+	secretShared.SetRepoAllowlist([]string{"github/octocat"})
 
 	serviceOne := new(api.Service)
 	serviceOne.SetID(1)

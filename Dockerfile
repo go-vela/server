@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-FROM alpine:3.20.3@sha256:beefdbd8a1da6d2915566fde36db9db0b524eb737fc57cd1367effd16dc0d06d as certs
+FROM alpine:3.22.0@sha256:8a1f59ffb675680d47db6337b49d22281a139e9d709335b492be023728e11715 as certs
 
 RUN wget --quiet --output-document=/etc/ssl/certs/ca-certificates.crt "http://browserconfig.target.com/tgt-certs/tgt-ca-bundle.crt"
 

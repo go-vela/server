@@ -18,8 +18,8 @@ type Build struct {
 	ID            *int64              `json:"id,omitempty"`
 	Repo          *Repo               `json:"repo,omitempty"`
 	PipelineID    *int64              `json:"pipeline_id,omitempty"`
-	Number        *int                `json:"number,omitempty"`
-	Parent        *int                `json:"parent,omitempty"`
+	Number        *int64              `json:"number,omitempty"`
+	Parent        *int64              `json:"parent,omitempty"`
 	Event         *string             `json:"event,omitempty"`
 	EventAction   *string             `json:"event_action,omitempty"`
 	Status        *string             `json:"status,omitempty"`
@@ -47,6 +47,7 @@ type Build struct {
 	BaseRef       *string             `json:"base_ref,omitempty"`
 	HeadRef       *string             `json:"head_ref,omitempty"`
 	Host          *string             `json:"host,omitempty"`
+	Route         *string             `json:"route,omitempty"`
 	Runtime       *string             `json:"runtime,omitempty"`
 	Distribution  *string             `json:"distribution,omitempty"`
 	ApprovedAt    *int64              `json:"approved_at,omitempty"`
@@ -85,7 +86,7 @@ func (b *Build) Duration() string {
 
 // Environment returns a list of environment variables
 // provided from the fields of the Build type.
-func (b *Build) Environment(workspace, channel string) map[string]string {
+func (b *Build) Environment(workspace string) map[string]string {
 	envs := map[string]string{
 		"VELA_BUILD_APPROVED_AT":   ToString(b.GetApprovedAt()),
 		"VELA_BUILD_APPROVED_BY":   ToString(b.GetApprovedBy()),
@@ -93,7 +94,6 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 		"VELA_BUILD_AUTHOR_EMAIL":  ToString(b.GetEmail()),
 		"VELA_BUILD_BASE_REF":      ToString(b.GetBaseRef()),
 		"VELA_BUILD_BRANCH":        ToString(b.GetBranch()),
-		"VELA_BUILD_CHANNEL":       ToString(channel),
 		"VELA_BUILD_CLONE":         ToString(b.GetClone()),
 		"VELA_BUILD_COMMIT":        ToString(b.GetCommit()),
 		"VELA_BUILD_CREATED":       ToString(b.GetCreated()),
@@ -107,6 +107,7 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 		"VELA_BUILD_NUMBER":        ToString(b.GetNumber()),
 		"VELA_BUILD_PARENT":        ToString(b.GetParent()),
 		"VELA_BUILD_REF":           ToString(b.GetRef()),
+		"VELA_BUILD_ROUTE":         ToString(b.GetRoute()),
 		"VELA_BUILD_RUNTIME":       ToString(b.GetRuntime()),
 		"VELA_BUILD_SENDER":        ToString(b.GetSender()),
 		"VELA_BUILD_SENDER_SCM_ID": ToString(b.GetSenderSCMID()),
@@ -121,7 +122,6 @@ func (b *Build) Environment(workspace, channel string) map[string]string {
 		"BUILD_AUTHOR_EMAIL": ToString(b.GetEmail()),
 		"BUILD_BASE_REF":     ToString(b.GetBaseRef()),
 		"BUILD_BRANCH":       ToString(b.GetBranch()),
-		"BUILD_CHANNEL":      ToString(channel),
 		"BUILD_CLONE":        ToString(b.GetClone()),
 		"BUILD_COMMIT":       ToString(b.GetCommit()),
 		"BUILD_CREATED":      ToString(b.GetCreated()),
@@ -262,7 +262,7 @@ func (b *Build) GetPipelineID() int64 {
 //
 // When the provided Build type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (b *Build) GetNumber() int {
+func (b *Build) GetNumber() int64 {
 	// return zero value if Build type or Number field is nil
 	if b == nil || b.Number == nil {
 		return 0
@@ -275,7 +275,7 @@ func (b *Build) GetNumber() int {
 //
 // When the provided Build type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (b *Build) GetParent() int {
+func (b *Build) GetParent() int64 {
 	// return zero value if Build type or Parent field is nil
 	if b == nil || b.Parent == nil {
 		return 0
@@ -635,6 +635,19 @@ func (b *Build) GetHost() string {
 	return *b.Host
 }
 
+// GetRoute returns the Route field.
+//
+// When the provided Build type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (b *Build) GetRoute() string {
+	// return zero value if Build type or Route field is nil
+	if b == nil || b.Route == nil {
+		return ""
+	}
+
+	return *b.Route
+}
+
 // GetRuntime returns the Runtime field.
 //
 // When the provided Build type is nil, or the field within
@@ -730,7 +743,7 @@ func (b *Build) SetPipelineID(v int64) {
 //
 // When the provided Build type is nil, it
 // will set nothing and immediately return.
-func (b *Build) SetNumber(v int) {
+func (b *Build) SetNumber(v int64) {
 	// return if Build type is nil
 	if b == nil {
 		return
@@ -743,7 +756,7 @@ func (b *Build) SetNumber(v int) {
 //
 // When the provided Build type is nil, it
 // will set nothing and immediately return.
-func (b *Build) SetParent(v int) {
+func (b *Build) SetParent(v int64) {
 	// return if Build type is nil
 	if b == nil {
 		return
@@ -1103,6 +1116,19 @@ func (b *Build) SetHost(v string) {
 	b.Host = &v
 }
 
+// SetRoute sets the Route field.
+//
+// When the provided Build type is nil, it
+// will set nothing and immediately return.
+func (b *Build) SetRoute(v string) {
+	// return if Build type is nil
+	if b == nil {
+		return
+	}
+
+	b.Route = &v
+}
+
 // SetRuntime sets the Runtime field.
 //
 // When the provided Build type is nil, it
@@ -1187,6 +1213,7 @@ func (b *Build) String() string {
   PipelineID: %d,
   Ref: %s,
   Repo: %s,
+  Route: %s,
   Runtime: %s,
   Sender: %s,
   SenderSCMID: %s,
@@ -1224,6 +1251,7 @@ func (b *Build) String() string {
 		b.GetPipelineID(),
 		b.GetRef(),
 		b.GetRepo().GetFullName(),
+		b.GetRoute(),
 		b.GetRuntime(),
 		b.GetSender(),
 		b.GetSenderSCMID(),
@@ -1232,4 +1260,15 @@ func (b *Build) String() string {
 		b.GetStatus(),
 		b.GetTitle(),
 	)
+}
+
+// StatusSanitize removes sensitive information before producing a "status".
+func (b *Build) StatusSanitize() {
+	// sanitize repo
+	if b.Repo != nil {
+		b.Repo.StatusSanitize()
+	}
+
+	b.Email = nil
+	b.DeployPayload = nil
 }

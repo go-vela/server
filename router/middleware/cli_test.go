@@ -9,18 +9,16 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 func TestMiddleware_CLI(t *testing.T) {
 	// setup types
-	want := &cli.Context{
-		App: &cli.App{
-			Name: "foo",
-		},
+	want := &cli.Command{
+		Name: "foo",
 	}
 
-	got := &cli.Context{}
+	got := &cli.Command{}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -32,7 +30,7 @@ func TestMiddleware_CLI(t *testing.T) {
 	// setup mock server
 	engine.Use(CLI(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("cli").(*cli.Context)
+		got = c.Value("cli").(*cli.Command)
 
 		c.Status(http.StatusOK)
 	})

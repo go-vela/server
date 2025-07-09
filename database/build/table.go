@@ -14,21 +14,21 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 builds (
-	id             SERIAL PRIMARY KEY,
-	repo_id        INTEGER,
-	pipeline_id    INTEGER,
-	number         INTEGER,
-	parent         INTEGER,
+	id             BIGSERIAL PRIMARY KEY,
+	repo_id        BIGINT,
+	pipeline_id    BIGINT,
+	number         BIGINT,
+	parent         BIGINT,
 	event          VARCHAR(250),
 	event_action   VARCHAR(250),
 	status         VARCHAR(250),
 	error          VARCHAR(1000),
-	enqueued       INTEGER,
-	created        INTEGER,
-	started        INTEGER,
-	finished       INTEGER,
+	enqueued       BIGINT,
+	created        BIGINT,
+	started        BIGINT,
+	finished       BIGINT,
 	deploy         VARCHAR(500),
-	deploy_number  INTEGER,
+	deploy_number  BIGINT,
 	deploy_payload VARCHAR(2000),
 	clone          VARCHAR(1000),
 	source         VARCHAR(1000),
@@ -46,11 +46,12 @@ builds (
 	base_ref       VARCHAR(500),
 	head_ref       VARCHAR(500),
 	host           VARCHAR(250),
+	route          VARCHAR(250),
 	runtime        VARCHAR(250),
 	distribution   VARCHAR(250),
-	approved_at    INTEGER,
+	approved_at    BIGINT,
 	approved_by    VARCHAR(250),
-	timestamp      INTEGER,
+	timestamp      BIGINT,
 	UNIQUE(repo_id, number)
 );
 `
@@ -92,6 +93,7 @@ builds (
 	base_ref       TEXT,
 	head_ref       TEXT,
 	host           TEXT,
+	route          TEXT,
 	runtime        TEXT,
 	distribution   TEXT,
 	approved_at    INTEGER,
@@ -103,7 +105,7 @@ builds (
 )
 
 // CreateBuildTable creates the builds table in the database.
-func (e *engine) CreateBuildTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateBuildTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating builds table")
 
 	// handle the driver provided to create the table

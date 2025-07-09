@@ -9,8 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/hook"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -71,8 +74,29 @@ func RedeliverHook(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	h := hook.Retrieve(c)
+	ps := settings.FromContext(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), h.GetNumber())
+
+	// check to see if queue has reached configured capacity to allow for a redelivery (hook must have a build)
+	if h.GetBuild().GetStatus() == constants.StatusPending && ps.GetQueueRestartLimit() > 0 {
+		// check length of specified route for the build
+		queueLength, err := queue.FromContext(c).RouteLength(ctx, h.GetBuild().GetRoute())
+		if err != nil {
+			util.HandleError(c, http.StatusInternalServerError, fmt.Errorf("unable to get queue length for %s: %w", h.GetBuild().GetRoute(), err))
+
+			return
+		}
+
+		if queueLength >= int64(ps.GetQueueRestartLimit()) {
+			retErr := fmt.Errorf("unable to restart build %s: queue length %d exceeds configured limit %d, please wait for the queue to decrease in size before retrying", entry, queueLength, ps.GetQueueRestartLimit())
+
+			util.HandleError(c, http.StatusTooManyRequests, retErr)
+
+			return
+		}
+	}
 
 	l.Debugf("redelivering hook %s", entry)
 

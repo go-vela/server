@@ -10,11 +10,11 @@ import (
 )
 
 // ClientOpt represents a configuration option to initialize the scm client for GitHub.
-type ClientOpt func(*client) error
+type ClientOpt func(*Client) error
 
 // WithAddress sets the GitHub address in the scm client for GitHub.
 func WithAddress(address string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring address in github scm client")
 
 		// set a default address for the client
@@ -39,7 +39,7 @@ func WithAddress(address string) ClientOpt {
 
 // WithClientID sets the OAuth client ID in the scm client for GitHub.
 func WithClientID(id string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring OAuth client ID in github scm client")
 
 		// check if the OAuth client ID provided is empty
@@ -56,7 +56,7 @@ func WithClientID(id string) ClientOpt {
 
 // WithClientSecret sets the OAuth client secret in the scm client for GitHub.
 func WithClientSecret(secret string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring OAuth client secret in github scm client")
 
 		// check if the OAuth client secret provided is empty
@@ -73,7 +73,7 @@ func WithClientSecret(secret string) ClientOpt {
 
 // WithServerAddress sets the Vela server address in the scm client for GitHub.
 func WithServerAddress(address string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring Vela server address in github scm client")
 
 		// check if the Vela server address provided is empty
@@ -90,12 +90,19 @@ func WithServerAddress(address string) ClientOpt {
 
 // WithServerWebhookAddress sets the Vela server webhook address in the scm client for GitHub.
 func WithServerWebhookAddress(address string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring Vela server webhook address in github scm client")
 
 		// fallback to Vela server address if the provided Vela server webhook address is empty
 		if len(address) == 0 {
-			c.config.ServerWebhookAddress = c.config.ServerAddress
+			c.config.ServerWebhookAddress = fmt.Sprintf("%s/webhook", c.config.ServerAddress)
+			return nil
+		}
+
+		if strings.EqualFold(address, c.config.ServerAddress) {
+			c.Logger.Warnf("vela server webhook address is the same as the server address. setting to %s/webhook", c.config.ServerAddress)
+			c.config.ServerWebhookAddress = fmt.Sprintf("%s/webhook", c.config.ServerAddress)
+
 			return nil
 		}
 
@@ -108,7 +115,7 @@ func WithServerWebhookAddress(address string) ClientOpt {
 
 // WithStatusContext sets the context for commit statuses in the scm client for GitHub.
 func WithStatusContext(context string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring context for commit statuses in github scm client")
 
 		// check if the context for the commit statuses provided is empty
@@ -125,7 +132,7 @@ func WithStatusContext(context string) ClientOpt {
 
 // WithWebUIAddress sets the Vela web UI address in the scm client for GitHub.
 func WithWebUIAddress(address string) ClientOpt {
-	return func(c *client) error {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring Vela web UI address in github scm client")
 
 		// set the Vela web UI address in the github client
@@ -135,9 +142,9 @@ func WithWebUIAddress(address string) ClientOpt {
 	}
 }
 
-// WithScopes sets the OAuth scopes in the scm client for GitHub.
-func WithScopes(scopes []string) ClientOpt {
-	return func(c *client) error {
+// WithOAuthScopes sets the OAuth scopes in the scm client for GitHub.
+func WithOAuthScopes(scopes []string) ClientOpt {
+	return func(c *Client) error {
 		c.Logger.Trace("configuring oauth scopes in github scm client")
 
 		// check if the scopes provided is empty
@@ -146,7 +153,7 @@ func WithScopes(scopes []string) ClientOpt {
 		}
 
 		// set the scopes in the github client
-		c.config.Scopes = scopes
+		c.config.OAuthScopes = scopes
 
 		return nil
 	}
@@ -154,8 +161,88 @@ func WithScopes(scopes []string) ClientOpt {
 
 // WithTracing sets the shared tracing config in the scm client for GitHub.
 func WithTracing(tracing *tracing.Client) ClientOpt {
-	return func(e *client) error {
+	return func(e *Client) error {
 		e.Tracing = tracing
+
+		return nil
+	}
+}
+
+// WithGithubAppID sets the ID for the GitHub App in the scm client.
+func WithGithubAppID(id int64) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring ID for GitHub App in github scm client")
+
+		// set the ID for the GitHub App in the github client
+		c.config.AppID = id
+
+		return nil
+	}
+}
+
+// WithGithubPrivateKey sets the private key for the GitHub App in the scm client.
+func WithGithubPrivateKey(key string) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring private key for GitHub App in github scm client")
+
+		// set the private key for the GitHub App in the github client
+		c.config.AppPrivateKey = key
+
+		return nil
+	}
+}
+
+// WithGithubPrivateKeyPath sets the private key path for the GitHub App in the scm client.
+func WithGithubPrivateKeyPath(path string) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring private key path for GitHub App in github scm client")
+
+		// set the private key for the GitHub App in the github client
+		c.config.AppPrivateKeyPath = path
+
+		return nil
+	}
+}
+
+// WithGitHubAppPermissions sets the App permissions in the scm client for GitHub.
+func WithGitHubAppPermissions(permissions []string) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring app permissions in github scm client")
+
+		c.config.AppPermissions = permissions
+
+		return nil
+	}
+}
+
+// WithRepoRoleMap sets the repository role mapping in the scm client for GitHub.
+func WithRepoRoleMap(mapping map[string]string) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring repository role mapping in github scm client")
+
+		c.SetRepoRoleMap(mapping)
+
+		return nil
+	}
+}
+
+// WithOrgRoleMap sets the organization role mapping in the scm client for GitHub.
+func WithOrgRoleMap(mapping map[string]string) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring organization role mapping in github scm client")
+
+		c.SetOrgRoleMap(mapping)
+
+		return nil
+	}
+}
+
+// WithTeamRoleMap sets the team role mapping in the scm client for GitHub.
+func WithTeamRoleMap(mapping map[string]string) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring team role mapping in github scm client")
+
+		c.SetTeamRoleMap(mapping)
 
 		return nil
 	}

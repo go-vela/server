@@ -19,12 +19,14 @@ func TestLog_Engine_CreateLog(t *testing.T) {
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
+	_service.SetCreatedAt(1)
 
 	_step := testutils.APILog()
 	_step.SetID(2)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
+	_step.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -34,16 +36,16 @@ func TestLog_Engine_CreateLog(t *testing.T) {
 
 	// ensure the mock expects the service query
 	_mock.ExpectQuery(`INSERT INTO "logs"
-("build_id","repo_id","service_id","step_id","data","id")
-VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`).
-		WithArgs(1, 1, 1, nil, AnyArgument{}, 1).
+("build_id","repo_id","service_id","step_id","data","created_at","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
+		WithArgs(1, 1, 1, nil, AnyArgument{}, 1, 1).
 		WillReturnRows(_rows)
 
 	// ensure the mock expects the step query
 	_mock.ExpectQuery(`INSERT INTO "logs"
-("build_id","repo_id","service_id","step_id","data","id")
-VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`).
-		WithArgs(1, 1, nil, 1, AnyArgument{}, 2).
+("build_id","repo_id","service_id","step_id","data","created_at","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
+		WithArgs(1, 1, nil, 1, AnyArgument{}, 1, 2).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
@@ -53,7 +55,7 @@ VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		logs     []*api.Log
 	}{
 		{

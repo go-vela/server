@@ -12,13 +12,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/pkg/errors"
 )
 
 // initialize obtains the vault token from the given auth method
 //
 // docs: https://www.vaultproject.io/docs/auth
-func (c *client) initialize() error {
+func (c *Client) initialize() error {
 	c.Logger.Trace("initializing token for vault")
 
 	// declare variables to be utilized within the switch
@@ -37,7 +36,7 @@ func (c *client) initialize() error {
 			SharedConfigState: session.SharedConfigEnable,
 		})
 		if err != nil {
-			return errors.Wrap(err, "failed to create aws session for vault")
+			return fmt.Errorf("failed to create AWS session for vault: %w", err)
 		}
 
 		// generate sts client for future API calls
@@ -46,7 +45,7 @@ func (c *client) initialize() error {
 		// obtain token from vault
 		token, ttl, err = c.getAwsToken()
 		if err != nil {
-			return errors.Wrap(err, "failed to get AWS token from vault")
+			return fmt.Errorf("failed to get AWS token from vault: %w", err)
 		}
 	}
 
@@ -59,7 +58,7 @@ func (c *client) initialize() error {
 // getAwsToken will retrieve a Vault token for the given IAM principal
 //
 // docs: https://www.vaultproject.io/docs/auth/aws
-func (c *client) getAwsToken() (string, time.Duration, error) {
+func (c *Client) getAwsToken() (string, time.Duration, error) {
 	headers, err := c.generateAwsAuthHeader()
 	if err != nil {
 		return "", 0, err
@@ -81,7 +80,7 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 
 // generateAwsAuthHeader will generate the necessary data
 // to send to the Vault server for generating a token.
-func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
+func (c *Client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	c.Logger.Trace("generating AWS auth headers for vault")
 
 	req, _ := c.AWS.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
@@ -120,7 +119,7 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 }
 
 // refreshToken will refresh the token used for Vault.
-func (c *client) refreshToken() {
+func (c *Client) refreshToken() {
 	for {
 		c.Logger.Tracef("sleeping for configured vault token duration %v", c.config.TokenDuration)
 		// sleep for the configured token duration before refreshing the token

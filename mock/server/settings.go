@@ -26,12 +26,27 @@ const (
 					"vela"
 				]
 			},
+			"scm": {
+				"repo_role_map": {
+					"admin": "admin",
+					"triage": "read"
+				},
+				"org_role_map": {
+					"admin": "admin",
+					"member": "read"
+				},
+				"team_role_map": {
+					"admin": "admin"
+				}
+			},
 			"repo_allowlist": [
 				"*"
 			],
 			"schedule_allowlist": [
 				"octocat/hello-world"
 			],
+			"max_dashboard_repos": 10,
+			"queue_restart_limit": 5,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -52,11 +67,26 @@ const (
 					"large"
 				]
 			},
+			"scm": {
+				"repo_role_map": {
+					"admin": "admin",
+					"triage": "read"
+				},
+				"org_role_map": {
+					"admin": "admin",
+					"member": "read"
+				},
+				"team_role_map": {
+					"admin": "admin"
+				}
+			},
 			"repo_allowlist": [],
 			"schedule_allowlist": [
 				"octocat/hello-world",
 				"octocat/*"
 			],
+			"max_dashboard_repos": 10,
+			"queue_restart_limit": 5,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -77,11 +107,26 @@ const (
 				"large"
 			]
 		},
+		"scm": {
+			"repo_role_map": {
+				"admin": "admin",
+				"triage": "read"
+			},
+			"org_role_map": {
+				"admin": "admin",
+				"member": "read"
+			},
+			"team_role_map": {
+				"admin": "admin"
+			}
+		},
 		"repo_allowlist": [],
 		"schedule_allowlist": [
 			"octocat/hello-world",
 			"octocat/*"
 		],
+		"max_dashboard_repos": 10,
+		"queue_restart_limit": 5,
 		"created_at": 1,
 		"updated_at": 1,
 		"updated_by": "octocat"

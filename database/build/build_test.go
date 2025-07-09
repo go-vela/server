@@ -28,8 +28,8 @@ func TestBuild_New(t *testing.T) {
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateEventIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_config := &gorm.Config{SkipDefaultTransaction: true}
@@ -53,7 +53,7 @@ func TestBuild_New(t *testing.T) {
 		client       *gorm.DB
 		logger       *logrus.Entry
 		skipCreation bool
-		want         *engine
+		want         *Engine
 	}{
 		{
 			failure:      false,
@@ -61,7 +61,7 @@ func TestBuild_New(t *testing.T) {
 			client:       _postgres,
 			logger:       logger,
 			skipCreation: false,
-			want: &engine{
+			want: &Engine{
 				client: _postgres,
 				config: &config{SkipCreation: false},
 				ctx:    context.TODO(),
@@ -74,7 +74,7 @@ func TestBuild_New(t *testing.T) {
 			client:       _sqlite,
 			logger:       logger,
 			skipCreation: false,
-			want: &engine{
+			want: &Engine{
 				client: _sqlite,
 				config: &config{SkipCreation: false},
 				ctx:    context.TODO(),
@@ -141,7 +141,7 @@ func (t NowTimestamp) Match(v driver.Value) bool {
 }
 
 // testPostgres is a helper function to create a Postgres engine for testing.
-func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
+func testPostgres(t *testing.T) (*Engine, sqlmock.Sqlmock) {
 	// create the new mock sql database
 	//
 	// https://pkg.go.dev/github.com/DATA-DOG/go-sqlmock#New
@@ -152,8 +152,8 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateEventIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
@@ -182,7 +182,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 }
 
 // testSqlite is a helper function to create a Sqlite engine for testing.
-func testSqlite(t *testing.T) *engine {
+func testSqlite(t *testing.T) *Engine {
 	_sqlite, err := gorm.Open(
 		sqlite.Open("file::memory:?cache=shared"),
 		&gorm.Config{SkipDefaultTransaction: true},

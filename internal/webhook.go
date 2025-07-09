@@ -17,19 +17,31 @@ var (
 // processing a webhook.
 type PullRequest struct {
 	Comment string
-	Number  int
+	Number  int64
 	Labels  []string
+}
+
+// Installation defines the data pulled from an installation
+// while processing a webhook.
+// Only applies to GitHub Apps.
+type Installation struct {
+	Action              string
+	ID                  int64
+	Org                 string
+	RepositoriesAdded   []string
+	RepositoriesRemoved []string
 }
 
 // Webhook defines a struct that is used to return
 // the required data when processing webhook event
 // a for a source provider event.
 type Webhook struct {
-	Hook        *api.Hook
-	Repo        *api.Repo
-	Build       *api.Build
-	PullRequest PullRequest
-	Deployment  *api.Deployment
+	Hook         *api.Hook
+	Repo         *api.Repo
+	Build        *api.Build
+	PullRequest  PullRequest
+	Deployment   *api.Deployment
+	Installation *Installation
 }
 
 // ShouldSkip uses the build information

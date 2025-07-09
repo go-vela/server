@@ -77,9 +77,10 @@ func CreateRepo(c *gin.Context) {
 	u := user.Retrieve(c)
 	s := settings.FromContext(c)
 
-	defaultBuildLimit := c.Value("defaultBuildLimit").(int64)
-	defaultTimeout := c.Value("defaultTimeout").(int64)
-	maxBuildLimit := c.Value("maxBuildLimit").(int64)
+	defaultBuildLimit := c.Value("defaultBuildLimit").(int32)
+	defaultTimeout := c.Value("defaultTimeout").(int32)
+	defaultApprovalTimeout := c.Value("defaultApprovalTimeout").(int32)
+	maxBuildLimit := c.Value("maxBuildLimit").(int32)
 	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
 	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
 	defaultRepoApproveBuild := c.Value("defaultRepoApproveBuild").(string)
@@ -138,8 +139,24 @@ func CreateRepo(c *gin.Context) {
 		r.SetTimeout(constants.BuildTimeoutDefault)
 	} else if input.GetTimeout() == 0 {
 		r.SetTimeout(defaultTimeout)
+	} else if input.GetTimeout() > constants.BuildTimeoutMax {
+		// set build timeout to max value to prevent timeout from exceeding max
+		r.SetTimeout(constants.BuildTimeoutMax)
 	} else {
 		r.SetTimeout(input.GetTimeout())
+	}
+
+	// set the approval timeout field based of the input provided
+	if input.GetApprovalTimeout() == 0 && defaultApprovalTimeout == 0 {
+		// default approval timeout to 7d
+		r.SetApprovalTimeout(constants.ApprovalTimeoutDefault)
+	} else if input.GetApprovalTimeout() == 0 {
+		r.SetApprovalTimeout(defaultApprovalTimeout)
+	} else if input.GetApprovalTimeout() > constants.ApprovalTimeoutMax {
+		// set approval timeout to max value to prevent timeout from exceeding max
+		r.SetApprovalTimeout(constants.ApprovalTimeoutMax)
+	} else {
+		r.SetApprovalTimeout(input.GetApprovalTimeout())
 	}
 
 	// set the visibility field based off the input provided
@@ -273,6 +290,18 @@ func CreateRepo(c *gin.Context) {
 		}
 	}
 
+	// map this repo to an installation if possible
+	if r.GetInstallID() == 0 {
+		r, err = scm.FromContext(c).SyncRepoWithInstallation(ctx, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to sync repo %s with installation: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+
 	// if the repo exists but is inactive
 	if len(dbRepo.GetOrg()) > 0 && !dbRepo.GetActive() {
 		// update the repo owner
@@ -281,6 +310,8 @@ func CreateRepo(c *gin.Context) {
 		dbRepo.SetBranch(r.GetBranch())
 		// activate the repo
 		dbRepo.SetActive(true)
+		// update the install_id
+		dbRepo.SetInstallID(r.GetInstallID())
 
 		// send API call to update the repo
 		// NOTE: not logging modification out separately

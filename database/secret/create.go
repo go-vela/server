@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
@@ -14,7 +15,7 @@ import (
 )
 
 // CreateSecret creates a new secret in the database.
-func (e *engine) CreateSecret(ctx context.Context, s *api.Secret) (*api.Secret, error) {
+func (e *Engine) CreateSecret(ctx context.Context, s *api.Secret) (*api.Secret, error) {
 	// handle the secret based off the type
 	switch s.GetType() {
 	case constants.SecretShared:
@@ -50,26 +51,43 @@ func (e *engine) CreateSecret(ctx context.Context, s *api.Secret) (*api.Secret, 
 		}
 	}
 
-	// create secret record
-	result := e.client.
-		WithContext(ctx).
-		Table(constants.TableSecret).
-		Create(secret.Nullify())
+	var result *api.Secret
 
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	// decrypt the fields for the secret to return
-	err = secret.Decrypt(e.config.EncryptionKey)
-	if err != nil {
-		switch s.GetType() {
-		case constants.SecretShared:
-			return nil, fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
-		default:
-			return nil, fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
+	transactionErr := e.client.Transaction(func(tx *gorm.DB) error {
+		// create secret record
+		err = tx.
+			WithContext(ctx).
+			Table(constants.TableSecret).
+			Create(secret.Nullify()).Error
+		if err != nil {
+			return err
 		}
+
+		// decrypt the fields for the secret to return
+		err = secret.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			switch s.GetType() {
+			case constants.SecretShared:
+				return fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
+			default:
+				return fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
+			}
+		}
+
+		result = secret.ToAPI()
+		result.SetRepoAllowlist(s.GetRepoAllowlist())
+
+		err = InsertAllowlist(ctx, tx, result)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if transactionErr != nil {
+		return nil, transactionErr
 	}
 
-	return secret.ToAPI(), nil
+	return result, nil
 }

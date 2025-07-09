@@ -1,0 +1,16 @@
+version: "1"
+
+<<: &alpine-image
+      image: alpine:latest
+
+<<: &dev-parameters
+      parameters:
+        REGION: dev 
+
+steps:
+  - name: example
+    <<:
+      - *alpine-image
+      - *dev-parameters
+    commands:
+      - echo $REGION

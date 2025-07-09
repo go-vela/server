@@ -1,0 +1,59 @@
+version: "1"
+
+step_image: &step_image
+  image: something
+
+templates:
+  - name: go
+    source: github.com/octocat/hello-world/.vela/build.yml
+    format: go
+    type: github
+
+metadata:
+  clone: false
+
+worker:
+  flavor: large
+
+stages:
+  greeting:
+    steps:
+      - name: Greeting
+        secrets: [ docker_username ]
+        image: alpine
+        commands:
+          - echo "Hello, World"
+      - name: Template
+        template:
+          name: go
+          vars:
+            image: golang:latest
+
+  welcome:
+    steps:
+      - name: Welcome
+        <<: *step_image
+        ruleset:
+          unless:
+            event: push
+            branch: main
+          if:
+            event: pull_request
+          continue: true
+        commands: |
+          echo "Welcome to the Vela docs"
+          go build something
+  
+  goodbye:
+    # will wait for greeting and welcome to finish
+    needs: [greeting, welcome]
+    steps:
+      - name: Goodbye
+        image: alpine
+        commands:
+          - echo "Goodbye, World"
+secrets:
+  - name: docker_username
+    key: go-vela/docs/username
+    engine: native
+    type: repo

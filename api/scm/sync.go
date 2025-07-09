@@ -5,11 +5,11 @@ package scm
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -121,7 +121,7 @@ func SyncRepo(c *gin.Context) {
 		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
-	if !strings.EqualFold(perm, "admin") {
+	if perm != constants.PermissionAdmin {
 		retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -172,6 +172,32 @@ func SyncRepo(c *gin.Context) {
 
 			return
 		}
+	}
+
+	// map this repo to an installation, if necessary
+	installID := r.GetInstallID()
+
+	r, err = scm.FromContext(c).SyncRepoWithInstallation(ctx, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to sync repo %s with installation: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// install_id was synced
+	if r.GetInstallID() != installID {
+		_, err := database.FromContext(c).UpdateRepo(ctx, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to update repo %s during repair: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		l.Tracef("repo %s install_id synced to %d", r.GetFullName(), r.GetInstallID())
 	}
 
 	c.Status(http.StatusNoContent)

@@ -6,7 +6,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/google/go-github/v65/github"
+	"github.com/google/go-github/v73/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -14,7 +14,7 @@ import (
 )
 
 // GetDeployment gets a deployment from the GitHub repo.
-func (c *client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id int64) (*api.Deployment, error) {
+func (c *Client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id int64) (*api.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -22,7 +22,7 @@ func (c *client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id
 	}).Tracef("capturing deployment %d for repo %s", id, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	// send API call to capture the deployment
 	deployment, _, err := client.Repositories.GetDeployment(ctx, r.GetOrg(), r.GetName(), id)
@@ -55,7 +55,7 @@ func (c *client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id
 }
 
 // GetDeploymentCount counts a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Repo) (int64, error) {
+func (c *Client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Repo) (int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -63,7 +63,7 @@ func (c *client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Rep
 	}).Tracef("counting deployments for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 	// create variable to track the deployments
 	deployments := []*github.Deployment{}
 
@@ -97,7 +97,7 @@ func (c *client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Rep
 }
 
 // GetDeploymentList gets a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo, page, perPage int) ([]*api.Deployment, error) {
+func (c *Client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo, page, perPage int) ([]*api.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -105,7 +105,7 @@ func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 	}).Tracef("listing deployments for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	// set pagination options for listing deployments
 	opts := &github.DeploymentsListOptions{
@@ -155,7 +155,7 @@ func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 }
 
 // CreateDeployment creates a new deployment for the GitHub repo.
-func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo, d *api.Deployment) error {
+func (c *Client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo, d *api.Deployment) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":     r.GetOrg(),
 		"repo":    r.GetName(),
@@ -164,7 +164,7 @@ func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	}).Tracef("creating deployment for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, *u.Token)
 
 	var payload interface{}
 	if d.Payload == nil {
@@ -177,7 +177,7 @@ func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	deployment := &github.DeploymentRequest{
 		Ref:              d.Ref,
 		Task:             d.Task,
-		AutoMerge:        github.Bool(false),
+		AutoMerge:        github.Ptr(false),
 		RequiredContexts: &[]string{},
 		Payload:          payload,
 		Environment:      d.Target,

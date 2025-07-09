@@ -11,27 +11,15 @@ import (
 )
 
 // ListUsers gets a list of all users from the database.
-func (e *engine) ListUsers(ctx context.Context) ([]*api.User, error) {
+func (e *Engine) ListUsers(ctx context.Context) ([]*api.User, error) {
 	e.logger.Trace("listing all users")
 
 	// variables to store query results and return value
-	count := int64(0)
 	u := new([]types.User)
 	users := []*api.User{}
 
-	// count the results
-	count, err := e.CountUsers(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return users, nil
-	}
-
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableUser).
 		Find(&u).

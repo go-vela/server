@@ -7,7 +7,7 @@ import (
 	"crypto/rsa"
 
 	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
@@ -23,8 +23,8 @@ func APIBuild() *api.Build {
 		ID:           new(int64),
 		Repo:         APIRepo(),
 		PipelineID:   new(int64),
-		Number:       new(int),
-		Parent:       new(int),
+		Number:       new(int64),
+		Parent:       new(int64),
 		Event:        new(string),
 		EventAction:  new(string),
 		Status:       new(string),
@@ -51,6 +51,7 @@ func APIBuild() *api.Build {
 		BaseRef:      new(string),
 		HeadRef:      new(string),
 		Host:         new(string),
+		Route:        new(string),
 		Runtime:      new(string),
 		Distribution: new(string),
 		ApprovedAt:   new(int64),
@@ -106,27 +107,30 @@ func APIEvents() *api.Events {
 
 func APIRepo() *api.Repo {
 	return &api.Repo{
-		ID:           new(int64),
-		Owner:        APIUser(),
-		BuildLimit:   new(int64),
-		Timeout:      new(int64),
-		Counter:      new(int),
-		PipelineType: new(string),
-		Hash:         new(string),
-		Org:          new(string),
-		Name:         new(string),
-		FullName:     new(string),
-		Link:         new(string),
-		Clone:        new(string),
-		Branch:       new(string),
-		Visibility:   new(string),
-		PreviousName: new(string),
-		Private:      new(bool),
-		Trusted:      new(bool),
-		Active:       new(bool),
-		AllowEvents:  APIEvents(),
-		Topics:       new([]string),
-		ApproveBuild: new(string),
+		ID:              new(int64),
+		Owner:           APIUser(),
+		BuildLimit:      new(int32),
+		Timeout:         new(int32),
+		Counter:         new(int64),
+		PipelineType:    new(string),
+		Hash:            new(string),
+		Org:             new(string),
+		Name:            new(string),
+		FullName:        new(string),
+		Link:            new(string),
+		Clone:           new(string),
+		Branch:          new(string),
+		Visibility:      new(string),
+		PreviousName:    new(string),
+		Private:         new(bool),
+		Trusted:         new(bool),
+		Active:          new(bool),
+		AllowEvents:     APIEvents(),
+		Topics:          new([]string),
+		ApproveBuild:    new(string),
+		ApprovalTimeout: new(int32),
+		InstallID:       new(int64),
+		CustomProps:     new(map[string]any),
 	}
 }
 
@@ -148,7 +152,7 @@ func APIHook() *api.Hook {
 		ID:          new(int64),
 		Repo:        APIRepo(),
 		Build:       APIBuild(),
-		Number:      new(int),
+		Number:      new(int64),
 		SourceID:    new(string),
 		Created:     new(int64),
 		Host:        new(string),
@@ -203,6 +207,7 @@ func APISecret() *api.Secret {
 		AllowEvents:       APIEvents(),
 		AllowCommand:      new(bool),
 		AllowSubstitution: new(bool),
+		RepoAllowlist:     new([]string),
 		CreatedAt:         new(int64),
 		CreatedBy:         new(string),
 		UpdatedAt:         new(int64),
@@ -215,12 +220,12 @@ func APIService() *api.Service {
 		ID:           new(int64),
 		BuildID:      new(int64),
 		RepoID:       new(int64),
-		Number:       new(int),
+		Number:       new(int32),
 		Name:         new(string),
 		Image:        new(string),
 		Status:       new(string),
 		Error:        new(string),
-		ExitCode:     new(int),
+		ExitCode:     new(int32),
 		Created:      new(int64),
 		Started:      new(int64),
 		Finished:     new(int64),
@@ -235,13 +240,13 @@ func APIStep() *api.Step {
 		ID:           new(int64),
 		BuildID:      new(int64),
 		RepoID:       new(int64),
-		Number:       new(int),
+		Number:       new(int32),
 		Name:         new(string),
 		Image:        new(string),
 		Stage:        new(string),
 		Status:       new(string),
 		Error:        new(string),
-		ExitCode:     new(int),
+		ExitCode:     new(int32),
 		Created:      new(int64),
 		Started:      new(int64),
 		Finished:     new(int64),
@@ -268,6 +273,7 @@ func APIPipeline() *api.Pipeline {
 		Stages:          new(bool),
 		Steps:           new(bool),
 		Templates:       new(bool),
+		Warnings:        new([]string),
 		Data:            new([]byte),
 	}
 }
@@ -299,7 +305,7 @@ func JWK() jwk.RSAPublicKey {
 		return nil
 	}
 
-	pubJwk, err := jwk.FromRaw(privateRSAKey.PublicKey)
+	pubJwk, err := jwk.Import(privateRSAKey.PublicKey)
 	if err != nil {
 		return nil
 	}

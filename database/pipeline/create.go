@@ -13,7 +13,7 @@ import (
 )
 
 // CreatePipeline creates a new pipeline in the database.
-func (e *engine) CreatePipeline(ctx context.Context, p *api.Pipeline) (*api.Pipeline, error) {
+func (e *Engine) CreatePipeline(ctx context.Context, p *api.Pipeline) (*api.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("creating pipeline %s in the database", p.GetCommit())

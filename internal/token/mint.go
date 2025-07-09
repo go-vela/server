@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,7 +23,7 @@ import (
 // includes information about the user.
 type Claims struct {
 	BuildID     int64  `json:"build_id,omitempty"`
-	BuildNumber int    `json:"build_number,omitempty"`
+	BuildNumber int64  `json:"build_number,omitempty"`
 	Actor       string `json:"actor,omitempty"`
 	IsActive    bool   `json:"is_active,omitempty"`
 	IsAdmin     bool   `json:"is_admin,omitempty"`
@@ -160,17 +161,18 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.Actor = mto.Build.GetSender()
 	claims.ActorSCMID = mto.Build.GetSenderSCMID()
 	claims.Branch = mto.Build.GetBranch()
-	claims.BuildNumber = mto.Build.GetNumber()
-	claims.BuildID = mto.Build.GetID()
+	claims.BuildNumber = strconv.FormatInt(mto.Build.GetNumber(), 10)
+	claims.BuildID = strconv.FormatInt(mto.Build.GetID(), 10)
 	claims.Repo = mto.Repo
 	claims.Event = fmt.Sprintf("%s:%s", mto.Build.GetEvent(), mto.Build.GetEventAction())
-	claims.PullFork = mto.Build.GetFork()
+	claims.PullFork = strconv.FormatBool(mto.Build.GetFork())
 	claims.SHA = mto.Build.GetCommit()
 	claims.Ref = mto.Build.GetRef()
 	claims.Subject = fmt.Sprintf("repo:%s:ref:%s:event:%s", mto.Repo, mto.Build.GetRef(), mto.Build.GetEvent())
 	claims.Audience = mto.Audience
 	claims.TokenType = mto.TokenType
 	claims.Image = mto.Image
+	claims.CustomProps = mto.Build.GetRepo().GetCustomProps()
 
 	claims.ImageName, claims.ImageTag, err = imageParse(mto.Image)
 	if err != nil {
@@ -178,7 +180,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	}
 
 	claims.Request = mto.Request
-	claims.Commands = mto.Commands
+	claims.Commands = strconv.FormatBool(mto.Commands)
 
 	// set standard claims
 	claims.IssuedAt = jwt.NewNumericDate(time.Now())

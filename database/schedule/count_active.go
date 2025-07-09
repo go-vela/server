@@ -9,7 +9,7 @@ import (
 )
 
 // CountActiveSchedules gets the count of all active schedules from the database.
-func (e *engine) CountActiveSchedules(ctx context.Context) (int64, error) {
+func (e *Engine) CountActiveSchedules(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all active schedules")
 
 	// variable to store query results

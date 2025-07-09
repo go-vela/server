@@ -15,23 +15,28 @@ import (
 	"github.com/go-vela/server/compiler/template/starlark"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
 )
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-func (c *client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*yaml.Build, error) {
+func (c *Client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, warnings []string) (*yaml.Build, []string, error) {
+	var (
+		p   *yaml.Build
+		err error
+	)
+
 	if len(tmpls) == 0 {
-		return s, nil
+		return s, warnings, nil
 	}
 
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		p, err := c.ExpandSteps(ctx, &yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.GetTemplateDepth())
+		p, warnings, err = c.ExpandSteps(ctx, &yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, warnings, c.GetTemplateDepth())
 		if err != nil {
-			return nil, err
+			return nil, warnings, err
 		}
 
 		stage.Steps = p.Steps
@@ -40,23 +45,23 @@ func (c *client) ExpandStages(ctx context.Context, s *yaml.Build, tmpls map[stri
 		s.Environment = p.Environment
 	}
 
-	return s, nil
+	return s, warnings, nil
 }
 
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
 //
 //nolint:funlen,gocyclo // ignore function length
-func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, depth int) (*yaml.Build, error) {
+func (c *Client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, warnings []string, depth int) (*yaml.Build, []string, error) {
 	if len(tmpls) == 0 {
-		return s, nil
+		return s, warnings, nil
 	}
 
 	// return if max template depth has been reached
 	if depth == 0 {
 		retErr := fmt.Errorf("max template depth of %d exceeded", c.GetTemplateDepth())
 
-		return s, retErr
+		return s, warnings, retErr
 	}
 
 	steps := yaml.StepSlice{}
@@ -81,7 +86,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		// lookup step template name
 		tmpl, ok := tmpls[step.Template.Name]
 		if !ok {
-			return s, fmt.Errorf("missing template source for template %s in pipeline for step %s", step.Template.Name, step.Name)
+			return s, warnings, fmt.Errorf("missing template source for template %s in pipeline for step %s", step.Template.Name, step.Name)
 		}
 
 		// if ruledata is nil (CompileLite), continue with expansion
@@ -94,7 +99,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 
 			pipeline, err := pipeline.Purge(r)
 			if err != nil {
-				return nil, fmt.Errorf("unable to purge pipeline: %w", err)
+				return nil, warnings, fmt.Errorf("unable to purge pipeline: %w", err)
 			}
 
 			// if step purged, do not proceed with expansion
@@ -115,7 +120,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		// inject environment information for template
 		step, err := c.EnvironmentStep(step, envGlobalSteps)
 		if err != nil {
-			return s, err
+			return s, warnings, err
 		}
 
 		var (
@@ -126,7 +131,7 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		if bytes, found = c.TemplateCache[tmpl.Source]; !found {
 			bytes, err = c.getTemplate(ctx, tmpl, step.Template.Name)
 			if err != nil {
-				return s, err
+				return s, warnings, err
 			}
 		}
 
@@ -138,23 +143,25 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		// inject template name into variables
 		step.Template.Variables["VELA_TEMPLATE_NAME"] = step.Template.Name
 
-		tmplBuild, err := c.mergeTemplate(bytes, tmpl, step)
+		tmplBuild, tmplWarnings, err := c.mergeTemplate(bytes, tmpl, step)
 		if err != nil {
-			return s, err
+			return s, warnings, err
 		}
+
+		warnings = append(warnings, tmplWarnings...)
 
 		// if template references other templates, expand again
 		if len(tmplBuild.Templates) != 0 {
 			// if the tmplBuild has render_inline but the parent build does not, abort
 			if tmplBuild.Metadata.RenderInline && !s.Metadata.RenderInline {
-				return s, fmt.Errorf("cannot use render_inline inside a called template (%s)", step.Template.Name)
+				return s, warnings, fmt.Errorf("cannot use render_inline inside a called template (%s)", step.Template.Name)
 			}
 
 			templates = append(templates, tmplBuild.Templates...)
 
-			tmplBuild, err = c.ExpandSteps(ctx, tmplBuild, mapFromTemplates(tmplBuild.Templates), r, depth-1)
+			tmplBuild, warnings, err = c.ExpandSteps(ctx, tmplBuild, mapFromTemplates(tmplBuild.Templates), r, warnings, depth-1)
 			if err != nil {
-				return s, err
+				return s, warnings, err
 			}
 		}
 
@@ -217,10 +224,47 @@ func (c *client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 	s.Environment = environment
 	s.Templates = templates
 
-	return s, nil
+	return s, warnings, nil
 }
 
-func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name string) ([]byte, error) {
+// ExpandDeployment injects the template for a
+// templated deployment config in a yaml configuration.
+func (c *Client) ExpandDeployment(ctx context.Context, b *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+	if len(tmpls) == 0 {
+		return b, nil
+	}
+
+	if len(b.Deployment.Template.Name) == 0 {
+		return b, nil
+	}
+
+	// lookup step template name
+	tmpl, ok := tmpls[b.Deployment.Template.Name]
+	if !ok {
+		return b, fmt.Errorf("missing template source for template %s in pipeline for deployment config", b.Deployment.Template.Name)
+	}
+
+	bytes, err := c.getTemplate(ctx, tmpl, b.Deployment.Template.Name)
+	if err != nil {
+		return b, err
+	}
+
+	// initialize variable map if not parsed from config
+	if len(b.Deployment.Template.Variables) == 0 {
+		b.Deployment.Template.Variables = make(map[string]interface{})
+	}
+
+	tmplBuild, _, err := c.mergeDeployTemplate(bytes, tmpl, &b.Deployment)
+	if err != nil {
+		return b, err
+	}
+
+	b.Deployment = tmplBuild.Deployment
+
+	return b, nil
+}
+
+func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name string) ([]byte, error) {
 	var (
 		bytes []byte
 		err   error
@@ -275,19 +319,7 @@ func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 		}
 
 		// pull from github without auth when the host isn't provided or is set to github.com
-		if !c.UsePrivateGithub && (len(src.Host) == 0 || strings.Contains(src.Host, "github.com")) {
-			logrus.WithFields(logrus.Fields{
-				"org":  src.Org,
-				"repo": src.Repo,
-				"path": src.Name,
-				"host": src.Host,
-			}).Tracef("Using GitHub client to pull template")
-
-			bytes, err = c.Github.Template(ctx, nil, src)
-			if err != nil {
-				return bytes, err
-			}
-		} else {
+		if c.UsePrivateGithub {
 			logrus.WithFields(logrus.Fields{
 				"org":  src.Org,
 				"repo": src.Repo,
@@ -302,6 +334,18 @@ func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(ctx, c.user, src)
+			if err != nil {
+				return bytes, err
+			}
+		} else {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
+				"host": src.Host,
+			}).Tracef("Using GitHub client to pull template")
+
+			bytes, err = c.Github.Template(ctx, nil, src)
 			if err != nil {
 				return bytes, err
 			}
@@ -354,9 +398,9 @@ func (c *client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 }
 
 //nolint:lll // ignore long line length due to input arguments
-func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, error) {
+func (c *Client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, []string, error) {
 	switch tmpl.Format {
-	case constants.PipelineTypeGo, "golang", "":
+	case constants.PipelineTypeGo, constants.PipelineTypeGoAlt, "":
 		//nolint:lll // ignore long line length due to return
 		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	case constants.PipelineTypeStarlark:
@@ -364,7 +408,21 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.GetStarlarkExecLimit())
 	default:
 		//nolint:lll // ignore long line length due to return
-		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)
+		return &yaml.Build{}, nil, fmt.Errorf("format of %s is unsupported", tmpl.Format)
+	}
+}
+
+func (c *Client) mergeDeployTemplate(bytes []byte, tmpl *yaml.Template, d *yaml.Deployment) (*yaml.Build, []string, error) {
+	switch tmpl.Format {
+	case constants.PipelineTypeGo, constants.PipelineTypeGoAlt, "":
+		//nolint:lll // ignore long line length due to return
+		return native.Render(string(bytes), "", d.Template.Name, make(raw.StringSliceMap), d.Template.Variables)
+	case constants.PipelineTypeStarlark:
+		//nolint:lll // ignore long line length due to return
+		return starlark.Render(string(bytes), "", d.Template.Name, make(raw.StringSliceMap), d.Template.Variables, c.GetStarlarkExecLimit())
+	default:
+		//nolint:lll // ignore long line length due to return
+		return &yaml.Build{}, nil, fmt.Errorf("format of %s is unsupported", tmpl.Format)
 	}
 }
 

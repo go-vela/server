@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
@@ -172,6 +173,13 @@ func createAdminSet(c context.Context, caller *types.User, users []*types.User) 
 // validateRepoSet is a helper function that confirms all dashboard repos exist and are enabled
 // in the database while also confirming the IDs match when saving.
 func validateRepoSet(c context.Context, repos []*types.DashboardRepo) error {
+	s := settings.FromContext(c)
+
+	// check if the number of repos exceeds the max allowed
+	if len(repos) > int(s.GetMaxDashboardRepos()) {
+		return fmt.Errorf("unable to create dashboard: max dashboard repos exceeded %d", s.GetMaxDashboardRepos())
+	}
+
 	for _, repo := range repos {
 		// verify format (org/repo)
 		parts := strings.Split(repo.GetName(), "/")

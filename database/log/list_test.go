@@ -7,10 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestLog_Engine_ListLogs(t *testing.T) {
@@ -21,6 +20,7 @@ func TestLog_Engine_ListLogs(t *testing.T) {
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
 	_service.SetData([]byte{})
+	_service.SetCreatedAt(1)
 
 	_step := testutils.APILog()
 	_step.SetID(2)
@@ -28,20 +28,13 @@ func TestLog_Engine_ListLogs(t *testing.T) {
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
 	_step.SetData([]byte{})
+	_step.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "logs"`).WillReturnRows(_rows)
-
-	// create expected result in mock
-	_rows = sqlmock.NewRows(
-		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "data"}).
-		AddRow(1, 1, 1, 1, 0, []byte{}).AddRow(2, 1, 1, 0, 1, []byte{})
+	_rows := testutils.CreateMockRows([]any{*types.LogFromAPI(_service), *types.LogFromAPI(_step)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "logs"`).WillReturnRows(_rows)
@@ -63,7 +56,7 @@ func TestLog_Engine_ListLogs(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Log
 	}{
 		{

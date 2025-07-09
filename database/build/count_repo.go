@@ -12,7 +12,7 @@ import (
 )
 
 // CountBuildsForRepo gets the count of builds by repo ID from the database.
-func (e *engine) CountBuildsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}) (int64, error) {
+func (e *Engine) CountBuildsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, before, after int64) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -26,6 +26,8 @@ func (e *engine) CountBuildsForRepo(ctx context.Context, r *api.Repo, filters ma
 		WithContext(ctx).
 		Table(constants.TableBuild).
 		Where("repo_id = ?", r.GetID()).
+		Where("created < ?", before).
+		Where("created > ?", after).
 		Where(filters).
 		Count(&b).
 		Error

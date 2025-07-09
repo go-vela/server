@@ -44,7 +44,7 @@ func TestRedis_Pop(t *testing.T) {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
 
-	// push item to queue with custom channel
+	// push item to queue with custom route
 	err = _redis.Redis.RPush(context.Background(), "custom", signed).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
@@ -58,18 +58,18 @@ func TestRedis_Pop(t *testing.T) {
 	// overwrite timeout to be 1s
 	timeout.config.Timeout = 1 * time.Second
 
-	// setup badChannel redis mock
-	badChannel, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
+	// setup badRoute redis mock
+	badRoute, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
-	// overwrite channel to be invalid
-	badChannel.SetRoutes(nil)
+	// overwrite route to be invalid
+	badRoute.SetRoutes(nil)
 
-	signed = sign.Sign(out, bytes, badChannel.config.PrivateKey)
+	signed = sign.Sign(out, bytes, badRoute.config.PrivateKey)
 
-	// push something to badChannel queue
-	err = badChannel.Redis.RPush(context.Background(), "vela", signed).Err()
+	// push something to badRoute queue
+	err = badRoute.Redis.RPush(context.Background(), "vela", signed).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
@@ -77,7 +77,7 @@ func TestRedis_Pop(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool
-		redis   *client
+		redis   *Client
 		want    *models.Item
 		routes  []string
 	}{
@@ -99,7 +99,7 @@ func TestRedis_Pop(t *testing.T) {
 		},
 		{
 			failure: true,
-			redis:   badChannel,
+			redis:   badRoute,
 			want:    nil,
 		},
 	}

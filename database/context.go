@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/go-vela/server/tracing"
 )
@@ -39,8 +39,8 @@ func ToContext(c Setter, d Interface) {
 	c.Set(key, d)
 }
 
-// FromCLIContext creates and returns a database engine from the urfave/cli context.
-func FromCLIContext(c *cli.Context, tc *tracing.Client) (Interface, error) {
+// FromCLICommand creates and returns a database engine from the urfave/cli context.
+func FromCLICommand(c *cli.Command, tc *tracing.Client) (Interface, error) {
 	logrus.Debug("creating database engine from CLI configuration")
 
 	return New(

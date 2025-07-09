@@ -14,9 +14,9 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 steps (
-	id            SERIAL PRIMARY KEY,
-	repo_id       INTEGER,
-	build_id      INTEGER,
+	id            BIGSERIAL PRIMARY KEY,
+	repo_id       BIGINT,
+	build_id      BIGINT,
 	number        INTEGER,
 	name          VARCHAR(250),
 	image         VARCHAR(500),
@@ -24,9 +24,9 @@ steps (
 	status        VARCHAR(250),
 	error         VARCHAR(500),
 	exit_code     INTEGER,
-	created       INTEGER,
-	started       INTEGER,
-	finished      INTEGER,
+	created       BIGINT,
+	started       BIGINT,
+	finished      BIGINT,
 	host          VARCHAR(250),
 	runtime       VARCHAR(250),
 	distribution  VARCHAR(250),
@@ -63,7 +63,7 @@ steps (
 )
 
 // CreateStepTable creates the steps table in the database.
-func (e *engine) CreateStepTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateStepTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating steps table in the database")
 
 	// handle the driver provided to create the table

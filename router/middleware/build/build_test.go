@@ -53,6 +53,7 @@ func TestBuild_Establish(t *testing.T) {
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
+	r.SetInstallID(0)
 
 	want := new(api.Build)
 	want.SetID(1)
@@ -86,6 +87,7 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetBaseRef("")
 	want.SetHeadRef("")
 	want.SetHost("")
+	want.SetRoute("")
 	want.SetRuntime("")
 	want.SetDistribution("")
 	want.SetDeployPayload(nil)

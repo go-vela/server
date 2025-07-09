@@ -26,13 +26,14 @@ import (
 
 // CompileAndPublishConfig is a struct that contains information for the CompileAndPublish function.
 type CompileAndPublishConfig struct {
-	Build    *types.Build
-	Metadata *internal.Metadata
-	BaseErr  string
-	Source   string
-	Comment  string
-	Labels   []string
-	Retries  int
+	Build      *types.Build
+	Deployment *types.Deployment
+	Metadata   *internal.Metadata
+	BaseErr    string
+	Source     string
+	Comment    string
+	Labels     []string
+	Retries    int
 }
 
 // CompileAndPublish is a helper function to generate the queue items for a build. It takes a form
@@ -118,7 +119,7 @@ func CompileAndPublish(
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.CountBuildsForRepo(ctx, r, filters)
+	builds, err := database.CountBuildsForRepo(ctx, r, filters, time.Now().Unix(), 0)
 	if err != nil {
 		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, r.GetFullName())
 
@@ -128,7 +129,7 @@ func CompileAndPublish(
 	logger.Debugf("currently %d builds running on repo %s", builds, r.GetFullName())
 
 	// check if the number of pending and running builds exceeds the limit for the repo
-	if builds >= r.GetBuildLimit() {
+	if builds >= int64(r.GetBuildLimit()) {
 		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
 
 		return nil, nil, http.StatusTooManyRequests, retErr
@@ -268,6 +269,8 @@ func CompileAndPublish(
 			WithRepo(repo).
 			WithUser(u).
 			WithLabels(cfg.Labels).
+			WithSCM(scm).
+			WithDatabase(database).
 			Compile(ctx, pipelineFile)
 		if err != nil {
 			// format the error message with extra information
@@ -305,6 +308,15 @@ func CompileAndPublish(
 				},
 				http.StatusOK,
 				errors.New(skip)
+		}
+
+		// validate deployment config
+		if (b.GetEvent() == constants.EventDeploy) && cfg.Deployment != nil {
+			if err := p.Deployment.Validate(cfg.Deployment.GetTarget(), cfg.Deployment.GetPayload()); err != nil {
+				retErr := fmt.Errorf("%s: failed to validate deployment for %s: %w", baseErr, repo.GetFullName(), err)
+
+				return nil, nil, http.StatusBadRequest, retErr
+			}
 		}
 
 		// check if the pipeline did not already exist in the database
@@ -418,8 +430,7 @@ func CompileAndPublish(
 		return nil, nil, http.StatusBadRequest, retErr
 	}
 
-	// temporarily set host to the route before it gets picked up by a worker
-	b.SetHost(route)
+	b.SetRoute(route)
 
 	// publish the pipeline.Build to the build_executables table to be requested by a worker
 	err = PublishBuildExecutable(ctx, database, p, b)

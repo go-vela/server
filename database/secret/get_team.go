@@ -13,7 +13,7 @@ import (
 )
 
 // GetSecretForTeam gets a secret by org and team name from the database.
-func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (*api.Secret, error) {
+func (e *Engine) GetSecretForTeam(ctx context.Context, org, team, name string) (*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":    org,
 		"team":   team,
@@ -47,11 +47,8 @@ func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted secrets
 		e.logger.Errorf("unable to decrypt shared secret %s/%s/%s: %v", org, team, name, err)
-
-		// return the unencrypted secret
-		return s.ToAPI(), nil
 	}
 
 	// return the decrypted secret
-	return s.ToAPI(), nil
+	return e.FillSecretAllowlist(ctx, s.ToAPI())
 }

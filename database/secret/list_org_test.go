@@ -12,6 +12,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
@@ -28,6 +29,7 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
 	_secretOne.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretOne.SetRepoAllowlist([]string{})
 
 	_secretTwo := testutils.APISecret()
 	_secretTwo.SetID(2)
@@ -41,26 +43,19 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy("user2")
 	_secretTwo.SetAllowEvents(api.NewEventsFromMask(1))
+	_secretTwo.SetRepoAllowlist([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected name count query result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the name count query
-	_mock.ExpectQuery(`SELECT count(*) FROM "secrets" WHERE type = $1 AND org = $2`).
-		WithArgs(constants.SecretOrg, "foo").WillReturnRows(_rows)
-
 	// create expected name query result in mock
-	_rows = sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(2, "org", "foo", "*", "", "bar", "baz", nil, 1, false, false, 1, "user", 1, "user2").
-		AddRow(1, "org", "foo", "*", "", "baz", "bar", nil, 1, false, false, 1, "user", 1, "user2")
+	_rows := testutils.CreateMockRows([]any{*types.SecretFromAPI(_secretTwo), *types.SecretFromAPI(_secretOne)})
 
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 ORDER BY id DESC LIMIT $3`).
 		WithArgs(constants.SecretOrg, "foo", 10).WillReturnRows(_rows)
+
+	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -79,7 +74,7 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     []*api.Secret
 	}{
 		{
@@ -101,7 +96,7 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListSecretsForOrg(context.TODO(), "foo", filters, 1, 10)
+			got, err := test.database.ListSecretsForOrg(context.TODO(), "foo", filters, 1, 10)
 
 			if test.failure {
 				if err == nil {

@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 func TestSettings_FromContext(t *testing.T) {
 	// setup types
-	want := &cli.Context{}
+	want := &cli.Command{}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -69,7 +69,7 @@ func TestSettings_FromContext_Empty(t *testing.T) {
 
 func TestSettings_ToContext(t *testing.T) {
 	// setup types
-	want := &cli.Context{}
+	want := &cli.Command{}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

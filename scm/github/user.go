@@ -10,13 +10,13 @@ import (
 )
 
 // GetUserID captures the user's scm id.
-func (c *client) GetUserID(ctx context.Context, name string, token string) (string, error) {
+func (c *Client) GetUserID(ctx context.Context, name string, token string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"user": name,
 	}).Tracef("capturing SCM user id for %s", name)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(ctx, token)
+	client := c.newOAuthTokenClient(ctx, token)
 
 	// send API call to capture user
 	user, _, err := client.Users.Get(ctx, name)

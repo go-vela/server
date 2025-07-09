@@ -140,12 +140,12 @@ func ListReposForOrg(c *gin.Context) {
 		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
-	if perm != "admin" {
+	if perm != constants.PermissionAdmin {
 		filters["visibility"] = constants.VisibilityPublic
 	}
 
 	// send API call to capture the list of repos for the org
-	r, t, err := database.FromContext(c).ListReposForOrg(ctx, o, sortBy, filters, page, perPage)
+	r, err := database.FromContext(c).ListReposForOrg(ctx, o, sortBy, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for org %s: %w", o, err)
 
@@ -158,7 +158,7 @@ func ListReposForOrg(c *gin.Context) {
 	pagination := api.Pagination{
 		Page:    page,
 		PerPage: perPage,
-		Total:   t,
+		Results: len(r),
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)

@@ -11,27 +11,15 @@ import (
 )
 
 // ListServices gets a list of all services from the database.
-func (e *engine) ListServices(ctx context.Context) ([]*api.Service, error) {
+func (e *Engine) ListServices(ctx context.Context) ([]*api.Service, error) {
 	e.logger.Trace("listing all services")
 
 	// variables to store query results and return value
-	count := int64(0)
 	w := new([]types.Service)
 	services := []*api.Service{}
 
-	// count the results
-	count, err := e.CountServices(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return services, nil
-	}
-
 	// send query to the database and store result in variable
-	err = e.client.
+	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableService).
 		Find(&w).

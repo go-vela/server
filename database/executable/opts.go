@@ -10,11 +10,11 @@ import (
 )
 
 // EngineOpt represents a configuration option to initialize the database engine for build executables.
-type EngineOpt func(*engine) error
+type EngineOpt func(*Engine) error
 
 // WithClient sets the gorm.io/gorm client in the database engine for build executables.
 func WithClient(client *gorm.DB) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the gorm.io/gorm client in the build executable engine
 		e.client = client
 
@@ -24,7 +24,7 @@ func WithClient(client *gorm.DB) EngineOpt {
 
 // WithCompressionLevel sets the compression level in the database engine for build executables.
 func WithCompressionLevel(level int) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the compression level in the build executable engine
 		e.config.CompressionLevel = level
 
@@ -34,7 +34,7 @@ func WithCompressionLevel(level int) EngineOpt {
 
 // WithEncryptionKey sets the encryption key in the database engine for build executables.
 func WithEncryptionKey(key string) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the encryption key in the build executables engine
 		e.config.EncryptionKey = key
 
@@ -44,7 +44,7 @@ func WithEncryptionKey(key string) EngineOpt {
 
 // WithDriver sets the driver type in the database engine for build executables.
 func WithDriver(driver string) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the driver type in the build executable engine
 		e.config.Driver = driver
 
@@ -54,7 +54,7 @@ func WithDriver(driver string) EngineOpt {
 
 // WithLogger sets the github.com/sirupsen/logrus logger in the database engine for build executables.
 func WithLogger(logger *logrus.Entry) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set the github.com/sirupsen/logrus logger in the build executable engine
 		e.logger = logger
 
@@ -64,7 +64,7 @@ func WithLogger(logger *logrus.Entry) EngineOpt {
 
 // WithSkipCreation sets the skip creation logic in the database engine for build executables.
 func WithSkipCreation(skipCreation bool) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		// set to skip creating tables and indexes in the build executable engine
 		e.config.SkipCreation = skipCreation
 
@@ -74,7 +74,7 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 
 // WithContext sets the context in the database engine for build executables.
 func WithContext(ctx context.Context) EngineOpt {
-	return func(e *engine) error {
+	return func(e *Engine) error {
 		e.ctx = ctx
 
 		return nil

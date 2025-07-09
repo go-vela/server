@@ -4,6 +4,7 @@ package deployment
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -53,7 +54,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING "id"`).
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 	}{
 		{
 			failure:  false,
@@ -70,7 +71,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := test.database.CreateDeployment(context.TODO(), _deploymentOne)
+			got, err := test.database.CreateDeployment(context.TODO(), _deploymentOne)
 
 			if test.failure {
 				if err == nil {
@@ -82,6 +83,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING "id"`).
 
 			if err != nil {
 				t.Errorf("Create for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _deploymentOne) {
+				t.Errorf("CreateDeployment for %s returned %s, want %s", test.name, got, _deploymentOne)
 			}
 		})
 	}

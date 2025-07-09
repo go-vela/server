@@ -14,12 +14,13 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 logs (
-	id            SERIAL PRIMARY KEY,
-	build_id      INTEGER,
-	repo_id       INTEGER,
-	service_id    INTEGER,
-	step_id       INTEGER,
+	id            BIGSERIAL PRIMARY KEY,
+	build_id      BIGINT,
+	repo_id       BIGINT,
+	service_id    BIGINT,
+	step_id       BIGINT,
 	data          BYTEA,
+	created_at    BIGINT,
 	UNIQUE(step_id),
 	UNIQUE(service_id)
 );
@@ -36,6 +37,7 @@ logs (
 	service_id    INTEGER,
 	step_id       INTEGER,
 	data          BLOB,
+	created_at    INTEGER,
 	UNIQUE(step_id),
 	UNIQUE(service_id)
 );
@@ -43,7 +45,7 @@ logs (
 )
 
 // CreateLogTable creates the logs table in the database.
-func (e *engine) CreateLogTable(ctx context.Context, driver string) error {
+func (e *Engine) CreateLogTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating logs table")
 
 	// handle the driver provided to create the table

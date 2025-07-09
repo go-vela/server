@@ -6,12 +6,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestDeployment_Engine_GetDeploymentForRepo(t *testing.T) {
@@ -62,13 +62,9 @@ func TestDeployment_Engine_GetDeploymentForRepo(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "number", "url", "commit", "ref", "task", "target", "description", "payload", "created_at", "created_by", "builds"}).
-		AddRow(1, 1, 1, "https://github.com/github/octocat/deployments/1", "48afb5bdc41ad69bf22588491333f7cf71135163", "refs/heads/master", "vela-deploy", "production", "Deployment request from Vela", "{\"foo\":\"test1\"}", 1, "octocat", "{1}")
+	_rows := testutils.CreateMockRows([]any{*types.DeploymentFromAPI(_deploymentOne)})
 
-	_buildRows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_number", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
-		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", 0, nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+	_buildRows := testutils.CreateMockRows([]any{*types.BuildFromAPI(_build)})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "deployments" WHERE repo_id = $1 AND number = $2 LIMIT $3`).WithArgs(1, 1, 1).WillReturnRows(_rows)
@@ -90,7 +86,7 @@ func TestDeployment_Engine_GetDeploymentForRepo(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     *api.Deployment
 	}{
 		{

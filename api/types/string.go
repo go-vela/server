@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/buildkite/yaml"
 	json "github.com/ghodss/yaml"
+	"go.yaml.in/yaml/v3"
 )
 
 // ToString is a helper function to convert

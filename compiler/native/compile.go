@@ -12,21 +12,21 @@ import (
 	"strings"
 	"time"
 
-	yml "github.com/buildkite/yaml"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
+	yml "go.yaml.in/yaml/v3"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
 )
 
 // ModifyRequest contains the payload passed to the modification endpoint.
 type ModifyRequest struct {
 	Pipeline string `json:"pipeline,omitempty"`
-	Build    int    `json:"build,omitempty"`
+	Build    int64  `json:"build,omitempty"`
 	Repo     string `json:"repo,omitempty"`
 	Org      string `json:"org,omitempty"`
 	User     string `json:"user,omitempty"`
@@ -38,16 +38,30 @@ type ModifyResponse struct {
 }
 
 // Compile produces an executable pipeline from a yaml configuration.
-func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *api.Pipeline, error) {
-	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
+func (c *Client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *api.Pipeline, error) {
+	p, data, warnings, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
+	}
+
+	// create the netrc using the scm
+	// this has to occur after Parse because the scm configurations might be set in yaml
+	// netrc can be provided directly using WithNetrc for situations like local exec
+	if c.netrc == nil && c.scm != nil {
+		// get the netrc password from the scm
+		netrc, err := c.scm.GetNetrcPassword(ctx, c.db, c.repo, c.user, p.Git)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		c.WithNetrc(netrc)
 	}
 
 	// create the API pipeline object from the yaml configuration
 	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)
 	_pipeline.SetType(c.repo.GetPipelineType())
+	_pipeline.SetWarnings(warnings)
 
 	// create map of templates for easy lookup
 	templates := mapFromTemplates(p.Templates)
@@ -71,6 +85,8 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
 		Target:  c.build.GetDeploy(),
 		Label:   c.labels,
+		Status:  c.build.GetStatus(),
+		Env:     make(raw.StringSliceMap),
 	}
 
 	// add instance when we have the metadata (local exec will not)
@@ -85,7 +101,7 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 			return nil, _pipeline, err
 		}
 		// validate the yaml configuration
-		err = c.Validate(newPipeline)
+		err = c.ValidateYAML(newPipeline)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -103,8 +119,8 @@ func (c *client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *api.Pipeline, error) {
-	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
+func (c *Client) CompileLite(ctx context.Context, v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *api.Pipeline, error) {
+	p, data, warnings, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -113,6 +129,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)
 	_pipeline.SetType(c.repo.GetPipelineType())
+	_pipeline.SetWarnings(warnings)
 
 	if p.Metadata.RenderInline {
 		newPipeline, err := c.compileInline(ctx, p, c.GetTemplateDepth())
@@ -120,7 +137,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 			return nil, _pipeline, err
 		}
 		// validate the yaml configuration
-		err = c.Validate(newPipeline)
+		err = c.ValidateYAML(newPipeline)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -131,13 +148,21 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 	// create map of templates for easy lookup
 	templates := mapFromTemplates(p.Templates)
 
+	// expand deployment config
+	p, err = c.ExpandDeployment(ctx, p, templates)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
 	switch {
 	case len(p.Stages) > 0:
 		// inject the templates into the steps
-		p, err = c.ExpandStages(ctx, p, templates, ruleData)
+		p, warnings, err = c.ExpandStages(ctx, p, templates, ruleData, _pipeline.GetWarnings())
 		if err != nil {
 			return nil, _pipeline, err
 		}
+
+		_pipeline.SetWarnings(warnings)
 
 		if substitute {
 			// inject the substituted environment variables into the steps
@@ -155,7 +180,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 
 				for _, s := range stg.Steps {
 					cRuleset := s.Ruleset.ToPipeline()
-					if match, err := cRuleset.Match(ruleData); err == nil && match {
+					if match, err := ruleData.Match(*cRuleset); err == nil && match {
 						*purgedSteps = append(*purgedSteps, s)
 					}
 				}
@@ -172,10 +197,12 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 
 	case len(p.Steps) > 0:
 		// inject the templates into the steps
-		p, err = c.ExpandSteps(ctx, p, templates, ruleData, c.GetTemplateDepth())
+		p, warnings, err = c.ExpandSteps(ctx, p, templates, ruleData, _pipeline.GetWarnings(), c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
+
+		_pipeline.SetWarnings(warnings)
 
 		if substitute {
 			// inject the substituted environment variables into the steps
@@ -190,7 +217,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 
 			for _, s := range p.Steps {
 				cRuleset := s.Ruleset.ToPipeline()
-				if match, err := cRuleset.Match(ruleData); err == nil && match {
+				if match, err := ruleData.Match(*cRuleset); err == nil && match {
 					*purgedSteps = append(*purgedSteps, s)
 				}
 			}
@@ -200,7 +227,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 	}
 
 	// validate the yaml configuration
-	err = c.Validate(p)
+	err = c.ValidateYAML(p)
 	if err != nil {
 		return nil, _pipeline, err
 	}
@@ -209,7 +236,7 @@ func (c *client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 }
 
 // compileInline parses and expands out inline pipelines.
-func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*yaml.Build, error) {
+func (c *Client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*yaml.Build, error) {
 	newPipeline := *p
 
 	// return if max template depth has been reached
@@ -248,7 +275,7 @@ func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 		// inject template name into variables
 		template.Variables["VELA_TEMPLATE_NAME"] = template.Name
 
-		parsed, _, err := c.Parse(bytes, format, template)
+		parsed, _, _, err := c.Parse(bytes, format, template)
 		if err != nil {
 			return nil, err
 		}
@@ -312,8 +339,11 @@ func (c *client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 }
 
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
-func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
-	var err error
+func (c *Client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
+	var (
+		warnings []string
+		err      error
+	)
 
 	// check if the pipeline disabled the clone
 	if p.Metadata.Clone == nil || *p.Metadata.Clone {
@@ -330,11 +360,19 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 		return nil, _pipeline, err
 	}
 
-	// inject the templates into the steps
-	p, err = c.ExpandSteps(ctx, p, tmpls, r, c.GetTemplateDepth())
+	// inject the template for deploy config if exists
+	p, err = c.ExpandDeployment(ctx, p, tmpls)
 	if err != nil {
 		return nil, _pipeline, err
 	}
+
+	// inject the templates into the steps
+	p, warnings, err = c.ExpandSteps(ctx, p, tmpls, r, _pipeline.GetWarnings(), c.GetTemplateDepth())
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
+	_pipeline.SetWarnings(warnings)
 
 	if c.ModificationService.Endpoint != "" {
 		// send config to external endpoint for modification
@@ -347,7 +385,7 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 	}
 
 	// validate the yaml configuration
-	err = c.Validate(p)
+	err = c.ValidateYAML(p)
 	if err != nil {
 		return nil, _pipeline, err
 	}
@@ -405,12 +443,21 @@ func (c *client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 		return nil, _pipeline, err
 	}
 
+	// validate the yaml configuration
+	err = c.ValidatePipeline(build)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
 	return build, _pipeline, nil
 }
 
 // compileStages executes the workflow for converting a YAML pipeline into an executable struct.
-func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
-	var err error
+func (c *Client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *api.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *api.Pipeline, error) {
+	var (
+		warnings []string
+		err      error
+	)
 
 	// check if the pipeline disabled the clone
 	if p.Metadata.Clone == nil || *p.Metadata.Clone {
@@ -428,10 +475,12 @@ func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 	}
 
 	// inject the templates into the stages
-	p, err = c.ExpandStages(ctx, p, tmpls, r)
+	p, warnings, err = c.ExpandStages(ctx, p, tmpls, r, _pipeline.GetWarnings())
 	if err != nil {
 		return nil, _pipeline, err
 	}
+
+	_pipeline.SetWarnings(warnings)
 
 	if c.ModificationService.Endpoint != "" {
 		// send config to external endpoint for modification
@@ -444,7 +493,7 @@ func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 	}
 
 	// validate the yaml configuration
-	err = c.Validate(p)
+	err = c.ValidateYAML(p)
 	if err != nil {
 		return nil, _pipeline, err
 	}
@@ -502,6 +551,12 @@ func (c *client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 		return nil, _pipeline, err
 	}
 
+	// validate the final pipeline configuration
+	err = c.ValidatePipeline(build)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
 	return build, _pipeline, nil
 }
 
@@ -515,7 +570,7 @@ func errorHandler(resp *http.Response, err error, attempts int) (*http.Response,
 }
 
 // modifyConfig sends the configuration to external http endpoint for modification.
-func (c *client) modifyConfig(build *yaml.Build, apiBuild *api.Build, repo *api.Repo) (*yaml.Build, error) {
+func (c *Client) modifyConfig(build *yaml.Build, apiBuild *api.Build, repo *api.Repo) (*yaml.Build, error) {
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
 	if err != nil {

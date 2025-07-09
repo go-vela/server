@@ -14,8 +14,8 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 pipelines (
-	id               SERIAL PRIMARY KEY,
-	repo_id          INTEGER,
+	id               BIGSERIAL PRIMARY KEY,
+	repo_id          BIGINT,
 	commit           VARCHAR(500),
 	flavor           VARCHAR(100),
 	platform         VARCHAR(100),
@@ -28,6 +28,7 @@ pipelines (
 	stages           BOOLEAN,
 	steps            BOOLEAN,
 	templates        BOOLEAN,
+	warnings         VARCHAR(5000),
 	data             BYTEA,
 	UNIQUE(repo_id, commit)
 );
@@ -52,6 +53,7 @@ pipelines (
 	stages           BOOLEAN,
 	steps            BOOLEAN,
 	templates        BOOLEAN,
+	warnings         TEXT,
 	data             BLOB,
 	UNIQUE(repo_id, 'commit')
 );
@@ -59,7 +61,7 @@ pipelines (
 )
 
 // CreatePipelineTable creates the pipelines table in the database.
-func (e *engine) CreatePipelineTable(ctx context.Context, driver string) error {
+func (e *Engine) CreatePipelineTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating pipelines table in the database")
 
 	// handle the driver provided to create the table

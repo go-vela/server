@@ -8,11 +8,11 @@ import (
 	"net/http"
 	"strings"
 
-	yml "github.com/buildkite/yaml"
 	"github.com/gin-gonic/gin"
+	yml "go.yaml.in/yaml/v3"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 const (
@@ -169,6 +169,9 @@ templates:
   "stages": false,
   "steps": true,
   "templates": false,
+  "warnings": [
+    "42:this is a warning"
+  ],
   "data": "LS0tCnZlcnNpb246ICIxIgoKc3RlcHM6CiAgLSBuYW1lOiBlY2hvCiAgICBpbWFnZTogYWxwaW5lOmxhdGVzdAogICAgY29tbWFuZHM6IFtlY2hvIGZvb10="
 }`
 

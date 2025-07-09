@@ -19,12 +19,14 @@ func TestLog_Engine_CountLogsForBuild(t *testing.T) {
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
+	_service.SetCreatedAt(1)
 
 	_step := testutils.APILog()
 	_step.SetID(2)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
+	_step.SetCreatedAt(1)
 
 	_repo := testutils.APIRepo()
 	_repo.SetID(1)
@@ -61,7 +63,7 @@ func TestLog_Engine_CountLogsForBuild(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

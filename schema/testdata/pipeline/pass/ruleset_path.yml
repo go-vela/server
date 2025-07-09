@@ -1,0 +1,10 @@
+version: "1"
+
+steps:
+  - name: test
+    image: golang
+    ruleset:
+      branch: feature/*
+      event: pull_request
+      path: ["src/*/*.go"]
+      matcher: filepath

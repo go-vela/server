@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 )
 
 // This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values
@@ -47,16 +47,16 @@ var JwkKeyOpts = cmp.Options{
 		xJWK := x.(jwk.RSAPublicKey)
 		yJWK := y.(jwk.RSAPublicKey)
 
-		var rawXKey, rawYKey interface{}
-
-		if err := xJWK.Raw(&rawXKey); err != nil {
+		xkid, ok := xJWK.KeyID()
+		if !ok {
 			return false
 		}
 
-		if err := yJWK.Raw(&rawYKey); err != nil {
+		ykid, ok := yJWK.KeyID()
+		if !ok {
 			return false
 		}
 
-		return reflect.DeepEqual(rawXKey, rawYKey) && xJWK.KeyID() == yJWK.KeyID()
+		return reflect.DeepEqual(xJWK, yJWK) && xkid == ykid
 	})),
 }

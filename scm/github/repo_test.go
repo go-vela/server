@@ -13,8 +13,11 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-github/v73/github"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
 )
 
@@ -1464,7 +1467,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	r.SetVisibility("public")
 
-	want := []*api.Repo{r}
+	want := []string{"octocat/Hello-World"}
 
 	client, _ := NewTest(s.URL)
 
@@ -1501,7 +1504,7 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	want := []*api.Repo{}
+	want := []string{}
 
 	client, _ := NewTest(s.URL)
 
@@ -1619,5 +1622,320 @@ func TestGithub_GetBranch(t *testing.T) {
 
 	if !strings.EqualFold(gotCommit, wantCommit) {
 		t.Errorf("Commit is %v, want %v", gotCommit, wantCommit)
+	}
+}
+
+func TestGithub_GetNetrcPassword(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/app/installations", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations.json")
+	})
+	engine.POST("/api/v3/app/installations/:id/access_tokens", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations_access_tokens.json")
+	})
+	engine.GET("/api/v3/repos/:org/:repo/collaborators/foo/permission", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/repo_admin.json")
+	})
+	engine.GET("/api/v3/repos/:org/:repo/collaborators/charlatan/permission", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusForbidden)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	installedRepo := new(api.Repo)
+	installedRepo.SetOrg("octocat")
+	installedRepo.SetName("Hello-World")
+	installedRepo.SetInstallID(1)
+
+	otherRepo := new(api.Repo)
+	otherRepo.SetOrg("octocat")
+	otherRepo.SetName("Hi-World")
+	otherRepo.SetInstallID(2)
+
+	oauthRepo := new(api.Repo)
+	oauthRepo.SetOrg("octocat")
+	oauthRepo.SetName("Hello-World2")
+	oauthRepo.SetInstallID(0)
+
+	u := new(api.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	badUser := new(api.User)
+	badUser.SetName("charlatan")
+	badUser.SetToken("bar")
+
+	tests := []struct {
+		name          string
+		repo          *api.Repo
+		user          *api.User
+		git           yaml.Git
+		appsTransport bool
+		wantToken     string
+		wantErr       bool
+	}{
+		{
+			name: "installation token",
+			repo: installedRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"contents": "read"},
+				},
+			},
+			appsTransport: true,
+			wantToken:     "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+			wantErr:       false,
+		},
+		{
+			name: "no app configured returns user oauth token",
+			repo: installedRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"contents": "read"},
+				},
+			},
+			appsTransport: false,
+			wantToken:     "bar",
+			wantErr:       false,
+		},
+		{
+			name: "repo not installed returns user oauth token",
+			repo: oauthRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"contents": "read"},
+				},
+			},
+			appsTransport: true,
+			wantToken:     "bar",
+			wantErr:       false,
+		},
+		{
+			name: "invalid permission resource",
+			repo: installedRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"invalid": "read"},
+				},
+			},
+			appsTransport: true,
+			wantToken:     "bar",
+			wantErr:       true,
+		},
+		{
+			name: "invalid permission level",
+			repo: installedRepo,
+			user: u,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+					Permissions:  map[string]string{"contents": "invalid"},
+				},
+			},
+			appsTransport: true,
+			wantToken:     "bar",
+			wantErr:       true,
+		},
+		{
+			name: "owner with inadequate permission to other repo",
+			repo: otherRepo,
+			user: badUser,
+			git: yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{"Hello-World"},
+				},
+			},
+			appsTransport: true,
+			wantToken:     "bar",
+			wantErr:       true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			client, _ := NewTest(s.URL)
+			if test.appsTransport {
+				client.AppsTransport = NewTestAppsTransport(s.URL)
+			}
+
+			got, err := client.GetNetrcPassword(context.TODO(), nil, test.repo, test.user, test.git)
+			if (err != nil) != test.wantErr {
+				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
+				return
+			}
+			if got != test.wantToken {
+				t.Errorf("GetNetrcPassword() = %v, want %v", got, test.wantToken)
+			}
+		})
+	}
+}
+
+func TestGithub_SyncRepoWithInstallation(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/app/installations", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations.json")
+	})
+	engine.POST("/api/v3/app/installations/:id/access_tokens", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations_access_tokens.json")
+	})
+	engine.GET("/api/v3/installation/repositories", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installation_repositories.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	tests := []struct {
+		name           string
+		org            string
+		repo           string
+		wantInstallID  int64
+		wantStatusCode int
+	}{
+		{
+			name:           "match",
+			org:            "octocat",
+			repo:           "Hello-World",
+			wantInstallID:  1,
+			wantStatusCode: http.StatusOK,
+		},
+		{
+			name:           "no match",
+			repo:           "octocat/Hello-World2",
+			wantInstallID:  0,
+			wantStatusCode: http.StatusOK,
+		},
+	}
+	for _, test := range tests {
+		// setup types
+		r := new(api.Repo)
+		r.SetOrg(test.org)
+		r.SetName(test.repo)
+		r.SetFullName(fmt.Sprintf("%s/%s", test.org, test.repo))
+
+		client, _ := NewTest(s.URL)
+		client.AppsTransport = NewTestAppsTransport(s.URL)
+
+		// run test
+		got, err := client.SyncRepoWithInstallation(context.TODO(), r)
+
+		if resp.Code != test.wantStatusCode {
+			t.Errorf("SyncRepoWithInstallation %s returned %v, want %v", test.name, resp.Code, http.StatusOK)
+		}
+
+		if err != nil {
+			t.Errorf("SyncRepoWithInstallation %s returned err: %v", test.name, err)
+		}
+
+		if got.GetInstallID() != test.wantInstallID {
+			t.Errorf("SyncRepoWithInstallation %s returned %v, want %v", test.name, got.GetInstallID(), test.wantInstallID)
+		}
+	}
+}
+
+func TestGithub_applyGitHubInstallationPermission(t *testing.T) {
+	tests := []struct {
+		name      string
+		perms     *github.InstallationPermissions
+		resource  string
+		perm      string
+		wantPerms *github.InstallationPermissions
+		wantErr   bool
+	}{
+		{
+			name: "valid read permission for contents",
+			perms: &github.InstallationPermissions{
+				Contents: github.Ptr(AppInstallPermissionNone),
+			},
+			resource: AppInstallResourceContents,
+			perm:     AppInstallPermissionRead,
+			wantPerms: &github.InstallationPermissions{
+				Contents: github.Ptr(AppInstallPermissionRead),
+			},
+			wantErr: false,
+		},
+		{
+			name: "valid write permission for checks",
+			perms: &github.InstallationPermissions{
+				Checks: github.Ptr(AppInstallPermissionNone),
+			},
+			resource: AppInstallResourceChecks,
+			perm:     AppInstallPermissionWrite,
+			wantPerms: &github.InstallationPermissions{
+				Checks: github.Ptr(AppInstallPermissionWrite),
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid permission value",
+			perms: &github.InstallationPermissions{
+				Contents: github.Ptr(AppInstallPermissionNone),
+			},
+			resource: AppInstallResourceContents,
+			perm:     "invalid",
+			wantPerms: &github.InstallationPermissions{
+				Contents: github.Ptr(AppInstallPermissionNone),
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid permission key",
+			perms: &github.InstallationPermissions{
+				Contents: github.Ptr(AppInstallPermissionNone),
+			},
+			resource: "invalid",
+			perm:     AppInstallPermissionRead,
+			wantPerms: &github.InstallationPermissions{
+				Contents: github.Ptr(AppInstallPermissionNone),
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ApplyInstallationPermissions(tt.resource, tt.perm, tt.perms)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ToGitHubAppInstallationPermissions() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(tt.wantPerms, got); diff != "" {
+				t.Errorf("ToGitHubAppInstallationPermissions() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }

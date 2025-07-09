@@ -113,7 +113,7 @@ func TestSchedule_Engine_CountSchedulesForRepo(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		name     string
-		database *engine
+		database *Engine
 		want     int64
 	}{
 		{

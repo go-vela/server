@@ -40,12 +40,14 @@ type RepoInterface interface {
 	GetRepo(context.Context, int64) (*api.Repo, error)
 	// GetRepoForOrg defines a function that gets a repo by org and repo name.
 	GetRepoForOrg(context.Context, string, string) (*api.Repo, error)
+	// GetReposInList defines a function that gets a list of repos from a list of full names.
+	GetReposInList(context.Context, []string) ([]*api.Repo, error)
 	// ListRepos defines a function that gets a list of all repos.
 	ListRepos(context.Context) ([]*api.Repo, error)
 	// ListReposForOrg defines a function that gets a list of repos by org name.
-	ListReposForOrg(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Repo, int64, error)
+	ListReposForOrg(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Repo, error)
 	// ListReposForUser defines a function that gets a list of repos by user ID.
-	ListReposForUser(context.Context, *api.User, string, map[string]interface{}, int, int) ([]*api.Repo, int64, error)
+	ListReposForUser(context.Context, *api.User, string, map[string]interface{}, int, int) ([]*api.Repo, error)
 	// UpdateRepo defines a function that updates an existing repo.
 	UpdateRepo(context.Context, *api.Repo) (*api.Repo, error)
 }

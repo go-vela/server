@@ -13,8 +13,8 @@ import (
 	"github.com/go-vela/server/queue/models"
 )
 
-// Pop grabs an item from the specified channel off the queue.
-func (c *client) Pop(ctx context.Context, inRoutes []string) (*models.Item, error) {
+// Pop grabs an item from the specified route off the queue.
+func (c *Client) Pop(ctx context.Context, inRoutes []string) (*models.Item, error) {
 	// define routes to pop from
 	var routes []string
 

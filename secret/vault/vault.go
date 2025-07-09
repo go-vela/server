@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 	"github.com/hashicorp/vault/api"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	velaAPI "github.com/go-vela/server/api/types"
@@ -48,7 +47,7 @@ type (
 		Version string
 	}
 
-	client struct {
+	Client struct {
 		config *config
 		AWS    *awsCfg
 		Vault  *api.Client
@@ -58,11 +57,9 @@ type (
 )
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
-//
-//nolint:revive // ignore returning unexported client
-func New(opts ...ClientOpt) (*client, error) {
+func New(opts ...ClientOpt) (*Client, error) {
 	// create new Vault client
-	c := new(client)
+	c := new(Client)
 
 	// create new fields
 	c.config = new(config)
@@ -121,7 +118,7 @@ func New(opts ...ClientOpt) (*client, error) {
 		// initialize the Vault client
 		err = c.initialize()
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to initialize vault token")
+			return nil, fmt.Errorf("failed to initialize vault token: %w", err)
 		}
 
 		// start the routine to refresh the token
@@ -281,6 +278,20 @@ func secretFromVault(vault *api.Secret) *velaAPI.Secret {
 		}
 	}
 
+	// set repo_allowlist if found in Vault secret
+	v, ok = data["repo_allowlist"]
+	if ok {
+		allowlist, ok := v.([]any)
+		if ok {
+			for _, element := range allowlist {
+				repo, ok := element.(string)
+				if ok {
+					s.SetRepoAllowlist(append(s.GetRepoAllowlist(), repo))
+				}
+			}
+		}
+	}
+
 	// set created_at if found in Vault secret
 	v, ok = data["created_at"]
 	if ok {
@@ -380,6 +391,11 @@ func vaultFromSecret(s *velaAPI.Secret) *api.Secret {
 	// set allow_substitution if found in Vela secret
 	if s.AllowSubstitution != nil {
 		vault.Data["allow_substitution"] = s.GetAllowSubstitution()
+	}
+
+	// set the repo_allowlist if found in Vela secret
+	if len(s.GetRepoAllowlist()) > 0 {
+		vault.Data["repo_allowlist"] = s.GetRepoAllowlist()
 	}
 
 	// set created_at if found in Vela secret

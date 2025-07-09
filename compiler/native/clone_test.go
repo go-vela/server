@@ -3,22 +3,26 @@
 package native
 
 import (
-	"flag"
+	"context"
 	"reflect"
 	"testing"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 )
 
 const defaultCloneImage = "target/vela-git-slim:latest"
 
 func TestNative_CloneStage(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
+	cmd := new(cli.Command)
+	cmd.Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:  "clone-image",
+			Value: defaultCloneImage,
+		},
+	}
 
 	str := "foo"
 	p := &yaml.Build{
@@ -84,7 +88,7 @@ func TestNative_CloneStage(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := FromCLIContext(c)
+		compiler, err := FromCLICommand(context.Background(), cmd)
 		if err != nil {
 			t.Errorf("unable to create new compiler: %v", err)
 		}
@@ -114,9 +118,13 @@ func TestNative_CloneStage(t *testing.T) {
 
 func TestNative_CloneStep(t *testing.T) {
 	// setup types
-	set := flag.NewFlagSet("test", 0)
-	set.String("clone-image", defaultCloneImage, "doc")
-	c := cli.NewContext(nil, set, nil)
+	cmd := new(cli.Command)
+	cmd.Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:  "clone-image",
+			Value: defaultCloneImage,
+		},
+	}
 
 	str := "foo"
 	p := &yaml.Build{
@@ -167,7 +175,7 @@ func TestNative_CloneStep(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := FromCLIContext(c)
+		compiler, err := FromCLICommand(context.Background(), cmd)
 		if err != nil {
 			t.Errorf("Unable to create new compiler: %v", err)
 		}

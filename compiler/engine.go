@@ -9,8 +9,10 @@ import (
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/scm"
 )
 
 // Engine represents an interface for converting a yaml
@@ -34,15 +36,19 @@ type Engine interface {
 
 	// Parse defines a function that converts
 	// an object to a yaml configuration.
-	Parse(interface{}, string, *yaml.Template) (*yaml.Build, []byte, error)
+	Parse(interface{}, string, *yaml.Template) (*yaml.Build, []byte, []string, error)
 
 	// ParseRaw defines a function that converts
 	// an object to a string.
 	ParseRaw(interface{}) (string, error)
 
-	// Validate defines a function that verifies
+	// ValidateYAML defines a function that verifies
 	// the yaml configuration is accurate.
-	Validate(*yaml.Build) error
+	ValidateYAML(*yaml.Build) error
+
+	// ValidatePipeline defines a function that verifies
+	// the final pipeline build is accurate.
+	ValidatePipeline(*pipeline.Build) error
 
 	// Clone Compiler Interface Functions
 
@@ -72,10 +78,10 @@ type Engine interface {
 
 	// ExpandStages defines a function that injects the template
 	// for each templated step in every stage in a yaml configuration.
-	ExpandStages(context.Context, *yaml.Build, map[string]*yaml.Template, *pipeline.RuleData) (*yaml.Build, error)
+	ExpandStages(context.Context, *yaml.Build, map[string]*yaml.Template, *pipeline.RuleData, []string) (*yaml.Build, []string, error)
 	// ExpandSteps defines a function that injects the template
 	// for each templated step in a yaml configuration with the provided template depth.
-	ExpandSteps(context.Context, *yaml.Build, map[string]*yaml.Template, *pipeline.RuleData, int) (*yaml.Build, error)
+	ExpandSteps(context.Context, *yaml.Build, map[string]*yaml.Template, *pipeline.RuleData, []string, int) (*yaml.Build, []string, error)
 
 	// Init Compiler Interface Functions
 
@@ -146,6 +152,12 @@ type Engine interface {
 	// WithLabel defines a function that sets
 	// the label(s) in the Engine.
 	WithLabels([]string) Engine
+	// WithSCM defines a function that sets
+	// the scm in the Engine.
+	WithSCM(scm.Service) Engine
+	// WithDatabase defines a function that sets
+	// the database in the Engine.
+	WithDatabase(database.Interface) Engine
 	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(context.Context, string, string) Engine

@@ -108,6 +108,8 @@ func GetSettings(c *gin.Context) {
 
 // UpdateSettings represents the API handler to update the
 // platform settings singleton.
+//
+//nolint:funlen // nil checks throughout handler make this function long
 func UpdateSettings(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
@@ -186,6 +188,53 @@ func UpdateSettings(c *gin.Context) {
 		l.Infof("platform admin: updating queue routes to: %s", input.GetRoutes())
 	}
 
+	if input.SCM != nil {
+		if input.SCM.RepoRoleMap != nil {
+			err = util.ValidateRoleMap(input.GetRepoRoleMap(), "repo")
+			if err != nil {
+				retErr := fmt.Errorf("invalid repo role map for platform settings: %w", err)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+
+			_s.SetRepoRoleMap(input.GetRepoRoleMap())
+
+			l.Infof("platform admin: updating repo role map to: %s", input.GetRepoRoleMap())
+		}
+
+		if input.SCM.OrgRoleMap != nil {
+			err = util.ValidateRoleMap(input.GetOrgRoleMap(), "org")
+			if err != nil {
+				retErr := fmt.Errorf("invalid org role map for platform settings: %w", err)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+
+			_s.SetOrgRoleMap(input.GetOrgRoleMap())
+
+			l.Infof("platform admin: updating org role map to: %s", input.GetOrgRoleMap())
+		}
+
+		if input.SCM.TeamRoleMap != nil {
+			err = util.ValidateRoleMap(input.GetTeamRoleMap(), "team")
+			if err != nil {
+				retErr := fmt.Errorf("invalid team role map for platform settings: %w", err)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+
+			_s.SetTeamRoleMap(input.GetTeamRoleMap())
+
+			l.Infof("platform admin: updating team role map to: %s", input.GetTeamRoleMap())
+		}
+	}
+
 	if input.RepoAllowlist != nil {
 		_s.SetRepoAllowlist(input.GetRepoAllowlist())
 
@@ -196,6 +245,12 @@ func UpdateSettings(c *gin.Context) {
 		_s.SetScheduleAllowlist(input.GetScheduleAllowlist())
 
 		l.Infof("platform admin: updating schedule allowlist to: %s", input.GetScheduleAllowlist())
+	}
+
+	if input.MaxDashboardRepos != nil {
+		_s.SetMaxDashboardRepos(input.GetMaxDashboardRepos())
+
+		l.Infof("platform admin: updating max dashboard repos to: %d", input.GetMaxDashboardRepos())
 	}
 
 	_s.SetUpdatedBy(u.GetName())
@@ -250,7 +305,7 @@ func RestoreSettings(c *gin.Context) {
 
 	// capture middleware values
 	ctx := c.Request.Context()
-	cliCtx := cliMiddleware.FromContext(c)
+	cliCmd := cliMiddleware.FromContext(c)
 	s := sMiddleware.FromContext(c)
 	u := uMiddleware.FromContext(c)
 
@@ -264,7 +319,7 @@ func RestoreSettings(c *gin.Context) {
 		return
 	}
 
-	compiler, err := native.FromCLIContext(cliCtx)
+	compiler, err := native.FromCLICommand(ctx, cliCmd)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restore platform settings: %w", err)
 
@@ -273,7 +328,7 @@ func RestoreSettings(c *gin.Context) {
 		return
 	}
 
-	queue, err := queue.FromCLIContext(cliCtx)
+	queue, err := queue.FromCLICommand(ctx, cliCmd)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restore platform settings: %w", err)
 
@@ -283,7 +338,7 @@ func RestoreSettings(c *gin.Context) {
 	}
 
 	// initialize a new settings record
-	_s := settings.FromCLIContext(cliCtx)
+	_s := settings.FromCLICommand(cliCmd)
 
 	_s.SetUpdatedAt(time.Now().UTC().Unix())
 	_s.SetUpdatedBy(u.GetName())

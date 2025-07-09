@@ -32,7 +32,7 @@ func MustPlatformAdmin() gin.HandlerFunc {
 			return
 
 		default:
-			if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
+			if cl.TokenType == constants.WorkerBuildTokenType {
 				l.WithFields(logrus.Fields{
 					"claims_repo":  cl.Repo,
 					"claims_build": cl.BuildID,
@@ -59,7 +59,7 @@ func MustWorkerRegisterToken() gin.HandlerFunc {
 		case constants.WorkerRegisterTokenType:
 			return
 		case constants.ServerWorkerTokenType:
-			if strings.EqualFold(cl.Subject, "vela-worker") {
+			if cl.Subject == "vela-worker" {
 				return
 			}
 
@@ -95,7 +95,7 @@ func MustWorkerAuthToken() gin.HandlerFunc {
 		case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
 			return
 		case constants.ServerWorkerTokenType:
-			if strings.EqualFold(cl.Subject, "vela-worker") {
+			if cl.Subject == "vela-worker" {
 				return
 			}
 
@@ -160,7 +160,7 @@ func MustIDRequestToken() gin.HandlerFunc {
 		logrus.Debugf("verifying worker %s has a valid build token", cl.Subject)
 
 		// verify expected type
-		if !strings.EqualFold(cl.TokenType, constants.IDRequestTokenType) {
+		if cl.TokenType != constants.IDRequestTokenType {
 			retErr := fmt.Errorf("invalid token: must provide a valid request ID token")
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 
@@ -168,7 +168,7 @@ func MustIDRequestToken() gin.HandlerFunc {
 		}
 
 		// if build is not in a running state, then an ID token should not be needed
-		if !strings.EqualFold(b.GetStatus(), constants.StatusRunning) {
+		if b.GetStatus() != constants.StatusRunning {
 			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("invalid request"))
 
 			return
@@ -191,6 +191,7 @@ func MustIDRequestToken() gin.HandlerFunc {
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
+
 		cl := claims.Retrieve(c)
 		u := user.Retrieve(c)
 		e := util.PathParameter(c, "engine")
@@ -210,7 +211,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 		}
 
 		// check if secret is a shared secret
-		if strings.EqualFold(t, constants.SecretShared) {
+		if t == constants.SecretShared {
 			// update log fields from API metadata
 			delete(fields, "repo")
 			fields["secret_team"] = n
@@ -223,7 +224,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 		}
 
 		// if caller is worker with build token, verify it has access to requested secret
-		if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
+		if cl.TokenType == constants.WorkerBuildTokenType {
 			org, repo := util.SplitFullName(cl.Repo)
 
 			switch t {
@@ -232,7 +233,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 			case constants.SecretOrg:
 				logger.Debugf("verifying subject %s has token permissions for org %s", cl.Subject, o)
 
-				if strings.EqualFold(org, o) {
+				if org == o {
 					return
 				}
 
@@ -247,7 +248,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 			case constants.SecretRepo:
 				logger.Debugf("verifying subject %s has token permissions for repo %s/%s", cl.Subject, o, n)
 
-				if strings.EqualFold(org, o) && strings.EqualFold(repo, n) {
+				if org == o && repo == n {
 					return
 				}
 
@@ -270,7 +271,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 				logger.Errorf("unable to get user %s access level for org %s: %v", u.GetName(), o, err)
 			}
 
-			if !strings.EqualFold(perm, "admin") {
+			if perm != constants.PermissionAdmin {
 				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the org %s", u.GetName(), o)
 
 				util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -285,7 +286,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 				logger.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
 			}
 
-			if !strings.EqualFold(perm, "admin") {
+			if perm != constants.PermissionAdmin {
 				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s/%s", u.GetName(), o, n)
 
 				util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -325,7 +326,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 					logger.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
 				}
 
-				if !strings.EqualFold(perm, "admin") {
+				if perm != constants.PermissionAdmin {
 					retErr := fmt.Errorf("user %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
 
 					util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -372,8 +373,7 @@ func MustAdmin() gin.HandlerFunc {
 		}
 
 		switch perm {
-		//nolint:goconst // ignore making constant
-		case "admin":
+		case constants.PermissionAdmin:
 			return
 		default:
 			retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
@@ -389,6 +389,7 @@ func MustAdmin() gin.HandlerFunc {
 func MustWrite() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
+
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
@@ -413,9 +414,9 @@ func MustWrite() gin.HandlerFunc {
 		}
 
 		switch perm {
-		case "admin":
+		case constants.PermissionAdmin:
 			return
-		case "write":
+		case constants.PermissionWrite:
 			return
 		default:
 			retErr := fmt.Errorf("user %s does not have 'write' permissions for the repo %s", u.GetName(), r.GetFullName())
@@ -431,20 +432,21 @@ func MustWrite() gin.HandlerFunc {
 func MustRead() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
+
 		cl := claims.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
 
 		// check if the repo visibility field is set to public
-		if strings.EqualFold(r.GetVisibility(), constants.VisibilityPublic) {
+		if r.GetVisibility() == constants.VisibilityPublic {
 			l.Debugf("skipping 'read' check for repo %s with %s visibility for user %s", r.GetFullName(), r.GetVisibility(), u.GetName())
 
 			return
 		}
 
 		// return if request is from worker with build token access
-		if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
+		if cl.TokenType == constants.WorkerBuildTokenType {
 			b := build.Retrieve(c)
 			if cl.BuildID == b.GetID() {
 				return
@@ -478,11 +480,11 @@ func MustRead() gin.HandlerFunc {
 		}
 
 		switch perm {
-		case "admin":
+		case constants.PermissionAdmin:
 			return
-		case "write":
+		case constants.PermissionWrite:
 			return
-		case "read":
+		case constants.PermissionRead:
 			return
 		default:
 			retErr := fmt.Errorf("user %s does not have 'read' permissions for repo %s", u.GetName(), r.GetFullName())

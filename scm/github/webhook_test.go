@@ -65,6 +65,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
+	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("push")
@@ -144,6 +145,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
+	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("push")
@@ -221,6 +223,7 @@ func TestGithub_ProcessWebhook_Push_Branch_Delete(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
+	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("delete")
@@ -299,6 +302,7 @@ func TestGithub_ProcessWebhook_Push_Tag_Delete(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
+	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("delete")
@@ -359,6 +363,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
+	wantRepo.SetCustomProps(nil)
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("pull_request")
@@ -596,6 +601,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
+	wantRepo.SetCustomProps(nil)
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent(constants.EventDeploy)
@@ -622,6 +628,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantDeployment.SetTask("deploy")
 	wantDeployment.SetTarget("production")
 	wantDeployment.SetDescription("")
+	wantDeployment.SetPayload(raw.StringSliceMap{"foo": "test1", "bar": "test2"})
 	wantDeployment.SetCreatedAt(time.Now().UTC().Unix())
 	wantDeployment.SetCreatedBy("Codertocat")
 
@@ -732,6 +739,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
+	wantRepo.SetCustomProps(nil)
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent(constants.EventDeploy)
@@ -912,7 +920,7 @@ func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err = client.VerifyWebhook(context.TODO(), request, new(api.Repo))
+	err = client.VerifyWebhook(context.TODO(), request, []byte{})
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
 	}
@@ -953,7 +961,7 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err = client.VerifyWebhook(context.TODO(), request, r)
+	err = client.VerifyWebhook(context.TODO(), request, []byte{})
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
 	}
@@ -1004,6 +1012,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
+	wantRepo.SetCustomProps(nil)
 
 	wantBuild := new(api.Build)
 	wantBuild.SetEvent("comment")
@@ -1187,6 +1196,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
+	wantRepo.SetCustomProps(nil)
 
 	want := &internal.Webhook{
 		Hook: wantHook,
@@ -1199,8 +1209,8 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -1250,6 +1260,7 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
+	wantRepo.SetCustomProps(nil)
 
 	want := &internal.Webhook{
 		Hook: wantHook,
@@ -1262,8 +1273,8 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -1313,6 +1324,7 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
+	wantRepo.SetCustomProps(nil)
 
 	want := &internal.Webhook{
 		Hook: wantHook,
@@ -1325,8 +1337,8 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -1375,6 +1387,7 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("main")
 	wantRepo.SetTopics([]string{"cloud", "security"})
+	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
 	wantRepo.SetPrivate(false)
 
 	want := &internal.Webhook{
@@ -1388,8 +1401,8 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -1439,6 +1452,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
+	wantRepo.SetCustomProps(nil)
 
 	want := &internal.Webhook{
 		Hook: wantHook,
@@ -1451,8 +1465,71 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
+	}
+}
+
+func TestGitHub_ProcessWebhook_CustomPropertyValuesUpdated(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/hooks/custom_property_values.json")
+	if err != nil {
+		t.Errorf("unable to open file: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
+	request.Header.Set("X-GitHub-Event", "custom_property_values")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(api.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent(constants.EventCustomProperties)
+	wantHook.SetEventAction("updated")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/github/octocat/settings/hooks")
+
+	wantRepo := new(api.Repo)
+	wantRepo.SetActive(true)
+	wantRepo.SetOrg("github")
+	wantRepo.SetName("octocat")
+	wantRepo.SetFullName("github/octocat")
+	wantRepo.SetLink("https://github.com/github/octocat")
+	wantRepo.SetClone("https://github.com/github/octocat.git")
+	wantRepo.SetBranch("main")
+	wantRepo.SetPrivate(true)
+	wantRepo.SetTopics([]string{})
+	wantRepo.SetCustomProps(map[string]any{"FOO": "testing"})
+
+	want := &internal.Webhook{
+		Hook: wantHook,
+		Repo: wantRepo,
+	}
+
+	got, err := client.ProcessWebhook(context.TODO(), request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -1544,7 +1621,7 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
-	ghClient := client.newClientToken(context.Background(), *u.Token)
+	ghClient := client.newOAuthTokenClient(context.Background(), *u.Token)
 
 	// run test
 	got, err := client.getDeliveryID(context.TODO(), ghClient, _hook)
@@ -1555,5 +1632,182 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 
 	if got != want {
 		t.Errorf("getDeliveryID returned: %v; want: %v", got, want)
+	}
+}
+
+func TestGitHub_ProcessWebhook_Installation(t *testing.T) {
+	// setup tests
+	var createdHook api.Hook
+	createdHook.SetNumber(1)
+	createdHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	createdHook.SetWebhookID(123456)
+	createdHook.SetCreated(time.Now().UTC().Unix())
+	createdHook.SetHost("github.com")
+	createdHook.SetEvent(constants.EventInstallation)
+	createdHook.SetEventAction(constants.AppInstallCreated)
+	createdHook.SetStatus(constants.StatusSuccess)
+
+	deletedHook := createdHook
+	deletedHook.SetEventAction(constants.AppInstallDeleted)
+
+	tests := []struct {
+		name        string
+		file        string
+		wantHook    *api.Hook
+		wantInstall *internal.Installation
+	}{
+		{
+			name:     "installation created",
+			file:     "testdata/hooks/installation_created.json",
+			wantHook: &createdHook,
+			wantInstall: &internal.Installation{
+				Action:            constants.AppInstallCreated,
+				ID:                1,
+				RepositoriesAdded: []string{"Hello-World", "Hello-World2"},
+				Org:               "Codertocat",
+			},
+		},
+		{
+			name:     "installation deleted",
+			file:     "testdata/hooks/installation_deleted.json",
+			wantHook: &deletedHook,
+			wantInstall: &internal.Installation{
+				Action:              constants.AppInstallDeleted,
+				ID:                  1,
+				RepositoriesRemoved: []string{"Hello-World", "Hello-World2"},
+				Org:                 "Codertocat",
+			},
+		},
+	}
+
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	for _, tt := range tests {
+		// setup request
+		body, err := os.Open(tt.file)
+		if err != nil {
+			t.Errorf("unable to open file: %v", err)
+		}
+
+		defer body.Close()
+
+		request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+		request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+		request.Header.Set("X-GitHub-Hook-ID", "123456")
+		request.Header.Set("X-GitHub-Event", "installation")
+
+		// setup client
+		client, _ := NewTest(s.URL)
+
+		want := &internal.Webhook{
+			Hook:         tt.wantHook,
+			Installation: tt.wantInstall,
+		}
+
+		got, err := client.ProcessWebhook(context.TODO(), request)
+
+		if err != nil {
+			t.Errorf("ProcessWebhook returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
+		}
+	}
+}
+
+const (
+	// GitHub App install event type 'added'.
+	AppInstallRepositoriesAdded = "added"
+	// GitHub App install event type 'removed'.
+	AppInstallRepositoriesRemoved = "removed"
+)
+
+func TestGitHub_ProcessWebhook_InstallationRepositories(t *testing.T) {
+	// setup tests
+	var reposAddedHook api.Hook
+	reposAddedHook.SetNumber(1)
+	reposAddedHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	reposAddedHook.SetWebhookID(123456)
+	reposAddedHook.SetCreated(time.Now().UTC().Unix())
+	reposAddedHook.SetHost("github.com")
+	reposAddedHook.SetEvent(constants.EventInstallationRepositories)
+	reposAddedHook.SetEventAction(AppInstallRepositoriesAdded)
+	reposAddedHook.SetStatus(constants.StatusSuccess)
+
+	reposRemovedHook := reposAddedHook
+	reposRemovedHook.SetEventAction(AppInstallRepositoriesRemoved)
+
+	tests := []struct {
+		name        string
+		file        string
+		wantHook    *api.Hook
+		wantInstall *internal.Installation
+	}{
+		{
+			name:     "installation_repositories repos added",
+			file:     "testdata/hooks/installation_repositories_added.json",
+			wantHook: &reposAddedHook,
+			wantInstall: &internal.Installation{
+				Action:            AppInstallRepositoriesAdded,
+				ID:                1,
+				RepositoriesAdded: []string{"Hello-World", "Hello-World2"},
+				Org:               "Codertocat",
+			},
+		},
+		{
+			name:     "installation_repositories repos removed",
+			file:     "testdata/hooks/installation_repositories_removed.json",
+			wantHook: &reposRemovedHook,
+			wantInstall: &internal.Installation{
+				Action:              AppInstallRepositoriesRemoved,
+				ID:                  1,
+				RepositoriesRemoved: []string{"Hello-World", "Hello-World2"},
+				Org:                 "Codertocat",
+			},
+		},
+	}
+
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	for _, tt := range tests {
+		// setup request
+		body, err := os.Open(tt.file)
+		if err != nil {
+			t.Errorf("unable to open file: %v", err)
+		}
+
+		defer body.Close()
+
+		request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+		request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+		request.Header.Set("X-GitHub-Hook-ID", "123456")
+		request.Header.Set("X-GitHub-Event", "installation_repositories")
+
+		// setup client
+		client, _ := NewTest(s.URL)
+
+		want := &internal.Webhook{
+			Hook:         tt.wantHook,
+			Installation: tt.wantInstall,
+		}
+
+		got, err := client.ProcessWebhook(context.TODO(), request)
+
+		if err != nil {
+			t.Errorf("ProcessWebhook returned err: %v", err)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
+		}
 	}
 }

@@ -8,8 +8,8 @@ import (
 	"github.com/go-vela/server/database"
 )
 
-// client represents a struct to hold native secret setup.
-type client struct {
+// Client represents a struct to hold native secret setup.
+type Client struct {
 	// client to interact with database for secret operations
 	Database database.Interface
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
@@ -17,11 +17,9 @@ type client struct {
 }
 
 // New returns a Secret implementation that integrates with a Native secrets engine.
-//
-//nolint:revive // ignore returning unexported client
-func New(opts ...ClientOpt) (*client, error) {
+func New(opts ...ClientOpt) (*Client, error) {
 	// create new native client
-	c := new(client)
+	c := new(Client)
 
 	// create new fields
 	c.Database = *new(database.Interface)

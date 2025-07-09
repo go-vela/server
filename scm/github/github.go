@@ -4,16 +4,20 @@ package github
 
 import (
 	"context"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
+	"errors"
 	"fmt"
-	"net/http/httptrace"
-	"net/url"
+	"os"
+	"strings"
 
-	"github.com/google/go-github/v65/github"
+	"github.com/google/go-github/v73/github"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 
+	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/tracing"
 )
 
@@ -39,6 +43,14 @@ type config struct {
 	ClientID string
 	// specifies the OAuth client secret from GitHub to use for the GitHub client
 	ClientSecret string
+	// specifies the ID for the Vela GitHub App
+	AppID int64
+	// specifies the App private key to use for the GitHub client when interacting with App resources
+	AppPrivateKey string
+	// specifies the App private key to use for the GitHub client when interacting with App resources
+	AppPrivateKeyPath string
+	// specifics the App permissions set
+	AppPermissions []string
 	// specifies the Vela server address to use for the GitHub client
 	ServerAddress string
 	// specifies the Vela server address that the scm provider should use to send Vela webhooks
@@ -48,25 +60,27 @@ type config struct {
 	// specifies the Vela web UI address to use for the GitHub client
 	WebUIAddress string
 	// specifies the OAuth scopes to use for the GitHub client
-	Scopes []string
+	OAuthScopes []string
 }
 
-type client struct {
-	config  *config
-	OAuth   *oauth2.Config
-	AuthReq *github.AuthorizationRequest
-	Tracing *tracing.Client
+type Client struct {
+	config        *config
+	OAuth         *oauth2.Config
+	AuthReq       *github.AuthorizationRequest
+	Tracing       *tracing.Client
+	AppsTransport *AppsTransport
+
+	settings.SCM
+
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }
 
 // New returns a SCM implementation that integrates with
 // a GitHub or a GitHub Enterprise instance.
-//
-//nolint:revive // ignore returning unexported client
-func New(opts ...ClientOpt) (*client, error) {
+func New(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 	// create new GitHub client
-	c := new(client)
+	c := new(Client)
 
 	// create new fields
 	c.config = new(config)
@@ -95,35 +109,158 @@ func New(opts ...ClientOpt) (*client, error) {
 	c.OAuth = &oauth2.Config{
 		ClientID:     c.config.ClientID,
 		ClientSecret: c.config.ClientSecret,
-		Scopes:       c.config.Scopes,
+		Scopes:       c.config.OAuthScopes,
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", c.config.Address),
 			TokenURL: fmt.Sprintf("%s/login/oauth/access_token", c.config.Address),
 		},
 	}
 
-	var githubScopes []github.Scope
-	for _, scope := range c.config.Scopes {
-		githubScopes = append(githubScopes, github.Scope(scope))
+	var oauthScopes []github.Scope
+	for _, scope := range c.config.OAuthScopes {
+		oauthScopes = append(oauthScopes, github.Scope(scope))
 	}
 
 	// create the GitHub authorization object
 	c.AuthReq = &github.AuthorizationRequest{
 		ClientID:     &c.config.ClientID,
 		ClientSecret: &c.config.ClientSecret,
-		Scopes:       githubScopes,
+		Scopes:       oauthScopes,
+	}
+
+	var err error
+
+	if c.config.AppID != 0 {
+		c.Logger.Infof("configurating github app integration for app_id %d", c.config.AppID)
+
+		var privateKeyPEM []byte
+
+		if len(c.config.AppPrivateKey) == 0 && len(c.config.AppPrivateKeyPath) == 0 {
+			return nil, errors.New("GitHub App ID provided but no valid private key was provided in either VELA_SCM_APP_PRIVATE_KEY or VELA_SCM_APP_PRIVATE_KEY_PATH")
+		}
+
+		if len(c.config.AppPrivateKey) > 0 {
+			privateKeyPEM, err = base64.StdEncoding.DecodeString(c.config.AppPrivateKey)
+			if err != nil {
+				return nil, fmt.Errorf("error decoding base64: %w", err)
+			}
+		} else {
+			// try reading from path if necessary
+			c.Logger.Infof("no VELA_SCM_APP_PRIVATE_KEY provided, reading github app private key from path %s", c.config.AppPrivateKeyPath)
+
+			privateKeyPEM, err = os.ReadFile(c.config.AppPrivateKeyPath)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if len(privateKeyPEM) == 0 {
+			return nil, errors.New("GitHub App ID provided but no valid private key was provided in either VELA_SCM_APP_PRIVATE_KEY or VELA_SCM_APP_PRIVATE_KEY_PATH")
+		}
+
+		block, _ := pem.Decode(privateKeyPEM)
+		if block == nil {
+			return nil, fmt.Errorf("failed to parse GitHub App private key PEM block containing the key")
+		}
+
+		parsedPrivateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse GitHub App RSA private key: %w", err)
+		}
+
+		c.AppsTransport = c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey)
+
+		err = c.ValidateGitHubApp(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return c, nil
+}
+
+// ValidateGitHubApp ensures the GitHub App configuration is valid.
+func (c *Client) ValidateGitHubApp(ctx context.Context) error {
+	client, err := c.newGithubAppClient()
+	if err != nil {
+		return fmt.Errorf("error creating github app client: %w", err)
+	}
+
+	app, _, err := client.Apps.Get(ctx, "")
+	if err != nil {
+		return fmt.Errorf("error getting github app: %w", err)
+	}
+
+	appPermissions := app.GetPermissions()
+
+	type perm struct {
+		resource           string
+		requiredPermission string
+		actualPermission   string
+	}
+
+	// the GitHub App installation requires the same permissions as provided at runtime
+	requiredPermissions := []perm{}
+
+	// retrieve the required permissions for checking
+	for _, permission := range c.config.AppPermissions {
+		splitPerm := strings.Split(permission, ":")
+		if len(splitPerm) != 2 {
+			return fmt.Errorf("invalid app permission format %s, expected resource:permission", permission)
+		}
+
+		resource := splitPerm[0]
+		requiredPermission := splitPerm[1]
+
+		actual, err := GetInstallationPermission(resource, appPermissions)
+		if err != nil {
+			return err
+		}
+
+		perm := perm{
+			resource:           resource,
+			requiredPermission: requiredPermission,
+			actualPermission:   actual,
+		}
+		requiredPermissions = append(requiredPermissions, perm)
+	}
+
+	// verify the app permissions
+	for _, p := range requiredPermissions {
+		err := InstallationHasPermission(p.resource, p.requiredPermission, p.actualPermission)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // NewTest returns a SCM implementation that integrates with the provided
 // mock server. Only the url from the mock server is required.
 //
 // This function is intended for running tests only.
-//
-//nolint:revive // ignore returning unexported client
-func NewTest(urls ...string) (*client, error) {
+func NewTest(urls ...string) (*Client, error) {
+	var (
+		repoRoleMap = map[string]string{
+			"admin":    constants.PermissionAdmin,
+			"write":    constants.PermissionWrite,
+			"maintain": constants.PermissionWrite,
+			"triage":   constants.PermissionRead,
+			"read":     constants.PermissionRead,
+		}
+
+		orgRoleMap = map[string]string{
+			"admin":  constants.PermissionAdmin,
+			"member": constants.PermissionRead,
+		}
+
+		teamRoleMap = map[string]string{
+			"maintainer": constants.PermissionAdmin,
+			"member":     constants.PermissionRead,
+		}
+	)
+
 	address := urls[0]
 	server := address
 
@@ -132,7 +269,8 @@ func NewTest(urls ...string) (*client, error) {
 		server = urls[1]
 	}
 
-	return New(
+	c, err := New(
+		context.Background(),
 		WithAddress(address),
 		WithClientID("foo"),
 		WithClientSecret("bar"),
@@ -142,40 +280,13 @@ func NewTest(urls ...string) (*client, error) {
 		WithWebUIAddress(address),
 		WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
 	)
-}
-
-// helper function to return the GitHub OAuth client.
-func (c *client) newClientToken(ctx context.Context, token string) *github.Client {
-	// create the token object for the client
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-
-	// create the OAuth client
-	tc := oauth2.NewClient(ctx, ts)
-	// if c.SkipVerify {
-	// 	tc.Transport.(*oauth2.Transport).Base = &http.Transport{
-	// 		Proxy: http.ProxyFromEnvironment,
-	// 		TLSClientConfig: &tls.Config{
-	// 			InsecureSkipVerify: true,
-	// 		},
-	// 	}
-	// }
-
-	if c.Tracing.Config.EnableTracing {
-		tc.Transport = otelhttp.NewTransport(
-			tc.Transport,
-			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
-				return otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
-			}),
-		)
+	if err != nil {
+		return nil, err
 	}
 
-	// create the GitHub client from the OAuth client
-	github := github.NewClient(tc)
+	c.SetRepoRoleMap(repoRoleMap)
+	c.SetOrgRoleMap(orgRoleMap)
+	c.SetTeamRoleMap(teamRoleMap)
 
-	// ensure the proper URL is set in the GitHub client
-	github.BaseURL, _ = url.Parse(c.config.API)
-
-	return github
+	return c, nil
 }

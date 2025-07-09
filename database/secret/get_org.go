@@ -13,7 +13,7 @@ import (
 )
 
 // GetSecretForOrg gets a secret by org name from the database.
-func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*api.Secret, error) {
+func (e *Engine) GetSecretForOrg(ctx context.Context, org, name string) (*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":    org,
 		"secret": name,
@@ -47,5 +47,5 @@ func (e *engine) GetSecretForOrg(ctx context.Context, org, name string) (*api.Se
 		e.logger.Errorf("unable to decrypt org secret %s/%s: %v", org, name, err)
 	}
 
-	return s.ToAPI(), nil
+	return e.FillSecretAllowlist(ctx, s.ToAPI())
 }

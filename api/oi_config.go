@@ -60,6 +60,7 @@ func GetOpenIDConfig(c *gin.Context) {
 			"event",
 			"sha",
 			"ref",
+			"custom_properties",
 		},
 		ResponseTypesSupported: []string{
 			"id_token",

@@ -13,7 +13,7 @@ import (
 )
 
 // Update updates an existing secret.
-func (c *client) Update(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
+func (c *Client) Update(ctx context.Context, sType, org, name string, s *api.Secret) (*api.Secret, error) {
 	// capture the secret from the native service
 	secret, err := c.Get(ctx, sType, org, name, s.GetName())
 	if err != nil {
@@ -43,6 +43,11 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *api.Sec
 	// update allow_substitution if set
 	if s.AllowSubstitution != nil {
 		secret.SetAllowSubstitution(s.GetAllowSubstitution())
+	}
+
+	// update repo_allowlist if set
+	if s.RepoAllowlist != nil {
+		secret.SetRepoAllowlist(s.GetRepoAllowlist())
 	}
 
 	// update updated_at if set

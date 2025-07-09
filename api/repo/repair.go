@@ -62,6 +62,8 @@ import (
 
 // RepairRepo represents the API handler to remove
 // and then create a webhook for a repo.
+//
+//nolint:funlen // ignore statement count
 func RepairRepo(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
@@ -156,28 +158,55 @@ func RepairRepo(c *gin.Context) {
 			sourceRepo.SetPreviousName(r.GetName())
 		}
 
-		r, err = wh.RenameRepository(ctx, l, database.FromContext(c), h, sourceRepo, m)
+		r, err = wh.RenameRepository(ctx, l, database.FromContext(c), h, sourceRepo, r, m)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
 			return
 		}
 	}
 
+	dirty := false
+
 	// if the repo was previously inactive, mark it as active
 	if !r.GetActive() {
 		r.SetActive(true)
 
-		// send API call to update the repo
-		_, err := database.FromContext(c).UpdateRepo(ctx, r)
+		dirty = true
+
+		l.Tracef("repo %s repaired - set to active", r.GetFullName())
+	}
+
+	// map this repo to an installation, if possible
+	if r.GetInstallID() == 0 {
+		r, err = scm.FromContext(c).SyncRepoWithInstallation(ctx, r)
 		if err != nil {
-			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to sync repo %s with installation: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			return
 		}
 
-		l.Infof("repo %s updated - set to active", r.GetFullName())
+		// install_id was synced
+		if r.GetInstallID() != 0 {
+			dirty = true
+
+			l.Tracef("repo %s repaired - set install_id to %d", r.GetFullName(), r.GetInstallID())
+		}
+	}
+
+	// update the repo in the database, if necessary
+	if dirty {
+		_, err := database.FromContext(c).UpdateRepo(ctx, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to update repo %s during repair: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		l.Infof("repo %s repaired - database updated", r.GetFullName())
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("repo %s repaired", r.GetFullName()))

@@ -11,7 +11,7 @@ import (
 )
 
 // GetBuild gets a build by ID from the database.
-func (e *engine) GetBuild(ctx context.Context, id int64) (*api.Build, error) {
+func (e *Engine) GetBuild(ctx context.Context, id int64) (*api.Build, error) {
 	e.logger.Tracef("getting build %d", id)
 
 	// variable to store query results
