@@ -40,6 +40,7 @@ type (
 		Secrets     StepSecretSlice        `yaml:"secrets,omitempty"     json:"secrets,omitempty"     jsonschema:"description=Secrets to inject that are necessary to retrieve the secrets.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-secrets-key"`
 		Pull        string                 `yaml:"pull,omitempty"        json:"pull,omitempty"        jsonschema:"enum=always,enum=not_present,enum=on_start,enum=never,default=not_present,description=Declaration to configure if and when the Docker image is pulled.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-pull-key"`
 		Ruleset     Ruleset                `yaml:"ruleset,omitempty"     json:"ruleset,omitempty"     jsonschema:"description=Conditions to limit the execution of the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		IDRequest   string                 `yaml:"id_request,omitempty"  json:"id_request,omitempty"  jsonschema:"description=Request ID Request Token for the secret origin.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-id_request-key"`
 	}
 )
 
@@ -194,6 +195,7 @@ func (o *Origin) ToPipeline() *pipeline.Container {
 		Pull:        o.Pull,
 		Ruleset:     *o.Ruleset.ToPipeline(),
 		Secrets:     *o.Secrets.ToPipeline(),
+		IDRequest:   o.IDRequest,
 	}
 }
 
