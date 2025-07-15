@@ -20,6 +20,8 @@ func CreateTestAttachment(c *gin.Context) {
 	// capture the test attachment from the request body
 	input := new(types.TestAttachment)
 
+	l.Infof("TROUBLESHOOT: c.Request.Body: %v", c.Request.Body)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new TestAttachment: %w", err)
@@ -28,6 +30,8 @@ func CreateTestAttachment(c *gin.Context) {
 
 		return
 	}
+
+	l.Infof("TROUBLESHOOT 2")
 
 	// ensure test_report_id is defined
 	if input.GetTestReportID() <= 0 {
