@@ -16,9 +16,13 @@ import (
 // ValidateYAML verifies the yaml configuration is valid.
 func (c *Client) ValidateYAML(p *yaml.Build) error {
 	var result error
+
+	// clone step/stage validation will depend on this
+	isCloneEnabled := p.Metadata.Clone == nil || *p.Metadata.Clone
+
 	// check a version is provided
 	if len(p.Version) == 0 {
-		result = multierror.Append(result, fmt.Errorf("no \"version:\" YAML property provided"))
+		result = multierror.Append(result, fmt.Errorf(`no "version:" YAML property provided`))
 	}
 
 	// check that stages or steps are provided
@@ -54,13 +58,13 @@ func (c *Client) ValidateYAML(p *yaml.Build) error {
 	}
 
 	// validate the stages block provided
-	err = validateYAMLStages(p.Stages)
+	err = validateYAMLStages(p.Stages, isCloneEnabled)
 	if err != nil {
 		result = multierror.Append(result, err)
 	}
 
 	// validate the steps block provided
-	err = validateYAMLSteps(p.Steps)
+	err = validateYAMLSteps(p.Steps, "", isCloneEnabled)
 	if err != nil {
 		result = multierror.Append(result, err)
 	}
@@ -70,7 +74,7 @@ func (c *Client) ValidateYAML(p *yaml.Build) error {
 
 // validateYAMLStages is a helper function that verifies the
 // stages block in the yaml configuration is valid.
-func validateYAMLStages(s yaml.StageSlice) error {
+func validateYAMLStages(s yaml.StageSlice, isCloneEnabled bool) error {
 	for _, stage := range s {
 		if len(stage.Name) == 0 {
 			return fmt.Errorf("no name provided for stage")
@@ -81,7 +85,7 @@ func validateYAMLStages(s yaml.StageSlice) error {
 			return fmt.Errorf("stage %s references itself in 'needs' declaration", stage.Name)
 		}
 
-		err := validateYAMLSteps(stage.Steps)
+		err := validateYAMLSteps(stage.Steps, stage.Name, isCloneEnabled)
 		if err != nil {
 			return err
 		}
@@ -92,7 +96,7 @@ func validateYAMLStages(s yaml.StageSlice) error {
 
 // validateYAMLSteps is a helper function that verifies the
 // steps block in the yaml configuration is valid.
-func validateYAMLSteps(s yaml.StepSlice) error {
+func validateYAMLSteps(s yaml.StepSlice, stageName string, isCloneEnabled bool) error {
 	for _, step := range s {
 		if len(step.Name) == 0 {
 			return fmt.Errorf("no name provided for step")
@@ -102,14 +106,20 @@ func validateYAMLSteps(s yaml.StepSlice) error {
 			return fmt.Errorf("no image provided for step %s", step.Name)
 		}
 
-		if step.Name == "clone" || step.Name == "init" {
+		// top-level step, or init step in init stage
+		if (stageName == "" || stageName == initStageName) && step.Name == initStepName {
+			continue
+		}
+
+		// default clone enabled and top-level clone step, or clone step in clone stage
+		if isCloneEnabled && (stageName == "" || stageName == cloneStageName) && step.Name == cloneStepName {
 			continue
 		}
 
 		if len(step.Commands) == 0 && len(step.Environment) == 0 &&
 			len(step.Parameters) == 0 && len(step.Secrets) == 0 &&
 			len(step.Template.Name) == 0 && !step.Detach {
-			return fmt.Errorf("no commands, environment, parameters, secrets or template provided for step %s", step.Name)
+			return fmt.Errorf("no commands, environment, parameters, secrets, template, or detach provided for step %s", step.Name)
 		}
 	}
 
@@ -139,8 +149,14 @@ func (c *Client) ValidatePipeline(p *pipeline.Build) error {
 	// report count for custom report containers
 	reportCount := 0
 
+	// validate reserved names (clone and init) for multiple occurrences
+	err := validateReservedNames(p)
+	if err != nil {
+		result = multierror.Append(result, err)
+	}
+
 	// validate the services block provided
-	err := validatePipelineContainers(p.Services, &reportCount, make(map[string]string), make(map[string]bool), "")
+	err = validatePipelineContainers(p.Services, &reportCount, make(map[string]string), make(map[string]bool), "")
 	if err != nil {
 		result = multierror.Append(result, err)
 	}
@@ -158,6 +174,46 @@ func (c *Client) ValidatePipeline(p *pipeline.Build) error {
 	}
 
 	return result
+}
+
+// validateReservedNames ensures that reserved pipeline names "clone" and "init" are used only once.
+// It checks both Steps and Stages in the pipeline Build for duplicate usage of these special names.
+// The "clone" stage validation can be controlled via the pipeline metadata.
+func validateReservedNames(p *pipeline.Build) error {
+	cloneCount := 0
+	initCount := 0
+
+	shouldValidateClone := p.Metadata.Clone
+
+	for _, step := range p.Steps {
+		if step.Name == cloneStepName && shouldValidateClone {
+			cloneCount++
+		}
+
+		if step.Name == initStepName {
+			initCount++
+		}
+	}
+
+	for _, stage := range p.Stages {
+		if stage.Name == cloneStageName && shouldValidateClone {
+			cloneCount++
+		}
+
+		if stage.Name == initStepName {
+			initCount++
+		}
+	}
+
+	if shouldValidateClone && cloneCount > 1 {
+		return fmt.Errorf("only one clone step/stage is allowed - rename duplicate clone steps/stages to avoid conflicts with the reserved 'clone' name")
+	}
+
+	if initCount > 1 {
+		return fmt.Errorf("only one init step/stage is allowed - rename duplicate init steps/stages to avoid conflicts with the reserved 'init' name")
+	}
+
+	return nil
 }
 
 // validatePipelineStages is a helper function that verifies the
@@ -183,7 +239,7 @@ func validatePipelineStages(s pipeline.StageSlice) error {
 // and that the container names are unique.
 func validatePipelineContainers(s pipeline.ContainerSlice, reportCount *int, reportMap map[string]string, nameMap map[string]bool, stageName string) error {
 	for _, ctn := range s {
-		if ctn.Name == "clone" || ctn.Name == "init" {
+		if ctn.Name == cloneStepName || ctn.Name == initStepName {
 			continue
 		}
 
