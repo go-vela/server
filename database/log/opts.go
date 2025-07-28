@@ -60,3 +60,30 @@ func WithContext(ctx context.Context) EngineOpt {
 		return nil
 	}
 }
+
+// WithLogPartitioned sets the log partitioned flag in the log engine.
+func WithLogPartitioned(partitioned bool) EngineOpt {
+	return func(e *Engine) error {
+		e.config.LogPartitioned = partitioned
+
+		return nil
+	}
+}
+
+// WithLogPartitionPattern sets the log partition pattern in the log engine.
+func WithLogPartitionPattern(pattern string) EngineOpt {
+	return func(e *Engine) error {
+		e.config.LogPartitionPattern = pattern
+
+		return nil
+	}
+}
+
+// WithLogPartitionSchema sets the log partition schema in the log engine.
+func WithLogPartitionSchema(schema string) EngineOpt {
+	return func(e *Engine) error {
+		e.config.LogPartitionSchema = schema
+
+		return nil
+	}
+}

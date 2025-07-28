@@ -46,4 +46,6 @@ type LogInterface interface {
 	ListLogsForBuild(context.Context, *api.Build, int, int) ([]*api.Log, error)
 	// UpdateLog defines a function that updates an existing log.
 	UpdateLog(context.Context, *api.Log) error
+	// CleanLogs defines a function that deletes logs older than a specified timestamp in batches.
+	CleanLogs(context.Context, int64, int, bool, string) (*CleanupResult, error)
 }

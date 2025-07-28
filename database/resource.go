@@ -117,6 +117,9 @@ func (e *engine) NewResources(ctx context.Context) error {
 		log.WithCompressionLevel(e.config.CompressionLevel),
 		log.WithLogger(e.logger),
 		log.WithSkipCreation(e.config.SkipCreation),
+		log.WithLogPartitioned(e.config.LogPartitioned),
+		log.WithLogPartitionPattern(e.config.LogPartitionPattern),
+		log.WithLogPartitionSchema(e.config.LogPartitionSchema),
 	)
 	if err != nil {
 		return err

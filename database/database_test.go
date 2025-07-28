@@ -207,3 +207,132 @@ func testSqlite(t *testing.T) *engine {
 
 	return _engine
 }
+
+func TestDatabase_Engine_IsLogPartitioned(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		name        string
+		partitioned bool
+		want        bool
+	}{
+		{
+			name:        "partitioned enabled",
+			partitioned: true,
+			want:        true,
+		},
+		{
+			name:        "partitioned disabled",
+			partitioned: false,
+			want:        false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// create test database engine
+			e, err := NewTest()
+			if err != nil {
+				t.Errorf("unable to create new database engine for %s: %v", test.name, err)
+				return
+			}
+
+			// set the partition configuration
+			engineCast := e.(*engine)
+			engineCast.config.LogPartitioned = test.partitioned
+
+			// test the method
+			got := e.IsLogPartitioned()
+			if got != test.want {
+				t.Errorf("IsLogPartitioned() for %s = %v, want %v", test.name, got, test.want)
+			}
+		})
+	}
+}
+
+func TestDatabase_Engine_PartitionConfiguration(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		name            string
+		partitioned     bool
+		pattern         string
+		schema          string
+		wantPartitioned bool
+		wantPattern     string
+		wantSchema      string
+	}{
+		{
+			name:            "partition configuration enabled",
+			partitioned:     true,
+			pattern:         "logs_%",
+			schema:          "public",
+			wantPartitioned: true,
+			wantPattern:     "logs_%",
+			wantSchema:      "public",
+		},
+		{
+			name:            "partition configuration disabled",
+			partitioned:     false,
+			pattern:         "",
+			schema:          "",
+			wantPartitioned: false,
+			wantPattern:     "",
+			wantSchema:      "",
+		},
+		{
+			name:            "custom partition configuration",
+			partitioned:     true,
+			pattern:         "custom_logs_%",
+			schema:          "logs_schema",
+			wantPartitioned: true,
+			wantPattern:     "custom_logs_%",
+			wantSchema:      "logs_schema",
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// create database engine with partition configuration
+			e, err := New(
+				WithAddress("file::memory:?cache=shared"),
+				WithCompressionLevel(3),
+				WithConnectionLife(30*time.Minute),
+				WithConnectionIdle(2),
+				WithConnectionOpen(0),
+				WithDriver("sqlite3"),
+				WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
+				WithSkipCreation(true),
+				WithLogLevel("warn"),
+				WithLogShowSQL(false),
+				WithLogSkipNotFound(true),
+				WithLogSlowThreshold(200*time.Millisecond),
+				WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
+				WithLogPartitioned(test.partitioned),
+				WithLogPartitionPattern(test.pattern),
+				WithLogPartitionSchema(test.schema),
+			)
+			if err != nil {
+				t.Errorf("unable to create new database engine for %s: %v", test.name, err)
+				return
+			}
+
+			// verify IsLogPartitioned method works
+			if got := e.IsLogPartitioned(); got != test.wantPartitioned {
+				t.Errorf("IsLogPartitioned() for %s = %v, want %v", test.name, got, test.wantPartitioned)
+			}
+
+			// verify configuration values are set correctly
+			engineCast := e.(*engine)
+			if engineCast.config.LogPartitioned != test.wantPartitioned {
+				t.Errorf("config.LogPartitioned for %s = %v, want %v", test.name, engineCast.config.LogPartitioned, test.wantPartitioned)
+			}
+			if engineCast.config.LogPartitionPattern != test.wantPattern {
+				t.Errorf("config.LogPartitionPattern for %s = %s, want %s", test.name, engineCast.config.LogPartitionPattern, test.wantPattern)
+			}
+			if engineCast.config.LogPartitionSchema != test.wantSchema {
+				t.Errorf("config.LogPartitionSchema for %s = %s, want %s", test.name, engineCast.config.LogPartitionSchema, test.wantSchema)
+			}
+		})
+	}
+}

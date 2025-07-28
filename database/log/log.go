@@ -19,6 +19,12 @@ type (
 		CompressionLevel int
 		// specifies to skip creating tables and indexes for the Log engine
 		SkipCreation bool
+		// specifies whether the log table is partitioned
+		LogPartitioned bool
+		// specifies the naming pattern for log table partitions
+		LogPartitionPattern string
+		// specifies the database schema containing log table partitions
+		LogPartitionSchema string
 	}
 
 	// Engine represents the log functionality that implements the LogInterface interface.
