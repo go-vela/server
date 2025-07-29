@@ -1191,7 +1191,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["DeleteLog"] = true
 
 	// clean the logs
-	_, err = db.CleanLogs(context.TODO(), time.Now().Unix(), 1000, false, constants.DriverPostgres)
+	_, err = db.CleanLogs(context.TODO(), time.Now().Unix(), 1000, false, db.Driver())
 	if err != nil {
 		t.Errorf("unable to clean logs: %v", err)
 	}
