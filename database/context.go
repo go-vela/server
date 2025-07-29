@@ -56,6 +56,9 @@ func FromCLICommand(c *cli.Command, tc *tracing.Client) (Interface, error) {
 		WithLogSlowThreshold(c.Duration("database.log.slow_threshold")),
 		WithLogShowSQL(c.Bool("database.log.show_sql")),
 		WithSkipCreation(c.Bool("database.skip_creation")),
+		WithLogPartitioned(c.Bool("database.log.partitioned")),
+		WithLogPartitionPattern(c.String("database.log.partition_pattern")),
+		WithLogPartitionSchema(c.String("database.log.partition_schema")),
 		WithTracing(tc),
 	)
 }

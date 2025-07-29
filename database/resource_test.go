@@ -53,6 +53,9 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	// ensure the mock expects the log queries
 	_mock.ExpectExec(log.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(log.CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(log.CreateCreatedAtIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(log.CreateServiceIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(log.CreateStepIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the pipeline queries
 	_mock.ExpectExec(pipeline.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(pipeline.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))

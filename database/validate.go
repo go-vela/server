@@ -70,5 +70,16 @@ func (c *config) Validate() error {
 		)
 	}
 
+	// verify partition configuration is valid if partitioned mode is enabled
+	if c.LogPartitioned {
+		if len(c.LogPartitionPattern) == 0 {
+			return fmt.Errorf("log partition pattern is required when partitioned mode is enabled")
+		}
+
+		if len(c.LogPartitionSchema) == 0 {
+			return fmt.Errorf("log partition schema is required when partitioned mode is enabled")
+		}
+	}
+
 	return nil
 }

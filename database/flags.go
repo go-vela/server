@@ -186,4 +186,34 @@ var Flags = []cli.Flag{
 			cli.File("/vela/database/skip_creation"),
 		),
 	},
+	&cli.BoolFlag{
+		Name:  "database.log.partitioned",
+		Usage: "enables partition-aware log cleanup for partitioned log tables",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_DATABASE_LOG_PARTITIONED"),
+			cli.EnvVar("DATABASE_LOG_PARTITIONED"),
+			cli.File("/vela/database/log_partitioned"),
+		),
+		Value: false,
+	},
+	&cli.StringFlag{
+		Name:  "database.log.partition_pattern",
+		Usage: "naming pattern for log table partitions (e.g., logs_%, logs_y%, logs_monthly_)",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_DATABASE_LOG_PARTITION_PATTERN"),
+			cli.EnvVar("DATABASE_LOG_PARTITION_PATTERN"),
+			cli.File("/vela/database/log_partition_pattern"),
+		),
+		Value: "logs_%",
+	},
+	&cli.StringFlag{
+		Name:  "database.log.partition_schema",
+		Usage: "database schema containing log table partitions",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_DATABASE_LOG_PARTITION_SCHEMA"),
+			cli.EnvVar("DATABASE_LOG_PARTITION_SCHEMA"),
+			cli.File("/vela/database/log_partition_schema"),
+		),
+		Value: "public",
+	},
 }

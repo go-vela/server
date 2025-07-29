@@ -60,6 +60,12 @@ type (
 		LogShowSQL bool
 		// specifies to skip creating tables and indexes for the database engine
 		SkipCreation bool
+		// specifies whether the log table is partitioned
+		LogPartitioned bool
+		// specifies the naming pattern for log table partitions
+		LogPartitionPattern string
+		// specifies the database schema containing log table partitions
+		LogPartitionSchema string
 	}
 
 	// engine represents the functionality that implements the Interface.

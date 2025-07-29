@@ -1190,6 +1190,13 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["DeleteLog"] = true
 
+	// clean the logs
+	_, err = db.CleanLogs(context.TODO(), time.Now().Unix(), 1000, false, db.Driver())
+	if err != nil {
+		t.Errorf("unable to clean logs: %v", err)
+	}
+	methods["CleanLogs"] = true
+
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
 		if !called {

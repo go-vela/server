@@ -39,6 +39,9 @@ func AdminHandlers(base *gin.RouterGroup) {
 		// Admin clean endpoint
 		_admin.PUT("/clean", admin.CleanResources)
 
+		// Admin logs cleanup endpoint
+		_admin.DELETE("/log/cleanup", admin.CleanLogs)
+
 		// Admin deployment endpoint
 		_admin.PUT("/deployment", admin.UpdateDeployment)
 

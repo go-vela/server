@@ -34,6 +34,9 @@ type Interface interface {
 	// Ping defines a function that sends a "ping" request to the configured database.
 	Ping() error
 
+	// IsLogPartitioned defines a function that returns whether log partitioning is enabled.
+	IsLogPartitioned() bool
+
 	// Resource Interface Functions
 
 	// SettingsInterface defines the interface for platform settings stored in the database.
