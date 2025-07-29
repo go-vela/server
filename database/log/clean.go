@@ -195,6 +195,7 @@ func (e *Engine) acquireCleanupLock(ctx context.Context, driver string) (bool, e
 		if result.Error != nil {
 			tx.Rollback()
 			// if insert fails, another cleanup is in progress
+			//nolint:nilerr // return false to indicate lock not acquired (but we rolled back, so no error needed)
 			return false, nil
 		}
 
