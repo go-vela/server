@@ -1,0 +1,10 @@
+version: "1"
+
+metadata:
+  clone: false
+
+stages:
+  clone:
+    steps:
+      - name: clone
+        image: alpine:latest

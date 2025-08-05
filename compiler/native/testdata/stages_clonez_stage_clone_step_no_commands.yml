@@ -1,0 +1,7 @@
+version: "1"
+
+stages:
+  clonez:
+    steps:
+      - name: clone
+        image: alpine:latest

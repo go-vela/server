@@ -1,0 +1,12 @@
+version: "1"
+
+steps:
+  - name: init
+    image: alpine:latest
+    commands:
+      - echo 'hello'
+
+  - name: clone
+    image: alpine:latest
+    commands:
+      - echo 'hello'

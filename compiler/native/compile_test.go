@@ -1806,6 +1806,121 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	}
 }
 
+func TestNative_Compile_NameCollisionsReserved(t *testing.T) {
+	// setup types
+	name := "foo"
+	author := "author"
+	number := int64(1)
+
+	tests := []struct {
+		name     string
+		yamlFile string
+		wantErr  bool
+	}{
+		// clone
+		{
+			name:     "stages pipeline: stage name is clone, step name is clone",
+			yamlFile: "testdata/stages_clone_stage_clone_step.yml",
+			wantErr:  true,
+		},
+		{
+			name:     "stages pipeline: stage name is clonez, step name is clone",
+			yamlFile: "testdata/stages_clonez_stage_clone_step.yml",
+			wantErr:  false,
+		},
+		{
+			name:     "stages pipeline: stage name is clonez, step name is clone without commands",
+			yamlFile: "testdata/stages_clonez_stage_clone_step_no_commands.yml",
+			wantErr:  true,
+		},
+		{
+			name:     "stages pipeline: clone false, stage name is clone, step name is clone",
+			yamlFile: "testdata/stages_clone_false_clone_stage_clone_step.yml",
+			wantErr:  false,
+		},
+		{
+			name:     "stages pipeline: clone false, stage name is clone, step name is clone without commands",
+			yamlFile: "testdata/stages_clone_false_clone_stage_clone_step_no_commands.yml",
+			wantErr:  true,
+		},
+		{
+			name:     "steps pipeline: step named clone",
+			yamlFile: "testdata/steps_clone_step.yml",
+			wantErr:  true,
+		},
+		{
+			name:     "steps pipeline: clone false, step named clone",
+			yamlFile: "testdata/steps_clone_false_clone_step.yml",
+			wantErr:  false,
+		},
+		{
+			name:     "steps pipeline: clone false, step named clone without commands",
+			yamlFile: "testdata/steps_clone_false_clone_step_no_commands.yml",
+			wantErr:  true,
+		},
+		// init
+		{
+			name:     "stages pipeline: stage name is init, step name is init",
+			yamlFile: "testdata/stages_init_stage_init_step.yml",
+			wantErr:  true,
+		},
+		{
+			name:     "stages pipeline: stage name is initz, step name is init",
+			yamlFile: "testdata/stages_initz_stage_init_step.yml",
+			wantErr:  false,
+		},
+		{
+			name:     "stages pipeline: stage name is initz, step name is init without commands",
+			yamlFile: "testdata/stages_initz_stage_init_step_no_commands.yml",
+			wantErr:  true,
+		},
+		{
+			name:     "steps pipeline: step named init",
+			yamlFile: "testdata/steps_init_step.yml",
+			wantErr:  true,
+		},
+		{
+			name:     "steps pipeline: steps named init and clone",
+			yamlFile: "testdata/steps_init_clone.yml",
+			wantErr:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			// run test
+			yaml, err := os.ReadFile(tt.yamlFile)
+			if err != nil {
+				t.Errorf("Reading yaml file return err: %v", err)
+			}
+
+			compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+			if err != nil {
+				t.Errorf("Creating compiler returned err: %v", err)
+			}
+
+			compiler.repo = &api.Repo{Name: &author}
+			compiler.build = &api.Build{Author: &name, Number: &number}
+
+			got, _, err := compiler.Compile(context.Background(), yaml)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && got != nil {
+				t.Errorf("Compile() returned %v, want nil when expecting error", got)
+			}
+
+			if !tt.wantErr && got == nil {
+				t.Errorf("Compile() returned nil, want non-nil when not expecting error")
+			}
+		})
+	}
+}
+
 func TestNative_Compile_StageNameCollision(t *testing.T) {
 	// setup types
 	name := "foo"

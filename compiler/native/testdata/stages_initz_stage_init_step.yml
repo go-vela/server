@@ -1,0 +1,9 @@
+version: "1"
+
+stages:
+  initz:
+    steps:
+      - name: init
+        image: alpine:latest
+        commands:
+          - echo 'hello'
