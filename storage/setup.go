@@ -4,6 +4,7 @@ package storage
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/sirupsen/logrus"
 
@@ -52,21 +53,40 @@ func (s *Setup) Validate() error {
 	//if !s.Enable {
 	//	return fmt.Errorf("Storage is not enabled")
 	//}
-
-	// verify an endpoint was provided
-	if len(s.Endpoint) == 0 {
-		return fmt.Errorf("no storage endpoint provided")
+	if s.Enable {
+		if s.Bucket == "" {
+			return fmt.Errorf("storage is enabled but no bucket provided")
+		}
+		if s.Driver != "" {
+			return fmt.Errorf("storage is enabled but storage driver provided")
+		}
+		if s.Endpoint == "" {
+			return fmt.Errorf("storage is enabled but no endpoint provided")
+		}
+		if s.AccessKey == "" || s.SecretKey == "" {
+			return fmt.Errorf("storage is enabled but no access key or secret key provided")
+		}
+		if s.Endpoint != "" {
+			if _, err := url.ParseRequestURI(s.Endpoint); err != nil {
+				return fmt.Errorf("storage is enabled but endpoint is invalid")
+			}
+		}
 	}
-
-	// verify an access key was provided
-	if len(s.AccessKey) == 0 {
-		return fmt.Errorf("no storage access key provided")
-	}
-
-	// verify a secret key was provided
-	if len(s.SecretKey) == 0 {
-		return fmt.Errorf("no storage secret key provided")
-	}
+	//
+	//// verify an endpoint was provided
+	//if len(s.Endpoint) == 0 {
+	//	return fmt.Errorf("no storage endpoint provided")
+	//}
+	//
+	//// verify an access key was provided
+	//if len(s.AccessKey) == 0 {
+	//	return fmt.Errorf("no storage access key provided")
+	//}
+	//
+	//// verify a secret key was provided
+	//if len(s.SecretKey) == 0 {
+	//	return fmt.Errorf("no storage secret key provided")
+	//}
 
 	// verify a bucket was provided
 	//if len(s.Bucket) == 0 {

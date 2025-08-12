@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
-
 package storage
 
 import (
@@ -19,73 +17,97 @@ func TestSetup_Minio(t *testing.T) {
 		Secure:    true,
 	}
 
-	storage, err := setup.Minio()
+	storageClient, err := setup.Minio()
 	assert.NoError(t, err)
-	assert.NotNil(t, storage)
+	assert.NotNil(t, storageClient)
 }
 
 func TestSetup_Validate(t *testing.T) {
 	tests := []struct {
-		failure bool
+		name    string
 		setup   *Setup
+		wantErr bool
 	}{
 		{
-			failure: false,
-			setup: &Setup{
-				Enable:    true,
-				Endpoint:  "example.com",
-				AccessKey: "access-key",
-				SecretKey: "secret-key",
-				Bucket:    "bucket-name",
-			},
-		},
-		{
-			failure: true,
+			name: "storage disabled",
 			setup: &Setup{
 				Enable: false,
 			},
+			wantErr: false,
 		},
 		{
-			failure: true,
+			name: "valid config",
 			setup: &Setup{
+				Enable:    true,
+				Endpoint:  "http://example.com",
 				AccessKey: "access-key",
 				SecretKey: "secret-key",
 				Bucket:    "bucket-name",
 			},
+			wantErr: false,
 		},
 		{
-			failure: true,
+			name: "missing bucket",
 			setup: &Setup{
 				Enable:    true,
-				Endpoint:  "example.com",
+				Endpoint:  "http://example.com",
+				AccessKey: "access-key",
+				SecretKey: "secret-key",
+			},
+			wantErr: true,
+		},
+		{
+			name: "driver set",
+			setup: &Setup{
+				Enable:    true,
+				Driver:    "minio",
+				Endpoint:  "http://example.com",
+				AccessKey: "access-key",
 				SecretKey: "secret-key",
 				Bucket:    "bucket-name",
 			},
+			wantErr: true,
 		},
 		{
-			failure: true,
+			name: "missing endpoint",
 			setup: &Setup{
 				Enable:    true,
-				Endpoint:  "example.com",
 				AccessKey: "access-key",
+				SecretKey: "secret-key",
 				Bucket:    "bucket-name",
 			},
+			wantErr: true,
+		},
+		{
+			name: "missing credentials",
+			setup: &Setup{
+				Enable:   true,
+				Endpoint: "http://example.com",
+				Bucket:   "bucket-name",
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid endpoint URL",
+			setup: &Setup{
+				Enable:    true,
+				Endpoint:  "://bad-url",
+				AccessKey: "access-key",
+				SecretKey: "secret-key",
+				Bucket:    "bucket-name",
+			},
+			wantErr: true,
 		},
 	}
 
-	for _, test := range tests {
-		err := test.setup.Validate()
-
-		if test.failure {
-			if err == nil {
-				t.Errorf("Validate should have returned err")
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := tc.setup.Validate()
+			if tc.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
 			}
-
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("Validate returned err: %v", err)
-		}
+		})
 	}
 }
