@@ -10,10 +10,12 @@ import (
 
 func TestStorage_New(t *testing.T) {
 	tests := []struct {
+		name    string
 		failure bool
 		setup   *Setup
 	}{
 		{
+			name:    "valid-minio-config",
 			failure: false,
 			setup: &Setup{
 				Driver:    constants.DriverMinio,
@@ -26,10 +28,11 @@ func TestStorage_New(t *testing.T) {
 			},
 		},
 		{
+			name:    "invalid-driver",
 			failure: true,
 			setup: &Setup{
 				Driver:    "invalid-driver",
-				Enable:    false,
+				Enable:    true,
 				Endpoint:  "http://invalid.example.com",
 				AccessKey: "access-key",
 				SecretKey: "secret-key",
@@ -39,18 +42,21 @@ func TestStorage_New(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		_, err := New(test.setup)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := New(tt.setup)
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("New should have returned err")
+			if tt.failure {
+				if err == nil {
+					t.Errorf("New() expected error, got nil")
+				}
+				return
 			}
-			continue
-		}
 
-		if err != nil {
-			t.Errorf("New returned err: %v", err)
-		}
+			// success case
+			if err != nil {
+				t.Errorf("New() unexpected error: %v", err)
+			}
+		})
 	}
 }

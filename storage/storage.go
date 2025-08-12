@@ -13,7 +13,7 @@ import (
 )
 
 // FromCLICommand helper function to setup Minio Client from the CLI arguments.
-func FromCLICommand(ctx context.Context, c *cli.Command) (Storage, error) {
+func FromCLICommand(_ context.Context, c *cli.Command) (Storage, error) {
 	// S3 configuration
 	_setup := &Setup{
 		Enable:    c.Bool("storage.enable"),
