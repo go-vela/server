@@ -12,6 +12,7 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/step"
@@ -165,8 +166,13 @@ func UpdateStep(c *gin.Context) {
 		s.GetStatus() == constants.StatusError) &&
 		(b.GetEvent() != constants.EventSchedule) &&
 		(len(s.GetReportAs()) > 0) {
+		scmToken := auth.RetrieveTokenHeader(c.Request)
+		if scmToken == "" {
+			scmToken = r.GetOwner().GetToken()
+		}
+
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).StepStatus(ctx, r.GetOwner(), b, s, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).StepStatus(ctx, b, s, r.GetOrg(), r.GetName(), scmToken)
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
