@@ -69,6 +69,7 @@ func getServices(c *gin.Context) {
 	data := []byte(ServicesResp)
 
 	var body []api.Service
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -91,6 +92,7 @@ func getService(c *gin.Context) {
 	data := []byte(ServiceResp)
 
 	var body api.Service
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -101,6 +103,7 @@ func addService(c *gin.Context) {
 	data := []byte(ServiceResp)
 
 	var body api.Service
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -125,6 +128,7 @@ func updateService(c *gin.Context) {
 	data := []byte(ServiceResp)
 
 	var body api.Service
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

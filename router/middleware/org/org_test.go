@@ -72,7 +72,7 @@ func TestOrg_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -109,7 +109,7 @@ func TestOrg_Establish_NoOrgParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "//test", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "//test", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })

@@ -15,18 +15,21 @@ import (
 func TestJWK_Engine_RotateKeys(t *testing.T) {
 	// setup types
 	_jwkOne := testutils.JWK()
+
 	_jwkOneBytes, err := json.Marshal(_jwkOne)
 	if err != nil {
 		t.Errorf("unable to marshal JWK: %v", err)
 	}
 
 	_jwkTwo := testutils.JWK()
+
 	_jwkTwoBytes, err := json.Marshal(_jwkTwo)
 	if err != nil {
 		t.Errorf("unable to marshal JWK: %v", err)
 	}
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	kidOne, ok := _jwkOne.KeyID()
@@ -64,6 +67,7 @@ func TestJWK_Engine_RotateKeys(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	err = _sqlite.CreateJWK(context.TODO(), _jwkOne)

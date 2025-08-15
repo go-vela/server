@@ -11,7 +11,7 @@ import (
 // HookInterface represents the Vela interface for hook
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type HookInterface interface {
 	// Hook Data Definition Language Functions
 	//

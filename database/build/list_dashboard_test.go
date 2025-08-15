@@ -37,6 +37,7 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 	_buildTwo.SetBranch("main")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected query result in mock
@@ -46,6 +47,7 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch IN ($2) AND event IN ($3,$4) ORDER BY number DESC LIMIT $5`).WithArgs(1, "main", "push", "pull_request", 5).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)

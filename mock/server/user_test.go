@@ -24,6 +24,7 @@ func TestUser_ActiveUserResp(t *testing.T) {
 		if tUser.Field(i).Name == "Token" || tUser.Field(i).Name == "RefreshToken" || tUser.Field(i).Name == "Hash" {
 			continue
 		}
+
 		if reflect.ValueOf(testUser).Field(i).IsNil() {
 			t.Errorf("UserResp missing field %s", tUser.Field(i).Name)
 		}

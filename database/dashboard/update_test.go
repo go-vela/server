@@ -38,6 +38,7 @@ func TestDashboard_Engine_UpdateDashboard(t *testing.T) {
 	_dashboard.SetAdmins(_admins)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -47,6 +48,7 @@ SET "name"=$1,"created_at"=$2,"created_by"=$3,"updated_at"=$4,"updated_by"=$5,"a
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateDashboard(context.TODO(), _dashboard)

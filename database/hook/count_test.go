@@ -49,6 +49,7 @@ func TestHook_Engine_CountHooks(t *testing.T) {
 	_hookTwo.SetWebhookID(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -58,6 +59,7 @@ func TestHook_Engine_CountHooks(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "hooks"`).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateHook(context.TODO(), _hookOne)

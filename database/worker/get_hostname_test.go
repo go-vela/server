@@ -22,6 +22,7 @@ func TestWorker_Engine_GetWorkerForName(t *testing.T) {
 	_worker.SetRunningBuilds(nil) // sqlmock cannot parse string array values
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -31,6 +32,7 @@ func TestWorker_Engine_GetWorkerForName(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "workers" WHERE hostname = $1 LIMIT $2`).WithArgs("worker_0", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateWorker(context.TODO(), _worker)

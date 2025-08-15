@@ -111,6 +111,7 @@ func getRepos(c *gin.Context) {
 	data := []byte(ReposResp)
 
 	var body []api.Repo
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -133,6 +134,7 @@ func getRepo(c *gin.Context) {
 	data := []byte(RepoResp)
 
 	var body api.Repo
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -143,6 +145,7 @@ func addRepo(c *gin.Context) {
 	data := []byte(RepoResp)
 
 	var body api.Repo
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -167,6 +170,7 @@ func updateRepo(c *gin.Context) {
 	data := []byte(RepoResp)
 
 	var body api.Repo
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

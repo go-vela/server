@@ -55,6 +55,7 @@ func TestService_Engine_CleanService(t *testing.T) {
 	_serviceFour.SetStatus("pending")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the name query
@@ -63,6 +64,7 @@ func TestService_Engine_CleanService(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 2))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateService(context.TODO(), _serviceOne)

@@ -24,7 +24,7 @@ func TestMiddleware_DefaultRepoEvents(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	// setup mock server
 	engine.Use(DefaultRepoEvents(want))
@@ -57,7 +57,7 @@ func TestMiddleware_DefaultRepoEventsMask(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	// setup mock server
 	engine.Use(DefaultRepoEventsMask(want))
@@ -90,7 +90,7 @@ func TestMiddleware_DefaultRepoApproveBuild(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	// setup mock server
 	engine.Use(DefaultRepoApproveBuild(want))

@@ -11,7 +11,7 @@ import (
 // ScheduleInterface represents the Vela interface for schedule
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type ScheduleInterface interface {
 	// Schedule Data Definition Language Functions
 	//

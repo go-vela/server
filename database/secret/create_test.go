@@ -55,6 +55,7 @@ func TestSecret_Engine_CreateSecret(t *testing.T) {
 	_secretShared.SetAllowEvents(api.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -94,6 +95,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 	_mock.ExpectCommit()
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// setup tests

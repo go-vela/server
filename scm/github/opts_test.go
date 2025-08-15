@@ -39,7 +39,6 @@ func TestGithub_ClientOpt_WithAddress(t *testing.T) {
 		_service, err := New(context.Background(),
 			WithAddress(test.address),
 		)
-
 		if err != nil {
 			t.Errorf("WithAddress returned err: %v", err)
 		}
@@ -300,7 +299,6 @@ func TestGithub_ClientOpt_WithWebUIAddress(t *testing.T) {
 		_service, err := New(context.Background(),
 			WithWebUIAddress(test.address),
 		)
-
 		if err != nil {
 			t.Errorf("WithWebUIAddress returned err: %v", err)
 		}

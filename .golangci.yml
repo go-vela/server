@@ -53,7 +53,7 @@ linters:
     - unparam # reports unused function parameters
     - unused # checks for unused constants, variables, functions and types
     - whitespace # detects leading and trailing whitespace
-    - wsl # forces code to use empty lines
+    - wsl_v5
 
   # static list of linters we know golangci can run but we've
   # chosen to leave disabled for now
@@ -129,11 +129,14 @@ linters:
       require-explanation: true # require an explanation for nolint directives
       require-specific: true # require nolint directives to be specific about which linter is being skipped
       allow-unused: false # allow nolint directives that don't address a linting issue
-    # https://golangci-lint.run/usage/linters/#tagalign
-    # ensure struct tags are aligned
-    # will auto fix with `make lintfix`
-    tagalign:
-      sort: false
+    revive:
+      rules:
+        - name: var-naming
+          disabled: false
+          arguments:
+            - []
+            - []
+            - - skip-package-name-checks: true
     # static check to ignore QFI (Quality Function Interface) issues
     staticcheck:
       checks:
@@ -141,6 +144,15 @@ linters:
         - "-QF1003"
         - "-QF1004"
         - "-QF1008"
+    # https://golangci-lint.run/usage/linters/#tagalign
+    # ensure struct tags are aligned
+    # will auto fix with `make lintfix`
+    tagalign:
+      sort: false
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2 
   exclusions:
     generated: lax
     presets:

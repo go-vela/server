@@ -24,6 +24,7 @@ func TestDashboard_Engine_DeleteDashboard(t *testing.T) {
 	_dashboard.SetRepos([]*api.DashboardRepo{testutils.APIDashboardRepo()})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -32,6 +33,7 @@ func TestDashboard_Engine_DeleteDashboard(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateDashboard(context.TODO(), _dashboard)

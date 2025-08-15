@@ -208,6 +208,7 @@ func getDashboards(c *gin.Context) {
 	data := []byte(DashCardsResp)
 
 	var body []api.DashCard
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -228,6 +229,7 @@ func getDashboard(c *gin.Context) {
 	data := []byte(DashCardResp)
 
 	var body api.DashCard
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -238,6 +240,7 @@ func addDashboard(c *gin.Context) {
 	data := []byte(DashboardResp)
 
 	var body api.Dashboard
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -248,6 +251,7 @@ func updateDashboard(c *gin.Context) {
 	data := []byte(DashboardResp)
 
 	var body api.Dashboard
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

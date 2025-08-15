@@ -66,6 +66,7 @@ func getTokenRefresh(c *gin.Context) {
 	data := []byte(TokenRefreshResp)
 
 	var body api.Token
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -88,6 +89,7 @@ func getAuthenticate(c *gin.Context) {
 	}
 
 	var body api.Token
+
 	_ = json.Unmarshal(data, &body)
 
 	c.SetCookie(constants.RefreshTokenName, "refresh", 2, "/", "", true, true)
@@ -108,6 +110,7 @@ func getAuthenticateFromToken(c *gin.Context) {
 	}
 
 	var body api.Token
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -146,6 +149,7 @@ func openIDConfig(c *gin.Context) {
 	data := []byte(OpenIDConfigResp)
 
 	var body api.OpenIDConfig
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -156,6 +160,7 @@ func getJWKS(c *gin.Context) {
 	data := []byte(JWKSResp)
 
 	var body jwk.RSAPublicKey
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

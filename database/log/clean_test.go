@@ -20,6 +20,7 @@ func TestLog_Engine_CleanLogs(t *testing.T) {
 
 	// setup the test database client
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// mock PostgreSQL advisory lock acquisition and release
@@ -48,6 +49,7 @@ func TestLog_Engine_CleanLogs(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"pg_advisory_unlock"}).AddRow(true))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// create test logs in sqlite for integration testing
@@ -59,6 +61,7 @@ func TestLog_Engine_CleanLogs(t *testing.T) {
 		_log.SetStepID(int64(i))
 		_log.SetData([]byte("test log data"))
 		_log.SetCreatedAt(cutoffTime - int64(i*3600)) // logs older than cutoff
+
 		err := _sqlite.CreateLog(context.TODO(), _log)
 		if err != nil {
 			t.Errorf("unable to create test log for sqlite: %v", err)
@@ -107,6 +110,7 @@ func TestLog_Engine_CleanLogs(t *testing.T) {
 				if err == nil {
 					t.Errorf("CleanLogs for %s should have returned err", test.name)
 				}
+
 				return
 			}
 
@@ -134,6 +138,7 @@ func TestLog_Engine_CleanLogs(t *testing.T) {
 func TestLog_Engine_CleanLogs_EmptyDatabase(t *testing.T) {
 	// setup the test database client
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	cutoffTime := time.Now().Add(-48 * time.Hour).Unix()
@@ -154,7 +159,6 @@ func TestLog_Engine_CleanLogs_EmptyDatabase(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"pg_advisory_unlock"}).AddRow(true))
 
 	deleted, err := _postgres.CleanLogs(context.TODO(), cutoffTime, 1000, false, constants.DriverPostgres)
-
 	if err != nil {
 		t.Errorf("CleanLogs should not have returned err: %v", err)
 	}
@@ -176,6 +180,7 @@ func TestLog_Engine_CleanLogs_EmptyDatabase(t *testing.T) {
 func TestLog_Engine_CleanLogs_ContextCancellation(t *testing.T) {
 	// setup the test database client
 	_postgres, _ := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	cutoffTime := time.Now().Add(-48 * time.Hour).Unix()
@@ -186,7 +191,6 @@ func TestLog_Engine_CleanLogs_ContextCancellation(t *testing.T) {
 
 	// the function should return early due to context cancellation
 	result, err := _postgres.CleanLogs(ctx, cutoffTime, 1000, false, constants.DriverPostgres)
-
 	if err == nil {
 		t.Errorf("CleanLogs should have returned context cancellation error")
 	}

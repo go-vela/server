@@ -7,13 +7,6 @@ import (
 	"github.com/go-vela/server/constants"
 )
 
-const (
-	// default name for clone stage.
-	cloneStageName = "clone"
-	// default name for clone step.
-	cloneStepName = "clone"
-)
-
 // CloneStage injects the clone stage process into a yaml configuration.
 func (c *Client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
 	// check if the compiler is setup for a local pipeline
@@ -26,12 +19,12 @@ func (c *Client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
 
 	// create new clone stage
 	clone := &yaml.Stage{
-		Name: cloneStageName,
+		Name: constants.CloneName,
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Detach:     false,
 				Image:      c.GetCloneImage(),
-				Name:       cloneStepName,
+				Name:       constants.CloneName,
 				Privileged: false,
 				Pull:       constants.PullNotPresent,
 			},
@@ -64,7 +57,7 @@ func (c *Client) CloneStep(p *yaml.Build) (*yaml.Build, error) {
 	clone := &yaml.Step{
 		Detach:     false,
 		Image:      c.GetCloneImage(),
-		Name:       cloneStepName,
+		Name:       constants.CloneName,
 		Privileged: false,
 		Pull:       constants.PullNotPresent,
 	}

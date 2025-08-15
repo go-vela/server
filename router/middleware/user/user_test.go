@@ -68,7 +68,7 @@ func TestUser_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/users/foo", nil)
 
 	mto := &token.MintTokenOpts{
 		User:          want,
@@ -160,7 +160,7 @@ func TestUser_Establish_NoToken(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/users/foo", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -197,7 +197,7 @@ func TestUser_Establish_DiffTokenType(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/users/foo", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
 
 	// setup vela mock server
@@ -249,7 +249,7 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo?access_token=bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/users/foo?access_token=bar", nil)
 
 	// setup client
 	client, _ := github.NewTest("")
@@ -298,7 +298,7 @@ func TestUser_Establish_NoUser(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo?access_token=bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/users/foo?access_token=bar", nil)
 
 	mto := &token.MintTokenOpts{
 		User:          u,

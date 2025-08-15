@@ -345,6 +345,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 				repo:     &api.Repo{Name: &author},
 				build:    &api.Build{Author: &name, Number: &number},
 			}
+
 			_, _, err := compiler.Compile(context.Background(), yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
@@ -433,6 +434,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 				build:    tt.args.apiBuild,
 				metadata: m,
 			}
+
 			_, _, err := compiler.Compile(context.Background(), yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
@@ -647,6 +649,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -916,6 +919,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -1140,6 +1144,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -1252,6 +1257,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -1363,6 +1369,7 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -2429,6 +2436,7 @@ func Test_client_modifyConfig(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -2526,29 +2534,36 @@ func Test_client_modifyConfig(t *testing.T) {
 
 	engine.POST("/config/unmodified", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
+
 		response, err := convertResponse(want)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
 		c.JSON(http.StatusOK, response)
 	})
 
 	engine.POST("/config/timeout", func(c *gin.Context) {
 		time.Sleep(3 * time.Second)
 		c.Header("Content-Type", "application/json")
+
 		response, err := convertResponse(want)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
 		c.JSON(http.StatusOK, response)
 	})
 
 	engine.POST("/config/modified", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
+
 		output := want
+
 		var steps []*yaml.Step
+
 		steps = append(steps, want.Steps...)
 		steps = append(steps, &yaml.Step{
 			Image:       "alpine",
@@ -2558,11 +2573,13 @@ func Test_client_modifyConfig(t *testing.T) {
 			Commands:    []string{"echo hello from modification"},
 		})
 		output.Steps = steps
+
 		response, err := convertResponse(want)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
 		c.JSON(http.StatusOK, response)
 	})
 
@@ -2572,11 +2589,13 @@ func Test_client_modifyConfig(t *testing.T) {
 
 	engine.POST("/config/unauthorized", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
+
 		response, err := convertResponse(want)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
 		c.JSON(http.StatusForbidden, response)
 	})
 
@@ -2647,6 +2666,7 @@ func Test_client_modifyConfig(t *testing.T) {
 					Endpoint: tt.args.endpoint,
 				},
 			}
+
 			got, err := compiler.modifyConfig(tt.args.build, tt.args.apiBuild, tt.args.repo)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("modifyConfig() error = %v, wantErr %v", err, tt.wantErr)
@@ -2697,6 +2717,7 @@ func Test_Compile_Inline(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -3455,6 +3476,7 @@ func Test_Compile_Inline(t *testing.T) {
 			if err != nil {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
+
 			compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
@@ -3507,6 +3529,7 @@ func Test_CompileLite(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -4442,6 +4465,7 @@ func Test_CompileLite(t *testing.T) {
 			}
 
 			compiler.WithMetadata(m)
+
 			if tt.args.pipelineType != "" {
 				pipelineType := tt.args.pipelineType
 				compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
@@ -4457,6 +4481,7 @@ func Test_CompileLite(t *testing.T) {
 				t.Errorf("CompileLite() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("CompileLite() mismatch (-want +got):\n%s", diff)
 			}

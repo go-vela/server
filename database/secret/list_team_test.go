@@ -46,6 +46,7 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	_secretTwo.SetRepoAllowlist([]string{})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected name query result in mock
@@ -60,6 +61,7 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(_allowlistRows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secretOne)
@@ -150,6 +152,7 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	_secretTwo.SetRepoAllowlist([]string{"alpha/beta", "github/octocat"})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected name query result in mock
@@ -173,6 +176,7 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id IN ($1,$2)`).WithArgs(2, 1).WillReturnRows(_allowlistRows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secretOne)
