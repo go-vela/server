@@ -10,6 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/constants"
 )
 
 func TestNative_ScriptStages(t *testing.T) {
@@ -44,8 +45,8 @@ func TestNative_ScriptStages(t *testing.T) {
 		},
 	}
 
-	baseEnv["HOME"] = "/root"
-	baseEnv["SHELL"] = "/bin/sh"
+	baseEnv["HOME"] = constants.DefaultHomeDir
+	baseEnv["SHELL"] = constants.DefaultShell
 
 	installEnv := baseEnv
 	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
@@ -58,7 +59,7 @@ func TestNative_ScriptStages(t *testing.T) {
 			Steps: yaml.StepSlice{
 				&yaml.Step{
 					Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-					Entrypoint:  []string{"/bin/sh", "-c"},
+					Entrypoint:  []string{constants.DefaultShell, "-c"},
 					Environment: installEnv,
 					Image:       "openjdk:latest",
 					Name:        "install",
@@ -72,7 +73,7 @@ func TestNative_ScriptStages(t *testing.T) {
 			Steps: yaml.StepSlice{
 				&yaml.Step{
 					Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-					Entrypoint:  []string{"/bin/sh", "-c"},
+					Entrypoint:  []string{constants.DefaultShell, "-c"},
 					Environment: testEnv,
 					Image:       "openjdk:latest",
 					Name:        "test",
@@ -103,8 +104,8 @@ func TestNative_ScriptSteps(t *testing.T) {
 	emptyEnv := environment(nil, nil, nil, nil, nil)
 
 	baseEnv := emptyEnv
-	baseEnv["HOME"] = "/root"
-	baseEnv["SHELL"] = "/bin/sh"
+	baseEnv["HOME"] = constants.DefaultHomeDir
+	baseEnv["SHELL"] = constants.DefaultShell
 
 	installEnv := baseEnv
 	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
@@ -143,7 +144,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 		}}, yaml.StepSlice{
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: installEnv,
 				Image:       "openjdk:latest",
 				Name:        "install",
@@ -151,7 +152,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 			},
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: testEnv,
 				Image:       "openjdk:latest",
 				Name:        "test",
@@ -178,7 +179,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 		}}, yaml.StepSlice{
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: installEnv,
 				Image:       "openjdk:latest",
 				Name:        "install",
@@ -187,7 +188,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 			},
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: testEnv,
 				Image:       "openjdk:latest",
 				Name:        "test",
@@ -215,7 +216,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 		}}, yaml.StepSlice{
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: installEnv,
 				Image:       "openjdk:latest",
 				Name:        "install",
@@ -224,7 +225,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 			},
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: testEnv,
 				Image:       "openjdk:latest",
 				Name:        "test",
@@ -252,7 +253,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 		}}, yaml.StepSlice{
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: newHomeEnv,
 				Image:       "openjdk:latest",
 				Name:        "install",
@@ -261,7 +262,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 			},
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: newHomeEnv,
 				Image:       "openjdk:latest",
 				Name:        "test",
@@ -287,7 +288,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 		}}, yaml.StepSlice{
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: installEnv,
 				Image:       "openjdk:latest",
 				Name:        "install",
@@ -295,7 +296,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 			},
 			&yaml.Step{
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{"/bin/sh", "-c"},
+				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: testEnv,
 				Image:       "openjdk:latest",
 				Name:        "test",

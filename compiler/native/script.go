@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/constants"
 )
 
 // ScriptStages injects the script for each step in every stage in a yaml configuration.
@@ -37,8 +38,7 @@ func (c *Client) ScriptSteps(s yaml.StepSlice) (yaml.StepSlice, error) {
 		}
 
 		// set the default home
-
-		home := "/root"
+		home := constants.DefaultHomeDir
 
 		// override the home value if user is defined
 		if step.User != "" {
@@ -54,7 +54,7 @@ func (c *Client) ScriptSteps(s yaml.StepSlice) (yaml.StepSlice, error) {
 		script := generateScriptPosix(step.Commands)
 
 		// set the entrypoint for the step
-		step.Entrypoint = []string{"/bin/sh", "-c"}
+		step.Entrypoint = []string{constants.DefaultShell, "-c"}
 
 		// set the commands for the step
 		step.Commands = []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"}
@@ -63,7 +63,7 @@ func (c *Client) ScriptSteps(s yaml.StepSlice) (yaml.StepSlice, error) {
 		step.Environment["VELA_BUILD_SCRIPT"] = script
 		step.Environment["HOME"] = home
 
-		step.Environment["SHELL"] = "/bin/sh"
+		step.Environment["SHELL"] = constants.DefaultShell
 	}
 
 	return s, nil

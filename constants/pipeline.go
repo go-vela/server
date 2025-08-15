@@ -18,4 +18,10 @@ const (
 
 	// CloneName defines the name for the clone step.
 	CloneName = "clone"
+
+	// DefaultHomeDir defines the default home directory for steps.
+	DefaultHomeDir = "/root"
+
+	// DefaultShell defines the default shell for steps.
+	DefaultShell = "/bin/sh"
 )
