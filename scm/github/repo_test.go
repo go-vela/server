@@ -1305,6 +1305,10 @@ func TestGithub_GetRepo(t *testing.T) {
 	want.SetPrivate(false)
 	want.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	want.SetVisibility("public")
+	want.SetCustomProps(map[string]any{
+		"prop_1": "foo",
+		"prop_2": "bar",
+	})
 
 	client, _ := NewTest(s.URL)
 

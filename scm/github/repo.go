@@ -594,15 +594,16 @@ func toAPIRepo(gr github.Repository) *api.Repo {
 	}
 
 	return &api.Repo{
-		Org:        gr.GetOwner().Login,
-		Name:       gr.Name,
-		FullName:   gr.FullName,
-		Link:       gr.HTMLURL,
-		Clone:      gr.CloneURL,
-		Branch:     gr.DefaultBranch,
-		Topics:     &gr.Topics,
-		Private:    gr.Private,
-		Visibility: &visibility,
+		Org:         gr.GetOwner().Login,
+		Name:        gr.Name,
+		FullName:    gr.FullName,
+		Link:        gr.HTMLURL,
+		Clone:       gr.CloneURL,
+		Branch:      gr.DefaultBranch,
+		Topics:      &gr.Topics,
+		Private:     gr.Private,
+		Visibility:  &visibility,
+		CustomProps: &gr.CustomProperties,
 	}
 }
 
