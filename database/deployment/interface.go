@@ -11,7 +11,7 @@ import (
 // DeploymentInterface represents the Vela interface for deployment
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type DeploymentInterface interface {
 	// Deployment Data Definition Language Functions
 	//

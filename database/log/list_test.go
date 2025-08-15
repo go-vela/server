@@ -31,6 +31,7 @@ func TestLog_Engine_ListLogs(t *testing.T) {
 	_step.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -40,6 +41,7 @@ func TestLog_Engine_ListLogs(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "logs"`).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	err := _sqlite.CreateLog(context.TODO(), _service)

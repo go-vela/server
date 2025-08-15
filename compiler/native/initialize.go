@@ -10,10 +10,6 @@ import (
 const (
 	// default image for init process.
 	initImage = "#init"
-	// default name for init stage.
-	initStageName = "init"
-	// default name for init step.
-	initStepName = "init"
 )
 
 // InitStage injects the init stage process into a yaml configuration.
@@ -22,12 +18,12 @@ func (c *Client) InitStage(p *yaml.Build) (*yaml.Build, error) {
 
 	// create new clone stage
 	init := &yaml.Stage{
-		Name: initStageName,
+		Name: constants.InitName,
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Detach:     false,
 				Image:      initImage,
-				Name:       initStepName,
+				Name:       constants.InitName,
 				Privileged: false,
 				Pull:       constants.PullNotPresent,
 			},
@@ -54,7 +50,7 @@ func (c *Client) InitStep(p *yaml.Build) (*yaml.Build, error) {
 	init := &yaml.Step{
 		Detach:     false,
 		Image:      initImage,
-		Name:       initStepName,
+		Name:       constants.InitName,
 		Privileged: false,
 		Pull:       constants.PullNotPresent,
 	}

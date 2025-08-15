@@ -79,6 +79,7 @@ func getSteps(c *gin.Context) {
 	data := []byte(StepsResp)
 
 	var body []api.Step
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -101,6 +102,7 @@ func getStep(c *gin.Context) {
 	data := []byte(StepResp)
 
 	var body api.Step
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -111,6 +113,7 @@ func addStep(c *gin.Context) {
 	data := []byte(StepResp)
 
 	var body api.Step
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -135,6 +138,7 @@ func updateStep(c *gin.Context) {
 	data := []byte(StepResp)
 
 	var body api.Step
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

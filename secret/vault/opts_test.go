@@ -75,7 +75,6 @@ func TestVault_ClientOpt_WithAWSRole(t *testing.T) {
 			WithAWSRole(test.role),
 			WithVersion("1"),
 		)
-
 		if err != nil {
 			t.Errorf("WithAWSRole returned err: %v", err)
 		}
@@ -109,7 +108,6 @@ func TestVault_ClientOpt_WithPrefix(t *testing.T) {
 			WithPrefix(test.prefix),
 			WithVersion("1"),
 		)
-
 		if err != nil {
 			t.Errorf("WithPrefix returned err: %v", err)
 		}
@@ -143,7 +141,6 @@ func TestVault_ClientOpt_WithToken(t *testing.T) {
 			WithToken(test.token),
 			WithVersion("1"),
 		)
-
 		if err != nil {
 			t.Errorf("WithToken returned err: %v", err)
 		}
@@ -177,7 +174,6 @@ func TestVault_ClientOpt_WithTokenDuration(t *testing.T) {
 			WithTokenDuration(test.tokenDuration),
 			WithVersion("1"),
 		)
-
 		if err != nil {
 			t.Errorf("WithTokenDuration returned err: %v", err)
 		}

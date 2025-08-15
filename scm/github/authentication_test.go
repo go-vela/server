@@ -20,7 +20,7 @@ func TestGithub_Authenticate(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/login/oauth/authorize?code=foo&state=bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/login/oauth/authorize?code=foo&state=bar", nil)
 
 	// setup mock server
 	engine.POST("/login/oauth/access_token", func(c *gin.Context) {
@@ -66,7 +66,7 @@ func TestGithub_Authenticate_NoCode(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/login", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/login", nil)
 
 	// setup mock server
 	engine.Any("/", func(c *gin.Context) {
@@ -101,7 +101,7 @@ func TestGithub_Authenticate_NoState(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/login?code=foo", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/login?code=foo", nil)
 
 	// setup mock server
 	engine.Any("/", func(c *gin.Context) {
@@ -136,7 +136,7 @@ func TestGithub_Authenticate_BadToken(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/login?code=foo&state=bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/login?code=foo&state=bar", nil)
 
 	// setup mock server
 	engine.Any("/", func(c *gin.Context) {
@@ -171,7 +171,7 @@ func TestGithub_Authenticate_NotFound(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/login/oauth/authorize?code=foo&state=bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/login/oauth/authorize?code=foo&state=bar", nil)
 
 	// setup mock server
 	engine.POST("/login/oauth/access_token", func(c *gin.Context) {
@@ -282,7 +282,7 @@ func TestGithub_Login(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/login", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/login", nil)
 
 	// setup mock server
 	engine.Any("/", func(c *gin.Context) {
@@ -313,7 +313,7 @@ func TestGithub_AuthenticateToken(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodPost, "/authenticate/token", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodPost, "/authenticate/token", nil)
 	context.Request.Header.Set("Token", "foo")
 
 	engine.GET("/api/v3/user", func(c *gin.Context) {
@@ -354,7 +354,7 @@ func TestGithub_AuthenticateToken_Invalid(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodPost, "/authenticate/token", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodPost, "/authenticate/token", nil)
 	context.Request.Header.Set("Token", "foo")
 
 	// setup mock server
@@ -390,7 +390,7 @@ func TestGithub_AuthenticateToken_Vela_OAuth(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodPost, "/authenticate/token", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodPost, "/authenticate/token", nil)
 	context.Request.Header.Set("Token", "vela")
 
 	engine.GET("/api/v3/user", func(c *gin.Context) {
@@ -427,7 +427,7 @@ func TestGithub_ValidateOAuthToken_Valid(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/validate-oauth", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/validate-oauth", nil)
 
 	token := "foobar"
 	want := true
@@ -461,7 +461,7 @@ func TestGithub_ValidateOAuthToken_Invalid(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/validate-oauth", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/validate-oauth", nil)
 
 	token := "foobar"
 	want := false
@@ -496,7 +496,7 @@ func TestGithub_ValidateOAuthToken_Error(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/validate-oauth", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/validate-oauth", nil)
 
 	token := "foobar"
 	want := false
@@ -530,7 +530,7 @@ func TestGithub_LoginWCreds(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodPost, "/login", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodPost, "/login", nil)
 
 	// setup mock server
 	engine.Any("/", func(c *gin.Context) {

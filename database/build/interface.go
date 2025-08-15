@@ -11,7 +11,7 @@ import (
 // BuildInterface represents the Vela interface for build
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type BuildInterface interface {
 	// Build Data Definition Language Functions
 	//

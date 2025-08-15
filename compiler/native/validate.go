@@ -102,7 +102,7 @@ func validateYAMLSteps(s yaml.StepSlice) error {
 			return fmt.Errorf("no image provided for step %s", step.Name)
 		}
 
-		if step.Name == "clone" || step.Name == "init" {
+		if step.Name == constants.CloneName || step.Name == constants.InitName {
 			continue
 		}
 
@@ -183,7 +183,7 @@ func validatePipelineStages(s pipeline.StageSlice) error {
 // and that the container names are unique.
 func validatePipelineContainers(s pipeline.ContainerSlice, reportCount *int, reportMap map[string]string, nameMap map[string]bool, stageName string) error {
 	for _, ctn := range s {
-		if ctn.Name == "clone" || ctn.Name == "init" {
+		if ctn.Name == constants.CloneName || ctn.Name == constants.InitName {
 			continue
 		}
 

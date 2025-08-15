@@ -34,6 +34,7 @@ func TestBuild_Engine_DeleteBuild(t *testing.T) {
 	_build.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -42,6 +43,7 @@ func TestBuild_Engine_DeleteBuild(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _build)

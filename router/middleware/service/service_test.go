@@ -97,7 +97,7 @@ func TestService_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -137,7 +137,7 @@ func TestService_Establish_NoRepo(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -184,7 +184,7 @@ func TestService_Establish_NoBuild(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -243,7 +243,7 @@ func TestService_Establish_NoServiceParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/services", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -303,7 +303,7 @@ func TestService_Establish_InvalidServiceParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/foo", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/services/foo", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -360,7 +360,7 @@ func TestService_Establish_NoService(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })

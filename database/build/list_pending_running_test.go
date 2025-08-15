@@ -60,6 +60,7 @@ func TestBuild_Engine_ListPendingAndRunningBuilds(t *testing.T) {
 	_queueTwo.SetStatus("pending")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected name query result in mock
@@ -69,6 +70,7 @@ func TestBuild_Engine_ListPendingAndRunningBuilds(t *testing.T) {
 	_mock.ExpectQuery(`SELECT builds.created, builds.number, builds.status, repos.full_name FROM "builds" INNER JOIN repos ON builds.repo_id = repos.id WHERE builds.created > $1 AND (builds.status = 'running' OR builds.status = 'pending')`).WithArgs("0").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)

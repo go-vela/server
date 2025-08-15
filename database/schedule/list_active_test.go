@@ -88,6 +88,7 @@ func TestSchedule_Engine_ListActiveSchedules(t *testing.T) {
 	_scheduleTwo.SetNextRun(nextTime.Unix())
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -103,6 +104,7 @@ func TestSchedule_Engine_ListActiveSchedules(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSchedule(context.TODO(), _scheduleOne)
@@ -114,6 +116,7 @@ func TestSchedule_Engine_ListActiveSchedules(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
+
 	err = _sqlite.client.AutoMigrate(&types.Repo{})
 	if err != nil {
 		t.Errorf("unable to create build table for sqlite: %v", err)

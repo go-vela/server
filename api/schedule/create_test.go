@@ -12,6 +12,7 @@ func Test_validateEntry(t *testing.T) {
 		minimum time.Duration
 		entry   string
 	}
+
 	tests := []struct {
 		name    string
 		args    args

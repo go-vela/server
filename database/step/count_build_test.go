@@ -38,6 +38,7 @@ func TestStep_Engine_CountStepsForBuild(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 
 	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -47,6 +48,7 @@ func TestStep_Engine_CountStepsForBuild(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "steps" WHERE build_id = $1`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateStep(ctx, _stepOne)

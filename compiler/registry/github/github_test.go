@@ -31,7 +31,6 @@ func TestGithub_New(t *testing.T) {
 
 	// run test
 	got, err := New(context.Background(), s.URL, "")
-
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -62,7 +61,6 @@ func TestGithub_NewToken(t *testing.T) {
 
 	// run test
 	got, err := New(context.Background(), s.URL, token)
-
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -116,7 +114,6 @@ func TestGithub_NewURL(t *testing.T) {
 	for _, test := range tests {
 		// run test
 		got, err := New(context.Background(), test.address, "foobar")
-
 		if err != nil {
 			t.Errorf("New returned err: %v", err)
 		}

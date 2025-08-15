@@ -115,7 +115,6 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 
 	// run test
 	got, err := client.OrgAccess(context.TODO(), u, "github")
-
 	if err == nil {
 		t.Errorf("OrgAccess should have returned err")
 	}
@@ -183,7 +182,6 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 
 	// run test
 	got, err := client.OrgAccess(context.TODO(), u, "foo")
-
 	if err != nil {
 		t.Errorf("OrgAccess returned err: %v", err)
 	}
@@ -251,7 +249,6 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 
 	// run test
 	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat")
-
 	if err == nil {
 		t.Errorf("RepoAccess should have returned err")
 	}
@@ -361,7 +358,6 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 
 	// run test
 	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat")
-
 	if err == nil {
 		t.Errorf("TeamAccess should have returned err")
 	}

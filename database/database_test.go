@@ -327,9 +327,11 @@ func TestDatabase_Engine_PartitionConfiguration(t *testing.T) {
 			if engineCast.config.LogPartitioned != test.wantPartitioned {
 				t.Errorf("config.LogPartitioned for %s = %v, want %v", test.name, engineCast.config.LogPartitioned, test.wantPartitioned)
 			}
+
 			if engineCast.config.LogPartitionPattern != test.wantPattern {
 				t.Errorf("config.LogPartitionPattern for %s = %s, want %s", test.name, engineCast.config.LogPartitionPattern, test.wantPattern)
 			}
+
 			if engineCast.config.LogPartitionSchema != test.wantSchema {
 				t.Errorf("config.LogPartitionSchema for %s = %s, want %s", test.name, engineCast.config.LogPartitionSchema, test.wantSchema)
 			}

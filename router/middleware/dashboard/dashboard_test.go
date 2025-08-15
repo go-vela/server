@@ -79,7 +79,7 @@ func TestDashboard_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/c8da1302-07d6-11ea-882f-4893bca275b8", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/c8da1302-07d6-11ea-882f-4893bca275b8", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -116,7 +116,7 @@ func TestDashboard_Establish_NoDashboardParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "//test", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "//test", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -147,7 +147,7 @@ func TestDashboard_Establish_NoDashboard(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/c8da1302-07d6-11ea-882f-4893bca275b8", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/c8da1302-07d6-11ea-882f-4893bca275b8", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })

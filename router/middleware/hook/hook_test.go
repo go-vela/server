@@ -105,7 +105,7 @@ func TestHook_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/hooks/foo/bar/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -144,7 +144,7 @@ func TestHook_Establish_NoRepo(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/hooks/foo/bar/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -194,7 +194,7 @@ func TestHook_Establish_NoHookParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/hooks/foo/bar", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -246,7 +246,7 @@ func TestHook_Establish_InvalidHookParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar/foo", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/hooks/foo/bar/foo", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -295,7 +295,7 @@ func TestHook_Establish_NoHook(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/hooks/foo/bar/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/hooks/foo/bar/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })

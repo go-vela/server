@@ -743,7 +743,6 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 		}
 
 		err = yaml.Unmarshal(b, got)
-
 		if err != nil {
 			t.Errorf("UnmarshalYAML returned err: %v", err)
 		}

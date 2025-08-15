@@ -20,6 +20,7 @@ func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
 	_bExecutable.SetData([]byte("foo"))
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -41,6 +42,7 @@ func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
 	_mock.ExpectQuery(`DELETE FROM "build_executables" WHERE build_id = $1 RETURNING *`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	err = _sqlite.CreateBuildExecutable(context.TODO(), _bExecutable)

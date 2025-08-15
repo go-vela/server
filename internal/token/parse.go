@@ -44,7 +44,6 @@ func (tm *Manager) ParseToken(token string) (*Claims, error) {
 
 		return []byte(tm.PrivateKeyHMAC), err
 	})
-
 	if err != nil {
 		return nil, errors.New("failed parsing: " + err.Error())
 	}

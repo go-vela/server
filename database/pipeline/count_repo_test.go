@@ -34,6 +34,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	_pipelineTwo.SetVersion("1")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -43,6 +44,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "pipelines" WHERE repo_id = $1`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreatePipeline(context.TODO(), _pipelineOne)

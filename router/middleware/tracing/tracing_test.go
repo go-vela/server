@@ -52,7 +52,7 @@ func TestTracing_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/hello", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/hello", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })

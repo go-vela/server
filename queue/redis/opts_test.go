@@ -173,7 +173,6 @@ func TestRedis_ClientOpt_WithCluster(t *testing.T) {
 			WithAddress(test.address),
 			WithCluster(test.cluster),
 		)
-
 		if err != nil {
 			t.Errorf("WithCluster returned err: %v", err)
 		}

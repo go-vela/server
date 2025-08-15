@@ -42,6 +42,7 @@ func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	_pipeline.SetData([]byte("foo"))
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -58,6 +59,7 @@ func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 AND "commit" = $2 LIMIT $3`).WithArgs(1, "48afb5bdc41ad69bf22588491333f7cf71135163", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	sqlitePopulateTables(

@@ -28,6 +28,7 @@ func TestService_Engine_GetServiceForBuild(t *testing.T) {
 	_service.SetImage("bar")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -37,6 +38,7 @@ func TestService_Engine_GetServiceForBuild(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "services" WHERE build_id = $1 AND number = $2 LIMIT $3`).WithArgs(1, 1, 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateService(context.TODO(), _service)

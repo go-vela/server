@@ -11,6 +11,7 @@ import (
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/constants"
 )
 
 type (
@@ -82,16 +83,16 @@ func (s *StageSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		}
 
 		// implicitly set the stage `needs`
-		if stage.Name != "clone" && stage.Name != "init" {
+		if stage.Name != constants.CloneName && stage.Name != constants.InitName {
 			// add clone if not present
 			stage.Needs = func(needs []string) []string {
 				for _, s := range needs {
-					if s == "clone" {
+					if s == constants.CloneName {
 						return needs
 					}
 				}
 
-				return append(needs, "clone")
+				return append(needs, constants.CloneName)
 			}(stage.Needs)
 		}
 		// append stage to stage slice

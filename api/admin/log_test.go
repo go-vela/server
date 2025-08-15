@@ -120,6 +120,7 @@ func TestAdmin_CleanLogs(t *testing.T) {
 			if !test.wantError && resp.Code == http.StatusOK {
 				// verify response structure for successful requests
 				var response types.LogCleanupResponse
+
 				err := json.Unmarshal(resp.Body.Bytes(), &response)
 				if err != nil {
 					t.Errorf("unable to unmarshal response: %v", err)
@@ -129,12 +130,15 @@ func TestAdmin_CleanLogs(t *testing.T) {
 				if response.DeletedCount < 0 {
 					t.Errorf("DeletedCount should be >= 0, got %d", response.DeletedCount)
 				}
+
 				if response.BatchesProcessed < 0 {
 					t.Errorf("BatchesProcessed should be >= 0, got %d", response.BatchesProcessed)
 				}
+
 				if response.DurationSeconds < 0 {
 					t.Errorf("DurationSeconds should be >= 0, got %f", response.DurationSeconds)
 				}
+
 				if response.Message == "" {
 					t.Errorf("Message should not be empty")
 				}

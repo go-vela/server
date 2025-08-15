@@ -186,7 +186,6 @@ func TestYaml_Ruleset_UnmarshalYAML(t *testing.T) {
 		}
 
 		err = yaml.Unmarshal(b, got)
-
 		if err != nil {
 			t.Errorf("UnmarshalYAML returned err: %v", err)
 		}

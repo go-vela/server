@@ -57,6 +57,7 @@ func TestSecret_Engine_MigrateSecrets(t *testing.T) {
 	_secretShared.SetRepoAllowlist([]string{"foo/bar", "github/octokitty"})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	_mock.ExpectBegin()
@@ -74,6 +75,7 @@ SET "repo"=$1 WHERE repo = $2`).
 	_mock.ExpectCommit()
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secretRepo)

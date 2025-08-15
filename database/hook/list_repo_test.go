@@ -58,6 +58,7 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	_hookTwo.SetWebhookID(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -70,6 +71,7 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE "builds"."id" = $1`).WithArgs(1).WillReturnRows(_buildRows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	sqlitePopulateTables(

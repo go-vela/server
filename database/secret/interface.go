@@ -11,7 +11,7 @@ import (
 // SecretInterface represents the Vela interface for secret
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type SecretInterface interface {
 	// Secret Data Definition Language Functions
 	//

@@ -21,6 +21,7 @@ func TestLog_Engine_DeleteLog(t *testing.T) {
 	_log.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -29,6 +30,7 @@ func TestLog_Engine_DeleteLog(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	err := _sqlite.CreateLog(context.TODO(), _log)

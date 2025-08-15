@@ -48,6 +48,7 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 	_buildTwo.SetCreated(2)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected query result in mock
@@ -57,6 +58,7 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3 ORDER BY number DESC LIMIT $4`).WithArgs(1, AnyArgument{}, 0, 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)

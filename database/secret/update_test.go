@@ -58,6 +58,7 @@ func TestSecret_Engine_UpdateSecret(t *testing.T) {
 	_secretShared.SetRepoAllowlist([]string{"github/octocat", "github/octokitty"})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	_mock.ExpectBegin()
@@ -113,6 +114,7 @@ VALUES ($1,$2),($3,$4) ON CONFLICT DO NOTHING RETURNING "id"`).
 	_mock.ExpectCommit()
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secretRepo)

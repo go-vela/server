@@ -37,6 +37,7 @@ func TestDatabase_Flags(t *testing.T) {
 				t.Fatalf("unsupported flag type: %T", f)
 			}
 		}
+
 		return copiedFlags
 	}
 
@@ -119,6 +120,7 @@ func TestDatabase_Flags(t *testing.T) {
 				if len(value) == 0 {
 					continue
 				}
+
 				args = append(args, `--`+key+"="+value)
 			}
 

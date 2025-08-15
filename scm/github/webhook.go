@@ -115,7 +115,6 @@ func (c *Client) RedeliverWebhook(ctx context.Context, u *api.User, h *api.Hook)
 		h.GetRepo().GetName(),
 		h.GetWebhookID(), deliveryID,
 	)
-
 	if err != nil {
 		var acceptedError *github.AcceptedError
 		// Persist if the status received is a 202 Accepted. This

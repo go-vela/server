@@ -138,6 +138,7 @@ func getSettings(c *gin.Context) {
 	data := []byte(SettingsResp)
 
 	var body settings.Platform
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -148,6 +149,7 @@ func updateSettings(c *gin.Context) {
 	data := []byte(UpdateSettingsResp)
 
 	var body settings.Platform
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -158,6 +160,7 @@ func restoreSettings(c *gin.Context) {
 	data := []byte(RestoreSettingsResp)
 
 	var body settings.Platform
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

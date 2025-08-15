@@ -100,7 +100,7 @@ func TestStep_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -140,7 +140,7 @@ func TestStep_Establish_NoRepo(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -190,7 +190,7 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -249,7 +249,7 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/steps", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -309,7 +309,7 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/foo", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/steps/foo", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -369,7 +369,7 @@ func TestStep_Establish_NoStep(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar/builds/1/steps/1", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })

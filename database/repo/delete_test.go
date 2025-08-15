@@ -23,6 +23,7 @@ func TestRepo_Engine_DeleteRepo(t *testing.T) {
 	_repo.SetVisibility("public")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -31,6 +32,7 @@ func TestRepo_Engine_DeleteRepo(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateRepo(context.TODO(), _repo)

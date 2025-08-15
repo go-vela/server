@@ -23,7 +23,7 @@ func TestMiddleware_Worker(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	// setup mock server
 	engine.Use(Worker(want))

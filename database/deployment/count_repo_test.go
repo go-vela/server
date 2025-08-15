@@ -60,6 +60,7 @@ func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
 	_deploymentTwo.SetBuilds(builds)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -69,6 +70,7 @@ func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "deployments" WHERE repo_id = $1`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateDeployment(context.TODO(), _deploymentOne)

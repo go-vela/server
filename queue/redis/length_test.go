@@ -57,6 +57,7 @@ func TestRedis_Length(t *testing.T) {
 				t.Errorf("unable to push item to queue: %v", err)
 			}
 		}
+
 		got, err := _redis.Length(context.Background())
 		if err != nil {
 			t.Errorf("Length returned err: %v", err)

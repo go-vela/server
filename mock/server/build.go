@@ -233,6 +233,7 @@ func getBuilds(c *gin.Context) {
 	data := []byte(BuildsResp)
 
 	var body []api.Build
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -253,6 +254,7 @@ func getBuild(c *gin.Context) {
 	data := []byte(BuildResp)
 
 	var body api.Build
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -275,6 +277,7 @@ func getLogs(c *gin.Context) {
 	data := []byte(BuildLogsResp)
 
 	var body []api.Log
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -285,6 +288,7 @@ func addBuild(c *gin.Context) {
 	data := []byte(BuildResp)
 
 	var body api.Build
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -309,6 +313,7 @@ func updateBuild(c *gin.Context) {
 	data := []byte(BuildResp)
 
 	var body api.Build
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -348,6 +353,7 @@ func restartBuild(c *gin.Context) {
 	data := []byte(BuildResp)
 
 	var body api.Build
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -402,6 +408,7 @@ func buildQueue(c *gin.Context) {
 	data := []byte(BuildQueueResp)
 
 	var body []api.QueueBuild
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -429,6 +436,7 @@ func buildToken(c *gin.Context) {
 	data := []byte(BuildTokenResp)
 
 	var body api.Token
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -449,6 +457,7 @@ func idToken(c *gin.Context) {
 	data := []byte(IDTokenResp)
 
 	var body api.Token
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -469,6 +478,7 @@ func idTokenRequestToken(c *gin.Context) {
 	data := []byte(IDTokenRequestTokenResp)
 
 	var body api.Token
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -491,6 +501,7 @@ func buildExecutable(c *gin.Context) {
 	data := []byte(BuildExecutableResp)
 
 	var body api.BuildExecutable
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

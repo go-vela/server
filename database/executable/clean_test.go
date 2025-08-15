@@ -43,6 +43,7 @@ func TestExecutable_Engine_CleanExecutables(t *testing.T) {
 	_bExecutableTwo.SetData([]byte("bar"))
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	_mock.ExpectExec("DELETE FROM build_executables USING builds WHERE builds.id = build_executables.build_id AND builds.status = 'error';").
@@ -51,6 +52,7 @@ func TestExecutable_Engine_CleanExecutables(t *testing.T) {
 	_mock.ExpectQuery(`DELETE FROM "build_executables" WHERE build_id = $1 RETURNING *`).WithArgs(2).WillReturnError(fmt.Errorf("not found"))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	err := _sqlite.CreateBuildExecutable(context.TODO(), _bExecutableOne)

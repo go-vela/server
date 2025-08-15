@@ -114,7 +114,6 @@ func CreateDeployment(c *gin.Context) {
 
 	if !deployConfig.Empty() {
 		err := deployConfig.Validate(input.GetTarget(), input.GetPayload())
-
 		if err != nil {
 			retErr := fmt.Errorf("unable to validate deployment config for %s: %w", r.GetFullName(), err)
 

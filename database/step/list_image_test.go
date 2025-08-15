@@ -33,6 +33,7 @@ func TestStep_Engine_ListStepImageCount(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 
 	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -42,6 +43,7 @@ func TestStep_Engine_ListStepImageCount(t *testing.T) {
 	_mock.ExpectQuery(`SELECT "image", count(image) as count FROM "steps" GROUP BY "image"`).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateStep(ctx, _stepOne)

@@ -63,6 +63,7 @@ func TestBuild_Engine_CleanBuilds(t *testing.T) {
 	_buildFour.SetStatus("running")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the name query
@@ -71,6 +72,7 @@ func TestBuild_Engine_CleanBuilds(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 2))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)

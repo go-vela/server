@@ -182,12 +182,13 @@ func TestClaims_Establish(t *testing.T) {
 		t.Run(tt.TokenType, func(t *testing.T) {
 			resp := httptest.NewRecorder()
 			context, engine := gin.CreateTestContext(resp)
-			context.Request, _ = http.NewRequest(http.MethodPut, tt.CtxRequest, nil)
+			context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodPut, tt.CtxRequest, nil)
 
 			var tkn string
 
 			if strings.EqualFold(tt.TokenType, constants.ServerWorkerTokenType) {
 				tkn = "very-secret"
+
 				engine.Use(func(c *gin.Context) { c.Set("secret", "very-secret") })
 			} else {
 				tkn, _ = tm.MintToken(tt.Mto)
@@ -238,7 +239,7 @@ func TestClaims_Establish_NoToken(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/host", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/workers/host", nil)
 
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
@@ -264,7 +265,7 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/host", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/workers/host", nil)
 
 	u := new(api.User)
 	u.SetID(1)

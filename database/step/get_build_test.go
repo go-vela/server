@@ -41,7 +41,9 @@ func TestStep_Engine_GetStepForBuild(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "steps" WHERE build_id = $1 AND number = $2 LIMIT $3`).WithArgs(1, 1, 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
+
 	_, err := _sqlite.CreateStep(ctx, _step)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)

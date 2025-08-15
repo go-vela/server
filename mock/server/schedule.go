@@ -204,6 +204,7 @@ func getSchedules(c *gin.Context) {
 	data := []byte(SchedulesResp)
 
 	var body []api.Schedule
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -226,6 +227,7 @@ func getSchedule(c *gin.Context) {
 	data := []byte(ScheduleResp)
 
 	var body api.Schedule
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -236,6 +238,7 @@ func addSchedule(c *gin.Context) {
 	data := []byte(ScheduleResp)
 
 	var body api.Schedule
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -260,6 +263,7 @@ func updateSchedule(c *gin.Context) {
 	data := []byte(ScheduleResp)
 
 	var body api.Schedule
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

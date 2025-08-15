@@ -163,10 +163,10 @@ func (e *Engine) acquireCleanupLock(ctx context.Context, driver string) (bool, e
 	case constants.DriverPostgres:
 		// PostgreSQL advisory lock - non-blocking attempt
 		var acquired bool
+
 		err := e.client.WithContext(ctx).
 			Raw("SELECT pg_try_advisory_lock(?)", lockID).
 			Scan(&acquired).Error
-
 		if err != nil {
 			return false, fmt.Errorf("failed to acquire PostgreSQL advisory lock: %w", err)
 		}
@@ -214,10 +214,10 @@ func (e *Engine) releaseCleanupLock(ctx context.Context, driver string) error {
 	case constants.DriverPostgres:
 		// PostgreSQL advisory lock release
 		var released bool
+
 		err := e.client.WithContext(ctx).
 			Raw("SELECT pg_advisory_unlock(?)", lockID).
 			Scan(&released).Error
-
 		if err != nil {
 			return fmt.Errorf("failed to release PostgreSQL advisory lock: %w", err)
 		}

@@ -101,6 +101,7 @@ func getSecrets(c *gin.Context) {
 	data := []byte(SecretsResp)
 
 	var body []api.Secret
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -123,6 +124,7 @@ func getSecret(c *gin.Context) {
 	data := []byte(SecretResp)
 
 	var body api.Secret
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -133,6 +135,7 @@ func addSecret(c *gin.Context) {
 	data := []byte(SecretResp)
 
 	var body api.Secret
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -157,6 +160,7 @@ func updateSecret(c *gin.Context) {
 	data := []byte(SecretResp)
 
 	var body api.Secret
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

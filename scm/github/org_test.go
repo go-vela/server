@@ -123,7 +123,6 @@ func TestGithub_GetOrgName_Fail(t *testing.T) {
 
 	// run test
 	_, err := client.GetOrgName(context.TODO(), u, "octocat")
-
 	if err == nil {
 		t.Error("GetOrgName should return error")
 	}

@@ -36,6 +36,7 @@ func TestService_Engine_CountServicesForBuild(t *testing.T) {
 	_serviceTwo.SetImage("bar")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -45,6 +46,7 @@ func TestService_Engine_CountServicesForBuild(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "services" WHERE build_id = $1`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateService(context.TODO(), _serviceOne)

@@ -11,7 +11,7 @@ import (
 // UserInterface represents the Vela interface for user
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type UserInterface interface {
 	// User Data Definition Language Functions
 	//

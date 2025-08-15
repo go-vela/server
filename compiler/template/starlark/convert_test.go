@@ -84,34 +84,40 @@ func TestStarlark_Render_convertTemplateVars(t *testing.T) {
 func TestStarlark_Render_convertPlatformVars(t *testing.T) {
 	// setup types
 	build := starlark.NewDict(0)
+
 	err := build.SetKey(starlark.String("author"), starlark.String("octocat"))
 	if err != nil {
 		t.Error(err)
 	}
 
 	deployment := starlark.NewDict(0)
+
 	err = deployment.SetKey(starlark.String("image"), starlark.String("alpine:3.14"))
 	if err != nil {
 		t.Error(err)
 	}
 
 	repo := starlark.NewDict(0)
+
 	err = repo.SetKey(starlark.String("full_name"), starlark.String("go-vela/hello-world"))
 	if err != nil {
 		t.Error(err)
 	}
 
 	user := starlark.NewDict(0)
+
 	err = user.SetKey(starlark.String("admin"), starlark.String("true"))
 	if err != nil {
 		t.Error(err)
 	}
 
 	system := starlark.NewDict(0)
+
 	err = system.SetKey(starlark.String("template_name"), starlark.String("foo"))
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = system.SetKey(starlark.String("workspace"), starlark.String("/vela/src/github.com/go-vela/hello-world"))
 	if err != nil {
 		t.Error(err)
@@ -119,22 +125,27 @@ func TestStarlark_Render_convertPlatformVars(t *testing.T) {
 
 	// setup full dictionary
 	withAll := starlark.NewDict(0)
+
 	err = withAll.SetKey(starlark.String("build"), build)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAll.SetKey(starlark.String("deployment"), deployment)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAll.SetKey(starlark.String("repo"), repo)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAll.SetKey(starlark.String("user"), user)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAll.SetKey(starlark.String("system"), system)
 	if err != nil {
 		t.Error(err)
@@ -142,22 +153,27 @@ func TestStarlark_Render_convertPlatformVars(t *testing.T) {
 
 	// setup vela dictionary
 	withAllVela := starlark.NewDict(0)
+
 	err = withAllVela.SetKey(starlark.String("build"), build)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllVela.SetKey(starlark.String("deployment"), starlark.NewDict(0))
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllVela.SetKey(starlark.String("repo"), repo)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllVela.SetKey(starlark.String("user"), user)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllVela.SetKey(starlark.String("system"), system)
 	if err != nil {
 		t.Error(err)
@@ -165,27 +181,34 @@ func TestStarlark_Render_convertPlatformVars(t *testing.T) {
 
 	// setup deployment dictionary
 	withAllDeployment := starlark.NewDict(0)
+
 	err = withAllDeployment.SetKey(starlark.String("build"), starlark.NewDict(0))
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllDeployment.SetKey(starlark.String("deployment"), deployment)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllDeployment.SetKey(starlark.String("repo"), starlark.NewDict(0))
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllDeployment.SetKey(starlark.String("user"), starlark.NewDict(0))
 	if err != nil {
 		t.Error(err)
 	}
+
 	system = starlark.NewDict(0)
+
 	err = system.SetKey(starlark.String("template_name"), starlark.String("foo"))
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllDeployment.SetKey(starlark.String("system"), system)
 	if err != nil {
 		t.Error(err)

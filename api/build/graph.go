@@ -139,7 +139,7 @@ const (
 // GetBuildGraph represents the API handler to get a
 // directed a-cyclical graph for a build.
 //
-//nolint:funlen,goconst,gocyclo // ignore function length and constants
+//nolint:funlen,gocyclo // ignore function length and constants
 func GetBuildGraph(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
@@ -454,11 +454,11 @@ func GetBuildGraph(c *gin.Context) {
 
 		// override the cluster id for built-in nodes
 		// this allows for better layout control because all stages need 'clone'
-		if stage.Name == "init" {
+		if stage.Name == constants.InitName {
 			cluster = BuiltInCluster
 		}
 
-		if stage.Name == "clone" {
+		if stage.Name == constants.CloneName {
 			cluster = BuiltInCluster
 		}
 
@@ -546,8 +546,8 @@ func GetBuildGraph(c *gin.Context) {
 			if len((*destinationNode.Stage).Needs) > 0 {
 				// check destination node needs
 				for _, need := range (*destinationNode.Stage).Needs {
-					// all stages need "clone"
-					if need == "clone" {
+					// all stages need constants.CloneName
+					if need == constants.CloneName {
 						continue
 					}
 

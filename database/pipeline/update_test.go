@@ -27,6 +27,7 @@ func TestPipeline_Engine_UpdatePipeline(t *testing.T) {
 	_pipeline.SetData([]byte{})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -37,6 +38,7 @@ WHERE "id" = $16`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreatePipeline(context.TODO(), _pipeline)

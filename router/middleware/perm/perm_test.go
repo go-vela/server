@@ -69,7 +69,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/admin/users", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/admin/users", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -150,7 +150,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/admin/users", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/admin/users", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -212,7 +212,7 @@ func TestPerm_MustWorkerRegisterToken(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -276,7 +276,7 @@ func TestPerm_MustWorkerRegisterToken_PlatAdmin(t *testing.T) {
 
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -325,7 +325,7 @@ func TestPerm_MustWorkerAuthToken(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -366,7 +366,7 @@ func TestPerm_MustWorkerAuth_ServerWorkerToken(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
 
 	// setup vela mock server
@@ -451,7 +451,7 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -546,7 +546,7 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	_, _ = db.CreateBuild(ctx, b)
 	_, _ = db.CreateUser(ctx, u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -638,7 +638,7 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -732,7 +732,7 @@ func TestPerm_MustIDRequestToken(t *testing.T) {
 	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -831,7 +831,7 @@ func TestPerm_MustIDRequestToken_NotRunning(t *testing.T) {
 	_, _ = db.CreateBuild(ctx, b)
 	_, _ = db.CreateUser(ctx, u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -923,7 +923,7 @@ func TestPerm_MustIDRequestToken_WrongBuild(t *testing.T) {
 	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -1012,7 +1012,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/repo/foo/bar/baz", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/native/repo/foo/bar/baz", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -1098,7 +1098,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/org/foo/*/baz", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/native/org/foo/*/baz", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -1184,7 +1184,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	_, _ = db.CreateRepo(ctx, r)
 	_, _ = db.CreateBuild(ctx, b)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/shared/foo/*/*", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/native/shared/foo/*/*", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -1267,7 +1267,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -1367,7 +1367,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -1467,7 +1467,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -1567,7 +1567,7 @@ func TestPerm_MustWrite(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -1667,7 +1667,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -1767,7 +1767,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -1867,7 +1867,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -1967,7 +1967,7 @@ func TestPerm_MustRead(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -2067,7 +2067,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -2170,7 +2170,7 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	_, _ = db.CreateBuild(ctx, b)
 	_, _ = db.CreateRepo(ctx, r)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup vela mock server
@@ -2256,7 +2256,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -2356,7 +2356,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -2456,7 +2456,7 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
@@ -2556,7 +2556,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateUser(_context.TODO(), u)
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server

@@ -32,6 +32,7 @@ func TestSecret_Engine_GetSecretForOrg(t *testing.T) {
 	_secret.SetRepoAllowlist([]string{})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -44,6 +45,7 @@ func TestSecret_Engine_GetSecretForOrg(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "secret_repo_allowlists" WHERE secret_id = $1`).WithArgs(1).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secret)

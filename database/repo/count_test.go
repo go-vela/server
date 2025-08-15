@@ -33,6 +33,7 @@ func TestRepo_Engine_CountRepos(t *testing.T) {
 	_repoTwo.SetVisibility("public")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -42,6 +43,7 @@ func TestRepo_Engine_CountRepos(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "repos"`).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateRepo(context.TODO(), _repoOne)

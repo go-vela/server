@@ -43,6 +43,7 @@ func TestStep_Engine_CountSteps(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "steps"`).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateStep(ctx, _stepOne)

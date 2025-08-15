@@ -36,6 +36,7 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 	want.SetCloneImage(wantCloneImage)
 
 	var got compiler.Engine
+
 	got, _ = native.FromCLICommand(context.Background(), c)
 
 	// setup context
@@ -60,7 +61,7 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 
 	engine.Use(Compiler(got))
 
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	engine.GET("/health", func(c *gin.Context) {
 		got = compiler.FromContext(c)
