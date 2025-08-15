@@ -16,7 +16,7 @@ import (
 
 // GatekeepBuild is a helper function that will set the status of a build to 'pending approval' and
 // send a status update to the SCM.
-func GatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo) error {
+func GatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo, token string) error {
 	l := c.MustGet("logger").(*logrus.Entry)
 
 	l = l.WithFields(logrus.Fields{
@@ -45,7 +45,7 @@ func GatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo) error {
 	}
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(c, r.GetOwner(), b, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(c, b, r.GetOrg(), r.GetName(), token)
 	if err != nil {
 		l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}

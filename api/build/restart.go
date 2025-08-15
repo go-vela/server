@@ -156,7 +156,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// generate queue items
-	_, item, code, err := CompileAndPublish(
+	p, item, code, err := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -180,7 +180,7 @@ func RestartBuild(c *gin.Context) {
 
 	if shouldEnqueue {
 		// send API call to set the status on the commit
-		err := scm.Status(c.Request.Context(), r.GetOwner(), b, r.GetOrg(), r.GetName())
+		err := scm.Status(c.Request.Context(), b, r.GetOrg(), r.GetName(), p.Token)
 		if err != nil {
 			l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 		}
@@ -194,7 +194,7 @@ func RestartBuild(c *gin.Context) {
 			item.Build.GetRoute(),
 		)
 	} else {
-		err := GatekeepBuild(c, item.Build, item.Build.GetRepo())
+		err := GatekeepBuild(c, item.Build, item.Build.GetRepo(), p.Token)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
 

@@ -107,8 +107,8 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	}).Info("log for step created")
 
 	if len(s.GetReportAs()) > 0 {
-		// send API call to set the status on the commit
-		err = scm.StepStatus(ctx, b.GetRepo().GetOwner(), b, s, b.GetRepo().GetOrg(), b.GetRepo().GetName())
+		// send API call to set the status on the commit using token in environment
+		err = scm.StepStatus(ctx, b, s, b.GetRepo().GetOrg(), b.GetRepo().GetName(), c.Environment["VELA_NETRC_PASSWORD"])
 		if err != nil {
 			logrus.Errorf("unable to set commit status for build: %v", err)
 		}

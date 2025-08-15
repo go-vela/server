@@ -12,6 +12,7 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/scm"
@@ -79,6 +80,11 @@ func UpdateBuild(c *gin.Context) {
 	b := build.Retrieve(c)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
+
+	scmToken := auth.RetrieveTokenHeader(c.Request)
+	if scmToken == "" {
+		scmToken = r.GetOwner().GetToken()
+	}
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -167,7 +173,7 @@ func UpdateBuild(c *gin.Context) {
 		b.GetStatus() == constants.StatusKilled ||
 		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(ctx, r.GetOwner(), b, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(ctx, b, r.GetOrg(), r.GetName(), scmToken)
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}

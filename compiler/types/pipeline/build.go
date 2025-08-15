@@ -16,6 +16,7 @@ import (
 // swagger:model PipelineBuild
 type Build struct {
 	ID          string             `json:"id,omitempty"          yaml:"id,omitempty"`
+	Token       string             `json:"token,omitempty"       yaml:"token,omitempty"`
 	Version     string             `json:"version,omitempty"     yaml:"version,omitempty"`
 	Metadata    Metadata           `json:"metadata,omitempty"    yaml:"metadata,omitempty"`
 	Environment raw.StringSliceMap `json:"environment,omitempty" yaml:"environment,omitempty"`
