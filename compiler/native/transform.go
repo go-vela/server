@@ -74,6 +74,10 @@ func (c *Client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline
 		Deployment: *p.Deployment.ToPipeline(),
 	}
 
+	if c.netrc != nil {
+		pipeline.Token = *c.netrc
+	}
+
 	// set the unique ID for the executable pipeline
 	pipeline.ID = fmt.Sprintf(pipelineID, org, name, number)
 
@@ -159,6 +163,10 @@ func (c *Client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.
 		Secrets:    *p.Secrets.ToPipeline(),
 		Services:   *p.Services.ToPipeline(),
 		Worker:     *p.Worker.ToPipeline(),
+	}
+
+	if c.netrc != nil {
+		pipeline.Token = *c.netrc
 	}
 
 	// set the unique ID for the executable pipeline
