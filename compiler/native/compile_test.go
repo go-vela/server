@@ -3848,6 +3848,8 @@ func Test_CompileLite(t *testing.T) {
 					},
 				},
 				Environment: raw.StringSliceMap{},
+				Secrets:     yaml.SecretSlice{},
+				Services:    yaml.ServiceSlice{},
 				Stages: []*yaml.Stage{
 					{
 						Name:  "test",
@@ -4019,6 +4021,8 @@ func Test_CompileLite(t *testing.T) {
 					RenderInline: true,
 					Environment:  []string{"steps", "services", "secrets"},
 				},
+				Secrets:  yaml.SecretSlice{},
+				Services: yaml.ServiceSlice{},
 				Steps: yaml.StepSlice{
 					{
 						Commands: raw.StringSlice{"echo from inline"},
