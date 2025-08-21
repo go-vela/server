@@ -7,11 +7,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/minio/minio-go/v7"
-
 	api "github.com/go-vela/server/api/types"
 )
 
@@ -23,16 +20,23 @@ func TestMinioClient_ListBuckets_Success(t *testing.T) {
 	ctx, engine := gin.CreateTestContext(resp)
 
 	// mock list buckets call
+	// Match root with or without query params
 	engine.GET("/", func(c *gin.Context) {
-		c.Header("X-Meta-BucketName", "foo")
-		c.XML(200, gin.H{
-			"Buckets": []minio.BucketInfo{
-				{
-					Name:         "foo",
-					CreationDate: time.Now(),
-				},
-			},
-		})
+		// Raw S3-compatible XML response for ListBuckets
+		xmlResponse := `<?xml version="1.0" encoding="UTF-8"?>
+<ListAllMyBucketsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Owner>
+    <ID>minio</ID>
+    <DisplayName>minio</DisplayName>
+  </Owner>
+  <Buckets>
+    <Bucket>
+      <Name>foo</Name>
+      <CreationDate>2025-03-20T19:01:40.968Z</CreationDate>
+    </Bucket>
+  </Buckets>
+</ListAllMyBucketsResult>`
+		c.Data(http.StatusOK, "application/xml", []byte(xmlResponse))
 	})
 
 	fake := httptest.NewServer(engine)
@@ -42,22 +46,22 @@ func TestMinioClient_ListBuckets_Success(t *testing.T) {
 	b := new(api.Bucket)
 	b.BucketName = "foo"
 
-	_, err := client.ListBuckets(ctx)
+	buckets, err := client.ListBuckets(ctx)
 	if err != nil {
 		t.Errorf("ListBuckets returned err: %v", err)
 	}
 
 	// Ignore for now as xmlDecoder from minio-go is does not parse correctly with sample data
 	// check if buckets are correct
-	//expectedBuckets := []string{"foo"}
-	//if len(buckets) != len(expectedBuckets) {
-	//	t.Errorf("Expected %d buckets, got %d", len(expectedBuckets), len(buckets))
-	//}
-	//for i, bucket := range buckets {
-	//	if bucket != expectedBuckets[i] {
-	//		t.Errorf("Expected bucket %v, got %v", expectedBuckets[i], bucket)
-	//	}
-	//}
+	expectedBuckets := []string{"foo"}
+	if len(buckets) != len(expectedBuckets) {
+		t.Errorf("Expected %d buckets, got %d", len(expectedBuckets), len(buckets))
+	}
+	for i, bucket := range buckets {
+		if bucket != expectedBuckets[i] {
+			t.Errorf("Expected bucket %v, got %v", expectedBuckets[i], bucket)
+		}
+	}
 }
 
 func TestMinioClient_ListBuckets_Failure(t *testing.T) {
