@@ -3,13 +3,14 @@ package storage
 import (
 	"testing"
 
+	"github.com/go-vela/server/constants"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSetup_Minio(t *testing.T) {
 	setup := &Setup{
 		Enable:    true,
-		Driver:    "minio",
+		Driver:    constants.DriverMinio,
 		Endpoint:  "http://minio.example.com",
 		AccessKey: "access-key",
 		SecretKey: "secret-key",
@@ -39,6 +40,7 @@ func TestSetup_Validate(t *testing.T) {
 			name: "valid config",
 			setup: &Setup{
 				Enable:    true,
+				Driver:    constants.DriverMinio,
 				Endpoint:  "http://example.com",
 				AccessKey: "access-key",
 				SecretKey: "secret-key",
@@ -60,13 +62,13 @@ func TestSetup_Validate(t *testing.T) {
 			name: "driver set",
 			setup: &Setup{
 				Enable:    true,
-				Driver:    "minio",
+				Driver:    constants.DriverMinio,
 				Endpoint:  "http://example.com",
 				AccessKey: "access-key",
 				SecretKey: "secret-key",
 				Bucket:    "bucket-name",
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name: "missing endpoint",
