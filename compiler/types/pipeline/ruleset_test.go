@@ -559,6 +559,11 @@ func TestPipeline_Rules_Match(t *testing.T) {
 			want:  true,
 		},
 		{
+			rules: &Rules{Event: []string{"push"}, Status: []string{"success", "failure"}},
+			data:  &RuleData{Branch: "main", Event: "pull_request", Path: []string{"foo.txt", "/foo/bar.txt"}, Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
+			want:  false,
+		},
+		{
 			rules: &Rules{Event: []string{"tag"}, Tag: []string{"refs/tags/[0-9].*-prod"}},
 			data:  &RuleData{Branch: "main", Event: "tag", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/tags/2.4.42.167-prod", Target: ""},
 			want:  true,
