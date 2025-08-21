@@ -117,7 +117,7 @@ func TestMiddleware_StorageAddress(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	// setup mock server
 	engine.Use(StorageAddress(want))
@@ -149,7 +149,7 @@ func TestMiddleware_StorageAccessKey(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	// setup mock server
 	engine.Use(StorageAccessKey(want))
@@ -181,7 +181,7 @@ func TestMiddleware_StorageSecretKey(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	// setup mock server
 	engine.Use(StorageSecretKey(want))
@@ -213,7 +213,7 @@ func TestMiddleware_StorageBucket(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	// setup mock server
 	engine.Use(StorageBucket(want))
@@ -244,7 +244,7 @@ func TestMiddleware_StorageEnable(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 	// setup mock server
 	engine.Use(StorageEnable(want))
 	engine.GET("/health", func(c *gin.Context) {

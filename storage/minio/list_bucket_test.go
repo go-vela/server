@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+
 	api "github.com/go-vela/server/api/types"
 )
 
@@ -57,6 +58,7 @@ func TestMinioClient_ListBuckets_Success(t *testing.T) {
 	if len(buckets) != len(expectedBuckets) {
 		t.Errorf("Expected %d buckets, got %d", len(expectedBuckets), len(buckets))
 	}
+
 	for i, bucket := range buckets {
 		if bucket != expectedBuckets[i] {
 			t.Errorf("Expected bucket %v, got %v", expectedBuckets[i], bucket)
