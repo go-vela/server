@@ -73,7 +73,7 @@ func TestWorker_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/worker_0", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/workers/worker_0", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -110,7 +110,7 @@ func TestWorker_Establish_NoWorkerParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/workers/", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })

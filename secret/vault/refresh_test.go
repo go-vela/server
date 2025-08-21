@@ -47,6 +47,7 @@ func Test_client_initialize(t *testing.T) {
 				if err != nil {
 					t.Error(err)
 				}
+
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.responseCode)
 				_, _ = w.Write(data)
@@ -203,11 +204,13 @@ func Test_client_getAwsToken(t *testing.T) {
 				if err != nil {
 					t.Error(err)
 				}
+
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.responseCode)
 				_, _ = w.Write(data)
 			}))
 			defer ts.Close()
+
 			c, err := New(
 				WithAddress(ts.URL),
 				WithAuthMethod(""),
@@ -220,6 +223,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
+
 			c.AWS.StsClient = tt.stsClient
 
 			gotToken, gotTTL, err := c.getAwsToken()

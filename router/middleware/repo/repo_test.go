@@ -92,7 +92,7 @@ func TestRepo_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -130,7 +130,7 @@ func TestRepo_Establish_NoOrgParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "//bar/test", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "//bar/test", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -161,7 +161,7 @@ func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo//test", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo//test", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
@@ -192,7 +192,7 @@ func TestRepo_Establish_NoRepo(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/foo/bar", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })

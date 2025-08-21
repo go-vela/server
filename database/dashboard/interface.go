@@ -11,7 +11,7 @@ import (
 // DashboardInterface represents the Vela interface for repo
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type DashboardInterface interface {
 	// Dashboard Data Definition Language Functions
 	//

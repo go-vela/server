@@ -69,6 +69,7 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 	_buildThree.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected name query result in mock
@@ -78,6 +79,7 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND (status = 'running' OR status = 'pending' OR status = 'pending approval')`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)

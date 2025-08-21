@@ -20,6 +20,7 @@ func TestNewGormLogger(t *testing.T) {
 		skipNotFound  bool
 		showSQL       bool
 	}
+
 	tests := []struct {
 		name string
 		args args

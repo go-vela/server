@@ -12,6 +12,7 @@ import (
 func TestSecret_Engine_CreateSecretIndexes(t *testing.T) {
 	// setup types
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	_mock.ExpectExec(CreateSecretID).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -20,6 +21,7 @@ func TestSecret_Engine_CreateSecretIndexes(t *testing.T) {
 	_mock.ExpectExec(CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// setup tests

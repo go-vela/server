@@ -11,7 +11,7 @@ import (
 // ServiceInterface represents the Vela interface for service
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type ServiceInterface interface {
 	// Service Data Definition Language Functions
 	//

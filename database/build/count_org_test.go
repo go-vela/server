@@ -58,6 +58,7 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	_buildTwo.SetEvent("push")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result without filters in mock
@@ -71,6 +72,7 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "builds"."event" = $2`).WithArgs("foo", "push").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)

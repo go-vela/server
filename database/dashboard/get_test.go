@@ -40,6 +40,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	// uuid, _ := uuid.Parse("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -49,6 +50,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "dashboards" WHERE id = $1 LIMIT $2`).WithArgs("c8da1302-07d6-11ea-882f-4893bca275b8", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateDashboard(context.TODO(), _dashboard)

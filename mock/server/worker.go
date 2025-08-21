@@ -195,6 +195,7 @@ func getWorkers(c *gin.Context) {
 	data := []byte(WorkersResp)
 
 	var body []api.Worker
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -215,6 +216,7 @@ func getWorker(c *gin.Context) {
 	data := []byte(WorkerResp)
 
 	var body api.Worker
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -225,6 +227,7 @@ func addWorker(c *gin.Context) {
 	data := []byte(AddWorkerResp)
 
 	var body api.Token
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -247,6 +250,7 @@ func updateWorker(c *gin.Context) {
 	data := []byte(WorkerResp)
 
 	var body api.Worker
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -269,6 +273,7 @@ func refreshWorkerAuth(c *gin.Context) {
 	data := []byte(RefreshWorkerAuthResp)
 
 	var body api.Token
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -308,6 +313,7 @@ func registerToken(c *gin.Context) {
 	data := []byte(RegisterTokenResp)
 
 	var body api.Token
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -330,6 +336,7 @@ func getQueueCreds(c *gin.Context) {
 	data := []byte(QueueInfoResp)
 
 	var body api.QueueInfo
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)

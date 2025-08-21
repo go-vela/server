@@ -44,6 +44,7 @@ func TestBuild_Engine_CountBuildsForRepo(t *testing.T) {
 	_buildTwo.SetCreated(2)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -53,6 +54,7 @@ func TestBuild_Engine_CountBuildsForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3`).WithArgs(1, AnyArgument{}, 0).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)

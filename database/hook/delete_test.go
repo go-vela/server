@@ -29,6 +29,7 @@ func TestHook_Engine_DeleteHook(t *testing.T) {
 	_hook.SetWebhookID(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -37,6 +38,7 @@ func TestHook_Engine_DeleteHook(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	sqlitePopulateTables(t, _sqlite, []*api.Hook{_hook}, nil, nil, nil)

@@ -47,6 +47,7 @@ func TestBuild_Engine_ListBuilds(t *testing.T) {
 	_buildTwo.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -60,6 +61,7 @@ func TestBuild_Engine_ListBuilds(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)

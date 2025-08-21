@@ -69,6 +69,7 @@ func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
 	_schedule.SetNextRun(nextTime.Unix())
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -77,6 +78,7 @@ func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSchedule(context.TODO(), _schedule)

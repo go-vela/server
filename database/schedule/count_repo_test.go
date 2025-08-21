@@ -88,6 +88,7 @@ func TestSchedule_Engine_CountSchedulesForRepo(t *testing.T) {
 	_scheduleTwo.SetNextRun(nextTime.Unix())
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -97,6 +98,7 @@ func TestSchedule_Engine_CountSchedulesForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "schedules" WHERE repo_id = $1`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSchedule(context.TODO(), _scheduleOne)

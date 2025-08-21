@@ -53,6 +53,7 @@ func TestBuild_Engine_ListPendingApprovalBuilds(t *testing.T) {
 	_buildThree.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected name query result in mock
@@ -65,6 +66,7 @@ func TestBuild_Engine_ListPendingApprovalBuilds(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" = $1`).WithArgs(1).WillReturnRows(_repoRows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)
