@@ -5,7 +5,7 @@ package github
 import (
 	"testing"
 
-	"github.com/google/go-github/v73/github"
+	"github.com/google/go-github/v74/github"
 )
 
 func TestGetInstallationPermission(t *testing.T) {
@@ -49,6 +49,7 @@ func TestGetInstallationPermission(t *testing.T) {
 				t.Errorf("GetInstallationPermission() error = %v, expectedError %v", err, tt.expectedError)
 				return
 			}
+
 			if perm != tt.expectedPerm {
 				t.Errorf("GetInstallationPermission() = %v, expected %v", perm, tt.expectedPerm)
 			}
@@ -115,6 +116,7 @@ func TestApplyInstallationPermissions(t *testing.T) {
 				t.Errorf("ApplyInstallationPermissions() error = %v, expectedError %v", err, tt.expectedError)
 				return
 			}
+
 			if !tt.expectedError && !comparePermissions(perms, tt.expectedPerms) {
 				t.Errorf("ApplyInstallationPermissions() = %v, expected %v", perms, tt.expectedPerms)
 			}
@@ -191,5 +193,6 @@ func comparePermissions(a, b *github.InstallationPermissions) bool {
 	if a == nil || b == nil {
 		return a == b
 	}
+
 	return github.Stringify(a) == github.Stringify(b)
 }

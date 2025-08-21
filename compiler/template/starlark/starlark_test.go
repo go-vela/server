@@ -56,6 +56,7 @@ func TestStarlark_toStarlark(t *testing.T) {
 				t.Errorf("toStarlark() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("toStarlark() got = %v, want %v", got, tt.want)
 			}

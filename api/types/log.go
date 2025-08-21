@@ -262,3 +262,16 @@ func (l *Log) String() string {
 		l.GetCreatedAt(),
 	)
 }
+
+// LogCleanupResponse represents the response body for log cleanup operations.
+//
+// swagger:model LogCleanupResponse
+type LogCleanupResponse struct {
+	DeletedCount       int64    `json:"deleted_count"`
+	BatchesProcessed   int64    `json:"batches_processed"`
+	DurationSeconds    float64  `json:"duration_seconds"`
+	VacuumPerformed    bool     `json:"vacuum_performed"`
+	PartitionedMode    bool     `json:"partitioned_mode"`
+	AffectedPartitions []string `json:"affected_partitions,omitempty"`
+	Message            string   `json:"message"`
+}

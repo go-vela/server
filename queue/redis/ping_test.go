@@ -33,7 +33,6 @@ func TestRedis_Ping_Good(t *testing.T) {
 
 	// run tests
 	err = goodRedis.Ping(context.Background())
-
 	if err != nil {
 		t.Errorf("Ping returned err: %v", err)
 	}

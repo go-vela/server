@@ -14,7 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v73/github"
+	"github.com/google/go-github/v74/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"
@@ -34,6 +34,7 @@ func TestGithub_Config_YML(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/yml.json")
+
 			return
 		}
 
@@ -92,6 +93,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/yml.json")
+
 			return
 		}
 
@@ -149,6 +151,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/yaml.json")
+
 			return
 		}
 
@@ -203,6 +206,7 @@ func TestGithub_Config_Star(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/star.json")
+
 			return
 		}
 
@@ -318,6 +322,7 @@ func TestGithub_Config_Py(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/py.json")
+
 			return
 		}
 
@@ -464,6 +469,7 @@ func TestGithub_Config_BadEncoding(t *testing.T) {
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/yml_bad_encoding.json")
+
 			return
 		}
 
@@ -629,6 +635,7 @@ func TestGithub_Disable_MultipleHooks(t *testing.T) {
 	})
 	engine.DELETE("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
 		count++
+
 		c.Status(http.StatusNoContent)
 	})
 
@@ -848,10 +855,6 @@ func TestGithub_Status_Deployment(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(api.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
 	r := new(api.Repo)
 	r.SetID(1)
 
@@ -867,7 +870,7 @@ func TestGithub_Status_Deployment(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), u, b, "foo", "bar")
+	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -896,10 +899,6 @@ func TestGithub_Status_Running(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(api.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
 	r := new(api.Repo)
 	r.SetID(1)
 
@@ -921,7 +920,7 @@ func TestGithub_Status_Running(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), u, b, "foo", "bar")
+	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -931,7 +930,7 @@ func TestGithub_Status_Running(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
+	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -960,10 +959,6 @@ func TestGithub_Status_Success(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(api.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
 	r := new(api.Repo)
 	r.SetID(1)
 
@@ -985,7 +980,7 @@ func TestGithub_Status_Success(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), u, b, "foo", "bar")
+	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -995,7 +990,7 @@ func TestGithub_Status_Success(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
+	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1024,10 +1019,6 @@ func TestGithub_Status_Failure(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(api.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
 	r := new(api.Repo)
 	r.SetID(1)
 
@@ -1049,7 +1040,7 @@ func TestGithub_Status_Failure(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), u, b, "foo", "bar")
+	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1059,7 +1050,7 @@ func TestGithub_Status_Failure(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
+	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1088,10 +1079,6 @@ func TestGithub_Status_Killed(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(api.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
 	r := new(api.Repo)
 	r.SetID(1)
 
@@ -1113,7 +1100,7 @@ func TestGithub_Status_Killed(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), u, b, "foo", "bar")
+	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1123,7 +1110,7 @@ func TestGithub_Status_Killed(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
+	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1152,10 +1139,6 @@ func TestGithub_Status_Skipped(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(api.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
 	r := new(api.Repo)
 	r.SetID(1)
 
@@ -1177,7 +1160,7 @@ func TestGithub_Status_Skipped(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), u, b, "foo", "bar")
+	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1187,7 +1170,7 @@ func TestGithub_Status_Skipped(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
+	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1216,10 +1199,6 @@ func TestGithub_Status_Error(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(api.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
 	r := new(api.Repo)
 	r.SetID(1)
 
@@ -1241,7 +1220,7 @@ func TestGithub_Status_Error(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), u, b, "foo", "bar")
+	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1251,7 +1230,7 @@ func TestGithub_Status_Error(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
+	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1298,6 +1277,10 @@ func TestGithub_GetRepo(t *testing.T) {
 	want.SetPrivate(false)
 	want.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	want.SetVisibility("public")
+	want.SetCustomProps(map[string]any{
+		"prop_1": "foo",
+		"prop_2": "bar",
+	})
 
 	client, _ := NewTest(s.URL)
 
@@ -1346,7 +1329,6 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 
 	// run test
 	_, code, err := client.GetRepo(context.TODO(), u, r)
-
 	if err == nil {
 		t.Error("GetRepo should return error")
 	}
@@ -1428,7 +1410,6 @@ func TestGithub_GetOrgAndRepoName_Fail(t *testing.T) {
 
 	// run test
 	_, _, err := client.GetOrgAndRepoName(context.TODO(), u, "octocat", "Hello-World")
-
 	if err == nil {
 		t.Error("GetRepoName should return error")
 	}
@@ -1785,6 +1766,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
 				return
 			}
+
 			if got != test.wantToken {
 				t.Errorf("GetNetrcPassword() = %v, want %v", got, test.wantToken)
 			}
@@ -1933,6 +1915,7 @@ func TestGithub_applyGitHubInstallationPermission(t *testing.T) {
 				t.Errorf("ToGitHubAppInstallationPermissions() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if diff := cmp.Diff(tt.wantPerms, got); diff != "" {
 				t.Errorf("ToGitHubAppInstallationPermissions() mismatch (-want +got):\n%s", diff)
 			}

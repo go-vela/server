@@ -12,4 +12,16 @@ const (
 
 	// PipelineTemplate defines the type for a pipeline as a template.
 	PipelineTemplate = "template"
+
+	// InitName defines the name for the initialization step.
+	InitName = "init"
+
+	// CloneName defines the name for the clone step.
+	CloneName = "clone"
+
+	// DefaultHomeDir defines the default home directory for steps.
+	DefaultHomeDir = "/root"
+
+	// DefaultShell defines the default shell for steps.
+	DefaultShell = "/bin/sh"
 )

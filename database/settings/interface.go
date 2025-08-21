@@ -11,7 +11,7 @@ import (
 // SettingsInterface represents the Vela interface for settings
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type SettingsInterface interface {
 	// CreateSettings defines a function that creates a platform settings record.
 	CreateSettings(context.Context, *settings.Platform) (*settings.Platform, error)

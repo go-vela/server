@@ -59,6 +59,7 @@ func TestDeployment_Engine_GetDeploymentForRepo(t *testing.T) {
 	_deploymentOne.SetBuilds([]*api.Build{_build})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -71,6 +72,7 @@ func TestDeployment_Engine_GetDeploymentForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_buildRows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	sqlitePopulateTables(

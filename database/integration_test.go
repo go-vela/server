@@ -226,6 +226,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create build %d: %v", build.GetID(), err)
 		}
 	}
+
 	methods["CreateBuild"] = true
 
 	// count the builds
@@ -233,9 +234,11 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count builds: %v", err)
 	}
+
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuilds() is %v, want %v", count, len(resources.Builds))
 	}
+
 	methods["CountBuilds"] = true
 
 	// count the builds for a deployment
@@ -243,9 +246,11 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count builds for deployment %d: %v", resources.Deployments[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuildsForDeployment() is %v, want %v", count, len(resources.Builds))
 	}
+
 	methods["CountBuildsForDeployment"] = true
 
 	// count the builds for an org
@@ -253,9 +258,11 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count builds for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
+
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuildsForOrg() is %v, want %v", count, len(resources.Builds))
 	}
+
 	methods["CountBuildsForOrg"] = true
 
 	// count the builds for a repo
@@ -263,9 +270,11 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
+
 	methods["CountBuildsForRepo"] = true
 
 	// count the builds for a status
@@ -273,9 +282,11 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count builds for status %s: %v", "running", err)
 	}
+
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuildsForStatus() is %v, want %v", count, len(resources.Builds))
 	}
+
 	methods["CountBuildsForStatus"] = true
 
 	// list the builds
@@ -283,9 +294,11 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list builds: %v", err)
 	}
+
 	if diff := cmp.Diff(resources.Builds, list); diff != "" {
 		t.Errorf("ListBuilds() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListBuilds"] = true
 
 	// list the builds for an org
@@ -293,9 +306,11 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list builds for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
+
 	if diff := cmp.Diff(resources.Builds, list); diff != "" {
 		t.Errorf("ListBuildsForOrg() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListBuildsForOrg"] = true
 
 	// list the builds for a repo
@@ -303,15 +318,18 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if diff := cmp.Diff([]*api.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
 		t.Errorf("ListBuildsForRepo() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListBuildsForRepo"] = true
 
 	list, err = db.ListBuildsForDashboardRepo(context.TODO(), resources.Repos[0], []string{"main"}, []string{"push"})
 	if err != nil {
 		t.Errorf("unable to list build for dashboard repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if len(list) != 1 {
 		t.Errorf("Number of results for ListBuildsForDashboardRepo() is %v, want %v", len(list), 1)
 	}
@@ -319,6 +337,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if diff := cmp.Diff([]*api.Build{resources.Hooks[0].GetBuild()}, list); diff != "" {
 		t.Errorf("ListBuildsForDashboardRepo() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListBuildsForDashboardRepo"] = true
 
 	// list the pending / running builds for a repo
@@ -326,12 +345,15 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list pending and running builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListPendingAndRunningBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
+
 	if diff := cmp.Diff([]*api.Build{resources.Builds[0], resources.Builds[1]}, list); diff != "" {
 		t.Errorf("ListPendingAndRunningBuildsForRepo() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListPendingAndRunningBuildsForRepo"] = true
 
 	// list the pending and running builds
@@ -339,9 +361,11 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list pending and running builds: %v", err)
 	}
+
 	if diff := cmp.Diff(queueBuilds, queueList); diff != "" {
 		t.Errorf("ListPendingAndRunningBuilds() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListPendingAndRunningBuilds"] = true
 
 	// lookup the last build by repo
@@ -349,22 +373,27 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get last build for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if diff := cmp.Diff(resources.Builds[1], got); diff != "" {
 		t.Errorf("LastBuildForRepo() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["LastBuildForRepo"] = true
 
 	// lookup the builds by repo and number
 	for _, build := range resources.Builds {
 		repo := resources.Repos[build.GetRepo().GetID()-1]
+
 		got, err = db.GetBuildForRepo(context.TODO(), repo, build.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
 		}
+
 		if diff := cmp.Diff(build, got); diff != "" {
 			t.Errorf("GetBuildForRepo() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["GetBuildForRepo"] = true
 
 	// clean the builds
@@ -372,9 +401,11 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to clean builds: %v", err)
 	}
+
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CleanBuilds() is %v, want %v", count, len(resources.Builds))
 	}
+
 	methods["CleanBuilds"] = true
 
 	// update the builds
@@ -382,6 +413,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		prevStatus := build.GetStatus()
 
 		build.SetStatus("pending approval")
+
 		_, err = db.UpdateBuild(context.TODO(), build)
 		if err != nil {
 			t.Errorf("unable to update build %d: %v", build.GetID(), err)
@@ -392,6 +424,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get build %d by ID: %v", build.GetID(), err)
 		}
+
 		if diff := cmp.Diff(build, got); diff != "" {
 			t.Errorf("GetBuild() mismatch (-want +got):\n%s", diff)
 		}
@@ -409,6 +442,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 		build.SetStatus(prevStatus)
 	}
+
 	methods["UpdateBuild"] = true
 	methods["GetBuild"] = true
 	methods["ListPendingApprovalBuilds"] = true
@@ -474,6 +508,7 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create dashboard %s: %v", dashboard.GetID(), err)
 		}
 	}
+
 	methods["CreateDashboard"] = true
 
 	// lookup the dashboards by ID
@@ -488,17 +523,20 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 		for _, admin := range got.GetAdmins() {
 			cmpAdmins = append(cmpAdmins, admin.Crop())
 		}
+
 		got.SetAdmins(cmpAdmins)
 
 		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
 			t.Errorf("GetDashboard() is %v, want %v", got, dashboard)
 		}
 	}
+
 	methods["GetDashboard"] = true
 
 	// update the dashboards
 	for _, dashboard := range resources.Dashboards {
 		dashboard.SetUpdatedAt(time.Now().UTC().Unix())
+
 		got, err := db.UpdateDashboard(ctx, dashboard)
 		if err != nil {
 			t.Errorf("unable to update dashboard %s: %v", dashboard.GetID(), err)
@@ -514,6 +552,7 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("UpdateDashboard() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["UpdateDashboard"] = true
 
 	// delete the schedules
@@ -523,6 +562,7 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete dashboard %s: %v", dashboard.GetID(), err)
 		}
 	}
+
 	methods["DeleteDashboard"] = true
 
 	// ensure we called all the methods we expected to
@@ -558,6 +598,7 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create executable %d: %v", executable.GetID(), err)
 		}
 	}
+
 	methods["CreateBuildExecutable"] = true
 
 	// pop executables for builds
@@ -566,10 +607,12 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get executable %d for build %d: %v", executable.GetID(), executable.GetBuildID(), err)
 		}
+
 		if diff := cmp.Diff(executable, got); diff != "" {
 			t.Errorf("PopBuildExecutable() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["PopBuildExecutable"] = true
 
 	prevBuildStatus := resources.Builds[0].GetStatus()
@@ -668,6 +711,7 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create deployment %d: %v", deployment.GetID(), err)
 		}
 	}
+
 	methods["CreateDeployment"] = true
 
 	// count the deployments
@@ -675,9 +719,11 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count deployment: %v", err)
 	}
+
 	if int(count) != len(resources.Deployments) {
 		t.Errorf("CountDeployments() is %v, want %v", count, len(resources.Deployments))
 	}
+
 	methods["CountDeployments"] = true
 
 	// count the deployments for a repo
@@ -685,9 +731,11 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count deployments for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountDeploymentsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
+
 	methods["CountDeploymentsForRepo"] = true
 
 	// list the deployments
@@ -695,9 +743,11 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list deployments: %v", err)
 	}
+
 	if diff := cmp.Diff(resources.Deployments, list); diff != "" {
 		t.Errorf("ListDeployments() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListDeployments"] = true
 
 	// list the deployments for a repo
@@ -705,25 +755,31 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list deployments for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Deployments) {
 		t.Errorf("ListDeploymentsForRepo() is %v, want %v", count, len(resources.Deployments))
 	}
+
 	if diff := cmp.Diff([]*api.Deployment{resources.Deployments[1], resources.Deployments[0]}, list); diff != "" {
 		t.Errorf("ListDeploymentsForRepo() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListDeploymentsForRepo"] = true
 
 	// lookup the deployments by name
 	for _, deployment := range resources.Deployments {
 		repo := resources.Repos[deployment.GetRepo().GetID()-1]
+
 		got, err := db.GetDeploymentForRepo(context.TODO(), repo, deployment.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get deployment %d for repo %d: %v", deployment.GetID(), repo.GetID(), err)
 		}
+
 		if diff := cmp.Diff(deployment, got); diff != "" {
 			t.Errorf("GetDeploymentForRepo() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["GetDeploymentForRepo"] = true
 
 	// update the deployments
@@ -738,10 +794,12 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get deployment %d by ID: %v", deployment.GetID(), err)
 		}
+
 		if diff := cmp.Diff(deployment, got); diff != "" {
 			t.Errorf("GetDeployment() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["UpdateDeployment"] = true
 	methods["GetDeployment"] = true
 
@@ -752,6 +810,7 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete hook %d: %v", deployment.GetID(), err)
 		}
 	}
+
 	methods["DeleteDeployment"] = true
 
 	// delete the builds
@@ -835,6 +894,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create hook %d: %v", hook.GetID(), err)
 		}
 	}
+
 	methods["CreateHook"] = true
 
 	// count the hooks
@@ -842,9 +902,11 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count hooks: %v", err)
 	}
+
 	if int(count) != len(resources.Hooks) {
 		t.Errorf("CountHooks() is %v, want %v", count, len(resources.Hooks))
 	}
+
 	methods["CountHooks"] = true
 
 	// count the hooks for a repo
@@ -852,9 +914,11 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count hooks for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountHooksForRepo() is %v, want %v", count, len(resources.Builds))
 	}
+
 	methods["CountHooksForRepo"] = true
 
 	// list the hooks
@@ -862,9 +926,11 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list hooks: %v", err)
 	}
+
 	if diff := cmp.Diff(resources.Hooks, list); diff != "" {
 		t.Errorf("ListHooks() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListHooks"] = true
 
 	// list the hooks for a repo
@@ -872,9 +938,11 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list hooks for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if diff := cmp.Diff([]*api.Hook{resources.Hooks[2], resources.Hooks[0]}, list); diff != "" {
 		t.Errorf("ListHooksForRepo() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListHooksForRepo"] = true
 
 	// lookup the last build by repo
@@ -882,9 +950,11 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if diff := cmp.Diff(resources.Hooks[2], got); diff != "" {
 		t.Errorf("LastHookForRepo() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["LastHookForRepo"] = true
 
 	// lookup a hook with matching webhook_id
@@ -892,9 +962,11 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if diff := cmp.Diff(resources.Hooks[2], got); diff != "" {
 		t.Errorf("GetHookByWebhookID() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["GetHookByWebhookID"] = true
 
 	// lookup the hooks by name
@@ -903,15 +975,18 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get hook %d for repo %d: %v", hook.GetID(), hook.GetRepo().GetID(), err)
 		}
+
 		if diff := cmp.Diff(hook, got); diff != "" {
 			t.Errorf("GetHookForRepo() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["GetHookForRepo"] = true
 
 	// update the hooks
 	for _, hook := range resources.Hooks {
 		hook.SetStatus("success")
+
 		_, err = db.UpdateHook(context.TODO(), hook)
 		if err != nil {
 			t.Errorf("unable to update hook %d: %v", hook.GetID(), err)
@@ -922,10 +997,12 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get hook %d by ID: %v", hook.GetID(), err)
 		}
+
 		if diff := cmp.Diff(hook, got); diff != "" {
 			t.Errorf("GetHook() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["UpdateHook"] = true
 	methods["GetHook"] = true
 
@@ -936,6 +1013,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete hook %d: %v", hook.GetID(), err)
 		}
 	}
+
 	methods["DeleteHook"] = true
 
 	// delete the builds
@@ -1002,6 +1080,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create jwk %s: %v", kid, err)
 		}
 	}
+
 	methods["CreateJWK"] = true
 
 	list, err := db.ListJWKs(context.TODO())
@@ -1093,6 +1172,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create log %d: %v", log.GetID(), err)
 		}
 	}
+
 	methods["CreateLog"] = true
 
 	// count the logs
@@ -1100,9 +1180,11 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count logs: %v", err)
 	}
+
 	if int(count) != len(resources.Logs) {
 		t.Errorf("CountLogs() is %v, want %v", count, len(resources.Logs))
 	}
+
 	methods["CountLogs"] = true
 
 	// count the logs for a build
@@ -1110,9 +1192,11 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count logs for build %d: %v", resources.Builds[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Logs) {
 		t.Errorf("CountLogs() is %v, want %v", count, len(resources.Logs))
 	}
+
 	methods["CountLogsForBuild"] = true
 
 	// list the logs
@@ -1120,9 +1204,11 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list logs: %v", err)
 	}
+
 	if diff := cmp.Diff(resources.Logs, list); diff != "" {
 		t.Errorf("ListLogs() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListLogs"] = true
 
 	// list the logs for a build
@@ -1130,40 +1216,49 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list logs for build %d: %v", resources.Builds[0].GetID(), err)
 	}
+
 	if diff := cmp.Diff(resources.Logs, list); diff != "" {
 		t.Errorf("ListLogsForBuild() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListLogsForBuild"] = true
 
 	// lookup the logs by service
 	for _, log := range []*api.Log{resources.Logs[0], resources.Logs[1]} {
 		service := resources.Services[log.GetServiceID()-1]
+
 		got, err := db.GetLogForService(context.TODO(), service)
 		if err != nil {
 			t.Errorf("unable to get log %d for service %d: %v", log.GetID(), service.GetID(), err)
 		}
+
 		if !cmp.Equal(got, log) {
 			t.Errorf("GetLogForService() is %v, want %v", got, log)
 		}
 	}
+
 	methods["GetLogForService"] = true
 
 	// lookup the logs by service
 	for _, log := range []*api.Log{resources.Logs[2], resources.Logs[3]} {
 		step := resources.Steps[log.GetStepID()-1]
+
 		got, err := db.GetLogForStep(context.TODO(), step)
 		if err != nil {
 			t.Errorf("unable to get log %d for step %d: %v", log.GetID(), step.GetID(), err)
 		}
+
 		if !cmp.Equal(got, log) {
 			t.Errorf("GetLogForStep() is %v, want %v", got, log)
 		}
 	}
+
 	methods["GetLogForStep"] = true
 
 	// update the logs
 	for _, log := range resources.Logs {
 		log.SetData([]byte("bar"))
+
 		err = db.UpdateLog(context.TODO(), log)
 		if err != nil {
 			t.Errorf("unable to update log %d: %v", log.GetID(), err)
@@ -1174,10 +1269,12 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get log %d by ID: %v", log.GetID(), err)
 		}
+
 		if !cmp.Equal(got, log) {
 			t.Errorf("GetLog() is %v, want %v", got, log)
 		}
 	}
+
 	methods["UpdateLog"] = true
 	methods["GetLog"] = true
 
@@ -1188,7 +1285,16 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete log %d: %v", log.GetID(), err)
 		}
 	}
+
 	methods["DeleteLog"] = true
+
+	// clean the logs
+	_, err = db.CleanLogs(context.TODO(), time.Now().Unix(), 1000, false, db.Driver())
+	if err != nil {
+		t.Errorf("unable to clean logs: %v", err)
+	}
+
+	methods["CleanLogs"] = true
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -1239,6 +1345,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create pipeline %d: %v", pipeline.GetID(), err)
 		}
 	}
+
 	methods["CreatePipeline"] = true
 
 	// count the pipelines
@@ -1246,9 +1353,11 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count pipelines: %v", err)
 	}
+
 	if int(count) != len(resources.Pipelines) {
 		t.Errorf("CountPipelines() is %v, want %v", count, len(resources.Pipelines))
 	}
+
 	methods["CountPipelines"] = true
 
 	// count the pipelines for a repo
@@ -1256,9 +1365,11 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count pipelines for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Pipelines) {
 		t.Errorf("CountPipelinesForRepo() is %v, want %v", count, len(resources.Pipelines))
 	}
+
 	methods["CountPipelinesForRepo"] = true
 
 	// list the pipelines
@@ -1266,9 +1377,11 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list pipelines: %v", err)
 	}
+
 	if diff := cmp.Diff(resources.Pipelines, list); diff != "" {
 		t.Errorf("ListPipelines() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListPipelines"] = true
 
 	// list the pipelines for a repo
@@ -1276,27 +1389,33 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list pipelines for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if diff := cmp.Diff(resources.Pipelines, list); diff != "" {
 		t.Errorf("ListPipelines() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListPipelinesForRepo"] = true
 
 	// lookup the pipelines by name
 	for _, pipeline := range resources.Pipelines {
 		repo := resources.Repos[pipeline.GetRepo().GetID()-1]
+
 		got, err := db.GetPipelineForRepo(context.TODO(), pipeline.GetCommit(), repo)
 		if err != nil {
 			t.Errorf("unable to get pipeline %d for repo %d: %v", pipeline.GetID(), repo.GetID(), err)
 		}
+
 		if diff := cmp.Diff(pipeline, got); diff != "" {
 			t.Errorf("GetPipelineForRepo() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["GetPipelineForRepo"] = true
 
 	// update the pipelines
 	for _, pipeline := range resources.Pipelines {
 		pipeline.SetVersion("2")
+
 		_, err = db.UpdatePipeline(context.TODO(), pipeline)
 		if err != nil {
 			t.Errorf("unable to update pipeline %d: %v", pipeline.GetID(), err)
@@ -1307,10 +1426,12 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get pipeline %d by ID: %v", pipeline.GetID(), err)
 		}
+
 		if diff := cmp.Diff(pipeline, got); diff != "" {
 			t.Errorf("GetPipeline() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["UpdatePipeline"] = true
 	methods["GetPipeline"] = true
 
@@ -1321,6 +1442,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete pipeline %d: %v", pipeline.GetID(), err)
 		}
 	}
+
 	methods["DeletePipeline"] = true
 
 	// delete the repos
@@ -1380,6 +1502,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
 		}
 	}
+
 	methods["CreateRepo"] = true
 
 	// count the repos
@@ -1387,9 +1510,11 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count repos: %v", err)
 	}
+
 	if int(count) != len(resources.Repos) {
 		t.Errorf("CountRepos() is %v, want %v", count, len(resources.Repos))
 	}
+
 	methods["CountRepos"] = true
 
 	// count the repos for an org
@@ -1397,9 +1522,11 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count repos for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
+
 	if int(count) != len(resources.Repos) {
 		t.Errorf("CountReposForOrg() is %v, want %v", count, len(resources.Repos))
 	}
+
 	methods["CountReposForOrg"] = true
 
 	// count the repos for a user
@@ -1407,9 +1534,11 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count repos for user %d: %v", resources.Users[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Repos) {
 		t.Errorf("CountReposForUser() is %v, want %v", count, len(resources.Repos))
 	}
+
 	methods["CountReposForUser"] = true
 
 	// list the repos
@@ -1417,18 +1546,22 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list repos: %v", err)
 	}
+
 	if diff := cmp.Diff(resources.Repos, list); diff != "" {
 		t.Errorf("ListRepos() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListRepos"] = true
 
 	list, err = db.GetReposInList(t.Context(), []string{"github/octocat", "github/octokitty"})
 	if err != nil {
 		t.Errorf("unable to get repos in list: %v", err)
 	}
+
 	if diff := cmp.Diff(resources.Repos, list, cmpopts.IgnoreFields(api.Repo{}, "Owner", "Hash")); diff != "" {
 		t.Errorf("GetReposInList() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["GetReposInList"] = true
 
 	// list the repos for an org
@@ -1436,9 +1569,11 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list repos for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
+
 	if diff := cmp.Diff(resources.Repos, list); diff != "" {
 		t.Errorf("ListReposForOrg() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListReposForOrg"] = true
 
 	// list the repos for a user
@@ -1446,9 +1581,11 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list repos for user %d: %v", resources.Users[0].GetID(), err)
 	}
+
 	if diff := cmp.Diff(resources.Repos, list); diff != "" {
 		t.Errorf("ListReposForUser() mismatch (-want +got):\n%s", diff)
 	}
+
 	methods["ListReposForUser"] = true
 
 	// lookup the repos by name
@@ -1457,15 +1594,18 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get repo %d by org: %v", repo.GetID(), err)
 		}
+
 		if diff := cmp.Diff(repo, got); diff != "" {
 			t.Errorf("GetRepoForOrg() mismatch (-want +got):\n%s", diff)
 		}
 	}
+
 	methods["GetRepoForOrg"] = true
 
 	// update the repos
 	for _, repo := range resources.Repos {
 		repo.SetActive(false)
+
 		_, err = db.UpdateRepo(context.TODO(), repo)
 		if err != nil {
 			t.Errorf("unable to update repo %d: %v", repo.GetID(), err)
@@ -1476,10 +1616,12 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get repo %d by ID: %v", repo.GetID(), err)
 		}
+
 		if !cmp.Equal(got, repo) {
 			t.Errorf("GetRepo() is %v, want %v", got, repo)
 		}
 	}
+
 	methods["UpdateRepo"] = true
 	methods["GetRepo"] = true
 
@@ -1490,6 +1632,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
 		}
 	}
+
 	methods["DeleteRepo"] = true
 
 	// delete the owners
@@ -1549,6 +1692,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create schedule %d: %v", schedule.GetID(), err)
 		}
 	}
+
 	methods["CreateSchedule"] = true
 
 	// count the schedules
@@ -1556,9 +1700,11 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count schedules: %v", err)
 	}
+
 	if int(count) != len(resources.Schedules) {
 		t.Errorf("CountSchedules() is %v, want %v", count, len(resources.Schedules))
 	}
+
 	methods["CountSchedules"] = true
 
 	// count the schedules for a repo
@@ -1566,9 +1712,11 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Schedules) {
 		t.Errorf("CountSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
 	}
+
 	methods["CountSchedulesForRepo"] = true
 
 	// list the schedules
@@ -1576,9 +1724,11 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
+
 	if !cmp.Equal(list, resources.Schedules, CmpOptApproxUpdatedAt()) {
 		t.Errorf("ListSchedules() is %v, want %v", list, resources.Schedules)
 	}
+
 	methods["ListSchedules"] = true
 
 	// list the active schedules
@@ -1586,9 +1736,11 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
+
 	if !cmp.Equal(list, resources.Schedules, CmpOptApproxUpdatedAt()) {
 		t.Errorf("ListActiveSchedules() is %v, want %v", list, resources.Schedules)
 	}
+
 	methods["ListActiveSchedules"] = true
 
 	// list the schedules for a repo
@@ -1596,27 +1748,33 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+
 	if !cmp.Equal(list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]}, CmpOptApproxUpdatedAt()) {
 		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]})
 	}
+
 	methods["ListSchedulesForRepo"] = true
 
 	// lookup the schedules by name
 	for _, schedule := range resources.Schedules {
 		repo := resources.Repos[schedule.GetRepo().GetID()-1]
+
 		got, err := db.GetScheduleForRepo(context.TODO(), repo, schedule.GetName())
 		if err != nil {
 			t.Errorf("unable to get schedule %d for repo %d: %v", schedule.GetID(), repo.GetID(), err)
 		}
+
 		if !cmp.Equal(got, schedule, CmpOptApproxUpdatedAt()) {
 			t.Errorf("GetScheduleForRepo() is %v, want %v", got, schedule)
 		}
 	}
+
 	methods["GetScheduleForRepo"] = true
 
 	// update the schedules
 	for _, schedule := range resources.Schedules {
 		schedule.SetUpdatedAt(time.Now().UTC().Unix())
+
 		got, err := db.UpdateSchedule(context.TODO(), schedule, true)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
@@ -1626,6 +1784,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetSchedule() is %v, want %v", got, schedule)
 		}
 	}
+
 	methods["UpdateSchedule"] = true
 	methods["GetSchedule"] = true
 
@@ -1636,6 +1795,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete schedule %d: %v", schedule.GetID(), err)
 		}
 	}
+
 	methods["DeleteSchedule"] = true
 
 	// delete the repos
@@ -1687,6 +1847,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create secret %d: %v", secret.GetID(), err)
 		}
 	}
+
 	methods["CreateSecret"] = true
 
 	// count the secrets
@@ -1694,9 +1855,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count secrets: %v", err)
 	}
+
 	if int(count) != len(resources.Secrets) {
 		t.Errorf("CountSecrets() is %v, want %v", count, len(resources.Secrets))
 	}
+
 	methods["CountSecrets"] = true
 
 	for _, secret := range resources.Secrets {
@@ -1707,9 +1870,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to count secrets for org %s: %v", secret.GetOrg(), err)
 			}
+
 			if int(count) != 1 {
 				t.Errorf("CountSecretsForOrg() is %v, want %v", count, 1)
 			}
+
 			methods["CountSecretsForOrg"] = true
 		case constants.SecretRepo:
 			// count the secrets for a repo
@@ -1717,9 +1882,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to count secrets for repo %d: %v", resources.Repos[0].GetID(), err)
 			}
+
 			if int(count) != 1 {
 				t.Errorf("CountSecretsForRepo() is %v, want %v", count, 1)
 			}
+
 			methods["CountSecretsForRepo"] = true
 		case constants.SecretShared:
 			// count the secrets for a team
@@ -1727,9 +1894,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to count secrets for team %s: %v", secret.GetTeam(), err)
 			}
+
 			if int(count) != 1 {
 				t.Errorf("CountSecretsForTeam() is %v, want %v", count, 1)
 			}
+
 			methods["CountSecretsForTeam"] = true
 			methods["FillSecretAllowlist"] = true
 
@@ -1738,9 +1907,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to count secrets for teams %s: %v", []string{secret.GetTeam()}, err)
 			}
+
 			if int(count) != 1 {
 				t.Errorf("CountSecretsForTeams() is %v, want %v", count, 1)
 			}
+
 			methods["CountSecretsForTeams"] = true
 		default:
 			t.Errorf("unsupported type %s for secret %d", secret.GetType(), secret.GetID())
@@ -1752,9 +1923,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list secrets: %v", err)
 	}
+
 	if !cmp.Equal(list, resources.Secrets, CmpOptApproxUpdatedAt()) {
 		t.Errorf("ListSecrets() is %v, want %v", list, resources.Secrets)
 	}
+
 	methods["ListSecrets"] = true
 
 	for _, secret := range resources.Secrets {
@@ -1765,9 +1938,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to list secrets for org %s: %v", secret.GetOrg(), err)
 			}
+
 			if !cmp.Equal(list, []*api.Secret{secret}) {
 				t.Errorf("ListSecretsForOrg() is %v, want %v", list, []*api.Secret{secret})
 			}
+
 			methods["ListSecretsForOrg"] = true
 		case constants.SecretRepo:
 			// list the secrets for a repo
@@ -1775,9 +1950,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to list secrets for repo %d: %v", resources.Repos[0].GetID(), err)
 			}
+
 			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
 				t.Errorf("ListSecretsForRepo() is %v, want %v", list, []*api.Secret{secret})
 			}
+
 			methods["ListSecretsForRepo"] = true
 		case constants.SecretShared:
 			// list the secrets for a team
@@ -1785,9 +1962,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to list secrets for team %s: %v", secret.GetTeam(), err)
 			}
+
 			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
 				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*api.Secret{secret})
 			}
+
 			methods["ListSecretsForTeam"] = true
 			methods["FillSecretsAllowlists"] = true
 
@@ -1796,9 +1975,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to list secrets for teams %s: %v", []string{secret.GetTeam()}, err)
 			}
+
 			if !cmp.Equal(list, []*api.Secret{secret}, CmpOptApproxUpdatedAt()) {
 				t.Errorf("ListSecretsForTeams() is %v, want %v", list, []*api.Secret{secret})
 			}
+
 			methods["ListSecretsForTeams"] = true
 		default:
 			t.Errorf("unsupported type %s for secret %d", secret.GetType(), secret.GetID())
@@ -1813,9 +1994,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to get secret %d for org %s: %v", secret.GetID(), secret.GetOrg(), err)
 			}
+
 			if !cmp.Equal(got, secret, CmpOptApproxUpdatedAt()) {
 				t.Errorf("GetSecretForOrg() is %v, want %v", got, secret)
 			}
+
 			methods["GetSecretForOrg"] = true
 		case constants.SecretRepo:
 			// lookup the secret by repo
@@ -1823,9 +2006,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to get secret %d for repo %d: %v", secret.GetID(), resources.Repos[0].GetID(), err)
 			}
+
 			if !cmp.Equal(got, secret, CmpOptApproxUpdatedAt()) {
 				t.Errorf("GetSecretForRepo() is %v, want %v", got, secret)
 			}
+
 			methods["GetSecretForRepo"] = true
 		case constants.SecretShared:
 			// lookup the secret by team
@@ -1833,9 +2018,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to get secret %d for team %s: %v", secret.GetID(), secret.GetTeam(), err)
 			}
+
 			if !cmp.Equal(got, secret, CmpOptApproxUpdatedAt()) {
 				t.Errorf("GetSecretForTeam() is %v, want %v", got, secret)
 			}
+
 			methods["GetSecretForTeam"] = true
 		default:
 			t.Errorf("unsupported type %s for secret %d", secret.GetType(), secret.GetID())
@@ -1845,6 +2032,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	// update the secrets
 	for _, secret := range resources.Secrets {
 		secret.SetUpdatedAt(time.Now().UTC().Unix())
+
 		got, err := db.UpdateSecret(context.TODO(), secret)
 		if err != nil {
 			t.Errorf("unable to update secret %d: %v", secret.GetID(), err)
@@ -1854,6 +2042,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetSecret() is %v, want %v", got, secret)
 		}
 	}
+
 	methods["UpdateSecret"] = true
 	methods["GetSecret"] = true
 
@@ -1870,6 +2059,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get secret foo for repo: %v", err)
 	}
+
 	if renamedRepoSecret.GetOrg() != "github" && renamedRepoSecret.GetRepo() != "octokitty" {
 		t.Errorf("secret foo org/repo is %s/%s, want github/octokitty", renamedRepoSecret.GetOrg(), renamedRepoSecret.GetRepo())
 	}
@@ -1878,6 +2068,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get secret foo for team %s: %v", "octocat", err)
 	}
+
 	if !reflect.DeepEqual(adjustedSharedSecret.GetRepoAllowlist(), []string{"github/octokitty"}) {
 		t.Errorf("secret foo repo allowlist is %v, want %v", adjustedSharedSecret.GetRepoAllowlist(), []string{"github/octokitty"})
 	}
@@ -1891,6 +2082,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete secret %d: %v", secret.GetID(), err)
 		}
 	}
+
 	methods["DeleteSecret"] = true
 
 	// ensure we called all the methods we expected to
@@ -1926,6 +2118,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create service %d: %v", service.GetID(), err)
 		}
 	}
+
 	methods["CreateService"] = true
 
 	// count the services
@@ -1933,9 +2126,11 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count services: %v", err)
 	}
+
 	if int(count) != len(resources.Services) {
 		t.Errorf("CountServices() is %v, want %v", count, len(resources.Services))
 	}
+
 	methods["CountServices"] = true
 
 	// count the services for a build
@@ -1943,9 +2138,11 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Services) {
 		t.Errorf("CountServicesForBuild() is %v, want %v", count, len(resources.Services))
 	}
+
 	methods["CountServicesForBuild"] = true
 
 	// list the services
@@ -1953,9 +2150,11 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list services: %v", err)
 	}
+
 	if !cmp.Equal(list, resources.Services) {
 		t.Errorf("ListServices() is %v, want %v", list, resources.Services)
 	}
+
 	methods["ListServices"] = true
 
 	// list the services for a build
@@ -1963,22 +2162,27 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
+
 	if !cmp.Equal(list, []*api.Service{resources.Services[1], resources.Services[0]}) {
 		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*api.Service{resources.Services[1], resources.Services[0]})
 	}
+
 	methods["ListServicesForBuild"] = true
 
 	expected := map[string]float64{
 		"#init":                        1,
 		"target/vela-git-slim:v0.12.0": 1,
 	}
+
 	images, err := db.ListServiceImageCount(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list service image count: %v", err)
 	}
+
 	if !cmp.Equal(images, expected) {
 		t.Errorf("ListServiceImageCount() is %v, want %v", images, expected)
 	}
+
 	methods["ListServiceImageCount"] = true
 
 	expected = map[string]float64{
@@ -1988,26 +2192,32 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 		"running": 1,
 		"success": 0,
 	}
+
 	statuses, err := db.ListServiceStatusCount(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list service status count: %v", err)
 	}
+
 	if !cmp.Equal(statuses, expected) {
 		t.Errorf("ListServiceStatusCount() is %v, want %v", statuses, expected)
 	}
+
 	methods["ListServiceStatusCount"] = true
 
 	// lookup the services by name
 	for _, service := range resources.Services {
 		build := resources.Builds[service.GetBuildID()-1]
+
 		got, err := db.GetServiceForBuild(context.TODO(), build, service.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get service %d for build %d: %v", service.GetID(), build.GetID(), err)
 		}
+
 		if !cmp.Equal(got, service) {
 			t.Errorf("GetServiceForBuild() is %v, want %v", got, service)
 		}
 	}
+
 	methods["GetServiceForBuild"] = true
 
 	// clean the services
@@ -2015,14 +2225,17 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to clean services: %v", err)
 	}
+
 	if int(count) != len(resources.Services) {
 		t.Errorf("CleanServices() is %v, want %v", count, len(resources.Services))
 	}
+
 	methods["CleanServices"] = true
 
 	// update the services
 	for _, service := range resources.Services {
 		service.SetStatus("success")
+
 		got, err := db.UpdateService(context.TODO(), service)
 		if err != nil {
 			t.Errorf("unable to update service %d: %v", service.GetID(), err)
@@ -2032,6 +2245,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("UpdateService() is %v, want %v", got, service)
 		}
 	}
+
 	methods["UpdateService"] = true
 	methods["GetService"] = true
 
@@ -2042,6 +2256,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete service %d: %v", service.GetID(), err)
 		}
 	}
+
 	methods["DeleteService"] = true
 
 	// ensure we called all the methods we expected to
@@ -2069,6 +2284,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 		// add the method name to the list of functions
 		methods[element.Method(i).Name] = false
 	}
+
 	ctx := context.TODO()
 
 	// create the steps
@@ -2078,6 +2294,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create step %d: %v", step.GetID(), err)
 		}
 	}
+
 	methods["CreateStep"] = true
 
 	// count the steps
@@ -2085,9 +2302,11 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count steps: %v", err)
 	}
+
 	if int(count) != len(resources.Steps) {
 		t.Errorf("CountSteps() is %v, want %v", count, len(resources.Steps))
 	}
+
 	methods["CountSteps"] = true
 
 	// count the steps for a build
@@ -2095,9 +2314,11 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
+
 	if int(count) != len(resources.Steps) {
 		t.Errorf("CountStepsForBuild() is %v, want %v", count, len(resources.Steps))
 	}
+
 	methods["CountStepsForBuild"] = true
 
 	// list the steps
@@ -2105,9 +2326,11 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list steps: %v", err)
 	}
+
 	if !cmp.Equal(list, resources.Steps) {
 		t.Errorf("ListSteps() is %v, want %v", list, resources.Steps)
 	}
+
 	methods["ListSteps"] = true
 
 	// list the steps for a build
@@ -2115,22 +2338,27 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
+
 	if !cmp.Equal(list, []*api.Step{resources.Steps[1], resources.Steps[0]}) {
 		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*api.Step{resources.Steps[1], resources.Steps[0]})
 	}
+
 	methods["ListStepsForBuild"] = true
 
 	expected := map[string]float64{
 		"#init":                        1,
 		"target/vela-git-slim:v0.12.0": 1,
 	}
+
 	images, err := db.ListStepImageCount(ctx)
 	if err != nil {
 		t.Errorf("unable to list step image count: %v", err)
 	}
+
 	if !cmp.Equal(images, expected) {
 		t.Errorf("ListStepImageCount() is %v, want %v", images, expected)
 	}
+
 	methods["ListStepImageCount"] = true
 
 	expected = map[string]float64{
@@ -2140,26 +2368,32 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 		"running": 1,
 		"success": 0,
 	}
+
 	statuses, err := db.ListStepStatusCount(ctx)
 	if err != nil {
 		t.Errorf("unable to list step status count: %v", err)
 	}
+
 	if !cmp.Equal(statuses, expected) {
 		t.Errorf("ListStepStatusCount() is %v, want %v", statuses, expected)
 	}
+
 	methods["ListStepStatusCount"] = true
 
 	// lookup the steps by name
 	for _, step := range resources.Steps {
 		build := resources.Builds[step.GetBuildID()-1]
+
 		got, err := db.GetStepForBuild(ctx, build, step.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get step %d for build %d: %v", step.GetID(), build.GetID(), err)
 		}
+
 		if !cmp.Equal(got, step) {
 			t.Errorf("GetStepForBuild() is %v, want %v", got, step)
 		}
 	}
+
 	methods["GetStepForBuild"] = true
 
 	// clean the steps
@@ -2167,14 +2401,17 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to clean steps: %v", err)
 	}
+
 	if int(count) != len(resources.Steps) {
 		t.Errorf("CleanSteps() is %v, want %v", count, len(resources.Steps))
 	}
+
 	methods["CleanSteps"] = true
 
 	// update the steps
 	for _, step := range resources.Steps {
 		step.SetStatus("success")
+
 		got, err := db.UpdateStep(ctx, step)
 		if err != nil {
 			t.Errorf("unable to update step %d: %v", step.GetID(), err)
@@ -2184,6 +2421,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetStep() is %v, want %v", got, step)
 		}
 	}
+
 	methods["UpdateStep"] = true
 	methods["GetStep"] = true
 
@@ -2194,6 +2432,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete step %d: %v", step.GetID(), err)
 		}
 	}
+
 	methods["DeleteStep"] = true
 
 	// ensure we called all the methods we expected to
@@ -2251,6 +2490,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create user %d: %v", user.GetID(), err)
 		}
 	}
+
 	methods["CreateUser"] = true
 
 	// count the users
@@ -2258,9 +2498,11 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count users: %v", err)
 	}
+
 	if int(count) != len(resources.Users) {
 		t.Errorf("CountUsers() is %v, want %v", count, len(resources.Users))
 	}
+
 	methods["CountUsers"] = true
 
 	// list the users
@@ -2268,9 +2510,11 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list users: %v", err)
 	}
+
 	if !cmp.Equal(list, resources.Users) {
 		t.Errorf("ListUsers() is %v, want %v", list, resources.Users)
 	}
+
 	methods["ListUsers"] = true
 
 	// lite list the users
@@ -2278,9 +2522,11 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list lite users: %v", err)
 	}
+
 	if !cmp.Equal(list, liteUsers) {
 		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
 	}
+
 	methods["ListLiteUsers"] = true
 
 	// lookup the users by name
@@ -2289,15 +2535,18 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get user %d by name: %v", user.GetID(), err)
 		}
+
 		if !cmp.Equal(got, user) {
 			t.Errorf("GetUserForName() is %v, want %v", got, user)
 		}
 	}
+
 	methods["GetUserForName"] = true
 
 	// update the users
 	for _, user := range resources.Users {
 		user.SetActive(false)
+
 		got, err := db.UpdateUser(context.TODO(), user)
 		if err != nil {
 			t.Errorf("unable to update user %d: %v", user.GetID(), err)
@@ -2307,6 +2556,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetUser() is %v, want %v", got, user)
 		}
 	}
+
 	methods["UpdateUser"] = true
 	methods["GetUser"] = true
 
@@ -2317,6 +2567,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
 		}
 	}
+
 	methods["DeleteUser"] = true
 
 	// ensure we called all the methods we expected to
@@ -2352,6 +2603,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create worker %d: %v", worker.GetID(), err)
 		}
 	}
+
 	methods["CreateWorker"] = true
 
 	// count the workers
@@ -2359,9 +2611,11 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to count workers: %v", err)
 	}
+
 	if int(count) != len(resources.Workers) {
 		t.Errorf("CountWorkers() is %v, want %v", count, len(resources.Workers))
 	}
+
 	methods["CountWorkers"] = true
 
 	// list the workers
@@ -2369,9 +2623,11 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list workers: %v", err)
 	}
+
 	if !cmp.Equal(list, resources.Workers) {
 		t.Errorf("ListWorkers() is %v, want %v", list, resources.Workers)
 	}
+
 	methods["ListWorkers"] = true
 
 	// lookup the workers by hostname
@@ -2380,15 +2636,18 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get worker %d by hostname: %v", worker.GetID(), err)
 		}
+
 		if !cmp.Equal(got, worker) {
 			t.Errorf("GetWorkerForHostname() is %v, want %v", got, worker)
 		}
 	}
+
 	methods["GetWorkerForHostname"] = true
 
 	// update the workers
 	for _, worker := range resources.Workers {
 		worker.SetActive(false)
+
 		got, err := db.UpdateWorker(context.TODO(), worker)
 		if err != nil {
 			t.Errorf("unable to update worker %d: %v", worker.GetID(), err)
@@ -2398,6 +2657,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetWorker() is %v, want %v", got, worker)
 		}
 	}
+
 	methods["UpdateWorker"] = true
 	methods["GetWorker"] = true
 
@@ -2408,6 +2668,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete worker %d: %v", worker.GetID(), err)
 		}
 	}
+
 	methods["DeleteWorker"] = true
 
 	// ensure we called all the methods we expected to
@@ -2443,12 +2704,14 @@ func testSettings(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create settings %d: %v", s.GetID(), err)
 		}
 	}
+
 	methods["CreateSettings"] = true
 
 	// update the settings
 	for _, s := range resources.Platform {
 		s.SetCloneImage("target/vela-git-slim:abc123")
 		s.SetRepoRoleMap(map[string]string{"foo": "bar"})
+
 		got, err := db.UpdateSettings(context.TODO(), s)
 		if err != nil {
 			t.Errorf("unable to update settings %d: %v", s.GetID(), err)
@@ -2458,6 +2721,7 @@ func testSettings(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("UpdateSettings() is %v, want %v", got, s)
 		}
 	}
+
 	methods["UpdateSettings"] = true
 	methods["GetSettings"] = true
 

@@ -36,6 +36,7 @@ func TestDeployment_Engine_DeleteDeployment(t *testing.T) {
 	_deploymentOne.SetBuilds([]*api.Build{testutils.APIBuild()})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -44,6 +45,7 @@ func TestDeployment_Engine_DeleteDeployment(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateDeployment(context.TODO(), _deploymentOne)

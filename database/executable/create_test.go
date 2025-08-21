@@ -16,6 +16,7 @@ func TestExecutable_Engine_CreateBuildExecutable(t *testing.T) {
 	_bExecutable.SetBuildID(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -29,6 +30,7 @@ VALUES ($1,$2,$3) RETURNING "id"`).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// setup tests

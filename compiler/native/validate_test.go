@@ -626,7 +626,6 @@ func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
 	}
 
 	err = compiler.ValidatePipeline(p)
-
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}
@@ -662,7 +661,6 @@ func TestNative_Validate_MultiReportAs(t *testing.T) {
 	}
 
 	err = compiler.ValidatePipeline(p)
-
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}

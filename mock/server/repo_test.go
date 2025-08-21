@@ -24,6 +24,7 @@ func TestRepo_ActiveRepoResp(t *testing.T) {
 		if tRepo.Field(i).Name == "Hash" {
 			continue
 		}
+
 		if reflect.ValueOf(testRepo).Field(i).IsNil() {
 			t.Errorf("RepoResp missing field %s", tRepo.Field(i).Name)
 		}

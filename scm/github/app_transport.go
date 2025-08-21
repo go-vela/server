@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/go-github/v73/github"
+	"github.com/google/go-github/v74/github"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
@@ -207,7 +207,7 @@ func (t *Transport) refreshToken(ctx context.Context) error {
 
 	requestURL := fmt.Sprintf("%s/app/installations/%v/access_tokens", strings.TrimRight(t.BaseURL, "/"), t.installationID)
 
-	req, err := http.NewRequest("POST", requestURL, body)
+	req, err := http.NewRequestWithContext(ctx, "POST", requestURL, body)
 	if err != nil {
 		return fmt.Errorf("could not create request: %w", err)
 	}

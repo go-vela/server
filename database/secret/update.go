@@ -89,7 +89,6 @@ func (e *Engine) UpdateSecret(ctx context.Context, s *api.Secret) (*api.Secret, 
 
 		return nil
 	})
-
 	if transactionErr != nil {
 		return nil, transactionErr
 	}

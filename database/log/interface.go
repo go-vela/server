@@ -11,7 +11,7 @@ import (
 // LogInterface represents the Vela interface for log
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type LogInterface interface {
 	// Log Data Definition Language Functions
 	//
@@ -46,4 +46,6 @@ type LogInterface interface {
 	ListLogsForBuild(context.Context, *api.Build, int, int) ([]*api.Log, error)
 	// UpdateLog defines a function that updates an existing log.
 	UpdateLog(context.Context, *api.Log) error
+	// CleanLogs defines a function that deletes logs older than a specified timestamp in batches.
+	CleanLogs(context.Context, int64, int, bool, string) (*CleanupResult, error)
 }

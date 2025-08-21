@@ -40,6 +40,7 @@ func TestSecret_Engine_CountSecretsForTeam(t *testing.T) {
 	_secretTwo.SetUpdatedBy("user2")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -50,6 +51,7 @@ func TestSecret_Engine_CountSecretsForTeam(t *testing.T) {
 		WithArgs(constants.SecretShared, "foo", "bar").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secretOne)
@@ -146,6 +148,7 @@ func TestSecret_Engine_CountSecretsForTeams(t *testing.T) {
 	_secretTwo.SetUpdatedBy("user2")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -156,6 +159,7 @@ func TestSecret_Engine_CountSecretsForTeams(t *testing.T) {
 		WithArgs(constants.SecretShared, "foo", "foo", "bar").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secretOne)

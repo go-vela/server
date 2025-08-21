@@ -52,6 +52,7 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_secretShared.SetRepoAllowlist([]string{"github/octocat"})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	_mock.ExpectBegin()
@@ -91,6 +92,7 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_mock.ExpectCommit()
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secretRepo)

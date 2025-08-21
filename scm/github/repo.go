@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v73/github"
+	"github.com/google/go-github/v74/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -292,12 +292,11 @@ func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
-func (c *Client) Status(ctx context.Context, u *api.User, b *api.Build, org, name string) error {
+func (c *Client) Status(ctx context.Context, b *api.Build, org, name, token string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
 		"repo":  name,
-		"user":  u.GetName(),
 	}).Tracef("setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
 
 	// only report opened, synchronize, and reopened action types for pull_request events
@@ -307,7 +306,7 @@ func (c *Client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, token)
 
 	context := fmt.Sprintf("%s/%s", c.config.StatusContext, b.GetEvent())
 	url := fmt.Sprintf("%s/%s/%s/%d", c.config.WebUIAddress, org, name, b.GetNumber())
@@ -412,12 +411,11 @@ func (c *Client) Status(ctx context.Context, u *api.User, b *api.Build, org, nam
 }
 
 // StepStatus sends the commit status for the given SHA to the GitHub repo with the step as the context.
-func (c *Client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *api.Step, org, name string) error {
+func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, org, name, token string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
 		"repo":  name,
-		"user":  u.GetName(),
 	}).Tracef("setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
 
 	// no commit statuses on deployments
@@ -426,7 +424,7 @@ func (c *Client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *a
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, token)
 
 	context := fmt.Sprintf("%s/%s/%s", c.config.StatusContext, b.GetEvent(), s.GetReportAs())
 	url := fmt.Sprintf("%s/%s/%s/%d#%d", c.config.WebUIAddress, org, name, b.GetNumber(), s.GetNumber())
@@ -594,15 +592,16 @@ func toAPIRepo(gr github.Repository) *api.Repo {
 	}
 
 	return &api.Repo{
-		Org:        gr.GetOwner().Login,
-		Name:       gr.Name,
-		FullName:   gr.FullName,
-		Link:       gr.HTMLURL,
-		Clone:      gr.CloneURL,
-		Branch:     gr.DefaultBranch,
-		Topics:     &gr.Topics,
-		Private:    gr.Private,
-		Visibility: &visibility,
+		Org:         gr.GetOwner().Login,
+		Name:        gr.Name,
+		FullName:    gr.FullName,
+		Link:        gr.HTMLURL,
+		Clone:       gr.CloneURL,
+		Branch:      gr.DefaultBranch,
+		Topics:      &gr.Topics,
+		Private:     gr.Private,
+		Visibility:  &visibility,
+		CustomProps: &gr.CustomProperties,
 	}
 }
 
@@ -722,6 +721,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 	ghPermissions := &github.InstallationPermissions{
 		Contents: github.Ptr(AppInstallPermissionRead),
 		Checks:   github.Ptr(AppInstallPermissionWrite),
+		Statuses: github.Ptr(AppInstallPermissionWrite),
 	}
 
 	permissions := g.Permissions

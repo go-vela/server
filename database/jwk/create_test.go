@@ -15,12 +15,14 @@ import (
 func TestJWK_Engine_CreateJWK(t *testing.T) {
 	// setup types
 	_jwk := testutils.JWK()
+
 	_jwkBytes, err := json.Marshal(_jwk)
 	if err != nil {
 		t.Errorf("unable to marshal JWK: %v", err)
 	}
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	kid, ok := _jwk.KeyID()
@@ -36,6 +38,7 @@ VALUES ($1,$2,$3)`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// setup tests

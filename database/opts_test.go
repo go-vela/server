@@ -581,3 +581,162 @@ func TestDatabase_EngineOpt_WithLogShowSQL(t *testing.T) {
 		})
 	}
 }
+
+func TestDatabase_EngineOpt_WithLogPartitioned(t *testing.T) {
+	// setup types
+	e := &engine{config: new(config)}
+
+	// setup tests
+	tests := []struct {
+		failure     bool
+		name        string
+		partitioned bool
+		want        bool
+	}{
+		{
+			failure:     false,
+			name:        "log partitioned set to true",
+			partitioned: true,
+			want:        true,
+		},
+		{
+			failure:     false,
+			name:        "log partitioned set to false",
+			partitioned: false,
+			want:        false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := WithLogPartitioned(test.partitioned)(e)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("WithLogPartitioned for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("WithLogPartitioned for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(e.config.LogPartitioned, test.want) {
+				t.Errorf("WithLogPartitioned for %s is %v, want %v", test.name, e.config.LogPartitioned, test.want)
+			}
+		})
+	}
+}
+
+func TestDatabase_EngineOpt_WithLogPartitionPattern(t *testing.T) {
+	// setup types
+	e := &engine{config: new(config)}
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		name    string
+		pattern string
+		want    string
+	}{
+		{
+			failure: false,
+			name:    "pattern set to logs_%",
+			pattern: "logs_%",
+			want:    "logs_%",
+		},
+		{
+			failure: false,
+			name:    "pattern set to custom_logs_%",
+			pattern: "custom_logs_%",
+			want:    "custom_logs_%",
+		},
+		{
+			failure: false,
+			name:    "pattern set to empty string",
+			pattern: "",
+			want:    "",
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := WithLogPartitionPattern(test.pattern)(e)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("WithLogPartitionPattern for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("WithLogPartitionPattern for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(e.config.LogPartitionPattern, test.want) {
+				t.Errorf("WithLogPartitionPattern for %s is %v, want %v", test.name, e.config.LogPartitionPattern, test.want)
+			}
+		})
+	}
+}
+
+func TestDatabase_EngineOpt_WithLogPartitionSchema(t *testing.T) {
+	// setup types
+	e := &engine{config: new(config)}
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		name    string
+		schema  string
+		want    string
+	}{
+		{
+			failure: false,
+			name:    "schema set to public",
+			schema:  "public",
+			want:    "public",
+		},
+		{
+			failure: false,
+			name:    "schema set to custom_schema",
+			schema:  "custom_schema",
+			want:    "custom_schema",
+		},
+		{
+			failure: false,
+			name:    "schema set to empty string",
+			schema:  "",
+			want:    "",
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := WithLogPartitionSchema(test.schema)(e)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("WithLogPartitionSchema for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("WithLogPartitionSchema for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(e.config.LogPartitionSchema, test.want) {
+				t.Errorf("WithLogPartitionSchema for %s is %v, want %v", test.name, e.config.LogPartitionSchema, test.want)
+			}
+		})
+	}
+}
