@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/go-vela/server/constants"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/storage/minio"
 )
 
@@ -48,15 +48,19 @@ func (s *Setup) Validate() error {
 		if s.Driver != "" && s.Driver != constants.DriverMinio {
 			return fmt.Errorf("storage driver should not be set (got %q)", s.Driver)
 		}
+
 		if s.Bucket == "" {
 			return fmt.Errorf("storage is enabled but no bucket provided")
 		}
+
 		if s.Endpoint == "" {
 			return fmt.Errorf("storage is enabled but no endpoint provided")
 		}
+
 		if s.AccessKey == "" || s.SecretKey == "" {
 			return fmt.Errorf("storage is enabled but no access key or secret key provided")
 		}
+
 		if _, err := url.ParseRequestURI(s.Endpoint); err != nil {
 			return fmt.Errorf("storage is enabled but endpoint is invalid")
 		}

@@ -19,6 +19,7 @@ func TestTestReport_Engine_CreateTestReport(t *testing.T) {
 	_testReport.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -31,6 +32,7 @@ func TestTestReport_Engine_CreateTestReport(t *testing.T) {
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// setup tests

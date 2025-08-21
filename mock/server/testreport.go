@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package server
 
 import (
@@ -5,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 	api "github.com/go-vela/server/api/types"
 )
 
@@ -16,8 +19,8 @@ const TestReportResp = `{
 }`
 
 func addTestReport(c *gin.Context) {
-
 	data := []byte(TestReportResp)
+
 	var body api.TestReport
 
 	_ = json.Unmarshal(data, &body)

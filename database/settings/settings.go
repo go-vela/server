@@ -71,6 +71,5 @@ func New(opts ...EngineOpt) (*Engine, error) {
 		return nil, fmt.Errorf("unable to create %s table: %w", TableSettings, err)
 	}
 
-	//nolint:revive // ignore returning unexported engine
 	return e, nil
 }

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package buildkite
 
 import (
@@ -7,7 +9,7 @@ import (
 
 // TestReport represents the structure for test report configuration.
 type TestReport struct {
-	Results     []string `yaml:"results,omitempty" json:"results,omitempty"`
+	Results     []string `yaml:"results,omitempty"     json:"results,omitempty"`
 	Attachments []string `yaml:"attachments,omitempty" json:"attachments,omitempty"`
 }
 
@@ -24,7 +26,7 @@ func (t *TestReport) ToPipeline() *pipeline.TestReport {
 func (t *TestReport) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	// test report we try unmarshalling to
 	testReport := new(struct {
-		Results     []string `yaml:"results,omitempty" json:"results,omitempty"`
+		Results     []string `yaml:"results,omitempty"     json:"results,omitempty"`
 		Attachments []string `yaml:"attachments,omitempty" json:"attachments,omitempty"`
 	})
 

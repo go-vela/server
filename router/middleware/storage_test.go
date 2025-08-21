@@ -17,6 +17,7 @@ import (
 func TestMiddleware_Storage(t *testing.T) {
 	// setup types
 	var got storage.Storage
+
 	want, _ := minio.NewTest("", "", "", "", false)
 	// setup context
 	gin.SetMode(gin.TestMode)

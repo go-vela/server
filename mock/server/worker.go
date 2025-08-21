@@ -367,6 +367,7 @@ func getStorageCreds(c *gin.Context) {
 	data := []byte(StorageInfoResp)
 
 	var body api.StorageInfo
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)

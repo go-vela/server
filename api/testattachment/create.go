@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 func CreateTestAttachment(c *gin.Context) {
@@ -47,7 +48,6 @@ func CreateTestAttachment(c *gin.Context) {
 	// create the test attachment in the database using the input from request
 	ta, err := database.FromContext(c).CreateTestAttachment(ctx, input)
 	if err != nil {
-
 		retErr := fmt.Errorf("unable to create new test attachment: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)

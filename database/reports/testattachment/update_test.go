@@ -32,6 +32,7 @@ func TestTestAttachment_Engine_Update(t *testing.T) {
 
 	_postgres, _mock := testPostgres(t)
 	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query for the test_reports table
@@ -40,6 +41,7 @@ func TestTestAttachment_Engine_Update(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateTestAttachment(ctx, _testAttachment)
@@ -84,6 +86,7 @@ func TestTestAttachment_Engine_Update(t *testing.T) {
 			if err != nil {
 				t.Errorf("Update for %s returned err: %v", test.name, err)
 			}
+
 			if diff := cmp.Diff(test.want, got); diff != "" {
 				t.Errorf("GetTestAttachment mismatch (-want +got):\n%s", diff)
 			}

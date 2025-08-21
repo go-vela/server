@@ -11,7 +11,7 @@ import (
 // TestAttachmentInterface represents the Vela interface for testattachments
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type TestAttachmentInterface interface {
 	// TestAttachment Data Definition Language Functions
 	//

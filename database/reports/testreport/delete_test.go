@@ -20,6 +20,7 @@ func TestTestReport_Engine_Delete(t *testing.T) {
 
 	_postgres, _mock := testPostgres(t)
 	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	_mock.ExpectExec(`DELETE FROM "testreports" WHERE "testreports"."id" = $1`).
@@ -27,6 +28,7 @@ func TestTestReport_Engine_Delete(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// setup tests

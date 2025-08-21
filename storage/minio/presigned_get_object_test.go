@@ -16,6 +16,7 @@ import (
 func Test_PresignedGetObject_Success(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -38,6 +39,7 @@ func Test_PresignedGetObject_Success(t *testing.T) {
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	ctx := context.TODO()
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
@@ -63,6 +65,7 @@ func Test_PresignedGetObject_Success(t *testing.T) {
 func Test_PresignedGetObject_Failure(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	ctx, engine := gin.CreateTestContext(resp)
 
@@ -77,6 +80,7 @@ func Test_PresignedGetObject_Failure(t *testing.T) {
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	object := &api.Object{

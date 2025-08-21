@@ -33,8 +33,10 @@ func TestMinioClient_Upload_Success(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("test_data/test.xml")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	ctx := context.TODO()
 	obj := new(api.Object)
 	obj.Bucket.BucketName = "foo"
@@ -50,6 +52,7 @@ func TestMinioClient_Upload_Success(t *testing.T) {
 
 	// run test
 	err = client.Upload(ctx, obj)
+
 	if resp.Code != http.StatusOK {
 		t.Errorf("Upload returned %v, want %v", resp.Code, http.StatusOK)
 	}
@@ -78,8 +81,10 @@ func TestMinioClient_Upload_Failure(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("test_data/test.xml")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	ctx := context.TODO()
 	obj := new(api.Object)
 	obj.Bucket.BucketName = "foo"
@@ -95,6 +100,7 @@ func TestMinioClient_Upload_Failure(t *testing.T) {
 
 	// run test
 	err = client.Upload(ctx, obj)
+
 	if resp.Code != http.StatusOK {
 		t.Errorf("Upload returned %v, want %v", resp.Code, http.StatusOK)
 	}

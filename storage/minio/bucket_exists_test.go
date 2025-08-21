@@ -33,6 +33,7 @@ func TestMinioClient_BucketExists(t *testing.T) {
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	ctx := context.TODO()
 
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
@@ -73,6 +74,7 @@ func TestMinioClient_BucketExists_Failure(t *testing.T) {
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	ctx := context.TODO()
 
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)

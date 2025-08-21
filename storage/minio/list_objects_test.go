@@ -72,6 +72,7 @@ func TestMinioClient_ListObjects_Success(t *testing.T) {
 
 			c.XML(http.StatusOK, objects)
 			c.Status(http.StatusOK)
+
 			return false
 		})
 	})
@@ -175,6 +176,7 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 		if prefix != "octocat/hello-world/1/" {
 			t.Logf("Invalid prefix received: %s", prefix)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid prefix"})
+
 			return
 		}
 
@@ -217,6 +219,7 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 
 	// Run the test
 	t.Logf("Running ListBuildObjectNames with org=octocat, repo=hello-world, build=1")
+
 	results, err := client.ListBuildObjectNames(ctx, b, "octocat", "hello-world", "1")
 	if err != nil {
 		t.Fatalf("ListBuildObjectNames returned err: %v", err)
@@ -241,6 +244,7 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 				break
 			}
 		}
+
 		if !found {
 			t.Errorf("Expected object name %q not found in results", expected)
 		}

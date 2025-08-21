@@ -50,6 +50,7 @@ func TestStorage_New(t *testing.T) {
 				if err == nil {
 					t.Errorf("New() expected error, got nil")
 				}
+
 				return
 			}
 

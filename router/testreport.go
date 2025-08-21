@@ -11,7 +11,7 @@ import (
 // TestReportHandlers is a function that extends the provided base router group
 // with the API handlers for test report functionality.
 //
-// POST   /api/v1/repos/:org/:repo/builds/:build/reports/testreport
+// POST   /api/v1/repos/:org/:repo/builds/:build/reports/testreport.
 func TestReportHandlers(base *gin.RouterGroup) {
 	// test report endpoints
 	_testreport := base.Group("/reports/testreport")

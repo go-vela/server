@@ -40,6 +40,7 @@ func TestEngine_CreateTestAttachment(t *testing.T) {
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// setup tests

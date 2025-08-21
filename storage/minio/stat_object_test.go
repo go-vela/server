@@ -18,6 +18,7 @@ import (
 func Test_StatObject_Success(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	ctx, engine := gin.CreateTestContext(resp)
 
@@ -75,6 +76,7 @@ func Test_StatObject_Success(t *testing.T) {
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	object := &api.Object{
@@ -93,6 +95,7 @@ func Test_StatObject_Success(t *testing.T) {
 func Test_StatObject_Failure(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	ctx, engine := gin.CreateTestContext(resp)
 
@@ -107,6 +110,7 @@ func Test_StatObject_Failure(t *testing.T) {
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	object := &api.Object{

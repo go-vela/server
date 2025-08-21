@@ -18,6 +18,7 @@ import (
 func TestMinioClient_ListBuckets_Success(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	ctx, engine := gin.CreateTestContext(resp)
 
@@ -36,6 +37,7 @@ func TestMinioClient_ListBuckets_Success(t *testing.T) {
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 	b := new(api.Bucket)
 	b.BucketName = "foo"
@@ -72,6 +74,7 @@ func TestMinioClient_ListBuckets_Failure(t *testing.T) {
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
+
 	ctx := context.TODO()
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 

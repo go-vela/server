@@ -11,7 +11,7 @@ import (
 // TestReportInterface represents the Vela interface for testreports
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type TestReportInterface interface {
 	// TestReport Data Definition Language Functions
 	//

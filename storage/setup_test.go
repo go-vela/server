@@ -1,10 +1,13 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package storage
 
 import (
 	"testing"
 
-	"github.com/go-vela/server/constants"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/go-vela/server/constants"
 )
 
 func TestSetup_Minio(t *testing.T) {

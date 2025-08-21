@@ -26,6 +26,7 @@ func TestTestAttachment_Engine_ListTestAttachments(t *testing.T) {
 	_testAttachment.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -35,6 +36,7 @@ func TestTestAttachment_Engine_ListTestAttachments(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "testattachments" ORDER BY created_at DESC`).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// Create necessary SQLite tables for relationship testing

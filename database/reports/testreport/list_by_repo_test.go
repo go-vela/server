@@ -31,6 +31,7 @@ func TestTestReport_Engine_ListByRepo(t *testing.T) {
 
 	_postgres, _mock := testPostgres(t)
 	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query for the test_reports table
@@ -61,6 +62,7 @@ func TestTestReport_Engine_ListByRepo(t *testing.T) {
 		WillReturnRows(_ownerRows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// Create necessary SQLite tables for relationship testing
@@ -72,6 +74,7 @@ func TestTestReport_Engine_ListByRepo(t *testing.T) {
 	// Set up owner
 	_owner := testutils.APIUser().Crop()
 	_owner.SetID(1)
+
 	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
 	if err != nil {
 		t.Errorf("unable to create test owner for sqlite: %v", err)
@@ -79,6 +82,7 @@ func TestTestReport_Engine_ListByRepo(t *testing.T) {
 
 	// Set up repo with owner
 	_repo.SetOwner(_owner)
+
 	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
@@ -86,6 +90,7 @@ func TestTestReport_Engine_ListByRepo(t *testing.T) {
 
 	// Set up build with repo
 	_buildOne.SetRepo(_repo)
+
 	err = _sqlite.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_buildOne)).Error
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)

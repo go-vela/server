@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package pipeline
 
 // TestReport represents the structure for test report configuration.
@@ -13,7 +15,7 @@ type (
 	//
 	// swagger:model PipelineTestReport
 	TestReport struct {
-		Results     []string `yaml:"results,omitempty" json:"results,omitempty"`
+		Results     []string `yaml:"results,omitempty"     json:"results,omitempty"`
 		Attachments []string `yaml:"attachments,omitempty" json:"attachments,omitempty"`
 	}
 )

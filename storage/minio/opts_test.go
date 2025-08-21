@@ -41,6 +41,7 @@ func TestWithAccessKey(t *testing.T) {
 
 			continue
 		}
+
 		if err != nil && test.accessKey != "" {
 			t.Errorf("WithAccessKey returned err: %v", err)
 		}
@@ -85,6 +86,7 @@ func TestWithSecretKey(t *testing.T) {
 
 			continue
 		}
+
 		if err != nil && test.secretKey != "" {
 			t.Errorf("WithSecretKey returned err: %v", err)
 		}
@@ -129,6 +131,7 @@ func TestWithSecure(t *testing.T) {
 
 			continue
 		}
+
 		if err != nil {
 			t.Errorf("WithSecure returned err: %v", err)
 		}
@@ -173,6 +176,7 @@ func TestWithBucket(t *testing.T) {
 
 			continue
 		}
+
 		if err != nil && test.bucket != "" {
 			t.Errorf("WithBucket returned err: %v", err)
 		}

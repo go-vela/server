@@ -20,6 +20,7 @@ func TestTestReport_Engine_CountTestReports(t *testing.T) {
 
 	_postgres, _mock := testPostgres(t)
 	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query for the test_reports table
@@ -27,6 +28,7 @@ func TestTestReport_Engine_CountTestReports(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateTestReport(ctx, _testReport)
@@ -65,9 +67,11 @@ func TestTestReport_Engine_CountTestReports(t *testing.T) {
 
 				return
 			}
+
 			if err != nil {
 				t.Errorf("CountTestReports for %s returned err: %v", test.name, err)
 			}
+
 			if got != test.want {
 				t.Errorf("CountTestReports for %s is %v, want %v", test.name, got, test.want)
 			}

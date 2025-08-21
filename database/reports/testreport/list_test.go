@@ -23,6 +23,7 @@ func TestTestReport_Engine_ListTestReports(t *testing.T) {
 	_testReport.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query for the test_reports table
@@ -32,6 +33,7 @@ func TestTestReport_Engine_ListTestReports(t *testing.T) {
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	// Create necessary SQLite tables for relationship testing

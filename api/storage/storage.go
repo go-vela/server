@@ -197,6 +197,7 @@ func ListBuildObjectNames(c *gin.Context) {
 	if org == "" || repo == "" || buildNum == "" {
 		l.Error("missing required parameters (org, repo, or build)")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing required parameters"})
+
 		return
 	}
 
@@ -216,10 +217,10 @@ func ListBuildObjectNames(c *gin.Context) {
 		repo,
 		buildNum,
 	)
-
 	if err != nil {
 		l.Errorf("unable to list objects for %s/%s build #%s: %v", org, repo, buildNum, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
