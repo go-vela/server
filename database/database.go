@@ -23,6 +23,8 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/reports/testattachment"
+	"github.com/go-vela/server/database/reports/testreport"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
@@ -91,6 +93,8 @@ type (
 		log.LogInterface
 		pipeline.PipelineInterface
 		repo.RepoInterface
+		testreport.TestReportInterface
+		testattachment.TestAttachmentInterface
 		schedule.ScheduleInterface
 		secret.SecretInterface
 		service.ServiceInterface
