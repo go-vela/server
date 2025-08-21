@@ -146,7 +146,7 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 	resp := httptest.NewRecorder()
 	ctx, engine := gin.CreateTestContext(resp)
 
-	// mock create bucket call
+	// mock: create bucket
 	engine.PUT("/foo/", func(c *gin.Context) {
 		c.XML(http.StatusOK, gin.H{
 			"bucketName":     "foo",
@@ -155,44 +155,49 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 		})
 	})
 
-	engine.GET("/foo/", func(c *gin.Context) {
-		// In MinIO, the prefix is passed as a URL query parameter
-		prefix := c.Request.URL.Query().Get("prefix")
-		// Print the received prefix for debugging
+	// handle GET with any query params (/foo, /foo/, /foo?prefix=..., etc.)
+	engine.GET("/foo/*any", func(c *gin.Context) {
+		t.Logf("Incoming URL: %s", c.Request.URL.String())
+
+		// bucket location probe (SDK does ?location=)
+		if _, ok := c.GetQuery("location"); ok {
+			c.Data(http.StatusOK, "application/xml", []byte(`<LocationConstraint>us-east-1</LocationConstraint>`))
+			return
+		}
+
+		// real object listing
+		prefix := c.Query("prefix")
 		t.Logf("Received prefix: %s", prefix)
 
-		// More permissive check - just ensure the prefix contains the expected path components
-		if prefix == "" || prefix != "octocat/hello-world/1/" {
+		if prefix != "octocat/hello-world/1/" {
 			t.Logf("Invalid prefix received: %s", prefix)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid prefix"})
 			return
 		}
 
-		// Return a valid ListObjectsV2 response format
-		objects := []gin.H{
-			{
-				"etag":         "982beba05db8083656a03f544c8c7927",
-				"name":         "octocat/hello-world/1/test.xml",
-				"lastModified": "2025-03-20T19:01:40.968Z",
-				"size":         558677,
-			},
-			{
-				"etag":         "a82beba05db8083656a03f544c8c7123",
-				"name":         "octocat/hello-world/1/coverage.xml",
-				"lastModified": "2025-03-20T19:02:40.968Z",
-				"size":         123456,
-			},
-		}
+		// return raw XML (valid S3 ListObjectsV2 response)
+		xmlResponse := `<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Name>foo</Name>
+  <Prefix>` + prefix + `</Prefix>
+  <KeyCount>2</KeyCount>
+  <MaxKeys>1000</MaxKeys>
+  <IsTruncated>false</IsTruncated>
+  <Contents>
+    <Key>octocat/hello-world/1/test.xml</Key>
+    <ETag>"etag-test"</ETag>
+    <Size>558677</Size>
+    <LastModified>2025-03-20T19:01:40.968Z</LastModified>
+  </Contents>
+  <Contents>
+    <Key>octocat/hello-world/1/coverage.xml</Key>
+    <ETag>"etag-coverage"</ETag>
+    <Size>123456</Size>
+    <LastModified>2025-03-20T19:02:40.968Z</LastModified>
+  </Contents>
+</ListBucketResult>`
 
-		// Format response as XML to match MinIO API
-		c.XML(http.StatusOK, gin.H{
-			"Name":        "foo",
-			"Prefix":      prefix,
-			"Contents":    objects,
-			"IsTruncated": false,
-			"MaxKeys":     1000,
-			"KeyCount":    len(objects),
-		})
+		c.Data(http.StatusOK, "application/xml", []byte(xmlResponse))
 	})
 
 	fake := httptest.NewServer(engine)
@@ -204,23 +209,21 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 
 	client, err := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 	if err != nil {
-		t.Errorf("Failed to create MinIO client: %v", err)
+		t.Fatalf("Failed to create MinIO client: %v", err)
 	}
 
-	// Run the test with debug logging
+	// Run the test
 	t.Logf("Running ListBuildObjectNames with org=octocat, repo=hello-world, build=1")
 	results, err := client.ListBuildObjectNames(ctx, b, "octocat", "hello-world", "1")
 	if err != nil {
-		t.Errorf("ListBuildObjectNames returned err: %v", err)
-		return // Stop test if we hit an error
+		t.Fatalf("ListBuildObjectNames returned err: %v", err)
 	}
 
-	// Check that we got the expected number of results
+	// Check results
 	if len(results) != 2 {
-		t.Errorf("Expected 2 results, got %d", len(results))
+		t.Fatalf("Expected 2 results, got %d", len(results))
 	}
 
-	// Check that the expected object names are in the results
 	expectedNames := []string{
 		"octocat/hello-world/1/test.xml",
 		"octocat/hello-world/1/coverage.xml",

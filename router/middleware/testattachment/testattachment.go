@@ -47,7 +47,7 @@ func Establish() gin.HandlerFunc {
 
 		ta, err := database.FromContext(c).GetTestAttachmentForBuild(ctx, b)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read test attachment %s/%d/reports/testreport/attachment/%s: %w", r.GetFullName(), b.GetNumber(), err)
+			retErr := fmt.Errorf("unable to read test attachment %s/%d/reports/testreport/attachment/: %w", r.GetFullName(), b.GetNumber(), err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return

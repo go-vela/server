@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/go-vela/server/constants"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/storage/minio"
@@ -50,27 +49,29 @@ func (s *Setup) Minio() (Storage, error) {
 func (s *Setup) Validate() error {
 	logrus.Trace("validating Storage setup for client")
 
-	// verify storage is enabled
-	//if !s.Enable {
-	//	return fmt.Errorf("Storage is not enabled")
-	//}
-	if s.Enable {
-		if s.Bucket == "" {
-			return fmt.Errorf("storage is enabled but no bucket provided")
-		}
-		if s.Driver != "" && s.Driver != constants.DriverMinio {
-			return fmt.Errorf("invalid storage driver provided: %s", s.Driver)
-		}
-		if s.Endpoint == "" {
-			return fmt.Errorf("storage is enabled but no endpoint provided")
-		}
-		if s.AccessKey == "" || s.SecretKey == "" {
-			return fmt.Errorf("storage is enabled but no access key or secret key provided")
-		}
-		if _, err := url.ParseRequestURI(s.Endpoint); err != nil {
-			return fmt.Errorf("storage is enabled but endpoint is invalid")
-		}
+	// storage disabled: nothing to validate
+	if !s.Enable {
+		return nil
 	}
+
+	// For now, Driver must NOT be set. Using any value (even "minio") is considered invalid.
+	if s.Driver != "" {
+		return fmt.Errorf("storage driver should not be set (got %q)", s.Driver)
+	}
+
+	if s.Bucket == "" {
+		return fmt.Errorf("storage is enabled but no bucket provided")
+	}
+	if s.Endpoint == "" {
+		return fmt.Errorf("storage is enabled but no endpoint provided")
+	}
+	if s.AccessKey == "" || s.SecretKey == "" {
+		return fmt.Errorf("storage is enabled but no access key or secret key provided")
+	}
+	if _, err := url.ParseRequestURI(s.Endpoint); err != nil {
+		return fmt.Errorf("storage is enabled but endpoint is invalid")
+	}
+
 	// setup is valid
 	return nil
 }
