@@ -146,12 +146,12 @@ func (data *RuleData) MatchRules(rules Rules) (bool, error) {
 		}
 	}
 
+	// define rule data type
 	type RuleSetPair struct {
 		data []string
 		rule Ruletype
 	}
 
-	// define rule data type
 	ruleSets := []RuleSetPair{
 		{[]string{data.Branch}, rules.Branch},
 		{[]string{data.Comment}, rules.Comment},
