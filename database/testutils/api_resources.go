@@ -315,7 +315,7 @@ func APITestAttachment() *api.TestAttachment {
 		ObjectPath:   new(string),
 		FileSize:     new(int64),
 		FileType:     new(string),
-		PresignedUrl: new(string),
+		PresignedURL: new(string),
 		CreatedAt:    new(int64),
 	}
 }

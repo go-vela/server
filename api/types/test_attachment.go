@@ -11,7 +11,7 @@ type TestAttachment struct {
 	ObjectPath   *string `json:"object_path,omitempty"`
 	FileSize     *int64  `json:"file_size,omitempty"`
 	FileType     *string `json:"file_type,omitempty"`
-	PresignedUrl *string `json:"presigned_url,omitempty"`
+	PresignedURL *string `json:"presigned_url,omitempty"`
 	CreatedAt    *int64  `json:"created_at,omitempty"`
 }
 
@@ -93,17 +93,17 @@ func (ta *TestAttachment) GetFileType() string {
 	return *ta.FileType
 }
 
-// GetPresignedUrl returns the PresignedUrl field.
+// GetPresignedURL returns the PresignedUrl field.
 //
 // When the provided TestAttachment type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (ta *TestAttachment) GetPresignedUrl() string {
+func (ta *TestAttachment) GetPresignedURL() string {
 	// return zero value if TestAttachment type or PresignedUrl field is nil
-	if ta == nil || ta.PresignedUrl == nil {
+	if ta == nil || ta.PresignedURL == nil {
 		return ""
 	}
 
-	return *ta.PresignedUrl
+	return *ta.PresignedURL
 }
 
 // GetCreatedAt returns the CreatedAt field.
@@ -179,14 +179,14 @@ func (ta *TestAttachment) SetFileType(v string) {
 	ta.FileType = &v
 }
 
-// SetPresignedUrl sets the PresignedUrl field.
-func (ta *TestAttachment) SetPresignedUrl(v string) {
+// SetPresignedURL sets the PresignedUrl field.
+func (ta *TestAttachment) SetPresignedURL(v string) {
 	// return if TestAttachment type is nil
 	if ta == nil {
 		return
 	}
 	// set the PresignedUrl field
-	ta.PresignedUrl = &v
+	ta.PresignedURL = &v
 }
 
 // SetCreatedAt sets the CreatedAt field.

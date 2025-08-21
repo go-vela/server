@@ -20,7 +20,7 @@ func TestTestAttachment_Engine_Delete(t *testing.T) {
 	_testAttachment.SetObjectPath("foo/bar")
 	_testAttachment.SetFileSize(1)
 	_testAttachment.SetFileType("xml")
-	_testAttachment.SetPresignedUrl("foobar")
+	_testAttachment.SetPresignedURL("foobar")
 	_testAttachment.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)

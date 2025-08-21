@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package testattachment
 
 // KELLY - lots of work to do here

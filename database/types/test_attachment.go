@@ -26,9 +26,9 @@ var (
 	// ErrEmptyFileType defines the error type when a
 	// TestAttachment type has an empty FileType field provided.
 	ErrEmptyFileType = errors.New("empty file_type provided")
-	// ErrEmptyPresignedUrl defines the error type when a
+	// ErrEmptyPresignedURL defines the error type when a
 	// TestAttachment type has an empty PresignedUrl field provided.
-	ErrEmptyPresignedUrl = errors.New("empty presigned_url provided")
+	ErrEmptyPresignedURL = errors.New("empty presigned_url provided")
 )
 
 type TestAttachment struct {
@@ -38,7 +38,7 @@ type TestAttachment struct {
 	ObjectPath   sql.NullString `sql:"object_path"`
 	FileSize     sql.NullInt64  `sql:"file_size"`
 	FileType     sql.NullString `sql:"file_type"`
-	PresignedUrl sql.NullString `sql:"presigned_url"`
+	PresignedURL sql.NullString `sql:"presigned_url"`
 	CreatedAt    sql.NullInt64  `sql:"created_at"`
 
 	// References to related objects
@@ -92,7 +92,7 @@ func (ta *TestAttachment) ToAPI() *api.TestAttachment {
 	attachment.SetObjectPath(ta.ObjectPath.String)
 	attachment.SetFileSize(ta.FileSize.Int64)
 	attachment.SetFileType(ta.FileType.String)
-	attachment.SetPresignedUrl(ta.PresignedUrl.String)
+	attachment.SetPresignedURL(ta.PresignedURL.String)
 	attachment.SetCreatedAt(ta.CreatedAt.Int64)
 
 	return attachment
@@ -132,8 +132,8 @@ func (ta *TestAttachment) Validate() error {
 	ta.FileType = sql.NullString{String: util.Sanitize(ta.FileType.String), Valid: ta.FileType.Valid}
 
 	// Only sanitize PresignedUrl if it's provided
-	if ta.PresignedUrl.Valid {
-		ta.PresignedUrl = sql.NullString{String: util.Sanitize(ta.PresignedUrl.String), Valid: ta.PresignedUrl.Valid}
+	if ta.PresignedURL.Valid {
+		ta.PresignedURL = sql.NullString{String: util.Sanitize(ta.PresignedURL.String), Valid: ta.PresignedURL.Valid}
 	}
 
 	return nil
@@ -149,7 +149,7 @@ func TestAttachmentFromAPI(ta *api.TestAttachment) *TestAttachment {
 		ObjectPath:   sql.NullString{String: ta.GetObjectPath(), Valid: len(ta.GetObjectPath()) > 0},
 		FileSize:     sql.NullInt64{Int64: ta.GetFileSize(), Valid: ta.GetFileSize() > 0},
 		FileType:     sql.NullString{String: ta.GetFileType(), Valid: len(ta.GetFileType()) > 0},
-		PresignedUrl: sql.NullString{String: ta.GetPresignedUrl(), Valid: len(ta.GetPresignedUrl()) > 0},
+		PresignedURL: sql.NullString{String: ta.GetPresignedURL(), Valid: len(ta.GetPresignedURL()) > 0},
 		CreatedAt:    sql.NullInt64{Int64: ta.GetCreatedAt(), Valid: ta.GetCreatedAt() > 0},
 	}
 

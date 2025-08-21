@@ -33,6 +33,7 @@ func TestMinioClient_ListBuckets_Success(t *testing.T) {
 			},
 		})
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
@@ -68,6 +69,7 @@ func TestMinioClient_ListBuckets_Failure(t *testing.T) {
 	engine.GET("/minio/buckets", func(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 	ctx := context.TODO()

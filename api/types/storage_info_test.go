@@ -35,6 +35,7 @@ func TestTypes_StorageInfo_Getters(t *testing.T) {
 		if test.sI.GetStorageAddress() != test.want.GetStorageAddress() {
 			t.Errorf("GetStorageAddress is %v, want %v", test.sI.GetStorageAddress(), test.want.GetStorageAddress())
 		}
+
 		if test.sI.GetStorageBucket() != test.want.GetStorageBucket() {
 			t.Errorf("GetStorageBucket is %v, want %v", test.sI.GetStorageBucket(), test.want.GetStorageBucket())
 		}

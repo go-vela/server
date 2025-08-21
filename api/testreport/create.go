@@ -34,7 +34,6 @@ func CreateTestReport(c *gin.Context) {
 	// create the test report in the database
 	tr, err := database.FromContext(c).CreateTestReport(ctx, input)
 	if err != nil {
-
 		retErr := fmt.Errorf("unable to create new test report: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)

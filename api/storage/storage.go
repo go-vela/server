@@ -140,6 +140,7 @@ func ListObjectNames(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
 		l.Info("storage is not enabled, skipping credentials request")
 		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
+
 		return
 	}
 
@@ -160,6 +161,7 @@ func ListObjectNames(c *gin.Context) {
 	if err != nil {
 		l.Errorf("unable to list objects in bucket %s: %v", bucketName, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -179,6 +181,7 @@ func ListBuildObjectNames(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
 		l.Info("storage is not enabled, skipping credentials request")
 		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
+
 		return
 	}
 

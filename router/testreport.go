@@ -17,6 +17,5 @@ func TestReportHandlers(base *gin.RouterGroup) {
 	_testreport := base.Group("/reports/testreport")
 	{
 		_testreport.PUT("", testreport.CreateTestReport)
-
 	} // end of test report endpoints
 }

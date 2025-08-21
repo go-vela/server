@@ -59,6 +59,7 @@ func TestTestReport_Engine_ListByRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).
 		WithArgs(1).
 		WillReturnRows(_ownerRows)
+
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 

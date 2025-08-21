@@ -20,11 +20,12 @@ func TestTestAttachment_Engine_Count(t *testing.T) {
 	_testAttachment.SetObjectPath("foo/bar")
 	_testAttachment.SetFileSize(1)
 	_testAttachment.SetFileType("xml")
-	_testAttachment.SetPresignedUrl("foobar")
+	_testAttachment.SetPresignedURL("foobar")
 	_testAttachment.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
 	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query for the test_reports table
@@ -32,6 +33,7 @@ func TestTestAttachment_Engine_Count(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateTestAttachment(ctx, _testAttachment)
@@ -70,9 +72,11 @@ func TestTestAttachment_Engine_Count(t *testing.T) {
 
 				return
 			}
+
 			if err != nil {
 				t.Errorf("Count for %s returned err: %v", test.name, err)
 			}
+
 			if got != test.want {
 				t.Errorf("Count for %s is %v, want %v", test.name, got, test.want)
 			}

@@ -20,7 +20,7 @@ func TestEngine_CreateTestAttachment(t *testing.T) {
 	_testAttachment.SetObjectPath("foo/bar")
 	_testAttachment.SetFileSize(1)
 	_testAttachment.SetFileType("xml")
-	_testAttachment.SetPresignedUrl("foobar")
+	_testAttachment.SetPresignedURL("foobar")
 	_testAttachment.SetCreatedAt(1)
 
 	_testReport := testutils.APITestReport()
@@ -28,6 +28,7 @@ func TestEngine_CreateTestAttachment(t *testing.T) {
 	// _testReport.ID.Valid = true
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock

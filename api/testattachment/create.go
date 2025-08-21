@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package testattachment
 
 import (
@@ -42,10 +44,8 @@ func CreateTestAttachment(c *gin.Context) {
 	input.SetCreatedAt(time.Now().UTC().Unix())
 
 	l.Debugf("creating new test attachment")
-
 	// create the test attachment in the database using the input from request
 	ta, err := database.FromContext(c).CreateTestAttachment(ctx, input)
-
 	if err != nil {
 
 		retErr := fmt.Errorf("unable to create new test attachment: %w", err)

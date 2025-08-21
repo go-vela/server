@@ -63,16 +63,19 @@ func TestMinioClient_ListObjects_Success(t *testing.T) {
 				"ChecksumCRC64NVME": "",
 				"Internal":          "null"},
 		}
+
 		c.Stream(func(w io.Writer) bool {
 			_, err := w.Write([]byte(objects[0]["name"].(string)))
 			if err != nil {
 				return false
 			}
+
 			c.XML(http.StatusOK, objects)
 			c.Status(http.StatusOK)
 			return false
 		})
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -231,6 +234,7 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 
 	for _, expected := range expectedNames {
 		found := false
+
 		for _, name := range results {
 			if name == expected {
 				found = true

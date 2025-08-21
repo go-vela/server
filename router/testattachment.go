@@ -17,6 +17,5 @@ func TestAttachmentHandlers(base *gin.RouterGroup) {
 	_testattachment := base.Group("/reports/testattachment")
 	{
 		_testattachment.PUT("", testattachment.CreateTestAttachment)
-
 	} // end of test attachment endpoints
 }

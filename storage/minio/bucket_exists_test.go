@@ -45,6 +45,7 @@ func TestMinioClient_BucketExists(t *testing.T) {
 
 	// run test
 	exists, err := client.BucketExists(ctx, &api.Bucket{BucketName: "foo"})
+
 	if resp.Code != http.StatusOK {
 		t.Errorf("BucketExists returned %v, want %v", resp.Code, http.StatusOK)
 	}
@@ -78,6 +79,7 @@ func TestMinioClient_BucketExists_Failure(t *testing.T) {
 
 	// run test
 	exists, err := client.BucketExists(ctx, &api.Bucket{BucketName: "bar"})
+
 	if resp.Code != http.StatusOK {
 		t.Errorf("BucketExists returned %v, want %v", resp.Code, http.StatusOK)
 	}

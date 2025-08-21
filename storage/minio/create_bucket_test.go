@@ -35,6 +35,7 @@ func TestMinioClient_CreateBucket_Success(t *testing.T) {
 
 	// run test
 	err := client.CreateBucket(ctx, b)
+
 	if resp.Code != http.StatusOK {
 		t.Errorf("CreateBucket returned %v, want %v", resp.Code, http.StatusOK)
 	}

@@ -50,6 +50,7 @@ func TestTestReport_Engine_CountTestReportsByRepo(t *testing.T) {
 	// Set up owner
 	_owner := testutils.APIUser().Crop()
 	_owner.SetID(1)
+
 	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
 	if err != nil {
 		t.Errorf("unable to create test owner for sqlite: %v", err)
@@ -57,6 +58,7 @@ func TestTestReport_Engine_CountTestReportsByRepo(t *testing.T) {
 
 	// Set up repo with owner
 	_repo.SetOwner(_owner)
+
 	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
@@ -64,6 +66,7 @@ func TestTestReport_Engine_CountTestReportsByRepo(t *testing.T) {
 
 	// Set up build with repo
 	_buildOne.SetRepo(_repo)
+
 	err = _sqlite.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_buildOne)).Error
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
