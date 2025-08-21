@@ -425,6 +425,7 @@ func getDeployments(c *gin.Context) {
 	data := []byte(DeploymentsResp)
 
 	var body []api.Deployment
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -445,6 +446,7 @@ func getDeployment(c *gin.Context) {
 	data := []byte(DeploymentResp)
 
 	var body api.Deployment
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -455,6 +457,7 @@ func addDeployment(c *gin.Context) {
 	data := []byte(DeploymentResp)
 
 	var body api.Deployment
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -465,6 +468,7 @@ func updateDeployment(c *gin.Context) {
 	data := []byte(DeploymentResp)
 
 	var body api.Deployment
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

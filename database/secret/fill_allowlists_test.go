@@ -43,6 +43,7 @@ func TestSecret_Engine_FillAllowlists(t *testing.T) {
 	_secretTwo.SetRepoAllowlist([]string{"alpha/beta", "gamma/delta"})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -53,6 +54,7 @@ func TestSecret_Engine_FillAllowlists(t *testing.T) {
 		WithArgs(1, 2).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateSecret(context.TODO(), _secretOne)

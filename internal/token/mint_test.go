@@ -8,6 +8,7 @@ func Test_imageParse(t *testing.T) {
 	type args struct {
 		image string
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -59,9 +60,11 @@ func Test_imageParse(t *testing.T) {
 				t.Errorf("imageParse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if gotName != tt.wantName {
 				t.Errorf("imageParse() gotName = %v, wantName %v", gotName, tt.wantName)
 			}
+
 			if gotTag != tt.wantTag {
 				t.Errorf("imageParse() gotTag = %v, wantTag %v", gotTag, tt.wantTag)
 			}

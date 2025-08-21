@@ -42,6 +42,7 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 	}
 
 	testDashCards := []api.DashCard{}
+
 	err = json.Unmarshal([]byte(DashCardsResp), &testDashCards)
 	if err != nil {
 		t.Errorf("error unmarshaling dash cards: %v", err)

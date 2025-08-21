@@ -21,8 +21,10 @@ func TestRedis_Pop(t *testing.T) {
 		Build: _build,
 	}
 
-	var signed []byte
-	var out []byte
+	var (
+		signed []byte
+		out    []byte
+	)
 
 	// setup queue item
 	bytes, err := json.Marshal(_item)

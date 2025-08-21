@@ -26,7 +26,6 @@ func TestNative_New(t *testing.T) {
 
 	// run test
 	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
-
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -54,7 +53,6 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 
 	// run test
 	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
-
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -87,7 +85,6 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 
 	// run test
 	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
-
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

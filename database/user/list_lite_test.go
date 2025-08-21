@@ -30,6 +30,7 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	_userTwo.SetDashboards([]string{})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -42,6 +43,7 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	_mock.ExpectQuery(`SELECT "id","name" FROM "users" LIMIT $1`).WithArgs(10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateUser(context.TODO(), _userOne)

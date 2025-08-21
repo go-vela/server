@@ -11,7 +11,7 @@ import (
 // StepInterface represents the Vela interface for step
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type StepInterface interface {
 	// Step Data Definition Language Functions
 	//

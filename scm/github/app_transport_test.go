@@ -156,11 +156,13 @@ func TestAppsTransport_RoundTrip(t *testing.T) {
 				t.Errorf("RoundTrip() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if !tt.wantErr {
 				if got := tt.request.Header.Get("Authorization"); !strings.HasPrefix(got, tt.wantHeader) {
 					t.Errorf("RoundTrip() Authorization header = %v, want prefix %v", got, tt.wantHeader)
 				}
 			}
+
 			if resp != nil {
 				resp.Body.Close()
 			}

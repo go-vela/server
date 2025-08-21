@@ -104,6 +104,7 @@ func TestVault_List_Org(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
+
 			got, err := s.List(context.TODO(), "org", "foo", "*", 1, 10, []string{})
 
 			if resp.Code != http.StatusOK {
@@ -241,6 +242,7 @@ func TestVault_List_Repo(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
+
 			got, err := s.List(context.TODO(), "repo", "foo", "bar", 1, 10, []string{})
 
 			if resp.Code != http.StatusOK {
@@ -364,6 +366,7 @@ func TestVault_List_Shared(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
+
 			got, err := s.List(context.TODO(), "shared", "foo", "bar", 1, 10, []string{})
 
 			if resp.Code != http.StatusOK {

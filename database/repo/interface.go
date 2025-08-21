@@ -11,7 +11,7 @@ import (
 // RepoInterface represents the Vela interface for repo
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type RepoInterface interface {
 	// Repo Data Definition Language Functions
 	//

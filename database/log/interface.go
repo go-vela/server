@@ -11,7 +11,7 @@ import (
 // LogInterface represents the Vela interface for log
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type LogInterface interface {
 	// Log Data Definition Language Functions
 	//

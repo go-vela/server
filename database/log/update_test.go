@@ -31,6 +31,7 @@ func TestLog_Engine_UpdateLog(t *testing.T) {
 	_step.SetCreatedAt(1)
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the service query
@@ -48,6 +49,7 @@ WHERE "id" = $7`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	err := _sqlite.CreateLog(context.TODO(), _service)

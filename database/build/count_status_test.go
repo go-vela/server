@@ -43,6 +43,7 @@ func TestBuild_Engine_CountBuildsForStatus(t *testing.T) {
 	_buildTwo.SetStatus("running")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -52,6 +53,7 @@ func TestBuild_Engine_CountBuildsForStatus(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE status = $1`).WithArgs("running").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)

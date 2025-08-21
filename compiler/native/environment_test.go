@@ -756,6 +756,7 @@ func Test_client_EnvironmentBuild(t *testing.T) {
 				user:     tt.fields.user,
 				netrc:    tt.fields.netrc,
 			}
+
 			got := c.EnvironmentBuild()
 			if diff := cmp.Diff(got, tt.want); diff != "" {
 				t.Errorf("EnvironmentBuild mismatch (-want +got):\n%s", diff)
