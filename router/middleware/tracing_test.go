@@ -19,6 +19,7 @@ import (
 func TestMiddleware_TracingClient(t *testing.T) {
 	// setup types
 	var got *tracing.Client
+
 	want := &tracing.Client{
 		Config: tracing.Config{
 			EnableTracing: true,
@@ -30,7 +31,7 @@ func TestMiddleware_TracingClient(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 	// setup mock server
 	engine.Use(TracingClient(want))
@@ -93,7 +94,7 @@ func TestMiddleware_TracingInstrumentation(t *testing.T) {
 		got := trace.SpanContext{}
 		resp := httptest.NewRecorder()
 		context, engine := gin.CreateTestContext(resp)
-		context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
+		context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 
 		// setup mock server
 		engine.Use(TracingInstrumentation(test.tc))

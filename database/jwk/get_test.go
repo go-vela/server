@@ -17,12 +17,14 @@ import (
 func TestJWK_Engine_GetJWK(t *testing.T) {
 	// setup types
 	_jwk := testutils.JWK()
+
 	_jwkBytes, err := json.Marshal(_jwk)
 	if err != nil {
 		t.Errorf("unable to marshal JWK: %v", err)
 	}
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	kid, ok := _jwk.KeyID()
@@ -39,6 +41,7 @@ func TestJWK_Engine_GetJWK(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs(kid, true, 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	err = _sqlite.CreateJWK(context.TODO(), _jwk)

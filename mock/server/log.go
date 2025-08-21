@@ -43,6 +43,7 @@ func getServiceLog(c *gin.Context) {
 	data := []byte(LogResp)
 
 	var body api.Log
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -104,6 +105,7 @@ func getStepLog(c *gin.Context) {
 	data := []byte(LogResp)
 
 	var body api.Log
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

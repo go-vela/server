@@ -40,6 +40,7 @@ func TestBuild_Engine_LastBuildForRepo(t *testing.T) {
 	_build.SetBranch("main")
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -49,6 +50,7 @@ func TestBuild_Engine_LastBuildForRepo(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch = $2 ORDER BY number DESC LIMIT $3`).WithArgs(1, "main", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateBuild(context.TODO(), _build)

@@ -11,7 +11,7 @@ import (
 // JWKInterface represents the Vela interface for JWK
 // functions with the supported Database backends.
 //
-//nolint:revive // ignore name stutter
+
 type JWKInterface interface {
 	// JWK Data Definition Language Functions
 	//

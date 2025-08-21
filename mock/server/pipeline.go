@@ -331,6 +331,7 @@ func getPipelines(c *gin.Context) {
 	data := []byte(PipelinesResp)
 
 	var body []api.Pipeline
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -353,6 +354,7 @@ func getPipeline(c *gin.Context) {
 	data := []byte(PipelineResp)
 
 	var body api.Pipeline
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -363,6 +365,7 @@ func addPipeline(c *gin.Context) {
 	data := []byte(PipelineResp)
 
 	var body api.Pipeline
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -387,6 +390,7 @@ func updatePipeline(c *gin.Context) {
 	data := []byte(PipelineResp)
 
 	var body api.Pipeline
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -426,6 +430,7 @@ func compilePipeline(c *gin.Context) {
 	data := []byte(CompileResp)
 
 	var body yaml.Build
+
 	_ = yml.Unmarshal(data, &body)
 
 	c.YAML(http.StatusOK, body)
@@ -448,6 +453,7 @@ func expandPipeline(c *gin.Context) {
 	data := []byte(ExpandResp)
 
 	var body yaml.Build
+
 	_ = yml.Unmarshal(data, &body)
 
 	c.YAML(http.StatusOK, body)

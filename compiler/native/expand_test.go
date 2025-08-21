@@ -31,6 +31,7 @@ func TestNative_ExpandStages(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -142,6 +143,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	compiler.PrivateGithub = nil
+
 	_, _, err = compiler.ExpandStages(
 		context.Background(),
 		&yaml.Build{
@@ -153,7 +155,6 @@ func TestNative_ExpandStages(t *testing.T) {
 		new(pipeline.RuleData),
 		nil,
 	)
-
 	if err == nil {
 		t.Errorf("ExpandStages should have returned error with empty PrivateGitHub")
 	}
@@ -175,7 +176,6 @@ func TestNative_ExpandStages(t *testing.T) {
 		new(pipeline.RuleData),
 		nil,
 	)
-
 	if err != nil {
 		t.Errorf("ExpandStages returned err: %v", err)
 	}
@@ -210,6 +210,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -388,6 +389,7 @@ func TestNative_ExpandStepsWarnings(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -480,6 +482,7 @@ func TestNative_ExpandDeployment(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -577,6 +580,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -842,6 +846,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -932,6 +937,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -1126,10 +1132,12 @@ func TestNative_ExpandStepsDuplicateCalls(t *testing.T) {
 		}
 
 		testCallsMap[c.Param("path")] = true
+
 		body, err := convertFileToGithubResponse(c.Param("path"))
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -1338,6 +1346,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 
@@ -1421,6 +1430,7 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
 		c.JSON(http.StatusOK, body)
 	})
 

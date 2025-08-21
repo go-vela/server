@@ -219,7 +219,6 @@ func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Pl
 		compiler,
 		queue,
 	)
-
 	if err != nil {
 		return err
 	}

@@ -282,6 +282,7 @@ func getHooks(c *gin.Context) {
 	data := []byte(HooksResp)
 
 	var body []api.Hook
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -304,6 +305,7 @@ func getHook(c *gin.Context) {
 	data := []byte(HookResp)
 
 	var body api.Hook
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -314,6 +316,7 @@ func addHook(c *gin.Context) {
 	data := []byte(HookResp)
 
 	var body api.Hook
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -338,6 +341,7 @@ func updateHook(c *gin.Context) {
 	data := []byte(HookResp)
 
 	var body api.Hook
+
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

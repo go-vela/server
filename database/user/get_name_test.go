@@ -23,6 +23,7 @@ func TestUser_Engine_GetUserForName(t *testing.T) {
 	_user.SetDashboards([]string{})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -32,6 +33,7 @@ func TestUser_Engine_GetUserForName(t *testing.T) {
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE name = $1 LIMIT $2`).WithArgs("foo", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateUser(context.TODO(), _user)

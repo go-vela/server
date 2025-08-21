@@ -33,6 +33,7 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	_repo.SetCustomProps(map[string]any{"foo": "bar"})
 
 	_postgres, _mock := testPostgres(t)
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -43,6 +44,7 @@ WHERE "id" = $24`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
+
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateRepo(context.TODO(), _repo)
