@@ -64,7 +64,6 @@ func WithContext(ctx context.Context, s Storage) context.Context {
 	//
 	// https://pkg.go.dev/context?tab=doc#WithValue
 	//
-
 	return context.WithValue(ctx, key, s)
 }
 
