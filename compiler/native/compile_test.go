@@ -2779,6 +2779,16 @@ func Test_Compile_Inline(t *testing.T) {
 					Environment: []string{"steps", "services", "secrets"},
 					AutoCancel:  &pipeline.CancelOptions{},
 				},
+				Secrets: []*pipeline.Secret{
+					{
+						Name:   "foo",
+						Key:    "org/repo/foo",
+						Type:   "repo",
+						Engine: "native",
+						Pull:   "build_start",
+						Origin: &pipeline.Container{},
+					},
+				},
 				Stages: []*pipeline.Stage{
 					{
 						Name:        "init",
