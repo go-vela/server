@@ -275,6 +275,48 @@ func (s *StepSecretSlice) UnmarshalYAML(unmarshal func(interface{}) error) error
 }
 
 // JSONSchemaExtend handles some overrides that need to be in place
+// for the Secret type.
+//
+// Handles conditional requirement where 'name' is required only if
+// 'origin' is not defined. this allows either:
+// 1. a secret without 'origin' (name required).
+// 2. a secret with 'origin' (name not required).
+func (Secret) JSONSchemaExtend(schema *jsonschema.Schema) {
+	originalProperties := schema.Properties
+	originalAdditionalProperties := schema.AdditionalProperties
+
+	secretWithoutOrigin := &jsonschema.Schema{
+		Type:                 "object",
+		Properties:           originalProperties,
+		AdditionalProperties: originalAdditionalProperties,
+		Required:             []string{"name"},
+		Not: &jsonschema.Schema{
+			Properties: originalProperties,
+			Required:   []string{"origin"},
+		},
+	}
+
+	secretWithOrigin := &jsonschema.Schema{
+		Type:                 "object",
+		Properties:           originalProperties,
+		AdditionalProperties: originalAdditionalProperties,
+		Required:             []string{"origin"},
+	}
+
+	// use anyOf to allow either pattern
+	schema.AnyOf = []*jsonschema.Schema{
+		secretWithoutOrigin,
+		secretWithOrigin,
+	}
+
+	// clear top-level constraints since they're now in anyOf
+	schema.Properties = nil
+	schema.Required = nil
+	schema.Type = ""
+	schema.AdditionalProperties = nil
+}
+
+// JSONSchemaExtend handles some overrides that need to be in place
 // for this type for the jsonschema generation.
 //
 // Allows using simple strings or objects.

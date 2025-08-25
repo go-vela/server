@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://github.com/go-vela/server/releases/latest/download/schema.json
+
 version: "1"
 
 step_image: &step_image
@@ -19,7 +21,7 @@ stages:
   greeting:
     steps:
       - name: Greeting
-        secrets: [ docker_username ]
+        secrets: [docker_username]
         image: alpine
         commands:
           - echo "Hello, World"
@@ -43,7 +45,7 @@ stages:
         commands: |
           echo "Welcome to the Vela docs"
           go build something
-  
+
   goodbye:
     # will wait for greeting and welcome to finish
     needs: [greeting, welcome]
@@ -57,3 +59,4 @@ secrets:
     key: go-vela/docs/username
     engine: native
     type: repo
+
