@@ -3602,6 +3602,84 @@ func Test_CompileLite(t *testing.T) {
 					},
 				},
 				Environment: raw.StringSliceMap{},
+				Secrets: yaml.SecretSlice{
+					{
+						Name:   "foo",
+						Key:    "org/repo/foo",
+						Type:   "repo",
+						Engine: "native",
+						Pull:   "build_start",
+					},
+					{
+						Origin: yaml.Origin{
+							Name:  "push main secrets",
+							Image: "vault:latest",
+							Pull:  "not_present",
+							Ruleset: yaml.Ruleset{
+								If: yaml.Rules{
+									Event:    []string{"push"},
+									Branch:   []string{"main"},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
+							},
+							Parameters: map[string]any{
+								"foo": "bar",
+							},
+						},
+					},
+					{
+						Origin: yaml.Origin{
+							Name:  "deployment secrets",
+							Image: "vault:latest",
+							Pull:  "not_present",
+							Ruleset: yaml.Ruleset{
+								If: yaml.Rules{
+									Event:    []string{"deployment:created"},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
+							},
+							Parameters: map[string]any{
+								"foo": "bar",
+							},
+						},
+					},
+				},
+				Services: yaml.ServiceSlice{
+					{
+						Name:  "database",
+						Image: "postgres:latest",
+						Pull:  "not_present",
+						Ruleset: yaml.Ruleset{
+							If: yaml.Rules{
+								Event:    []string{"push"},
+								Branch:   []string{"main"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
+						},
+						Environment: raw.StringSliceMap{
+							"POSTGRES_USER":     "postgres",
+							"POSTGRES_PASSWORD": "postgres",
+						},
+					},
+					{
+						Name:  "redis",
+						Image: "redis:latest",
+						Pull:  "not_present",
+						Ruleset: yaml.Ruleset{
+							If: yaml.Rules{
+								Event:    []string{"deployment:created"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
+						},
+						Environment: raw.StringSliceMap{
+							"REDIS_PASSWORD": "redis",
+						},
+					},
+				},
 				Stages: []*yaml.Stage{
 					{
 						Name:  "test",
@@ -3871,8 +3949,52 @@ func Test_CompileLite(t *testing.T) {
 					},
 				},
 				Environment: raw.StringSliceMap{},
-				Secrets:     yaml.SecretSlice{},
-				Services:    yaml.ServiceSlice{},
+				Secrets: yaml.SecretSlice{
+					{
+						Name:   "foo",
+						Key:    "org/repo/foo",
+						Type:   "repo",
+						Engine: "native",
+						Pull:   "build_start",
+					},
+					{
+						Origin: yaml.Origin{
+							Name:  "push main secrets",
+							Image: "vault:latest",
+							Pull:  "not_present",
+							Ruleset: yaml.Ruleset{
+								If: yaml.Rules{
+									Event:    []string{"push"},
+									Branch:   []string{"main"},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
+							},
+							Parameters: map[string]any{
+								"foo": "bar",
+							},
+						},
+					},
+				},
+				Services: yaml.ServiceSlice{
+					{
+						Name:  "database",
+						Image: "postgres:latest",
+						Pull:  "not_present",
+						Ruleset: yaml.Ruleset{
+							If: yaml.Rules{
+								Event:    []string{"push"},
+								Branch:   []string{"main"},
+								Matcher:  "filepath",
+								Operator: "and",
+							},
+						},
+						Environment: raw.StringSliceMap{
+							"POSTGRES_USER":     "postgres",
+							"POSTGRES_PASSWORD": "postgres",
+						},
+					},
+				},
 				Stages: []*yaml.Stage{
 					{
 						Name:  "test",

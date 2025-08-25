@@ -3,6 +3,46 @@ version: "1"
 metadata:
   render_inline: true
 
+secrets:
+  - name: foo
+    key: org/repo/foo
+    type: repo
+    engine: native
+
+  - origin:
+      name: push main secrets
+      image: vault:latest
+      ruleset:
+        event: push
+        branch: main
+      parameters:
+        foo: bar
+
+  - origin:
+      name: deployment secrets
+      image: vault:latest
+      ruleset:
+        event: deployment
+      parameters:
+        foo: bar
+
+services:
+  - name: database
+    image: postgres:latest
+    ruleset:
+      event: push
+      branch: main
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  - name: redis
+    image: redis:latest
+    ruleset:
+      event: deployment
+    environment:
+      REDIS_PASSWORD: redis
+
 templates:
   - name: golang
     source: github.example.com/github/octocat/golang_inline_stages.yml
