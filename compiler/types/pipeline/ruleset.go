@@ -104,20 +104,16 @@ func (data *RuleData) Match(set Ruleset) (bool, error) {
 // MatchRules iterates through the defined rules in a ruleset and determines if the data matches.
 func (data *RuleData) MatchRules(rules Rules) (bool, error) {
 	isOr := strings.EqualFold(rules.Operator, constants.OperatorOr)
+	isCompileTime := data.Status == constants.StatusPending
 
 	var (
-		match bool
+		match = true // assume we are running the step
 		err   error
 	)
 
-	// build is being compiled - status does not matter
-	if len(rules.Status) > 0 && data.Status == constants.StatusPending {
+	// build is being compiled - step should run if operator or is used with status
+	if len(rules.Status) > 0 && isCompileTime && isOr {
 		return true, nil
-	}
-
-	// set running to success on ruleset evaluations (c.Execute)
-	if len(rules.Status) > 0 && data.Status == constants.StatusRunning {
-		data.Status = constants.StatusSuccess
 	}
 
 	// run eval first
@@ -151,21 +147,35 @@ func (data *RuleData) MatchRules(rules Rules) (bool, error) {
 	}
 
 	// define rule data type
-	ruleSets := []struct {
+	type RuleSetPair struct {
 		data []string
 		rule Ruletype
-	}{
+	}
+
+	ruleSets := []RuleSetPair{
 		{[]string{data.Branch}, rules.Branch},
 		{[]string{data.Comment}, rules.Comment},
 		{[]string{data.Event}, rules.Event},
 		{data.Path, rules.Path},
 		{[]string{data.Repo}, rules.Repo},
 		{[]string{data.Sender}, rules.Sender},
-		{[]string{data.Status}, rules.Status},
 		{[]string{data.Tag}, rules.Tag},
 		{[]string{data.Target}, rules.Target},
 		{data.Label, rules.Label},
 		{[]string{data.Instance}, rules.Instance},
+	}
+
+	// add status if it is not compile time
+	if !isCompileTime {
+		// set running to success on ruleset evaluations (c.Execute)
+		if len(rules.Status) > 0 && data.Status == constants.StatusRunning {
+			data.Status = constants.StatusSuccess
+		}
+
+		ruleSets = append(ruleSets, RuleSetPair{
+			data: []string{data.Status},
+			rule: rules.Status,
+		})
 	}
 
 	for _, rs := range ruleSets {
