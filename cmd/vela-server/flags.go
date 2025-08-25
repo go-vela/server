@@ -111,7 +111,7 @@ var Flags = []cli.Flag{
 		Name:    "clone-image",
 		Usage:   "the clone image to use for the injected clone step",
 		Sources: cli.EnvVars("VELA_CLONE_IMAGE"),
-		Value:   "target/vela-git-slim:v0.12.1@sha256:93cdb399e0a3150addac494198473c464c978ca055121593607097b75480192b", // renovate: container
+		Value:   "target/vela-git-slim:v0.13.0@sha256:395bb1df81970117f4547c32f80632950f91e1bad38bc6a8e5015fbe3b1fae24", // renovate: container
 		Action: func(_ context.Context, _ *cli.Command, v string) error {
 			_, err := image.ParseWithError(v)
 			if err != nil {
