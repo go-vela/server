@@ -9,12 +9,12 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/sirupsen/logrus"
-	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestExecutable_New(t *testing.T) {
@@ -31,7 +31,7 @@ func TestExecutable_New(t *testing.T) {
 
 	_config := &gorm.Config{SkipDefaultTransaction: true}
 
-	_postgres, err := gorm.Open(postgres.New(postgres.Config{Conn: _sql}), _config)
+	_postgres, err := testutils.TestPostgresGormInit(_sql)
 	if err != nil {
 		t.Errorf("unable to create new postgres database: %v", err)
 	}
@@ -140,10 +140,7 @@ func testPostgres(t *testing.T) (*Engine, sqlmock.Sqlmock) {
 	// create the new mock Postgres database client
 	//
 	// https://pkg.go.dev/gorm.io/gorm#Open
-	_postgres, err := gorm.Open(
-		postgres.New(postgres.Config{Conn: _sql}),
-		&gorm.Config{SkipDefaultTransaction: true},
-	)
+	_postgres, err := testutils.TestPostgresGormInit(_sql)
 	if err != nil {
 		t.Errorf("unable to create new postgres database: %v", err)
 	}
