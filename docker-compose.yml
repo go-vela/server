@@ -45,6 +45,13 @@ services:
       VELA_OTEL_TRACING_ENABLE: true
       VELA_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
       VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND: 100
+      VELA_STORAGE_ENABLE: 'true'
+      VELA_STORAGE_DRIVER: minio
+      VELA_STORAGE_ADDRESS: 'http://minio:9000' # Address of the MinIO server
+      VELA_STORAGE_ACCESS_KEY: minioadmin
+      VELA_STORAGE_SECRET_KEY: minioadmin
+      VELA_STORAGE_USE_SSL: 'false'
+      VELA_STORAGE_BUCKET: vela
     env_file:
       - .env
     restart: always
@@ -66,12 +73,17 @@ services:
   # https://go-vela.github.io/docs/administration/worker/
   worker:
     container_name: worker
-    image: target/vela-worker:latest
+    image: worker:local
+    #    image: target/vela-worker:latest
+    build:
+      context: ../worker
+      dockerfile: ${VELA_WORKER_DOCKERFILE:-Dockerfile}
     networks:
       - vela
     environment:
       EXECUTOR_DRIVER: linux
       QUEUE_DRIVER: redis
+      QUEUE_ADDR: 'redis://redis:6379'
       VELA_BUILD_LIMIT: 1
       VELA_BUILD_TIMEOUT: 30m
       VELA_LOG_LEVEL: trace
@@ -83,6 +95,11 @@ services:
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       WORKER_ADDR: 'http://worker:8080'
       WORKER_CHECK_IN: 2m
+      VELA_EXECUTOR_OUTPUTS_IMAGE: 'alpine:latest'
+      VELA_STORAGE_ENABLE: 'true'
+      VELA_STORAGE_DRIVER: minio
+      VELA_STORAGE_ADDRESS: 'http://minio:9000'
+      VELA_STORAGE_BUCKET: vela
     restart: always
     ports:
       - '8081:8080'
@@ -153,18 +170,18 @@ services:
   #
   # https://www.vaultproject.io/
   vault:
-   image: hashicorp/vault:latest
-   container_name: vault
-   command: server -dev
-   networks:
-     - vela
-   environment:
-     VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
-     VAULT_DEV_ROOT_TOKEN_ID: vela
-   ports:
-     - '8200:8200'
-   cap_add:
-     - IPC_LOCK
+    image: hashicorp/vault:latest
+    container_name: vault
+    command: server -dev
+    networks:
+      - vela
+    environment:
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_DEV_ROOT_TOKEN_ID: vela
+    ports:
+      - '8200:8200'
+    cap_add:
+      - IPC_LOCK
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -176,6 +193,36 @@ services:
     ports:
       - '16686:16686'
       - '4318:4318'
+
+  minio:
+    container_name: minio
+    image: minio/minio
+    restart: always
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    networks:
+      - vela
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    #      - MINIO_SERVER_URL=http://minio
+    #      - MINIO_BROWSER_REDIRECT_URL=http://
+    command: minio server --address ":9000" --console-address ":9001" /data
+
+  # The `nginx` compose service hosts the NGINX reverse proxy.
+  nginx:
+    image: nginx:latest
+    container_name: minio_nginx
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - '80:80'
+    depends_on:
+      - minio
+    networks:
+      - vela
 
 networks:
   vela:
