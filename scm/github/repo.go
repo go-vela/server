@@ -308,7 +308,6 @@ func (c *Client) Status(ctx context.Context, b *api.Build, org, name, token stri
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, token)
 
-	context := fmt.Sprintf("%s/%s", c.config.StatusContext, b.GetEvent())
 	url := fmt.Sprintf("%s/%s/%s/%d", c.config.WebUIAddress, org, name, b.GetNumber())
 
 	var (
@@ -392,22 +391,38 @@ func (c *Client) Status(ctx context.Context, b *api.Build, org, name, token stri
 		return err
 	}
 
-	// create the status object to make the API call
-	status := &github.RepoStatus{
-		Context:     github.Ptr(context),
-		Description: github.Ptr(description),
-		State:       github.Ptr(state),
+	var contexts []string
+
+	if b.GetEvent() == constants.EventMergeGroup {
+		for _, e := range b.GetRepo().GetMergeQueueEvents() {
+			context := fmt.Sprintf("%s/%s", c.config.StatusContext, e)
+			contexts = append(contexts, context)
+		}
+	} else {
+		contexts = append(contexts, fmt.Sprintf("%s/%s", c.config.StatusContext, b.GetEvent()))
 	}
 
-	// provide "Details" link in GitHub UI if server was configured with it
-	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
-		status.TargetURL = github.Ptr(url)
+	for _, context := range contexts {
+		// create the status object to make the API call
+		status := &github.RepoStatus{
+			Context:     github.Ptr(context),
+			Description: github.Ptr(description),
+			State:       github.Ptr(state),
+		}
+
+		// provide "Details" link in GitHub UI if server was configured with it
+		if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
+			status.TargetURL = github.Ptr(url)
+		}
+
+		// send API call to create the status context for the commit
+		_, _, err := client.Repositories.CreateStatus(ctx, org, name, b.GetCommit(), status)
+		if err != nil {
+			return err
+		}
 	}
 
-	// send API call to create the status context for the commit
-	_, _, err := client.Repositories.CreateStatus(ctx, org, name, b.GetCommit(), status)
-
-	return err
+	return nil
 }
 
 // StepStatus sends the commit status for the given SHA to the GitHub repo with the step as the context.
@@ -426,7 +441,6 @@ func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, org,
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, token)
 
-	context := fmt.Sprintf("%s/%s/%s", c.config.StatusContext, b.GetEvent(), s.GetReportAs())
 	url := fmt.Sprintf("%s/%s/%s/%d#%d", c.config.WebUIAddress, org, name, b.GetNumber(), s.GetNumber())
 
 	var (
@@ -460,22 +474,38 @@ func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, org,
 		description = "there was an error"
 	}
 
-	// create the status object to make the API call
-	status := &github.RepoStatus{
-		Context:     github.Ptr(context),
-		Description: github.Ptr(description),
-		State:       github.Ptr(state),
+	var contexts []string
+
+	if b.GetEvent() == constants.EventMergeGroup {
+		for _, e := range b.GetRepo().GetMergeQueueEvents() {
+			context := fmt.Sprintf("%s/%s/%s", c.config.StatusContext, e, s.GetReportAs())
+			contexts = append(contexts, context)
+		}
+	} else {
+		contexts = append(contexts, fmt.Sprintf("%s/%s/%s", c.config.StatusContext, b.GetEvent(), s.GetReportAs()))
 	}
 
-	// provide "Details" link in GitHub UI if server was configured with it
-	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
-		status.TargetURL = github.Ptr(url)
+	for _, context := range contexts {
+		// create the status object to make the API call
+		status := &github.RepoStatus{
+			Context:     github.Ptr(context),
+			Description: github.Ptr(description),
+			State:       github.Ptr(state),
+		}
+
+		// provide "Details" link in GitHub UI if server was configured with it
+		if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
+			status.TargetURL = github.Ptr(url)
+		}
+
+		// send API call to create the status context for the commit
+		_, _, err := client.Repositories.CreateStatus(ctx, org, name, b.GetCommit(), status)
+		if err != nil {
+			return err
+		}
 	}
 
-	// send API call to create the status context for the commit
-	_, _, err := client.Repositories.CreateStatus(ctx, org, name, b.GetCommit(), status)
-
-	return err
+	return nil
 }
 
 // GetRepo gets repo information from Github.

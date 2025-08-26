@@ -1001,6 +1001,81 @@ func TestGithub_Status_Success(t *testing.T) {
 	}
 }
 
+func TestGithub_Status_SuccessMultipleMergeQueue(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	callCount := 0
+
+	// setup mock server
+	engine.POST("/api/v3/repos/:org/:repo/statuses/:sha", func(c *gin.Context) {
+		callCount++
+
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/status.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	r := new(api.Repo)
+	r.SetID(1)
+	r.SetMergeQueueEvents([]string{constants.EventPull, constants.EventPush})
+
+	b := new(api.Build)
+	b.SetID(1)
+	b.SetRepo(r)
+	b.SetNumber(1)
+	b.SetEvent(constants.EventMergeGroup)
+	b.SetStatus(constants.StatusRunning)
+	b.SetCommit("abcd1234")
+
+	step := new(api.Step)
+	step.SetID(1)
+	step.SetNumber(1)
+	step.SetName("test")
+	step.SetReportAs("test")
+	step.SetStatus(constants.StatusSuccess)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	if callCount != 2 {
+		t.Errorf("Expected 2 calls to GitHub API, got %d", callCount)
+	}
+
+	callCount = 0
+
+	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	if callCount != 2 {
+		t.Errorf("Expected 2 calls to GitHub API, got %d", callCount)
+	}
+}
+
 func TestGithub_Status_Failure(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)

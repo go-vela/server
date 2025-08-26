@@ -16,6 +16,9 @@ const (
 	// EventDeploy defines the event type for build and repo deployment events.
 	EventDeploy = "deployment"
 
+	// EventMergeGroup defines the event type for build and repo merge group events.
+	EventMergeGroup = "merge_group"
+
 	// EventPull defines the event type for build and repo pull_request events.
 	EventPull = "pull_request"
 

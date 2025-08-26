@@ -32,6 +32,9 @@ const (
 	eventIssueComment = "issue_comment"
 	eventRepository   = "repository"
 	eventInitialize   = "initialize"
+
+	// merge queue prefix.
+	mergeQueueBranchPrefix = "gh-readonly-queue/"
 )
 
 type config struct {
