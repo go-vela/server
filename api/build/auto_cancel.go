@@ -19,7 +19,6 @@ import (
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
-	"github.com/go-vela/server/scm"
 )
 
 // AutoCancel is a helper function that checks to see if any pending or running
@@ -44,7 +43,7 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 	status := rB.GetStatus()
 
 	// ensure criteria is met
-	if isCancelable(rB, b, scm.FromContext(c).MergeQueueBranchPrefix()) {
+	if isCancelable(rB, b) {
 		switch {
 		case strings.EqualFold(status, constants.StatusPendingApproval) ||
 			(strings.EqualFold(status, constants.StatusPending) &&
@@ -215,7 +214,7 @@ func cancelRunning(c *gin.Context, b *types.Build) error {
 
 // isCancelable is a helper function that determines whether a `target` build should be auto-canceled
 // given a current build that intends to supersede it.
-func isCancelable(target *types.Build, current *types.Build, prefix string) bool {
+func isCancelable(target *types.Build, current *types.Build) bool {
 	switch target.GetEvent() {
 	case constants.EventPush:
 		// target is cancelable if current build is also a push event and the branches are the same
@@ -226,9 +225,6 @@ func isCancelable(target *types.Build, current *types.Build, prefix string) bool
 
 		// target is cancelable if current build is also a pull event, target is an opened / synchronize action, and the current head ref matches target head ref
 		return strings.EqualFold(current.GetEvent(), constants.EventPull) && cancelableAction && strings.EqualFold(current.GetHeadRef(), target.GetHeadRef())
-	case constants.EventMergeGroup:
-		// target is cancelable if current build is also a merge group event and the merge group IDs are the same
-		return strings.EqualFold(current.GetEvent(), constants.EventMergeGroup) && strings.HasPrefix(current.GetBranch(), prefix) && strings.HasPrefix(target.GetBranch(), prefix)
 	default:
 		return false
 	}
@@ -238,7 +234,7 @@ func isCancelable(target *types.Build, current *types.Build, prefix string) bool
 // auto cancel currently running / pending builds.
 func ShouldAutoCancel(opts *pipeline.CancelOptions, b *types.Build, defaultBranch string) bool {
 	// if the build is pending approval, it should always be eligible to auto cancel
-	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) || b.GetEvent() == constants.EventMergeGroup {
+	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
 		return true
 	}
 

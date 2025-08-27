@@ -177,6 +177,46 @@ func UpdateBuild(c *gin.Context) {
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
+
+		// for merge group failures, destroy stale builds
+		if b.GetEvent() == constants.EventMergeGroup && b.GetStatus() != constants.StatusSuccess {
+			rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(ctx, r)
+			if err != nil {
+				l.Errorf("unable to list pending and running builds for repo %s: %v", entry, err)
+			}
+
+			for _, rB := range rBs {
+				// confirm merge group build that is newer than the failing build
+				if rB.GetEvent() == constants.EventMergeGroup && rB.GetNumber() > b.GetNumber() {
+					rB.SetError(fmt.Sprintf("merge group build was auto canceled due to being marked stale from failed build %d", b.GetNumber()))
+					rB.SetStatus(constants.StatusCanceled)
+
+					_, err := database.FromContext(c).UpdateBuild(c, rB)
+					if err != nil {
+						l.Errorf("unable to update build %s/%d: %v", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+					}
+
+					switch rB.GetStatus() {
+					case constants.StatusPending, constants.StatusPendingApproval:
+						l.WithFields(logrus.Fields{
+							"build":    rB.GetNumber(),
+							"build_id": rB.GetID(),
+						}).Info("build updated - build canceled")
+
+						// remove executable from table
+						_, err = database.FromContext(c).PopBuildExecutable(c, rB.GetID())
+						if err != nil {
+							l.Errorf("unable to pop executable for build %s/%d: %v", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+						}
+					case constants.StatusRunning:
+						err := cancelRunning(c, rB)
+						if err != nil {
+							l.Errorf("unable to cancel running build %s/%d: %v", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+						}
+					}
+				}
+			}
+		}
 	}
 }
 

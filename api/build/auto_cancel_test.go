@@ -14,13 +14,10 @@ func Test_isCancelable(t *testing.T) {
 	// setup types
 	pushEvent := constants.EventPush
 	pullEvent := constants.EventPull
-	mergeEvent := constants.EventMergeGroup
 	tagEvent := constants.EventTag
 
 	branchDev := "dev"
 	branchPatch := "patch-1"
-	branchMergeGroupA := "merge/123abc"
-	branchMergeGroupB := "merge/456def"
 
 	actionOpened := constants.ActionOpened
 	actionSync := constants.ActionSynchronize
@@ -114,18 +111,6 @@ func Test_isCancelable(t *testing.T) {
 			want: false,
 		},
 		{
-			name: "Cancelable Merge Group",
-			target: &types.Build{
-				Event:  &mergeEvent,
-				Branch: &branchMergeGroupA,
-			},
-			current: &types.Build{
-				Event:  &mergeEvent,
-				Branch: &branchMergeGroupB,
-			},
-			want: true,
-		},
-		{
 			name: "Pull Ineligible Action",
 			target: &types.Build{
 				Event:       &pullEvent,
@@ -145,7 +130,7 @@ func Test_isCancelable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := isCancelable(tt.target, tt.current, "merge/"); got != tt.want {
+			if got := isCancelable(tt.target, tt.current); got != tt.want {
 				t.Errorf("test %s: isCancelable() = %v, want %v", tt.name, got, tt.want)
 			}
 		})
@@ -156,12 +141,10 @@ func Test_ShouldAutoCancel(t *testing.T) {
 	// setup types
 	pushEvent := constants.EventPush
 	pullEvent := constants.EventPull
-	mergeEvent := constants.EventMergeGroup
 	tagEvent := constants.EventTag
 
 	branchDev := "dev"
 	branchPatch := "patch-1"
-	branchMergeGroup := "merge/123abc"
 
 	statusPendingApproval := constants.StatusPendingApproval
 
@@ -285,22 +268,6 @@ func Test_ShouldAutoCancel(t *testing.T) {
 			build: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
-				EventAction: &actionOpened,
-				Status:      &statusPendingApproval,
-			},
-			branch: branchDev,
-			want:   true,
-		},
-		{
-			name: "Merge Group build",
-			opts: &pipeline.CancelOptions{
-				Running:       false,
-				Pending:       false,
-				DefaultBranch: false,
-			},
-			build: &types.Build{
-				Event:       &mergeEvent,
-				Branch:      &branchMergeGroup,
 				EventAction: &actionOpened,
 				Status:      &statusPendingApproval,
 			},
