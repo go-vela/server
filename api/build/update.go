@@ -5,6 +5,7 @@ package build
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -172,6 +173,10 @@ func UpdateBuild(c *gin.Context) {
 		b.GetStatus() == constants.StatusCanceled ||
 		b.GetStatus() == constants.StatusKilled ||
 		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
+		// no need to update status for auto canceled merge group builds
+		if b.GetEvent() == constants.EventMergeGroup && strings.Contains(b.GetError(), "merge group build was auto canceled") {
+			return
+		}
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).Status(ctx, b, r.GetOrg(), r.GetName(), scmToken)
 		if err != nil {
@@ -188,16 +193,15 @@ func UpdateBuild(c *gin.Context) {
 			for _, rB := range rBs {
 				// confirm merge group build that is newer than the failing build
 				if rB.GetEvent() == constants.EventMergeGroup && rB.GetNumber() > b.GetNumber() {
-					rB.SetError(fmt.Sprintf("merge group build was auto canceled due to being marked stale from failed build %d", b.GetNumber()))
-					rB.SetStatus(constants.StatusCanceled)
-
-					_, err := database.FromContext(c).UpdateBuild(c, rB)
-					if err != nil {
-						l.Errorf("unable to update build %s/%d: %v", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
-					}
-
 					switch rB.GetStatus() {
-					case constants.StatusPending, constants.StatusPendingApproval:
+					case constants.StatusPending:
+						rB.SetStatus(constants.StatusCanceled)
+
+						_, err := database.FromContext(c).UpdateBuild(c, rB)
+						if err != nil {
+							l.Errorf("unable to update build %s/%d: %v", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+						}
+
 						l.WithFields(logrus.Fields{
 							"build":    rB.GetNumber(),
 							"build_id": rB.GetID(),
@@ -213,6 +217,15 @@ func UpdateBuild(c *gin.Context) {
 						if err != nil {
 							l.Errorf("unable to cancel running build %s/%d: %v", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
 						}
+					default:
+						return
+					}
+
+					rB.SetError(fmt.Sprintf("merge group build was auto canceled due to being marked stale from failed build %d", b.GetNumber()))
+
+					_, err := database.FromContext(c).UpdateBuild(c, rB)
+					if err != nil {
+						l.Errorf("unable to update build %s/%d: %v", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
 					}
 				}
 			}
