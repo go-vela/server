@@ -28,8 +28,6 @@ func TestLog_New(t *testing.T) {
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateCreatedAtIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateServiceIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateStepIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_config := &gorm.Config{SkipDefaultTransaction: true}
 
@@ -122,8 +120,6 @@ func testPostgres(t *testing.T) (*Engine, sqlmock.Sqlmock) {
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateCreatedAtIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateServiceIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateStepIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
 	//

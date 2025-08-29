@@ -16,8 +16,6 @@ func TestLog_Engine_CreateLogIndexes(t *testing.T) {
 
 	_mock.ExpectExec(CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateCreatedAtIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateServiceIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateStepIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 

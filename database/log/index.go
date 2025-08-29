@@ -22,24 +22,6 @@ IF NOT EXISTS
 logs_created_at
 ON logs (created_at);
 `
-
-	// CreateServiceIDIndex represents a query to create an
-	// index on the logs table for the service_id column.
-	CreateServiceIDIndex = `
-CREATE INDEX
-IF NOT EXISTS
-logs_service_id
-ON logs (service_id);
-`
-
-	// CreateStepIDIndex represents a query to create an
-	// index on the logs table for the step_id column.
-	CreateStepIDIndex = `
-CREATE INDEX
-IF NOT EXISTS
-logs_step_id
-ON logs (step_id);
-`
 )
 
 // CreateLogIndexes creates the indexes for the logs table in the database.
@@ -49,8 +31,6 @@ func (e *Engine) CreateLogIndexes(ctx context.Context) error {
 	indices := []string{
 		CreateBuildIDIndex,
 		CreateCreatedAtIndex,
-		CreateServiceIDIndex,
-		CreateStepIDIndex,
 	}
 
 	for _, index := range indices {
