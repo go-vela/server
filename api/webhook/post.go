@@ -423,6 +423,16 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// if push event to special merge queue branch and repo has status overrides for merge group
+	if b.GetEvent() == constants.EventPush &&
+		strings.HasPrefix(b.GetBranch(), scm.FromContext(c).MergeQueueBranchPrefix()) &&
+		len(repo.GetMergeQueueEvents()) > 0 {
+		b.SetEvent(constants.EventMergeGroup)
+		b.SetMessage(fmt.Sprintf("Merge Group - %s", b.GetMessage()))
+
+		h.SetEvent(b.GetEvent())
+	}
+
 	var (
 		prComment string
 		prLabels  []string

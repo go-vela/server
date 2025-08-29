@@ -92,6 +92,7 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	repo.SetTrusted(false)
 	repo.SetActive(true)
 	repo.SetAllowEvents(e)
+	repo.SetMergeQueueEvents([]string{"pull_request"})
 	repo.SetPipelineType("yaml")
 	repo.SetPreviousName("oldName")
 	repo.SetApproveBuild(constants.ApproveNever)
