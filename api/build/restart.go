@@ -173,7 +173,7 @@ func RestartBuild(c *gin.Context) {
 			item.Build.GetHost(),
 		)
 	} else {
-		err := GatekeepBuild(c, b, r)
+		err := GatekeepBuild(c, item.Build, item.Build.GetRepo())
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
 
