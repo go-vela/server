@@ -182,62 +182,6 @@ func UpdateBuild(c *gin.Context) {
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
-
-		// for merge group failures, destroy stale builds
-		if b.GetEvent() == constants.EventMergeGroup && b.GetStatus() != constants.StatusSuccess {
-			handleStaleMergeGroupBuilds(c, b)
-		}
-	}
-}
-
-// handleStaleMergeGroupBuilds is a helper function that manages stale merge group builds.
-func handleStaleMergeGroupBuilds(c *gin.Context, b *types.Build) {
-	l := c.MustGet("logger").(*logrus.Entry)
-	entry := fmt.Sprintf("%s/%d", b.GetRepo().GetFullName(), b.GetNumber())
-
-	rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c.Request.Context(), b.GetRepo())
-	if err != nil {
-		l.Errorf("unable to list pending and running builds for repo %s: %v", entry, err)
-	}
-
-	for _, rB := range rBs {
-		// confirm merge group build that is newer than the failing build
-		if rB.GetEvent() == constants.EventMergeGroup && rB.GetNumber() > b.GetNumber() {
-			switch rB.GetStatus() {
-			case constants.StatusPending:
-				rB.SetStatus(constants.StatusCanceled)
-
-				_, err := database.FromContext(c).UpdateBuild(c, rB)
-				if err != nil {
-					l.Errorf("unable to update build %s: %v", entry, err)
-				}
-
-				l.WithFields(logrus.Fields{
-					"build":    rB.GetNumber(),
-					"build_id": rB.GetID(),
-				}).Info("build updated - build canceled")
-
-				// remove executable from table
-				_, err = database.FromContext(c).PopBuildExecutable(c, rB.GetID())
-				if err != nil {
-					l.Errorf("unable to pop executable for build %s: %v", entry, err)
-				}
-			case constants.StatusRunning:
-				err := cancelRunning(c, rB)
-				if err != nil {
-					l.Errorf("unable to cancel running build %s: %v", entry, err)
-				}
-			default:
-				return
-			}
-
-			rB.SetError(fmt.Sprintf("merge group build was auto canceled due to being marked stale from failed build %d", b.GetNumber()))
-
-			_, err := database.FromContext(c).UpdateBuild(c, rB)
-			if err != nil {
-				l.Errorf("unable to update build %s: %v", entry, err)
-			}
-		}
 	}
 }
 

@@ -74,6 +74,8 @@ func (c *Client) ProcessWebhook(ctx context.Context, request *http.Request) (*in
 		return c.processDeploymentEvent(h, event)
 	case *github.IssueCommentEvent:
 		return c.processIssueCommentEvent(h, event)
+	case *github.MergeGroupEvent:
+		return c.processMergeGroupEvent(ctx, h, event)
 	case *github.RepositoryEvent:
 		return c.processRepositoryEvent(h, event)
 	case *github.InstallationEvent:
@@ -168,6 +170,10 @@ func (c *Client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 	b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/heads/"))
 	b.SetRef(payload.GetRef())
 	b.SetBaseRef(payload.GetBaseRef())
+
+	if strings.HasPrefix(b.GetBranch(), mergeQueueBranchPrefix) {
+		return &internal.Webhook{Hook: h}, nil
+	}
 
 	// update the hook object
 	h.SetBranch(b.GetBranch())
@@ -520,6 +526,66 @@ func (c *Client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 			Comment: payload.GetComment().GetBody(),
 			Number:  int64(payload.GetIssue().GetNumber()),
 		},
+		Hook:  h,
+		Repo:  r,
+		Build: b,
+	}, nil
+}
+
+// processMergeGroupEvent is a helper function to process merge_group GitHub events.
+func (c *Client) processMergeGroupEvent(_ context.Context, h *api.Hook, payload *github.MergeGroupEvent) (*internal.Webhook, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  payload.GetRepo().GetOwner().GetLogin(),
+		"repo": payload.GetRepo().GetName(),
+	}).Tracef("processing merge_group GitHub webhook for %s", payload.GetRepo().GetFullName())
+
+	repo := payload.GetRepo()
+	if repo == nil {
+		return &internal.Webhook{Hook: h}, nil
+	}
+
+	// convert payload to API repo
+	r := new(api.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
+	r.SetCustomProps(repo.CustomProperties)
+
+	// convert payload to API build
+	b := new(api.Build)
+	b.SetEvent(constants.EventMergeGroup)
+	b.SetEventAction(payload.GetAction())
+	b.SetClone(repo.GetCloneURL())
+	b.SetSource(payload.GetMergeGroup().GetHeadCommit().GetURL())
+	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventMergeGroup, repo.GetHTMLURL()))
+	b.SetMessage(payload.GetMergeGroup().GetHeadCommit().GetMessage())
+	b.SetCommit(payload.GetMergeGroup().GetHeadSHA())
+	b.SetSender(payload.GetSender().GetLogin())
+	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
+	b.SetAuthor(payload.GetMergeGroup().GetHeadCommit().GetAuthor().GetLogin())
+	b.SetEmail(payload.GetMergeGroup().GetHeadCommit().GetAuthor().GetEmail())
+	b.SetBranch(strings.TrimPrefix(payload.GetMergeGroup().GetHeadRef(), "refs/heads/"))
+	b.SetRef(payload.GetMergeGroup().GetHeadRef())
+	b.SetBaseRef(payload.GetMergeGroup().GetBaseRef())
+
+	// update the hook object
+	h.SetBranch(b.GetBranch())
+	h.SetEvent(constants.EventMergeGroup)
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
+	)
+
+	// ensure the build author is set
+	if len(b.GetAuthor()) == 0 {
+		b.SetAuthor(payload.GetMergeGroup().GetHeadCommit().GetCommitter().GetName())
+	}
+
+	return &internal.Webhook{
 		Hook:  h,
 		Repo:  r,
 		Build: b,
