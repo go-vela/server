@@ -22,6 +22,7 @@ func TestSettings_Engine_GetSettings(t *testing.T) {
 	_settings.SetRoutes([]string{"vela"})
 	_settings.SetRepoAllowlist([]string{"octocat/hello-world"})
 	_settings.SetScheduleAllowlist([]string{"*"})
+	_settings.SetQueueRestartLimit(30)
 	_settings.SetCreatedAt(1)
 	_settings.SetUpdatedAt(1)
 	_settings.SetUpdatedBy("octocat")
@@ -31,9 +32,9 @@ func TestSettings_Engine_GetSettings(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "compiler", "queue", "repo_allowlist", "schedule_allowlist", "created_at", "updated_at", "updated_by"}).
+		[]string{"id", "compiler", "queue", "repo_allowlist", "schedule_allowlist", "queue_restart_limit", "created_at", "updated_at", "updated_by"}).
 		AddRow(1, `{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
-			`{"routes":["vela"]}`, `{"octocat/hello-world"}`, `{"*"}`, 1, 1, `octocat`)
+			`{"routes":["vela"]}`, `{"octocat/hello-world"}`, `{"*"}`, 30, 1, 1, `octocat`)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "settings" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)

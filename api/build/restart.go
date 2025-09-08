@@ -19,6 +19,7 @@ import (
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -90,6 +91,7 @@ func RestartBuild(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	scm := scm.FromContext(c)
+	ps := settings.FromContext(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
@@ -103,6 +105,25 @@ func RestartBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
+	}
+
+	// check to see if queue has reached configured capacity to allow restarts for pending builds
+	if b.GetStatus() == constants.StatusPending && ps.GetQueueRestartLimit() > 0 {
+		// check length of specified route for the build
+		queueLength, err := queue.FromContext(c).RouteLength(ctx, b.GetRoute())
+		if err != nil {
+			util.HandleError(c, http.StatusInternalServerError, fmt.Errorf("unable to get queue length for %s: %w", b.GetRoute(), err))
+
+			return
+		}
+
+		if queueLength >= int64(ps.GetQueueRestartLimit()) {
+			retErr := fmt.Errorf("unable to restart build %s: queue length %d exceeds configured limit %d, please wait for the queue to decrease in size before retrying", entry, queueLength, ps.GetQueueRestartLimit())
+
+			util.HandleError(c, http.StatusTooManyRequests, retErr)
+
+			return
+		}
 	}
 
 	// set sender to the user who initiated the restart
@@ -170,7 +191,7 @@ func RestartBuild(c *gin.Context) {
 			queue.FromGinContext(c),
 			database.FromContext(c),
 			item,
-			item.Build.GetHost(),
+			item.Build.GetRoute(),
 		)
 	} else {
 		err := GatekeepBuild(c, item.Build, item.Build.GetRepo())

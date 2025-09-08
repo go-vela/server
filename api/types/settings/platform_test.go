@@ -43,6 +43,10 @@ func TestTypes_Platform_Getters(t *testing.T) {
 		if !reflect.DeepEqual(test.platform.GetScheduleAllowlist(), test.want.GetScheduleAllowlist()) {
 			t.Errorf("GetScheduleAllowlist is %v, want %v", test.platform.GetScheduleAllowlist(), test.want.GetScheduleAllowlist())
 		}
+
+		if test.platform.GetQueueRestartLimit() != test.want.GetQueueRestartLimit() {
+			t.Errorf("GetQueueRestartLimit is %v, want %v", test.platform.GetQueueRestartLimit(), test.want.GetQueueRestartLimit())
+		}
 	}
 }
 
@@ -90,6 +94,12 @@ func TestTypes_Platform_Setters(t *testing.T) {
 		if !reflect.DeepEqual(test.platform.GetScheduleAllowlist(), test.want.GetScheduleAllowlist()) {
 			t.Errorf("SetScheduleAllowlist is %v, want %v", test.platform.GetScheduleAllowlist(), test.want.GetScheduleAllowlist())
 		}
+
+		test.platform.SetQueueRestartLimit(test.want.GetQueueRestartLimit())
+
+		if test.platform.GetQueueRestartLimit() != test.want.GetQueueRestartLimit() {
+			t.Errorf("SetQueueRestartLimit is %v, want %v", test.platform.GetQueueRestartLimit(), test.want.GetQueueRestartLimit())
+		}
 	}
 }
 
@@ -103,6 +113,7 @@ func TestTypes_Platform_Update(t *testing.T) {
 	sUpdate.SetQueue(Queue{})
 	sUpdate.SetRepoAllowlist([]string{"foo"})
 	sUpdate.SetScheduleAllowlist([]string{"bar"})
+	sUpdate.SetQueueRestartLimit(60)
 
 	// setup tests
 	tests := []struct {
@@ -141,6 +152,7 @@ func TestTypes_Platform_String(t *testing.T) {
   Queue: %v,
   RepoAllowlist: %v,
   ScheduleAllowlist: %v,
+  QueueRestartLimit: %d,
   CreatedAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -150,6 +162,7 @@ func TestTypes_Platform_String(t *testing.T) {
 		qs.String(),
 		s.GetRepoAllowlist(),
 		s.GetScheduleAllowlist(),
+		s.GetQueueRestartLimit(),
 		s.GetCreatedAt(),
 		s.GetUpdatedAt(),
 		s.GetUpdatedBy(),
@@ -174,6 +187,7 @@ func testPlatformSettings() *Platform {
 	s.SetUpdatedBy("vela-server")
 	s.SetRepoAllowlist([]string{"foo", "bar"})
 	s.SetScheduleAllowlist([]string{"*"})
+	s.SetQueueRestartLimit(30)
 
 	// setup types
 	// setup compiler

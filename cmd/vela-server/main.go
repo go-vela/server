@@ -278,6 +278,12 @@ func main() {
 			Usage:   "limit which repos can be utilize the schedule feature within the system",
 			Value:   &cli.StringSlice{},
 		},
+		&cli.IntFlag{
+			EnvVars: []string{"VELA_QUEUE_RESTART_LIMIT"},
+			Name:    "queue-restart-limit",
+			Usage:   "set the max queue size before pending builds are no longer allowed to be restarted (set to 0 to not enforce)",
+			Value:   30,
+		},
 	}
 	// Add Database Flags
 	app.Flags = append(app.Flags, database.Flags...)
