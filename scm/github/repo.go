@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -705,9 +706,9 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, r 
 	// of repos added to the installation
 	repos := g.Repositories
 
-	// use triggering repo as a restrictive default
-	if len(repos) == 0 {
-		repos = []string{r.GetName()}
+	// ensure build repo is included in list
+	if !slices.Contains(repos, r.GetName()) {
+		repos = append(repos, r.GetName())
 	}
 
 	// permissions that are applied to the token for every repo provided

@@ -326,6 +326,11 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, n
 
 	if netrc != nil {
 		env["VELA_NETRC_PASSWORD"] = *netrc
+
+		// set git token if this is an install token
+		if r.GetInstallID() != 0 {
+			env["VELA_GIT_TOKEN"] = *netrc
+		}
 	}
 
 	env["VELA_WORKSPACE"] = workspace
