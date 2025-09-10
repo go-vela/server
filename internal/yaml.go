@@ -6,14 +6,12 @@ import (
 	"fmt"
 	"strings"
 
-	bkYaml "github.com/buildkite/yaml"
 	yaml "go.yaml.in/yaml/v3"
 
-	legacyTypes "github.com/go-vela/server/compiler/types/yaml/buildkite"
-	types "github.com/go-vela/server/compiler/types/yaml/yaml"
+	types "github.com/go-vela/server/compiler/types/yaml"
 )
 
-// ParseYAML is a helper function for transitioning teams away from legacy buildkite YAML parser.
+// ParseYAML is a helper function for parsing base YAML pipelines and generating warnings for anchor usage.
 func ParseYAML(data []byte, tmplName string) (*types.Build, []string, error) {
 	var (
 		rootNode      yaml.Node
@@ -49,16 +47,7 @@ func ParseYAML(data []byte, tmplName string) (*types.Build, []string, error) {
 
 	switch version {
 	case "legacy":
-		legacyConfig := new(legacyTypes.Build)
-
-		err := bkYaml.Unmarshal(data, legacyConfig)
-		if err != nil {
-			return nil, nil, fmt.Errorf("unable to unmarshal legacy yaml: %w", err)
-		}
-
-		config = legacyConfig.ToYAML()
-
-		warnings = append(warnings, fmt.Sprintf(`%susing legacy version - address any incompatibilities and use "1" instead`, warningPrefix))
+		return nil, nil, fmt.Errorf("version 'legacy' is no longer supported, please update your pipeline to use version '1'")
 
 	default:
 		// unmarshal the bytes into the yaml configuration

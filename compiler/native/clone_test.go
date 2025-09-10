@@ -9,7 +9,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 )
 
 const defaultCloneImage = "target/vela-git-slim:latest"
