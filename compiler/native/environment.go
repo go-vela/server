@@ -292,14 +292,12 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, n
 	// set default workspace
 	workspace := constants.WorkspaceDefault
 	notImplemented := "TODO"
-	channel := notImplemented
 
 	env := make(map[string]string)
 
 	// vela specific environment variables
 	env["VELA"] = api.ToString(true)
 	env["VELA_ADDR"] = notImplemented
-	env["VELA_CHANNEL"] = notImplemented
 	env["VELA_DATABASE"] = notImplemented
 	env["VELA_DISTRIBUTION"] = notImplemented
 	env["VELA_HOST"] = notImplemented
@@ -316,7 +314,6 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, n
 	if m != nil {
 		env["VELA_ADDR"] = m.Vela.WebAddress
 		env["VELA_SERVER_ADDR"] = m.Vela.Address
-		env["VELA_CHANNEL"] = m.Queue.Channel
 		env["VELA_DATABASE"] = m.Database.Driver
 		env["VELA_HOST"] = m.Vela.Address
 		env["VELA_NETRC_MACHINE"] = m.Source.Host
@@ -324,7 +321,6 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, n
 		env["VELA_SOURCE"] = m.Source.Driver
 		env["VELA_OPEN_ID_ISSUER"] = m.Vela.OpenIDIssuer
 		env["VELA_ID_TOKEN_REQUEST_URL"] = fmt.Sprintf("%s/api/v1/repos/%s/builds/%d/id_token", m.Vela.Address, r.GetFullName(), b.GetNumber())
-		channel = m.Queue.Channel
 		workspace = fmt.Sprintf("%s/%s/%s/%s", workspace, m.Source.Host, r.GetOrg(), r.GetName())
 	}
 
@@ -337,7 +333,7 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, n
 	// populate environment variables from repo api
 	env = appendMap(env, r.Environment())
 	// populate environment variables from build api
-	env = appendMap(env, b.Environment(workspace, channel))
+	env = appendMap(env, b.Environment(workspace))
 	// populate environment variables from user api
 	env = appendMap(env, u.Environment())
 

@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-
 	"github.com/go-vela/server/database/testutils"
 )
 
@@ -22,6 +21,7 @@ func TestSettings_Engine_UpdateSettings(t *testing.T) {
 	_settings.SetRoutes([]string{"vela", "large"})
 	_settings.SetRepoAllowlist([]string{"octocat/hello-world"})
 	_settings.SetScheduleAllowlist([]string{"*"})
+	_settings.SetQueueRestartLimit(30)
 	_settings.SetCreatedAt(1)
 	_settings.SetUpdatedAt(1)
 	_settings.SetUpdatedBy("octocat")
@@ -30,9 +30,9 @@ func TestSettings_Engine_UpdateSettings(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
-	_mock.ExpectExec(`UPDATE "settings" SET "compiler"=$1,"queue"=$2,"repo_allowlist"=$3,"schedule_allowlist"=$4,"created_at"=$5,"updated_at"=$6,"updated_by"=$7 WHERE "id" = $8`).
+	_mock.ExpectExec(`UPDATE "settings" SET "compiler"=$1,"queue"=$2,"repo_allowlist"=$3,"schedule_allowlist"=$4,"queue_restart_limit"=$5,"created_at"=$6,"updated_at"=$7,"updated_by"=$8 WHERE "id" = $9`).
 		WithArgs(`{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
-			`{"routes":["vela","large"]}`, `{"octocat/hello-world"}`, `{"*"}`, 1, testutils.AnyArgument{}, "octocat", 1).
+			`{"routes":["vela","large"]}`, `{"octocat/hello-world"}`, `{"*"}`, 30, 1, testutils.AnyArgument{}, `octocat`, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

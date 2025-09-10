@@ -30,6 +30,7 @@ type (
 
 		RepoAllowlist     pq.StringArray `json:"repo_allowlist"     sql:"repo_allowlist"     gorm:"type:varchar(1000)"`
 		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist" sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
+		QueueRestartLimit sql.NullInt32  `json:"queue_restart_limit" sql:"queue_restart_limit"`
 
 		CreatedAt sql.NullInt64  `sql:"created_at"`
 		UpdatedAt sql.NullInt64  `sql:"updated_at"`
@@ -101,6 +102,11 @@ func (ps *Platform) Nullify() *Platform {
 		ps.ID.Valid = false
 	}
 
+	// check if the QueueRestartLimit field should be false
+	if ps.QueueRestartLimit.Int32 < 0 {
+		ps.QueueRestartLimit.Valid = false
+	}
+
 	// check if the CloneImage field should be false
 	if len(ps.CloneImage.String) == 0 {
 		ps.CloneImage.Valid = false
@@ -127,6 +133,7 @@ func (ps *Platform) ToAPI() *settings.Platform {
 
 	psAPI.SetRepoAllowlist(ps.RepoAllowlist)
 	psAPI.SetScheduleAllowlist(ps.ScheduleAllowlist)
+	psAPI.SetQueueRestartLimit(ps.QueueRestartLimit.Int32)
 
 	psAPI.Compiler = &settings.Compiler{}
 	psAPI.SetCloneImage(ps.CloneImage.String)
@@ -183,6 +190,10 @@ func (ps *Platform) Validate() error {
 		ps.ScheduleAllowlist[i] = util.Sanitize(v)
 	}
 
+	if ps.QueueRestartLimit.Int32 < 0 {
+		return fmt.Errorf("queue restart limit must be greater than or equal to zero, got: %d", ps.QueueRestartLimit.Int32)
+	}
+
 	if ps.CreatedAt.Int64 < 0 {
 		return fmt.Errorf("created_at must be greater than zero, got: %d", ps.CreatedAt.Int64)
 	}
@@ -209,6 +220,7 @@ func SettingsFromAPI(s *settings.Platform) *Platform {
 		},
 		RepoAllowlist:     pq.StringArray(s.GetRepoAllowlist()),
 		ScheduleAllowlist: pq.StringArray(s.GetScheduleAllowlist()),
+		QueueRestartLimit: sql.NullInt32{Int32: s.GetQueueRestartLimit(), Valid: true},
 		CreatedAt:         sql.NullInt64{Int64: s.GetCreatedAt(), Valid: true},
 		UpdatedAt:         sql.NullInt64{Int64: s.GetUpdatedAt(), Valid: true},
 		UpdatedBy:         sql.NullString{String: s.GetUpdatedBy(), Valid: true},

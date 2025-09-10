@@ -53,6 +53,7 @@ func TestTypes_Platform_ToAPI(t *testing.T) {
 	want.SetID(1)
 	want.SetRepoAllowlist([]string{"github/octocat"})
 	want.SetScheduleAllowlist([]string{"*"})
+	want.SetQueueRestartLimit(30)
 	want.SetCreatedAt(0)
 	want.SetUpdatedAt(0)
 	want.SetUpdatedBy("")
@@ -125,6 +126,18 @@ func TestTypes_Platform_Validate(t *testing.T) {
 				Queue: Queue{},
 			},
 		},
+		{ // negative QueueRestartLimit set for settings
+			failure: true,
+			settings: &Platform{
+				ID:                sql.NullInt64{Int64: 1, Valid: true},
+				QueueRestartLimit: sql.NullInt32{Int32: -1, Valid: true},
+				Compiler: Compiler{
+					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
+					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
+					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
+				},
+			},
+		},
 	}
 
 	// run tests
@@ -151,6 +164,7 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 	s.SetID(1)
 	s.SetRepoAllowlist([]string{"github/octocat"})
 	s.SetScheduleAllowlist([]string{"*"})
+	s.SetQueueRestartLimit(30)
 	s.SetCreatedAt(0)
 	s.SetUpdatedAt(0)
 	s.SetUpdatedBy("")
@@ -188,6 +202,7 @@ func testPlatform() *Platform {
 		},
 		RepoAllowlist:     []string{"github/octocat"},
 		ScheduleAllowlist: []string{"*"},
+		QueueRestartLimit: sql.NullInt32{Int32: 30, Valid: true},
 		CreatedAt:         sql.NullInt64{Int64: 0, Valid: true},
 		UpdatedAt:         sql.NullInt64{Int64: 0, Valid: true},
 		UpdatedBy:         sql.NullString{String: "", Valid: true},

@@ -32,6 +32,7 @@ const (
 			"schedule_allowlist": [
 				"octocat/hello-world"
 			],
+			"queue_restart_limit": 5,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -57,6 +58,7 @@ const (
 				"octocat/hello-world",
 				"octocat/*"
 			],
+			"queue_restart_limit": 5,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -82,6 +84,7 @@ const (
 			"octocat/hello-world",
 			"octocat/*"
 		],
+		"queue_restart_limit": 5,
 		"created_at": 1,
 		"updated_at": 1,
 		"updated_by": "octocat"
