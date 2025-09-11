@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 
@@ -1695,6 +1696,24 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 		c.File("testdata/installations.json")
 	})
 	engine.POST("/api/v3/app/installations/:id/access_tokens", func(c *gin.Context) {
+		type reqBody struct {
+			Repositories []string `json:"repositories"`
+		}
+
+		b := new(reqBody)
+
+		err := c.Bind(b)
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+
+		if len(b.Repositories) == 0 || !slices.Contains(b.Repositories, "Hello-World") {
+			c.Status(http.StatusBadRequest)
+
+			return
+		}
+
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/installations_access_tokens.json")
@@ -1784,6 +1803,14 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
+			wantErr:       false,
+		},
+		{
+			name:          "nothing defined in yaml.Git",
+			repo:          installedRepo,
+			user:          u,
+			appsTransport: true,
+			wantToken:     "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
 			wantErr:       false,
 		},
 		{
