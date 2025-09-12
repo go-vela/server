@@ -184,8 +184,6 @@ func CompileAndPublish(
 		pipeline *types.Pipeline
 		// variable to store the pipeline type for the repository
 		pipelineType = r.GetPipelineType()
-		// variable to store updated repository record
-		repo *types.Repo
 	)
 
 	// implement a loop to process asynchronous operations with a retry limit
@@ -215,35 +213,10 @@ func CompileAndPublish(
 			pipelineFile = pipeline.GetData()
 		}
 
-		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
-		repo, err = database.GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
-		if err != nil {
-			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
-
-			// check if the retry limit has been exceeded
-			if i < cfg.Retries-1 {
-				logger.WithError(retErr).Warningf("retrying #%d", i+1)
-
-				// continue to the next iteration of the loop
-				continue
-			}
-
-			return nil, nil, http.StatusInternalServerError, retErr
-		}
-
-		// update DB record of repo (repo) with any changes captured from webhook payload (r)
-		repo.SetTopics(r.GetTopics())
-		repo.SetBranch(r.GetBranch())
-
-		// update the build numbers based off repo counter
-		inc := repo.GetCounter() + 1
-		repo.SetCounter(inc)
-		b.SetNumber(inc)
-
 		// populate the build link if a web address is provided
 		if len(cfg.Metadata.Vela.WebAddress) > 0 {
 			b.SetLink(
-				fmt.Sprintf("%s/%s/%d", cfg.Metadata.Vela.WebAddress, repo.GetFullName(), b.GetNumber()),
+				fmt.Sprintf("%s/%s/%d", cfg.Metadata.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
 			)
 		}
 
@@ -254,7 +227,7 @@ func CompileAndPublish(
 		// the repo pipeline type to match what was defined for the existing pipeline
 		// before compiling. After we're done compiling, we reset the pipeline type.
 		if len(pipeline.GetType()) > 0 {
-			repo.SetPipelineType(pipeline.GetType())
+			r.SetPipelineType(pipeline.GetType())
 		}
 
 		var compiled *types.Pipeline
@@ -266,7 +239,7 @@ func CompileAndPublish(
 			WithCommit(b.GetCommit()).
 			WithFiles(files).
 			WithMetadata(cfg.Metadata).
-			WithRepo(repo).
+			WithRepo(r).
 			WithUser(u).
 			WithLabels(cfg.Labels).
 			WithSCM(scm).
@@ -274,7 +247,7 @@ func CompileAndPublish(
 			Compile(ctx, pipelineFile)
 		if err != nil {
 			// format the error message with extra information
-			err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", repo.GetFullName(), err)
+			err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
 
 			// log the error for traceability
 			logger.Error(err.Error())
@@ -288,7 +261,7 @@ func CompileAndPublish(
 		// existing pipelines in the system for that repo. To account for this, we update
 		// the repo pipeline type to match what was defined for the existing pipeline
 		// before compiling. After we're done compiling, we reset the pipeline type.
-		repo.SetPipelineType(pipelineType)
+		r.SetPipelineType(pipelineType)
 
 		// skip the build if pipeline compiled to only the init and clone steps
 		skip := SkipEmptyBuild(p)
@@ -297,9 +270,9 @@ func CompileAndPublish(
 			b.SetStatus(constants.StatusSkipped)
 
 			// send API call to set the status on the commit using installation OR owner token
-			err = scm.Status(ctx, b, repo.GetOrg(), repo.GetName(), p.Token)
+			err = scm.Status(ctx, b, r.GetOrg(), r.GetName(), p.Token)
 			if err != nil {
-				logger.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
+				logger.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 			}
 
 			return nil,
@@ -313,7 +286,7 @@ func CompileAndPublish(
 		// validate deployment config
 		if (b.GetEvent() == constants.EventDeploy) && cfg.Deployment != nil {
 			if err := p.Deployment.Validate(cfg.Deployment.GetTarget(), cfg.Deployment.GetPayload()); err != nil {
-				retErr := fmt.Errorf("%s: failed to validate deployment for %s: %w", baseErr, repo.GetFullName(), err)
+				retErr := fmt.Errorf("%s: failed to validate deployment for %s: %w", baseErr, r.GetFullName(), err)
 
 				return nil, nil, http.StatusBadRequest, retErr
 			}
@@ -322,14 +295,14 @@ func CompileAndPublish(
 		// check if the pipeline did not already exist in the database
 		if pipeline == nil {
 			pipeline = compiled
-			pipeline.SetRepo(repo)
+			pipeline.SetRepo(r)
 			pipeline.SetCommit(b.GetCommit())
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
 			pipeline, err = database.CreatePipeline(ctx, pipeline)
 			if err != nil {
-				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, repo.GetFullName(), err)
+				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, r.GetFullName(), err)
 
 				// check if the retry limit has been exceeded
 				if i < cfg.Retries-1 {
@@ -344,9 +317,9 @@ func CompileAndPublish(
 
 			logger.WithFields(logrus.Fields{
 				"pipeline": pipeline.GetID(),
-				"org":      repo.GetOrg(),
-				"repo":     repo.GetName(),
-				"repo_id":  repo.GetID(),
+				"org":      r.GetOrg(),
+				"repo":     r.GetName(),
+				"repo_id":  r.GetID(),
 			}).Info("pipeline created")
 		}
 
@@ -359,7 +332,7 @@ func CompileAndPublish(
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = PlanBuild(ctx, database, scm, p, b, repo)
+		b, err = PlanBuild(ctx, database, scm, p, b, r)
 		if err != nil {
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
@@ -383,38 +356,22 @@ func CompileAndPublish(
 		break
 	} // end of retry loop
 
-	// send API call to update repo for ensuring counter is incremented
-	repo, err = database.UpdateRepo(ctx, repo)
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, repo.GetFullName(), err)
-
-		return nil, nil, http.StatusInternalServerError, retErr
-	}
-
 	logger.WithFields(logrus.Fields{
-		"org":     repo.GetOrg(),
-		"repo":    repo.GetName(),
-		"repo_id": repo.GetID(),
+		"org":     r.GetOrg(),
+		"repo":    r.GetName(),
+		"repo_id": r.GetID(),
 	}).Info("repo updated - counter incremented")
 
 	// return error if pipeline didn't get populated
 	if p == nil {
-		retErr := fmt.Errorf("%s: failed to set pipeline for %s: %w", baseErr, repo.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to set pipeline for %s: %w", baseErr, r.GetFullName(), err)
 
 		return nil, nil, http.StatusInternalServerError, retErr
 	}
 
 	// return error if build didn't get populated
 	if b == nil {
-		retErr := fmt.Errorf("%s: failed to set build for %s: %w", baseErr, repo.GetFullName(), err)
-
-		return nil, nil, http.StatusInternalServerError, retErr
-	}
-
-	// send API call to capture the triggered build
-	b, err = database.GetBuildForRepo(ctx, repo, b.GetNumber())
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %w", baseErr, repo.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("%s: failed to set build for %s: %w", baseErr, r.GetFullName(), err)
 
 		return nil, nil, http.StatusInternalServerError, retErr
 	}
@@ -435,7 +392,7 @@ func CompileAndPublish(
 	// publish the pipeline.Build to the build_executables table to be requested by a worker
 	err = PublishBuildExecutable(ctx, database, p, b)
 	if err != nil {
-		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", repo.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		return nil, nil, http.StatusInternalServerError, retErr
 	}

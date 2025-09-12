@@ -945,20 +945,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 
 	methods["ListHooksForRepo"] = true
 
-	// lookup the last build by repo
-	got, err := db.LastHookForRepo(context.TODO(), resources.Repos[0])
-	if err != nil {
-		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
-	}
-
-	if diff := cmp.Diff(resources.Hooks[2], got); diff != "" {
-		t.Errorf("LastHookForRepo() mismatch (-want +got):\n%s", diff)
-	}
-
-	methods["LastHookForRepo"] = true
-
 	// lookup a hook with matching webhook_id
-	got, err = db.GetHookByWebhookID(context.TODO(), resources.Hooks[2].GetWebhookID())
+	got, err := db.GetHookByWebhookID(context.TODO(), resources.Hooks[2].GetWebhookID())
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
