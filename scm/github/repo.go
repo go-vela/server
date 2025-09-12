@@ -492,7 +492,14 @@ func (c *Client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Re
 	// send an API call to get the repo info
 	repo, resp, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
 	if err != nil {
-		return nil, http.StatusInternalServerError, err
+		var code int
+		if resp != nil {
+			code = resp.StatusCode
+		} else {
+			code = http.StatusInternalServerError
+		}
+
+		return nil, code, err
 	}
 
 	return toAPIRepo(*repo), resp.StatusCode, nil

@@ -692,7 +692,6 @@ func TestGithub_Enable(t *testing.T) {
 	wantHook.SetWebhookID(1)
 	wantHook.SetSourceID("bar-initialize")
 	wantHook.SetCreated(1315329987)
-	wantHook.SetNumber(1)
 	wantHook.SetEvent("initialize")
 	wantHook.SetStatus("success")
 

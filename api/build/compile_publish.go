@@ -213,13 +213,6 @@ func CompileAndPublish(
 			pipelineFile = pipeline.GetData()
 		}
 
-		// populate the build link if a web address is provided
-		if len(cfg.Metadata.Vela.WebAddress) > 0 {
-			b.SetLink(
-				fmt.Sprintf("%s/%s/%d", cfg.Metadata.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
-			)
-		}
-
 		// ensure we use the expected pipeline type when compiling
 		//
 		// The pipeline type for a repo can change at any time which can break compiling
@@ -350,6 +343,13 @@ func CompileAndPublish(
 			}
 
 			return nil, nil, http.StatusInternalServerError, retErr
+		}
+
+		// populate the build link if a web address is provided
+		if len(cfg.Metadata.Vela.WebAddress) > 0 {
+			b.SetLink(
+				fmt.Sprintf("%s/%s/%d", cfg.Metadata.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
+			)
 		}
 
 		// break the loop because everything was successful
