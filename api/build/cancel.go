@@ -72,7 +72,7 @@ import (
 
 // CancelBuild represents the API handler to cancel a build.
 //
-//nolint:funlen // ignore statement count
+
 func CancelBuild(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)

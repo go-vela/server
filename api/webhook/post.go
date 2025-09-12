@@ -441,7 +441,11 @@ func PostWebhook(c *gin.Context) {
 
 				h.SetStatus(constants.StatusFailure)
 				h.SetError(err.Error())
+
+				return
 			}
+
+			c.JSON(http.StatusOK, "merge group build destroyed")
 
 			return
 		}
@@ -915,12 +919,12 @@ func handleMergeGroupDestroy(c *gin.Context, l *logrus.Entry, db database.Interf
 				// remove executable from table
 				_, err = db.PopBuildExecutable(ctx, rB.GetID())
 				if err != nil {
-					return fmt.Errorf("unable to pop executable for build %s/%d: %v", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+					return fmt.Errorf("unable to pop executable for build %s/%d: %w", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
 				}
 			case constants.StatusRunning:
 				rB, err := build.CancelRunning(c, rB)
 				if err != nil {
-					return fmt.Errorf("unable to cancel running build %s/%d: %v", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+					return fmt.Errorf("unable to cancel running build %s/%d: %w", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
 				}
 
 				rB.SetError("auto canceled: merge group build was destroyed")
