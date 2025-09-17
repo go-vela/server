@@ -90,7 +90,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	// create expected count query with event filter result in mock
 	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
 	// ensure the mock expects the count query with event filter
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "event" = $2`).WithArgs("foo", "push").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND builds.event = $2`).WithArgs("foo", "push").WillReturnRows(_rows)
 	// create expected query with event filter result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
@@ -106,15 +106,15 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		[]string{"id", "name", "token", "hash", "active", "admin"}).
 		AddRow(1, "foo", "bar", "baz", false, false)
 
-	// ensure the mock expects the query with event filter
-	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "event" = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "push", 10).WillReturnRows(_rows)
+		// ensure the mock expects the query with event filter
+	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND builds.event = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "push", 10).WillReturnRows(_rows)
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	// create expected count query with visibility filter result in mock
 	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
 	// ensure the mock expects the count query with visibility filter
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "visibility" = $2`).WithArgs("foo", "public").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND repos.visibility = $2`).WithArgs("foo", "public").WillReturnRows(_rows)
 	// create expected query with visibility filter result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
@@ -131,7 +131,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		AddRow(1, "foo", "bar", "baz", false, false)
 
 	// ensure the mock expects the query with visibility filter
-	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "visibility" = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "public", 10).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND repos.visibility = $2 ORDER BY created DESC,id LIMIT $3`).WithArgs("foo", "public", 10).WillReturnRows(_rows)
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" IN ($1,$2)`).WithArgs(1, 2).WillReturnRows(_repoRows)
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
@@ -175,24 +175,24 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 
 	// setup tests
 	tests := []struct {
-		failure  bool
-		name     string
-		database *engine
-		filters  map[string]interface{}
-		want     []*api.Build
+		failure      bool
+		name         string
+		database     *engine
+		repoFilters  map[string]any
+		buildFilters map[string]any
+		want         []*api.Build
 	}{
 		{
 			failure:  false,
 			name:     "postgres without filters",
 			database: _postgres,
-			filters:  map[string]interface{}{},
 			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
 			name:     "postgres with event filter",
 			database: _postgres,
-			filters: map[string]interface{}{
+			buildFilters: map[string]any{
 				"event": "push",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -201,7 +201,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "postgres with visibility filter",
 			database: _postgres,
-			filters: map[string]interface{}{
+			repoFilters: map[string]any{
 				"visibility": "public",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -210,14 +210,13 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "sqlite3 without filters",
 			database: _sqlite,
-			filters:  map[string]interface{}{},
 			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3 with event filter",
 			database: _sqlite,
-			filters: map[string]interface{}{
+			buildFilters: map[string]any{
 				"event": "push",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -226,7 +225,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "sqlite3 with visibility filter",
 			database: _sqlite,
-			filters: map[string]interface{}{
+			repoFilters: map[string]any{
 				"visibility": "public",
 			},
 			want: []*api.Build{_buildOne, _buildTwo},
@@ -236,7 +235,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListBuildsForOrg(context.TODO(), "foo", test.filters, 1, 10)
+			got, _, err := test.database.ListBuildsForOrg(context.TODO(), "foo", test.repoFilters, test.buildFilters, 1, 10)
 
 			if test.failure {
 				if err == nil {

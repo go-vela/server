@@ -12,7 +12,7 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
@@ -248,7 +248,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CountBuildsForDeployment"] = true
 
 	// count the builds for an org
-	count, err = db.CountBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil)
+	count, err = db.CountBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, nil)
 	if err != nil {
 		t.Errorf("unable to count builds for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
@@ -288,7 +288,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListBuilds"] = true
 
 	// list the builds for an org
-	list, count, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, 1, 10)
+	list, count, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list builds for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
@@ -1001,9 +1001,14 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
+		kid, ok := jkPub.KeyID()
+		if !ok {
+			t.Errorf("unable to get key ID for jwk")
+		}
+
 		err := db.CreateJWK(context.TODO(), jkPub)
 		if err != nil {
-			t.Errorf("unable to create jwk %s: %v", jkPub.KeyID(), err)
+			t.Errorf("unable to create jwk %s: %v", kid, err)
 		}
 	}
 	methods["CreateJWK"] = true
@@ -1024,9 +1029,14 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
-		got, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		kid, ok := jkPub.KeyID()
+		if !ok {
+			t.Errorf("unable to get key ID for jwk")
+		}
+
+		got, err := db.GetActiveJWK(context.TODO(), kid)
 		if err != nil {
-			t.Errorf("unable to get jwk %s: %v", jkPub.KeyID(), err)
+			t.Errorf("unable to get jwk %s: %v", kid, err)
 		}
 
 		if !cmp.Equal(jkPub, got, testutils.JwkKeyOpts) {
@@ -1046,7 +1056,12 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 		jkPub, _ := jk.(jwk.RSAPublicKey)
 
-		_, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
+		kid, ok := jkPub.KeyID()
+		if !ok {
+			t.Errorf("unable to get key ID for jwk")
+		}
+
+		_, err := db.GetActiveJWK(context.TODO(), kid)
 		if err == nil {
 			t.Errorf("GetActiveJWK() should return err after rotation")
 		}
