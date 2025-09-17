@@ -6,17 +6,23 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: read
+
 # pipeline to execute
 jobs:
   schema:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write # for actions/github-script to attach files to release artifacts
+
     steps:
       - name: clone
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: install go
-        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           # use version from go.mod file
           go-version-file: "go.mod"
@@ -27,9 +33,27 @@ jobs:
         run: |
           make jsonschema
 
-      - name: upload
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: upload jsonschema
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
-          args: "schema.json"
+          retries: 3
+          script: |
+            const fs = require('fs');
+            const path = './schema.json';
+            const name = 'schema.json';
+
+            const fileContent = fs.readFileSync(path);
+
+            const response = await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              name: name,
+              data: fileContent,
+              headers: {
+                'content-type': 'text/plain',
+                'content-length': fileContent.length,
+              },
+            });
+
+            core.info(`Uploaded asset: ${response.data.browser_download_url}`);

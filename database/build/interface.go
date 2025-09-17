@@ -33,7 +33,7 @@ type BuildInterface interface {
 	// CountBuildsForDeployment defines a function that gets the count of builds by deployment url.
 	CountBuildsForDeployment(context.Context, *api.Deployment, map[string]interface{}) (int64, error)
 	// CountBuildsForOrg defines a function that gets the count of builds by org name.
-	CountBuildsForOrg(context.Context, string, map[string]interface{}) (int64, error)
+	CountBuildsForOrg(context.Context, string, map[string]any, map[string]any) (int64, error)
 	// CountBuildsForRepo defines a function that gets the count of builds by repo ID.
 	CountBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64) (int64, error)
 	// CountBuildsForStatus defines a function that gets the count of builds by status.
@@ -51,7 +51,7 @@ type BuildInterface interface {
 	// ListBuilds defines a function that gets a list of all builds.
 	ListBuilds(context.Context) ([]*api.Build, error)
 	// ListBuildsForOrg defines a function that gets a list of builds by org name.
-	ListBuildsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Build, int64, error)
+	ListBuildsForOrg(context.Context, string, map[string]any, map[string]any, int, int) ([]*api.Build, int64, error)
 	// ListBuildsForDashboardRepo defines a function that gets a list of builds based on dashboard filters.
 	ListBuildsForDashboardRepo(context.Context, *api.Repo, []string, []string) ([]*api.Build, error)
 	// ListBuildsForRepo defines a function that gets a list of builds by repo ID.

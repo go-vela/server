@@ -105,9 +105,10 @@ import (
 func ListBuildsForOrg(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
-		filters = map[string]interface{}{}
-		b       []*types.Build
-		t       int64
+		buildFilters = map[string]any{}
+		repoFilters  = map[string]any{}
+		b            []*types.Build
+		t            int64
 	)
 
 	// capture middleware values
@@ -128,7 +129,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	// check if branch filter was provided
 	if len(branch) > 0 {
 		// add branch to filters map
-		filters["branch"] = branch
+		buildFilters["branch"] = branch
 	}
 	// check if event filter was provided
 	if len(event) > 0 {
@@ -145,7 +146,7 @@ func ListBuildsForOrg(c *gin.Context) {
 		}
 
 		// add event to filters map
-		filters["event"] = event
+		buildFilters["event"] = event
 	}
 	// check if status filter was provided
 	if len(status) > 0 {
@@ -162,7 +163,7 @@ func ListBuildsForOrg(c *gin.Context) {
 		}
 
 		// add status to filters map
-		filters["status"] = status
+		buildFilters["status"] = status
 	}
 
 	// capture page query parameter if present
@@ -195,11 +196,11 @@ func ListBuildsForOrg(c *gin.Context) {
 	}
 	// Only show public repos to non-admins
 	if perm != "admin" {
-		filters["visibility"] = constants.VisibilityPublic
+		repoFilters["visibility"] = constants.VisibilityPublic
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
-	b, t, err = database.FromContext(c).ListBuildsForOrg(ctx, o, filters, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForOrg(ctx, o, repoFilters, buildFilters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for org %s: %w", o, err)
 
