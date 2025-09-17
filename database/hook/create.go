@@ -23,7 +23,9 @@ func (e *Engine) CreateHook(ctx context.Context, h *api.Hook) (*api.Hook, error)
 	var res *api.Hook
 
 	err := e.client.Transaction(func(tx *gorm.DB) error {
-		if h.GetRepo().GetID() == 0 {
+		r := h.GetRepo()
+
+		if r.GetID() == 0 {
 			return fmt.Errorf("repo ID must be set")
 		}
 
@@ -35,6 +37,7 @@ func (e *Engine) CreateHook(ctx context.Context, h *api.Hook) (*api.Hook, error)
 		}
 
 		h.SetNumber(next)
+		r.SetHookCounter(next)
 
 		hook := types.HookFromAPI(h)
 
@@ -49,7 +52,7 @@ func (e *Engine) CreateHook(ctx context.Context, h *api.Hook) (*api.Hook, error)
 		}
 
 		res = hook.ToAPI()
-		res.SetRepo(h.GetRepo())
+		res.SetRepo(r)
 		res.SetBuild(h.GetBuild())
 
 		return nil

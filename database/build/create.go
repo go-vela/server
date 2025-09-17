@@ -23,7 +23,9 @@ func (e *Engine) CreateBuild(ctx context.Context, b *api.Build) (*api.Build, err
 	var res *api.Build
 
 	err := e.client.Transaction(func(tx *gorm.DB) error {
-		if b.GetRepo().GetID() == 0 {
+		r := b.GetRepo()
+
+		if r.GetID() == 0 {
 			return fmt.Errorf("repo ID must be set")
 		}
 
@@ -35,6 +37,7 @@ func (e *Engine) CreateBuild(ctx context.Context, b *api.Build) (*api.Build, err
 		}
 
 		b.SetNumber(next)
+		r.SetCounter(next)
 
 		build := types.BuildFromAPI(b)
 
@@ -52,7 +55,7 @@ func (e *Engine) CreateBuild(ctx context.Context, b *api.Build) (*api.Build, err
 		}
 
 		res = build.ToAPI()
-		res.SetRepo(b.GetRepo())
+		res.SetRepo(r)
 
 		return nil
 	})
