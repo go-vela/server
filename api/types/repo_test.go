@@ -16,7 +16,7 @@ func TestTypes_Repo_Environment(t *testing.T) {
 	// setup types
 	want := map[string]string{
 		"VELA_REPO_ACTIVE":           "true",
-		"VELA_REPO_ALLOW_EVENTS":     "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,tag,comment:created,schedule,delete:branch",
+		"VELA_REPO_ALLOW_EVENTS":     "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,pull_request:merged,tag,comment:created,schedule,delete:branch",
 		"VELA_REPO_BRANCH":           "main",
 		"VELA_REPO_TOPICS":           "cloud,security",
 		"VELA_REPO_BUILD_LIMIT":      "10",
@@ -36,7 +36,7 @@ func TestTypes_Repo_Environment(t *testing.T) {
 		"VELA_REPO_INSTALL_ID":       "123",
 		"VELA_REPO_CUSTOM_PROPS":     `{"foo":"bar"}`,
 		"REPOSITORY_ACTIVE":          "true",
-		"REPOSITORY_ALLOW_EVENTS":    "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,tag,comment:created,schedule,delete:branch",
+		"REPOSITORY_ALLOW_EVENTS":    "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,pull_request:merged,tag,comment:created,schedule,delete:branch",
 		"REPOSITORY_BRANCH":          "main",
 		"REPOSITORY_CLONE":           "https://github.com/github/octocat.git",
 		"REPOSITORY_FULL_NAME":       "github/octocat",
