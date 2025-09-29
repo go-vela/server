@@ -173,26 +173,19 @@ func (c *Client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 		}
 
 		if ruleData != nil {
-			purgedStages := new(yaml.StageSlice)
+			purgedStages := yaml.StageSlice{}
 
 			for _, stg := range p.Stages {
-				purgedSteps := new(yaml.StepSlice)
-
-				for _, s := range stg.Steps {
-					cRuleset := s.Ruleset.ToPipeline()
-					if match, err := ruleData.Match(*cRuleset); err == nil && match {
-						*purgedSteps = append(*purgedSteps, s)
-					}
-				}
-
-				stg.Steps = *purgedSteps
+				stg.Steps = purgeStepsLite(stg.Steps, ruleData)
 
 				if len(stg.Steps) > 0 {
-					*purgedStages = append(*purgedStages, stg)
+					purgedStages = append(purgedStages, stg)
 				}
 			}
 
-			p.Stages = *purgedStages
+			p.Secrets = purgeSecretsLite(p.Secrets, ruleData)
+			p.Services = purgeServicesLite(p.Services, ruleData)
+			p.Stages = purgedStages
 		}
 
 	case len(p.Steps) > 0:
@@ -213,16 +206,9 @@ func (c *Client) CompileLite(ctx context.Context, v interface{}, ruleData *pipel
 		}
 
 		if ruleData != nil {
-			purgedSteps := new(yaml.StepSlice)
-
-			for _, s := range p.Steps {
-				cRuleset := s.Ruleset.ToPipeline()
-				if match, err := ruleData.Match(*cRuleset); err == nil && match {
-					*purgedSteps = append(*purgedSteps, s)
-				}
-			}
-
-			p.Steps = *purgedSteps
+			p.Secrets = purgeSecretsLite(p.Secrets, ruleData)
+			p.Services = purgeServicesLite(p.Services, ruleData)
+			p.Steps = purgeStepsLite(p.Steps, ruleData)
 		}
 	}
 
@@ -648,4 +634,58 @@ func (c *Client) modifyConfig(build *yaml.Build, apiBuild *api.Build, repo *api.
 	}
 
 	return newBuild, nil
+}
+
+// purgeStepsLite is a helper function that uses ruledata to purge steps that do not meet criteria for execution.
+//
+// used solely for CompileLite.
+func purgeStepsLite(steps yaml.StepSlice, ruleData *pipeline.RuleData) yaml.StepSlice {
+	purgedSteps := yaml.StepSlice{}
+
+	for _, s := range steps {
+		cRuleset := s.Ruleset.ToPipeline()
+		if match, err := ruleData.Match(*cRuleset); err == nil && match {
+			purgedSteps = append(purgedSteps, s)
+		}
+	}
+
+	return purgedSteps
+}
+
+// purgeServicesLite is a helper function that uses ruledata to purge services that do not meet criteria for execution.
+//
+// used solely for CompileLite.
+func purgeServicesLite(services yaml.ServiceSlice, ruleData *pipeline.RuleData) yaml.ServiceSlice {
+	purgedServices := yaml.ServiceSlice{}
+
+	for _, s := range services {
+		cRuleset := s.Ruleset.ToPipeline()
+		if match, err := ruleData.Match(*cRuleset); err == nil && match {
+			purgedServices = append(purgedServices, s)
+		}
+	}
+
+	return purgedServices
+}
+
+// purgeSecretsLite is a helper function that uses ruledata to purge secrets that do not meet criteria for execution.
+//
+// used solely for CompileLite.
+func purgeSecretsLite(secrets yaml.SecretSlice, ruleData *pipeline.RuleData) yaml.SecretSlice {
+	purgedSecrets := yaml.SecretSlice{}
+
+	for _, sec := range secrets {
+		if sec.Origin.Empty() {
+			purgedSecrets = append(purgedSecrets, sec)
+
+			continue
+		}
+
+		cRuleset := sec.Origin.Ruleset.ToPipeline()
+		if match, err := ruleData.Match(*cRuleset); err == nil && match {
+			purgedSecrets = append(purgedSecrets, sec)
+		}
+	}
+
+	return purgedSecrets
 }
