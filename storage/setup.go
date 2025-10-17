@@ -31,6 +31,7 @@ type Setup struct {
 func (s *Setup) Minio() (Storage, error) {
 	return minio.New(
 		s.Endpoint,
+		minio.WithEnable(s.Enable),
 		minio.WithAccessKey(s.AccessKey),
 		minio.WithSecretKey(s.SecretKey),
 		minio.WithSecure(s.Secure),

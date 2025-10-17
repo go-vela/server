@@ -28,4 +28,6 @@ type Storage interface {
 	ListBuildObjectNames(context.Context, *api.Bucket, string, string, string) ([]string, error)
 	// Presigned URLs
 	PresignedGetObject(ctx context.Context, object *api.Object) (string, error)
+	// Storage info
+	StorageEnable() bool
 }

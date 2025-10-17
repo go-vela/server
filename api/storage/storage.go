@@ -38,8 +38,13 @@ func Info(c *gin.Context) {
 	enable := c.MustGet("storage-enable").(bool)
 	if !enable {
 		l := c.MustGet("logger").(*logrus.Entry)
-		l.Info("storage is not enabled, skipping credentials request")
-		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
+		l.Info("storage is not enabled, sending storage disabled response")
+		e := c.MustGet("storage-enable").(bool)
+		wr := types.StorageInfo{
+			StorageEnabled: &e,
+		}
+
+		c.JSON(http.StatusOK, wr)
 
 		return
 	}
@@ -48,19 +53,23 @@ func Info(c *gin.Context) {
 
 	l.Info("requesting storage credentials with registration token")
 
+	// extract the storage-enable that was packed into gin context
+	e := c.MustGet("storage-enable").(bool)
+
 	// extract the public key that was packed into gin context
-	k := c.MustGet("access-key").(string)
+	k := c.MustGet("storage-access-key").(string)
 
 	// extract the storage-address that was packed into gin context
 	a := c.MustGet("storage-address").(string)
 
 	// extract the secret key that was packed into gin context
-	s := c.MustGet("secret-key").(string)
+	s := c.MustGet("storage-secret-key").(string)
 
 	// extract bucket name that was packed into gin context
 	b := c.MustGet("storage-bucket").(string)
 
 	wr := types.StorageInfo{
+		StorageEnabled:   &e,
 		StorageAccessKey: &k,
 		StorageAddress:   &a,
 		StorageSecretKey: &s,

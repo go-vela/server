@@ -154,7 +154,7 @@ func TestMiddleware_StorageAccessKey(t *testing.T) {
 	// setup mock server
 	engine.Use(StorageAccessKey(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("access-key").(string)
+		got = c.Value("storage-access-key").(string)
 
 		c.Status(http.StatusOK)
 	})
@@ -186,7 +186,7 @@ func TestMiddleware_StorageSecretKey(t *testing.T) {
 	// setup mock server
 	engine.Use(StorageSecretKey(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("secret-key").(string)
+		got = c.Value("storage-secret-key").(string)
 
 		c.Status(http.StatusOK)
 	})

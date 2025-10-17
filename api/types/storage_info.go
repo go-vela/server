@@ -6,10 +6,24 @@ package types
 //
 // swagger:model StorageInfo
 type StorageInfo struct {
+	StorageEnabled   *bool   `json:"storage_enabled,omitempty"`
 	StorageAccessKey *string `json:"storage_access_key,omitempty"`
 	StorageSecretKey *string `json:"storage_secret_key,omitempty"`
 	StorageAddress   *string `json:"storage_address,omitempty"`
 	StorageBucket    *string `json:"storage_bucket,omitempty"`
+}
+
+// GetEnabled returns the StorageEnabled field.
+//
+// When the provided StorageInfo type is nil, or the field within
+// the type is nil, it returns false for the field.
+func (w *StorageInfo) GetEnabled() bool {
+	// return zero value if StorageInfo type or StorageEnabled field is nil
+	if w == nil || w.StorageEnabled == nil {
+		return false
+	}
+	
+	return *w.StorageEnabled
 }
 
 // GetAccessKey returns the StorageAccessKey field.
@@ -62,6 +76,19 @@ func (w *StorageInfo) GetStorageBucket() string {
 	}
 
 	return *w.StorageBucket
+}
+
+// SetEnabled sets the StorageEnabled field.
+//
+// When the provided StorageInfo type is nil, it
+// will set nothing and immediately return.
+func (w *StorageInfo) SetEnabled(v bool) {
+	// return if StorageInfo type is nil
+	if w == nil {
+		return
+	}
+
+	w.StorageEnabled = &v
 }
 
 // SetAccessKey sets the StorageAccessKey field.

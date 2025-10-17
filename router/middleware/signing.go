@@ -37,7 +37,7 @@ func QueueAddress(address string) gin.HandlerFunc {
 // to open the connection to the storage.
 func StorageAccessKey(key string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("access-key", key)
+		c.Set("storage-access-key", key)
 		c.Next()
 	}
 }
@@ -46,7 +46,7 @@ func StorageAccessKey(key string) gin.HandlerFunc {
 // to open the connection to the storage.
 func StorageSecretKey(key string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("secret-key", key)
+		c.Set("storage-secret-key", key)
 		c.Next()
 	}
 }

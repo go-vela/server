@@ -9,6 +9,18 @@ import (
 // ClientOpt represents a configuration option to initialize the MinIO client.
 type ClientOpt func(client *Client) error
 
+// WithEnable sets the enable flag in the MinIO client.
+func WithEnable(enable bool) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring enable flag in minio client")
+
+		// set the enable flag in the minio client
+		c.config.Enable = enable
+
+		return nil
+	}
+}
+
 // WithAccessKey sets the access key in the MinIO client.
 func WithAccessKey(accessKey string) ClientOpt {
 	return func(c *Client) error {

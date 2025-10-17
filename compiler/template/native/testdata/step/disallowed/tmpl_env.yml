@@ -4,5 +4,5 @@ metadata:
 steps:
   - name: echo
     commands:
-      - echo {{ env "VELA_SOURCE_CLIENT" }}
+      - echo {{ env "VELA_SCM_CLIENT" }}
     image: alpine:latest

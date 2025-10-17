@@ -13,6 +13,7 @@ import (
 
 // config holds the configuration for the MinIO client.
 type config struct {
+	Enable    bool
 	Endpoint  string
 	AccessKey string
 	SecretKey string
