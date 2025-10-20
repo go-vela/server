@@ -67,6 +67,7 @@ func TestMiddleware_TracingInstrumentation(t *testing.T) {
 				if !reflect.DeepEqual(got, trace.SpanContext{}) {
 					return errors.New("span context is not empty")
 				}
+
 				return nil
 			},
 		},
@@ -82,6 +83,7 @@ func TestMiddleware_TracingInstrumentation(t *testing.T) {
 				if reflect.DeepEqual(got, trace.SpanContext{}) {
 					return errors.New("span context is empty")
 				}
+
 				return nil
 			},
 		},
