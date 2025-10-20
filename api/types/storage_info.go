@@ -22,7 +22,7 @@ func (w *StorageInfo) GetEnabled() bool {
 	if w == nil || w.StorageEnabled == nil {
 		return false
 	}
-	
+
 	return *w.StorageEnabled
 }
 

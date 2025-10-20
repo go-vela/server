@@ -39,6 +39,7 @@ func Info(c *gin.Context) {
 	if !enable {
 		l := c.MustGet("logger").(*logrus.Entry)
 		l.Info("storage is not enabled, sending storage disabled response")
+
 		e := c.MustGet("storage-enable").(bool)
 		wr := types.StorageInfo{
 			StorageEnabled: &e,
