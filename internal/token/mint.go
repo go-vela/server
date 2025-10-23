@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
@@ -157,6 +158,11 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 		return "", errors.New("missing build sender for ID token")
 	}
 
+	event := mto.Build.GetEvent()
+	if len(mto.Build.GetEventAction()) > 0 {
+		event = fmt.Sprintf("%s:%s", mto.Build.GetEvent(), mto.Build.GetEventAction())
+	}
+
 	// set claims based on input
 	claims.Actor = mto.Build.GetSender()
 	claims.ActorSCMID = mto.Build.GetSenderSCMID()
@@ -164,7 +170,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.BuildNumber = strconv.FormatInt(mto.Build.GetNumber(), 10)
 	claims.BuildID = strconv.FormatInt(mto.Build.GetID(), 10)
 	claims.Repo = mto.Repo
-	claims.Event = fmt.Sprintf("%s:%s", mto.Build.GetEvent(), mto.Build.GetEventAction())
+	claims.Event = event
 	claims.PullFork = strconv.FormatBool(mto.Build.GetFork())
 	claims.SHA = mto.Build.GetCommit()
 	claims.Ref = mto.Build.GetRef()
@@ -186,6 +192,14 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.IssuedAt = jwt.NewNumericDate(time.Now())
 	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(mto.TokenDuration))
 	claims.Issuer = tm.Issuer
+
+	// create JTI
+	jti, err := uuid.NewV7()
+	if err != nil {
+		return "", fmt.Errorf("unable to create JTI: %w", err)
+	}
+
+	claims.ID = jti.String()
 
 	tk := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
