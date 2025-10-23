@@ -166,10 +166,17 @@ func validatePipelineStages(s pipeline.StageSlice) error {
 	reportMap := make(map[string]string)
 	reportCount := 0
 
-	nameMap := make(map[string]bool)
+	stageNameMap := make(map[string]bool)
+	stepNameMap := make(map[string]bool)
 
 	for _, stage := range s {
-		err := validatePipelineContainers(stage.Steps, &reportCount, reportMap, nameMap, stage.Name)
+		if _, ok := stageNameMap[stage.Name]; ok {
+			return fmt.Errorf("stage `%s` is already defined", stage.Name)
+		}
+
+		stageNameMap[stage.Name] = true
+
+		err := validatePipelineContainers(stage.Steps, &reportCount, reportMap, stepNameMap, stage.Name)
 		if err != nil {
 			return err
 		}
