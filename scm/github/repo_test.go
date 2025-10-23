@@ -18,7 +18,7 @@ import (
 	"github.com/google/go-github/v74/github"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 )
 

@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 )
 
 func TestInternal_ParseYAML(t *testing.T) {
@@ -55,29 +55,10 @@ func TestInternal_ParseYAML(t *testing.T) {
 			wantWarnings: []string{`6:duplicate << keys in single YAML map`},
 		},
 		{
-			name:         "top level anchors legacy",
-			file:         "testdata/top_level_anchor_legacy.yml",
-			wantBuild:    wantBuild,
-			wantWarnings: []string{`using legacy version - address any incompatibilities and use "1" instead`},
-		},
-		{
-			name:         "buildkite legacy",
-			file:         "testdata/buildkite.yml",
-			wantBuild:    wantBuild,
-			wantWarnings: []string{`using legacy version - address any incompatibilities and use "1" instead`},
-		},
-		{
-			name:         "anchor collapse",
-			file:         "testdata/buildkite_new_version.yml",
-			wantBuild:    wantBuild,
-			wantWarnings: []string{"16:duplicate << keys in single YAML map"},
-		},
-		{
-			name:          "anchor collapse - warning prefix",
-			file:          "testdata/buildkite_new_version.yml",
-			wantBuild:     wantBuild,
-			wantWarnings:  []string{"[prefix]:16:duplicate << keys in single YAML map"},
-			warningPrefix: "prefix",
+			name:      "legacy denial",
+			file:      "testdata/legacy.yml",
+			wantBuild: nil,
+			wantErr:   true,
 		},
 		{
 			name:      "no version",
