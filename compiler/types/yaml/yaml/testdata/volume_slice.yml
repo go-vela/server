@@ -1,7 +1,0 @@
----
-- source: /foo
-- source: /foo
-  destination: /bar
-- source: /foo
-  destination: /foobar
-  access_mode: ro

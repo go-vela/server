@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"

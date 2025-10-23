@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 )
 
 func TestNative_InitStage(t *testing.T) {

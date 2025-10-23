@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 )
 
