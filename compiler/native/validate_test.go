@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 )
 
 func TestNative_ValidateYAML_NoVersion(t *testing.T) {
@@ -253,6 +253,51 @@ func TestNative_Validate_Stages(t *testing.T) {
 	err = compiler.ValidatePipeline(p)
 	if err != nil {
 		t.Errorf("Validate returned err: %v", err)
+	}
+}
+
+func TestNative_Validate_StagesSameName(t *testing.T) {
+	// setup types
+	strFoo := "foo"
+	strBar := "bar"
+
+	p := &pipeline.Build{
+		Version: "v1",
+		Stages: pipeline.StageSlice{
+			&pipeline.Stage{
+				Name: strFoo,
+				Steps: pipeline.ContainerSlice{
+					&pipeline.Container{
+						Commands: raw.StringSlice{"echo hello"},
+						Image:    "alpine",
+						Name:     strFoo,
+						Pull:     "always",
+					},
+				},
+			},
+			&pipeline.Stage{
+				Name: strFoo,
+				Steps: pipeline.ContainerSlice{
+					&pipeline.Container{
+						Commands: raw.StringSlice{"echo hello"},
+						Image:    "alpine",
+						Name:     strBar,
+						Pull:     "always",
+					},
+				},
+			},
+		},
+	}
+
+	// run test
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.ValidatePipeline(p)
+	if err == nil {
+		t.Errorf("Validate should have returned err")
 	}
 }
 

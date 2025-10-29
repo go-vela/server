@@ -1,7 +1,0 @@
----
-if:
-  branch: main
-  event: tag
-  tag: [ "^refs/tags/(\\d+\\.)+\\d+$" ]
-  operator: and
-matcher: regex

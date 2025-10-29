@@ -1,3 +1,0 @@
-services:
-  - name: postgres
-    image: postgres:latest

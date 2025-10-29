@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
@@ -191,6 +192,14 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	claims.IssuedAt = jwt.NewNumericDate(time.Now())
 	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(mto.TokenDuration))
 	claims.Issuer = tm.Issuer
+
+	// create JTI
+	jti, err := uuid.NewV7()
+	if err != nil {
+		return "", fmt.Errorf("unable to create JTI: %w", err)
+	}
+
+	claims.ID = jti.String()
 
 	tk := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 

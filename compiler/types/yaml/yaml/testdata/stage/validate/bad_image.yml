@@ -1,7 +1,0 @@
-stages:
-  badimage:
-    steps:
-      - name: badimage
-        image: bazel/:java:3240943c9ea3f72db51bea0a2428e83f3c5fa1312e19af017d026f9bcf70f84b
-        commands:
-          - echo "hello vela"
