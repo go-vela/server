@@ -26,6 +26,7 @@ const (
   },
   "org": "github",
   "counter": 10,
+  "hook_counter": 15,
   "name": "octocat",
   "full_name": "github/octocat",
   "link": "https://github.com/github/octocat",
