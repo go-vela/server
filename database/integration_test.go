@@ -6,6 +6,7 @@ import (
 	"context"
 	"os"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -1564,6 +1565,10 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("unable to list repos: %v", err)
 	}
 
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].GetID() < list[j].GetID()
+	})
+
 	if diff := cmp.Diff(resources.Repos, list); diff != "" {
 		t.Errorf("ListRepos() mismatch (-want +got):\n%s", diff)
 	}
@@ -1574,6 +1579,10 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get repos in list: %v", err)
 	}
+
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].GetID() < list[j].GetID()
+	})
 
 	if diff := cmp.Diff(resources.Repos, list, cmpopts.IgnoreFields(api.Repo{}, "Owner", "Hash")); diff != "" {
 		t.Errorf("GetReposInList() mismatch (-want +got):\n%s", diff)
