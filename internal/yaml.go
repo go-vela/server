@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	bkYaml "github.com/buildkite/yaml"
-	yaml "go.yaml.in/yaml/v3"
+	yaml "gopkg.in/yaml.v3"
 
 	legacyTypes "github.com/go-vela/server/compiler/types/yaml/buildkite"
 	types "github.com/go-vela/server/compiler/types/yaml/yaml"

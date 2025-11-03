@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"go.yaml.in/yaml/v3"
+	"gopkg.in/yaml.v3"
 
 	api "github.com/go-vela/server/api/types"
 )

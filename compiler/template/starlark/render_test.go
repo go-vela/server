@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	goyaml "go.yaml.in/yaml/v3"
+	goyaml "gopkg.in/yaml.v3"
 
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml/yaml"

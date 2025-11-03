@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	json "github.com/ghodss/yaml"
-	"go.yaml.in/yaml/v3"
+	"gopkg.in/yaml.v3"
 )
 
 // ToString is a helper function to convert
