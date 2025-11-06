@@ -14,6 +14,7 @@ import (
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -192,6 +193,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
 
+		ps := settings.FromContext(c)
 		cl := claims.Retrieve(c)
 		u := user.Retrieve(c)
 		e := util.PathParameter(c, "engine")
@@ -220,6 +222,31 @@ func MustSecretAdmin() gin.HandlerFunc {
 		logger := l.WithFields(fields)
 
 		if u.GetAdmin() {
+			return
+		}
+
+		// check if secret types are enabled in platform settings
+		if t == constants.SecretRepo && !ps.GetEnableRepoSecrets() {
+			retErr := fmt.Errorf("repository level secrets have been disabled by Vela admins")
+
+			util.HandleError(c, http.StatusForbidden, retErr)
+
+			return
+		}
+
+		if t == constants.SecretOrg && !ps.GetEnableOrgSecrets() {
+			retErr := fmt.Errorf("organization level secrets have been disabled by Vela admins")
+
+			util.HandleError(c, http.StatusForbidden, retErr)
+
+			return
+		}
+
+		if t == constants.SecretShared && !ps.GetEnableSharedSecrets() {
+			retErr := fmt.Errorf("shared secrets have been disabled by Vela admins")
+
+			util.HandleError(c, http.StatusForbidden, retErr)
+
 			return
 		}
 

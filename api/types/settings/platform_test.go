@@ -55,6 +55,18 @@ func TestTypes_Platform_Getters(t *testing.T) {
 		if test.platform.GetQueueRestartLimit() != test.want.GetQueueRestartLimit() {
 			t.Errorf("GetQueueRestartLimit is %v, want %v", test.platform.GetQueueRestartLimit(), test.want.GetQueueRestartLimit())
 		}
+
+		if test.platform.GetEnableRepoSecrets() != test.want.GetEnableRepoSecrets() {
+			t.Errorf("GetEnableRepoSecrets is %v, want %v", test.platform.GetEnableRepoSecrets(), test.want.GetEnableRepoSecrets())
+		}
+
+		if test.platform.GetEnableOrgSecrets() != test.want.GetEnableOrgSecrets() {
+			t.Errorf("GetEnableOrgSecrets is %v, want %v", test.platform.GetEnableOrgSecrets(), test.want.GetEnableOrgSecrets())
+		}
+
+		if test.platform.GetEnableSharedSecrets() != test.want.GetEnableSharedSecrets() {
+			t.Errorf("GetEnableSharedSecrets is %v, want %v", test.platform.GetEnableSharedSecrets(), test.want.GetEnableSharedSecrets())
+		}
 	}
 }
 
@@ -120,6 +132,24 @@ func TestTypes_Platform_Setters(t *testing.T) {
 		if test.platform.GetQueueRestartLimit() != test.want.GetQueueRestartLimit() {
 			t.Errorf("SetQueueRestartLimit is %v, want %v", test.platform.GetQueueRestartLimit(), test.want.GetQueueRestartLimit())
 		}
+
+		test.platform.SetEnableRepoSecrets(test.want.GetEnableRepoSecrets())
+
+		if test.platform.GetEnableRepoSecrets() != test.want.GetEnableRepoSecrets() {
+			t.Errorf("SetEnableRepoSecrets is %v, want %v", test.platform.GetEnableRepoSecrets(), test.want.GetEnableRepoSecrets())
+		}
+
+		test.platform.SetEnableOrgSecrets(test.want.GetEnableOrgSecrets())
+
+		if test.platform.GetEnableOrgSecrets() != test.want.GetEnableOrgSecrets() {
+			t.Errorf("SetEnableOrgSecrets is %v, want %v", test.platform.GetEnableOrgSecrets(), test.want.GetEnableOrgSecrets())
+		}
+
+		test.platform.SetEnableSharedSecrets(test.want.GetEnableSharedSecrets())
+
+		if test.platform.GetEnableSharedSecrets() != test.want.GetEnableSharedSecrets() {
+			t.Errorf("SetEnableSharedSecrets is %v, want %v", test.platform.GetEnableSharedSecrets(), test.want.GetEnableSharedSecrets())
+		}
 	}
 }
 
@@ -136,6 +166,9 @@ func TestTypes_Platform_Update(t *testing.T) {
 	sUpdate.SetScheduleAllowlist([]string{"bar"})
 	sUpdate.SetMaxDashboardRepos(20)
 	sUpdate.SetQueueRestartLimit(60)
+	sUpdate.SetEnableRepoSecrets(true)
+	sUpdate.SetEnableOrgSecrets(true)
+	sUpdate.SetEnableSharedSecrets(true)
 
 	// setup tests
 	tests := []struct {
@@ -178,6 +211,9 @@ func TestTypes_Platform_String(t *testing.T) {
   ScheduleAllowlist: %v,
   MaxDashboardRepos: %d,
   QueueRestartLimit: %d,
+  EnableRepoSecrets: %t,
+  EnableOrgSecrets: %t,
+  EnableSharedSecrets: %t,
   CreatedAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -190,6 +226,9 @@ func TestTypes_Platform_String(t *testing.T) {
 		s.GetScheduleAllowlist(),
 		s.GetMaxDashboardRepos(),
 		s.GetQueueRestartLimit(),
+		s.GetEnableRepoSecrets(),
+		s.GetEnableOrgSecrets(),
+		s.GetEnableSharedSecrets(),
 		s.GetCreatedAt(),
 		s.GetUpdatedAt(),
 		s.GetUpdatedBy(),
@@ -216,6 +255,9 @@ func testPlatformSettings() *Platform {
 	s.SetScheduleAllowlist([]string{"*"})
 	s.SetMaxDashboardRepos(10)
 	s.SetQueueRestartLimit(30)
+	s.SetEnableRepoSecrets(false)
+	s.SetEnableOrgSecrets(false)
+	s.SetEnableSharedSecrets(false)
 
 	// setup types
 	// setup compiler

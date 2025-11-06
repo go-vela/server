@@ -12,17 +12,20 @@ import (
 //
 // swagger:model Platform
 type Platform struct {
-	ID                *int32 `json:"id"`
-	*Compiler         `json:"compiler,omitempty"            yaml:"compiler,omitempty"`
-	*Queue            `json:"queue,omitempty"               yaml:"queue,omitempty"`
-	*SCM              `json:"scm,omitempty"                 yaml:"scm,omitempty"`
-	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"      yaml:"repo_allowlist,omitempty"`
-	ScheduleAllowlist *[]string `json:"schedule_allowlist,omitempty"  yaml:"schedule_allowlist,omitempty"`
-	MaxDashboardRepos *int32    `json:"max_dashboard_repos,omitempty" yaml:"max_dashboard_repos,omitempty"`
-	QueueRestartLimit *int32    `json:"queue_restart_limit,omitempty" yaml:"queue_restart_limit,omitempty"`
-	CreatedAt         *int64    `json:"created_at,omitempty"          yaml:"created_at,omitempty"`
-	UpdatedAt         *int64    `json:"updated_at,omitempty"          yaml:"updated_at,omitempty"`
-	UpdatedBy         *string   `json:"updated_by,omitempty"          yaml:"updated_by,omitempty"`
+	ID                  *int32 `json:"id"`
+	*Compiler           `json:"compiler,omitempty"            yaml:"compiler,omitempty"`
+	*Queue              `json:"queue,omitempty"               yaml:"queue,omitempty"`
+	*SCM                `json:"scm,omitempty"                 yaml:"scm,omitempty"`
+	RepoAllowlist       *[]string `json:"repo_allowlist,omitempty"      yaml:"repo_allowlist,omitempty"`
+	ScheduleAllowlist   *[]string `json:"schedule_allowlist,omitempty"  yaml:"schedule_allowlist,omitempty"`
+	MaxDashboardRepos   *int32    `json:"max_dashboard_repos,omitempty" yaml:"max_dashboard_repos,omitempty"`
+	QueueRestartLimit   *int32    `json:"queue_restart_limit,omitempty" yaml:"queue_restart_limit,omitempty"`
+	EnableRepoSecrets   *bool     `json:"enable_repo_secrets,omitempty" yaml:"enable_repo_secrets,omitempty"`
+	EnableOrgSecrets    *bool     `json:"enable_org_secrets,omitempty"  yaml:"enable_org_secrets,omitempty"`
+	EnableSharedSecrets *bool     `json:"enable_shared_secrets,omitempty" yaml:"enable_shared_secrets,omitempty"`
+	CreatedAt           *int64    `json:"created_at,omitempty"          yaml:"created_at,omitempty"`
+	UpdatedAt           *int64    `json:"updated_at,omitempty"          yaml:"updated_at,omitempty"`
+	UpdatedBy           *string   `json:"updated_by,omitempty"          yaml:"updated_by,omitempty"`
 }
 
 // FromCLICommand returns a new Platform record from a cli command.
@@ -40,6 +43,15 @@ func FromCLICommand(c *cli.Command) *Platform {
 
 	// set queue restart limit
 	ps.SetQueueRestartLimit(c.Int32("queue-restart-limit"))
+
+	// set enable repo secrets
+	ps.SetEnableRepoSecrets(c.Bool("vela-enable-repo-secrets"))
+
+	// set enable org secrets
+	ps.SetEnableOrgSecrets(c.Bool("vela-enable-org-secrets"))
+
+	// set enable shared secrets
+	ps.SetEnableSharedSecrets(c.Bool("vela-enable-shared-secrets"))
 
 	return ps
 }
@@ -146,6 +158,45 @@ func (ps *Platform) GetQueueRestartLimit() int32 {
 	}
 
 	return *ps.QueueRestartLimit
+}
+
+// GetEnableRepoSecrets returns the EnableRepoSecrets field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (ps *Platform) GetEnableRepoSecrets() bool {
+	// return zero value if Platform type or EnableRepoSecrets field is nil
+	if ps == nil || ps.EnableRepoSecrets == nil {
+		return false
+	}
+
+	return *ps.EnableRepoSecrets
+}
+
+// GetEnableOrgSecrets returns the EnableOrgSecrets field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (ps *Platform) GetEnableOrgSecrets() bool {
+	// return zero value if Platform type or EnableOrgSecrets field is nil
+	if ps == nil || ps.EnableOrgSecrets == nil {
+		return false
+	}
+
+	return *ps.EnableOrgSecrets
+}
+
+// GetEnableSharedSecrets returns the EnableSharedSecrets field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (ps *Platform) GetEnableSharedSecrets() bool {
+	// return zero value if Platform type or EnableSharedSecrets field is nil
+	if ps == nil || ps.EnableSharedSecrets == nil {
+		return false
+	}
+
+	return *ps.EnableSharedSecrets
 }
 
 // GetCreatedAt returns the CreatedAt field.
@@ -291,6 +342,45 @@ func (ps *Platform) SetQueueRestartLimit(v int32) {
 	ps.QueueRestartLimit = &v
 }
 
+// SetEnableRepoSecrets sets the EnableRepoSecrets field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (ps *Platform) SetEnableRepoSecrets(v bool) {
+	// return if Platform type is nil
+	if ps == nil {
+		return
+	}
+
+	ps.EnableRepoSecrets = &v
+}
+
+// SetEnableOrgSecrets sets the EnableOrgSecrets field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (ps *Platform) SetEnableOrgSecrets(v bool) {
+	// return if Platform type is nil
+	if ps == nil {
+		return
+	}
+
+	ps.EnableOrgSecrets = &v
+}
+
+// SetEnableSharedSecrets sets the EnableSharedSecrets field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (ps *Platform) SetEnableSharedSecrets(v bool) {
+	// return if Platform type is nil
+	if ps == nil {
+		return
+	}
+
+	ps.EnableSharedSecrets = &v
+}
+
 // SetCreatedAt sets the CreatedAt field.
 //
 // When the provided Platform type is nil, it
@@ -348,6 +438,9 @@ func (ps *Platform) FromSettings(_ps *Platform) {
 	ps.SetScheduleAllowlist(_ps.GetScheduleAllowlist())
 	ps.SetMaxDashboardRepos(_ps.GetMaxDashboardRepos())
 	ps.SetQueueRestartLimit(_ps.GetQueueRestartLimit())
+	ps.SetEnableRepoSecrets(_ps.GetEnableRepoSecrets())
+	ps.SetEnableOrgSecrets(_ps.GetEnableOrgSecrets())
+	ps.SetEnableSharedSecrets(_ps.GetEnableSharedSecrets())
 
 	ps.SetCreatedAt(_ps.GetCreatedAt())
 	ps.SetUpdatedAt(_ps.GetUpdatedAt())
@@ -369,6 +462,9 @@ func (ps *Platform) String() string {
   ScheduleAllowlist: %v,
   MaxDashboardRepos: %d,
   QueueRestartLimit: %d,
+  EnableRepoSecrets: %t,
+  EnableOrgSecrets: %t,
+  EnableSharedSecrets: %t,
   CreatedAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -381,6 +477,9 @@ func (ps *Platform) String() string {
 		ps.GetScheduleAllowlist(),
 		ps.GetMaxDashboardRepos(),
 		ps.GetQueueRestartLimit(),
+		ps.GetEnableRepoSecrets(),
+		ps.GetEnableOrgSecrets(),
+		ps.GetEnableSharedSecrets(),
 		ps.GetCreatedAt(),
 		ps.GetUpdatedAt(),
 		ps.GetUpdatedBy(),
@@ -399,6 +498,9 @@ func PlatformMockEmpty() Platform {
 	ps.SetScheduleAllowlist([]string{})
 	ps.SetMaxDashboardRepos(0)
 	ps.SetQueueRestartLimit(0)
+	ps.SetEnableRepoSecrets(false)
+	ps.SetEnableOrgSecrets(false)
+	ps.SetEnableSharedSecrets(false)
 
 	return ps
 }

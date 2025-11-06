@@ -203,16 +203,23 @@ func (u *User) Validate() error {
 		return ErrInvalidUserName
 	}
 
-	// calculate total size of favorites
-	total := 0
-	for _, f := range u.Favorites {
+	// calculate total size of favorites as it would be stored in PostgreSQL
+	// PostgreSQL stores arrays as: {value1,value2,value3}
+	// GitHub repo names (owner/repo) only contain alphanumeric, hyphens, underscores, periods, and slashes
+	// so they never require quoting or escaping in PostgreSQL arrays
+	total := 2 // account for opening and closing curly braces: { }
+	
+	for i, f := range u.Favorites {
 		total += len(f)
+		
+		// add comma separator (except for last item)
+		if i < len(u.Favorites)-1 {
+			total++
+		}
 	}
 
 	// verify the Favorites field is within the database constraints
-	// len is to factor in number of comma separators included in the database field,
-	// removing 1 due to the last item not having an appended comma
-	if (total + len(u.Favorites) - 1) > constants.FavoritesMaxSize {
+	if total > constants.FavoritesMaxSize {
 		return ErrExceededFavoritesLimit
 	}
 
