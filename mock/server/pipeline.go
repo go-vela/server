@@ -486,6 +486,7 @@ func writeYAML(c *gin.Context, status int, value interface{}) {
 	if err != nil {
 		msg := fmt.Sprintf("unable to marshal YAML response: %v", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, api.Error{Message: &msg})
+
 		return
 	}
 

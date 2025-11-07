@@ -41,6 +41,7 @@ func writeOutput(c *gin.Context, value interface{}) {
 		if err != nil {
 			reason := fmt.Errorf("unable to marshal YAML response: %w", err)
 			util.HandleError(c, http.StatusInternalServerError, reason)
+
 			return
 		}
 
