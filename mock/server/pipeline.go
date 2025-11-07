@@ -433,7 +433,7 @@ func compilePipeline(c *gin.Context) {
 
 	_ = yml.Unmarshal(data, &body)
 
-	c.YAML(http.StatusOK, body)
+	writeYAML(c, http.StatusOK, body)
 }
 
 // expandPipeline has a param :pipeline returns mock YAML for a http GET.
@@ -456,7 +456,7 @@ func expandPipeline(c *gin.Context) {
 
 	_ = yml.Unmarshal(data, &body)
 
-	c.YAML(http.StatusOK, body)
+	writeYAML(c, http.StatusOK, body)
 }
 
 // getTemplates has a param :pipeline returns mock YAML for a http GET.
@@ -478,7 +478,18 @@ func getTemplates(c *gin.Context) {
 	body := make(map[string]*yaml.Template)
 	_ = yml.Unmarshal(data, &body)
 
-	c.YAML(http.StatusOK, body)
+	writeYAML(c, http.StatusOK, body)
+}
+
+func writeYAML(c *gin.Context, status int, value interface{}) {
+	body, err := yml.Marshal(value)
+	if err != nil {
+		msg := fmt.Sprintf("unable to marshal YAML response: %v", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, api.Error{Message: &msg})
+		return
+	}
+
+	c.Data(status, gin.MIMEYAML, body)
 }
 
 // validatePipeline has a param :pipeline returns mock YAML for a http GET.

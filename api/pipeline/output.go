@@ -3,10 +3,12 @@
 package pipeline
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	yml "go.yaml.in/yaml/v3"
 
 	"github.com/go-vela/server/util"
 )
@@ -29,6 +31,13 @@ func writeOutput(c *gin.Context, value interface{}) {
 	case outputYAML:
 		fallthrough
 	default:
-		c.YAML(http.StatusOK, value)
+		body, err := yml.Marshal(value)
+		if err != nil {
+			reason := fmt.Errorf("unable to marshal YAML response: %w", err)
+			util.HandleError(c, http.StatusInternalServerError, reason)
+			return
+		}
+
+		c.Data(http.StatusOK, gin.MIMEYAML, body)
 	}
 }
