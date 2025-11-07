@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/go-github/v74/github"
+	"github.com/google/go-github/v77/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
