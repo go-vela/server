@@ -3,11 +3,13 @@
 package vault
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/sts/stsiface"
+	sigV4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/hashicorp/vault/api"
 	"github.com/sirupsen/logrus"
 
@@ -23,7 +25,14 @@ const (
 type (
 	awsCfg struct {
 		Role      string
-		StsClient stsiface.STSAPI
+		StsClient *sts.Client
+		Presigner STSPresigner
+	}
+
+	// STSPresigner captures the subset of the STS presign client we rely on so the
+	// AWS SDK v2 dependency can be mocked in tests; v2 removed the old stsiface shim.
+	STSPresigner interface {
+		PresignGetCallerIdentity(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error)
 	}
 
 	config struct {

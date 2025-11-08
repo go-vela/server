@@ -3,20 +3,16 @@
 package vault
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/aws/aws-sdk-go/service/sts/stsiface"
+	sigV4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 func Test_client_initialize(t *testing.T) {
@@ -68,17 +64,6 @@ func Test_client_initialize(t *testing.T) {
 			}
 
 			c.config.AuthMethod = tt.vaultAuthMethod
-			c.AWS.StsClient = &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
-				},
-			}
 
 			err = c.initialize()
 			if (err != nil) != tt.wantErr {
@@ -90,12 +75,23 @@ func Test_client_initialize(t *testing.T) {
 }
 
 func Test_client_getAwsToken(t *testing.T) {
-	// setup tests
+	defaultPresigned := func() *sigV4.PresignedHTTPRequest {
+		return &sigV4.PresignedHTTPRequest{
+			Method: http.MethodGet,
+			URL:    "https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15",
+			SignedHeader: http.Header{
+				"Authorization": []string{"AWS4-HMAC-SHA256 Credential=test/20250101/us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-date, Signature=deadbeef"},
+				"Host":          []string{"sts.amazonaws.com"},
+				"X-Amz-Date":    []string{"20250101T000000Z"},
+			},
+		}
+	}
+
 	tests := []struct {
 		name         string
 		responseFile string
 		responseCode int
-		stsClient    stsiface.STSAPI
+		presigner    AWSPresigner
 		vaultRole    string
 		wantToken    string
 		wantTTL      time.Duration
@@ -105,15 +101,9 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token success",
 			responseFile: "auth-response-success.json",
 			responseCode: 200,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
+			presigner: &mockAWSPresigner{
+				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
+					return defaultPresigned(), nil
 				},
 			},
 			vaultRole: "local-testing",
@@ -125,15 +115,9 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token error role not found",
 			responseFile: "auth-response-error-role-not-found.json",
 			responseCode: 400,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
+			presigner: &mockAWSPresigner{
+				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
+					return defaultPresigned(), nil
 				},
 			},
 			vaultRole: "local-testing",
@@ -143,15 +127,9 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token error no auth values",
 			responseFile: "auth-response-error-no-auth-values.json",
 			responseCode: 400,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
+			presigner: &mockAWSPresigner{
+				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
+					return defaultPresigned(), nil
 				},
 			},
 			vaultRole: "local-testing",
@@ -161,15 +139,9 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token error nil secret",
 			responseFile: "auth-response-error-nil-secret.json",
 			responseCode: 200,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
-					}, nil
+			presigner: &mockAWSPresigner{
+				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
+					return defaultPresigned(), nil
 				},
 			},
 			vaultRole: "local-testing",
@@ -179,16 +151,9 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token aws sts error",
 			responseFile: "testdata/auth-response-error-no-auth-values.json",
 			responseCode: 400,
-			stsClient: &mockSTSClient{
-				mockGetCallerIdentityRequest: func(_ *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-					return &request.Request{
-						HTTPRequest: &http.Request{
-							Host: "sts.amazonaws.com",
-							URL:  &url.URL{Host: "sts.amazonaws.com"},
-						},
-						Body:  aws.ReadSeekCloser(strings.NewReader("the body")),
-						Error: awserr.New(sts.ErrCodeExpiredTokenException, "token error", fmt.Errorf("token error")),
-					}, nil
+			presigner: &mockAWSPresigner{
+				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
+					return nil, fmt.Errorf("token error")
 				},
 			},
 			vaultRole: "local-testing",
@@ -224,7 +189,7 @@ func Test_client_getAwsToken(t *testing.T) {
 				t.Error(err)
 			}
 
-			c.AWS.StsClient = tt.stsClient
+			c.AWS.AWSPresigner = tt.presigner
 
 			gotToken, gotTTL, err := c.getAwsToken()
 			if (err != nil) != tt.wantErr {
@@ -243,11 +208,14 @@ func Test_client_getAwsToken(t *testing.T) {
 	}
 }
 
-type mockSTSClient struct {
-	stsiface.STSAPI
-	mockGetCallerIdentityRequest func(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput)
+type mockAWSPresigner struct {
+	mockPresignGetCallerIdentity func(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error)
 }
 
-func (m *mockSTSClient) GetCallerIdentityRequest(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
-	return m.mockGetCallerIdentityRequest(in)
+func (m *mockAWSPresigner) PresignGetCallerIdentity(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
+	if m.mockPresignGetCallerIdentity != nil {
+		return m.mockPresignGetCallerIdentity(ctx, params, optFns...)
+	}
+
+	return nil, fmt.Errorf("mock presign not implemented")
 }

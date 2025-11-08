@@ -3,15 +3,14 @@
 package vault
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sts"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 // initialize obtains the vault token from the given auth method
@@ -28,19 +27,14 @@ func (c *Client) initialize() error {
 
 	switch c.config.AuthMethod {
 	case "aws":
-		// create session for AWS
-		sess, err := session.NewSessionWithOptions(session.Options{
-			Config: aws.Config{
-				CredentialsChainVerboseErrors: aws.Bool(true),
-			},
-			SharedConfigState: session.SharedConfigEnable,
-		})
+		cfg, err := awsconfig.LoadDefaultConfig(context.Background())
 		if err != nil {
-			return fmt.Errorf("failed to create AWS session for vault: %w", err)
+			return fmt.Errorf("failed to load AWS configuration for vault: %w", err)
 		}
 
 		// generate sts client for future API calls
-		c.AWS.StsClient = sts.New(sess)
+		c.AWS.StsClient = sts.NewFromConfig(cfg)
+		c.AWS.Presigner = sts.NewPresignClient(c.AWS.StsClient)
 
 		// obtain token from vault
 		token, ttl, err = c.getAwsToken()
@@ -83,36 +77,26 @@ func (c *Client) getAwsToken() (string, time.Duration, error) {
 func (c *Client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	c.Logger.Trace("generating AWS auth headers for vault")
 
-	req, _ := c.AWS.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
+	if c.AWS.Presigner == nil {
+		return nil, fmt.Errorf("AWS STS presigner is not configured")
+	}
 
-	// sign the request
-	err := req.Sign()
-	// will return error if credentials are invalid or expired
+	presignedReq, err := c.AWS.Presigner.PresignGetCallerIdentity(context.Background(), &sts.GetCallerIdentityInput{})
 	if err != nil {
 		return nil, err
 	}
 
-	// extract headers from the STS Request
-	headersJSON, err := json.Marshal(req.HTTPRequest.Header)
+	headersJSON, err := json.Marshal(presignedReq.SignedHeader)
 	if err != nil {
 		return nil, err
 	}
-
-	// read the STS request body
-	requestBody, err := io.ReadAll(req.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	// construct the vault STS auth header
-	//
 
 	loginData := map[string]interface{}{
 		"role":                    c.AWS.Role,
-		"iam_http_request_method": req.HTTPRequest.Method,
-		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(req.HTTPRequest.URL.String())),
+		"iam_http_request_method": presignedReq.Method,
+		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(presignedReq.URL)),
 		"iam_request_headers":     base64.StdEncoding.EncodeToString(headersJSON),
-		"iam_request_body":        base64.StdEncoding.EncodeToString(requestBody),
+		"iam_request_body":        base64.StdEncoding.EncodeToString([]byte{}),
 	}
 
 	return loginData, nil
