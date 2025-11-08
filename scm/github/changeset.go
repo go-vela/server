@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v74/github"
+	"github.com/google/go-github/v78/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
