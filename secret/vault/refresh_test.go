@@ -91,7 +91,7 @@ func Test_client_getAwsToken(t *testing.T) {
 		name         string
 		responseFile string
 		responseCode int
-		presigner    AWSPresigner
+		presigner    STSPresigner
 		vaultRole    string
 		wantToken    string
 		wantTTL      time.Duration
@@ -101,7 +101,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token success",
 			responseFile: "auth-response-success.json",
 			responseCode: 200,
-			presigner: &mockAWSPresigner{
+			presigner: &mockSTSPresigner{
 				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
 					return defaultPresigned(), nil
 				},
@@ -115,7 +115,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token error role not found",
 			responseFile: "auth-response-error-role-not-found.json",
 			responseCode: 400,
-			presigner: &mockAWSPresigner{
+			presigner: &mockSTSPresigner{
 				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
 					return defaultPresigned(), nil
 				},
@@ -127,7 +127,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token error no auth values",
 			responseFile: "auth-response-error-no-auth-values.json",
 			responseCode: 400,
-			presigner: &mockAWSPresigner{
+			presigner: &mockSTSPresigner{
 				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
 					return defaultPresigned(), nil
 				},
@@ -139,7 +139,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token error nil secret",
 			responseFile: "auth-response-error-nil-secret.json",
 			responseCode: 200,
-			presigner: &mockAWSPresigner{
+			presigner: &mockSTSPresigner{
 				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
 					return defaultPresigned(), nil
 				},
@@ -151,7 +151,7 @@ func Test_client_getAwsToken(t *testing.T) {
 			name:         "get token aws sts error",
 			responseFile: "testdata/auth-response-error-no-auth-values.json",
 			responseCode: 400,
-			presigner: &mockAWSPresigner{
+			presigner: &mockSTSPresigner{
 				mockPresignGetCallerIdentity: func(context.Context, *sts.GetCallerIdentityInput, ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
 					return nil, fmt.Errorf("token error")
 				},
@@ -189,7 +189,7 @@ func Test_client_getAwsToken(t *testing.T) {
 				t.Error(err)
 			}
 
-			c.AWS.AWSPresigner = tt.presigner
+			c.AWS.Presigner = tt.presigner
 
 			gotToken, gotTTL, err := c.getAwsToken()
 			if (err != nil) != tt.wantErr {
@@ -208,11 +208,11 @@ func Test_client_getAwsToken(t *testing.T) {
 	}
 }
 
-type mockAWSPresigner struct {
+type mockSTSPresigner struct {
 	mockPresignGetCallerIdentity func(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error)
 }
 
-func (m *mockAWSPresigner) PresignGetCallerIdentity(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
+func (m *mockSTSPresigner) PresignGetCallerIdentity(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error) {
 	if m.mockPresignGetCallerIdentity != nil {
 		return m.mockPresignGetCallerIdentity(ctx, params, optFns...)
 	}
