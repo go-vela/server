@@ -58,7 +58,7 @@ func TestSecret_New(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_, err := New(test.setup)
+		_, err := New(t.Context(), test.setup)
 
 		if test.failure {
 			if err == nil {

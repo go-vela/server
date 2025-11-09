@@ -3,21 +3,20 @@
 package vault
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sts"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 // initialize obtains the vault token from the given auth method
 //
 // docs: https://www.vaultproject.io/docs/auth
-func (c *Client) initialize() error {
+func (c *Client) initialize(ctx context.Context) error {
 	c.Logger.Trace("initializing token for vault")
 
 	// declare variables to be utilized within the switch
@@ -28,22 +27,17 @@ func (c *Client) initialize() error {
 
 	switch c.config.AuthMethod {
 	case "aws":
-		// create session for AWS
-		sess, err := session.NewSessionWithOptions(session.Options{
-			Config: aws.Config{
-				CredentialsChainVerboseErrors: aws.Bool(true),
-			},
-			SharedConfigState: session.SharedConfigEnable,
-		})
+		cfg, err := awsconfig.LoadDefaultConfig(ctx)
 		if err != nil {
-			return fmt.Errorf("failed to create AWS session for vault: %w", err)
+			return fmt.Errorf("failed to load AWS configuration for vault: %w", err)
 		}
 
 		// generate sts client for future API calls
-		c.AWS.StsClient = sts.New(sess)
+		c.AWS.StsClient = sts.NewFromConfig(cfg)
+		c.AWS.Presigner = sts.NewPresignClient(c.AWS.StsClient)
 
 		// obtain token from vault
-		token, ttl, err = c.getAwsToken()
+		token, ttl, err = c.getAwsToken(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to get AWS token from vault: %w", err)
 		}
@@ -58,8 +52,8 @@ func (c *Client) initialize() error {
 // getAwsToken will retrieve a Vault token for the given IAM principal
 //
 // docs: https://www.vaultproject.io/docs/auth/aws
-func (c *Client) getAwsToken() (string, time.Duration, error) {
-	headers, err := c.generateAwsAuthHeader()
+func (c *Client) getAwsToken(ctx context.Context) (string, time.Duration, error) {
+	headers, err := c.generateAwsAuthHeader(ctx)
 	if err != nil {
 		return "", 0, err
 	}
@@ -80,53 +74,48 @@ func (c *Client) getAwsToken() (string, time.Duration, error) {
 
 // generateAwsAuthHeader will generate the necessary data
 // to send to the Vault server for generating a token.
-func (c *Client) generateAwsAuthHeader() (map[string]interface{}, error) {
+func (c *Client) generateAwsAuthHeader(ctx context.Context) (map[string]interface{}, error) {
 	c.Logger.Trace("generating AWS auth headers for vault")
 
-	req, _ := c.AWS.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
+	if c.AWS.Presigner == nil {
+		return nil, fmt.Errorf("AWS STS presigner is not configured")
+	}
 
-	// sign the request
-	err := req.Sign()
-	// will return error if credentials are invalid or expired
+	presignedReq, err := c.AWS.Presigner.PresignGetCallerIdentity(ctx, &sts.GetCallerIdentityInput{})
 	if err != nil {
 		return nil, err
 	}
 
-	// extract headers from the STS Request
-	headersJSON, err := json.Marshal(req.HTTPRequest.Header)
+	headersJSON, err := json.Marshal(presignedReq.SignedHeader)
 	if err != nil {
 		return nil, err
 	}
-
-	// read the STS request body
-	requestBody, err := io.ReadAll(req.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	// construct the vault STS auth header
-	//
 
 	loginData := map[string]interface{}{
 		"role":                    c.AWS.Role,
-		"iam_http_request_method": req.HTTPRequest.Method,
-		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(req.HTTPRequest.URL.String())),
+		"iam_http_request_method": presignedReq.Method,
+		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(presignedReq.URL)),
 		"iam_request_headers":     base64.StdEncoding.EncodeToString(headersJSON),
-		"iam_request_body":        base64.StdEncoding.EncodeToString(requestBody),
+		"iam_request_body":        base64.StdEncoding.EncodeToString([]byte{}),
 	}
 
 	return loginData, nil
 }
 
 // refreshToken will refresh the token used for Vault.
-func (c *Client) refreshToken() {
+func (c *Client) refreshToken(ctx context.Context) {
 	for {
-		c.Logger.Tracef("sleeping for configured vault token duration %v", c.config.TokenDuration)
-		// sleep for the configured token duration before refreshing the token
-		time.Sleep(c.config.TokenDuration)
+		c.Logger.Tracef("sleeping for configured vault token duration %s", c.config.TokenDuration)
+
+		select {
+		case <-ctx.Done():
+			c.Logger.Trace("stopping vault token refresh due to context cancellation")
+			return
+		case <-time.After(c.config.TokenDuration):
+		}
 
 		// reinitialize the client to refresh the token
-		err := c.initialize()
+		err := c.initialize(ctx)
 		if err != nil {
 			c.Logger.Errorf("failed to refresh vault token: %s", err)
 		} else {

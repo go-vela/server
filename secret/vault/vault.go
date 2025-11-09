@@ -3,11 +3,13 @@
 package vault
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/sts/stsiface"
+	sigV4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/hashicorp/vault/api"
 	"github.com/sirupsen/logrus"
 
@@ -23,7 +25,14 @@ const (
 type (
 	awsCfg struct {
 		Role      string
-		StsClient stsiface.STSAPI
+		StsClient *sts.Client
+		Presigner STSPresigner
+	}
+
+	// STSPresigner captures the subset of the STS presign client we rely on so the
+	// AWS SDK v2 dependency can be mocked in tests; v2 removed the old stsiface shim.
+	STSPresigner interface {
+		PresignGetCallerIdentity(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.PresignOptions)) (*sigV4.PresignedHTTPRequest, error)
 	}
 
 	config struct {
@@ -58,6 +67,11 @@ type (
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
 func New(opts ...ClientOpt) (*Client, error) {
+	return NewWithContext(context.Background(), opts...)
+}
+
+// NewWithContext matches New but allows callers to provide a context.
+func NewWithContext(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 	// create new Vault client
 	c := new(Client)
 
@@ -116,13 +130,13 @@ func New(opts ...ClientOpt) (*Client, error) {
 	// check if a authentication method was provided for the Vault client
 	if len(c.config.AuthMethod) > 0 {
 		// initialize the Vault client
-		err = c.initialize()
+		err = c.initialize(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize vault token: %w", err)
 		}
 
 		// start the routine to refresh the token
-		go c.refreshToken()
+		go c.refreshToken(ctx)
 	}
 
 	return c, nil

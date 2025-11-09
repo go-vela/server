@@ -3,6 +3,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v3"
 
@@ -12,7 +14,7 @@ import (
 )
 
 // helper function to setup the secrets engines from the CLI arguments.
-func setupSecrets(c *cli.Command, d database.Interface) (map[string]secret.Service, error) {
+func setupSecrets(ctx context.Context, c *cli.Command, d database.Interface) (map[string]secret.Service, error) {
 	logrus.Debug("creating secret clients from CLI configuration")
 
 	secrets := make(map[string]secret.Service)
@@ -26,7 +28,7 @@ func setupSecrets(c *cli.Command, d database.Interface) (map[string]secret.Servi
 	// setup the native secret service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#New
-	native, err := secret.New(_native)
+	native, err := secret.New(ctx, _native)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +52,7 @@ func setupSecrets(c *cli.Command, d database.Interface) (map[string]secret.Servi
 		// setup the vault secret service
 		//
 		// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#New
-		vault, err := secret.New(_vault)
+		vault, err := secret.New(ctx, _vault)
 		if err != nil {
 			return nil, err
 		}
