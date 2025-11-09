@@ -70,7 +70,7 @@ func New(opts ...ClientOpt) (*Client, error) {
 	return NewWithContext(context.Background(), opts...)
 }
 
-// NewWithContext matches New but allows callers to provide a context
+// NewWithContext matches New but allows callers to provide a context.
 func NewWithContext(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 	// create new Vault client
 	c := new(Client)
