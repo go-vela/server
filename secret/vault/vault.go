@@ -67,6 +67,11 @@ type (
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
 func New(opts ...ClientOpt) (*Client, error) {
+	return NewWithContext(context.Background(), opts...)
+}
+
+// NewWithContext matches New but allows callers to provide a context
+func NewWithContext(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 	// create new Vault client
 	c := new(Client)
 
@@ -125,13 +130,13 @@ func New(opts ...ClientOpt) (*Client, error) {
 	// check if a authentication method was provided for the Vault client
 	if len(c.config.AuthMethod) > 0 {
 		// initialize the Vault client
-		err = c.initialize()
+		err = c.initialize(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize vault token: %w", err)
 		}
 
 		// start the routine to refresh the token
-		go c.refreshToken()
+		go c.refreshToken(ctx)
 	}
 
 	return c, nil

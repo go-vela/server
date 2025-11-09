@@ -65,7 +65,7 @@ func Test_client_initialize(t *testing.T) {
 
 			c.config.AuthMethod = tt.vaultAuthMethod
 
-			err = c.initialize()
+			err = c.initialize(t.Context())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("initialize() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -191,7 +191,7 @@ func Test_client_getAwsToken(t *testing.T) {
 
 			c.AWS.Presigner = tt.presigner
 
-			gotToken, gotTTL, err := c.getAwsToken()
+			gotToken, gotTTL, err := c.getAwsToken(t.Context())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getAwsToken() error = %v, wantErr %v", err, tt.wantErr)
 				return
