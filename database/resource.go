@@ -9,6 +9,7 @@ import (
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
+	"github.com/go-vela/server/database/favorite"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
@@ -82,6 +83,18 @@ func (e *engine) NewResources(ctx context.Context) error {
 		deployment.WithLogger(e.logger),
 		deployment.WithSkipCreation(e.config.SkipCreation),
 		deployment.WithEncryptionKey(e.config.EncryptionKey),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for favorites
+	e.FavoriteInterface, err = favorite.New(
+		favorite.WithContext(ctx),
+		favorite.WithClient(e.client),
+		favorite.WithLogger(e.logger),
+		favorite.WithSkipCreation(e.config.SkipCreation),
+		favorite.WithDriver(e.config.Driver),
 	)
 	if err != nil {
 		return err

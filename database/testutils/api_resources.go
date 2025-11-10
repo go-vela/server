@@ -299,6 +299,13 @@ func APIDashboardRepo() *api.DashboardRepo {
 	}
 }
 
+func APIFavorite() *api.Favorite {
+	return &api.Favorite{
+		Position: new(int64),
+		Repo:     new(string),
+	}
+}
+
 func JWK() jwk.RSAPublicKey {
 	privateRSAKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
