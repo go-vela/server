@@ -162,13 +162,6 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	// check if the hook should be skipped
-	if skip, skipReason := webhook.ShouldSkip(); skip {
-		c.JSON(http.StatusOK, fmt.Sprintf("skipping build: %s", skipReason))
-
-		return
-	}
-
 	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
 
 	l.Debugf("hook generated from SCM: %v", h)
@@ -403,6 +396,16 @@ func PostWebhook(c *gin.Context) {
 
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// check if the hook should be skipped
+	if skip, skipReason := webhook.ShouldSkip(); skip {
+		h.SetStatus(constants.StatusSkipped)
+		h.SetError(fmt.Sprintf("skipping build: %s", skipReason))
+
+		c.JSON(http.StatusOK, fmt.Sprintf("skipping build: %s", skipReason))
 
 		return
 	}
