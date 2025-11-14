@@ -24,9 +24,9 @@ type FavoriteInterface interface {
 
 	CreateFavorite(context.Context, *api.User, *api.Favorite) error
 
-	DeleteFavorite(context.Context, *api.User, *api.Favorite) error
+	DeleteFavorite(context.Context, *api.User, *api.Repo) error
 
 	ListUserFavorites(context.Context, *api.User) ([]*api.Favorite, error)
 
-	UpdateFavorites(context.Context, *api.User, []*api.Favorite) error
+	UpdateFavoritePosition(context.Context, *api.User, *api.Repo, *api.Favorite) error
 }

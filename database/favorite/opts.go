@@ -32,16 +32,6 @@ func WithLogger(logger *logrus.Entry) EngineOpt {
 	}
 }
 
-// WithDriver sets the driver type in the database engine for dashboards.
-func WithDriver(driver string) EngineOpt {
-	return func(e *Engine) error {
-		// set the driver type in the dashboard engine
-		e.config.Driver = driver
-
-		return nil
-	}
-}
-
 // WithSkipCreation sets the skip creation logic in the database engine for Users.
 func WithSkipCreation(skipCreation bool) EngineOpt {
 	return func(e *Engine) error {

@@ -12,7 +12,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
 )
 
@@ -63,7 +62,7 @@ func TestFavorite_New(t *testing.T) {
 			skipCreation: false,
 			want: &Engine{
 				client: _postgres,
-				config: &config{SkipCreation: false, Driver: constants.DriverPostgres},
+				config: &config{SkipCreation: false},
 				logger: logger,
 			},
 		},
@@ -76,7 +75,7 @@ func TestFavorite_New(t *testing.T) {
 			skipCreation: false,
 			want: &Engine{
 				client: _sqlite,
-				config: &config{SkipCreation: false, Driver: constants.DriverSqlite},
+				config: &config{SkipCreation: false},
 				logger: logger,
 			},
 		},
@@ -89,7 +88,6 @@ func TestFavorite_New(t *testing.T) {
 				WithClient(test.client),
 				WithLogger(test.logger),
 				WithSkipCreation(test.skipCreation),
-				WithDriver(test.name),
 			)
 
 			if test.failure {
@@ -137,7 +135,6 @@ func testPostgres(t *testing.T) (*Engine, sqlmock.Sqlmock) {
 		WithClient(_postgres),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
-		WithDriver(constants.DriverPostgres),
 	)
 	if err != nil {
 		t.Errorf("unable to create new postgres user engine: %v", err)
@@ -160,7 +157,6 @@ func testSqlite(t *testing.T) *Engine {
 		WithClient(_sqlite),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
-		WithDriver(constants.DriverSqlite),
 	)
 	if err != nil {
 		t.Errorf("unable to create new sqlite user engine: %v", err)

@@ -8,11 +8,11 @@ const (
 	// CreateOrgNameIndex represents a query to create an
 	// index on the repos table for the org and name columns.
 	CreateRepoIndex = `
-	CREATE INDEX idx_favorites_repo ON favorites (repo_id);
+	CREATE INDEX IF NOT EXISTS idx_favorites_repo ON favorites (repo_id);
 `
 
 	CreateUserRepoIndex = `
-	CREATE INDEX idx_favorites_user_position ON favorites (user_id, position);
+	CREATE INDEX IF NOT EXISTS idx_favorites_user_position ON favorites (user_id, position);
 `
 )
 

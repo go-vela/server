@@ -17,7 +17,6 @@ type (
 	config struct {
 		// specifies to skip creating tables and indexes for the User engine
 		SkipCreation bool
-		Driver       string
 	}
 
 	// Engine represents the user functionality that implements the UserInterface interface.

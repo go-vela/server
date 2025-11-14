@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package user
+package favorite
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-// swagger:operation GET /api/v1/user/favorites users GetUserFavorites
+// swagger:operation GET /api/v1/user/favorites favorites ListFavorites
 //
 // Get the current authenticated user's favorites
 //
@@ -34,9 +34,9 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetUserFavorites represents the API handler to capture the
+// ListFavorites represents the API handler to capture the
 // currently authenticated user's favorites.
-func GetUserFavorites(c *gin.Context) {
+func ListFavorites(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()

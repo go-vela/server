@@ -88,18 +88,6 @@ func (e *engine) NewResources(ctx context.Context) error {
 		return err
 	}
 
-	// create the database agnostic engine for favorites
-	e.FavoriteInterface, err = favorite.New(
-		favorite.WithContext(ctx),
-		favorite.WithClient(e.client),
-		favorite.WithLogger(e.logger),
-		favorite.WithSkipCreation(e.config.SkipCreation),
-		favorite.WithDriver(e.config.Driver),
-	)
-	if err != nil {
-		return err
-	}
-
 	// create the database agnostic engine for hooks
 	e.HookInterface, err = hook.New(
 		hook.WithContext(ctx),
@@ -217,6 +205,17 @@ func (e *engine) NewResources(ctx context.Context) error {
 		user.WithEncryptionKey(e.config.EncryptionKey),
 		user.WithLogger(e.logger),
 		user.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for favorites
+	e.FavoriteInterface, err = favorite.New(
+		favorite.WithContext(ctx),
+		favorite.WithClient(e.client),
+		favorite.WithLogger(e.logger),
+		favorite.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

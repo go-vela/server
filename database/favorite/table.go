@@ -16,7 +16,7 @@ IF NOT EXISTS
 favorites (
   user_id    BIGINT      NOT NULL,
   repo_id    BIGINT      NOT NULL,
-  position   INTEGER,
+  position   BIGINT      NOT NULL,
   PRIMARY KEY (user_id, repo_id),
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (repo_id) REFERENCES repos(id)

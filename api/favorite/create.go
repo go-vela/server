@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package user
+package favorite
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,7 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-// swagger:operation PUT /api/v1/user/favorites users SaveUserFavorites
+// swagger:operation POST /api/v1/user/favorites favorites CreateFavorite
 //
 // Save the current authenticated user's favorites
 //
@@ -23,23 +24,23 @@ import (
 // security:
 //   - ApiKeyAuth: []
 // responses:
-//   '204':
-//     description: Successfully saved the current user's favorites
+//   '201':
+//     description: Successfully added user favorite
 //   '401':
 //     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// SaveUserFavorites represents the API handler to save the
-// currently authenticated user's favorites.
-func SaveUserFavorites(c *gin.Context) {
+// CreateFavorite represents the API handler to add a
+// favorite for the currently authenticated user.
+func CreateFavorite(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	favorites := new([]*types.Favorite)
+	favorite := new(types.Favorite)
 
-	err := c.Bind(favorites)
+	err := c.Bind(favorite)
 	if err != nil {
 		retErr := err
 
@@ -48,14 +49,14 @@ func SaveUserFavorites(c *gin.Context) {
 		return
 	}
 
-	err = database.FromContext(c).UpdateFavorites(ctx, u, *favorites)
+	err = database.FromContext(c).CreateFavorite(ctx, u, favorite)
 	if err != nil {
-		retErr := err
+		retErr := fmt.Errorf("unable to create favorite for user %s: %w", u.GetName(), err)
 
-		util.HandleError(ctx, http.StatusInternalServerError, retErr)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, favorites)
+	c.Status(http.StatusCreated)
 }

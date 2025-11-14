@@ -12,6 +12,7 @@ import (
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
+	"github.com/go-vela/server/database/favorite"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
@@ -77,6 +78,10 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	// ensure the mock expects the user queries
 	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the favorite queuries
+	_mock.ExpectExec(favorite.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(favorite.CreateRepoIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(favorite.CreateUserRepoIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the worker queries
 	_mock.ExpectExec(worker.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(worker.CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))

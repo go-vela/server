@@ -4,7 +4,6 @@ package types
 
 import (
 	"database/sql"
-	"fmt"
 
 	api "github.com/go-vela/server/api/types"
 )
@@ -14,6 +13,8 @@ type (
 	Favorite struct {
 		Position sql.NullInt64  `sql:"position"`
 		RepoName sql.NullString `sql:"repo_name"`
+		UserID   sql.NullInt64  `sql:"user_id"`
+		RepoID   sql.NullInt64  `sql:"repo_id"`
 	}
 )
 
@@ -22,21 +23,13 @@ type (
 func (f *Favorite) ToAPI() *api.Favorite {
 	favorite := new(api.Favorite)
 
-	favorite.SetPosition(f.Position.Int64)
+	if f.Position.Valid {
+		favorite.SetPosition(f.Position.Int64)
+	}
+
 	favorite.SetRepo(f.RepoName.String)
 
 	return favorite
-}
-
-// Validate verifies the necessary fields for
-// the Favorite type are populated correctly.
-func (f *Favorite) Validate() error {
-	// verify the Repo field is populated
-	if len(f.RepoName.String) == 0 {
-		return fmt.Errorf("empty favorite repo provided")
-	}
-
-	return nil
 }
 
 func FavoriteFromAPI(f *api.Favorite) *Favorite {
