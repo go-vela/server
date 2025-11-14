@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/go-github/v74/github"
+	"github.com/google/go-github/v79/github"
 )
 
 // see: https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28
