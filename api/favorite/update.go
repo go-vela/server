@@ -22,6 +22,17 @@ import (
 // ---
 // produces:
 // - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the organization
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repository
+//   required: true
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
