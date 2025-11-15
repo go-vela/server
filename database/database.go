@@ -18,6 +18,7 @@ import (
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
+	"github.com/go-vela/server/database/favorite"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
@@ -86,6 +87,7 @@ type (
 		dashboard.DashboardInterface
 		executable.BuildExecutableInterface
 		deployment.DeploymentInterface
+		favorite.FavoriteInterface
 		hook.HookInterface
 		jwk.JWKInterface
 		log.LogInterface
