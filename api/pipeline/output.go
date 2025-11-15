@@ -3,10 +3,12 @@
 package pipeline
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	yml "go.yaml.in/yaml/v3"
 
 	"github.com/go-vela/server/util"
 )
@@ -29,6 +31,20 @@ func writeOutput(c *gin.Context, value interface{}) {
 	case outputYAML:
 		fallthrough
 	default:
-		c.YAML(http.StatusOK, value)
+		// TODO:
+		// we should be able to use c.YAML here from gin,
+		// but there's some incompatibility with us creating yaml.Node
+		// with the go.yaml.in/yaml/v3 package and gin using gopkg.in/yaml.v3
+		// when calling c.YAML. When gin switches to go.yaml.in/yaml/v3 we can
+		// switch to using c.YAML here.
+		body, err := yml.Marshal(value)
+		if err != nil {
+			reason := fmt.Errorf("unable to marshal YAML response: %w", err)
+			util.HandleError(c, http.StatusInternalServerError, reason)
+
+			return
+		}
+
+		c.Data(http.StatusOK, gin.MIMEYAML, body)
 	}
 }
