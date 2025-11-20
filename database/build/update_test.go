@@ -51,7 +51,7 @@ WHERE "id" = $37`).
 
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateBuild(context.TODO(), _build)
+	err := createTestBuild(t.Context(), _sqlite, _build)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}

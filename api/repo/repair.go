@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	wh "github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -63,7 +64,7 @@ import (
 // RepairRepo represents the API handler to remove
 // and then create a webhook for a repo.
 //
-//nolint:funlen // ignore statement count
+
 func RepairRepo(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*internal.Metadata)
@@ -73,6 +74,8 @@ func RepairRepo(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	l.Debugf("repairing repo %s", r.GetFullName())
+
+	var hook *types.Hook
 
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
@@ -86,17 +89,8 @@ func RepairRepo(c *gin.Context) {
 			return
 		}
 
-		hook, err := database.FromContext(c).LastHookForRepo(ctx, r)
-		if err != nil {
-			retErr := fmt.Errorf("unable to get last hook for %s: %w", r.GetFullName(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-
 		// send API call to create the webhook
-		hook, _, err = scm.FromContext(c).Enable(ctx, u, r, hook)
+		hook, _, err = scm.FromContext(c).Enable(ctx, u, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -143,22 +137,13 @@ func RepairRepo(c *gin.Context) {
 	// if repo has a name change, then update DB with new name
 	// if repo has an org change, update org as well
 	if sourceRepo.GetName() != r.GetName() || sourceRepo.GetOrg() != r.GetOrg() {
-		h, err := database.FromContext(c).LastHookForRepo(ctx, r)
-		if err != nil {
-			retErr := fmt.Errorf("unable to get last hook for %s: %w", r.GetFullName(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-
 		// set sourceRepo PreviousName to old name if name is changed
 		// ignore if repo is transferred and name is unchanged
 		if sourceRepo.GetName() != r.GetName() {
 			sourceRepo.SetPreviousName(r.GetName())
 		}
 
-		r, err = wh.RenameRepository(ctx, l, database.FromContext(c), h, sourceRepo, r, m)
+		r, err = wh.RenameRepository(ctx, l, database.FromContext(c), sourceRepo, r, m)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
 			return

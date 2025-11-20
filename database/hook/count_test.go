@@ -62,12 +62,12 @@ func TestHook_Engine_CountHooks(t *testing.T) {
 
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateHook(context.TODO(), _hookOne)
+	err := createTestHook(t.Context(), _sqlite, _hookOne)
 	if err != nil {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateHook(context.TODO(), _hookTwo)
+	err = createTestHook(t.Context(), _sqlite, _hookTwo)
 	if err != nil {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
