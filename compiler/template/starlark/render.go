@@ -12,7 +12,7 @@ import (
 	"go.starlark.net/syntax"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	types "github.com/go-vela/server/compiler/types/yaml/yaml"
+	types "github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/internal"
 )
 

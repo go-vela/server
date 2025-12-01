@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package buildkite
+package yaml
 
 import (
 	"os"
 	"reflect"
 	"testing"
 
-	"github.com/buildkite/yaml"
+	"go.yaml.in/yaml/v3"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
 )

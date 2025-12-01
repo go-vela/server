@@ -1,4 +1,0 @@
-steps:
-  - image: alpine:latest
-    commands:
-      - echo "hello vela"  

@@ -10,7 +10,7 @@ import (
 	goyaml "go.yaml.in/yaml/v3"
 
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 )
 
 func TestNative_Render(t *testing.T) {

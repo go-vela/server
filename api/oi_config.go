@@ -43,6 +43,7 @@ func GetOpenIDConfig(c *gin.Context) {
 			"exp",
 			"iat",
 			"iss",
+			"jti",
 			"aud",
 			"branch",
 			"build_number",
