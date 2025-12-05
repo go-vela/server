@@ -38,9 +38,9 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "repos"
-SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"visibility"=$13,"private"=$14,"trusted"=$15,"active"=$16,"allow_events"=$17,"pipeline_type"=$18,"previous_name"=$19,"approve_build"=$20,"approval_timeout"=$21,"install_id"=$22,"custom_props"=$23
-WHERE "id" = $24`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 1, "yaml", "oldName", constants.ApproveForkAlways, 5, 0, `{"foo":"bar"}`, 1).
+SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"hook_counter"=$13,"visibility"=$14,"private"=$15,"trusted"=$16,"active"=$17,"allow_events"=$18,"pipeline_type"=$19,"previous_name"=$20,"approve_build"=$21,"approval_timeout"=$22,"install_id"=$23,"custom_props"=$24
+WHERE "id" = $25`).
+		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 1, "yaml", "oldName", constants.ApproveForkAlways, 5, 0, `{"foo":"bar"}`, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
