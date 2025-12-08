@@ -28,6 +28,7 @@ func TestSecret_FromContext(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	context.Set("native", want)
 
@@ -42,6 +43,7 @@ func TestSecret_FromContext(t *testing.T) {
 func TestSecret_FromContext_Bad(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	context.Set("native", nil)
 
@@ -56,6 +58,7 @@ func TestSecret_FromContext_Bad(t *testing.T) {
 func TestSecret_FromContext_WrongType(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	context.Set("native", 1)
 
@@ -70,6 +73,7 @@ func TestSecret_FromContext_WrongType(t *testing.T) {
 func TestSecret_FromContext_Empty(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 
 	// run test
@@ -97,6 +101,7 @@ func TestSecret_ToContext(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	ToContext(context, "native", want)
 

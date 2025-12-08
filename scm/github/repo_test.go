@@ -1750,7 +1750,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
-			wantErr:       true,
+			wantErr:       false,
 		},
 		{
 			name: "invalid permission level",
@@ -1764,7 +1764,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
-			wantErr:       true,
+			wantErr:       false,
 		},
 		{
 			name: "owner with inadequate permission to other repo",
@@ -1788,7 +1788,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 				client.AppsTransport = NewTestAppsTransport(s.URL)
 			}
 
-			got, err := client.GetNetrcPassword(context.TODO(), nil, test.repo, test.user, test.git)
+			got, err := client.GetNetrcPassword(context.TODO(), nil, nil, test.repo, test.user, test.git)
 			if (err != nil) != test.wantErr {
 				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
 				return

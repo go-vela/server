@@ -8,6 +8,8 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/cache"
+	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -145,7 +147,7 @@ type Service interface {
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
 	// GetNetrcPassword defines a function that returns the netrc
 	// password injected into build steps.
-	GetNetrcPassword(context.Context, database.Interface, *api.Repo, *api.User, yaml.Git) (string, error)
+	GetNetrcPassword(context.Context, database.Interface, cache.Service, *api.Repo, *api.User, yaml.Git) (string, error)
 	// SyncRepoWithInstallation defines a function that syncs
 	// a repo with the installation, if it exists.
 	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)
@@ -170,6 +172,9 @@ type Service interface {
 	// FinishInstallation defines a function that
 	// finishes an installation event and returns a web redirect.
 	FinishInstallation(context.Context, *http.Request, int64) (string, error)
+	// NewAppInstallationToken defines a function that
+	// creates a new installation token for the app integration.
+	NewAppInstallationToken(ctx context.Context, r *api.Repo, repos []string, permissions map[string]string) (*models.InstallToken, int64, error)
 
 	// GetSettings defines a function that returns
 	// scm settings.

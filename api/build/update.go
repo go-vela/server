@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/auth"
@@ -176,6 +177,12 @@ func UpdateBuild(c *gin.Context) {
 		err = scm.FromContext(c).Status(ctx, b, r.GetOrg(), r.GetName(), scmToken)
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
+		}
+
+		// evict installation token from cache
+		err = cache.FromContext(c).EvictInstallToken(ctx, scmToken)
+		if err != nil {
+			l.Errorf("unable to evict installation token from cache: %v", err)
 		}
 	}
 }

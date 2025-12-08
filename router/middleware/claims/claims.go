@@ -3,12 +3,14 @@
 package claims
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/auth"
@@ -45,6 +47,23 @@ func Establish() gin.HandlerFunc {
 
 				return
 			}
+		}
+
+		// if this is an installation token, no claims
+		if strings.HasPrefix(at, "ghs_") {
+			installToken, err := cache.FromContext(c).GetInstallToken(c.Request.Context(), at)
+			if err != nil || installToken == nil {
+				retErr := fmt.Errorf("unable to validate installation token: %w", err)
+
+				util.HandleError(c, http.StatusUnauthorized, retErr)
+
+				return
+			}
+
+			c.Set("app-installation-token", installToken)
+			c.Next()
+
+			return
 		}
 
 		// parse and validate the token and return the associated the user
