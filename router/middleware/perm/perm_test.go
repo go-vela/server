@@ -1648,6 +1648,7 @@ func TestPerm_MustWrite_InstallToken(t *testing.T) {
 		Permissions: map[string]string{
 			"contents": "write",
 		},
+		Expiration: time.Now().Add(time.Hour).Unix(),
 	}
 
 	err = tknCache.StoreInstallToken(t.Context(), installTokenWrite, _repo)
@@ -1755,6 +1756,7 @@ func TestPerm_MustWrite_InstallTokenRead(t *testing.T) {
 		Permissions: map[string]string{
 			"contents": "read",
 		},
+		Expiration: time.Now().Add(time.Hour).Unix(),
 	}
 
 	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, _repo)
@@ -2262,6 +2264,7 @@ func TestPerm_MustRead_InstallTokenRead(t *testing.T) {
 		Permissions: map[string]string{
 			"contents": "read",
 		},
+		Expiration: time.Now().Add(time.Hour).Unix(),
 	}
 
 	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, _repo)

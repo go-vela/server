@@ -9,8 +9,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/go-vela/server/cache/models"
 )
 
@@ -22,8 +20,6 @@ func (c *Client) GetInstallToken(ctx context.Context, token string) (*models.Ins
 	hmacHex := hex.EncodeToString(h.Sum(nil))
 
 	key := "install_token:" + hmacHex
-
-	logrus.Infof("Retrieving install token with key: %s", key)
 
 	meta, err := c.Redis.Get(ctx, key).Bytes()
 	if err != nil {

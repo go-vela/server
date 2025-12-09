@@ -19,6 +19,7 @@ func (c *Client) StoreInstallToken(ctx context.Context, t *models.InstallToken, 
 	meta := new(models.InstallToken)
 	meta.Repositories = t.Repositories
 	meta.Permissions = t.Permissions
+	meta.Expiration = t.Expiration
 
 	metaBytes, err := json.Marshal(meta)
 	if err != nil {

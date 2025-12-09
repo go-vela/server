@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -373,7 +374,7 @@ func MustAdmin() gin.HandlerFunc {
 
 		// query source to determine requesters permissions for the repo using the requester's token
 		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
-		if err != nil && u.GetToken() != "" {
+		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
 			//
@@ -428,7 +429,7 @@ func MustWrite() gin.HandlerFunc {
 
 		// query source to determine requesters permissions for the repo using the requester's token
 		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
-		if err != nil && u.GetToken() != "" {
+		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
 			//
@@ -508,7 +509,7 @@ func MustRead() gin.HandlerFunc {
 
 		// query source to determine requesters permissions for the repo using the requester's token
 		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
-		if err != nil && u.GetToken() != "" {
+		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
 			//
@@ -553,6 +554,11 @@ func retrieveInstallToken(c *gin.Context) *models.InstallToken {
 
 // validInstallToken checks if the installation token has access to the repo with the required permissions.
 func validInstallToken(r *api.Repo, tkn *models.InstallToken, access []string) bool {
+	// reject expired tokens
+	if tkn.Expiration < time.Now().Unix() {
+		return false
+	}
+
 	if !slices.Contains(tkn.Repositories, r.GetFullName()) {
 		return false
 	}

@@ -5,6 +5,7 @@ package build
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -111,6 +112,19 @@ func GetInstallToken(c *gin.Context) {
 		retErr := fmt.Errorf("unable to get installation token from cache: %w", err)
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
+	}
+
+	// if cached token is still valid for 5+ minutes, return it
+	if cachedToken.Expiration > time.Now().Add(5*time.Minute).Unix() {
+		l.Debugf("returning cached install token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
+
+		resp := new(types.Token)
+		resp.SetToken(cachedToken.Token)
+		resp.SetExpiration(cachedToken.Expiration)
+
+		c.JSON(http.StatusOK, resp)
 
 		return
 	}
