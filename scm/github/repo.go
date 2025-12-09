@@ -687,7 +687,7 @@ func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
-func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tknCache cache.Service, r *api.Repo, u *api.User, g yaml.Git) (string, error) {
+func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tknCache cache.Service, r *api.Repo, u *api.User, g yaml.Git) (string, int64, error) {
 	l := c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -697,7 +697,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 
 	// no GitHub App configured, use legacy oauth token
 	if c.AppsTransport == nil {
-		return u.GetToken(), nil
+		return u.GetToken(), 0, nil
 	}
 
 	var err error
@@ -742,7 +742,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 
 		access, err := c.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), repo)
 		if err != nil || (access != constants.PermissionAdmin && access != constants.PermissionWrite) {
-			return u.GetToken(), fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)
+			return u.GetToken(), 0, fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)
 		}
 	}
 
@@ -755,7 +755,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		// todo: return an error based based on app installation requirements
 		l.Tracef("unable to create github app installation token for repos %v with permissions %v: %v", repos, permissions, err)
 
-		return u.GetToken(), nil
+		return u.GetToken(), 0, nil
 	}
 
 	if installToken != nil && len(installToken.Token) != 0 {
@@ -776,16 +776,16 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 			if err != nil {
 				l.Tracef("unable to store installation token in cache: %v", err)
 
-				return "", fmt.Errorf("unable to store installation token in cache: %w", err)
+				return "", 0, fmt.Errorf("unable to store installation token in cache: %w", err)
 			}
 		}
 
-		return installToken.Token, nil
+		return installToken.Token, installToken.Expiration, nil
 	}
 
 	l.Tracef("using user oauth token for %s/%s", r.GetOrg(), r.GetName())
 
-	return u.GetToken(), nil
+	return u.GetToken(), 0, nil
 }
 
 // SyncRepoWithInstallation ensures the repo is synchronized with the scm installation, if it exists.

@@ -53,6 +53,7 @@ type Client struct {
 	scm            scm.Service
 	cache          cache.Service
 	netrc          *string
+	netrcExp       int64
 }
 
 // FromCLICommand returns a Pipeline implementation that integrates with the supported registries.

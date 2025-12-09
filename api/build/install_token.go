@@ -141,5 +141,9 @@ func GetInstallToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, types.Token{Token: &newToken.Token})
+	resp := new(types.Token)
+	resp.SetToken(newToken.Token)
+	resp.SetExpiration(newToken.Expiration)
+
+	c.JSON(http.StatusOK, resp)
 }

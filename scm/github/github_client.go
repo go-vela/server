@@ -132,7 +132,12 @@ func (c *Client) NewAppInstallationToken(ctx context.Context, r *api.Repo, repos
 		return nil, 0, err
 	}
 
-	return &models.InstallToken{Token: t.GetToken(), Repositories: repos, Permissions: permissions}, id, nil
+	return &models.InstallToken{
+		Token:        t.GetToken(),
+		Repositories: repos,
+		Permissions:  permissions,
+		Expiration:   t.GetExpiresAt().Unix(),
+	}, id, nil
 }
 
 // installationCanReadRepo checks if the installation can read the repo.

@@ -1686,6 +1686,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 		git           yaml.Git
 		appsTransport bool
 		wantToken     string
+		wantExp       int64
 		wantErr       bool
 	}{
 		{
@@ -1700,6 +1701,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+			wantExp:       1468275250,
 			wantErr:       false,
 		},
 		{
@@ -1714,6 +1716,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: false,
 			wantToken:     "bar",
+			wantExp:       0,
 			wantErr:       false,
 		},
 		{
@@ -1728,6 +1731,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
+			wantExp:       0,
 			wantErr:       false,
 		},
 		{
@@ -1736,6 +1740,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			user:          u,
 			appsTransport: true,
 			wantToken:     "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+			wantExp:       1468275250,
 			wantErr:       false,
 		},
 		{
@@ -1750,6 +1755,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
+			wantExp:       0,
 			wantErr:       false,
 		},
 		{
@@ -1764,6 +1770,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
+			wantExp:       0,
 			wantErr:       false,
 		},
 		{
@@ -1777,6 +1784,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
+			wantExp:       0,
 			wantErr:       true,
 		},
 	}
@@ -1788,7 +1796,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 				client.AppsTransport = NewTestAppsTransport(s.URL)
 			}
 
-			got, err := client.GetNetrcPassword(context.TODO(), nil, nil, test.repo, test.user, test.git)
+			got, gotExp, err := client.GetNetrcPassword(context.TODO(), nil, nil, test.repo, test.user, test.git)
 			if (err != nil) != test.wantErr {
 				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
 				return
@@ -1796,6 +1804,10 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 
 			if got != test.wantToken {
 				t.Errorf("GetNetrcPassword() = %v, want %v", got, test.wantToken)
+			}
+
+			if gotExp != test.wantExp {
+				t.Errorf("GetNetrcPassword() expiration = %v, want %v", gotExp, test.wantExp)
 			}
 		})
 	}
