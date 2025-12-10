@@ -14,6 +14,7 @@ import (
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/auth"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 )
 
@@ -27,6 +28,7 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
 		tm := c.MustGet("token-manager").(*token.Manager)
+		scmService := scm.FromContext(c)
 
 		// get the access token from the request
 		at, err := auth.RetrieveAccessToken(c.Request)
@@ -50,7 +52,7 @@ func Establish() gin.HandlerFunc {
 		}
 
 		// if this is an installation token, no claims
-		if strings.HasPrefix(at, "ghs_") {
+		if scmService != nil && scmService.IsInstallationToken(c.Request.Context(), at) {
 			installToken, err := cache.FromContext(c).GetInstallToken(c.Request.Context(), at)
 			if err != nil || installToken == nil {
 				retErr := fmt.Errorf("unable to validate installation token: %w", err)

@@ -140,6 +140,10 @@ func (c *Client) NewAppInstallationToken(ctx context.Context, r *api.Repo, repos
 	}, id, nil
 }
 
+func (c *Client) IsInstallationToken(ctx context.Context, token string) bool {
+	return strings.HasPrefix(token, "ghs_")
+}
+
 // installationCanReadRepo checks if the installation can read the repo.
 func (c *Client) installationCanReadRepo(ctx context.Context, r *api.Repo, installation *github.Installation) (bool, error) {
 	installationCanReadRepo := false

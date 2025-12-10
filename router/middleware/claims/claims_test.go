@@ -20,6 +20,8 @@ import (
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
+	"github.com/go-vela/server/scm"
+	"github.com/go-vela/server/scm/github"
 )
 
 func TestClaims_Retrieve(t *testing.T) {
@@ -199,9 +201,12 @@ func TestClaims_Establish(t *testing.T) {
 			// setup context
 			gin.SetMode(gin.TestMode)
 
+			client, _ := github.NewTest("")
+
 			// setup vela mock server
 			engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 			engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+			engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 			engine.Use(Establish())
 			engine.PUT(tt.Endpoint, func(c *gin.Context) {
 				got = Retrieve(c)
@@ -294,10 +299,13 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
+	client, _ := github.NewTest("")
+
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", "very-secret") })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(Establish())
 
 	// run test

@@ -175,6 +175,8 @@ type Service interface {
 	// NewAppInstallationToken defines a function that
 	// creates a new installation token for the app integration.
 	NewAppInstallationToken(ctx context.Context, r *api.Repo, repos []string, permissions map[string]string) (*models.InstallToken, int64, error)
+	// IsInstallationToken defines a function that determines if a token is an installation token.
+	IsInstallationToken(ctx context.Context, token string) bool
 
 	// GetSettings defines a function that returns
 	// scm settings.
