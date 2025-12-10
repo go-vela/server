@@ -51,7 +51,7 @@ func Establish() gin.HandlerFunc {
 			}
 		}
 
-		// if this is an installation token, no claims
+		// if this is an installation token, no claims, set token in context
 		if scmService != nil && scmService.IsInstallationToken(c.Request.Context(), at) {
 			installToken, err := cache.FromContext(c).GetInstallToken(c.Request.Context(), at)
 			if err != nil || installToken == nil {
