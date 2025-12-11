@@ -176,7 +176,7 @@ func UpdateBuild(c *gin.Context) {
 		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
 		// if repo has app installed, verify incoming token is not expired (older than 59 minutes)
 		if b.GetRepo().GetInstallID() != 0 && time.Now().Unix() > b.GetCreated()+3540 {
-			l.Debugf("generating new installation token for status update for build %s/%d", r.GetFullName(), b.GetNumber())
+			l.Infof("generating new installation token for status update for build %s/%d", r.GetFullName(), b.GetNumber())
 			gitConfig := yaml.Git{
 				Token: yaml.Token{
 					Repositories: []string{r.GetName()},
