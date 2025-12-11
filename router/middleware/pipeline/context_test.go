@@ -16,6 +16,7 @@ func TestPipeline_FromContext(t *testing.T) {
 	_pipeline := new(api.Pipeline)
 
 	gin.SetMode(gin.TestMode)
+
 	_context, _ := gin.CreateTestContext(nil)
 	_context.Set(key, _pipeline)
 
@@ -72,6 +73,7 @@ func TestPipeline_ToContext(t *testing.T) {
 	_pipeline := new(api.Pipeline)
 
 	gin.SetMode(gin.TestMode)
+
 	_context, _ := gin.CreateTestContext(nil)
 
 	// setup tests

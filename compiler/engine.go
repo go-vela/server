@@ -7,6 +7,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml"
@@ -125,6 +126,9 @@ type Engine interface {
 	// WithBuild defines a function that sets
 	// the API build type in the Engine.
 	WithBuild(*api.Build) Engine
+	// WithCache defines a function that sets
+	// the cache in the Engine.
+	WithCache(cache.Service) Engine
 	// WithComment defines a function that sets
 	// the comment in the Engine.
 	WithComment(string) Engine

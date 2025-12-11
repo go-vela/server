@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -123,6 +124,7 @@ func CreateBuild(c *gin.Context) {
 		c,
 		config,
 		database.FromContext(c),
+		cache.FromContext(c),
 		scm.FromContext(c),
 		compiler.FromContext(c),
 		queue.FromContext(c),
