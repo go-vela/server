@@ -4,13 +4,16 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/router/middleware/auth"
 )
 
 const (
@@ -59,6 +62,13 @@ const (
 	}
   ]
 `
+
+	// InstallTokenResp represents a JSON return for an installation token.
+	//nolint:gosec // not a hardcoded credential
+	InstallTokenResp = `{
+  "token": "ghs_123",
+  "expiration": "%d"
+}`
 )
 
 // getTokenRefresh returns mock JSON for a http GET.
@@ -160,6 +170,40 @@ func getJWKS(c *gin.Context) {
 	data := []byte(JWKSResp)
 
 	var body jwk.RSAPublicKey
+
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}
+
+// getInstallToken returns mock JSON for a http GET.
+func getInstallToken(c *gin.Context) {
+	buildToken, err := auth.RetrieveAccessToken(c.Request)
+	if err != nil || buildToken == "" {
+		errMsg := "unable to retrieve access token from request"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &errMsg})
+
+		return
+	}
+
+	scmToken := auth.RetrieveTokenHeader(c.Request)
+	if scmToken == "" {
+		errMsg := "unable to retrieve scm token from request"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &errMsg})
+
+		return
+	}
+
+	var body api.Token
+
+	data := []byte(
+		fmt.Sprintf(
+			InstallTokenResp,
+			time.Now().Add(1*time.Hour).Unix(),
+		),
+	)
 
 	_ = json.Unmarshal(data, &body)
 
