@@ -12,7 +12,7 @@ const key = "hook"
 
 // Setter defines a context that enables setting values.
 type Setter interface {
-	Set(string, interface{})
+	Set(any, any)
 }
 
 // FromContext returns the hook associated with this context.

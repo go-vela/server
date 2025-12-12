@@ -12,7 +12,7 @@ const key = "build"
 
 // Setter defines a context that enables setting values.
 type Setter interface {
-	Set(string, interface{})
+	Set(any, any)
 }
 
 // FromContext returns the Build associated with this context.
