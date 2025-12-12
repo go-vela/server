@@ -3,6 +3,7 @@
 package secret
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -45,7 +46,7 @@ type Setup struct {
 
 // Native creates and returns a Vela service capable of
 // integrating with a Native (Database) secret system.
-func (s *Setup) Native() (Service, error) {
+func (s *Setup) Native(_ context.Context) (Service, error) {
 	logrus.Trace("creating native secret client from setup")
 
 	// create new native secret service
@@ -58,13 +59,14 @@ func (s *Setup) Native() (Service, error) {
 
 // Vault creates and returns a Vela service capable of
 // integrating with a Hashicorp Vault secret system.
-func (s *Setup) Vault() (Service, error) {
+func (s *Setup) Vault(ctx context.Context) (Service, error) {
 	logrus.Trace("creating vault secret client from setup")
 
 	// create new Vault secret service
 	//
-	// https://pkg.go.dev/github.com/go-vela/server/secret/vault?tab=doc#New
-	return vault.New(
+	// https://pkg.go.dev/github.com/go-vela/server/secret/vault?tab=doc#NewWithContext
+	return vault.NewWithContext(
+		ctx,
 		vault.WithAddress(s.Address),
 		vault.WithAuthMethod(s.AuthMethod),
 		vault.WithAWSRole(s.AwsRole),

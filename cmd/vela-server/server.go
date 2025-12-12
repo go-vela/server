@@ -103,7 +103,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	secrets, err := setupSecrets(cmd, database)
+	secrets, err := setupSecrets(ctx, cmd, database)
 	if err != nil {
 		return err
 	}

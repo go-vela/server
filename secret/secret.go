@@ -3,6 +3,7 @@
 package secret
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -18,7 +19,7 @@ import (
 // * Native
 // * Vault
 // .
-func New(s *Setup) (Service, error) {
+func New(ctx context.Context, s *Setup) (Service, error) {
 	// validate the setup being provided
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Validate
@@ -34,12 +35,12 @@ func New(s *Setup) (Service, error) {
 		// handle the Native secret driver being provided
 		//
 		// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Native
-		return s.Native()
+		return s.Native(ctx)
 	case constants.DriverVault:
 		// handle the Vault secret driver being provided
 		//
 		// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Vault
-		return s.Vault()
+		return s.Vault(ctx)
 	default:
 		// handle an invalid secret driver being provided
 		return nil, fmt.Errorf("invalid secret driver provided: %s", s.Driver)
