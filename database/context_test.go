@@ -18,6 +18,7 @@ func TestDatabase_FromContext(t *testing.T) {
 	defer _postgres.Close()
 
 	gin.SetMode(gin.TestMode)
+
 	ctx, _ := gin.CreateTestContext(nil)
 	ctx.Set(key, _postgres)
 

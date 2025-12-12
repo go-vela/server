@@ -25,6 +25,18 @@ func Retrieve(c *gin.Context) *api.User {
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
+
+		_, ok := c.Get("app-installation-token")
+		if ok {
+			u := new(api.User)
+			u.SetName("app-installation")
+
+			ToContext(c, u)
+			c.Next()
+
+			return
+		}
+
 		cl := claims.Retrieve(c)
 		ctx := c.Request.Context()
 

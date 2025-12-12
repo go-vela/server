@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/router/middleware/auth"
 )
 
 const (
@@ -216,6 +218,14 @@ const (
 	IDTokenRequestTokenResp = `{
 		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImY3ZWM0YWI3LWM5YTItNDQwZS1iZmIzLTgzYjY1OTk0NzllYSJ9.eyJidWlsZF9pZCI6MSwiYnVpbGRfbnVtYmVyIjoxLCJhY3RvciI6Ik9jdG9jYXQiLCJyZXBvIjoiT2N0b2NhdC90ZXN0IiwidG9rZW5fdHlwZSI6IklEUmVxdWVzdCIsImltYWdlIjoiYWxwaW5lOmxhdGVzdCIsImNvbW1hbmRzIjp0cnVlLCJyZXF1ZXN0Ijoid3JpdGUiLCJpc3MiOiJodHRwczovL3ZlbGEuY29tL19zZXJ2aWNlcy90b2tlbiIsInN1YiI6InJlcG86T2N0b2NhdC90ZXN0OnJlZjpyZWZzL2hlYWRzL21haW46ZXZlbnQ6cHVzaCIsImV4cCI6MTcxNDQ5NTgyMywiaWF0IjoxNzE0NDk1NTIzfQ.l7ulJ7g5iTWGrR_IOBC2borJj2yixRAMZpsZEeaMvUw"
 	}`
+
+	// InstallTokenResp represents a JSON return for an installation token.
+	//
+	//nolint:gosec // not a hardcoded credential
+	InstallTokenResp = `{
+  "token": "ghs_123",
+  "expiration": "%d"
+}`
 
 	// BuildExecutableResp represents a JSON return for requesting a build executable.
 	BuildExecutableResp = `{
@@ -525,4 +535,40 @@ func cleanResoures(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, CleanResourcesResp)
+}
+
+// getInstallToken returns mock JSON for a http GET.
+//
+// pass empty build or scm token to get a http 401 response.
+func getInstallToken(c *gin.Context) {
+	buildToken, err := auth.RetrieveAccessToken(c.Request)
+	if err != nil || buildToken == "" {
+		errMsg := "unable to retrieve access token from request"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &errMsg})
+
+		return
+	}
+
+	scmToken := auth.RetrieveTokenHeader(c.Request)
+	if scmToken == "" {
+		errMsg := "unable to retrieve scm token from request"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &errMsg})
+
+		return
+	}
+
+	var body api.Token
+
+	data := []byte(
+		fmt.Sprintf(
+			InstallTokenResp,
+			time.Now().Add(1*time.Hour).Unix(),
+		),
+	)
+
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
 }

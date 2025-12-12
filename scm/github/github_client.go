@@ -17,6 +17,7 @@ import (
 	"golang.org/x/oauth2"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 )
 
@@ -67,17 +68,26 @@ func (c *Client) newGithubAppClient() (*github.Client, error) {
 	return client, nil
 }
 
-// newGithubAppInstallationRepoToken returns the GitHub App installation token for a particular repo with granular permissions.
-func (c *Client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.Repo, repos []string, permissions *github.InstallationPermissions) (*github.InstallationToken, int64, error) {
+// NewAppInstallationToken returns the GitHub App installation token for a particular repo with granular permissions.
+func (c *Client) NewAppInstallationToken(ctx context.Context, r *api.Repo, repos []string, permissions map[string]string) (*models.InstallToken, int64, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := c.newGithubAppClient()
 	if err != nil {
 		return nil, 0, err
 	}
 
+	ghPermissions := new(github.InstallationPermissions)
+
+	for resource, perm := range permissions {
+		ghPermissions, err = ApplyInstallationPermissions(resource, perm, ghPermissions)
+		if err != nil {
+			return nil, 0, err
+		}
+	}
+
 	opts := &github.InstallationTokenOptions{
 		Repositories: repos,
-		Permissions:  permissions,
+		Permissions:  ghPermissions,
 	}
 
 	id := r.GetInstallID()
@@ -122,7 +132,16 @@ func (c *Client) newGithubAppInstallationRepoToken(ctx context.Context, r *api.R
 		return nil, 0, err
 	}
 
-	return t, id, nil
+	return &models.InstallToken{
+		Token:        t.GetToken(),
+		Repositories: repos,
+		Permissions:  permissions,
+		Expiration:   t.GetExpiresAt().Unix(),
+	}, id, nil
+}
+
+func (c *Client) IsInstallationToken(ctx context.Context, token string) bool {
+	return strings.HasPrefix(token, "ghs_")
 }
 
 // installationCanReadRepo checks if the installation can read the repo.

@@ -12,6 +12,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/registry/github"
@@ -50,7 +51,9 @@ type Client struct {
 	labels         []string
 	db             database.Interface
 	scm            scm.Service
+	cache          cache.Service
 	netrc          *string
+	netrcExp       int64
 }
 
 // FromCLICommand returns a Pipeline implementation that integrates with the supported registries.
@@ -251,6 +254,13 @@ func (c *Client) WithNetrc(n string) compiler.Engine {
 // WithSCM sets the scm in the Engine.
 func (c *Client) WithSCM(_scm scm.Service) compiler.Engine {
 	c.scm = _scm
+
+	return c
+}
+
+// WithCache sets the cache in the Engine.
+func (c *Client) WithCache(cache cache.Service) compiler.Engine {
+	c.cache = cache
 
 	return c
 }

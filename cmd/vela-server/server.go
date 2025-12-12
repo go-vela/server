@@ -21,6 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -86,6 +87,11 @@ func server(ctx context.Context, cmd *cli.Command) error {
 				logrus.Errorf("unable to shutdown tracer provider: %v", err)
 			}
 		}()
+	}
+
+	cache, err := cache.FromCLICommand(ctx, cmd)
+	if err != nil {
+		return err
 	}
 
 	database, err := database.FromCLICommand(cmd, tc)
@@ -186,6 +192,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.AppWebhookSecret(cmd.String("scm.app.webhook-secret")),
 		middleware.CLI(cmd),
 		middleware.Settings(ps),
+		middleware.Cache(cache),
 		middleware.Compiler(compiler),
 		middleware.Database(database),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
@@ -361,7 +368,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 			queue.SetSettings(ps)
 
 			// pass in parent non-cancelable and timeout-less context
-			err = processSchedules(ctx, start, ps, compiler, database, metadata, queue, scm)
+			err = processSchedules(ctx, start, ps, compiler, database, cache, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

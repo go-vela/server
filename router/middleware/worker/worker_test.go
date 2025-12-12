@@ -23,6 +23,7 @@ func TestWorker_Retrieve(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	ToContext(context, want)
 

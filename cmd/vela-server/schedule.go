@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/api/build"
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
@@ -30,7 +31,7 @@ const (
 	scheduleWait = "waiting to trigger build for schedule"
 )
 
-func processSchedules(ctx context.Context, start time.Time, settings *settings.Platform, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedules(ctx context.Context, start time.Time, settings *settings.Platform, compiler compiler.Engine, database database.Interface, cache cache.Service, metadata *internal.Metadata, queue queue.Service, scm scm.Service) error {
 	logrus.Infof("processing active schedules to create builds")
 
 	// send API call to capture the list of active schedules
@@ -128,7 +129,7 @@ func processSchedules(ctx context.Context, start time.Time, settings *settings.P
 		}).Info("schedule updated - scheduled at set")
 
 		// process the schedule and trigger a new build
-		err = processSchedule(ctx, schedule, settings, compiler, database, metadata, queue, scm)
+		err = processSchedule(ctx, schedule, settings, compiler, database, cache, metadata, queue, scm)
 		if err != nil {
 			handleError(ctx, database, err, schedule)
 
@@ -158,7 +159,7 @@ func processSchedules(ctx context.Context, start time.Time, settings *settings.P
 }
 
 // processSchedule will, given a schedule, process it and trigger a new build.
-func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Platform, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Platform, compiler compiler.Engine, database database.Interface, cache cache.Service, metadata *internal.Metadata, queue queue.Service, scm scm.Service) error {
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(ctx, s.GetRepo().GetID())
 	if err != nil {
@@ -215,6 +216,7 @@ func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Pl
 		ctx,
 		config,
 		database,
+		cache,
 		scm,
 		compiler,
 		queue,

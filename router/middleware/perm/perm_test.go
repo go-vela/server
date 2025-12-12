@@ -14,6 +14,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache/models"
+	"github.com/go-vela/server/cache/redis"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
@@ -1610,6 +1612,222 @@ func TestPerm_MustWrite(t *testing.T) {
 	}
 }
 
+func TestPerm_MustWrite_InstallToken(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKeyHMAC:           "123abc",
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	tknCache, err := redis.NewTest("123abc")
+	if err != nil {
+		t.Errorf("unable to create test redis client: %v", err)
+	}
+
+	owner := new(api.User)
+	owner.SetID(1)
+	owner.SetName("owner")
+	owner.SetToken("owner_token")
+
+	_repo := new(api.Repo)
+	_repo.SetID(1)
+	_repo.SetOwner(owner)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+	_repo.SetTimeout(30)
+
+	installTokenWrite := &models.InstallToken{
+		Token:        "ghs_write_token",
+		Repositories: []string{"foo/bar"},
+		Permissions: map[string]string{
+			"contents": "write",
+		},
+		Expiration: time.Now().Add(time.Hour).Unix(),
+	}
+
+	err = tknCache.StoreInstallToken(t.Context(), installTokenWrite, _repo)
+	if err != nil {
+		t.Errorf("unable to store install token in redis: %v", err)
+	}
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+
+	defer func() {
+		_ = db.DeleteRepo(_context.TODO(), _repo)
+		_ = db.DeleteUser(_context.TODO(), owner)
+		db.Close()
+	}()
+
+	_, err = db.CreateUser(_context.TODO(), owner)
+	if err != nil {
+		t.Errorf("unable to create user in test database: %v", err)
+	}
+
+	_, err = db.CreateRepo(_context.TODO(), _repo)
+	if err != nil {
+		t.Errorf("unable to create repo in test database: %v", err)
+	}
+
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", "ghs_write_token"))
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup client
+	client, _ := github.NewTest(s.URL)
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { c.Set("cache", tknCache) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(MustWrite())
+	engine.GET("/test/:org/:repo", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustWrite returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustWrite_InstallTokenRead(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKeyHMAC:           "123abc",
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	tknCache, err := redis.NewTest("123abc")
+	if err != nil {
+		t.Errorf("unable to create test redis client: %v", err)
+	}
+
+	owner := new(api.User)
+	owner.SetID(1)
+	owner.SetName("owner")
+	owner.SetToken("owner_token")
+
+	_repo := new(api.Repo)
+	_repo.SetID(1)
+	_repo.SetOwner(owner)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+	_repo.SetTimeout(30)
+
+	installTokenRead := &models.InstallToken{
+		Token:        "ghs_read_token",
+		Repositories: []string{"foo/bar"},
+		Permissions: map[string]string{
+			"contents": "read",
+		},
+		Expiration: time.Now().Add(time.Hour).Unix(),
+	}
+
+	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, _repo)
+	if err != nil {
+		t.Errorf("unable to store install token in redis: %v", err)
+	}
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+
+	defer func() {
+		_ = db.DeleteRepo(_context.TODO(), _repo)
+		_ = db.DeleteUser(_context.TODO(), owner)
+		db.Close()
+	}()
+
+	_, err = db.CreateUser(_context.TODO(), owner)
+	if err != nil {
+		t.Errorf("unable to create user in test database: %v", err)
+	}
+
+	_, err = db.CreateRepo(_context.TODO(), _repo)
+	if err != nil {
+		t.Errorf("unable to create repo in test database: %v", err)
+	}
+
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", "ghs_read_token"))
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup client
+	client, _ := github.NewTest(s.URL)
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { c.Set("cache", tknCache) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(MustWrite())
+	engine.GET("/test/:org/:repo", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusUnauthorized {
+		t.Errorf("MustWrite returned %v, want %v", resp.Code, http.StatusUnauthorized)
+	}
+}
+
 func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
@@ -1988,6 +2206,114 @@ func TestPerm_MustRead(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(MustRead())
+	engine.GET("/test/:org/:repo", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustRead returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustRead_InstallTokenRead(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKeyHMAC:           "123abc",
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	tknCache, err := redis.NewTest("123abc")
+	if err != nil {
+		t.Errorf("unable to create test redis client: %v", err)
+	}
+
+	owner := new(api.User)
+	owner.SetID(1)
+	owner.SetName("owner")
+	owner.SetToken("owner_token")
+
+	_repo := new(api.Repo)
+	_repo.SetID(1)
+	_repo.SetOwner(owner)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+	_repo.SetTimeout(30)
+
+	installTokenRead := &models.InstallToken{
+		Token:        "ghs_read_token",
+		Repositories: []string{"foo/bar"},
+		Permissions: map[string]string{
+			"contents": "read",
+		},
+		Expiration: time.Now().Add(time.Hour).Unix(),
+	}
+
+	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, _repo)
+	if err != nil {
+		t.Errorf("unable to store install token in redis: %v", err)
+	}
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+
+	defer func() {
+		_ = db.DeleteRepo(_context.TODO(), _repo)
+		_ = db.DeleteUser(_context.TODO(), owner)
+		db.Close()
+	}()
+
+	_, err = db.CreateUser(_context.TODO(), owner)
+	if err != nil {
+		t.Errorf("unable to create user in test database: %v", err)
+	}
+
+	_, err = db.CreateRepo(_context.TODO(), _repo)
+	if err != nil {
+		t.Errorf("unable to create repo in test database: %v", err)
+	}
+
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", "ghs_read_token"))
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup client
+	client, _ := github.NewTest(s.URL)
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { c.Set("cache", tknCache) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(claims.Establish())
