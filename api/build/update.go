@@ -5,11 +5,13 @@ package build
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/types/yaml/yaml"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/auth"
@@ -172,6 +174,22 @@ func UpdateBuild(c *gin.Context) {
 		b.GetStatus() == constants.StatusCanceled ||
 		b.GetStatus() == constants.StatusKilled ||
 		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
+		// if repo has app installed, verify incoming token is not expired (older than 59 minutes)
+		if b.GetRepo().GetInstallID() != 0 && time.Now().Unix() > b.GetCreated()+3540 {
+			l.Infof("generating new installation token for status update for build %s/%d", r.GetFullName(), b.GetNumber())
+			gitConfig := yaml.Git{
+				Token: yaml.Token{
+					Repositories: []string{r.GetName()},
+				},
+			}
+
+			scmToken, err = scm.FromContext(c).GetNetrcPassword(ctx, database.FromContext(c), r, r.GetOwner(), gitConfig)
+			if err != nil {
+				l.Errorf("unable to generate new installation token for build %s: %v", entry, err)
+
+				return
+			}
+		}
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).Status(ctx, b, r.GetOrg(), r.GetName(), scmToken)
 		if err != nil {
