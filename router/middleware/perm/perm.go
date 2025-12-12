@@ -5,11 +5,15 @@ package perm
 import (
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -353,6 +357,15 @@ func MustAdmin() gin.HandlerFunc {
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
 
+		installTkn := retrieveInstallToken(c)
+		if installTkn != nil {
+			retErr := fmt.Errorf("cannot use installation token for 'admin' level activity")
+
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+
 		l.Debugf("verifying user %s has 'admin' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if u.GetAdmin() {
@@ -393,6 +406,20 @@ func MustWrite() gin.HandlerFunc {
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
+
+		tkn := retrieveInstallToken(c)
+		if tkn != nil {
+			valid := validInstallToken(r, tkn, []string{constants.PermissionWrite})
+			if !valid {
+				retErr := fmt.Errorf("installation token does not have 'write' permissions for repo %s", r.GetFullName())
+
+				util.HandleError(c, http.StatusUnauthorized, retErr)
+
+				return
+			}
+
+			return
+		}
 
 		l.Debugf("verifying user %s has 'write' permissions for repo %s", u.GetName(), r.GetFullName())
 
@@ -437,6 +464,20 @@ func MustRead() gin.HandlerFunc {
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
+
+		tkn := retrieveInstallToken(c)
+		if tkn != nil {
+			valid := validInstallToken(r, tkn, []string{constants.PermissionRead, constants.PermissionWrite})
+			if !valid {
+				retErr := fmt.Errorf("installation token does not have 'read' permissions for repo %s", r.GetFullName())
+
+				util.HandleError(c, http.StatusUnauthorized, retErr)
+
+				return
+			}
+
+			return
+		}
 
 		// check if the repo visibility field is set to public
 		if r.GetVisibility() == constants.VisibilityPublic {
@@ -494,4 +535,37 @@ func MustRead() gin.HandlerFunc {
 			return
 		}
 	}
+}
+
+// retrieveInstallToken gets the installation token from the context.
+func retrieveInstallToken(c *gin.Context) *models.InstallToken {
+	installToken, ok := c.Get("app-installation-token")
+	if !ok {
+		return nil
+	}
+
+	result, ok := installToken.(*models.InstallToken)
+	if !ok {
+		return nil
+	}
+
+	return result
+}
+
+// validInstallToken checks if the installation token has access to the repo with the required permissions.
+func validInstallToken(r *api.Repo, tkn *models.InstallToken, access []string) bool {
+	// reject expired tokens
+	if tkn.Expiration < time.Now().Unix() {
+		return false
+	}
+
+	if !slices.Contains(tkn.Repositories, r.GetFullName()) {
+		return false
+	}
+
+	if !slices.Contains(access, tkn.Permissions["contents"]) {
+		return false
+	}
+
+	return true
 }
