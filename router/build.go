@@ -13,7 +13,38 @@ import (
 	"github.com/go-vela/server/router/middleware/perm"
 )
 
-// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs.
+// BuildHandlers is a function that extends the provided base router group
+// with the API handlers for build functionality.
+//
+// POST   /api/v1/repos/:org/:repo/builds
+// GET    /api/v1/repos/:org/:repo/builds
+// POST   /api/v1/repos/:org/:repo/builds/:build
+// GET    /api/v1/repos/:org/:repo/builds/:build
+// PUT    /api/v1/repos/:org/:repo/builds/:build
+// DELETE /api/v1/repos/:org/:repo/builds/:build
+// POST   /api/v1/repos/:org/:repo/builds/:build/approve
+// DELETE /api/v1/repos/:org/:repo/builds/:build/cancel
+// GET    /api/v1/repos/:org/:repo/builds/:build/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/token
+// GET    /api/v1/repos/:org/:repo/builds/:build/executable
+// POST   /api/v1/repos/:org/:repo/builds/:build/services
+// GET    /api/v1/repos/:org/:repo/builds/:build/services
+// GET    /api/v1/repos/:org/:repo/builds/:build/services/:service
+// PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service
+// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service
+// POST   /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// POST   /api/v1/repos/:org/:repo/builds/:build/steps
+// GET    /api/v1/repos/:org/:repo/builds/:build/steps
+// GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step
+// PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step
+// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step
+// POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
+// PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs .
 func BuildHandlers(base *gin.RouterGroup) {
 	// Builds endpoints
 	builds := base.Group("/builds")
