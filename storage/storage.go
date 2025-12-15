@@ -57,5 +57,6 @@ func New(s *Setup) (Storage, error) {
 			return nil, fmt.Errorf("invalid storage driver provided: %s", s.Driver)
 		}
 	}
+
 	return nil, nil
 }
