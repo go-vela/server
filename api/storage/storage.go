@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-// swagger:operation POST /api/v1/storage/info storage StorageInfo
+// swagger:operation GET /api/v1/storage/info storage StorageInfo
 //
 // Get storage credentials
 //
@@ -35,9 +35,9 @@ import (
 // Info represents the API handler to
 // retrieve storage credentials as part of worker onboarding.
 func Info(c *gin.Context) {
+	l := c.MustGet("logger").(*logrus.Entry)
 	enable := c.MustGet("storage-enable").(bool)
 	if !enable {
-		l := c.MustGet("logger").(*logrus.Entry)
 		l.Info("storage is not enabled, sending storage disabled response")
 
 		e := c.MustGet("storage-enable").(bool)
@@ -49,8 +49,6 @@ func Info(c *gin.Context) {
 
 		return
 	}
-
-	l := c.MustGet("logger").(*logrus.Entry)
 
 	l.Info("requesting storage credentials with registration token")
 

@@ -14,7 +14,7 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-// swagger:operation PUT /api/v1/admin/storage/bucket admin CreateBucket
+// swagger:operation POST /api/v1/admin/storage/bucket admin CreateBucket
 //
 // Create a new bucket
 //

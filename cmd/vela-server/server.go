@@ -199,7 +199,6 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.Metadata(metadata),
 		middleware.TokenManager(tm),
 		middleware.Queue(queue),
-		middleware.Storage(st),
 		middleware.RequestVersion,
 		middleware.Secret(cmd.String("vela-secret")),
 		middleware.Secrets(secrets),
