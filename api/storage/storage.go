@@ -36,6 +36,7 @@ import (
 // retrieve storage credentials as part of worker onboarding.
 func Info(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
+
 	enable := c.MustGet("storage-enable").(bool)
 	if !enable {
 		l.Info("storage is not enabled, sending storage disabled response")

@@ -20,7 +20,6 @@ type (
 	}
 )
 
-
 // Empty returns true if the provided test report is empty.
 func (t *TestReport) Empty() bool {
 	// return true if every test report field is empty
