@@ -10,16 +10,17 @@ import (
 	"encoding/json"
 	"time"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache/models"
 )
 
 // StoreInstallToken computes an HMAC-SHA256 of the token and stores it in Redis with a TTL.
-func (c *Client) StoreInstallToken(ctx context.Context, t *models.InstallToken, repo *api.Repo) error {
+func (c *Client) StoreInstallToken(ctx context.Context, t *models.InstallToken, timeout int32) error {
 	meta := new(models.InstallToken)
+	meta.InstallID = t.InstallID
 	meta.Repositories = t.Repositories
 	meta.Permissions = t.Permissions
 	meta.Expiration = t.Expiration
+	meta.Timeout = timeout
 
 	metaBytes, err := json.Marshal(meta)
 	if err != nil {
@@ -27,7 +28,7 @@ func (c *Client) StoreInstallToken(ctx context.Context, t *models.InstallToken, 
 	}
 
 	// set TTL based on repo timeout
-	ttl := time.Minute * time.Duration(repo.GetTimeout())
+	ttl := time.Minute * time.Duration(timeout)
 
 	h := hmac.New(sha256.New, []byte(c.config.InstallTokenKey))
 

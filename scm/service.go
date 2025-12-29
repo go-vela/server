@@ -174,7 +174,7 @@ type Service interface {
 	FinishInstallation(context.Context, *http.Request, int64) (string, error)
 	// NewAppInstallationToken defines a function that
 	// creates a new installation token for the app integration.
-	NewAppInstallationToken(ctx context.Context, r *api.Repo, repos []string, permissions map[string]string) (*models.InstallToken, int64, error)
+	NewAppInstallationToken(ctx context.Context, installID int64, repos []string, permissions map[string]string) (*models.InstallToken, error)
 	// IsInstallationToken defines a function that determines if a token is an installation token.
 	IsInstallationToken(ctx context.Context, token string) bool
 

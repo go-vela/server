@@ -5,7 +5,6 @@ package build
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -19,9 +18,9 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/install_token builds GetInstallToken
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/install_token build GetInstallToken
 //
-// Get a Vela GitHub App install token
+// Get a fresh Vela GitHub App install token
 //
 // ---
 // produces:
@@ -42,18 +41,6 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
-// - in: query
-//   name: image
-//   description: Add image to token claims
-//   type: string
-// - in: query
-//   name: request
-//   description: Add request input to token claims
-//   type: string
-// - in: query
-//   name: commands
-//   description: Add commands input to token claims
-//   type: boolean
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -67,10 +54,6 @@ import (
 //       "$ref": "#/definitions/Error"
 //   '401':
 //     description: Unauthorized
-//     schema:
-//       "$ref": "#/definitions/Error"
-//   '404':
-//     description: Not found
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
@@ -116,21 +99,8 @@ func GetInstallToken(c *gin.Context) {
 		return
 	}
 
-	// if cached token is still valid for 5+ minutes, return it
-	if cachedToken.Expiration > time.Now().Add(5*time.Minute).Unix() {
-		l.Debugf("returning cached install token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
-
-		resp := new(types.Token)
-		resp.SetToken(cachedToken.Token)
-		resp.SetExpiration(cachedToken.Expiration)
-
-		c.JSON(http.StatusOK, resp)
-
-		return
-	}
-
 	// mint new token with same permissions and repositories
-	newToken, _, err := scm.FromContext(c).NewAppInstallationToken(ctx, b.GetRepo(), cachedToken.Repositories, cachedToken.Permissions)
+	newToken, err := scm.FromContext(c).NewAppInstallationToken(ctx, cachedToken.InstallID, cachedToken.Repositories, cachedToken.Permissions)
 	if err != nil {
 		retErr := fmt.Errorf("unable to generate new installation token: %w", err)
 
@@ -145,8 +115,8 @@ func GetInstallToken(c *gin.Context) {
 		l.Warnf("unable to evict installation token from cache: %v", err)
 	}
 
-	// store new token in cache
-	err = tknCache.StoreInstallToken(ctx, newToken, b.GetRepo())
+	// store new token in cache with timeout matching cached token
+	err = tknCache.StoreInstallToken(ctx, newToken, cachedToken.Timeout)
 	if err != nil {
 		retErr := fmt.Errorf("unable to store installation token in cache: %w", err)
 

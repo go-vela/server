@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache/models"
 )
 
@@ -15,21 +14,20 @@ func TestRedis_Pop(t *testing.T) {
 	// setup types
 	installToken := &models.InstallToken{
 		Token:        "test_token",
+		InstallID:    1,
 		Repositories: []string{"octocat/hello-world"},
 		Permissions: map[string]string{
 			"contents": "read",
 		},
+		Timeout: 30,
 	}
-
-	repo := new(api.Repo)
-	repo.SetTimeout(30)
 
 	_redis, err := NewTest("123abc")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
-	err = _redis.StoreInstallToken(t.Context(), installToken, repo)
+	err = _redis.StoreInstallToken(t.Context(), installToken, 30)
 	if err != nil {
 		t.Errorf("unable to store install token: %v", err)
 	}
