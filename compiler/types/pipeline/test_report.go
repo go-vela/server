@@ -20,28 +20,6 @@ type (
 	}
 )
 
-// Purge removes the test report configuration from the pipeline
-// if it does not match the provided ruledata. If both results
-// and attachments are provided, then an empty test report is returned.
-//func (t *TestReport) Purge(r *RuleData) (*TestReport, error) {
-//	// return an empty test report if both results and attachments are provided
-//	if len(t.Results) > 0 && len(t.Attachments) > 0 {
-//		return nil, fmt.Errorf("cannot have both results and attachments in the test report")
-//	}
-//
-//	// purge results if provided
-//	if len(t.Results) > 0 {
-//		t.Results = ""
-//	}
-//
-//	// purge attachments if provided
-//	if len(t.Attachments) > 0 {
-//		t.Attachments = ""
-//	}
-//
-//	// return the purged test report
-//	return t, nil
-//}
 
 // Empty returns true if the provided test report is empty.
 func (t *TestReport) Empty() bool {

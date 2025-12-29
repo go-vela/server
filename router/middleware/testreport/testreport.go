@@ -46,24 +46,6 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		// sParam := util.PathParameter(c, "testreport")
-		// if len(sParam) == 0 {
-		// 	retErr := fmt.Errorf("no testreport parameter provided")
-		// 	util.HandleError(c, http.StatusBadRequest, retErr)
-
-		// 	return
-		// }
-
-		// number, err := strconv.ParseInt(sParam, 10, 16)
-		// if err != nil {
-		// 	retErr := fmt.Errorf("malformed test report parameter provided: %s", sParam)
-		// 	util.HandleError(c, http.StatusBadRequest, retErr)
-
-		// 	return
-		// }
-
-		l.Debugf("reading test report")
-
 		tr, err := database.FromContext(c).GetTestReportForBuild(ctx, b)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read test report %s/%d: %w", r.GetFullName(), b.GetNumber(), err)

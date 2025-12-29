@@ -62,27 +62,6 @@ func (tr *TestReport) ToAPI() *api.TestReport {
 	report.SetBuildID(tr.BuildID.Int64)
 	report.SetCreatedAt(tr.CreatedAt.Int64)
 
-	// set Repo based on presence of repo data
-	//var tra *api.TestAttachment
-	//if r.Attachments.ID.Valid {
-	//	tra = r.Attachments.ToAPI()
-	//} else {
-	//	tra = new(api.TestAttachment)
-	//	tra.SetID(r.Attachments.ID.Int64)
-	//}
-	//
-	//report.SetReportAttachments(tra)
-	//// Convert attachments if available
-	//attachment := new(api.TestAttachment)
-	//attachment.SetID(r.Attachments.ID.Int64)
-	//attachment.SetTestReportID(report.GetID())
-	//attachment.SetFileName(r.Attachments.FileName.String)
-	//attachment.SetObjectPath(r.Attachments.ObjectPath.String)
-	//attachment.SetFileSize(r.Attachments.FileSize.Int64)
-	//attachment.SetFileType(r.Attachments.FileType.String)
-	//attachment.SetPresignedUrl(r.Attachments.PresignedUrl.String)
-	//attachment.SetCreated(r.Attachments.Created.Int64)
-
 	return report
 }
 
@@ -93,12 +72,6 @@ func (tr *TestReport) Validate() error {
 	if tr.BuildID.Int64 <= 0 {
 		return ErrEmptyReportBuildID
 	}
-
-	// Also validate any attachments
-	//r.Attachments.FileName = sql.NullString{String: util.Sanitize(r.Attachments.FileName.String), Valid: r.Attachments.FileName.Valid}
-	//r.Attachments.ObjectPath = sql.NullString{String: util.Sanitize(r.Attachments.ObjectPath.String), Valid: r.Attachments.ObjectPath.Valid}
-	//r.Attachments.FileType = sql.NullString{String: util.Sanitize(r.Attachments.FileType.String), Valid: r.Attachments.FileType.Valid}
-	//r.Attachments.PresignedUrl = sql.NullString{String: util.Sanitize(r.Attachments.PresignedUrl.String), Valid: r.Attachments.PresignedUrl.Valid}
 
 	return nil
 }
