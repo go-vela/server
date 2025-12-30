@@ -696,7 +696,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	l.Tracef("getting netrc password for %s/%s", r.GetOrg(), r.GetName())
 
 	// no GitHub App configured, use legacy oauth token
-	if c.AppsTransport == nil {
+	if c.AppClient == nil {
 		return u.GetToken(), 0, nil
 	}
 
@@ -706,6 +706,13 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	// providing no repos, nil, or empty slice will default the token permissions to the list
 	// of repos added to the installation
 	repos := g.Repositories
+
+	// enforce max number of repos allowed for token
+	//
+	// this prevents a large number of access checks for the repo owner
+	if len(repos) > constants.GitTokenRepoLimit {
+		return u.GetToken(), 0, fmt.Errorf("number of repositories specified (%d) exceeds the maximum allowed (%d)", len(repos), constants.GitTokenRepoLimit)
+	}
 
 	// ensure build repo is included in list
 	if !slices.Contains(repos, r.GetName()) {
@@ -746,10 +753,47 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		}
 	}
 
+	id := r.GetInstallID()
+
+	// if the source scm repo has an install ID but the Vela db record does not
+	// then use the source repo to create an installation token
+	if id == 0 {
+		// list all installations (a.k.a. orgs) where the GitHub App is installed
+		installations, _, err := c.AppClient.Apps.ListInstallations(ctx, &github.ListOptions{})
+		if err != nil {
+			l.Tracef("unable to list github app installations: %s", err.Error())
+
+			return u.GetToken(), 0, err
+		}
+
+		// iterate through the list of installations
+		for _, install := range installations {
+			// find the installation that matches the org for the repo
+			if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
+				if install.GetRepositorySelection() == constants.AppInstallRepositoriesSelectionSelected {
+					installationCanReadRepo, err := c.installationCanReadRepo(ctx, r, install)
+					if err != nil {
+						l.Tracef("unable to check if installation for org %s can read repo %s: %s", install.GetAccount().GetLogin(), r.GetFullName(), err.Error())
+
+						return u.GetToken(), 0, nil
+					}
+
+					if !installationCanReadRepo {
+						l.Tracef("installation for org %s exists but does not have access to repo %s", install.GetAccount().GetLogin(), r.GetFullName())
+
+						return u.GetToken(), 0, nil
+					}
+				}
+
+				id = install.GetID()
+			}
+		}
+	}
+
 	// the app might not be installed therefore we retain backwards compatibility via the user oauth token
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 	// the optional list of repos and permissions are driven by yaml
-	installToken, installID, err := c.NewAppInstallationToken(ctx, r, repos, permissions)
+	installToken, err := c.NewAppInstallationToken(ctx, id, repos, permissions)
 	if err != nil {
 		// return the legacy token along with no error for backwards compatibility
 		// todo: return an error based based on app installation requirements
@@ -762,17 +806,17 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
 
 		// (optional) sync the install ID with the repo
-		if db != nil && r.GetInstallID() != installID {
-			r.SetInstallID(installID)
+		if db != nil && r.GetInstallID() != id {
+			r.SetInstallID(id)
 
 			_, err = db.UpdateRepo(ctx, r)
 			if err != nil {
-				c.Logger.Tracef("unable to update repo with install ID %d: %v", installID, err)
+				c.Logger.Tracef("unable to update repo with install ID %d: %v", id, err)
 			}
 		}
 
 		if tknCache != nil {
-			err = tknCache.StoreInstallToken(ctx, installToken, r)
+			err = tknCache.StoreInstallToken(ctx, installToken, r.GetTimeout())
 			if err != nil {
 				l.Tracef("unable to store installation token in cache: %v", err)
 
@@ -796,16 +840,11 @@ func (c *Client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 	}).Tracef("syncing app installation for repo %s/%s", r.GetOrg(), r.GetName())
 
 	// no GitHub App configured, skip
-	if c.AppsTransport == nil {
+	if c.AppClient == nil {
 		return r, nil
 	}
 
-	client, err := c.newGithubAppClient()
-	if err != nil {
-		return r, err
-	}
-
-	installations, _, err := client.Apps.ListInstallations(ctx, &github.ListOptions{})
+	installations, _, err := c.AppClient.Apps.ListInstallations(ctx, &github.ListOptions{})
 	if err != nil {
 		return r, err
 	}

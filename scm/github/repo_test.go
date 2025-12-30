@@ -1793,7 +1793,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			client, _ := NewTest(s.URL)
 			if test.appsTransport {
-				client.AppsTransport = NewTestAppsTransport(s.URL)
+				client.AppClient = NewTestAppClient(s.URL)
 			}
 
 			got, gotExp, err := client.GetNetrcPassword(context.TODO(), nil, nil, test.repo, test.user, test.git)
@@ -1869,7 +1869,7 @@ func TestGithub_SyncRepoWithInstallation(t *testing.T) {
 		r.SetFullName(fmt.Sprintf("%s/%s", test.org, test.repo))
 
 		client, _ := NewTest(s.URL)
-		client.AppsTransport = NewTestAppsTransport(s.URL)
+		client.AppClient = NewTestAppClient(s.URL)
 
 		// run test
 		got, err := client.SyncRepoWithInstallation(context.TODO(), r)
