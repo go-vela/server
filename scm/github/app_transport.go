@@ -314,18 +314,27 @@ func WithSigner(signer Signer) AppsTransportOption {
 	}
 }
 
-// NewTestAppsTransport creates a new AppsTransport for testing purposes.
-func NewTestAppsTransport(baseURL string) *AppsTransport {
+// NewTestAppClient creates a new AppsTransport for testing purposes.
+func NewTestAppClient(baseURL string) *github.Client {
 	pk, _ := rsa.GenerateKey(rand.Reader, 2048)
 
-	return &AppsTransport{
-		BaseURL: baseURL,
-		Client:  &http.Client{Transport: http.DefaultTransport},
-		tr:      http.DefaultTransport,
-		signer: &RSASigner{
-			method: jwt.SigningMethodRS256,
-			key:    pk,
-		},
-		appID: 1,
+	client, err := github.NewClient(
+		&http.Client{
+			Transport: &AppsTransport{
+				BaseURL: baseURL,
+				Client:  &http.Client{Transport: http.DefaultTransport},
+				tr:      http.DefaultTransport,
+				signer: &RSASigner{
+					method: jwt.SigningMethodRS256,
+					key:    pk,
+				},
+				appID: 1,
+			},
+		}).
+		WithEnterpriseURLs(baseURL, baseURL)
+	if err != nil {
+		return nil
 	}
+
+	return client
 }

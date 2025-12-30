@@ -54,4 +54,7 @@ const (
 
 	// PipelineWarningsMaxSize defines the maximum size in characters for the pipeline warnings.
 	PipelineWarningsMaxSize = 5000
+
+	// GitTokenRepoLimit defines the maximum number of repositories that can be declared in a git token.
+	GitTokenRepoLimit = 10
 )

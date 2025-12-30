@@ -4,9 +4,6 @@ package github
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"net/http"
 	"net/http/httptrace"
 	"net/url"
 	"strings"
@@ -49,39 +46,16 @@ func (c *Client) newOAuthTokenClient(ctx context.Context, token string) *github.
 	return github
 }
 
-// newGithubAppClient returns the GitHub App client for authenticating as the GitHub App itself using the RoundTripper.
-func (c *Client) newGithubAppClient() (*github.Client, error) {
-	if c.AppsTransport == nil {
-		return nil, errors.New("unable to create github app client: no AppsTransport configured")
-	}
-
-	// create a github client based off the existing GitHub App configuration
-	client, err := github.NewClient(
-		&http.Client{
-			Transport: c.AppsTransport,
-		}).
-		WithEnterpriseURLs(c.config.API, c.config.API)
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
-}
-
 // NewAppInstallationToken returns the GitHub App installation token for a particular repo with granular permissions.
-func (c *Client) NewAppInstallationToken(ctx context.Context, r *api.Repo, repos []string, permissions map[string]string) (*models.InstallToken, int64, error) {
-	// create a github client based off the existing GitHub App configuration
-	client, err := c.newGithubAppClient()
-	if err != nil {
-		return nil, 0, err
-	}
+func (c *Client) NewAppInstallationToken(ctx context.Context, installID int64, repos []string, permissions map[string]string) (*models.InstallToken, error) {
+	var err error
 
 	ghPermissions := new(github.InstallationPermissions)
 
 	for resource, perm := range permissions {
 		ghPermissions, err = ApplyInstallationPermissions(resource, perm, ghPermissions)
 		if err != nil {
-			return nil, 0, err
+			return nil, err
 		}
 	}
 
@@ -90,54 +64,19 @@ func (c *Client) NewAppInstallationToken(ctx context.Context, r *api.Repo, repos
 		Permissions:  ghPermissions,
 	}
 
-	id := r.GetInstallID()
-
-	// if the source scm repo has an install ID but the Vela db record does not
-	// then use the source repo to create an installation token
-	if id == 0 {
-		// list all installations (a.k.a. orgs) where the GitHub App is installed
-		installations, _, err := client.Apps.ListInstallations(ctx, &github.ListOptions{})
-		if err != nil {
-			return nil, 0, err
-		}
-
-		// iterate through the list of installations
-		for _, install := range installations {
-			// find the installation that matches the org for the repo
-			if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
-				if install.GetRepositorySelection() == constants.AppInstallRepositoriesSelectionSelected {
-					installationCanReadRepo, err := c.installationCanReadRepo(ctx, r, install)
-					if err != nil {
-						return nil, 0, fmt.Errorf("installation for org %s exists but unable to check if it can read repo %s: %w", install.GetAccount().GetLogin(), r.GetFullName(), err)
-					}
-
-					if !installationCanReadRepo {
-						return nil, 0, fmt.Errorf("installation for org %s exists but does not have access to repo %s", install.GetAccount().GetLogin(), r.GetFullName())
-					}
-				}
-
-				id = install.GetID()
-			}
-		}
-	}
-
-	// failsafe in case the repo does not belong to an org where the GitHub App is installed
-	if id == 0 {
-		return nil, 0, errors.New("unable to find installation ID for repo")
-	}
-
 	// create installation token for the repo
-	t, _, err := client.Apps.CreateInstallationToken(ctx, id, opts)
+	t, _, err := c.AppClient.Apps.CreateInstallationToken(ctx, installID, opts)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	return &models.InstallToken{
 		Token:        t.GetToken(),
+		InstallID:    installID,
 		Repositories: repos,
 		Permissions:  permissions,
 		Expiration:   t.GetExpiresAt().Unix(),
-	}, id, nil
+	}, nil
 }
 
 func (c *Client) IsInstallationToken(ctx context.Context, token string) bool {
@@ -149,17 +88,12 @@ func (c *Client) installationCanReadRepo(ctx context.Context, r *api.Repo, insta
 	installationCanReadRepo := false
 
 	if installation.GetRepositorySelection() == constants.AppInstallRepositoriesSelectionSelected {
-		client, err := c.newGithubAppClient()
+		t, _, err := c.AppClient.Apps.CreateInstallationToken(ctx, installation.GetID(), &github.InstallationTokenOptions{})
 		if err != nil {
 			return false, err
 		}
 
-		t, _, err := client.Apps.CreateInstallationToken(ctx, installation.GetID(), &github.InstallationTokenOptions{})
-		if err != nil {
-			return false, err
-		}
-
-		client = c.newOAuthTokenClient(ctx, t.GetToken())
+		client := c.newOAuthTokenClient(ctx, t.GetToken())
 
 		repos, _, err := client.Apps.ListRepos(ctx, &github.ListOptions{})
 		if err != nil {

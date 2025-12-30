@@ -219,6 +219,13 @@ const (
 		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImY3ZWM0YWI3LWM5YTItNDQwZS1iZmIzLTgzYjY1OTk0NzllYSJ9.eyJidWlsZF9pZCI6MSwiYnVpbGRfbnVtYmVyIjoxLCJhY3RvciI6Ik9jdG9jYXQiLCJyZXBvIjoiT2N0b2NhdC90ZXN0IiwidG9rZW5fdHlwZSI6IklEUmVxdWVzdCIsImltYWdlIjoiYWxwaW5lOmxhdGVzdCIsImNvbW1hbmRzIjp0cnVlLCJyZXF1ZXN0Ijoid3JpdGUiLCJpc3MiOiJodHRwczovL3ZlbGEuY29tL19zZXJ2aWNlcy90b2tlbiIsInN1YiI6InJlcG86T2N0b2NhdC90ZXN0OnJlZjpyZWZzL2hlYWRzL21haW46ZXZlbnQ6cHVzaCIsImV4cCI6MTcxNDQ5NTgyMywiaWF0IjoxNzE0NDk1NTIzfQ.l7ulJ7g5iTWGrR_IOBC2borJj2yixRAMZpsZEeaMvUw"
 	}`
 
+	// BuildExecutableResp represents a JSON return for requesting a build executable.
+	BuildExecutableResp = `{
+    "id": 1
+    "build_id": 1,
+    "data": "eyAKICAgICJpZCI6ICJzdGVwX25hbWUiLAogICAgInZlcnNpb24iOiAiMSIsCiAgICAibWV0YWRhdGEiOnsKICAgICAgICAiY2xvbmUiOnRydWUsCiAgICAgICAgImVudmlyb25tZW50IjpbInN0ZXBzIiwic2VydmljZXMiLCJzZWNyZXRzIl19LAogICAgIndvcmtlciI6e30sCiAgICAic3RlcHMiOlsKICAgICAgICB7CiAgICAgICAgICAgICJpZCI6InN0ZXBfZ2l0aHViX29jdG9jYXRfMV9pbml0IiwKICAgICAgICAgICAgImRpcmVjdG9yeSI6Ii92ZWxhL3NyYy9naXRodWIuY29tL2dpdGh1Yi9vY3RvY2F0IiwKICAgICAgICAgICAgImVudmlyb25tZW50IjogeyJCVUlMRF9BVVRIT1IiOiJPY3RvY2F0In0KICAgICAgICB9CiAgICBdCn0KCg=="
+  }`
+
 	// InstallTokenResp represents a JSON return for an installation token.
 	//
 	//nolint:gosec // not a hardcoded credential
@@ -226,13 +233,6 @@ const (
   "token": "ghs_123",
   "expiration": "%d"
 }`
-
-	// BuildExecutableResp represents a JSON return for requesting a build executable.
-	BuildExecutableResp = `{
-    "id": 1
-    "build_id": 1,
-    "data": "eyAKICAgICJpZCI6ICJzdGVwX25hbWUiLAogICAgInZlcnNpb24iOiAiMSIsCiAgICAibWV0YWRhdGEiOnsKICAgICAgICAiY2xvbmUiOnRydWUsCiAgICAgICAgImVudmlyb25tZW50IjpbInN0ZXBzIiwic2VydmljZXMiLCJzZWNyZXRzIl19LAogICAgIndvcmtlciI6e30sCiAgICAic3RlcHMiOlsKICAgICAgICB7CiAgICAgICAgICAgICJpZCI6InN0ZXBfZ2l0aHViX29jdG9jYXRfMV9pbml0IiwKICAgICAgICAgICAgImRpcmVjdG9yeSI6Ii92ZWxhL3NyYy9naXRodWIuY29tL2dpdGh1Yi9vY3RvY2F0IiwKICAgICAgICAgICAgImVudmlyb25tZW50IjogeyJCVUlMRF9BVVRIT1IiOiJPY3RvY2F0In0KICAgICAgICB9CiAgICBdCn0KCg=="
-  }`
 
 	// CleanResourcesResp represents a string return for cleaning resources as an admin.
 	CleanResourcesResp = "42 builds cleaned. 42 services cleaned. 42 steps cleaned."

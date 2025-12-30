@@ -5,7 +5,6 @@ package redis
 import (
 	"testing"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache/models"
 )
 
@@ -19,9 +18,6 @@ func TestRedis_StoreInstall(t *testing.T) {
 			"contents": "read",
 		},
 	}
-
-	_repo := new(api.Repo)
-	_repo.SetTimeout(30)
 
 	// setup redis mock
 	_redis, err := NewTest("installKey")
@@ -44,7 +40,7 @@ func TestRedis_StoreInstall(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := test.redis.StoreInstallToken(t.Context(), test.token, _repo)
+		err := test.redis.StoreInstallToken(t.Context(), test.token, 30)
 
 		if test.failure {
 			if err == nil {

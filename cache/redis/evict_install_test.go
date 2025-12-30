@@ -47,7 +47,7 @@ func TestRedis_EvictInstall(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _redis.StoreInstallToken(t.Context(), test.token, _repo)
+		err := _redis.StoreInstallToken(t.Context(), test.token, 30)
 		if err != nil {
 			t.Errorf("unable to store install token in cache: %v", err)
 		}
