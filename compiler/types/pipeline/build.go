@@ -17,6 +17,7 @@ import (
 type Build struct {
 	ID          string             `json:"id,omitempty"          yaml:"id,omitempty"`
 	Token       string             `json:"token,omitempty"       yaml:"token,omitempty"`
+	TokenExp    int64              `json:"token_exp,omitempty"   yaml:"token_exp,omitempty"`
 	Version     string             `json:"version,omitempty"     yaml:"version,omitempty"`
 	Metadata    Metadata           `json:"metadata,omitempty"    yaml:"metadata,omitempty"`
 	Environment raw.StringSliceMap `json:"environment,omitempty" yaml:"environment,omitempty"`

@@ -49,14 +49,12 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	oauthClient, _ := NewTest(s.URL)
-
 	appsClient, err := NewTest(s.URL)
 	if err != nil {
 		t.Errorf("unable to create GitHub App client: %v", err)
 	}
 
-	appsClient.AppsTransport = NewTestAppsTransport("")
+	appsClient.AppClient = NewTestAppClient(s.URL)
 
 	// setup tests
 	tests := []struct {
@@ -95,20 +93,6 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 			},
 			want:    false,
 			wantErr: false,
-		},
-		{
-			name:   "no GitHub App client",
-			client: oauthClient,
-			repo:   accessibleRepo,
-			installation: &github.Installation{
-				ID: github.Ptr(int64(1)),
-				Account: &github.User{
-					Login: github.Ptr("github"),
-				},
-				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
-			},
-			want:    false,
-			wantErr: true,
 		},
 	}
 

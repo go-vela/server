@@ -24,6 +24,7 @@ func (c *Client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline
 
 	if c.netrc != nil {
 		pipeline.Token = *c.netrc
+		pipeline.TokenExp = c.netrcExp
 	}
 
 	build, err := pipeline.Purge(r)
@@ -49,6 +50,7 @@ func (c *Client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.
 
 	if c.netrc != nil {
 		pipeline.Token = *c.netrc
+		pipeline.TokenExp = c.netrcExp
 	}
 
 	build, err := pipeline.Purge(r)

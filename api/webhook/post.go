@@ -19,6 +19,7 @@ import (
 
 	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
@@ -421,6 +422,7 @@ func PostWebhook(c *gin.Context) {
 		c,
 		config,
 		database.FromContext(c),
+		cache.FromContext(c),
 		scm.FromContext(c),
 		compiler.FromContext(c),
 		queue.FromContext(c),

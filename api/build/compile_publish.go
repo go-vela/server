@@ -14,6 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/constants"
@@ -45,6 +46,7 @@ func CompileAndPublish(
 	ctx context.Context,
 	cfg CompileAndPublishConfig,
 	database database.Interface,
+	cache cache.Service,
 	scm scm.Service,
 	compiler compiler.Engine,
 	queue queue.Service,
@@ -237,6 +239,7 @@ func CompileAndPublish(
 			WithLabels(cfg.Labels).
 			WithSCM(scm).
 			WithDatabase(database).
+			WithCache(cache).
 			Compile(ctx, pipelineFile)
 		if err != nil {
 			// format the error message with extra information

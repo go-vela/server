@@ -29,6 +29,10 @@ func TestTypes_Token_Getters(t *testing.T) {
 		if test.token.GetToken() != test.want.GetToken() {
 			t.Errorf("GetToken is %v, want %v", test.token.GetToken(), test.want.GetToken())
 		}
+
+		if test.token.GetExpiration() != test.want.GetExpiration() {
+			t.Errorf("GetExpiration is %v, want %v", test.token.GetExpiration(), test.want.GetExpiration())
+		}
 	}
 }
 
@@ -54,9 +58,14 @@ func TestTypes_Token_Setters(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		test.token.SetToken(test.want.GetToken())
+		test.token.SetExpiration(test.want.GetExpiration())
 
 		if test.token.GetToken() != test.want.GetToken() {
 			t.Errorf("SetToken is %v, want %v", test.token.GetToken(), test.want.GetToken())
+		}
+
+		if test.token.GetExpiration() != test.want.GetExpiration() {
+			t.Errorf("SetExpiration is %v, want %v", test.token.GetExpiration(), test.want.GetExpiration())
 		}
 	}
 }
@@ -67,8 +76,10 @@ func TestToken_String(t *testing.T) {
 
 	want := fmt.Sprintf(`{
   Token: %s,
+  Expiration: %d
 }`,
 		l.GetToken(),
+		l.GetExpiration(),
 	)
 
 	// run test
@@ -85,6 +96,7 @@ func testToken() *Token {
 	l := new(Token)
 
 	l.SetToken("superSecretToken")
+	l.SetExpiration(1468275250)
 
 	return l
 }
