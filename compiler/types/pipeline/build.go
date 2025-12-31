@@ -165,6 +165,9 @@ func (b *Build) Sanitize(driver string) *Build {
 	return b
 }
 
+// Prepare sets up the pipeline for execution by populating
+// the container ID a directory values based on repo and build data.
+// It is used by the worker after deserializing the executable.
 func (p *Build) Prepare(org, name string, number int64, local bool) {
 	// check if the compiler is setup for a local pipeline
 	if local {
