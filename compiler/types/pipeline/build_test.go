@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/go-vela/server/constants"
 )
 
@@ -234,6 +236,189 @@ func TestPipeline_Build_Sanitize(t *testing.T) {
 
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("Sanitize is %v, want %v", got, test.want)
+		}
+	}
+}
+
+func TestPipeline_Build_Prepare(t *testing.T) {
+	tests := []struct {
+		input  *Build
+		org    string
+		repo   string
+		number int64
+		local  bool
+		want   *Build
+	}{
+		{
+			input: &Build{
+				ID: "",
+				Secrets: SecretSlice{
+					{
+						Name:   "foo",
+						Key:    "foo/bar/key",
+						Engine: "native",
+						Type:   "repo",
+					},
+				},
+				Stages: StageSlice{
+					{
+						Name: "foo",
+						Steps: ContainerSlice{
+							{
+								Name:        "bar",
+								ID:          "",
+								Directory:   "",
+								Environment: map[string]string{"VELA_WORKSPACE": "/vela/src"},
+							},
+						},
+					},
+				},
+			},
+			org:    "github",
+			repo:   "octocat",
+			number: 42,
+			local:  false,
+			want: &Build{
+				ID: "github_octocat_42",
+				Secrets: SecretSlice{
+					{
+						Name:   "foo",
+						Key:    "foo/bar/key",
+						Engine: "native",
+						Type:   "repo",
+					},
+				},
+				Stages: StageSlice{
+					{
+						Name: "foo",
+						Steps: ContainerSlice{
+							{
+								Name:        "bar",
+								ID:          "github_octocat_42_foo_bar",
+								Directory:   "/vela/src",
+								Environment: map[string]string{"VELA_WORKSPACE": "/vela/src"},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			input: &Build{
+				ID: "",
+				Steps: ContainerSlice{
+					{
+						Name:        "foo",
+						ID:          "",
+						Directory:   "",
+						Environment: map[string]string{"VELA_WORKSPACE": "/vela/src"},
+					},
+				},
+				Services: ContainerSlice{
+					{
+						Name: "bar",
+						ID:   "",
+					},
+				},
+				Secrets: SecretSlice{
+					{
+						Origin: &Container{
+							Name: "baz",
+							ID:   "",
+						},
+					},
+				},
+			},
+			org:    "github",
+			repo:   "octocat",
+			number: 42,
+			local:  false,
+			want: &Build{
+				ID: "github_octocat_42",
+				Steps: ContainerSlice{
+					{
+						ID:          "step_github_octocat_42_foo",
+						Name:        "foo",
+						Directory:   "/vela/src",
+						Environment: map[string]string{"VELA_WORKSPACE": "/vela/src"},
+					},
+				},
+				Services: ContainerSlice{
+					{
+						ID:   "service_github_octocat_42_bar",
+						Name: "bar",
+					},
+				},
+				Secrets: SecretSlice{
+					{
+						Origin: &Container{
+							ID:   "secret_github_octocat_42_baz",
+							Name: "baz",
+						},
+					},
+				},
+			},
+		},
+		{
+			input: &Build{
+				ID: "",
+				Steps: ContainerSlice{
+					{
+						Name:        "foo",
+						ID:          "",
+						Directory:   "",
+						Environment: map[string]string{"VELA_WORKSPACE": "/vela/src"},
+					},
+				},
+				Services: ContainerSlice{
+					{
+						Name: "bar",
+						ID:   "",
+					},
+				},
+				Secrets: SecretSlice{
+					{
+						Origin: &Container{
+							Name: "baz",
+							ID:   "",
+						},
+					},
+				},
+			},
+			local: true,
+			want: &Build{
+				ID: "localOrg_localRepo_1",
+				Steps: ContainerSlice{
+					{
+						ID:          "step_localOrg_localRepo_1_foo",
+						Name:        "foo",
+						Directory:   "/vela/src",
+						Environment: map[string]string{"VELA_WORKSPACE": "/vela/src"},
+					},
+				},
+				Services: ContainerSlice{
+					{
+						ID:   "service_localOrg_localRepo_1_bar",
+						Name: "bar",
+					},
+				},
+				Secrets: SecretSlice{
+					{
+						Origin: &Container{
+							ID:   "secret_localOrg_localRepo_1_baz",
+							Name: "baz",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		test.input.Prepare(test.org, test.repo, test.number, test.local)
+
+		if diff := cmp.Diff(test.want, test.input); diff != "" {
+			t.Errorf("Prepare() mismatch (-want +got):\n%s", diff)
 		}
 	}
 }

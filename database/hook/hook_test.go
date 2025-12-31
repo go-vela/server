@@ -167,7 +167,7 @@ func testSqlite(t *testing.T) *Engine {
 // sqlitePopulateTables is a helper function to populate tables for testing.
 func sqlitePopulateTables(t *testing.T, e *Engine, hooks []*api.Hook, users []*api.User, repos []*api.Repo, builds []*api.Build) {
 	for _, _hook := range hooks {
-		_, err := e.CreateHook(context.TODO(), _hook)
+		err := createTestHook(context.TODO(), e, _hook)
 		if err != nil {
 			t.Errorf("unable to create test hook for sqlite: %v", err)
 		}

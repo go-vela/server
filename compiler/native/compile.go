@@ -566,7 +566,7 @@ func (c *Client) modifyConfig(build *yaml.Build, apiBuild *api.Build, repo *api.
 
 	modReq := &ModifyRequest{
 		Pipeline: string(data),
-		Build:    apiBuild.GetNumber(),
+		Build:    repo.GetCounter() + 1, // this is an assumption
 		Repo:     repo.GetName(),
 		Org:      repo.GetOrg(),
 		User:     apiBuild.GetAuthor(),

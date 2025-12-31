@@ -6,6 +6,7 @@ import (
 	"context"
 	"os"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -199,10 +200,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos for build related functions
 	for _, repo := range resources.Repos {
-		_, err := db.CreateRepo(context.TODO(), repo)
-		if err != nil {
-			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
-		}
+		createIntegrationRepo(t, db, repo)
 	}
 
 	buildOne := new(api.QueueBuild)
@@ -690,10 +688,7 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos for deployment related functions
 	for _, repo := range resources.Repos {
-		_, err := db.CreateRepo(context.TODO(), repo)
-		if err != nil {
-			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
-		}
+		createIntegrationRepo(t, db, repo)
 	}
 
 	// create the builds for deployment related functions
@@ -873,10 +868,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos for hook related functions
 	for _, repo := range resources.Repos {
-		_, err := db.CreateRepo(context.TODO(), repo)
-		if err != nil {
-			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
-		}
+		createIntegrationRepo(t, db, repo)
 	}
 
 	// create the builds for hook related functions
@@ -945,20 +937,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 
 	methods["ListHooksForRepo"] = true
 
-	// lookup the last build by repo
-	got, err := db.LastHookForRepo(context.TODO(), resources.Repos[0])
-	if err != nil {
-		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
-	}
-
-	if diff := cmp.Diff(resources.Hooks[2], got); diff != "" {
-		t.Errorf("LastHookForRepo() mismatch (-want +got):\n%s", diff)
-	}
-
-	methods["LastHookForRepo"] = true
-
 	// lookup a hook with matching webhook_id
-	got, err = db.GetHookByWebhookID(context.TODO(), resources.Hooks[2].GetWebhookID())
+	got, err := db.GetHookByWebhookID(context.TODO(), resources.Hooks[2].GetWebhookID())
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -1332,9 +1312,21 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos
 	for _, repo := range resources.Repos {
-		_, err := db.CreateRepo(context.TODO(), repo)
+		createIntegrationRepo(t, db, repo)
+	}
+
+	// create builds and hooks for counters
+	for _, build := range resources.Builds {
+		_, err := db.CreateBuild(context.TODO(), build)
 		if err != nil {
-			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+			t.Errorf("unable to create build %d: %v", build.GetID(), err)
+		}
+	}
+
+	for _, hook := range resources.Hooks {
+		_, err := db.CreateHook(context.TODO(), hook)
+		if err != nil {
+			t.Errorf("unable to create hook %d: %v", hook.GetID(), err)
 		}
 	}
 
@@ -1445,6 +1437,20 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 
 	methods["DeletePipeline"] = true
 
+	for _, build := range resources.Builds {
+		err = db.DeleteBuild(context.TODO(), build)
+		if err != nil {
+			t.Errorf("unable to delete build %d: %v", build.GetID(), err)
+		}
+	}
+
+	for _, hook := range resources.Hooks {
+		err = db.DeleteHook(context.TODO(), hook)
+		if err != nil {
+			t.Errorf("unable to delete hook %d: %v", hook.GetID(), err)
+		}
+	}
+
 	// delete the repos
 	for _, repo := range resources.Repos {
 		err = db.DeleteRepo(context.TODO(), repo)
@@ -1497,13 +1503,25 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos
 	for _, repo := range resources.Repos {
-		_, err := db.CreateRepo(context.TODO(), repo)
-		if err != nil {
-			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
-		}
+		createIntegrationRepo(t, db, repo)
 	}
 
 	methods["CreateRepo"] = true
+
+	// create builds and hooks for counters
+	for _, build := range resources.Builds {
+		_, err := db.CreateBuild(context.TODO(), build)
+		if err != nil {
+			t.Errorf("unable to create build %d: %v", build.GetID(), err)
+		}
+	}
+
+	for _, hook := range resources.Hooks {
+		_, err := db.CreateHook(context.TODO(), hook)
+		if err != nil {
+			t.Errorf("unable to create hook %d: %v", hook.GetID(), err)
+		}
+	}
 
 	// count the repos
 	count, err := db.CountRepos(context.TODO())
@@ -1547,6 +1565,10 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("unable to list repos: %v", err)
 	}
 
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].GetID() < list[j].GetID()
+	})
+
 	if diff := cmp.Diff(resources.Repos, list); diff != "" {
 		t.Errorf("ListRepos() mismatch (-want +got):\n%s", diff)
 	}
@@ -1557,6 +1579,10 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get repos in list: %v", err)
 	}
+
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].GetID() < list[j].GetID()
+	})
 
 	if diff := cmp.Diff(resources.Repos, list, cmpopts.IgnoreFields(api.Repo{}, "Owner", "Hash")); diff != "" {
 		t.Errorf("GetReposInList() mismatch (-want +got):\n%s", diff)
@@ -1625,6 +1651,20 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	methods["UpdateRepo"] = true
 	methods["GetRepo"] = true
 
+	for _, build := range resources.Builds {
+		err = db.DeleteBuild(context.TODO(), build)
+		if err != nil {
+			t.Errorf("unable to delete build %d: %v", build.GetID(), err)
+		}
+	}
+
+	for _, hook := range resources.Hooks {
+		err = db.DeleteHook(context.TODO(), hook)
+		if err != nil {
+			t.Errorf("unable to delete hook %d: %v", hook.GetID(), err)
+		}
+	}
+
 	// delete the repos
 	for _, repo := range resources.Repos {
 		err = db.DeleteRepo(context.TODO(), repo)
@@ -1679,9 +1719,21 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos
 	for _, repo := range resources.Repos {
-		_, err := db.CreateRepo(context.TODO(), repo)
+		createIntegrationRepo(t, db, repo)
+	}
+
+	// create builds and hooks for counters
+	for _, build := range resources.Builds {
+		_, err := db.CreateBuild(context.TODO(), build)
 		if err != nil {
-			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+			t.Errorf("unable to create build %d: %v", build.GetID(), err)
+		}
+	}
+
+	for _, hook := range resources.Hooks {
+		_, err := db.CreateHook(context.TODO(), hook)
+		if err != nil {
+			t.Errorf("unable to create hook %d: %v", hook.GetID(), err)
 		}
 	}
 
@@ -2768,6 +2820,7 @@ func newResources() *Resources {
 	repoOne.SetBuildLimit(10)
 	repoOne.SetTimeout(30)
 	repoOne.SetCounter(0)
+	repoOne.SetHookCounter(0)
 	repoOne.SetVisibility("public")
 	repoOne.SetPrivate(false)
 	repoOne.SetTrusted(false)
@@ -2794,6 +2847,7 @@ func newResources() *Resources {
 	repoTwo.SetBuildLimit(10)
 	repoTwo.SetTimeout(30)
 	repoTwo.SetCounter(0)
+	repoTwo.SetHookCounter(0)
 	repoTwo.SetVisibility("public")
 	repoTwo.SetPrivate(false)
 	repoTwo.SetTrusted(false)
@@ -3302,6 +3356,19 @@ func newResources() *Resources {
 		Steps:       []*api.Step{stepOne, stepTwo},
 		Users:       []*api.User{userOne, userTwo},
 		Workers:     []*api.Worker{workerOne, workerTwo},
+	}
+}
+
+func createIntegrationRepo(t *testing.T, db Interface, repo *api.Repo) {
+	zero := int64(0)
+
+	clone := *repo
+	clone.Counter = &zero
+	clone.HookCounter = &zero
+
+	_, err := db.CreateRepo(context.TODO(), &clone)
+	if err != nil {
+		t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
 	}
 }
 

@@ -75,22 +75,22 @@ func TestBuild_Engine_CleanBuilds(t *testing.T) {
 
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)
+	err := createTestBuild(t.Context(), _sqlite, _buildOne)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateBuild(context.TODO(), _buildTwo)
+	err = createTestBuild(t.Context(), _sqlite, _buildTwo)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateBuild(context.TODO(), _buildThree)
+	err = createTestBuild(t.Context(), _sqlite, _buildThree)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateBuild(context.TODO(), _buildFour)
+	err = createTestBuild(t.Context(), _sqlite, _buildFour)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
