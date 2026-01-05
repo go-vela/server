@@ -42,6 +42,9 @@ type TestAttachmentInterface interface {
 	// ListTestAttachments returns a list of all test attachments.
 	ListTestAttachments(context.Context) ([]*api.TestAttachment, error)
 
+	// ListTestAttachmentsByBuildID returns a list of test attachments by build ID.
+	ListTestAttachmentsByBuildID(context.Context, int64) ([]*api.TestAttachment, error)
+
 	// UpdateTestAttachment updates a test attachment by ID.
 	UpdateTestAttachment(context.Context, *api.TestAttachment) (*api.TestAttachment, error)
 }
