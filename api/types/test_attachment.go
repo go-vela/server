@@ -4,6 +4,9 @@ package types
 
 import "fmt"
 
+// TestAttachment is the API representation of a test attachment.
+//
+// swagger:model TestAttachment
 type TestAttachment struct {
 	ID           *int64  `json:"id,omitempty"`
 	TestReportID *int64  `json:"test_report_id,omitempty"`
