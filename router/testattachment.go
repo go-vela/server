@@ -14,7 +14,7 @@ import (
 //
 // GET    /api/v1/repos/:org/:repo/builds/:build/reports/testattachment
 // GET    /api/v1/repos/:org/:repo/builds/:build/reports/testattachment/:attachment
-// PUT    /api/v1/repos/:org/:repo/builds/:build/reports/testattachment
+// PUT    /api/v1/repos/:org/:repo/builds/:build/reports/testattachment .
 func TestAttachmentHandlers(base *gin.RouterGroup) {
 	// test attachment endpoints
 	_testattachment := base.Group("/reports/testattachment")

@@ -24,12 +24,12 @@ func (e *Engine) ListTestAttachmentsByBuildID(ctx context.Context, buildID int64
 	var attachments []*api.TestAttachment
 
 	// send query to the database and store result in variable
-	// join with testreports table since testattachments references testreports via test_report_id
+	// join with test_reports table since testattachments references test_reports via test_report_id
 	err := e.client.
 		WithContext(ctx).
 		Table(constants.TableTestAttachment).
-		Joins("JOIN testreports ON testattachments.test_report_id = testreports.id").
-		Where("testreports.build_id = ?", buildID).
+		Joins("JOIN test_reports ON testattachments.test_report_id = test_reports.id").
+		Where("test_reports.build_id = ?", buildID).
 		Order("testattachments.created_at DESC").
 		Find(&t).
 		Error

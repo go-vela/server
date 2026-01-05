@@ -34,10 +34,30 @@ func TestTestAttachment_Engine_ListTestAttachmentsByBuildID(t *testing.T) {
 
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	// create SQLite tables for relationship testing
-	err := _sqlite.client.AutoMigrate(&types.TestReport{}, &types.TestAttachment{})
+	// create SQLite tables for relationship testing with correct table names
+	err := _sqlite.client.Exec(`
+		CREATE TABLE IF NOT EXISTS test_reports (
+			id INTEGER PRIMARY KEY,
+			build_id INTEGER,
+			created_at INTEGER
+		)`).Error
 	if err != nil {
-		t.Errorf("unable to create tables for sqlite: %v", err)
+		t.Errorf("unable to create test_reports table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Exec(`
+		CREATE TABLE IF NOT EXISTS testattachments (
+			id INTEGER PRIMARY KEY,
+			test_report_id INTEGER,
+			file_name TEXT,
+			object_path TEXT,
+			file_size INTEGER,
+			file_type TEXT,
+			presigned_url TEXT,
+			created_at INTEGER
+		)`).Error
+	if err != nil {
+		t.Errorf("unable to create testattachments table for sqlite: %v", err)
 	}
 
 	// create the test report in sqlite
