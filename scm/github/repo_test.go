@@ -692,7 +692,6 @@ func TestGithub_Enable(t *testing.T) {
 	wantHook.SetWebhookID(1)
 	wantHook.SetSourceID("bar-initialize")
 	wantHook.SetCreated(1315329987)
-	wantHook.SetNumber(1)
 	wantHook.SetEvent("initialize")
 	wantHook.SetStatus("success")
 
@@ -705,7 +704,7 @@ func TestGithub_Enable(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, _, err := client.Enable(context.TODO(), u, r, new(api.Hook))
+	got, _, err := client.Enable(context.TODO(), u, r)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)

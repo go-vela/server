@@ -261,8 +261,6 @@ func CreateRepo(c *gin.Context) {
 
 	// err being nil means we have a record of this repo (dbRepo)
 	if err == nil {
-		h, _ = database.FromContext(c).LastHookForRepo(ctx, dbRepo)
-
 		// make sure our record of the repo allowed events matches what we send to SCM
 		// what the dbRepo has should override default events on enable
 		r.SetAllowEvents(dbRepo.GetAllowEvents())
@@ -271,7 +269,7 @@ func CreateRepo(c *gin.Context) {
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to create the webhook
-		h, _, err = scm.FromContext(c).Enable(ctx, u, r, h)
+		h, _, err = scm.FromContext(c).Enable(ctx, u, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
