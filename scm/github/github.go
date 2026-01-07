@@ -9,6 +9,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
@@ -67,11 +68,11 @@ type config struct {
 }
 
 type Client struct {
-	config        *config
-	OAuth         *oauth2.Config
-	AuthReq       *github.AuthorizationRequest
-	Tracing       *tracing.Client
-	AppsTransport *AppsTransport
+	config    *config
+	OAuth     *oauth2.Config
+	AuthReq   *github.AuthorizationRequest
+	Tracing   *tracing.Client
+	AppClient *github.Client
 
 	settings.SCM
 
@@ -171,7 +172,18 @@ func New(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 			return nil, fmt.Errorf("failed to parse GitHub App RSA private key: %w", err)
 		}
 
-		c.AppsTransport = c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey)
+		// create a github client based off the existing GitHub App configuration
+		c.AppClient = github.NewClient(
+			&http.Client{
+				Transport: c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey),
+			})
+
+		if c.config.API != defaultAPI {
+			c.AppClient, err = c.AppClient.WithEnterpriseURLs(c.config.API, c.config.API)
+			if err != nil {
+				return nil, err
+			}
+		}
 
 		err = c.ValidateGitHubApp(ctx)
 		if err != nil {
@@ -184,12 +196,7 @@ func New(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 
 // ValidateGitHubApp ensures the GitHub App configuration is valid.
 func (c *Client) ValidateGitHubApp(ctx context.Context) error {
-	client, err := c.newGithubAppClient()
-	if err != nil {
-		return fmt.Errorf("error creating github app client: %w", err)
-	}
-
-	app, _, err := client.Apps.Get(ctx, "")
+	app, _, err := c.AppClient.Apps.Get(ctx, "")
 	if err != nil {
 		return fmt.Errorf("error getting github app: %w", err)
 	}

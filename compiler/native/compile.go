@@ -19,7 +19,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 )
 
@@ -49,12 +49,13 @@ func (c *Client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 	// netrc can be provided directly using WithNetrc for situations like local exec
 	if c.netrc == nil && c.scm != nil {
 		// get the netrc password from the scm
-		netrc, err := c.scm.GetNetrcPassword(ctx, c.db, c.repo, c.user, p.Git)
+		netrc, exp, err := c.scm.GetNetrcPassword(ctx, c.db, c.cache, c.repo, c.user, p.Git)
 		if err != nil {
 			return nil, nil, err
 		}
 
 		c.WithNetrc(netrc)
+		c.netrcExp = exp
 	}
 
 	// create the API pipeline object from the yaml configuration
@@ -565,7 +566,7 @@ func (c *Client) modifyConfig(build *yaml.Build, apiBuild *api.Build, repo *api.
 
 	modReq := &ModifyRequest{
 		Pipeline: string(data),
-		Build:    apiBuild.GetNumber(),
+		Build:    repo.GetCounter() + 1, // this is an assumption
 		Repo:     repo.GetName(),
 		Org:      repo.GetOrg(),
 		User:     apiBuild.GetAuthor(),

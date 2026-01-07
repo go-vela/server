@@ -15,7 +15,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 )
 
@@ -605,83 +605,6 @@ func TestNative_Parse_Stages(t *testing.T) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Parse is %v, want %v", got, want)
-	}
-}
-
-func TestNative_Parse_StagesLegacyMergeAnchor(t *testing.T) {
-	// setup types
-	client, _ := FromCLICommand(context.Background(), new(cli.Command))
-	want := &yaml.Build{
-		Version: "legacy",
-		Metadata: yaml.Metadata{
-			Environment: []string{"steps", "services", "secrets"},
-		},
-		Environment: raw.StringSliceMap{},
-		Stages: yaml.StageSlice{
-			&yaml.Stage{
-				Name:  "install",
-				Needs: raw.StringSlice{"clone"},
-				Steps: yaml.StepSlice{
-					&yaml.Step{
-						Commands: []string{"./gradlew downloadDependencies"},
-						Environment: map[string]string{
-							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
-							"GRADLE_USER_HOME": ".gradle",
-						},
-						Image: "openjdk:latest",
-						Name:  "install",
-						Pull:  "always",
-					},
-				},
-			},
-			&yaml.Stage{
-				Name:  "test",
-				Needs: []string{"install", "clone"},
-				Steps: yaml.StepSlice{
-					&yaml.Step{
-						Commands: []string{"./gradlew check"},
-						Environment: map[string]string{
-							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
-							"GRADLE_USER_HOME": ".gradle",
-						},
-						Image: "openjdk:latest",
-						Name:  "test",
-						Pull:  "always",
-					},
-				},
-			},
-			&yaml.Stage{
-				Name:  "build",
-				Needs: []string{"install", "clone"},
-				Steps: yaml.StepSlice{
-					&yaml.Step{
-						Commands: []string{"./gradlew build"},
-						Environment: map[string]string{
-							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
-							"GRADLE_USER_HOME": ".gradle",
-						},
-						Image: "openjdk:latest",
-						Name:  "build",
-						Pull:  "always",
-					},
-				},
-			},
-		},
-	}
-
-	// run test
-	b, err := os.ReadFile("testdata/stages_merged.yml")
-	if err != nil {
-		t.Errorf("Reading file returned err: %v", err)
-	}
-
-	got, _, _, err := client.Parse(b, "", new(yaml.Template))
-	if err != nil {
-		t.Errorf("Parse returned err: %v", err)
-	}
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("Parse() mismatch (-want +got):\n%s", diff)
 	}
 }
 

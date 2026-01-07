@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/router/middleware/auth"
 )
 
 const (
@@ -223,6 +225,14 @@ const (
     "build_id": 1,
     "data": "eyAKICAgICJpZCI6ICJzdGVwX25hbWUiLAogICAgInZlcnNpb24iOiAiMSIsCiAgICAibWV0YWRhdGEiOnsKICAgICAgICAiY2xvbmUiOnRydWUsCiAgICAgICAgImVudmlyb25tZW50IjpbInN0ZXBzIiwic2VydmljZXMiLCJzZWNyZXRzIl19LAogICAgIndvcmtlciI6e30sCiAgICAic3RlcHMiOlsKICAgICAgICB7CiAgICAgICAgICAgICJpZCI6InN0ZXBfZ2l0aHViX29jdG9jYXRfMV9pbml0IiwKICAgICAgICAgICAgImRpcmVjdG9yeSI6Ii92ZWxhL3NyYy9naXRodWIuY29tL2dpdGh1Yi9vY3RvY2F0IiwKICAgICAgICAgICAgImVudmlyb25tZW50IjogeyJCVUlMRF9BVVRIT1IiOiJPY3RvY2F0In0KICAgICAgICB9CiAgICBdCn0KCg=="
   }`
+
+	// InstallTokenResp represents a JSON return for an installation token.
+	//
+	//nolint:gosec // not a hardcoded credential
+	InstallTokenResp = `{
+  "token": "ghs_123",
+  "expiration": "%d"
+}`
 
 	// CleanResourcesResp represents a string return for cleaning resources as an admin.
 	CleanResourcesResp = "42 builds cleaned. 42 services cleaned. 42 steps cleaned."
@@ -525,4 +535,40 @@ func cleanResoures(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, CleanResourcesResp)
+}
+
+// getInstallToken returns mock JSON for a http GET.
+//
+// pass empty build or scm token to get a http 401 response.
+func getInstallToken(c *gin.Context) {
+	buildToken, err := auth.RetrieveAccessToken(c.Request)
+	if err != nil || buildToken == "" {
+		errMsg := "unable to retrieve access token from request"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &errMsg})
+
+		return
+	}
+
+	scmToken := auth.RetrieveTokenHeader(c.Request)
+	if scmToken == "" {
+		errMsg := "unable to retrieve scm token from request"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &errMsg})
+
+		return
+	}
+
+	var body api.Token
+
+	data := []byte(
+		fmt.Sprintf(
+			InstallTokenResp,
+			time.Now().Add(1*time.Hour).Unix(),
+		),
+	)
+
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
 }

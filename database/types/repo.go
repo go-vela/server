@@ -63,6 +63,7 @@ type (
 		BuildLimit       sql.NullInt32   `sql:"build_limit"`
 		Timeout          sql.NullInt32   `sql:"timeout"`
 		Counter          sql.NullInt64   `sql:"counter"`
+		HookCounter      sql.NullInt64   `sql:"hook_counter"`
 		Visibility       sql.NullString  `sql:"visibility"`
 		Private          sql.NullBool    `sql:"private"`
 		Trusted          sql.NullBool    `sql:"trusted"`
@@ -284,6 +285,7 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetBuildLimit(r.BuildLimit.Int32)
 	repo.SetTimeout(r.Timeout.Int32)
 	repo.SetCounter(r.Counter.Int64)
+	repo.SetHookCounter(r.HookCounter.Int64)
 	repo.SetVisibility(r.Visibility.String)
 	repo.SetPrivate(r.Private.Bool)
 	repo.SetTrusted(r.Trusted.Bool)
@@ -380,6 +382,7 @@ func RepoFromAPI(r *api.Repo) *Repo {
 		BuildLimit:       sql.NullInt32{Int32: r.GetBuildLimit(), Valid: true},
 		Timeout:          sql.NullInt32{Int32: r.GetTimeout(), Valid: true},
 		Counter:          sql.NullInt64{Int64: r.GetCounter(), Valid: true},
+		HookCounter:      sql.NullInt64{Int64: r.GetHookCounter(), Valid: true},
 		Visibility:       sql.NullString{String: r.GetVisibility(), Valid: true},
 		Private:          sql.NullBool{Bool: r.GetPrivate(), Valid: true},
 		Trusted:          sql.NullBool{Bool: r.GetTrusted(), Valid: true},

@@ -20,7 +20,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal"
 )
@@ -46,21 +46,21 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 		},
 	}
 
-	initEnv := environment(nil, m, nil, nil, nil)
+	initEnv := environment(nil, m, nil, nil, nil, 0)
 	initEnv["HELLO"] = "Hello, Global Environment"
 
-	stageEnvInstall := environment(nil, m, nil, nil, nil)
+	stageEnvInstall := environment(nil, m, nil, nil, nil, 0)
 	stageEnvInstall["HELLO"] = "Hello, Global Environment"
 	stageEnvInstall["GRADLE_USER_HOME"] = ".gradle"
 
-	stageEnvTest := environment(nil, m, nil, nil, nil)
+	stageEnvTest := environment(nil, m, nil, nil, nil, 0)
 	stageEnvTest["HELLO"] = "Hello, Global Environment"
 	stageEnvTest["GRADLE_USER_HOME"] = "willBeOverwrittenInStep"
 
-	cloneEnv := environment(nil, m, nil, nil, nil)
+	cloneEnv := environment(nil, m, nil, nil, nil, 0)
 	cloneEnv["HELLO"] = "Hello, Global Environment"
 
-	installEnv := environment(nil, m, nil, nil, nil)
+	installEnv := environment(nil, m, nil, nil, nil, 0)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
 	installEnv["HOME"] = constants.DefaultHomeDir
@@ -68,7 +68,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
 	installEnv["HELLO"] = "Hello, Global Environment"
 
-	testEnv := environment(nil, m, nil, nil, nil)
+	testEnv := environment(nil, m, nil, nil, nil, 0)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
 	testEnv["HOME"] = constants.DefaultHomeDir
@@ -76,7 +76,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew check"})
 	testEnv["HELLO"] = "Hello, Global Environment"
 
-	buildEnv := environment(nil, m, nil, nil, nil)
+	buildEnv := environment(nil, m, nil, nil, nil, 0)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HOME"] = constants.DefaultHomeDir
@@ -84,7 +84,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build"})
 	buildEnv["HELLO"] = "Hello, Global Environment"
 
-	dockerEnv := environment(nil, m, nil, nil, nil)
+	dockerEnv := environment(nil, m, nil, nil, nil, 0)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
@@ -92,7 +92,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 
 	want := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -105,8 +105,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_init_init",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: initEnv,
 						Image:       "#init",
 						Name:        "init",
@@ -120,8 +120,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_clone_clone",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: cloneEnv,
 						Image:       defaultCloneImage,
 						Name:        "clone",
@@ -136,9 +136,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Environment: stageEnvInstall,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_install_install",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: installEnv,
 						Image:       "openjdk:latest",
@@ -154,9 +154,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Environment: stageEnvTest,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_test_test",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: testEnv,
 						Image:       "openjdk:latest",
@@ -172,9 +172,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_build_build",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: buildEnv,
 						Image:       "openjdk:latest",
@@ -190,8 +190,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_publish_publish",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Image:       "plugins/docker:18.09",
 						Environment: dockerEnv,
 						Name:        "publish",
@@ -465,13 +465,13 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 		},
 	}
 
-	initEnv := environment(nil, m, nil, nil, nil)
+	initEnv := environment(nil, m, nil, nil, nil, 0)
 	initEnv["HELLO"] = "Hello, Global Environment"
 
-	cloneEnv := environment(nil, m, nil, nil, nil)
+	cloneEnv := environment(nil, m, nil, nil, nil, 0)
 	cloneEnv["HELLO"] = "Hello, Global Environment"
 
-	installEnv := environment(nil, m, nil, nil, nil)
+	installEnv := environment(nil, m, nil, nil, nil, 0)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
 	installEnv["HOME"] = constants.DefaultHomeDir
@@ -479,7 +479,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
 	installEnv["HELLO"] = "Hello, Global Environment"
 
-	testEnv := environment(nil, m, nil, nil, nil)
+	testEnv := environment(nil, m, nil, nil, nil, 0)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
 	testEnv["HOME"] = constants.DefaultHomeDir
@@ -487,7 +487,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew check"})
 	testEnv["HELLO"] = "Hello, Global Environment"
 
-	buildEnv := environment(nil, m, nil, nil, nil)
+	buildEnv := environment(nil, m, nil, nil, nil, 0)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HOME"] = constants.DefaultHomeDir
@@ -495,7 +495,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build"})
 	buildEnv["HELLO"] = "Hello, Global Environment"
 
-	dockerEnv := environment(nil, m, nil, nil, nil)
+	dockerEnv := environment(nil, m, nil, nil, nil, 0)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
@@ -503,7 +503,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 
 	want := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -515,8 +515,8 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: initEnv,
 				Image:       "#init",
 				Name:        "init",
@@ -524,8 +524,8 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: cloneEnv,
 				Image:       defaultCloneImage,
 				Name:        "clone",
@@ -533,9 +533,9 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_install",
+				ID:          "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Directory:   "/vela/src/foo//",
+				Directory:   "",
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: installEnv,
 				Image:       "openjdk:latest",
@@ -544,9 +544,9 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Pull:        "always",
 			},
 			&pipeline.Container{
-				ID:          "step___0_test",
+				ID:          "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Directory:   "/vela/src/foo//",
+				Directory:   "",
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: testEnv,
 				Image:       "openjdk:latest",
@@ -555,9 +555,9 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Pull:        "always",
 			},
 			&pipeline.Container{
-				ID:          "step___0_build",
+				ID:          "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Directory:   "/vela/src/foo//",
+				Directory:   "",
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: buildEnv,
 				Image:       "openjdk:latest",
@@ -574,8 +574,8 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Container{
-				ID:          "step___0_publish",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Image:       "plugins/docker:18.09",
 				Environment: dockerEnv,
 				Name:        "publish",
@@ -683,11 +683,11 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 		},
 	}
 
-	setupEnv := environment(nil, m, nil, nil, nil)
+	setupEnv := environment(nil, m, nil, nil, nil, 0)
 	setupEnv["bar"] = "test4"
 	setupEnv["star"] = "test3"
 
-	installEnv := environment(nil, m, nil, nil, nil)
+	installEnv := environment(nil, m, nil, nil, nil, 0)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
 	installEnv["HOME"] = constants.DefaultHomeDir
@@ -696,7 +696,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	installEnv["bar"] = "test4"
 	installEnv["star"] = "test3"
 
-	testEnv := environment(nil, m, nil, nil, nil)
+	testEnv := environment(nil, m, nil, nil, nil, 0)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
 	testEnv["HOME"] = constants.DefaultHomeDir
@@ -705,7 +705,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	testEnv["bar"] = "test4"
 	testEnv["star"] = "test3"
 
-	buildEnv := environment(nil, m, nil, nil, nil)
+	buildEnv := environment(nil, m, nil, nil, nil, 0)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HOME"] = constants.DefaultHomeDir
@@ -714,20 +714,20 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
-	dockerEnv := environment(nil, m, nil, nil, nil)
+	dockerEnv := environment(nil, m, nil, nil, nil, 0)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
 	dockerEnv["bar"] = "test4"
 	dockerEnv["star"] = "test3"
 
-	serviceEnv := environment(nil, m, nil, nil, nil)
+	serviceEnv := environment(nil, m, nil, nil, nil, 0)
 	serviceEnv["bar"] = "test4"
 	serviceEnv["star"] = "test3"
 
 	want := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -740,8 +740,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_init_init",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: setupEnv,
 						Image:       "#init",
 						Name:        "init",
@@ -755,8 +755,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_clone_clone",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: setupEnv,
 						Image:       defaultCloneImage,
 						Name:        "clone",
@@ -771,9 +771,9 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_gradle_sample_install",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: installEnv,
 						Image:       "openjdk:latest",
@@ -782,9 +782,9 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Pull:        "always",
 					},
 					&pipeline.Container{
-						ID:          "__0_gradle_sample_test",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: testEnv,
 						Image:       "openjdk:latest",
@@ -793,9 +793,9 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Pull:        "always",
 					},
 					&pipeline.Container{
-						ID:          "__0_gradle_sample_build",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: buildEnv,
 						Image:       "openjdk:latest",
@@ -811,8 +811,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_publish_publish",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Image:       "plugins/docker:18.09",
 						Environment: dockerEnv,
 						Name:        "publish",
@@ -860,7 +860,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 		},
 		Services: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "service___0_postgres",
+				ID:          "",
 				Detach:      true,
 				Image:       "postgres:12",
 				Name:        "postgres",
@@ -945,11 +945,11 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 		},
 	}
 
-	setupEnv := environment(nil, m, nil, nil, nil)
+	setupEnv := environment(nil, m, nil, nil, nil, 0)
 	setupEnv["bar"] = "test4"
 	setupEnv["star"] = "test3"
 
-	installEnv := environment(nil, m, nil, nil, nil)
+	installEnv := environment(nil, m, nil, nil, nil, 0)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
 	installEnv["HOME"] = constants.DefaultHomeDir
@@ -958,7 +958,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	installEnv["bar"] = "test4"
 	installEnv["star"] = "test3"
 
-	testEnv := environment(nil, m, nil, nil, nil)
+	testEnv := environment(nil, m, nil, nil, nil, 0)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
 	testEnv["HOME"] = constants.DefaultHomeDir
@@ -967,7 +967,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	testEnv["bar"] = "test4"
 	testEnv["star"] = "test3"
 
-	buildEnv := environment(nil, m, nil, nil, nil)
+	buildEnv := environment(nil, m, nil, nil, nil, 0)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HOME"] = constants.DefaultHomeDir
@@ -976,20 +976,20 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
-	dockerEnv := environment(nil, m, nil, nil, nil)
+	dockerEnv := environment(nil, m, nil, nil, nil, 0)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
 	dockerEnv["bar"] = "test4"
 	dockerEnv["star"] = "test3"
 
-	serviceEnv := environment(nil, m, nil, nil, nil)
+	serviceEnv := environment(nil, m, nil, nil, nil, 0)
 	serviceEnv["bar"] = "test4"
 	serviceEnv["star"] = "test3"
 
 	want := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -998,8 +998,8 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: setupEnv,
 				Image:       "#init",
 				Name:        "init",
@@ -1007,8 +1007,8 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: setupEnv,
 				Image:       defaultCloneImage,
 				Name:        "clone",
@@ -1016,8 +1016,8 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_sample_install",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: installEnv,
@@ -1027,8 +1027,8 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Pull:        "always",
 			},
 			&pipeline.Container{
-				ID:          "step___0_sample_test",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: testEnv,
@@ -1038,8 +1038,8 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Pull:        "always",
 			},
 			&pipeline.Container{
-				ID:          "step___0_sample_build",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: buildEnv,
@@ -1049,8 +1049,8 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Pull:        "always",
 			},
 			&pipeline.Container{
-				ID:          "step___0_docker",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Image:       "plugins/docker:18.09",
 				Environment: dockerEnv,
 				Name:        "docker",
@@ -1096,7 +1096,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 		},
 		Services: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "service___0_postgres",
+				ID:          "",
 				Detach:      true,
 				Environment: serviceEnv,
 				Image:       "postgres:12",
@@ -1171,16 +1171,16 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 		},
 	}
 
-	setupEnv := environment(nil, m, nil, nil, nil)
+	setupEnv := environment(nil, m, nil, nil, nil, 0)
 
-	helloEnv := environment(nil, m, nil, nil, nil)
+	helloEnv := environment(nil, m, nil, nil, nil, 0)
 	helloEnv["HOME"] = constants.DefaultHomeDir
 	helloEnv["SHELL"] = constants.DefaultShell
 	helloEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo sample"})
 
 	want := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -1189,8 +1189,8 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: setupEnv,
 				Image:       "#init",
 				Name:        "init",
@@ -1198,8 +1198,8 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: setupEnv,
 				Image:       defaultCloneImage,
 				Name:        "clone",
@@ -1207,8 +1207,8 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_sample_hello",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: helloEnv,
@@ -1284,16 +1284,16 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 		},
 	}
 
-	setupEnv := environment(nil, m, nil, nil, nil)
+	setupEnv := environment(nil, m, nil, nil, nil, 0)
 
-	helloEnv := environment(nil, m, nil, nil, nil)
+	helloEnv := environment(nil, m, nil, nil, nil, 0)
 	helloEnv["HOME"] = constants.DefaultHomeDir
 	helloEnv["SHELL"] = constants.DefaultShell
 	helloEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo inline_templatename"})
 
 	want := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -1302,8 +1302,8 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: setupEnv,
 				Image:       "#init",
 				Name:        "init",
@@ -1311,8 +1311,8 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: setupEnv,
 				Image:       defaultCloneImage,
 				Name:        "clone",
@@ -1320,8 +1320,8 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_inline_templatename_hello",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: helloEnv,
@@ -1396,11 +1396,11 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 		},
 	}
 
-	gradleEnv := environment(nil, m, nil, nil, nil)
+	gradleEnv := environment(nil, m, nil, nil, nil, 0)
 	gradleEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	gradleEnv["GRADLE_USER_HOME"] = ".gradle"
 
-	dockerEnv := environment(nil, m, nil, nil, nil)
+	dockerEnv := environment(nil, m, nil, nil, nil, 0)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
@@ -1445,15 +1445,15 @@ func TestNative_Compile_Clone(t *testing.T) {
 		},
 	}
 
-	fooEnv := environment(nil, m, nil, nil, nil)
+	fooEnv := environment(nil, m, nil, nil, nil, 0)
 	fooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	cloneEnv := environment(nil, m, nil, nil, nil)
+	cloneEnv := environment(nil, m, nil, nil, nil, 0)
 	cloneEnv["PARAMETER_DEPTH"] = "5"
 
 	wantFalse := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       false,
 			Template:    false,
@@ -1462,17 +1462,17 @@ func TestNative_Compile_Clone(t *testing.T) {
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
-				Environment: environment(nil, m, nil, nil, nil),
+				ID:          "",
+				Directory:   "",
+				Environment: environment(nil, m, nil, nil, nil, 0),
 				Image:       "#init",
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_foo",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: fooEnv,
 				Image:       "alpine",
 				Name:        "foo",
@@ -1484,7 +1484,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 
 	wantTrue := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -1493,26 +1493,26 @@ func TestNative_Compile_Clone(t *testing.T) {
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
-				Environment: environment(nil, m, nil, nil, nil),
+				ID:          "",
+				Directory:   "",
+				Environment: environment(nil, m, nil, nil, nil, 0),
 				Image:       "#init",
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
-				Environment: environment(nil, m, nil, nil, nil),
+				ID:          "",
+				Directory:   "",
+				Environment: environment(nil, m, nil, nil, nil, 0),
 				Image:       defaultCloneImage,
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_foo",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: fooEnv,
 				Image:       "alpine",
 				Name:        "foo",
@@ -1524,7 +1524,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 
 	wantReplace := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       false,
 			Template:    false,
@@ -1533,17 +1533,17 @@ func TestNative_Compile_Clone(t *testing.T) {
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
-				Environment: environment(nil, m, nil, nil, nil),
+				ID:          "",
+				Directory:   "",
+				Environment: environment(nil, m, nil, nil, nil, 0),
 				Image:       "#init",
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: cloneEnv,
 				Image:       "target/vela-git-slim:v0.12.0",
 				Name:        "clone",
@@ -1551,8 +1551,8 @@ func TestNative_Compile_Clone(t *testing.T) {
 				Pull:        "always",
 			},
 			&pipeline.Container{
-				ID:          "step___0_foo",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: fooEnv,
 				Image:       "alpine",
 				Name:        "foo",
@@ -1631,13 +1631,13 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		},
 	}
 
-	defaultFooEnv := environment(nil, m, nil, nil, nil)
+	defaultFooEnv := environment(nil, m, nil, nil, nil, 0)
 	defaultFooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	defaultEnv := environment(nil, m, nil, nil, nil)
+	defaultEnv := environment(nil, m, nil, nil, nil, 0)
 	wantDefault := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -1646,8 +1646,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: defaultEnv,
 				Image:       "#init",
 				Name:        "init",
@@ -1655,8 +1655,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: defaultEnv,
 				Image:       defaultCloneImage,
 				Name:        "clone",
@@ -1664,8 +1664,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_foo",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: defaultFooEnv,
 				Image:       "alpine",
 				Name:        "foo",
@@ -1677,13 +1677,13 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 
 	goPipelineType := "go"
 
-	goFooEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil, nil)
+	goFooEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil, nil, 0)
 	goFooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	defaultGoEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil, nil)
+	defaultGoEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil, nil, 0)
 	wantGo := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -1692,8 +1692,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: defaultGoEnv,
 				Image:       "#init",
 				Name:        "init",
@@ -1701,8 +1701,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: defaultGoEnv,
 				Image:       defaultCloneImage,
 				Name:        "clone",
@@ -1710,8 +1710,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_foo",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: goFooEnv,
 				Image:       "alpine",
 				Name:        "foo",
@@ -1723,13 +1723,13 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 
 	starPipelineType := "starlark"
 
-	starlarkFooEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil, nil)
+	starlarkFooEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil, nil, 0)
 	starlarkFooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	defaultStarlarkEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil, nil)
+	defaultStarlarkEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil, nil, 0)
 	wantStarlark := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -1738,8 +1738,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: defaultStarlarkEnv,
 				Image:       "#init",
 				Name:        "init",
@@ -1747,8 +1747,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: defaultStarlarkEnv,
 				Image:       defaultCloneImage,
 				Name:        "clone",
@@ -1756,8 +1756,8 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_foo",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: starlarkFooEnv,
 				Image:       "alpine",
 				Name:        "foo",
@@ -1900,16 +1900,16 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 
 	compiler.WithBuild(build)
 
-	initEnv := environment(build, m, nil, nil, nil)
+	initEnv := environment(build, m, nil, nil, nil, 0)
 
-	stepEnv := environment(build, m, nil, nil, nil)
+	stepEnv := environment(build, m, nil, nil, nil, 0)
 	stepEnv["HOME"] = constants.DefaultHomeDir
 	stepEnv["SHELL"] = constants.DefaultShell
 	stepEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Building..."`})
 
 	want := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -1922,8 +1922,8 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_init_init",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: initEnv,
 						Image:       "#init",
 						Name:        "init",
@@ -1937,8 +1937,8 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_clone_clone",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: initEnv,
 						Image:       defaultCloneImage,
 						Name:        "clone",
@@ -1953,9 +1953,9 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "__0_three_word_key_build",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: stepEnv,
 						Image:       "alpine",
@@ -2083,21 +2083,21 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 
 	compiler.WithBuild(build)
 
-	initEnv := environment(build, m, nil, nil, nil)
+	initEnv := environment(build, m, nil, nil, nil, 0)
 
-	buildEnv := environment(build, m, nil, nil, nil)
+	buildEnv := environment(build, m, nil, nil, nil, 0)
 	buildEnv["HOME"] = constants.DefaultHomeDir
 	buildEnv["SHELL"] = constants.DefaultShell
 	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Building..."`})
 
-	testEnv := environment(build, m, nil, nil, nil)
+	testEnv := environment(build, m, nil, nil, nil, 0)
 	testEnv["HOME"] = constants.DefaultHomeDir
 	testEnv["SHELL"] = constants.DefaultShell
 	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Testing..."`})
 
 	want := &pipeline.Build{
 		Version: "1",
-		ID:      "__0",
+		ID:      "",
 		Metadata: pipeline.Metadata{
 			Clone:       true,
 			Template:    false,
@@ -2106,8 +2106,8 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: initEnv,
 				Image:       "#init",
 				Name:        "init",
@@ -2115,8 +2115,8 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
+				ID:          "",
+				Directory:   "",
 				Environment: initEnv,
 				Image:       defaultCloneImage,
 				Name:        "clone",
@@ -2124,9 +2124,9 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_build",
+				ID:          "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Directory:   "/vela/src/foo//",
+				Directory:   "",
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: buildEnv,
 				Image:       "alpine",
@@ -2135,9 +2135,9 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 				Pull:        "not_present",
 			},
 			&pipeline.Container{
-				ID:          "step___0_test",
+				ID:          "",
 				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Directory:   "/vela/src/foo//",
+				Directory:   "",
 				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: testEnv,
 				Image:       "alpine",
@@ -2214,201 +2214,6 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	}
 }
 
-func TestNative_Compile_LegacyMergeAnchor(t *testing.T) {
-	// setup types
-	name := "foo"
-	author := "author"
-	event := "push"
-	number := int64(1)
-
-	m := &internal.Metadata{
-		Database: &internal.Database{
-			Driver: "foo",
-			Host:   "foo",
-		},
-		Queue: &internal.Queue{
-			Driver: "foo",
-			Host:   "foo",
-		},
-		Source: &internal.Source{
-			Driver: "foo",
-			Host:   "foo",
-		},
-		Vela: &internal.Vela{
-			Address:    "foo",
-			WebAddress: "foo",
-		},
-	}
-
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
-	if err != nil {
-		t.Errorf("Creating compiler returned err: %v", err)
-	}
-
-	compiler.repo = &api.Repo{Name: &author}
-	compiler.build = &api.Build{Author: &name, Number: &number, Event: &event}
-	compiler.WithMetadata(m)
-
-	testEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil, nil)
-
-	serviceEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil, nil)
-	serviceEnv["REGION"] = "dev"
-
-	alphaEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil, nil)
-	alphaEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo alpha"})
-	alphaEnv["HOME"] = constants.DefaultHomeDir
-	alphaEnv["SHELL"] = constants.DefaultShell
-
-	betaEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil, nil)
-	betaEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo beta"})
-	betaEnv["HOME"] = constants.DefaultHomeDir
-	betaEnv["SHELL"] = constants.DefaultShell
-
-	gammaEnv := environment(&api.Build{Author: &name, Number: &number, Event: &event}, m, &api.Repo{Name: &author}, nil, nil)
-	gammaEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo gamma"})
-	gammaEnv["HOME"] = constants.DefaultHomeDir
-	gammaEnv["SHELL"] = constants.DefaultShell
-	gammaEnv["REGION"] = "dev"
-
-	want := &pipeline.Build{
-		Version: "legacy",
-		ID:      "_author_1",
-		Metadata: pipeline.Metadata{
-			Clone:       true,
-			Template:    false,
-			Environment: []string{"steps", "services", "secrets"},
-			AutoCancel: &pipeline.CancelOptions{
-				Running:       false,
-				Pending:       false,
-				DefaultBranch: false,
-			},
-		},
-		Worker: pipeline.Worker{
-			Flavor:   "",
-			Platform: "",
-		},
-		Services: pipeline.ContainerSlice{
-			&pipeline.Container{
-				ID:          "service__author_1_service-a",
-				Detach:      true,
-				Directory:   "",
-				Environment: serviceEnv,
-				Image:       "postgres",
-				Name:        "service-a",
-				Number:      1,
-				Pull:        "not_present",
-				Ports:       []string{"5432:5432"},
-			},
-		},
-		Steps: pipeline.ContainerSlice{
-			&pipeline.Container{
-				ID:          "step__author_1_init",
-				Directory:   "/vela/src/foo//author",
-				Environment: testEnv,
-				Image:       "#init",
-				Name:        "init",
-				Number:      1,
-				Pull:        "not_present",
-			},
-			&pipeline.Container{
-				ID:          "step__author_1_clone",
-				Directory:   "/vela/src/foo//author",
-				Environment: testEnv,
-				Image:       defaultCloneImage,
-				Name:        "clone",
-				Number:      2,
-				Pull:        "not_present",
-			},
-			&pipeline.Container{
-				ID:          "step__author_1_alpha",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Directory:   "/vela/src/foo//author",
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
-				Environment: alphaEnv,
-				Image:       "alpine:latest",
-				Name:        "alpha",
-				Number:      3,
-				Pull:        "not_present",
-				Ruleset: pipeline.Ruleset{
-					If: pipeline.Rules{
-						Event:    []string{"push"},
-						Matcher:  "filepath",
-						Operator: "and",
-					},
-				},
-			},
-			&pipeline.Container{
-				ID:          "step__author_1_beta",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Directory:   "/vela/src/foo//author",
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
-				Environment: betaEnv,
-				Image:       "alpine:latest",
-				Name:        "beta",
-				Number:      4,
-				Pull:        "not_present",
-				Ruleset: pipeline.Ruleset{
-					If: pipeline.Rules{
-						Event:    []string{"push"},
-						Matcher:  "filepath",
-						Operator: "and",
-					},
-				},
-			},
-			&pipeline.Container{
-				ID:          "step__author_1_gamma",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Directory:   "/vela/src/foo//author",
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
-				Environment: gammaEnv,
-				Image:       "alpine:latest",
-				Name:        "gamma",
-				Number:      5,
-				Pull:        "not_present",
-				Ruleset: pipeline.Ruleset{
-					If: pipeline.Rules{
-						Event:    []string{"push"},
-						Matcher:  "filepath",
-						Operator: "and",
-					},
-				},
-			},
-		},
-	}
-
-	// run test on legacy version
-	yaml, err := os.ReadFile("testdata/steps_merge_anchor.yml")
-	if err != nil {
-		t.Errorf("Reading yaml file return err: %v", err)
-	}
-
-	got, _, err := compiler.Compile(context.Background(), yaml)
-	if err != nil {
-		t.Errorf("Compile returned err: %v", err)
-	}
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
-	}
-
-	// run test on current version
-	yaml, err = os.ReadFile("testdata/steps_merge_anchor_1.yml") // has `version: "1"` instead of `version: "legacy"`
-	if err != nil {
-		t.Errorf("Reading yaml file return err: %v", err)
-	}
-
-	got, _, err = compiler.Compile(context.Background(), yaml)
-	if err != nil {
-		t.Errorf("Compile returned err: %v", err)
-	}
-
-	want.Version = "1"
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
-	}
-}
-
 // convertResponse converts the build to the ModifyResponse.
 func convertResponse(build *yaml.Build) (*ModifyResponse, error) {
 	data, err := yml.Marshal(build)
@@ -2467,13 +2272,13 @@ func Test_client_modifyConfig(t *testing.T) {
 		},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
-				Environment: environment(nil, m, nil, nil, nil),
+				Environment: environment(nil, m, nil, nil, nil, 0),
 				Image:       "#init",
 				Name:        "init",
 				Pull:        "not_present",
 			},
 			&yaml.Step{
-				Environment: environment(nil, m, nil, nil, nil),
+				Environment: environment(nil, m, nil, nil, nil, 0),
 				Image:       defaultCloneImage,
 				Name:        "clone",
 				Pull:        "not_present",
@@ -2500,13 +2305,13 @@ func Test_client_modifyConfig(t *testing.T) {
 		},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
-				Environment: environment(nil, m, nil, nil, nil),
+				Environment: environment(nil, m, nil, nil, nil, 0),
 				Image:       "#init",
 				Name:        "init",
 				Pull:        "not_present",
 			},
 			&yaml.Step{
-				Environment: environment(nil, m, nil, nil, nil),
+				Environment: environment(nil, m, nil, nil, nil, 0),
 				Image:       defaultCloneImage,
 				Name:        "clone",
 				Pull:        "not_present",
@@ -2695,7 +2500,7 @@ func convertFileToGithubResponse(file string) (github.RepositoryContent, error) 
 }
 
 func generateTestEnv(command string, m *internal.Metadata, pipelineType string) map[string]string {
-	output := environment(nil, m, nil, nil, nil)
+	output := environment(nil, m, nil, nil, nil, 0)
 	output["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{command})
 	output["HOME"] = constants.DefaultHomeDir
 	output["SHELL"] = constants.DefaultShell
@@ -2744,15 +2549,15 @@ func Test_Compile_Inline(t *testing.T) {
 		},
 	}
 
-	initEnv := environment(nil, m, nil, nil, nil)
-	testEnv := environment(nil, m, nil, nil, nil)
+	initEnv := environment(nil, m, nil, nil, nil, 0)
+	testEnv := environment(nil, m, nil, nil, nil, 0)
 	testEnv["FOO"] = "Hello, foo!"
 	testEnv["HELLO"] = "Hello, Vela!"
-	stepEnv := environment(nil, m, nil, nil, nil)
+	stepEnv := environment(nil, m, nil, nil, nil, 0)
 	stepEnv["FOO"] = "Hello, foo!"
 	stepEnv["HELLO"] = "Hello, Vela!"
 	stepEnv["PARAMETER_FIRST"] = "foo"
-	golangEnv := environment(nil, m, nil, nil, nil)
+	golangEnv := environment(nil, m, nil, nil, nil, 0)
 	golangEnv["VELA_REPO_PIPELINE_TYPE"] = "go"
 
 	type args struct {
@@ -2773,7 +2578,7 @@ func Test_Compile_Inline(t *testing.T) {
 			},
 			want: &pipeline.Build{
 				Version: "1",
-				ID:      "__0",
+				ID:      "",
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
@@ -2795,8 +2600,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: pipeline.ContainerSlice{
 							&pipeline.Container{
-								ID:          "__0_init_init",
-								Directory:   "/vela/src/foo//",
+								ID:          "",
+								Directory:   "",
 								Environment: initEnv,
 								Image:       "#init",
 								Name:        "init",
@@ -2810,8 +2615,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: pipeline.ContainerSlice{
 							&pipeline.Container{
-								ID:          "__0_clone_clone",
-								Directory:   "/vela/src/foo//",
+								ID:          "",
+								Directory:   "",
 								Environment: initEnv,
 								Image:       defaultCloneImage,
 								Name:        "clone",
@@ -2826,9 +2631,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_test_test",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline", m, ""),
 								Image:       "alpine",
@@ -2844,9 +2649,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_starlark_foo_starlark_build_foo",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from foo", m, ""),
 								Image:       "alpine",
@@ -2862,9 +2667,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_starlark_bar_starlark_build_bar",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from bar", m, ""),
 								Image:       "alpine",
@@ -2885,7 +2690,7 @@ func Test_Compile_Inline(t *testing.T) {
 			},
 			want: &pipeline.Build{
 				Version: "1",
-				ID:      "__0",
+				ID:      "",
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
@@ -2897,8 +2702,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: pipeline.ContainerSlice{
 							&pipeline.Container{
-								ID:          "__0_init_init",
-								Directory:   "/vela/src/foo//",
+								ID:          "",
+								Directory:   "",
 								Environment: initEnv,
 								Image:       "#init",
 								Name:        "init",
@@ -2912,8 +2717,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: pipeline.ContainerSlice{
 							&pipeline.Container{
-								ID:          "__0_clone_clone",
-								Directory:   "/vela/src/foo//",
+								ID:          "",
+								Directory:   "",
 								Environment: initEnv,
 								Image:       defaultCloneImage,
 								Name:        "clone",
@@ -2928,9 +2733,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_test_test",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline", m, ""),
 								Image:       "alpine",
@@ -2946,9 +2751,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_nested_test_nested_test",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline", m, ""),
 								Image:       "alpine",
@@ -2964,9 +2769,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_nested_starlark_foo_nested_starlark_build_foo",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from foo", m, ""),
 								Image:       "alpine",
@@ -2982,9 +2787,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: initEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_nested_starlark_bar_nested_starlark_build_bar",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from bar", m, ""),
 								Image:       "alpine",
@@ -3005,7 +2810,7 @@ func Test_Compile_Inline(t *testing.T) {
 			},
 			want: &pipeline.Build{
 				Version: "1",
-				ID:      "__0",
+				ID:      "",
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
@@ -3013,8 +2818,8 @@ func Test_Compile_Inline(t *testing.T) {
 				},
 				Steps: []*pipeline.Container{
 					{
-						ID:          "step___0_init",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: initEnv,
 						Name:        "init",
 						Image:       "#init",
@@ -3022,8 +2827,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_clone",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: initEnv,
 						Name:        "clone",
 						Image:       defaultCloneImage,
@@ -3031,10 +2836,10 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_test",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Environment: generateTestEnv("echo from inline", m, ""),
 						Name:        "test",
 						Image:       "alpine",
@@ -3042,10 +2847,10 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_golang_foo",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Environment: generateTestEnv("echo hello from foo", m, ""),
 						Name:        "golang_foo",
 						Image:       "alpine",
@@ -3053,10 +2858,10 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_golang_bar",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Environment: generateTestEnv("echo hello from bar", m, ""),
 						Name:        "golang_bar",
 						Image:       "alpine",
@@ -3064,10 +2869,10 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_golang_star",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Environment: generateTestEnv("echo hello from star", m, ""),
 						Name:        "golang_star",
 						Image:       "alpine",
@@ -3075,10 +2880,10 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_starlark_build_foo",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Environment: generateTestEnv("echo hello from foo", m, ""),
 						Name:        "starlark_build_foo",
 						Image:       "alpine",
@@ -3086,10 +2891,10 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_starlark_build_bar",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Environment: generateTestEnv("echo hello from bar", m, ""),
 						Name:        "starlark_build_bar",
 						Image:       "alpine",
@@ -3122,7 +2927,7 @@ func Test_Compile_Inline(t *testing.T) {
 			},
 			want: &pipeline.Build{
 				Version: "1",
-				ID:      "__0",
+				ID:      "",
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
@@ -3130,8 +2935,8 @@ func Test_Compile_Inline(t *testing.T) {
 				},
 				Steps: []*pipeline.Container{
 					{
-						ID:          "step___0_init",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: initEnv,
 						Name:        "init",
 						Image:       "#init",
@@ -3139,8 +2944,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_clone",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: initEnv,
 						Name:        "clone",
 						Image:       defaultCloneImage,
@@ -3148,10 +2953,10 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_test",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Environment: generateTestEnv("echo from inline", m, ""),
 						Name:        "test",
 						Image:       "alpine",
@@ -3227,7 +3032,7 @@ func Test_Compile_Inline(t *testing.T) {
 			},
 			want: &pipeline.Build{
 				Version: "1",
-				ID:      "__0",
+				ID:      "",
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
@@ -3235,8 +3040,8 @@ func Test_Compile_Inline(t *testing.T) {
 				},
 				Steps: []*pipeline.Container{
 					{
-						ID:          "step___0_init",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: initEnv,
 						Name:        "init",
 						Image:       "#init",
@@ -3244,8 +3049,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_clone",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: initEnv,
 						Name:        "clone",
 						Image:       defaultCloneImage,
@@ -3253,10 +3058,10 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_test",
+						ID:          "",
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{constants.DefaultShell, "-c"},
-						Directory:   "/vela/src/foo//",
+						Directory:   "",
 						Environment: generateTestEnv("echo from inline", m, ""),
 						Name:        "test",
 						Image:       "alpine",
@@ -3266,7 +3071,7 @@ func Test_Compile_Inline(t *testing.T) {
 				},
 				Services: []*pipeline.Container{
 					{
-						ID:          "service___0_postgres",
+						ID:          "",
 						Detach:      true,
 						Environment: initEnv,
 						Image:       "postgres:latest",
@@ -3275,7 +3080,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "service___0_cache",
+						ID:          "",
 						Detach:      true,
 						Environment: initEnv,
 						Image:       "redis",
@@ -3284,7 +3089,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "service___0_database",
+						ID:          "",
 						Detach:      true,
 						Environment: initEnv,
 						Image:       "mongo",
@@ -3303,7 +3108,7 @@ func Test_Compile_Inline(t *testing.T) {
 			},
 			want: &pipeline.Build{
 				Version: "1",
-				ID:      "__0",
+				ID:      "",
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
@@ -3311,8 +3116,8 @@ func Test_Compile_Inline(t *testing.T) {
 				},
 				Steps: []*pipeline.Container{
 					{
-						ID:          "step___0_init",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: testEnv,
 						Name:        "init",
 						Image:       "#init",
@@ -3320,8 +3125,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_clone",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: testEnv,
 						Name:        "clone",
 						Image:       defaultCloneImage,
@@ -3329,8 +3134,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Pull:        "not_present",
 					},
 					{
-						ID:          "step___0_test",
-						Directory:   "/vela/src/foo//",
+						ID:          "",
+						Directory:   "",
 						Environment: stepEnv,
 						Name:        "test",
 						Image:       "alpine",
@@ -3348,7 +3153,7 @@ func Test_Compile_Inline(t *testing.T) {
 			},
 			want: &pipeline.Build{
 				Version: "1",
-				ID:      "__0",
+				ID:      "",
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
@@ -3360,8 +3165,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: golangEnv,
 						Steps: pipeline.ContainerSlice{
 							&pipeline.Container{
-								ID:          "__0_init_init",
-								Directory:   "/vela/src/foo//",
+								ID:          "",
+								Directory:   "",
 								Environment: golangEnv,
 								Image:       "#init",
 								Name:        "init",
@@ -3375,8 +3180,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: golangEnv,
 						Steps: pipeline.ContainerSlice{
 							&pipeline.Container{
-								ID:          "__0_clone_clone",
-								Directory:   "/vela/src/foo//",
+								ID:          "",
+								Directory:   "",
 								Environment: golangEnv,
 								Image:       defaultCloneImage,
 								Name:        "clone",
@@ -3391,9 +3196,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: golangEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_foo_foo",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline foo", m, constants.PipelineTypeGo),
 								Image:       "alpine",
@@ -3409,9 +3214,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: golangEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_bar_bar",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline bar", m, constants.PipelineTypeGo),
 								Image:       "alpine",
@@ -3427,9 +3232,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: golangEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_star_star",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline star", m, constants.PipelineTypeGo),
 								Image:       "alpine",
@@ -3445,9 +3250,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: golangEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_starlark_foo_starlark_build_foo",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from foo", m, constants.PipelineTypeGo),
 								Image:       "alpine",
@@ -3463,9 +3268,9 @@ func Test_Compile_Inline(t *testing.T) {
 						Environment: golangEnv,
 						Steps: []*pipeline.Container{
 							{
-								ID:          "__0_starlark_bar_starlark_build_bar",
+								ID:          "",
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
+								Directory:   "",
 								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from bar", m, constants.PipelineTypeGo),
 								Image:       "alpine",

@@ -24,6 +24,7 @@ type Repo struct {
 	BuildLimit       *int32          `json:"build_limit,omitempty"`
 	Timeout          *int32          `json:"timeout,omitempty"`
 	Counter          *int64          `json:"counter,omitempty"`
+	HookCounter      *int64          `json:"hook_counter,omitempty"`
 	Visibility       *string         `json:"visibility,omitempty"`
 	Private          *bool           `json:"private,omitempty"`
 	Trusted          *bool           `json:"trusted,omitempty"`
@@ -246,6 +247,19 @@ func (r *Repo) GetCounter() int64 {
 	}
 
 	return *r.Counter
+}
+
+// GetHookCounter returns the HookCounter field.
+//
+// When the provided Repo type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (r *Repo) GetHookCounter() int64 {
+	// return zero value if Repo type or HookCounter field is nil
+	if r == nil || r.HookCounter == nil {
+		return 0
+	}
+
+	return *r.HookCounter
 }
 
 // GetVisibility returns the Visibility field.
@@ -573,6 +587,19 @@ func (r *Repo) SetCounter(v int64) {
 	r.Counter = &v
 }
 
+// SetHookCounter sets the HookCounter field.
+//
+// When the provided Repo type is nil, it
+// will set nothing and immediately return.
+func (r *Repo) SetHookCounter(v int64) {
+	// return if Repo type is nil
+	if r == nil {
+		return
+	}
+
+	r.HookCounter = &v
+}
+
 // SetVisibility sets the Visibility field.
 //
 // When the provided Repo type is nil, it
@@ -741,6 +768,7 @@ func (r *Repo) String() string {
   Clone: %s,
   Counter: %d,
   FullName: %s,
+  HookCounter: %d,
   ID: %d,
   Link: %s,
   MergeQueueEvents: %v,
@@ -766,6 +794,7 @@ func (r *Repo) String() string {
 		r.GetClone(),
 		r.GetCounter(),
 		r.GetFullName(),
+		r.GetHookCounter(),
 		r.GetID(),
 		r.GetLink(),
 		r.GetMergeQueueEvents(),

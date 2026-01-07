@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
@@ -169,6 +170,7 @@ func RestartBuild(c *gin.Context) {
 		c,
 		config,
 		database.FromContext(c),
+		cache.FromContext(c),
 		scm,
 		compiler.FromContext(c),
 		queue.FromContext(c),

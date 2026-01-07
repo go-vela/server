@@ -8,7 +8,9 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/cache"
+	"github.com/go-vela/server/cache/models"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 )
@@ -116,7 +118,7 @@ type Service interface {
 	Disable(context.Context, *api.User, string, string) error
 	// Enable defines a function that activates
 	// a repo by creating the webhook.
-	Enable(context.Context, *api.User, *api.Repo, *api.Hook) (*api.Hook, string, error)
+	Enable(context.Context, *api.User, *api.Repo) (*api.Hook, string, error)
 	// Update defines a function that updates
 	// a webhook for a specified repo.
 	Update(context.Context, *api.User, *api.Repo, int64) (bool, error)
@@ -149,7 +151,7 @@ type Service interface {
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
 	// GetNetrcPassword defines a function that returns the netrc
 	// password injected into build steps.
-	GetNetrcPassword(context.Context, database.Interface, *api.Repo, *api.User, yaml.Git) (string, error)
+	GetNetrcPassword(context.Context, database.Interface, cache.Service, *api.Repo, *api.User, yaml.Git) (string, int64, error)
 	// SyncRepoWithInstallation defines a function that syncs
 	// a repo with the installation, if it exists.
 	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)
@@ -174,6 +176,11 @@ type Service interface {
 	// FinishInstallation defines a function that
 	// finishes an installation event and returns a web redirect.
 	FinishInstallation(context.Context, *http.Request, int64) (string, error)
+	// NewAppInstallationToken defines a function that
+	// creates a new installation token for the app integration.
+	NewAppInstallationToken(ctx context.Context, installID int64, repos []string, permissions map[string]string) (*models.InstallToken, error)
+	// IsInstallationToken defines a function that determines if a token is an installation token.
+	IsInstallationToken(ctx context.Context, token string) bool
 
 	// GetSettings defines a function that returns
 	// scm settings.

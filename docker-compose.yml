@@ -16,6 +16,9 @@ services:
     networks:
       - vela
     environment:
+      CACHE_DRIVER: redis
+      CACHE_ADDR: 'redis://redis:6379'
+      CACHE_INSTALL_TOKEN_KEY: df4b22849583a95cf1d581f234e3249f0ab96bc69ca9dc90da3dfaff173d8b6a
       DATABASE_DRIVER: postgres
       DATABASE_ADDR: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
       DATABASE_COMPRESSION_LEVEL: 3

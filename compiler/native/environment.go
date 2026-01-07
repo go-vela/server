@@ -5,11 +5,12 @@ package native
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/types/raw"
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal"
 )
@@ -35,7 +36,7 @@ func (c *Client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 	env := make(map[string]string)
 
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc, c.netrcExp)
 
 	// inject the declared global environment
 	// WARNING: local env can override global
@@ -90,7 +91,7 @@ func (c *Client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 	env := make(map[string]string)
 
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc, c.netrcExp)
 
 	// inject the declared stage environment
 	// WARNING: local env can override global + stage
@@ -152,7 +153,7 @@ func (c *Client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSl
 		env := make(map[string]string)
 
 		// gather set of default environment variables
-		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
+		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc, c.netrcExp)
 
 		// inject the declared global environment
 		// WARNING: local env can override global
@@ -193,7 +194,7 @@ func (c *Client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 		env := make(map[string]string)
 
 		// gather set of default environment variables
-		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
+		defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc, c.netrcExp)
 
 		// inject the declared global environment
 		// WARNING: local env can override global
@@ -254,7 +255,7 @@ func (c *Client) EnvironmentBuild() map[string]string {
 	env := make(map[string]string)
 
 	// gather set of default environment variables
-	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc)
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user, c.netrc, c.netrcExp)
 
 	// inject the default environment
 	// variables to the build
@@ -288,7 +289,7 @@ func appendMap(originalMap, otherMap map[string]string) map[string]string {
 }
 
 // helper function that creates the standard set of environment variables for a pipeline.
-func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, netrc *string) map[string]string {
+func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, netrc *string, netrcExp int64) map[string]string {
 	// set default workspace
 	workspace := constants.WorkspaceDefault
 	notImplemented := "TODO"
@@ -330,6 +331,7 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User, n
 		// set git token if this is an install token
 		if r.GetInstallID() != 0 {
 			env["VELA_GIT_TOKEN"] = *netrc
+			env["VELA_GIT_TOKEN_EXPIRATION"] = strconv.FormatInt(netrcExp, 10)
 		}
 	}
 

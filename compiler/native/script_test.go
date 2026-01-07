@@ -9,13 +9,13 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/go-vela/server/compiler/types/yaml/yaml"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 )
 
 func TestNative_ScriptStages(t *testing.T) {
 	// setup types
-	baseEnv := environment(nil, nil, nil, nil, nil)
+	baseEnv := environment(nil, nil, nil, nil, nil, 0)
 
 	s := yaml.StageSlice{
 		&yaml.Stage{
@@ -101,7 +101,7 @@ func TestNative_ScriptStages(t *testing.T) {
 
 func TestNative_ScriptSteps(t *testing.T) {
 	// setup types
-	emptyEnv := environment(nil, nil, nil, nil, nil)
+	emptyEnv := environment(nil, nil, nil, nil, nil, 0)
 
 	baseEnv := emptyEnv
 	baseEnv["HOME"] = constants.DefaultHomeDir

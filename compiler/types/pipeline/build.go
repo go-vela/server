@@ -17,6 +17,7 @@ import (
 type Build struct {
 	ID          string             `json:"id,omitempty"          yaml:"id,omitempty"`
 	Token       string             `json:"token,omitempty"       yaml:"token,omitempty"`
+	TokenExp    int64              `json:"token_exp,omitempty"   yaml:"token_exp,omitempty"`
 	Version     string             `json:"version,omitempty"     yaml:"version,omitempty"`
 	Metadata    Metadata           `json:"metadata,omitempty"    yaml:"metadata,omitempty"`
 	Environment raw.StringSliceMap `json:"environment,omitempty" yaml:"environment,omitempty"`
@@ -162,4 +163,105 @@ func (b *Build) Sanitize(driver string) *Build {
 
 	// return the purged pipeline
 	return b
+}
+
+// Prepare sets up the pipeline for execution by populating
+// the container ID a directory values based on repo and build data.
+// It is used by the worker after deserializing the executable.
+func (p *Build) Prepare(org, name string, number int64, local bool) {
+	// check if the compiler is setup for a local pipeline
+	if local {
+		// check if the org provided is empty
+		if len(org) == 0 {
+			// set a default for the org
+			org = "localOrg"
+		}
+
+		// check if the repo provided is empty
+		if len(name) == 0 {
+			// set a default for the repo
+			name = "localRepo"
+		}
+
+		// check if the number provided is empty
+		if number == 0 {
+			// set a default for the number
+			number = 1
+		}
+	}
+
+	p.ID = fmt.Sprintf(constants.PipelineIDPattern, org, name, number)
+
+	// set the unique ID for each step in each stage of the executable pipeline
+	for _, stage := range p.Stages {
+		for _, step := range stage.Steps {
+			// create pattern for steps
+			pattern := fmt.Sprintf(
+				constants.StageIDPattern,
+				org,
+				name,
+				number,
+				stage.Name,
+				step.Name,
+			)
+
+			// set id to the pattern
+			step.ID = pattern
+
+			// set the workspace directory
+			step.Directory = step.Environment["VELA_WORKSPACE"]
+		}
+	}
+
+	for _, step := range p.Steps {
+		// create pattern for steps
+		pattern := fmt.Sprintf(
+			constants.StepIDPattern,
+			org,
+			name,
+			number,
+			step.Name,
+		)
+
+		// set id to the pattern
+		step.ID = pattern
+
+		// set the workspace directory
+		step.Directory = step.Environment["VELA_WORKSPACE"]
+	}
+
+	// set the unique ID for each service in the executable pipeline
+	for _, service := range p.Services {
+		// create pattern for services
+		pattern := fmt.Sprintf(
+			constants.ServiceIDPattern,
+			org,
+			name,
+			number,
+			service.Name,
+		)
+
+		// set id to the pattern
+		service.ID = pattern
+	}
+
+	// set the unique ID for each secret in the executable pipeline
+	for _, secret := range p.Secrets {
+		// skip non plugin secrets
+		if secret.Origin.Empty() {
+			continue
+		}
+
+		// create pattern for secrets
+		pattern := fmt.Sprintf(
+			constants.SecretIDPattern,
+			org,
+			name,
+			number,
+			secret.Origin.Name,
+		)
+
+		// set id to the pattern
+		secret.Origin.ID = pattern
+	}
 }

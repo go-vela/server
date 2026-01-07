@@ -19,6 +19,7 @@ import (
 
 	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
@@ -323,42 +324,11 @@ func PostWebhook(c *gin.Context) {
 	// Some operations taken during the webhook workflow can lead to race conditions
 	// failing to successfully process the request. This logic ensures we attempt our
 	// best efforts to handle these cases gracefully.
-	for i := 0; i < retryLimit; i++ {
+	for i := range retryLimit {
 		// check if we're on the first iteration of the loop
 		if i > 0 {
 			// incrementally sleep in between retries
 			time.Sleep(time.Duration(i) * time.Second)
-		}
-
-		// send API call to capture the last hook for the repo
-		lastHook, err := database.FromContext(c).LastHookForRepo(ctx, repo)
-		if err != nil {
-			// format the error message with extra information
-			err = fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
-
-			// log the error for traceability
-			logrus.Error(err.Error())
-
-			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				// continue to the next iteration of the loop
-				continue
-			}
-
-			retErr := fmt.Errorf("%s: %w", baseErr, err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(retErr.Error())
-
-			return
-		}
-
-		// set the Number field
-		if lastHook != nil {
-			h.SetNumber(
-				lastHook.GetNumber() + 1,
-			)
 		}
 
 		// send API call to create the webhook
@@ -367,14 +337,14 @@ func PostWebhook(c *gin.Context) {
 			// format the error message with extra information
 			err = fmt.Errorf("unable to create webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 
-			// log the error for traceability
-			logrus.Error(err.Error())
-
 			// check if the retry limit has been exceeded
 			if i < retryLimit {
 				// continue to the next iteration of the loop
 				continue
 			}
+
+			// log the error for traceability
+			logrus.Error(err.Error())
 
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -385,7 +355,6 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
-		// hook was created successfully
 		break
 	}
 
@@ -481,6 +450,7 @@ func PostWebhook(c *gin.Context) {
 		c,
 		config,
 		database.FromContext(c),
+		cache.FromContext(c),
 		scm.FromContext(c),
 		compiler.FromContext(c),
 		queue.FromContext(c),
@@ -678,6 +648,8 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 	l.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
 
 	defer func() {
+		h.SetRepo(r)
+
 		// send API call to update the webhook
 		hr, err := db.CreateHook(ctx, h)
 		if err != nil {
@@ -696,7 +668,7 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 	switch h.GetEventAction() {
 	// if action is renamed or transferred, go through rename routine
 	case constants.ActionRenamed, constants.ActionTransferred:
-		r, err := RenameRepository(ctx, l, db, h, r, dbRepo, m)
+		r, err := RenameRepository(ctx, l, db, r, dbRepo, m)
 		if err != nil {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(err.Error())
@@ -715,24 +687,6 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 	// if action is archived, unarchived, or edited, perform edits to relevant repo fields
 	case "archived", "unarchived", constants.ActionEdited:
 		l.Debugf("repository action %s for %s", h.GetEventAction(), r.GetFullName())
-
-		// send API call to capture the last hook for the repo
-		lastHook, err := db.LastHookForRepo(ctx, dbRepo)
-		if err != nil {
-			retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
-
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(retErr.Error())
-
-			return nil, retErr
-		}
-
-		// set the Number field
-		if lastHook != nil {
-			h.SetNumber(
-				lastHook.GetNumber() + 1,
-			)
-		}
 
 		h.SetRepo(dbRepo)
 
@@ -754,7 +708,7 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 		}
 
 		// update repo object in the database after applying edits
-		dbRepo, err = db.UpdateRepo(ctx, dbRepo)
+		dbRepo, err := db.UpdateRepo(ctx, dbRepo)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
 
@@ -783,36 +737,15 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 // associated with that repo as well as build links for the UI.
 //
 // the caller is responsible for returning errors to the client.
-func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interface, h *types.Hook, r *types.Repo, dbR *types.Repo, m *internal.Metadata) (*types.Repo, error) {
+func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interface, r *types.Repo, dbR *types.Repo, m *internal.Metadata) (*types.Repo, error) {
 	l = l.WithFields(logrus.Fields{
-		"event_type": h.GetEvent(),
+		"event_type": constants.EventRepository,
 	})
 
 	l.Debugf("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 
-	// update hook object which will be added to DB upon reaching deferred function in PostWebhook
-	h.SetRepo(r)
-
-	// send API call to capture the last hook for the repo
-	lastHook, err := db.LastHookForRepo(ctx, dbR)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
-		return nil, retErr
-	}
-
-	// set the Number field
-	if lastHook != nil {
-		h.SetNumber(
-			lastHook.GetNumber() + 1,
-		)
-	}
-
 	// migrate repo secrets and allowlists
-	err = db.MigrateSecrets(ctx, dbR.GetOrg(), dbR.GetName(), r.GetOrg(), r.GetName())
+	err := db.MigrateSecrets(ctx, dbR.GetOrg(), dbR.GetName(), r.GetOrg(), r.GetName())
 	if err != nil {
 		return nil, fmt.Errorf("unable to migrate secrets for repo %s: %w", dbR.GetFullName(), err)
 	}
@@ -869,9 +802,6 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	dbR, err = db.UpdateRepo(ctx, dbR)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s/%s", baseErr, dbR.GetOrg(), dbR.GetName())
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
 
 		return nil, retErr
 	}

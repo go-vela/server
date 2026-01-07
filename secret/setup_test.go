@@ -22,7 +22,7 @@ func TestSecret_Setup_Native(t *testing.T) {
 		Database: db,
 	}
 
-	_native, err := _setup.Native()
+	_native, err := _setup.Native(t.Context())
 	if err != nil {
 		t.Errorf("unable to setup secret service: %v", err)
 	}
@@ -47,7 +47,7 @@ func TestSecret_Setup_Native(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := test.setup.Native()
+		got, err := test.setup.Native(t.Context())
 
 		if test.failure {
 			if err == nil {
@@ -80,7 +80,7 @@ func TestSecret_Setup_Vault(t *testing.T) {
 		Version:       "1",
 	}
 
-	_vault, err := _setup.Vault()
+	_vault, err := _setup.Vault(t.Context())
 	if err != nil {
 		t.Errorf("unable to setup secret service: %v", err)
 	}
@@ -105,7 +105,7 @@ func TestSecret_Setup_Vault(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_, err := test.setup.Vault()
+		_, err := test.setup.Vault(t.Context())
 
 		if test.failure {
 			if err == nil {

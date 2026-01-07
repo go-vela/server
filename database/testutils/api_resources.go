@@ -112,6 +112,7 @@ func APIRepo() *api.Repo {
 		BuildLimit:       new(int32),
 		Timeout:          new(int32),
 		Counter:          new(int64),
+		HookCounter:      new(int64),
 		PipelineType:     new(string),
 		Hash:             new(string),
 		Org:              new(string),

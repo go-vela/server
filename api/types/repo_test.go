@@ -332,6 +332,7 @@ func TestTypes_Repo_String(t *testing.T) {
   Clone: %s,
   Counter: %d,
   FullName: %s,
+  HookCounter: %d,
   ID: %d,
   Link: %s,
   MergeQueueEvents: %s,
@@ -357,6 +358,7 @@ func TestTypes_Repo_String(t *testing.T) {
 		r.GetClone(),
 		r.GetCounter(),
 		r.GetFullName(),
+		r.GetHookCounter(),
 		r.GetID(),
 		r.GetLink(),
 		r.GetMergeQueueEvents(),
@@ -401,6 +403,7 @@ func testRepo() *Repo {
 	r.SetBuildLimit(10)
 	r.SetTimeout(30)
 	r.SetCounter(0)
+	r.SetHookCounter(0)
 	r.SetVisibility("public")
 	r.SetPrivate(false)
 	r.SetTrusted(false)

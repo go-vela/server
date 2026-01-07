@@ -37,6 +37,7 @@ func TestPipeline_Retrieve(t *testing.T) {
 	_pipeline := new(api.Pipeline)
 
 	gin.SetMode(gin.TestMode)
+
 	_context, _ := gin.CreateTestContext(nil)
 
 	// setup tests
