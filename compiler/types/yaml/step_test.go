@@ -77,9 +77,8 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 							AccessMode:  "ro",
 						},
 					},
-					TestReport: TestReport{
-						Results:     []string{"test-results/*.xml"},
-						Attachments: []string{"screenshots/**/*.png", " video/*.mp4"},
+					Artifacts: Artifacts{
+						Paths: []string{"test-results/*.xml", "screenshots/**/*.png", " video/*.mp4"},
 					},
 				},
 			},
@@ -140,9 +139,8 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 							AccessMode:  "ro",
 						},
 					},
-					TestReport: pipeline.TestReport{
-						Results:     []string{"test-results/*.xml"},
-						Attachments: []string{"screenshots/**/*.png", " video/*.mp4"},
+					Artifacts: pipeline.Artifacts{
+						Paths: []string{"test-results/*.xml", "screenshots/**/*.png", " video/*.mp4"},
 					},
 				},
 			},
@@ -224,12 +222,11 @@ func TestYaml_StepSlice_UnmarshalYAML(t *testing.T) {
 					},
 				},
 				{
-					Name:  "test-reports",
+					Name:  "artifacts",
 					Image: "golang:1.20",
 					Pull:  "always",
-					TestReport: TestReport{
-						Results:     []string{"test-results/*.xml"},
-						Attachments: []string{"screenshots/**/*.png", " video/*.mp4"},
+					Artifacts: Artifacts{
+						Paths: []string{"test-results/*.xml", "screenshots/**/*.png", " video/*.mp4"},
 					},
 				},
 			},

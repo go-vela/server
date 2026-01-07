@@ -16,7 +16,7 @@ type TestReport struct {
 // When the provided TestReport type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (tr *TestReport) GetID() int64 {
-	// return zero value if TestReport type or ID field is nil
+	// return zero value if Artifacts type or ID field is nil
 	if tr == nil || tr.ID == nil {
 		return 0
 	}
@@ -29,7 +29,7 @@ func (tr *TestReport) GetID() int64 {
 // When the provided TestReport type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (tr *TestReport) GetBuildID() int64 {
-	// return zero value if TestReport type or BuildID field is nil
+	// return zero value if Artifacts type or BuildID field is nil
 	if tr == nil || tr.BuildID == nil {
 		return 0
 	}
@@ -42,7 +42,7 @@ func (tr *TestReport) GetBuildID() int64 {
 // When the provided TestReport type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (tr *TestReport) GetCreatedAt() int64 {
-	// return zero value if TestReport type or CreatedAt field is nil
+	// return zero value if Artifacts type or CreatedAt field is nil
 	if tr == nil || tr.CreatedAt == nil {
 		return 0
 	}
@@ -52,7 +52,7 @@ func (tr *TestReport) GetCreatedAt() int64 {
 
 // SetID sets the ID field.
 func (tr *TestReport) SetID(v int64) {
-	// return if TestReport type is nil
+	// return if Artifacts type is nil
 	if tr == nil {
 		return
 	}
@@ -62,7 +62,7 @@ func (tr *TestReport) SetID(v int64) {
 
 // SetBuildID sets the BuildID field.
 func (tr *TestReport) SetBuildID(v int64) {
-	// return if TestReport type is nil
+	// return if Artifacts type is nil
 	if tr == nil {
 		return
 	}
@@ -72,7 +72,7 @@ func (tr *TestReport) SetBuildID(v int64) {
 
 // SetCreatedAt sets the CreatedAt field.
 func (tr *TestReport) SetCreatedAt(v int64) {
-	// return if TestReport type is nil
+	// return if Artifacts type is nil
 	if tr == nil {
 		return
 	}

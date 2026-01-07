@@ -7,15 +7,15 @@ import "testing"
 func TestPipeline_TestReport_Empty(t *testing.T) {
 	// setup tests
 	tests := []struct {
-		report *TestReport
+		report *Artifacts
 		want   bool
 	}{
 		{
-			report: &TestReport{Results: []string{"foo"}},
+			report: &Artifacts{Paths: []string{"foo"}},
 			want:   false,
 		},
 		{
-			report: new(TestReport),
+			report: new(Artifacts),
 			want:   true,
 		},
 	}

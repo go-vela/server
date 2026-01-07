@@ -214,7 +214,7 @@ func TestAPI_Pipeline_String(t *testing.T) {
   Stages: %t,
   Steps: %t,
   Templates: %t,
-  TestReport: %t,
+  Artifacts: %t,
   Type: %s,
   Version: %s,
   Warnings: %v,

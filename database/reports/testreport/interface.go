@@ -13,7 +13,7 @@ import (
 //
 
 type TestReportInterface interface {
-	// TestReport Data Definition Language Functions
+	// Artifacts Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language
 
@@ -22,7 +22,7 @@ type TestReportInterface interface {
 	// CreateTestReportTable defines a function that creates the testreports table.
 	CreateTestReportTable(context.Context, string) error
 
-	// TestReport Management Functions
+	// Artifacts Management Functions
 
 	// CountTestReports returns the count of all test reports.
 	CountTestReports(context.Context) (int64, error)

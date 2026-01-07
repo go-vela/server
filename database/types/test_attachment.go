@@ -79,11 +79,11 @@ func (ta *TestAttachment) ToAPI() *api.TestAttachment {
 	attachment := new(api.TestAttachment)
 	attachment.SetID(ta.ID.Int64)
 
-	// var tr *api.TestReport
-	// if ta.TestReport.ID.Valid {
-	// 	tr = ta.TestReport.ToAPI()
+	// var tr *api.Artifacts
+	// if ta.Artifacts.ID.Valid {
+	// 	tr = ta.Artifacts.ToAPI()
 	// } else {
-	// 	tr = new(api.TestReport)
+	// 	tr = new(api.Artifacts)
 	// tr.SetID(ta.TestReportID.Int64)
 	// }
 

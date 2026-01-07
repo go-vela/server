@@ -243,7 +243,7 @@ func (p *Pipeline) GetData() []byte {
 // When the provided Pipeline type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (p *Pipeline) GetTestReport() bool {
-	// return zero value if Pipeline type or TestReport field is nil
+	// return zero value if Pipeline type or Artifacts field is nil
 	if p == nil || p.TestReport == nil {
 		return false
 	}
@@ -488,7 +488,7 @@ func (p *Pipeline) String() string {
   Stages: %t,
   Steps: %t,
   Templates: %t,
-  TestReport: %t,
+  Artifacts: %t,
   Type: %s,
   Version: %s,
   Warnings: %v,

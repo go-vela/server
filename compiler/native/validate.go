@@ -108,8 +108,7 @@ func validateYAMLSteps(s yaml.StepSlice) error {
 
 		if len(step.Commands) == 0 && len(step.Environment) == 0 &&
 			len(step.Parameters) == 0 && len(step.Secrets) == 0 &&
-			len(step.Template.Name) == 0 && len(step.TestReport.Results) == 0 &&
-			len(step.TestReport.Attachments) == 0 && !step.Detach {
+			len(step.Template.Name) == 0 && len(step.Artifacts.Paths) == 0 && !step.Detach {
 			return fmt.Errorf("no commands, environment, parameters, secrets or template provided for step %s", step.Name)
 		}
 	}
