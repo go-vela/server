@@ -55,9 +55,13 @@ func TestBuild_Establish(t *testing.T) {
 	r.SetVisibility("public")
 	r.SetInstallID(0)
 
+	wantRepo := *r
+	count := int64(1)
+	wantRepo.Counter = &count
+
 	want := new(api.Build)
 	want.SetID(1)
-	want.SetRepo(r)
+	want.SetRepo(&wantRepo)
 	want.SetPipelineID(0)
 	want.SetNumber(1)
 	want.SetParent(1)

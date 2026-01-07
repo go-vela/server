@@ -2461,7 +2461,6 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	b := new(api.Build)
 	b.SetID(1)
 	b.SetRepo(r)
-	b.SetNumber(1)
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
@@ -2493,8 +2492,8 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 		db.Close()
 	}()
 
-	_, _ = db.CreateBuild(ctx, b)
 	_, _ = db.CreateRepo(ctx, r)
+	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))

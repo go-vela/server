@@ -85,28 +85,11 @@ func CreateHook(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).LastHookForRepo(ctx, r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// update fields in webhook object
 	input.SetRepo(r)
-	input.SetNumber(1)
 
 	if input.GetCreated() == 0 {
 		input.SetCreated(time.Now().UTC().Unix())
-	}
-
-	if lastHook != nil {
-		input.SetNumber(
-			lastHook.GetNumber() + 1,
-		)
 	}
 
 	// send API call to create the webhook

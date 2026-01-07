@@ -153,7 +153,7 @@ func SyncReposForOrg(c *gin.Context) {
 		// update the repo hook in the SCM
 		if c.Value("webhookvalidation").(bool) && repo.GetActive() {
 			// grab last hook from repo to fetch the webhook ID
-			lastHook, err := database.FromContext(c).LastHookForRepo(ctx, repo)
+			lastHook, err := database.FromContext(c).GetHookForRepo(ctx, repo, repo.GetHookCounter())
 			if err != nil {
 				retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", repo.GetFullName(), err)
 
