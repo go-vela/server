@@ -14,7 +14,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.39.1
 	github.com/distribution/reference v0.6.0
 	github.com/drone/envsubst v1.0.3
-	github.com/expr-lang/expr v1.17.6
+	github.com/expr-lang/expr v1.17.7
 	github.com/ghodss/yaml v1.0.0
 	github.com/gin-gonic/gin v1.10.1
 	github.com/go-playground/assert/v2 v2.2.0
