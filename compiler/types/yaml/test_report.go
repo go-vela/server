@@ -4,7 +4,7 @@ package yaml
 
 import "github.com/go-vela/server/compiler/types/pipeline"
 
-// Artifacts represents the structure for test report configuration.
+// Artifacts represents the structure for artifacts configuration.
 type Artifacts struct {
 	Paths []string `yaml:"paths,omitempty" json:"paths,omitempty"`
 }
@@ -19,12 +19,12 @@ func (t *Artifacts) ToPipeline() *pipeline.Artifacts {
 
 // UnmarshalYAML implements the Unmarshaler interface for the Artifacts type.
 func (t *Artifacts) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	// test report we try unmarshalling to
+	// Artifacts we try unmarshalling to
 	artifacts := new(struct {
 		Paths []string `yaml:"paths,omitempty" json:"paths,omitempty"`
 	})
 
-	// attempt to unmarshal test report type
+	// attempt to unmarshal Artifacts type
 	err := unmarshal(artifacts)
 	if err != nil {
 		return err
