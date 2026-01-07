@@ -4,12 +4,16 @@ package build
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 )
 
 func TestBuild_Engine_CreateBuild(t *testing.T) {
@@ -41,6 +45,12 @@ func TestBuild_Engine_CreateBuild(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
+	_counterRow := sqlmock.NewRows([]string{"counter"}).AddRow(1)
+
+	_mock.ExpectBegin()
+
+	_mock.ExpectQuery(`UPDATE repos SET counter = counter + 1 WHERE id = $1 RETURNING counter`).WithArgs(1).WillReturnRows(_counterRow)
+
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "builds"
 ("repo_id","pipeline_id","number","parent","event","event_action","status","error","enqueued","created","started","finished","deploy","deploy_number","deploy_payload","clone","source","title","message","commit","sender","sender_scm_id","fork","author","email","link","branch","ref","base_ref","head_ref","host","route","runtime","distribution","approved_at","approved_by","id")
@@ -48,9 +58,19 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$
 		WithArgs(1, nil, 1, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, AnyArgument{}, nil, nil, nil, nil, nil, nil, nil, false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnRows(_rows)
 
+	_mock.ExpectCommit()
+
 	_sqlite := testSqlite(t)
 
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
+
+	sqlitePopulateTables(
+		t,
+		_sqlite,
+		[]*api.Build{},
+		[]*api.User{_owner},
+		[]*api.Repo{_repo},
+	)
 
 	// setup tests
 	tests := []struct {
@@ -92,4 +112,15 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$
 			}
 		})
 	}
+}
+
+// createTestBuild is a helper function to create build objects without the repo update transaction.
+// used only for unit tests.
+func createTestBuild(_ context.Context, e *Engine, b *api.Build) error {
+	err := e.client.Table(constants.TableBuild).Create(types.BuildFromAPI(b)).Error
+	if err != nil {
+		return fmt.Errorf("unable to create test build: %w", err)
+	}
+
+	return nil
 }
