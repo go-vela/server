@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v74/github"
+	"github.com/google/go-github/v81/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -158,12 +158,12 @@ func (c *Client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *Client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
-	return c.CreateWebhook(ctx, u, r, h)
+func (c *Client) Enable(ctx context.Context, u *api.User, r *api.Repo) (*api.Hook, string, error) {
+	return c.CreateWebhook(ctx, u, r)
 }
 
 // CreateWebhook creates a repo's webhook.
-func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h *api.Hook) (*api.Hook, string, error) {
+func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo) (*api.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -220,7 +220,6 @@ func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo, h 
 	webhook.SetSourceID(r.GetName() + "-" + eventInitialize)
 	webhook.SetCreated(hookInfo.GetCreatedAt().Unix())
 	webhook.SetEvent(eventInitialize)
-	webhook.SetNumber(h.GetNumber() + 1)
 	webhook.SetStatus(constants.StatusSuccess)
 
 	switch resp.StatusCode {
@@ -395,7 +394,7 @@ func (c *Client) Status(ctx context.Context, b *api.Build, org, name, token stri
 	}
 
 	// create the status object to make the API call
-	status := &github.RepoStatus{
+	status := github.RepoStatus{
 		Context:     github.Ptr(context),
 		Description: github.Ptr(description),
 		State:       github.Ptr(state),
@@ -463,7 +462,7 @@ func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, org,
 	}
 
 	// create the status object to make the API call
-	status := &github.RepoStatus{
+	status := github.RepoStatus{
 		Context:     github.Ptr(context),
 		Description: github.Ptr(description),
 		State:       github.Ptr(state),
@@ -494,7 +493,14 @@ func (c *Client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Re
 	// send an API call to get the repo info
 	repo, resp, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
 	if err != nil {
-		return nil, resp.StatusCode, err
+		var code int
+		if resp != nil {
+			code = resp.StatusCode
+		} else {
+			code = http.StatusInternalServerError
+		}
+
+		return nil, code, err
 	}
 
 	return toAPIRepo(*repo), resp.StatusCode, nil
