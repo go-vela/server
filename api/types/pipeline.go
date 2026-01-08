@@ -24,7 +24,7 @@ type Pipeline struct {
 	Stages          *bool     `json:"stages,omitempty"`
 	Steps           *bool     `json:"steps,omitempty"`
 	Templates       *bool     `json:"templates,omitempty"`
-	TestReport      *bool     `json:"test_report,omitempty"`
+	Artifact        *bool     `json:"artifact,omitempty"`
 	Warnings        *[]string `json:"warnings,omitempty"`
 	// swagger:strfmt base64
 	Data *[]byte `json:"data,omitempty"`
@@ -238,17 +238,17 @@ func (p *Pipeline) GetData() []byte {
 	return *p.Data
 }
 
-// GetTestReport returns the TestReport results field.
+// GetArtifact returns the Artifact flag.
 //
 // When the provided Pipeline type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (p *Pipeline) GetTestReport() bool {
-	// return zero value if Pipeline type or Artifacts field is nil
-	if p == nil || p.TestReport == nil {
+func (p *Pipeline) GetArtifact() bool {
+	// return zero value if Pipeline type or Artifact field is nil
+	if p == nil || p.Artifact == nil {
 		return false
 	}
 
-	return *p.TestReport
+	return *p.Artifact
 }
 
 // SetID sets the ID field.
@@ -433,17 +433,17 @@ func (p *Pipeline) SetTemplates(v bool) {
 	p.Templates = &v
 }
 
-// SetTestReport sets the TestReport field.
+// SetArtifact sets the Artifact field.
 //
 // When the provided Pipeline type is nil, it
 // will set nothing and immediately return.
-func (p *Pipeline) SetTestReport(v bool) {
+func (p *Pipeline) SetArtifact(v bool) {
 	// return if Pipeline type is nil
 	if p == nil {
 		return
 	}
 
-	p.TestReport = &v
+	p.Artifact = &v
 }
 
 // SetWarnings sets the Warnings field.
@@ -506,7 +506,7 @@ func (p *Pipeline) String() string {
 		p.GetStages(),
 		p.GetSteps(),
 		p.GetTemplates(),
-		p.GetTestReport(),
+		p.GetArtifact(),
 		p.GetType(),
 		p.GetVersion(),
 		p.GetWarnings(),

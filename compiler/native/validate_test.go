@@ -744,7 +744,7 @@ func TestNative_Validate_Steps_StepNameConflict(t *testing.T) {
 	}
 }
 
-func TestNative_Validate_TestReport(t *testing.T) {
+func TestNative_Validate_Artifact(t *testing.T) {
 	// setup types
 	str := "foo"
 	p := &yaml.Build{
@@ -755,8 +755,8 @@ func TestNative_Validate_TestReport(t *testing.T) {
 				Image:    "alpine",
 				Name:     str,
 				Pull:     "always",
-				Artifacts: yaml.Artifacts{
-					Paths: []string{"results.xml", "attachments.png"},
+				Artifact: yaml.Artifact{
+					Paths: []string{"results.xml", "artifacts.png"},
 				},
 			},
 		},

@@ -162,8 +162,8 @@ func FakeHandler() http.Handler {
 	// mock endpoint for storage credentials
 	e.GET("/api/v1/storage/info", getStorageCreds)
 
-	// mock endpoint for test report calls
-	e.POST("/api/v1/repos/org/repo/builds/1/reports/testreport", addTestReport)
+	// mock endpoint for artifact calls
+	e.PUT("/api/v1/repos/org/repo/builds/1/artifact", addArtifact)
 
 	return e
 }

@@ -45,8 +45,8 @@
       repo: github/octocat
       tags: [latest, dev]
 
-- name: artifacts
+- name: artifact
   image: golang:1.20
   pull: true
-  artifacts:
-    paths: ["test-results/*.xml","screenshots/**/*.png", " video/*.mp4"]
+  artifact:
+    paths: ['test-results/*.xml', 'screenshots/**/*.png', ' video/*.mp4']

@@ -169,7 +169,7 @@ templates:
   "stages": false,
   "steps": true,
   "templates": false,
-  "test_report": false,
+  "artifact": false,
   "warnings": [
     "42:this is a warning"
   ],
@@ -245,7 +245,7 @@ templates:
     "stages": false,
     "steps": true,
     "templates": false,
-    "test_report": false,
+    "artifact": false,
     "data": "LS0tCnZlcnNpb246ICIxIgoKc3RlcHM6CiAgLSBuYW1lOiBlY2hvCiAgICBpbWFnZTogYWxwaW5lOmxhdGVzdAogICAgY29tbWFuZHM6IFtlY2hvIGZvb10="
   },
   {
@@ -315,7 +315,7 @@ templates:
     "stages": false,
     "steps": true,
     "templates": false,
-    "test_report": false,
+    "artifact": false,
     "data": "LS0tCnZlcnNpb246ICIxIgoKc3RlcHM6CiAgLSBuYW1lOiBlY2hvCiAgICBpbWFnZTogYWxwaW5lOmxhdGVzdAogICAgY29tbWFuZHM6IFtlY2hvIGZvb10="
   }
 ]`

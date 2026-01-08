@@ -232,7 +232,7 @@ func TestAPI_Pipeline_String(t *testing.T) {
 		p.GetStages(),
 		p.GetSteps(),
 		p.GetTemplates(),
-		p.GetTestReport(),
+		p.GetArtifact(),
 		p.GetType(),
 		p.GetVersion(),
 		p.GetWarnings(),
@@ -265,7 +265,7 @@ func testPipeline() *Pipeline {
 	p.SetStages(false)
 	p.SetSteps(true)
 	p.SetTemplates(false)
-	p.SetTestReport(true)
+	p.SetArtifact(true)
 	p.SetData(testPipelineData())
 	p.SetWarnings([]string{"42:this is a warning"})
 

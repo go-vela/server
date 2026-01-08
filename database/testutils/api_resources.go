@@ -299,18 +299,10 @@ func APIDashboardRepo() *api.DashboardRepo {
 	}
 }
 
-func APITestReport() *api.TestReport {
-	return &api.TestReport{
-		ID:        new(int64),
-		BuildID:   new(int64),
-		CreatedAt: new(int64),
-	}
-}
-
-func APITestAttachment() *api.TestAttachment {
-	return &api.TestAttachment{
+func APIArtifact() *api.Artifact {
+	return &api.Artifact{
 		ID:           new(int64),
-		TestReportID: new(int64),
+		BuildID:      new(int64),
 		FileName:     new(string),
 		ObjectPath:   new(string),
 		FileSize:     new(int64),

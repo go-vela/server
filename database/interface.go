@@ -3,6 +3,7 @@
 package database
 
 import (
+	artifact "github.com/go-vela/server/database/artifact"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -12,8 +13,6 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
-	"github.com/go-vela/server/database/reports/testattachment"
-	"github.com/go-vela/server/database/reports/testreport"
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
@@ -71,11 +70,8 @@ type Interface interface {
 	// RepoInterface defines the interface for repos stored in the database.
 	repo.RepoInterface
 
-	// TestReportInterface defines the interface for test reports stored in the database.
-	testreport.TestReportInterface
-
-	// TestAttachmentInterface defines the interface for test attachments stored in the database.
-	testattachment.TestAttachmentInterface
+	// ArtifactInterface defines the interface for artifacts stored in the database.
+	artifact.ArtifactInterface
 
 	// ScheduleInterface defines the interface for schedules stored in the database.
 	schedule.ScheduleInterface
