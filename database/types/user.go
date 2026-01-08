@@ -208,10 +208,10 @@ func (u *User) Validate() error {
 	// GitHub repo names (owner/repo) only contain alphanumeric, hyphens, underscores, periods, and slashes
 	// so they never require quoting or escaping in PostgreSQL arrays
 	total := 2 // account for opening and closing curly braces: { }
-	
+
 	for i, f := range u.Favorites {
 		total += len(f)
-		
+
 		// add comma separator (except for last item)
 		if i < len(u.Favorites)-1 {
 			total++

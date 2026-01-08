@@ -13,19 +13,19 @@ import (
 // swagger:model Platform
 type Platform struct {
 	ID                  *int32 `json:"id"`
-	*Compiler           `json:"compiler,omitempty"            yaml:"compiler,omitempty"`
-	*Queue              `json:"queue,omitempty"               yaml:"queue,omitempty"`
-	*SCM                `json:"scm,omitempty"                 yaml:"scm,omitempty"`
-	RepoAllowlist       *[]string `json:"repo_allowlist,omitempty"      yaml:"repo_allowlist,omitempty"`
-	ScheduleAllowlist   *[]string `json:"schedule_allowlist,omitempty"  yaml:"schedule_allowlist,omitempty"`
-	MaxDashboardRepos   *int32    `json:"max_dashboard_repos,omitempty" yaml:"max_dashboard_repos,omitempty"`
-	QueueRestartLimit   *int32    `json:"queue_restart_limit,omitempty" yaml:"queue_restart_limit,omitempty"`
-	EnableRepoSecrets   *bool     `json:"enable_repo_secrets,omitempty" yaml:"enable_repo_secrets,omitempty"`
-	EnableOrgSecrets    *bool     `json:"enable_org_secrets,omitempty"  yaml:"enable_org_secrets,omitempty"`
+	*Compiler           `json:"compiler,omitempty"              yaml:"compiler,omitempty"`
+	*Queue              `json:"queue,omitempty"                 yaml:"queue,omitempty"`
+	*SCM                `json:"scm,omitempty"                   yaml:"scm,omitempty"`
+	RepoAllowlist       *[]string `json:"repo_allowlist,omitempty"        yaml:"repo_allowlist,omitempty"`
+	ScheduleAllowlist   *[]string `json:"schedule_allowlist,omitempty"    yaml:"schedule_allowlist,omitempty"`
+	MaxDashboardRepos   *int32    `json:"max_dashboard_repos,omitempty"   yaml:"max_dashboard_repos,omitempty"`
+	QueueRestartLimit   *int32    `json:"queue_restart_limit,omitempty"   yaml:"queue_restart_limit,omitempty"`
+	EnableRepoSecrets   *bool     `json:"enable_repo_secrets,omitempty"   yaml:"enable_repo_secrets,omitempty"`
+	EnableOrgSecrets    *bool     `json:"enable_org_secrets,omitempty"    yaml:"enable_org_secrets,omitempty"`
 	EnableSharedSecrets *bool     `json:"enable_shared_secrets,omitempty" yaml:"enable_shared_secrets,omitempty"`
-	CreatedAt           *int64    `json:"created_at,omitempty"          yaml:"created_at,omitempty"`
-	UpdatedAt           *int64    `json:"updated_at,omitempty"          yaml:"updated_at,omitempty"`
-	UpdatedBy           *string   `json:"updated_by,omitempty"          yaml:"updated_by,omitempty"`
+	CreatedAt           *int64    `json:"created_at,omitempty"            yaml:"created_at,omitempty"`
+	UpdatedAt           *int64    `json:"updated_at,omitempty"            yaml:"updated_at,omitempty"`
+	UpdatedBy           *string   `json:"updated_by,omitempty"            yaml:"updated_by,omitempty"`
 }
 
 // FromCLICommand returns a new Platform record from a cli command.

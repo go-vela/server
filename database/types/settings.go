@@ -29,12 +29,12 @@ type (
 		Queue    `json:"queue"    sql:"queue"`
 		SCM      `json:"scm"      sql:"scm"`
 
-		RepoAllowlist       pq.StringArray `json:"repo_allowlist"      sql:"repo_allowlist"      gorm:"type:varchar(1000)"`
-		ScheduleAllowlist   pq.StringArray `json:"schedule_allowlist"  sql:"schedule_allowlist"  gorm:"type:varchar(1000)"`
-		MaxDashboardRepos   sql.NullInt32  `json:"max_dashboard_repos" sql:"max_dashboard_repos"`
-		QueueRestartLimit   sql.NullInt32  `json:"queue_restart_limit" sql:"queue_restart_limit"`
-		EnableRepoSecrets   sql.NullBool   `json:"enable_repo_secrets" sql:"enable_repo_secrets"`
-		EnableOrgSecrets    sql.NullBool   `json:"enable_org_secrets"  sql:"enable_org_secrets"`
+		RepoAllowlist       pq.StringArray `json:"repo_allowlist"        sql:"repo_allowlist"        gorm:"type:varchar(1000)"`
+		ScheduleAllowlist   pq.StringArray `json:"schedule_allowlist"    sql:"schedule_allowlist"    gorm:"type:varchar(1000)"`
+		MaxDashboardRepos   sql.NullInt32  `json:"max_dashboard_repos"   sql:"max_dashboard_repos"`
+		QueueRestartLimit   sql.NullInt32  `json:"queue_restart_limit"   sql:"queue_restart_limit"`
+		EnableRepoSecrets   sql.NullBool   `json:"enable_repo_secrets"   sql:"enable_repo_secrets"`
+		EnableOrgSecrets    sql.NullBool   `json:"enable_org_secrets"    sql:"enable_org_secrets"`
 		EnableSharedSecrets sql.NullBool   `json:"enable_shared_secrets" sql:"enable_shared_secrets"`
 
 		CreatedAt sql.NullInt64  `sql:"created_at"`
