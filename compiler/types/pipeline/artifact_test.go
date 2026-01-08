@@ -4,25 +4,25 @@ package pipeline
 
 import "testing"
 
-func TestPipeline_Artifact_Empty(t *testing.T) {
+func TestPipeline_Artifacts_Empty(t *testing.T) {
 	// setup tests
 	tests := []struct {
-		artifact *Artifact
-		want     bool
+		artifacts *Artifacts
+		want      bool
 	}{
 		{
-			artifact: &Artifact{Paths: []string{"foo"}},
-			want:     false,
+			artifacts: &Artifacts{Paths: []string{"foo"}},
+			want:      false,
 		},
 		{
-			artifact: new(Artifact),
-			want:     true,
+			artifacts: new(Artifacts),
+			want:      true,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		got := test.artifact.Empty()
+		got := test.artifacts.Empty()
 
 		if got != test.want {
 			t.Errorf("Empty is %v, want %t", got, test.want)

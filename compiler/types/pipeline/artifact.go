@@ -6,18 +6,18 @@ package pipeline
 // of a slice of artifacts.
 //
 // swagger:model PipelineArtifactSlice
-type ArtifactSlice []*Artifact
+type ArtifactSlice []*Artifacts
 
 // Artifact is the pipeline representation
 // of artifacts for a pipeline.
 //
 // swagger:model PipelineArtifact
-type Artifact struct {
+type Artifacts struct {
 	Paths []string `yaml:"paths,omitempty"     json:"paths,omitempty"`
 }
 
 // Empty returns true if the provided Artifact is empty.
-func (a *Artifact) Empty() bool {
+func (a *Artifacts) Empty() bool {
 	// return true if paths field is empty
 	if len(a.Paths) == 0 {
 		return true

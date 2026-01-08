@@ -755,7 +755,7 @@ func TestNative_Validate_Artifact(t *testing.T) {
 				Image:    "alpine",
 				Name:     str,
 				Pull:     "always",
-				Artifact: yaml.Artifact{
+				Artifacts: yaml.Artifacts{
 					Paths: []string{"results.xml", "artifacts.png"},
 				},
 			},

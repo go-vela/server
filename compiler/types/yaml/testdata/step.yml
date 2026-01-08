@@ -48,5 +48,5 @@
 - name: artifact
   image: golang:1.20
   pull: true
-  artifact:
+  artifacts:
     paths: ['test-results/*.xml', 'screenshots/**/*.png', ' video/*.mp4']

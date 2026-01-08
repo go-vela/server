@@ -48,7 +48,7 @@ type (
 		Pull        string            `json:"pull,omitempty"        yaml:"pull,omitempty"`
 		Ruleset     Ruleset           `json:"ruleset,omitempty"     yaml:"ruleset,omitempty"`
 		Secrets     StepSecretSlice   `json:"secrets,omitempty"     yaml:"secrets,omitempty"`
-		Artifact    Artifact          `json:"artifact,omitempty" yaml:"artifact,omitempty"`
+		Artifacts   Artifacts         `json:"artifact,omitempty" yaml:"artifact,omitempty"`
 		Ulimits     UlimitSlice       `json:"ulimits,omitempty"     yaml:"ulimits,omitempty"`
 		Volumes     VolumeSlice       `json:"volumes,omitempty"     yaml:"volumes,omitempty"`
 		User        string            `json:"user,omitempty"        yaml:"user,omitempty"`
@@ -142,7 +142,7 @@ func (c *Container) Empty() bool {
 		len(c.User) == 0 &&
 		len(c.ReportAs) == 0 &&
 		len(c.IDRequest) == 0 &&
-		reflect.DeepEqual(c.Artifact, Artifact{}) {
+		reflect.DeepEqual(c.Artifacts, Artifacts{}) {
 		return true
 	}
 
