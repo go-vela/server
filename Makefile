@@ -139,7 +139,7 @@ build:
 	@echo
 	@echo "### Building release/vela-server binary"
 	GOOS=linux CGO_ENABLED=0 \
-		go build -a \
+		go build -tags nomsgpack -a \
 		-ldflags '${LD_FLAGS}' \
 		-o release/vela-server \
 		github.com/go-vela/server/cmd/vela-server
@@ -153,7 +153,7 @@ build-static:
 	@echo
 	@echo "### Building static release/vela-server binary"
 	GOOS=linux CGO_ENABLED=0 \
-		go build -a \
+		go build -tags nomsgpack -a \
 		-ldflags '-s -w -extldflags "-static" ${LD_FLAGS}' \
 		-o release/vela-server \
 		github.com/go-vela/server/cmd/vela-server
@@ -167,7 +167,7 @@ build-static:
 build-static-ci:
 	@echo
 	@echo "### Building CI static release/vela-server binary"
-	@go build -a \
+	@go build -tags nomsgpack -a \
 		-ldflags '-s -w -extldflags "-static" ${LD_FLAGS}' \
 		-o release/vela-server \
 		github.com/go-vela/server/cmd/vela-server
