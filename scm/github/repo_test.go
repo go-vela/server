@@ -692,7 +692,6 @@ func TestGithub_Enable(t *testing.T) {
 	wantHook.SetWebhookID(1)
 	wantHook.SetSourceID("bar-initialize")
 	wantHook.SetCreated(1315329987)
-	wantHook.SetNumber(1)
 	wantHook.SetEvent("initialize")
 	wantHook.SetStatus("success")
 
@@ -705,7 +704,7 @@ func TestGithub_Enable(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, _, err := client.Enable(context.TODO(), u, r, new(api.Hook))
+	got, _, err := client.Enable(context.TODO(), u, r)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
@@ -1686,6 +1685,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 		git           yaml.Git
 		appsTransport bool
 		wantToken     string
+		wantExp       int64
 		wantErr       bool
 	}{
 		{
@@ -1700,6 +1700,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+			wantExp:       1468275250,
 			wantErr:       false,
 		},
 		{
@@ -1714,6 +1715,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: false,
 			wantToken:     "bar",
+			wantExp:       0,
 			wantErr:       false,
 		},
 		{
@@ -1728,6 +1730,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
+			wantExp:       0,
 			wantErr:       false,
 		},
 		{
@@ -1736,6 +1739,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			user:          u,
 			appsTransport: true,
 			wantToken:     "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+			wantExp:       1468275250,
 			wantErr:       false,
 		},
 		{
@@ -1750,7 +1754,8 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
-			wantErr:       true,
+			wantExp:       0,
+			wantErr:       false,
 		},
 		{
 			name: "invalid permission level",
@@ -1764,7 +1769,8 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
-			wantErr:       true,
+			wantExp:       0,
+			wantErr:       false,
 		},
 		{
 			name: "owner with inadequate permission to other repo",
@@ -1777,6 +1783,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			},
 			appsTransport: true,
 			wantToken:     "bar",
+			wantExp:       0,
 			wantErr:       true,
 		},
 	}
@@ -1785,10 +1792,10 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			client, _ := NewTest(s.URL)
 			if test.appsTransport {
-				client.AppsTransport = NewTestAppsTransport(s.URL)
+				client.AppClient = NewTestAppClient(s.URL)
 			}
 
-			got, err := client.GetNetrcPassword(context.TODO(), nil, test.repo, test.user, test.git)
+			got, gotExp, err := client.GetNetrcPassword(context.TODO(), nil, nil, test.repo, test.user, test.git)
 			if (err != nil) != test.wantErr {
 				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
 				return
@@ -1796,6 +1803,10 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 
 			if got != test.wantToken {
 				t.Errorf("GetNetrcPassword() = %v, want %v", got, test.wantToken)
+			}
+
+			if gotExp != test.wantExp {
+				t.Errorf("GetNetrcPassword() expiration = %v, want %v", gotExp, test.wantExp)
 			}
 		})
 	}
@@ -1857,7 +1868,7 @@ func TestGithub_SyncRepoWithInstallation(t *testing.T) {
 		r.SetFullName(fmt.Sprintf("%s/%s", test.org, test.repo))
 
 		client, _ := NewTest(s.URL)
-		client.AppsTransport = NewTestAppsTransport(s.URL)
+		client.AppClient = NewTestAppClient(s.URL)
 
 		// run test
 		got, err := client.SyncRepoWithInstallation(context.TODO(), r)

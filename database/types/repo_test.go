@@ -185,6 +185,7 @@ func TestTypes_Repo_ToAPI(t *testing.T) {
 	want.SetBuildLimit(10)
 	want.SetTimeout(30)
 	want.SetCounter(0)
+	want.SetHookCounter(0)
 	want.SetVisibility("public")
 	want.SetPrivate(false)
 	want.SetTrusted(false)
@@ -340,6 +341,7 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 	r.SetBuildLimit(10)
 	r.SetTimeout(30)
 	r.SetCounter(0)
+	r.SetHookCounter(0)
 	r.SetVisibility("public")
 	r.SetPrivate(false)
 	r.SetTrusted(false)
@@ -380,6 +382,7 @@ func testRepo() *Repo {
 		BuildLimit:      sql.NullInt32{Int32: 10, Valid: true},
 		Timeout:         sql.NullInt32{Int32: 30, Valid: true},
 		Counter:         sql.NullInt64{Int64: 0, Valid: true},
+		HookCounter:     sql.NullInt64{Int64: 0, Valid: true},
 		Visibility:      sql.NullString{String: "public", Valid: true},
 		Private:         sql.NullBool{Bool: false, Valid: true},
 		Trusted:         sql.NullBool{Bool: false, Valid: true},

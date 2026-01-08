@@ -13,6 +13,7 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
@@ -42,6 +43,9 @@ func main() {
 
 	// Add Core Flags
 	cmd.Flags = Flags
+
+	// Add Cache Flags
+	cmd.Flags = append(cmd.Flags, cache.Flags...)
 
 	// Add Database Flags
 	cmd.Flags = append(cmd.Flags, database.Flags...)

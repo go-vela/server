@@ -19,6 +19,7 @@ func TestExecutors_FromContext(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	context.Set(key, want)
 
@@ -33,6 +34,7 @@ func TestExecutors_FromContext(t *testing.T) {
 func TestExecutors_FromContext_Bad(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	context.Set(key, nil)
 
@@ -47,6 +49,7 @@ func TestExecutors_FromContext_Bad(t *testing.T) {
 func TestExecutors_FromContext_WrongType(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	context.Set(key, 1)
 
@@ -61,6 +64,7 @@ func TestExecutors_FromContext_WrongType(t *testing.T) {
 func TestExecutors_FromContext_Empty(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 
 	// run test
@@ -79,6 +83,7 @@ func TestExecutors_ToContext(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	ToContext(context, want)
 

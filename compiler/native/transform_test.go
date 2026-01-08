@@ -52,7 +52,7 @@ func TestNative_TransformStages(t *testing.T) {
 				Steps: yaml.StepSlice{
 					&yaml.Step{
 						Commands:    []string{"./gradlew downloadDependencies"},
-						Environment: environment(nil, nil, nil, nil, nil),
+						Environment: environment(nil, nil, nil, nil, nil, 0),
 						Image:       "openjdk:latest",
 						Name:        "install",
 						Pull:        "always",
@@ -65,7 +65,7 @@ func TestNative_TransformStages(t *testing.T) {
 				Steps: yaml.StepSlice{
 					&yaml.Step{
 						Commands:    []string{"./gradlew check"},
-						Environment: environment(nil, nil, nil, nil, nil),
+						Environment: environment(nil, nil, nil, nil, nil, 0),
 						Image:       "openjdk:latest",
 						Name:        "test",
 						Pull:        "always",
@@ -103,7 +103,7 @@ func TestNative_TransformStages(t *testing.T) {
 			local:    false,
 			pipeline: p,
 			want: &pipeline.Build{
-				ID:      "__0",
+				ID:      "",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
 					Clone:      true,
@@ -111,7 +111,7 @@ func TestNative_TransformStages(t *testing.T) {
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:     "service___0_postgres backend",
+						ID:     "",
 						Ports:  []string{"5432:5432"},
 						Name:   "postgres backend",
 						Image:  "postgres:latest",
@@ -128,10 +128,10 @@ func TestNative_TransformStages(t *testing.T) {
 						Name: "install deps",
 						Steps: pipeline.ContainerSlice{
 							&pipeline.Container{
-								ID:          "__0_install deps_install",
+								ID:          "",
 								Commands:    []string{"./gradlew downloadDependencies"},
-								Directory:   "/vela/src",
-								Environment: environment(nil, nil, nil, nil, nil),
+								Directory:   "",
+								Environment: environment(nil, nil, nil, nil, nil, 0),
 								Image:       "openjdk:latest",
 								Name:        "install",
 								Number:      1,
@@ -144,7 +144,7 @@ func TestNative_TransformStages(t *testing.T) {
 					&pipeline.Secret{
 						Name: "foobar",
 						Origin: &pipeline.Container{
-							ID:     "secret___0_vault",
+							ID:     "",
 							Name:   "vault",
 							Image:  "vault:latest",
 							Pull:   "always",
@@ -159,7 +159,7 @@ func TestNative_TransformStages(t *testing.T) {
 			local:    true,
 			pipeline: p,
 			want: &pipeline.Build{
-				ID:      "localOrg_localRepo_1",
+				ID:      "",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
 					Clone:      true,
@@ -167,7 +167,7 @@ func TestNative_TransformStages(t *testing.T) {
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:     "service_localOrg_localRepo_1_postgres backend",
+						ID:     "",
 						Ports:  []string{"5432:5432"},
 						Name:   "postgres backend",
 						Image:  "postgres:latest",
@@ -184,10 +184,10 @@ func TestNative_TransformStages(t *testing.T) {
 						Name: "install deps",
 						Steps: pipeline.ContainerSlice{
 							&pipeline.Container{
-								ID:          "localOrg_localRepo_1_install deps_install",
+								ID:          "",
 								Commands:    []string{"./gradlew downloadDependencies"},
-								Directory:   "/vela/src",
-								Environment: environment(nil, nil, nil, nil, nil),
+								Directory:   "",
+								Environment: environment(nil, nil, nil, nil, nil, 0),
 								Image:       "openjdk:latest",
 								Name:        "install",
 								Number:      1,
@@ -200,7 +200,7 @@ func TestNative_TransformStages(t *testing.T) {
 					&pipeline.Secret{
 						Name: "foobar",
 						Origin: &pipeline.Container{
-							ID:     "secret_localOrg_localRepo_1_vault",
+							ID:     "",
 							Name:   "vault",
 							Image:  "vault:latest",
 							Pull:   "always",
@@ -285,14 +285,14 @@ func TestNative_TransformSteps(t *testing.T) {
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Commands:    []string{"./gradlew downloadDependencies"},
-				Environment: environment(nil, nil, nil, nil, nil),
+				Environment: environment(nil, nil, nil, nil, nil, 0),
 				Image:       "openjdk:latest",
 				Name:        "install deps",
 				Pull:        "always",
 			},
 			&yaml.Step{
 				Commands:    []string{"./gradlew check"},
-				Environment: environment(nil, nil, nil, nil, nil),
+				Environment: environment(nil, nil, nil, nil, nil, 0),
 				Image:       "openjdk:latest",
 				Name:        "test",
 				Pull:        "always",
@@ -328,7 +328,7 @@ func TestNative_TransformSteps(t *testing.T) {
 			local:    false,
 			pipeline: p,
 			want: &pipeline.Build{
-				ID:      "__0",
+				ID:      "",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
 					Clone:      true,
@@ -336,7 +336,7 @@ func TestNative_TransformSteps(t *testing.T) {
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:     "service___0_postgres backend",
+						ID:     "",
 						Ports:  []string{"5432:5432"},
 						Name:   "postgres backend",
 						Image:  "postgres:latest",
@@ -350,10 +350,10 @@ func TestNative_TransformSteps(t *testing.T) {
 				},
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "step___0_install deps",
+						ID:          "",
 						Commands:    []string{"./gradlew downloadDependencies"},
-						Directory:   "/vela/src",
-						Environment: environment(nil, nil, nil, nil, nil),
+						Directory:   "",
+						Environment: environment(nil, nil, nil, nil, nil, 0),
 						Image:       "openjdk:latest",
 						Name:        "install deps",
 						Number:      1,
@@ -364,7 +364,7 @@ func TestNative_TransformSteps(t *testing.T) {
 					&pipeline.Secret{
 						Name: "foobar",
 						Origin: &pipeline.Container{
-							ID:     "secret___0_vault",
+							ID:     "",
 							Name:   "vault",
 							Image:  "vault:latest",
 							Pull:   "always",
@@ -379,7 +379,7 @@ func TestNative_TransformSteps(t *testing.T) {
 			local:    true,
 			pipeline: p,
 			want: &pipeline.Build{
-				ID:      "localOrg_localRepo_1",
+				ID:      "",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
 					Clone:      true,
@@ -387,7 +387,7 @@ func TestNative_TransformSteps(t *testing.T) {
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:     "service_localOrg_localRepo_1_postgres backend",
+						ID:     "",
 						Ports:  []string{"5432:5432"},
 						Name:   "postgres backend",
 						Image:  "postgres:latest",
@@ -401,10 +401,10 @@ func TestNative_TransformSteps(t *testing.T) {
 				},
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
-						ID:          "step_localOrg_localRepo_1_install deps",
+						ID:          "",
 						Commands:    []string{"./gradlew downloadDependencies"},
-						Directory:   "/vela/src",
-						Environment: environment(nil, nil, nil, nil, nil),
+						Directory:   "",
+						Environment: environment(nil, nil, nil, nil, nil, 0),
 						Image:       "openjdk:latest",
 						Name:        "install deps",
 						Number:      1,
@@ -415,7 +415,7 @@ func TestNative_TransformSteps(t *testing.T) {
 					&pipeline.Secret{
 						Name: "foobar",
 						Origin: &pipeline.Container{
-							ID:     "secret_localOrg_localRepo_1_vault",
+							ID:     "",
 							Name:   "vault",
 							Image:  "vault:latest",
 							Pull:   "always",
