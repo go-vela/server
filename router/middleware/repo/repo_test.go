@@ -25,6 +25,7 @@ func TestRepo_Retrieve(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	ToContext(context, want)
 
@@ -58,6 +59,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetBuildLimit(0)
 	want.SetTimeout(0)
 	want.SetCounter(0)
+	want.SetHookCounter(0)
 	want.SetVisibility("public")
 	want.SetPrivate(false)
 	want.SetTrusted(false)

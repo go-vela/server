@@ -102,9 +102,7 @@ func (b *Build) Environment(workspace string) map[string]string {
 		"VELA_BUILD_EVENT":         ToString(b.GetEvent()),
 		"VELA_BUILD_EVENT_ACTION":  ToString(b.GetEventAction()),
 		"VELA_BUILD_HOST":          ToString(b.GetHost()),
-		"VELA_BUILD_LINK":          ToString(b.GetLink()),
 		"VELA_BUILD_MESSAGE":       ToString(b.GetMessage()),
-		"VELA_BUILD_NUMBER":        ToString(b.GetNumber()),
 		"VELA_BUILD_PARENT":        ToString(b.GetParent()),
 		"VELA_BUILD_REF":           ToString(b.GetRef()),
 		"VELA_BUILD_ROUTE":         ToString(b.GetRoute()),
@@ -128,9 +126,7 @@ func (b *Build) Environment(workspace string) map[string]string {
 		"BUILD_ENQUEUED":     ToString(b.GetEnqueued()),
 		"BUILD_EVENT":        ToString(b.GetEvent()),
 		"BUILD_HOST":         ToString(b.GetHost()),
-		"BUILD_LINK":         ToString(b.GetLink()),
 		"BUILD_MESSAGE":      ToString(b.GetMessage()),
-		"BUILD_NUMBER":       ToString(b.GetNumber()),
 		"BUILD_PARENT":       ToString(b.GetParent()),
 		"BUILD_REF":          ToString(b.GetRef()),
 		"BUILD_SENDER":       ToString(b.GetSender()),
@@ -139,6 +135,14 @@ func (b *Build) Environment(workspace string) map[string]string {
 		"BUILD_STATUS":       ToString(b.GetStatus()),
 		"BUILD_TITLE":        ToString(b.GetTitle()),
 		"BUILD_WORKSPACE":    ToString(workspace),
+	}
+
+	// add number-based variables if a number has been assigned
+	if b.GetNumber() > 0 {
+		envs["VELA_BUILD_NUMBER"] = ToString(b.GetNumber())
+		envs["BUILD_NUMBER"] = ToString(b.GetNumber())
+		envs["VELA_BUILD_LINK"] = ToString(b.GetLink())
+		envs["BUILD_LINK"] = ToString(b.GetLink())
 	}
 
 	// check if the Build event is comment

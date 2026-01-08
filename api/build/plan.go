@@ -22,12 +22,11 @@ import (
 // and services, for the build.
 // TODO:
 // - return build and error.
-func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build, r *types.Repo) error {
+func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build, r *types.Repo) (*types.Build, error) {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the build
-	// TODO: return created build and error instead of just error
 	b, err := database.CreateBuild(ctx, b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
@@ -39,7 +38,7 @@ func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service
 		// - do we want to update the build or just delete it?
 		CleanBuild(ctx, database, b, nil, nil, err)
 
-		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
+		return nil, fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
 
 	logrus.WithFields(logrus.Fields{
@@ -53,7 +52,7 @@ func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service
 		// clean up the objects from the pipeline in the database
 		CleanBuild(ctx, database, b, services, nil, err)
 
-		return err
+		return nil, err
 	}
 
 	// plan all steps for the build
@@ -62,8 +61,8 @@ func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service
 		// clean up the objects from the pipeline in the database
 		CleanBuild(ctx, database, b, services, steps, err)
 
-		return err
+		return nil, err
 	}
 
-	return nil
+	return b, nil
 }

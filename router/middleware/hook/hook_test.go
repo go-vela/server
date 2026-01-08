@@ -26,6 +26,7 @@ func TestHook_Retrieve(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	ToContext(context, want)
 
@@ -53,9 +54,13 @@ func TestHook_Establish(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
+	wantRepo := *r
+	hCount := int64(1)
+	wantRepo.HookCounter = &hCount
+
 	want := new(api.Hook)
 	want.SetID(1)
-	want.SetRepo(r)
+	want.SetRepo(&wantRepo)
 	want.SetNumber(1)
 	want.SetSourceID("ok")
 	want.SetStatus("")

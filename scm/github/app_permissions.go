@@ -26,6 +26,8 @@ const (
 	AppInstallResourceChecks = "checks"
 	// GitHub App install packages resource.
 	AppInstallResourcePackages = "packages"
+	// GitHub App install statuses resource.
+	AppInstallResourceStatuses = "statuses"
 	// add more supported resources as needed.
 )
 
@@ -64,6 +66,8 @@ func ApplyInstallationPermissions(resource, perm string, perms *github.Installat
 		perms.Checks = github.Ptr(perm)
 	case AppInstallResourcePackages:
 		perms.Packages = github.Ptr(perm)
+	case AppInstallResourceStatuses:
+		perms.Statuses = github.Ptr(perm)
 	// add more supported resources as needed.
 	default:
 		return perms, fmt.Errorf("invalid permission resource given for <resource>:<level> in %s:%s", resource, perm)

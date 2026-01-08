@@ -8,9 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
 	"github.com/go-vela/server/api/types"
@@ -90,49 +88,10 @@ func updateRepoInstallationID(ctx context.Context, webhook *internal.Webhook, r 
 
 	h.Repo = r
 
-	// number of times to retry
-	retryLimit := 3
-	// implement a loop to process asynchronous operations with a retry limit
-	//
-	// Some operations taken during the webhook workflow can lead to race conditions
-	// failing to successfully process the request. This logic ensures we attempt our
-	// best efforts to handle these cases gracefully.
-	for i := 0; i < retryLimit; i++ {
-		// check if we're on the first iteration of the loop
-		if i > 0 {
-			// incrementally sleep in between retries
-			time.Sleep(time.Duration(i) * time.Second)
-		}
-
-		// send API call to capture the last hook for the repo
-		lastHook, err := db.LastHookForRepo(ctx, r)
-		if err != nil {
-			// log the error for traceability
-			logrus.Error(err.Error())
-
-			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				// continue to the next iteration of the loop
-				continue
-			}
-
-			return err
-		}
-
-		// set the Number field
-		if lastHook != nil {
-			h.SetNumber(
-				lastHook.GetNumber() + 1,
-			)
-		}
-
-		// send hook update to db
-		_, err = db.CreateHook(ctx, h)
-		if err != nil {
-			return err
-		}
-
-		break
+	// send hook update to db
+	_, err = db.CreateHook(ctx, h)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -142,12 +101,7 @@ func updateRepoInstallationID(ctx context.Context, webhook *internal.Webhook, r 
 func (c *Client) FinishInstallation(ctx context.Context, _ *http.Request, installID int64) (string, error) {
 	c.Logger.Tracef("finishing GitHub App installation for ID %d", installID)
 
-	client, err := c.newGithubAppClient()
-	if err != nil {
-		return "", err
-	}
-
-	install, _, err := client.Apps.GetInstallation(ctx, installID)
+	install, _, err := c.AppClient.Apps.GetInstallation(ctx, installID)
 	if err != nil {
 		return "", err
 	}

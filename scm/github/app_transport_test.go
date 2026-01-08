@@ -104,14 +104,12 @@ func TestAppsTransport_RoundTrip(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		transport  *AppsTransport
 		request    *http.Request
 		wantHeader string
 		wantErr    bool
 	}{
 		{
-			name:      "valid GET request",
-			transport: NewTestAppsTransport(s.URL),
+			name: "valid GET request",
 			request: &http.Request{
 				Method: "GET",
 				URL:    _url,
@@ -123,8 +121,7 @@ func TestAppsTransport_RoundTrip(t *testing.T) {
 			wantErr:    false,
 		},
 		{
-			name:      "valid POST request",
-			transport: NewTestAppsTransport(s.URL),
+			name: "valid POST request",
 			request: &http.Request{
 				Method: "POST",
 				URL:    _url,
@@ -137,8 +134,7 @@ func TestAppsTransport_RoundTrip(t *testing.T) {
 			wantErr:    false,
 		},
 		{
-			name:      "request with invalid URL",
-			transport: NewTestAppsTransport(s.URL),
+			name: "request with invalid URL",
 			request: &http.Request{
 				Method: "GET",
 				URL:    &url.URL{Path: "://invalid-url"},
@@ -151,7 +147,9 @@ func TestAppsTransport_RoundTrip(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, err := tt.transport.RoundTrip(tt.request)
+			client := NewTestAppClient(s.URL)
+
+			resp, err := client.Client().Transport.RoundTrip(tt.request)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RoundTrip() error = %v, wantErr %v", err, tt.wantErr)
 				return

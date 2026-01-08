@@ -43,7 +43,8 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 	if membership.GetState() == "active" {
 		role, ok := c.GetOrgRoleMap()[membership.GetRole()]
 		if !ok {
-			return constants.PermissionNone, nil
+			// fall back to role from GitHub
+			return membership.GetRole(), nil
 		}
 
 		return role, nil
@@ -82,7 +83,8 @@ func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string) 
 
 	role, ok := c.GetRepoRoleMap()[perm.GetRoleName()]
 	if !ok {
-		return constants.PermissionNone, nil
+		// fall back to legacy permissions
+		return perm.GetPermission(), nil
 	}
 
 	return role, nil
@@ -117,7 +119,8 @@ func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string) 
 
 	role, ok := c.GetTeamRoleMap()[membership.GetRole()]
 	if !ok {
-		return constants.PermissionNone, nil
+		// fall back to role from GitHub
+		return membership.GetRole(), nil
 	}
 
 	return role, nil

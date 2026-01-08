@@ -15,7 +15,7 @@ import (
 
 func TestNative_ScriptStages(t *testing.T) {
 	// setup types
-	baseEnv := environment(nil, nil, nil, nil, nil)
+	baseEnv := environment(nil, nil, nil, nil, nil, 0)
 
 	s := yaml.StageSlice{
 		&yaml.Stage{
@@ -101,7 +101,7 @@ func TestNative_ScriptStages(t *testing.T) {
 
 func TestNative_ScriptSteps(t *testing.T) {
 	// setup types
-	emptyEnv := environment(nil, nil, nil, nil, nil)
+	emptyEnv := environment(nil, nil, nil, nil, nil, 0)
 
 	baseEnv := emptyEnv
 	baseEnv["HOME"] = constants.DefaultHomeDir
