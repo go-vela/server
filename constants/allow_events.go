@@ -16,7 +16,7 @@ const (
 	_ // AllowPullReady - Not Implemented
 	AllowPullReopen
 	_ // AllowPullReviewRequest - Not Implemented
-	_ // AllowPullClosed - Not Implemented
+	AllowPullMerged
 	AllowDeployCreate
 	AllowCommentCreate
 	AllowCommentEdit
@@ -24,4 +24,5 @@ const (
 	AllowPushDeleteBranch
 	AllowPushDeleteTag
 	AllowPullUnlabel
+	AllowPullClosedUnmerged
 )

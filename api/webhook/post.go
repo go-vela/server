@@ -172,6 +172,40 @@ func PostWebhook(c *gin.Context) {
 
 	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
 
+	// check if repo was parsed from webhook
+	if r == nil {
+		retErr := fmt.Errorf("%s: failed to parse repo from webhook", baseErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// send API call to capture parsed repo from webhook
+	repo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// verify the webhook from the source control provider
+	if c.Value("webhookvalidation").(bool) {
+		err = scm.FromContext(c).VerifyWebhook(ctx, dupRequest, repo)
+		if err != nil {
+			retErr := fmt.Errorf("unable to verify webhook: %w", err)
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+	}
+
 	l.Debugf("hook generated from SCM: %v", h)
 	l.Debugf("repo generated from SCM: %v", r)
 

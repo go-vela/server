@@ -19,6 +19,7 @@ import (
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/util"
 )
 
 func TestGithub_ProcessWebhook_Push(t *testing.T) {
@@ -379,6 +380,12 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetBaseRef("main")
 	wantBuild.SetHeadRef("changes")
 
+	wantBuildMerge := *wantBuild
+	wantBuildMerge.EventAction = util.Ptr("merged")
+	wantBuildMerge.Commit = util.Ptr("414cb0069601a32b00bd122a2380cd283626a8e5")
+	wantBuildMerge.Ref = util.Ptr("414cb0069601a32b00bd122a2380cd283626a8e5")
+	wantBuildMerge.Message = util.Ptr("Merged PR #1")
+
 	wantBuildFork := *wantBuild
 	tBool := true
 	wantBuildFork.Fork = &tBool
@@ -483,9 +490,12 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 			name:     "closed action",
 			testData: "testdata/hooks/pull_request_closed_action.json",
 			want: &internal.Webhook{
+				PullRequest: internal.PullRequest{
+					Number: wantHook.GetNumber(),
+				},
 				Hook:  wantHook,
-				Repo:  nil,
-				Build: nil,
+				Repo:  wantRepo,
+				Build: &wantBuildMerge,
 			},
 		},
 		{
