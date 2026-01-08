@@ -48,7 +48,7 @@ type (
 		Pull        string            `json:"pull,omitempty"        yaml:"pull,omitempty"`
 		Ruleset     Ruleset           `json:"ruleset,omitempty"     yaml:"ruleset,omitempty"`
 		Secrets     StepSecretSlice   `json:"secrets,omitempty"     yaml:"secrets,omitempty"`
-		Artifacts   Artifacts         `json:"artifact,omitempty" yaml:"artifact,omitempty"`
+		Artifacts   Artifacts         `json:"artifacts,omitempty"   yaml:"artifacts,omitempty"`
 		Ulimits     UlimitSlice       `json:"ulimits,omitempty"     yaml:"ulimits,omitempty"`
 		Volumes     VolumeSlice       `json:"volumes,omitempty"     yaml:"volumes,omitempty"`
 		User        string            `json:"user,omitempty"        yaml:"user,omitempty"`

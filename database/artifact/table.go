@@ -39,7 +39,7 @@ artifacts (
 	// 	file_type	  		TEXT,
 	// 	presigned_url		VARCHAR(2000),
 	// );
-	// `
+	// `.
 
 	// CreateSqliteTable represents a query to create the Sqlite artifacts table.
 	CreateSqliteTable = `

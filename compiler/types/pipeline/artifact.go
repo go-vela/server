@@ -13,7 +13,7 @@ type ArtifactSlice []*Artifacts
 //
 // swagger:model PipelineArtifact
 type Artifacts struct {
-	Paths []string `yaml:"paths,omitempty"     json:"paths,omitempty"`
+	Paths []string `yaml:"paths,omitempty" json:"paths,omitempty"`
 }
 
 // Empty returns true if the provided Artifact is empty.
