@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v74/github"
+	"github.com/google/go-github/v81/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -405,7 +405,7 @@ func (c *Client) Status(ctx context.Context, b *api.Build, org, name, token stri
 
 	for _, context := range contexts {
 		// create the status object to make the API call
-		status := &github.RepoStatus{
+		status := github.RepoStatus{
 			Context:     github.Ptr(context),
 			Description: github.Ptr(description),
 			State:       github.Ptr(state),
@@ -488,7 +488,7 @@ func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, org,
 
 	for _, context := range contexts {
 		// create the status object to make the API call
-		status := &github.RepoStatus{
+		status := github.RepoStatus{
 			Context:     github.Ptr(context),
 			Description: github.Ptr(description),
 			State:       github.Ptr(state),
