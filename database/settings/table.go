@@ -14,17 +14,20 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 settings (
-	id                  SERIAL PRIMARY KEY,
-	compiler            JSON DEFAULT NULL,
-	queue               JSON DEFAULT NULL,
-	scm 			    JSON DEFAULT NULL,
-	repo_allowlist      VARCHAR(1000),
-	schedule_allowlist  VARCHAR(1000),
-	max_dashboard_repos INTEGER,
-	queue_restart_limit INTEGER,
-	created_at          BIGINT,
-	updated_at          BIGINT,
-	updated_by          VARCHAR(250)
+	id                    SERIAL PRIMARY KEY,
+	compiler              JSON DEFAULT NULL,
+	queue                 JSON DEFAULT NULL,
+	scm 			      JSON DEFAULT NULL,
+	repo_allowlist        VARCHAR(1000),
+	schedule_allowlist    VARCHAR(1000),
+	max_dashboard_repos   INTEGER,
+	queue_restart_limit   INTEGER,
+	enable_repo_secrets   BOOLEAN,
+	enable_org_secrets    BOOLEAN,
+	enable_shared_secrets BOOLEAN,
+	created_at            BIGINT,
+	updated_at            BIGINT,
+	updated_by            VARCHAR(250)
 );
 `
 
@@ -41,6 +44,9 @@ settings (
 	schedule_allowlist      VARCHAR(1000),
 	max_dashboard_repos     INTEGER,
 	queue_restart_limit     INTEGER,
+	enable_repo_secrets     BOOLEAN,
+	enable_org_secrets      BOOLEAN,
+	enable_shared_secrets   BOOLEAN,
 	created_at              INTEGER,
 	updated_at              INTEGER,
 	updated_by              TEXT
