@@ -133,6 +133,24 @@ var Flags = []cli.Flag{
 		Sources: cli.EnvVars("VELA_ENABLE_SECURE_COOKIE"),
 		Value:   true,
 	},
+	&cli.BoolFlag{
+		Name:    "vela-enable-repo-secrets",
+		Usage:   "determines whether or not repo level secrets are enabled",
+		Sources: cli.EnvVars("VELA_ENABLE_REPO_SECRETS"),
+		Value:   true,
+	},
+	&cli.BoolFlag{
+		Name:    "vela-enable-org-secrets",
+		Usage:   "determines whether or not org level secrets are enabled",
+		Sources: cli.EnvVars("VELA_ENABLE_ORG_SECRETS"),
+		Value:   true,
+	},
+	&cli.BoolFlag{
+		Name:    "vela-enable-shared-secrets",
+		Usage:   "determines whether or not shared secrets are enabled",
+		Sources: cli.EnvVars("VELA_ENABLE_SHARED_SECRETS"),
+		Value:   true,
+	},
 	&cli.Int32Flag{
 		Name:    "default-build-limit",
 		Usage:   "override default build limit",
