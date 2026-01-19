@@ -43,4 +43,10 @@
     vars:
       registry: index.docker.io
       repo: github/octocat
-      tags: [ latest, dev ]
+      tags: [latest, dev]
+
+- name: artifact
+  image: golang:1.20
+  pull: true
+  artifacts:
+    paths: ['test-results/*.xml', 'screenshots/**/*.png', ' video/*.mp4']
