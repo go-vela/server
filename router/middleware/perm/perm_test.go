@@ -14,6 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/cache/redis"
 	"github.com/go-vela/server/constants"
@@ -23,6 +24,7 @@ import (
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
+	settingsMiddleware "github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
@@ -975,6 +977,9 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	b.SetRepo(r)
 	b.SetNumber(1)
 
+	_ps := new(settings.Platform)
+	_ps.SetEnableRepoSecrets(true)
+
 	tm := &token.Manager{
 		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
@@ -1022,6 +1027,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { settingsMiddleware.ToContext(c, _ps) })
 	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(MustSecretAdmin())
@@ -1060,6 +1066,9 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	b.SetID(1)
 	b.SetRepo(r)
 	b.SetNumber(1)
+
+	_ps := new(settings.Platform)
+	_ps.SetEnableOrgSecrets(true)
 
 	tm := &token.Manager{
 		PrivateKeyHMAC:           "123abc",
@@ -1108,6 +1117,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { settingsMiddleware.ToContext(c, _ps) })
 	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(MustSecretAdmin())
@@ -1146,6 +1156,9 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	b.SetID(1)
 	b.SetRepo(r)
 	b.SetNumber(1)
+
+	_ps := new(settings.Platform)
+	_ps.SetEnableSharedSecrets(true)
 
 	tm := &token.Manager{
 		PrivateKeyHMAC:           "123abc",
@@ -1194,6 +1207,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { settingsMiddleware.ToContext(c, _ps) })
 	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(MustSecretAdmin())

@@ -15,9 +15,11 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -196,6 +198,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
 
+		ps := settings.FromContext(c)
 		cl := claims.Retrieve(c)
 		u := user.Retrieve(c)
 		e := util.PathParameter(c, "engine")
@@ -227,43 +230,39 @@ func MustSecretAdmin() gin.HandlerFunc {
 			return
 		}
 
+		// check if secret types are enabled in platform settings
+		if t == constants.SecretRepo && !ps.GetEnableRepoSecrets() {
+			retErr := fmt.Errorf("repository level secrets have been disabled by Vela admins")
+
+			util.HandleError(c, http.StatusForbidden, retErr)
+
+			return
+		}
+
+		if t == constants.SecretOrg && !ps.GetEnableOrgSecrets() {
+			retErr := fmt.Errorf("organization level secrets have been disabled by Vela admins")
+
+			util.HandleError(c, http.StatusForbidden, retErr)
+
+			return
+		}
+
+		if t == constants.SecretShared && !ps.GetEnableSharedSecrets() {
+			retErr := fmt.Errorf("shared secrets have been disabled by Vela admins")
+
+			util.HandleError(c, http.StatusForbidden, retErr)
+
+			return
+		}
+
 		// if caller is worker with build token, verify it has access to requested secret
 		if cl.TokenType == constants.WorkerBuildTokenType {
-			org, repo := util.SplitFullName(cl.Repo)
-
-			switch t {
-			case constants.SecretShared:
-				return
-			case constants.SecretOrg:
-				logger.Debugf("verifying subject %s has token permissions for org %s", cl.Subject, o)
-
-				if org == o {
-					return
-				}
-
-				logger.Warnf("build token for build %s/%d attempted to be used for secret %s/%s by %s", cl.Repo, cl.BuildID, o, s, cl.Subject)
-
-				retErr := fmt.Errorf("subject %s does not have token permissions for the org %s", cl.Subject, o)
-
-				util.HandleError(c, http.StatusUnauthorized, retErr)
-
-				return
-
-			case constants.SecretRepo:
-				logger.Debugf("verifying subject %s has token permissions for repo %s/%s", cl.Subject, o, n)
-
-				if org == o && repo == n {
-					return
-				}
-
-				logger.Warnf("build token for build %s/%d attempted to be used for secret %s/%s/%s by %s", cl.Repo, cl.BuildID, o, n, s, cl.Subject)
-
-				retErr := fmt.Errorf("subject %s does not have token permissions for the repo %s/%s", cl.Subject, o, n)
-
-				util.HandleError(c, http.StatusUnauthorized, retErr)
-
-				return
+			err := buildTokenSecretAccess(logger, cl, t, s, o, n)
+			if err != nil {
+				util.HandleError(c, http.StatusUnauthorized, err)
 			}
+
+			return
 		}
 
 		switch t {
@@ -346,6 +345,38 @@ func MustSecretAdmin() gin.HandlerFunc {
 
 			return
 		}
+	}
+}
+
+// buildTokenSecretAccess is a helper func for validating a worker using a build token has access to a secret.
+func buildTokenSecretAccess(logger *logrus.Entry, cl *token.Claims, t, name, pathOrg, pathRepo string) error {
+	org, repo := util.SplitFullName(cl.Repo)
+
+	switch t {
+	case constants.SecretShared:
+		return nil
+	case constants.SecretOrg:
+		logger.Debugf("verifying subject %s has token permissions for org %s", cl.Subject, pathOrg)
+
+		if org == pathOrg {
+			return nil
+		}
+
+		logger.Warnf("build token for build %s/%d attempted to be used for secret %s/%s by %s", cl.Repo, cl.BuildID, pathOrg, name, cl.Subject)
+
+		return fmt.Errorf("subject %s does not have token permissions for the org %s", cl.Subject, pathOrg)
+	case constants.SecretRepo:
+		logger.Debugf("verifying subject %s has token permissions for repo %s/%s", cl.Subject, pathOrg, pathRepo)
+
+		if org == pathOrg && repo == pathRepo {
+			return nil
+		}
+
+		logger.Warnf("build token for build %s/%d attempted to be used for secret %s/%s/%s by %s", cl.Repo, cl.BuildID, pathOrg, pathRepo, name, cl.Subject)
+
+		return fmt.Errorf("subject %s does not have token permissions for the repo %s/%s", cl.Subject, pathOrg, pathRepo)
+	default:
+		return fmt.Errorf("invalid secret type: must provide org, repo, or shared")
 	}
 }
 

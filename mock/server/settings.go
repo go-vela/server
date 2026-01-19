@@ -47,6 +47,9 @@ const (
 			],
 			"max_dashboard_repos": 10,
 			"queue_restart_limit": 5,
+			"enable_repo_secrets": true,
+			"enable_org_secrets": true,
+			"enable_shared_secrets": true,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -87,6 +90,9 @@ const (
 			],
 			"max_dashboard_repos": 10,
 			"queue_restart_limit": 5,
+			"enable_repo_secrets": true,
+			"enable_org_secrets": true,
+			"enable_shared_secrets": false,
 			"created_at": 1,
 			"updated_at": 1,
 			"updated_by": "octocat"
@@ -127,6 +133,9 @@ const (
 		],
 		"max_dashboard_repos": 10,
 		"queue_restart_limit": 5,
+		"enable_repo_secrets": true,
+		"enable_org_secrets": true,
+		"enable_shared_secrets": true,
 		"created_at": 1,
 		"updated_at": 1,
 		"updated_by": "octocat"

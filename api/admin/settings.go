@@ -253,6 +253,18 @@ func UpdateSettings(c *gin.Context) {
 		l.Infof("platform admin: updating max dashboard repos to: %d", input.GetMaxDashboardRepos())
 	}
 
+	if input.EnableOrgSecrets != nil {
+		_s.SetEnableOrgSecrets(input.GetEnableOrgSecrets())
+	}
+
+	if input.EnableRepoSecrets != nil {
+		_s.SetEnableRepoSecrets(input.GetEnableRepoSecrets())
+	}
+
+	if input.EnableSharedSecrets != nil {
+		_s.SetEnableSharedSecrets(input.GetEnableSharedSecrets())
+	}
+
 	_s.SetUpdatedBy(u.GetName())
 
 	// send API call to update the settings

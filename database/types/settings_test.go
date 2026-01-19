@@ -55,6 +55,9 @@ func TestTypes_Platform_ToAPI(t *testing.T) {
 	want.SetScheduleAllowlist([]string{"*"})
 	want.SetMaxDashboardRepos(10)
 	want.SetQueueRestartLimit(30)
+	want.SetEnableRepoSecrets(true)
+	want.SetEnableOrgSecrets(true)
+	want.SetEnableSharedSecrets(true)
 	want.SetCreatedAt(0)
 	want.SetUpdatedAt(0)
 	want.SetUpdatedBy("")
@@ -196,6 +199,9 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 	s.SetScheduleAllowlist([]string{"*"})
 	s.SetMaxDashboardRepos(10)
 	s.SetQueueRestartLimit(30)
+	s.SetEnableRepoSecrets(true)
+	s.SetEnableOrgSecrets(true)
+	s.SetEnableSharedSecrets(true)
 	s.SetCreatedAt(0)
 	s.SetUpdatedAt(0)
 	s.SetUpdatedBy("")
@@ -257,12 +263,15 @@ func testPlatform() *Platform {
 				"admin": "admin",
 			},
 		},
-		RepoAllowlist:     []string{"github/octocat"},
-		ScheduleAllowlist: []string{"*"},
-		MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
-		QueueRestartLimit: sql.NullInt32{Int32: 30, Valid: true},
-		CreatedAt:         sql.NullInt64{Int64: 0, Valid: true},
-		UpdatedAt:         sql.NullInt64{Int64: 0, Valid: true},
-		UpdatedBy:         sql.NullString{String: "", Valid: true},
+		RepoAllowlist:       []string{"github/octocat"},
+		ScheduleAllowlist:   []string{"*"},
+		MaxDashboardRepos:   sql.NullInt32{Int32: 10, Valid: true},
+		QueueRestartLimit:   sql.NullInt32{Int32: 30, Valid: true},
+		EnableRepoSecrets:   sql.NullBool{Bool: true, Valid: true},
+		EnableOrgSecrets:    sql.NullBool{Bool: true, Valid: true},
+		EnableSharedSecrets: sql.NullBool{Bool: true, Valid: true},
+		CreatedAt:           sql.NullInt64{Int64: 0, Valid: true},
+		UpdatedAt:           sql.NullInt64{Int64: 0, Valid: true},
+		UpdatedBy:           sql.NullString{String: "", Valid: true},
 	}
 }
