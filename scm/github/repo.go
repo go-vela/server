@@ -693,7 +693,10 @@ func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
-func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tknCache cache.Service, r *api.Repo, u *api.User, g yaml.Git) (string, int64, error) {
+func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tknCache cache.Service, b *api.Build, g yaml.Git) (string, int64, error) {
+	r := b.GetRepo()
+	u := b.GetRepo().GetOwner()
+
 	l := c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -732,11 +735,15 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	// the Vela compiler follows a least-privileged-defaults model where
 	// the list contains only the triggering repo, unless provided in the git yaml block
 	//
-	// the default is contents:read and checks:write
+	// the below map is the default
 	permissions := map[string]string{
 		"contents": "read",
 		"checks":   "write",
 		"statuses": "write",
+	}
+
+	if b.GetEvent() == constants.EventDeploy {
+		permissions["deployments"] = "write"
 	}
 
 	if len(g.Permissions) > 0 {
