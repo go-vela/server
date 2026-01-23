@@ -737,13 +737,13 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	//
 	// the below map is the default
 	permissions := map[string]string{
-		"contents": "read",
-		"checks":   "write",
-		"statuses": "write",
+		"contents": constants.PermissionRead,
+		"checks":   constants.PermissionWrite,
+		"statuses": constants.PermissionWrite,
 	}
 
 	if b.GetEvent() == constants.EventDeploy {
-		permissions["deployments"] = "write"
+		permissions["deployments"] = constants.PermissionWrite
 	}
 
 	if len(g.Permissions) > 0 {
