@@ -71,8 +71,6 @@ import (
 //       "$ref": "#/definitions/Error"
 
 // CancelBuild represents the API handler to cancel a build.
-//
-
 func CancelBuild(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
@@ -95,6 +93,12 @@ func CancelBuild(c *gin.Context) {
 			return
 		}
 
+		if build == nil {
+			c.JSON(http.StatusOK, "no running build found to cancel")
+
+			return
+		}
+
 		build.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
 
 		build, err = database.FromContext(c).UpdateBuild(ctx, build)
@@ -110,7 +114,7 @@ func CancelBuild(c *gin.Context) {
 			"build_id": build.GetID(),
 		}).Info("build updated - build canceled")
 
-		c.JSON(http.StatusOK, b)
+		c.JSON(http.StatusOK, build)
 
 		return
 	case constants.StatusPending, constants.StatusPendingApproval:
@@ -168,19 +172,111 @@ func CancelBuild(c *gin.Context) {
 func CancelRunning(c *gin.Context, b *types.Build) (*types.Build, error) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
-	e := new([]types.Executor)
 	// retrieve the worker
 	w, err := database.FromContext(c).GetWorkerForHostname(c, b.GetHost())
 	if err != nil {
 		return nil, err
 	}
 
+	// retrieve the executors from the worker
+	e, err := getWorkerExecutors(c, w)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, executor := range *e {
+		// check each executor on the worker running the build to see if it's running the build we want to cancel
+		if executor.Build.GetID() == b.GetID() {
+			build, err := cancelBuildForExecutor(c, l, w, &executor)
+			if err != nil {
+				return nil, err
+			}
+
+			return build, nil
+		}
+	}
+
+	return nil, nil
+}
+
+// getWorkerExecutors is a helper function that retrieves the list of executors from a worker.
+func getWorkerExecutors(c *gin.Context, w *types.Worker) (*[]types.Executor, error) {
+	e := new([]types.Executor)
+
 	// prepare the request to the worker to retrieve executors
 	client := http.DefaultClient
 	client.Timeout = 30 * time.Second
 	endpoint := fmt.Sprintf("%s/api/v1/executors", w.GetAddress())
 
-	req, err := http.NewRequestWithContext(context.Background(), "GET", endpoint, nil)
+	req, err := createWorkerRequest(c, "GET", endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	// make the request to the worker and check the response
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	// Read Response Body
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// parse response and validate at least one item was returned
+	err = json.Unmarshal(respBody, e)
+	if err != nil {
+		return nil, err
+	}
+
+	return e, nil
+}
+
+// cancelBuildForExecutor is a helper function that sends an API call to a specific executor to cancel the build.
+func cancelBuildForExecutor(c *gin.Context, l *logrus.Entry, w *types.Worker, executor *types.Executor) (*types.Build, error) {
+	b := new(types.Build)
+
+	client := http.DefaultClient
+	client.Timeout = 30 * time.Second
+
+	// set the API endpoint path we send the request to
+	u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())
+
+	req, err := createWorkerRequest(c, "DELETE", u)
+	if err != nil {
+		return nil, err
+	}
+
+	// perform the request to the worker
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	l.Debugf("sent cancel request to worker %s (executor %d) for build %d", w.GetHostname(), executor.GetID(), b.GetID())
+
+	// Read Response Body
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(respBody, b)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+// createWorkerRequest is a helper function that creates an authenticated HTTP request to a worker from the server.
+func createWorkerRequest(c *gin.Context, method, endpoint string) (*http.Request, error) {
+	req, err := http.NewRequestWithContext(context.Background(), method, endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -203,82 +299,5 @@ func CancelRunning(c *gin.Context, b *types.Build) (*types.Build, error) {
 	// add the token to authenticate to the worker
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
-	// make the request to the worker and check the response
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	// Read Response Body
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	// parse response and validate at least one item was returned
-	err = json.Unmarshal(respBody, e)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, executor := range *e {
-		// check each executor on the worker running the build to see if it's running the build we want to cancel
-		if executor.Build.GetID() == b.GetID() {
-			// prepare the request to the worker
-			client := http.DefaultClient
-			client.Timeout = 30 * time.Second
-
-			// set the API endpoint path we send the request to
-			u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())
-
-			req, err := http.NewRequestWithContext(context.Background(), "DELETE", u, nil)
-			if err != nil {
-				return nil, err
-			}
-
-			tm := c.MustGet("token-manager").(*token.Manager)
-
-			// set mint token options
-			mto := &token.MintTokenOpts{
-				Hostname:      "vela-server",
-				TokenType:     constants.WorkerAuthTokenType,
-				TokenDuration: time.Minute * 1,
-			}
-
-			// mint token
-			tkn, err := tm.MintToken(mto)
-			if err != nil {
-				return nil, err
-			}
-
-			// add the token to authenticate to the worker
-			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
-
-			// perform the request to the worker
-			resp, err := client.Do(req)
-			if err != nil {
-				return nil, err
-			}
-			defer resp.Body.Close()
-
-			l.Debugf("sent cancel request to worker %s (executor %d) for build %d", w.GetHostname(), executor.GetID(), b.GetID())
-
-			// Read Response Body
-			respBody, err := io.ReadAll(resp.Body)
-			if err != nil {
-				return nil, err
-			}
-
-			err = json.Unmarshal(respBody, b)
-			if err != nil {
-				return nil, err
-			}
-
-			return b, nil
-		}
-	}
-
-	return nil, nil
+	return req, nil
 }

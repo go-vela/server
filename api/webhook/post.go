@@ -403,7 +403,7 @@ func PostWebhook(c *gin.Context) {
 
 				return
 			}
-		default:
+		case constants.ActionDestroyed:
 			err := handleMergeGroupDestroy(c, l, db, b)
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
@@ -415,6 +415,15 @@ func PostWebhook(c *gin.Context) {
 			}
 
 			c.JSON(http.StatusOK, "merge group build destroyed")
+
+			return
+		default:
+			retErr := fmt.Errorf("%s: unsupported merge group action %s", baseErr, b.GetEventAction())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			h.SetStatus(constants.StatusSkipped)
+			h.SetError(retErr.Error())
 
 			return
 		}
@@ -849,19 +858,19 @@ func handleMergeGroupDestroy(c *gin.Context, l *logrus.Entry, db database.Interf
 				// remove executable from table
 				_, err = db.PopBuildExecutable(ctx, rB.GetID())
 				if err != nil {
-					return fmt.Errorf("unable to pop executable for build %s/%d: %w", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+					l.Warnf("unable to pop executable for build %s/%d: %s", rB.GetRepo().GetFullName(), rB.GetNumber(), err.Error())
 				}
 			case constants.StatusRunning:
 				rB, err := build.CancelRunning(c, rB)
 				if err != nil {
-					return fmt.Errorf("unable to cancel running build %s/%d: %w", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+					l.Warnf("unable to cancel running build %s/%d: %s", rB.GetRepo().GetFullName(), rB.GetNumber(), err.Error())
 				}
 
 				rB.SetError("auto canceled: merge group build was destroyed")
 
 				rB, err = db.UpdateBuild(ctx, rB)
 				if err != nil {
-					return fmt.Errorf("unable to update status for build %s/%d: %w", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+					l.Warnf("unable to update status for build %s/%d: %s", rB.GetRepo().GetFullName(), rB.GetNumber(), err.Error())
 				}
 
 				l.WithFields(logrus.Fields{

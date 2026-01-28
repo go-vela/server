@@ -3,7 +3,6 @@
 package github
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -62,7 +61,7 @@ func TestGithub_Config_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -124,7 +123,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ConfigBackoff(context.TODO(), u, r, "")
+	got, err := client.ConfigBackoff(t.Context(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("ConfigBackoff returned %v, want %v", resp.Code, http.StatusOK)
@@ -179,7 +178,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -235,7 +234,7 @@ func TestGithub_Config_Star(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -295,7 +294,7 @@ func TestGithub_Config_Star_Prefer(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -351,7 +350,7 @@ func TestGithub_Config_Py(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -400,7 +399,7 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -442,7 +441,7 @@ func TestGithub_Config_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -492,7 +491,7 @@ func TestGithub_Config_BadEncoding(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -535,7 +534,7 @@ func TestGithub_Disable(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.Disable(context.TODO(), u, "foo", "bar")
+	err := client.Disable(t.Context(), u, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
@@ -569,7 +568,7 @@ func TestGithub_Disable_NotFoundHooks(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.Disable(context.TODO(), u, "foo", "bar")
+	err := client.Disable(t.Context(), u, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
@@ -608,7 +607,7 @@ func TestGithub_Disable_HooksButNotFound(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foos.ball.com")
 
 	// run test
-	err := client.Disable(context.TODO(), u, "foo", "bar")
+	err := client.Disable(t.Context(), u, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
@@ -651,7 +650,7 @@ func TestGithub_Disable_MultipleHooks(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.Disable(context.TODO(), u, "foo", "bar")
+	err := client.Disable(t.Context(), u, "foo", "bar")
 
 	if count != wantCount {
 		t.Errorf("Count returned %d, want %d", count, wantCount)
@@ -704,7 +703,7 @@ func TestGithub_Enable(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, _, err := client.Enable(context.TODO(), u, r)
+	got, _, err := client.Enable(t.Context(), u, r)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
@@ -752,7 +751,7 @@ func TestGithub_Update(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.Update(context.TODO(), u, r, hookID)
+	_, err := client.Update(t.Context(), u, r, hookID)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -789,7 +788,7 @@ func TestGithub_Update_webhookExists_True(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	webhookExists, err := client.Update(context.TODO(), u, r, 0)
+	webhookExists, err := client.Update(t.Context(), u, r, 0)
 
 	if !webhookExists {
 		t.Errorf("Update returned %v, want %v", webhookExists, true)
@@ -826,7 +825,7 @@ func TestGithub_Update_webhookExists_False(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	webhookExists, err := client.Update(context.TODO(), u, r, 0)
+	webhookExists, err := client.Update(t.Context(), u, r, 0)
 
 	if webhookExists {
 		t.Errorf("Update returned %v, want %v", webhookExists, false)
@@ -870,7 +869,7 @@ func TestGithub_Status_Deployment(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
+	err := client.Status(t.Context(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -920,7 +919,7 @@ func TestGithub_Status_Running(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
+	err := client.Status(t.Context(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -930,7 +929,7 @@ func TestGithub_Status_Running(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
+	err = client.StepStatus(t.Context(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -980,7 +979,7 @@ func TestGithub_Status_Success(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
+	err := client.Status(t.Context(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -990,7 +989,7 @@ func TestGithub_Status_Success(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
+	err = client.StepStatus(t.Context(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1045,7 +1044,7 @@ func TestGithub_Status_SuccessMultipleMergeQueue(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
+	err := client.Status(t.Context(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1061,7 +1060,7 @@ func TestGithub_Status_SuccessMultipleMergeQueue(t *testing.T) {
 
 	callCount = 0
 
-	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
+	err = client.StepStatus(t.Context(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1115,7 +1114,7 @@ func TestGithub_Status_Failure(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
+	err := client.Status(t.Context(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1125,7 +1124,7 @@ func TestGithub_Status_Failure(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
+	err = client.StepStatus(t.Context(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1175,7 +1174,7 @@ func TestGithub_Status_Killed(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
+	err := client.Status(t.Context(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1185,7 +1184,7 @@ func TestGithub_Status_Killed(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
+	err = client.StepStatus(t.Context(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1235,7 +1234,7 @@ func TestGithub_Status_Skipped(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
+	err := client.Status(t.Context(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1245,7 +1244,7 @@ func TestGithub_Status_Skipped(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
+	err = client.StepStatus(t.Context(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1295,7 +1294,7 @@ func TestGithub_Status_Error(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(context.TODO(), b, "foo", "bar", "bar")
+	err := client.Status(t.Context(), b, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1305,7 +1304,7 @@ func TestGithub_Status_Error(t *testing.T) {
 		t.Errorf("Status returned err: %v", err)
 	}
 
-	err = client.StepStatus(context.TODO(), b, step, "foo", "bar", "bar")
+	err = client.StepStatus(t.Context(), b, step, "foo", "bar", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1360,7 +1359,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, code, err := client.GetRepo(context.TODO(), u, r)
+	got, code, err := client.GetRepo(t.Context(), u, r)
 
 	if code != http.StatusOK {
 		t.Errorf("GetRepo returned %v, want %v", resp.Code, http.StatusOK)
@@ -1403,7 +1402,7 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, code, err := client.GetRepo(context.TODO(), u, r)
+	_, code, err := client.GetRepo(t.Context(), u, r)
 	if err == nil {
 		t.Error("GetRepo should return error")
 	}
@@ -1441,7 +1440,7 @@ func TestGithub_GetOrgAndRepoName(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotOrg, gotRepo, err := client.GetOrgAndRepoName(context.TODO(), u, "octocat", "Hello-World")
+	gotOrg, gotRepo, err := client.GetOrgAndRepoName(t.Context(), u, "octocat", "Hello-World")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetRepoName returned %v, want %v", resp.Code, http.StatusOK)
@@ -1484,7 +1483,7 @@ func TestGithub_GetOrgAndRepoName_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, _, err := client.GetOrgAndRepoName(context.TODO(), u, "octocat", "Hello-World")
+	_, _, err := client.GetOrgAndRepoName(t.Context(), u, "octocat", "Hello-World")
 	if err == nil {
 		t.Error("GetRepoName should return error")
 	}
@@ -1528,7 +1527,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ListUserRepos(context.TODO(), u)
+	got, err := client.ListUserRepos(t.Context(), u)
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1565,7 +1564,7 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ListUserRepos(context.TODO(), u)
+	got, err := client.ListUserRepos(t.Context(), u)
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1610,7 +1609,7 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(context.TODO(), r, 1)
+	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(t.Context(), r, 1)
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1667,7 +1666,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotBranch, gotCommit, err := client.GetBranch(context.TODO(), r, "main")
+	gotBranch, gotCommit, err := client.GetBranch(t.Context(), r, "main")
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1870,7 +1869,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 				client.AppClient = NewTestAppClient(s.URL)
 			}
 
-			got, gotExp, err := client.GetNetrcPassword(context.TODO(), nil, nil, test.repo, test.user, test.git)
+			got, gotExp, err := client.GetNetrcPassword(t.Context(), nil, nil, test.repo, test.user, test.git)
 			if (err != nil) != test.wantErr {
 				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
 				return
@@ -1946,7 +1945,7 @@ func TestGithub_SyncRepoWithInstallation(t *testing.T) {
 		client.AppClient = NewTestAppClient(s.URL)
 
 		// run test
-		got, err := client.SyncRepoWithInstallation(context.TODO(), r)
+		got, err := client.SyncRepoWithInstallation(t.Context(), r)
 
 		if resp.Code != test.wantStatusCode {
 			t.Errorf("SyncRepoWithInstallation %s returned %v, want %v", test.name, resp.Code, http.StatusOK)

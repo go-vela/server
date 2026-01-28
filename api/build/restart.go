@@ -110,7 +110,7 @@ func RestartBuild(c *gin.Context) {
 
 	// deny restarts for merge queue builds. Users should enqueue a new build instead.
 	if b.GetEvent() == constants.EventMergeGroup {
-		retErr := fmt.Errorf("unable to restart build %s/%d: cannot restart a build in a merge group", r.GetFullName(), b.GetNumber())
+		retErr := fmt.Errorf("unable to restart build %s/%d: cannot restart a build in a merge group. Enqueue a new build instead", r.GetFullName(), b.GetNumber())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 

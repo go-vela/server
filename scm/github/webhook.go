@@ -534,15 +534,15 @@ func (c *Client) processIssueCommentEvent(h *api.Hook, payload *github.IssueComm
 
 // processMergeGroupEvent is a helper function to process merge_group GitHub events.
 func (c *Client) processMergeGroupEvent(_ context.Context, h *api.Hook, payload *github.MergeGroupEvent) (*internal.Webhook, error) {
-	c.Logger.WithFields(logrus.Fields{
-		"org":  payload.GetRepo().GetOwner().GetLogin(),
-		"repo": payload.GetRepo().GetName(),
-	}).Tracef("processing merge_group GitHub webhook for %s", payload.GetRepo().GetFullName())
-
 	repo := payload.GetRepo()
 	if repo == nil {
 		return &internal.Webhook{Hook: h}, nil
 	}
+
+	c.Logger.WithFields(logrus.Fields{
+		"org":  payload.GetRepo().GetOwner().GetLogin(),
+		"repo": payload.GetRepo().GetName(),
+	}).Tracef("processing merge_group GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	// convert payload to API repo
 	r := new(api.Repo)

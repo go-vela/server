@@ -2,7 +2,7 @@
 
 package github
 
-// Driver outputs the configured scm driver.
+// MergeQueueBranchPrefix outputs the prefix for merge queue branches.
 func (c *Client) MergeQueueBranchPrefix() string {
 	return mergeQueueBranchPrefix
 }
