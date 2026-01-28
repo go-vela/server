@@ -191,6 +191,7 @@ func TestTypes_Repo_ToAPI(t *testing.T) {
 	want.SetTrusted(false)
 	want.SetActive(true)
 	want.SetAllowEvents(e)
+	want.SetMergeQueueEvents([]string{"pull_request"})
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("oldName")
 	want.SetApproveBuild(constants.ApproveNever)
@@ -347,6 +348,7 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 	r.SetTrusted(false)
 	r.SetActive(true)
 	r.SetAllowEvents(api.NewEventsFromMask(1))
+	r.SetMergeQueueEvents([]string{"pull_request"})
 	r.SetPipelineType("yaml")
 	r.SetPreviousName("oldName")
 	r.SetApproveBuild(constants.ApproveNever)
@@ -369,31 +371,32 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 // type with all fields set to a fake value.
 func testRepo() *Repo {
 	return &Repo{
-		ID:              sql.NullInt64{Int64: 1, Valid: true},
-		UserID:          sql.NullInt64{Int64: 1, Valid: true},
-		Hash:            sql.NullString{String: "superSecretHash", Valid: true},
-		Org:             sql.NullString{String: "github", Valid: true},
-		Name:            sql.NullString{String: "octocat", Valid: true},
-		FullName:        sql.NullString{String: "github/octocat", Valid: true},
-		Link:            sql.NullString{String: "https://github.com/github/octocat", Valid: true},
-		Clone:           sql.NullString{String: "https://github.com/github/octocat.git", Valid: true},
-		Branch:          sql.NullString{String: "main", Valid: true},
-		Topics:          []string{"cloud", "security"},
-		BuildLimit:      sql.NullInt32{Int32: 10, Valid: true},
-		Timeout:         sql.NullInt32{Int32: 30, Valid: true},
-		Counter:         sql.NullInt64{Int64: 0, Valid: true},
-		HookCounter:     sql.NullInt64{Int64: 0, Valid: true},
-		Visibility:      sql.NullString{String: "public", Valid: true},
-		Private:         sql.NullBool{Bool: false, Valid: true},
-		Trusted:         sql.NullBool{Bool: false, Valid: true},
-		Active:          sql.NullBool{Bool: true, Valid: true},
-		AllowEvents:     sql.NullInt64{Int64: 1, Valid: true},
-		PipelineType:    sql.NullString{String: "yaml", Valid: true},
-		PreviousName:    sql.NullString{String: "oldName", Valid: true},
-		ApproveBuild:    sql.NullString{String: constants.ApproveNever, Valid: true},
-		ApprovalTimeout: sql.NullInt32{Int32: 7, Valid: true},
-		InstallID:       sql.NullInt64{Int64: 0, Valid: true},
-		CustomProps:     CustomPropsJSON{"foo": "bar"},
+		ID:               sql.NullInt64{Int64: 1, Valid: true},
+		UserID:           sql.NullInt64{Int64: 1, Valid: true},
+		Hash:             sql.NullString{String: "superSecretHash", Valid: true},
+		Org:              sql.NullString{String: "github", Valid: true},
+		Name:             sql.NullString{String: "octocat", Valid: true},
+		FullName:         sql.NullString{String: "github/octocat", Valid: true},
+		Link:             sql.NullString{String: "https://github.com/github/octocat", Valid: true},
+		Clone:            sql.NullString{String: "https://github.com/github/octocat.git", Valid: true},
+		Branch:           sql.NullString{String: "main", Valid: true},
+		Topics:           []string{"cloud", "security"},
+		BuildLimit:       sql.NullInt32{Int32: 10, Valid: true},
+		Timeout:          sql.NullInt32{Int32: 30, Valid: true},
+		Counter:          sql.NullInt64{Int64: 0, Valid: true},
+		HookCounter:      sql.NullInt64{Int64: 0, Valid: true},
+		Visibility:       sql.NullString{String: "public", Valid: true},
+		Private:          sql.NullBool{Bool: false, Valid: true},
+		Trusted:          sql.NullBool{Bool: false, Valid: true},
+		Active:           sql.NullBool{Bool: true, Valid: true},
+		AllowEvents:      sql.NullInt64{Int64: 1, Valid: true},
+		MergeQueueEvents: []string{"pull_request"},
+		PipelineType:     sql.NullString{String: "yaml", Valid: true},
+		PreviousName:     sql.NullString{String: "oldName", Valid: true},
+		ApproveBuild:     sql.NullString{String: constants.ApproveNever, Valid: true},
+		ApprovalTimeout:  sql.NullInt32{Int32: 7, Valid: true},
+		InstallID:        sql.NullInt64{Int64: 0, Valid: true},
+		CustomProps:      CustomPropsJSON{"foo": "bar"},
 
 		Owner: *testUser(),
 	}

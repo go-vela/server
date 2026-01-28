@@ -11,31 +11,32 @@ import (
 //
 // swagger:model Repo
 type Repo struct {
-	ID              *int64          `json:"id,omitempty"`
-	Owner           *User           `json:"owner,omitempty"`
-	Hash            *string         `json:"-"`
-	Org             *string         `json:"org,omitempty"`
-	Name            *string         `json:"name,omitempty"`
-	FullName        *string         `json:"full_name,omitempty"`
-	Link            *string         `json:"link,omitempty"`
-	Clone           *string         `json:"clone,omitempty"`
-	Branch          *string         `json:"branch,omitempty"`
-	Topics          *[]string       `json:"topics,omitempty"`
-	BuildLimit      *int32          `json:"build_limit,omitempty"`
-	Timeout         *int32          `json:"timeout,omitempty"`
-	Counter         *int64          `json:"counter,omitempty"`
-	HookCounter     *int64          `json:"hook_counter,omitempty"`
-	Visibility      *string         `json:"visibility,omitempty"`
-	Private         *bool           `json:"private,omitempty"`
-	Trusted         *bool           `json:"trusted,omitempty"`
-	Active          *bool           `json:"active,omitempty"`
-	AllowEvents     *Events         `json:"allow_events,omitempty"`
-	PipelineType    *string         `json:"pipeline_type,omitempty"`
-	PreviousName    *string         `json:"previous_name,omitempty"`
-	ApproveBuild    *string         `json:"approve_build,omitempty"`
-	ApprovalTimeout *int32          `json:"approval_timeout,omitempty"`
-	InstallID       *int64          `json:"install_id,omitempty"`
-	CustomProps     *map[string]any `json:"custom_props,omitempty"`
+	ID               *int64          `json:"id,omitempty"`
+	Owner            *User           `json:"owner,omitempty"`
+	Hash             *string         `json:"-"`
+	Org              *string         `json:"org,omitempty"`
+	Name             *string         `json:"name,omitempty"`
+	FullName         *string         `json:"full_name,omitempty"`
+	Link             *string         `json:"link,omitempty"`
+	Clone            *string         `json:"clone,omitempty"`
+	Branch           *string         `json:"branch,omitempty"`
+	Topics           *[]string       `json:"topics,omitempty"`
+	BuildLimit       *int32          `json:"build_limit,omitempty"`
+	Timeout          *int32          `json:"timeout,omitempty"`
+	Counter          *int64          `json:"counter,omitempty"`
+	HookCounter      *int64          `json:"hook_counter,omitempty"`
+	Visibility       *string         `json:"visibility,omitempty"`
+	Private          *bool           `json:"private,omitempty"`
+	Trusted          *bool           `json:"trusted,omitempty"`
+	Active           *bool           `json:"active,omitempty"`
+	AllowEvents      *Events         `json:"allow_events,omitempty"`
+	MergeQueueEvents *[]string       `json:"merge_queue_events,omitempty"`
+	PipelineType     *string         `json:"pipeline_type,omitempty"`
+	PreviousName     *string         `json:"previous_name,omitempty"`
+	ApproveBuild     *string         `json:"approve_build,omitempty"`
+	ApprovalTimeout  *int32          `json:"approval_timeout,omitempty"`
+	InstallID        *int64          `json:"install_id,omitempty"`
+	CustomProps      *map[string]any `json:"custom_props,omitempty"`
 }
 
 // Environment returns a list of environment variables
@@ -324,6 +325,19 @@ func (r *Repo) GetAllowEvents() *Events {
 	}
 
 	return r.AllowEvents
+}
+
+// GetMergeQueueEvents returns the MergeQueueEvents field.
+//
+// When the provided Repo type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (r *Repo) GetMergeQueueEvents() []string {
+	// return zero value if Repo type or MergeQueueEvents field is nil
+	if r == nil || r.MergeQueueEvents == nil {
+		return []string{}
+	}
+
+	return *r.MergeQueueEvents
 }
 
 // GetPipelineType returns the PipelineType field.
@@ -651,6 +665,19 @@ func (r *Repo) SetAllowEvents(v *Events) {
 	r.AllowEvents = v
 }
 
+// SetMergeQueueEvents sets the MergeQueueEvents field.
+//
+// When the provided Repo type is nil, it
+// will set nothing and immediately return.
+func (r *Repo) SetMergeQueueEvents(v []string) {
+	// return if Repo type is nil
+	if r == nil {
+		return
+	}
+
+	r.MergeQueueEvents = &v
+}
+
 // SetPipelineType sets the PipelineType field.
 //
 // When the provided Repo type is nil, it
@@ -744,6 +771,7 @@ func (r *Repo) String() string {
   HookCounter: %d,
   ID: %d,
   Link: %s,
+  MergeQueueEvents: %v,
   Name: %s,
   Org: %s,
   Owner: %v,
@@ -769,6 +797,7 @@ func (r *Repo) String() string {
 		r.GetHookCounter(),
 		r.GetID(),
 		r.GetLink(),
+		r.GetMergeQueueEvents(),
 		r.GetName(),
 		r.GetOrg(),
 		r.GetOwner(),

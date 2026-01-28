@@ -24,4 +24,5 @@ const (
 	AllowPushDeleteBranch
 	AllowPushDeleteTag
 	AllowPullUnlabel
+	AllowMergeGroup
 )

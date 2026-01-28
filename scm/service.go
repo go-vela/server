@@ -24,6 +24,10 @@ type Service interface {
 	// the configured scm driver.
 	Driver() string
 
+	// MergeQueueBranchPrefix defines a function that outputs
+	// the merge queue prefix for the scm driver.
+	MergeQueueBranchPrefix() string
+
 	// Authentication SCM Interface Functions
 
 	// Authorize defines a function that uses the
