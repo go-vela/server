@@ -8,6 +8,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	artifact "github.com/go-vela/server/database/artifact"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -80,9 +81,13 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	// ensure the mock expects the worker queries
 	_mock.ExpectExec(worker.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(worker.CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// Add these expectations for artifact queries
+	_mock.ExpectExec(artifact.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(artifact.CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create a test database without mocking the call
 	_unmocked, _ := testPostgres(t)
+	defer _unmocked.Close()
 
 	_sqlite := testSqlite(t)
 	defer _sqlite.Close()
