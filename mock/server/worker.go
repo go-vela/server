@@ -189,10 +189,10 @@ const (
 		"queue_address": "redis://redis:6000"
 	}`
 
-	// StorageInfoResp represents a JSON return for an admin requesting a storage registration info.
+	// StorageSTSResp represents a JSON return for an admin requesting a storage sts creds.
 	//
 	//not actual credentials.
-	StorageInfoResp = `{
+	StorageSTSResp = `{
 		"storage_access_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
 		"storage_secret_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
 		"storage_address": "http://storage:9000"
@@ -345,6 +345,28 @@ func getQueueCreds(c *gin.Context) {
 	data := []byte(QueueInfoResp)
 
 	var body api.QueueInfo
+
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusCreated, body)
+}
+
+// getStorageCreds returns mock JSON for a http GET.
+// Pass "" to Authorization header to test receiving a http 401 response.
+func getStorageCreds(c *gin.Context) {
+	token := c.Request.Header.Get("Authorization")
+	// verify token if empty
+	if token == "" {
+		msg := "unable get storage credentials; invalid registration token"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &msg})
+
+		return
+	}
+
+	data := []byte(StorageSTSResp)
+
+	var body api.STSCreds
 
 	_ = json.Unmarshal(data, &body)
 
