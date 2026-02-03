@@ -350,25 +350,3 @@ func getQueueCreds(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, body)
 }
-
-// getStorageCreds returns mock JSON for a http GET.
-// Pass "" to Authorization header to test receiving a http 401 response.
-func getStorageCreds(c *gin.Context) {
-	token := c.Request.Header.Get("Authorization")
-	// verify token if empty
-	if token == "" {
-		msg := "unable get storage credentials; invalid registration token"
-
-		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &msg})
-
-		return
-	}
-
-	data := []byte(StorageInfoResp)
-
-	var body api.StorageInfo
-
-	_ = json.Unmarshal(data, &body)
-
-	c.JSON(http.StatusCreated, body)
-}

@@ -159,11 +159,5 @@ func FakeHandler() http.Handler {
 	// mock endpoint for queue credentials
 	e.GET("/api/v1/queue/info", getQueueCreds)
 
-	// mock endpoint for storage credentials
-	e.GET("/api/v1/storage/info", getStorageCreds)
-
-	// mock endpoint for artifact calls
-	e.PUT("/api/v1/repos/org/repo/builds/1/artifact", addArtifact)
-
 	return e
 }
