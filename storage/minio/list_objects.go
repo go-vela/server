@@ -4,6 +4,7 @@ package minio
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/minio/minio-go/v7"
 
@@ -58,7 +59,8 @@ func (c *Client) ListObjectNames(ctx context.Context, b *api.Bucket) ([]string, 
 }
 
 // ListBuildObjectNames lists the names of objects in a bucket for a specific build.
-func (c *Client) ListBuildObjectNames(ctx context.Context, b *api.Bucket, org, repo, build string) ([]string, error) {
+func (c *Client) ListBuildObjectNames(ctx context.Context, b *api.Bucket, org, repo, build string) (map[string]string, error) {
+	objectsWithURLs := make(map[string]string)
 	// Construct the prefix path for filtering
 	prefix := org + "/" + repo + "/" + build + "/"
 
@@ -80,7 +82,17 @@ func (c *Client) ListBuildObjectNames(ctx context.Context, b *api.Bucket, org, r
 		}
 
 		objectNames = append(objectNames, object.Key)
+		// Generate presigned URL for each object
+		obj := &api.Object{
+			ObjectName: object.Key,
+			Bucket:     *b,
+		}
+		url, err := c.PresignedGetObject(ctx, obj)
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate presigned URL for object %s: %w", object.Key, err)
+		}
+		objectsWithURLs[object.Key] = url
 	}
 
-	return objectNames, nil
+	return objectsWithURLs, nil
 }

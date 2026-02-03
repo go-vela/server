@@ -4,6 +4,7 @@ package minio
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -24,14 +25,14 @@ func (c *Client) PresignedGetObject(ctx context.Context, object *api.Object) (st
 	objInfo, err := c.client.StatObject(ctx, object.Bucket.BucketName, object.ObjectName, minio.StatObjectOptions{})
 	if objInfo.Key == "" {
 		logrus.Errorf("unable to get object info %s from bucket %s: %v", object.ObjectName, object.Bucket.BucketName, err)
-		return "", err
+		return fmt.Sprintf("Object %s does not exist", object.ObjectName), err
 	}
 
 	// Generate presigned URL for downloading the object.
 	// The URL is valid for 7 days.
-	presignedURL, err := c.client.PresignedGetObject(ctx, object.Bucket.BucketName, object.ObjectName, 7*24*time.Hour, nil)
+	presignedURL, err := c.client.PresignedGetObject(ctx, object.Bucket.BucketName, object.ObjectName, 1*time.Hour, nil)
 	if err != nil {
-		return "", err
+		return fmt.Sprintf("Unable to generate presigned URL for object %s", object.ObjectName), err
 	}
 
 	url = presignedURL.String()

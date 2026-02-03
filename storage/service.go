@@ -25,7 +25,7 @@ type Storage interface {
 	//Download(ctx context.Context, object *api.Object) error
 	ListObjects(ctx context.Context, bucket *api.Bucket) ([]minio.ObjectInfo, error)
 	ListObjectNames(ctx context.Context, bucket *api.Bucket) ([]string, error)
-	ListBuildObjectNames(context.Context, *api.Bucket, string, string, string) ([]string, error)
+	ListBuildObjectNames(context.Context, *api.Bucket, string, string, string) (map[string]string, error)
 	// Presigned URLs
 	PresignedGetObject(ctx context.Context, object *api.Object) (string, error)
 	// Storage info
