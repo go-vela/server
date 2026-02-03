@@ -27,7 +27,6 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
-	"github.com/go-vela/server/storage"
 	"github.com/go-vela/server/tracing"
 )
 
@@ -114,7 +113,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	st, err := storage.FromCLICommand(ctx, cmd)
+	st, err := setupStorage(ctx, cmd)
 	if err != nil {
 		return err
 	}

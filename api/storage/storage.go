@@ -57,23 +57,21 @@ func Info(c *gin.Context) {
 	e := c.MustGet("storage-enable").(bool)
 
 	// extract the public key that was packed into gin context
-	k := c.MustGet("storage-access-key").(string)
-
+	//k := c.MustGet("storage-access-key").(string)
+	//
 	// extract the storage-address that was packed into gin context
 	a := c.MustGet("storage-address").(string)
-
-	// extract the secret key that was packed into gin context
-	s := c.MustGet("storage-secret-key").(string)
-
+	//
+	//// extract the secret key that was packed into gin context
+	//s := c.MustGet("storage-secret-key").(string)
+	//
 	// extract bucket name that was packed into gin context
 	b := c.MustGet("storage-bucket").(string)
 
 	wr := types.StorageInfo{
-		StorageEnabled:   &e,
-		StorageAccessKey: &k,
-		StorageAddress:   &a,
-		StorageSecretKey: &s,
-		StorageBucket:    &b,
+		StorageEnabled: &e, //nolint:gci
+		StorageAddress: &a,
+		StorageBucket:  &b,
 	}
 
 	c.JSON(http.StatusOK, wr)

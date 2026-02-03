@@ -17,7 +17,7 @@ type Storage interface {
 	CreateBucket(ctx context.Context, bucket *api.Bucket) error
 	BucketExists(ctx context.Context, bucket *api.Bucket) (bool, error)
 	ListBuckets(ctx context.Context) ([]string, error)
-	GetBucket(ctx context.Context) string
+	GetBucket() string
 	// Object Operations
 	StatObject(ctx context.Context, object *api.Object) (*api.Object, error)
 	Upload(ctx context.Context, object *api.Object) error
@@ -30,4 +30,5 @@ type Storage interface {
 	PresignedGetObject(ctx context.Context, object *api.Object) (string, error)
 	// Storage info
 	StorageEnable() bool
+	AssumeRole(ctx context.Context, durationSeconds int, policy, sessionName string) (*api.STSCreds, error)
 }

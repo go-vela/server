@@ -38,10 +38,8 @@ func TestMinio_New(t *testing.T) {
 	for _, test := range tests {
 		_, err := New(
 			test.endpoint,
-			WithAccessKey(_accessKey),
-			WithSecretKey(_secretKey),
-			WithSecure(_useSSL),
-			WithBucket(_bucket),
+			WithOptions(true, _useSSL,
+				test.endpoint, _accessKey, _secretKey, _bucket, ""),
 		)
 
 		if test.failure {

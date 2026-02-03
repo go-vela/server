@@ -9,76 +9,36 @@ import (
 // ClientOpt represents a configuration option to initialize the MinIO client.
 type ClientOpt func(client *Client) error
 
-// WithEnable sets the enable flag in the MinIO client.
-func WithEnable(enable bool) ClientOpt {
+// WithOptions sets multiple options in the MinIO client.
+func WithOptions(enable, secure bool, endpoint, accessKey, secretKey, bucket, token string) ClientOpt {
 	return func(c *Client) error {
-		c.Logger.Trace("configuring enable flag in minio client")
+		c.Logger.Trace("configuring multiple options in minio client")
 
-		// set the enable flag in the minio client
-		c.config.Enable = enable
-
-		return nil
-	}
-}
-
-// WithAccessKey sets the access key in the MinIO client.
-func WithAccessKey(accessKey string) ClientOpt {
-	return func(c *Client) error {
-		c.Logger.Trace("configuring access key in minio client")
-
-		// check if the access key provided is empty
 		if len(accessKey) == 0 {
 			return fmt.Errorf("no MinIO access key provided")
 		}
-
-		// set the access key in the minio client
-		c.config.AccessKey = accessKey
-
-		return nil
-	}
-}
-
-// WithSecretKey sets the secret key in the MinIO client.
-func WithSecretKey(secretKey string) ClientOpt {
-	return func(c *Client) error {
-		c.Logger.Trace("configuring secret key in minio client")
-
 		// check if the secret key provided is empty
 		if len(secretKey) == 0 {
 			return fmt.Errorf("no MinIO secret key provided")
 		}
-
-		// set the secret key in the minio client
-		c.config.SecretKey = secretKey
-
-		return nil
-	}
-}
-
-// WithSecure sets the secure connection mode in the MinIO client.
-func WithSecure(secure bool) ClientOpt {
-	return func(c *Client) error {
-		c.Logger.Trace("configuring secure connection mode in minio client")
-
-		// set the secure connection mode in the minio client
-		c.config.Secure = secure
-
-		return nil
-	}
-}
-
-// WithBucket sets the bucket name in the MinIO client.
-func WithBucket(bucket string) ClientOpt {
-	return func(c *Client) error {
-		c.Logger.Trace("configuring bucket name in minio client")
-
 		// check if the bucket name provided is empty
 		if len(bucket) == 0 {
 			return fmt.Errorf("no MinIO bucket name provided")
 		}
-
+		// set the enable flag in the minio client
+		c.config.Enable = enable
+		// set the endpoint in the minio client
+		c.config.Endpoint = endpoint
+		// set the secret key in the minio client
+		c.config.SecretKey = secretKey
+		// set the access key in the minio client
+		c.config.AccessKey = accessKey
+		// set the secure connection mode in the minio client
+		c.config.Secure = secure
 		// set the bucket name in the minio client
 		c.config.Bucket = bucket
+		// set the token in the minio client
+		c.config.Token = token
 
 		return nil
 	}

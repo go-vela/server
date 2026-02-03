@@ -24,6 +24,7 @@ type Setup struct {
 	Bucket    string
 	Region    string
 	Secure    bool
+	Token     string
 }
 
 // Minio creates and returns a Vela service capable
@@ -31,11 +32,14 @@ type Setup struct {
 func (s *Setup) Minio() (Storage, error) {
 	return minio.New(
 		s.Endpoint,
-		minio.WithEnable(s.Enable),
-		minio.WithAccessKey(s.AccessKey),
-		minio.WithSecretKey(s.SecretKey),
-		minio.WithSecure(s.Secure),
-		minio.WithBucket(s.Bucket),
+		minio.WithOptions(
+			s.Enable,
+			s.Secure,
+			s.Endpoint,
+			s.AccessKey,
+			s.SecretKey,
+			s.Bucket,
+			s.Token),
 	)
 }
 

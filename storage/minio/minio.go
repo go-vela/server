@@ -19,6 +19,7 @@ type config struct {
 	SecretKey string
 	Bucket    string
 	Secure    bool
+	Token     string
 }
 
 // Client implements the Storage interface using MinIO.
@@ -54,7 +55,7 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 		}
 	}
 
-	c.Options.Creds = credentials.NewStaticV4(c.config.AccessKey, c.config.SecretKey, "")
+	c.Options.Creds = credentials.NewStaticV4(c.config.AccessKey, c.config.SecretKey, c.config.Token)
 	c.Options.Secure = c.config.Secure
 	logrus.Debugf("secure: %v", c.config.Secure)
 
@@ -90,5 +91,7 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 //
 
 func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*Client, error) {
-	return New(endpoint, WithAccessKey(accessKey), WithSecretKey(secretKey), WithSecure(secure), WithBucket(bucket))
+	return New(endpoint,
+		WithOptions(true, secure,
+			endpoint, accessKey, secretKey, bucket, ""))
 }

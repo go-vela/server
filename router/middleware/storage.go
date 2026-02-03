@@ -13,7 +13,7 @@ import (
 func Storage(q storage.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// attach the object storage to the context
-		storage.ToContext(c, q)
+		storage.WithGinContext(c, q)
 
 		c.Next()
 	}
