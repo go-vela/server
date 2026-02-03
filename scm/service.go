@@ -151,7 +151,7 @@ type Service interface {
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
 	// GetNetrcPassword defines a function that returns the netrc
 	// password injected into build steps.
-	GetNetrcPassword(context.Context, database.Interface, cache.Service, *api.Repo, *api.User, yaml.Git) (string, int64, error)
+	GetNetrcPassword(context.Context, database.Interface, cache.Service, *api.Build, yaml.Git) (string, int64, error)
 	// SyncRepoWithInstallation defines a function that syncs
 	// a repo with the installation, if it exists.
 	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)

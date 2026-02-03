@@ -49,7 +49,7 @@ func (c *Client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 	// netrc can be provided directly using WithNetrc for situations like local exec
 	if c.netrc == nil && c.scm != nil {
 		// get the netrc password from the scm
-		netrc, exp, err := c.scm.GetNetrcPassword(ctx, c.db, c.cache, c.repo, c.user, p.Git)
+		netrc, exp, err := c.scm.GetNetrcPassword(ctx, c.db, c.cache, c.build, p.Git)
 		if err != nil {
 			return nil, nil, err
 		}
