@@ -14,7 +14,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/go-vela/server/constants"
-	artifact "github.com/go-vela/server/database/artifact"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -92,7 +91,6 @@ type (
 		log.LogInterface
 		pipeline.PipelineInterface
 		repo.RepoInterface
-		artifact.ArtifactInterface
 		schedule.ScheduleInterface
 		secret.SecretInterface
 		service.ServiceInterface

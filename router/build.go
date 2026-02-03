@@ -77,8 +77,6 @@ func BuildHandlers(base *gin.RouterGroup) {
 			// * Log endpoints
 			StepHandlers(b)
 
-			// Artifact endpoints
-			ArtifactHandlers(b)
 		} // end of build endpoints
 	} // end of builds endpoints
 }

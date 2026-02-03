@@ -5,7 +5,6 @@ package database
 import (
 	"context"
 
-	artifact "github.com/go-vela/server/database/artifact"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -216,18 +215,6 @@ func (e *engine) NewResources(ctx context.Context) error {
 		worker.WithClient(e.client),
 		worker.WithLogger(e.logger),
 		worker.WithSkipCreation(e.config.SkipCreation),
-	)
-	if err != nil {
-		return err
-	}
-
-	// create the database agnostic engine for artifacts
-	e.ArtifactInterface, err = artifact.New(
-		artifact.WithContext(ctx),
-		artifact.WithClient(e.client),
-		artifact.WithEncryptionKey(e.config.EncryptionKey),
-		artifact.WithLogger(e.logger),
-		artifact.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
