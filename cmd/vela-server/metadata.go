@@ -100,7 +100,7 @@ func metadataSource(c *cli.Command) (*internal.Source, error) {
 	}, nil
 }
 
-// helper function to capture the queue metadata from the CLI arguments.
+// helper function to capture the storage metadata from the CLI arguments.
 func metadataStorage(c *cli.Command) (*internal.Storage, error) {
 	logrus.Trace("creating storage metadata from CLI configuration")
 

@@ -67,6 +67,4 @@ const (
 const (
 	// DriverMinio defines the driver type when integrating with a local storage system.
 	DriverMinio = "minio"
-	// DriverAws defines the driver type when integrating with an AWS S3 storage system.
-	DriverAws = "aws"
 )
