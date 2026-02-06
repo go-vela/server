@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package types
 
 import "time"
@@ -11,6 +13,7 @@ type STSCreds struct {
 	Bucket   string `json:"bucket"`
 	Region   string `json:"region,omitempty"`
 	Prefix   string `json:"prefix,omitempty"`
+	Secure   bool   `json:"secure,omitempty"`
 
 	ExpiresAt time.Time `json:"expires_at,omitempty"`
 }

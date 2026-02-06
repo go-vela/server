@@ -30,7 +30,7 @@ func (c *Client) AssumeRole(_ context.Context, durationSeconds int, policy, sess
 		DurationSeconds: durationSeconds,
 		Policy:          policy,
 	}
-
+	c.Logger.Logger.Debugf("config endpoint: %s", c.config.Endpoint)
 	stsCreds, err := credentials.NewSTSAssumeRole(c.config.Endpoint, opts)
 	if err != nil {
 		return nil, fmt.Errorf("unable to assume role: %w", err)
@@ -40,7 +40,7 @@ func (c *Client) AssumeRole(_ context.Context, durationSeconds int, policy, sess
 	if err != nil {
 		return nil, fmt.Errorf("unable to get credentials: %w", err)
 	}
-
+	c.Logger.Logger.Debugf("assume role credentials: %s", val)
 	return &types.STSCreds{
 		AccessKey:    val.AccessKeyID,
 		SecretKey:    val.SecretAccessKey,
@@ -48,5 +48,6 @@ func (c *Client) AssumeRole(_ context.Context, durationSeconds int, policy, sess
 		ExpiresAt:    time.Now().Add(time.Duration(durationSeconds) * time.Second), // needs to figure out from build time
 		Endpoint:     c.GetAddress(),
 		Bucket:       c.config.Bucket,
+		Secure:       c.config.Secure,
 	}, nil
 }

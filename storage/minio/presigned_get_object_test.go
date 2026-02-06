@@ -97,6 +97,6 @@ func Test_PresignedGetObject_Failure(t *testing.T) {
 	}
 
 	if url != "" {
-		t.Errorf("PresignedGetObject returned URL when it should have failed")
+		t.Errorf("PresignedGetObject returned URL when it should have failed %s", url)
 	}
 }

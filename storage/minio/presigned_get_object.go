@@ -25,7 +25,7 @@ func (c *Client) PresignedGetObject(ctx context.Context, object *api.Object) (st
 	objInfo, err := c.client.StatObject(ctx, object.Bucket.BucketName, object.ObjectName, minio.StatObjectOptions{})
 	if objInfo.Key == "" {
 		logrus.Errorf("unable to get object info %s from bucket %s: %v", object.ObjectName, object.Bucket.BucketName, err)
-		return fmt.Sprintf("Object %s does not exist", object.ObjectName), err
+		return "", err
 	}
 
 	// Generate presigned URL for downloading the object.

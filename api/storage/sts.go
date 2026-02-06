@@ -7,11 +7,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/storage"
 )
 
@@ -25,20 +26,23 @@ func GetSTSCreds(c *gin.Context) {
 		return
 	}
 
-	org := c.Param("org")
-	repo := c.Param("repo")
-	build := c.Param("build")
+	r := repo.Retrieve(c)
+	org := r.GetOrg()
+	b := build.Retrieve(c)
+	repoName := r.GetName()
+	buildNum := b.GetNumber()
+	ctx := c.Request.Context()
 
 	bucket := c.MustGet("storage-bucket").(string)
 
-	prefix := fmt.Sprintf("%s/%s/%s/", org, repo, build)
+	prefix := fmt.Sprintf("%s/%s/%d/", org, repoName, buildNum)
 
 	policy, _ := buildPutOnlyPolicy(bucket, prefix)
-	sessionName := fmt.Sprintf("vela-%s-%s-%s", org, repo, build)
+	sessionName := fmt.Sprintf("vela-%s-%s-%d", org, repoName, buildNum)
 
-	creds, err := storage.FromGinContext(c).AssumeRole(c, int(1*time.Hour/time.Second), policy, sessionName)
+	creds, err := storage.FromGinContext(c).AssumeRole(ctx, int(r.GetTimeout())*60, policy, sessionName)
 	if creds == nil {
-		l.Error("unable to assume role and generate temporary credentials")
+		l.Errorf("unable to assume role and generate temporary credentials without error %s", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to assume role and generate temporary credentials"})
 		return
 	}
@@ -90,5 +94,6 @@ func buildPutOnlyPolicy(bucket, prefix string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(b), nil
 }

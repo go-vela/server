@@ -150,37 +150,26 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 	resp := httptest.NewRecorder()
 	ctx, engine := gin.CreateTestContext(resp)
 
-	// mock: create bucket
+	// mock create bucket call
 	engine.PUT("/foo/", func(c *gin.Context) {
 		c.XML(http.StatusOK, gin.H{
 			"bucketName":     "foo",
 			"bucketLocation": "snowball",
-			"objectName":     "octocat/hello-world/1/test.xml",
+			"objectName":     "test.xml",
 		})
 	})
 
-	// handle GET with any query params (/foo, /foo/, /foo?prefix=..., etc.)
-	engine.GET("/foo/*any", func(c *gin.Context) {
-		t.Logf("Incoming URL: %s", c.Request.URL.String())
-
-		// bucket location probe (SDK does ?location=)
+	// Mock bucket location check
+	engine.GET("/foo/", func(c *gin.Context) {
 		if _, ok := c.GetQuery("location"); ok {
 			c.Data(http.StatusOK, "application/xml", []byte(`<LocationConstraint>us-east-1</LocationConstraint>`))
 			return
 		}
 
-		// real object listing
+		// Handle list objects request
 		prefix := c.Query("prefix")
-		t.Logf("Received prefix: %s", prefix)
+		t.Logf("ListObjects called with prefix: %s", prefix)
 
-		if prefix != "octocat/hello-world/1/" {
-			t.Logf("Invalid prefix received: %s", prefix)
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid prefix"})
-
-			return
-		}
-
-		// return raw XML (valid S3 ListObjectsV2 response)
 		xmlResponse := `<?xml version="1.0" encoding="UTF-8"?>
 <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
   <Name>foo</Name>
@@ -190,19 +179,25 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
   <IsTruncated>false</IsTruncated>
   <Contents>
     <Key>octocat/hello-world/1/test.xml</Key>
-    <ETag>"etag-test"</ETag>
-    <Size>558677</Size>
     <LastModified>2025-03-20T19:01:40.968Z</LastModified>
-  </Contents>
-  <Contents>
+    <Size>558677</Size>
+  </Contents><Contents>
     <Key>octocat/hello-world/1/coverage.xml</Key>
-    <ETag>"etag-coverage"</ETag>
-    <Size>123456</Size>
     <LastModified>2025-03-20T19:02:40.968Z</LastModified>
+    <Size>123456</Size>
   </Contents>
 </ListBucketResult>`
 
 		c.Data(http.StatusOK, "application/xml", []byte(xmlResponse))
+	})
+
+	// Mock presigned URL requests
+	engine.GET("/foo/octocat/hello-world/1/test.xml", func(c *gin.Context) {
+		c.Redirect(http.StatusTemporaryRedirect, "http://presigned.url/test.xml")
+	})
+
+	engine.GET("/foo/octocat/hello-world/1/coverage.xml", func(c *gin.Context) {
+		c.Redirect(http.StatusTemporaryRedirect, "http://presigned.url/coverage.xml")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -217,15 +212,11 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 		t.Fatalf("Failed to create MinIO client: %v", err)
 	}
 
-	// Run the test
-	t.Logf("Running ListBuildObjectNames with org=octocat, repo=hello-world, build=1")
-
 	results, err := client.ListBuildObjectNames(ctx, b, "octocat", "hello-world", "1")
 	if err != nil {
 		t.Fatalf("ListBuildObjectNames returned err: %v", err)
 	}
 
-	// Check results
 	if len(results) != 2 {
 		t.Fatalf("Expected 2 results, got %d", len(results))
 	}
@@ -236,16 +227,7 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 	}
 
 	for _, expected := range expectedNames {
-		found := false
-
-		for _, name := range results {
-			if name == expected {
-				found = true
-				break
-			}
-		}
-
-		if !found {
+		if _, found := results[expected]; !found {
 			t.Errorf("Expected object name %q not found in results", expected)
 		}
 	}

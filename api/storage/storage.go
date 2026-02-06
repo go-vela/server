@@ -4,11 +4,14 @@ package storage
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/storage"
 	"github.com/go-vela/server/util"
 )
@@ -76,47 +79,55 @@ func ListObjects(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"objects": objects})
 }
 
-// ListObjectNames represents the API handler to list only the names of objects in a bucket.
-func ListObjectNames(c *gin.Context) {
-	enable := c.MustGet("storage-enable").(bool)
-	if !enable {
-		l := c.MustGet("logger").(*logrus.Entry)
-		l.Info("storage is not enabled, skipping credentials request")
-		c.JSON(http.StatusForbidden, gin.H{"error": "storage is not enabled"})
-
-		return
-	}
-
-	l := c.MustGet("logger").(*logrus.Entry)
-	l.Debug("listing object names in bucket")
-
-	// extract the bucket name from the request
-	bucketName := util.PathParameter(c, "bucket")
-
-	// create a new bucket object
-	b := &types.Bucket{
-		BucketName: bucketName,
-		Recursive:  true,
-	}
-
-	// list objects in the bucket
-	objects, err := storage.FromGinContext(c).ListObjects(c.Request.Context(), b)
-	if err != nil {
-		l.Errorf("unable to list objects in bucket %s: %v", bucketName, err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-
-		return
-	}
-
-	// Extract just the names from the objects
-	names := make([]string, 0, len(objects))
-	for _, obj := range objects {
-		names = append(names, obj.Key)
-	}
-
-	c.JSON(http.StatusOK, gin.H{"names": names})
-}
-
+// swagger:operation GET /api/v1/repos/:org/:repo/builds/:build/storage/:bucket/names storage ListBuildObjectNames
+//
+// # List object names for a specific build in a bucket
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+//   - in: path
+//     name: org
+//     description: Organization name
+//     required: true
+//     type: string
+//   - in: path
+//     name: repo
+//     description: Repository name
+//     required: true
+//     type: string
+//   - in: path
+//     name: build
+//     description: Build number
+//     required: true
+//     type: integer
+//   - in: path
+//     name: bucket
+//     description: Name of the bucket
+//     required: true
+//     type: string
+//
+// security:
+//   - ApiKeyAuth: []
+//
+// responses:
+//
+//	'200':
+//	  description: Successfully listed object names for the build
+//	  schema:
+//	    type: object
+//	    properties:
+//	      names:
+//	        type: object
+//	        additionalProperties:
+//	          type: string
+//	        description: map of object name to presigned URL
+//	'500':
+//	  description: Unexpected server error
+//	  schema:
+//	    "$ref": "#/definitions/Error"
+//
 // ListBuildObjectNames represents the API handler to list object names for a specific build.
 func ListBuildObjectNames(c *gin.Context) {
 	enable := c.MustGet("storage-enable").(bool)
@@ -132,22 +143,15 @@ func ListBuildObjectNames(c *gin.Context) {
 
 	// Extract path parameters
 	bucketName := util.PathParameter(c, "bucket")
-	org := util.PathParameter(c, "org")
-	repo := util.PathParameter(c, "repo")
-	buildNum := util.PathParameter(c, "build")
+	r := repo.Retrieve(c)
+	b := build.Retrieve(c)
+	org := r.GetOrg()
+	buildNum := b.GetNumber()
 
-	// Validate parameters
-	if org == "" || repo == "" || buildNum == "" {
-		l.Error("missing required parameters (org, repo, or build)")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "missing required parameters"})
-
-		return
-	}
-
-	l.Debugf("listing object names in bucket %s for %s/%s build #%s", bucketName, org, repo, buildNum)
+	l.Debugf("listing object names in bucket %s for %s/%s build #%d", bucketName, org, r.GetName(), buildNum)
 
 	// Create a new bucket object
-	b := &types.Bucket{
+	bObject := &types.Bucket{
 		BucketName: bucketName,
 		Recursive:  true,
 	}
@@ -155,13 +159,13 @@ func ListBuildObjectNames(c *gin.Context) {
 	// Call the ListBuildObjectNames method that handles prefix filtering
 	objectNames, err := storage.FromGinContext(c).ListBuildObjectNames(
 		c.Request.Context(),
-		b,
+		bObject,
 		org,
-		repo,
-		buildNum,
+		r.GetName(),
+		strconv.FormatInt(buildNum, 10),
 	)
 	if err != nil {
-		l.Errorf("unable to list objects for %s/%s build #%s: %v", org, repo, buildNum, err)
+		l.Errorf("unable to list objects for %s/%s build #%d: %v", org, r.GetName(), buildNum, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 
 		return

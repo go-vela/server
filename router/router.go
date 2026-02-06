@@ -155,9 +155,6 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 		// Queue endpoints
 		QueueHandlers(baseAPI)
-
-		// Storage endpoints
-		StorageHandlers(baseAPI)
 	} // end of api
 
 	return r

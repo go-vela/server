@@ -44,7 +44,13 @@ import (
 // POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
-// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs .
+// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/graph
+// GET    /api/v1/repos/:org/:repo/builds/:build/id_token
+// GET    /api/v1/repos/:org/:repo/builds/:build/id_request_token
+// GET    /api/v1/repos/:org/:repo/builds/:build/install_token
+// GET   /api/v1/repos/:org/:repo/builds/:build/storage/sts
+// GET   /api/v1/repos/:org/:repo/builds/:build/storage/:bucket/names .
 func BuildHandlers(base *gin.RouterGroup) {
 	// Builds endpoints
 	builds := base.Group("/builds")
@@ -77,6 +83,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 			// * Log endpoints
 			StepHandlers(b)
 
+			StorageHandlers(b)
 		} // end of build endpoints
 	} // end of builds endpoints
 }

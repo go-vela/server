@@ -13,6 +13,7 @@ import (
 
 func setupStorage(_ context.Context, c *cli.Command) (storage.Storage, error) {
 	logrus.Debug("creating storage client from CLI configuration")
+
 	if !c.Bool("storage.enable") {
 		logrus.Debug("storage is not enabled from CLI configuration")
 
