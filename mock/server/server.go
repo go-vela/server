@@ -160,6 +160,6 @@ func FakeHandler() http.Handler {
 	e.GET("/api/v1/queue/info", getQueueCreds)
 
 	// mock endpoint for storage sts credentials
-	e.GET("/api/v1/storage/sts/:org/:repo/:build", getStorageCreds)
+	e.GET("/api/v1/repos/:org/:repo/builds/:build/storage/sts", getStorageCreds)
 	return e
 }
