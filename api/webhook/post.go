@@ -866,7 +866,7 @@ func handleMergeGroupDestroy(c *gin.Context, l *logrus.Entry, db database.Interf
 					l.Warnf("unable to cancel running build %s/%d: %s", rB.GetRepo().GetFullName(), rB.GetNumber(), err.Error())
 				}
 
-				rB.SetError("auto canceled: merge group build was destroyed")
+				rB.SetError(constants.ErrorMergeGroupBuildCanceled)
 
 				rB, err = db.UpdateBuild(ctx, rB)
 				if err != nil {

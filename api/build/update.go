@@ -175,7 +175,7 @@ func UpdateBuild(c *gin.Context) {
 		b.GetStatus() == constants.StatusKilled ||
 		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
 		// no need to update status for auto canceled merge group builds
-		if b.GetEvent() == constants.EventMergeGroup && strings.Contains(b.GetError(), "merge group build was auto canceled") {
+		if b.GetEvent() == constants.EventMergeGroup && strings.Contains(b.GetError(), constants.ErrorMergeGroupBuildCanceled) {
 			return
 		}
 		// send API call to set the status on the commit

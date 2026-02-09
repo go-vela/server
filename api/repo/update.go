@@ -181,7 +181,7 @@ func UpdateRepo(c *gin.Context) {
 		for _, event := range input.GetMergeQueueEvents() {
 			// only allow events possibly related to a PR merge queue
 			if !slices.Contains([]string{constants.EventPush, constants.EventPull, constants.EventComment}, event) {
-				retErr := fmt.Errorf("merge_queue_event of %s is invalid", event)
+				retErr := fmt.Errorf("merge_queue_event of %s is invalid. valid events are `%s`, `%s`, `%s`", event, constants.EventPush, constants.EventPull, constants.EventComment)
 
 				util.HandleError(c, http.StatusBadRequest, retErr)
 
