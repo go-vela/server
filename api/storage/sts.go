@@ -16,6 +16,50 @@ import (
 	"github.com/go-vela/server/storage"
 )
 
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/storage/sts storage GetSTSCreds
+//
+// Get temporary STS credentials for build storage uploads.
+//
+// Generates temporary AWS STS credentials scoped to allow PUT operations
+// into the configured storage bucket under the build-specific prefix.
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+//   - name: org
+//     in: path
+//     description: Organization name
+//     required: true
+//     type: string
+//   - name: repo
+//     in: path
+//     description: Repository name
+//     required: true
+//     type: string
+//   - name: build
+//     in: path
+//     description: Build number
+//     required: true
+//     type: integer
+//     format: int64
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   200:
+//     description: Successfully generated temporary STS credentials
+//     schema:
+//       $ref: '#/definitions/STSCreds'
+//   403:
+//     description: Storage is not enabled
+//     schema:
+//       $ref: '#/definitions/Error'
+//   500:
+//     description: Unable to assume role or generate credentials
+//     schema:
+//       $ref: '#/definitions/Error'
+
+// GetSTSCreds represents the API handler to generate temporary STS credentials for build storage uploads.
 func GetSTSCreds(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
 
