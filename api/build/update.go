@@ -5,6 +5,7 @@ package build
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -173,6 +174,10 @@ func UpdateBuild(c *gin.Context) {
 		b.GetStatus() == constants.StatusCanceled ||
 		b.GetStatus() == constants.StatusKilled ||
 		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
+		// no need to update status for auto canceled merge group builds
+		if b.GetEvent() == constants.EventMergeGroup && strings.Contains(b.GetError(), constants.ErrorMergeGroupBuildCanceled) {
+			return
+		}
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).Status(ctx, b, r.GetOrg(), r.GetName(), scmToken)
 		if err != nil {

@@ -9,7 +9,6 @@ import (
 	"github.com/go-vela/server/api/log"
 	"github.com/go-vela/server/router/middleware"
 	bmiddleware "github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/executors"
 	"github.com/go-vela/server/router/middleware/perm"
 )
 
@@ -66,7 +65,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 			b.PUT("", perm.MustBuildAccess(), middleware.Payload(), build.UpdateBuild)
 			b.DELETE("", perm.MustPlatformAdmin(), build.DeleteBuild)
 			b.POST("/approve", perm.MustAdmin(), build.ApproveBuild)
-			b.DELETE("/cancel", executors.Establish(), perm.MustWrite(), build.CancelBuild)
+			b.DELETE("/cancel", perm.MustWrite(), build.CancelBuild)
 			b.GET("/logs", perm.MustRead(), log.ListLogsForBuild)
 			b.GET("/token", perm.MustWorkerAuthToken(), build.GetBuildToken)
 			b.GET("/id_token", perm.MustIDRequestToken(), build.GetIDToken)

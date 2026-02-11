@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -197,6 +198,20 @@ func CreateRepo(c *gin.Context) {
 		r.SetAllowEvents(input.GetAllowEvents())
 	} else {
 		r.SetAllowEvents(defaultAllowedEvents(defaultRepoEvents, defaultRepoEventsMask))
+	}
+
+	if len(input.GetMergeQueueEvents()) > 0 {
+		for _, event := range input.GetMergeQueueEvents() {
+			if !slices.Contains([]string{constants.EventPush, constants.EventPull, constants.EventComment}, event) {
+				retErr := fmt.Errorf("merge_queue_event of %s is invalid", event)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+		}
+
+		r.SetMergeQueueEvents(input.GetMergeQueueEvents())
 	}
 
 	if len(input.GetPipelineType()) == 0 {
