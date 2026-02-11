@@ -79,55 +79,45 @@ func ListObjects(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"objects": objects})
 }
 
-// swagger:operation GET /api/v1/repos/:org/:repo/builds/:build/storage/:bucket/names storage ListBuildObjectNames
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/storage/{bucket}/names storage ListBuildObjectNames
 //
-// # List object names for a specific build in a bucket
+// List object names for a specific build in a bucket.
 //
 // ---
 // produces:
 // - application/json
 // parameters:
-//   - in: path
-//     name: org
+//   - name: org
+//     in: path
 //     description: Organization name
 //     required: true
 //     type: string
-//   - in: path
-//     name: repo
+//   - name: repo
+//     in: path
 //     description: Repository name
 //     required: true
 //     type: string
-//   - in: path
-//     name: build
+//   - name: build
+//     in: path
 //     description: Build number
 //     required: true
 //     type: integer
-//   - in: path
-//     name: bucket
+//     format: int64
+//   - name: bucket
+//     in: path
 //     description: Name of the bucket
 //     required: true
 //     type: string
-//
 // security:
 //   - ApiKeyAuth: []
-//
 // responses:
-//
-//	'200':
-//	  description: Successfully listed object names for the build
-//	  schema:
-//	    type: object
-//	    properties:
-//	      names:
-//	        type: object
-//	        additionalProperties:
-//	          type: string
-//	        description: map of object name to presigned URL
-//	'500':
-//	  description: Unexpected server error
-//	  schema:
-//	    "$ref": "#/definitions/Error"
-//
+//   200:
+//     description: Successfully listed object names for the build
+//   500:
+//     description: Unexpected server error
+//     schema:
+//       $ref: '#/definitions/Error'
+
 // ListBuildObjectNames represents the API handler to list object names for a specific build.
 func ListBuildObjectNames(c *gin.Context) {
 	enable := c.MustGet("storage-enable").(bool)
