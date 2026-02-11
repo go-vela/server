@@ -39,4 +39,10 @@ const (
 
 	// ActionRun defines the action for running a schedule.
 	ActionRun = "run"
+
+	// ActionChecksRequested defines the action for requesting checks on a merge group build.
+	ActionChecksRequested = "checks_requested"
+
+	// ActionDestroyed defines the action for destroying a merge group build.
+	ActionDestroyed = "destroyed"
 )

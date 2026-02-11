@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -173,6 +174,22 @@ func UpdateRepo(c *gin.Context) {
 		r.SetAllowEvents(input.GetAllowEvents())
 
 		eventsChanged = true
+	}
+
+	// set merge queue events based on input if given
+	if input.MergeQueueEvents != nil {
+		for _, event := range input.GetMergeQueueEvents() {
+			// only allow events possibly related to a PR merge queue
+			if !slices.Contains([]string{constants.EventPush, constants.EventPull, constants.EventComment}, event) {
+				retErr := fmt.Errorf("merge_queue_event of %s is invalid. valid events are `%s`, `%s`, `%s`", event, constants.EventPush, constants.EventPull, constants.EventComment)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+		}
+
+		r.SetMergeQueueEvents(input.GetMergeQueueEvents())
 	}
 
 	// set default events if no events are enabled

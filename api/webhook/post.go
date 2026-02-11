@@ -377,7 +377,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// verify the build has a valid event and the repo allows that event type
-	if !repo.GetAllowEvents().Allowed(b.GetEvent(), b.GetEventAction()) {
+	if !repo.GetAllowEvents().Allowed(b.GetEvent(), b.GetEventAction()) && (b.GetEvent() != constants.EventMergeGroup) {
 		var actionErr string
 		if len(b.GetEventAction()) > 0 {
 			actionErr = ":" + b.GetEventAction()
@@ -390,6 +390,43 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		return
+	}
+
+	if b.GetEvent() == constants.EventMergeGroup {
+		switch b.GetEventAction() {
+		case constants.ActionChecksRequested:
+			if len(repo.GetMergeQueueEvents()) == 0 {
+				util.HandleError(c, http.StatusBadRequest, fmt.Errorf("no status events defined for merge group"))
+
+				h.SetStatus(constants.StatusSkipped)
+				h.SetError("skipping merge group build: no status events defined")
+
+				return
+			}
+		case constants.ActionDestroyed:
+			err := handleMergeGroupDestroy(c, l, db, b)
+			if err != nil {
+				util.HandleError(c, http.StatusInternalServerError, err)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(err.Error())
+
+				return
+			}
+
+			c.JSON(http.StatusOK, "merge group build destroyed")
+
+			return
+		default:
+			retErr := fmt.Errorf("%s: unsupported merge group action %s", baseErr, b.GetEventAction())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			h.SetStatus(constants.StatusSkipped)
+			h.SetError(retErr.Error())
+
+			return
+		}
 	}
 
 	var (
@@ -785,4 +822,66 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 	}).Infof("repo updated in database (previous name: %s)", r.GetPreviousName())
 
 	return dbR, nil
+}
+
+func handleMergeGroupDestroy(c *gin.Context, l *logrus.Entry, db database.Interface, b *types.Build) error {
+	l = l.WithFields(logrus.Fields{
+		"event_type":   b.GetEvent(),
+		"event_action": b.GetEventAction(),
+	})
+
+	ctx := c.Request.Context()
+
+	l.Debugf("handling merge group destroy for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
+
+	rBs, err := db.ListPendingAndRunningBuildsForRepo(ctx, b.GetRepo())
+	if err != nil {
+		return fmt.Errorf("unable to get builds for repo %s: %w", b.GetRepo().GetFullName(), err)
+	}
+
+	for _, rB := range rBs {
+		if rB.GetCommit() == b.GetCommit() {
+			switch rB.GetStatus() {
+			case constants.StatusPending:
+				rB.SetStatus(constants.StatusCanceled)
+
+				_, err := db.UpdateBuild(ctx, rB)
+				if err != nil {
+					return fmt.Errorf("unable to update build %s/%d: %w", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
+				}
+
+				l.WithFields(logrus.Fields{
+					"build":    rB.GetNumber(),
+					"build_id": rB.GetID(),
+				}).Info("build updated - build canceled")
+
+				// remove executable from table
+				_, err = db.PopBuildExecutable(ctx, rB.GetID())
+				if err != nil {
+					l.Warnf("unable to pop executable for build %s/%d: %s", rB.GetRepo().GetFullName(), rB.GetNumber(), err.Error())
+				}
+			case constants.StatusRunning:
+				rB, err := build.CancelRunning(c, rB)
+				if err != nil {
+					l.Warnf("unable to cancel running build %s/%d: %s", rB.GetRepo().GetFullName(), rB.GetNumber(), err.Error())
+				}
+
+				rB.SetError(constants.ErrorMergeGroupBuildCanceled)
+
+				rB, err = db.UpdateBuild(ctx, rB)
+				if err != nil {
+					l.Warnf("unable to update status for build %s/%d: %s", rB.GetRepo().GetFullName(), rB.GetNumber(), err.Error())
+				}
+
+				l.WithFields(logrus.Fields{
+					"build":    rB.GetNumber(),
+					"build_id": rB.GetID(),
+				}).Info("build updated - build canceled")
+
+				return nil
+			}
+		}
+	}
+
+	return nil
 }
