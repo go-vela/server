@@ -10,6 +10,7 @@ import (
 func (c *Client) GetAddress() string {
 	// GetAddress returns the endpoint address for the MinIO client.
 	var urlEndpoint string
+
 	if len(c.config.Endpoint) > 0 {
 		useSSL := strings.HasPrefix(c.config.Endpoint, "https://")
 
@@ -23,5 +24,6 @@ func (c *Client) GetAddress() string {
 			urlEndpoint = c.config.Endpoint[8:]
 		}
 	}
+
 	return urlEndpoint
 }

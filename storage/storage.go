@@ -5,25 +5,10 @@ package storage
 import (
 	"fmt"
 
-	"github.com/go-vela/server/constants"
 	"github.com/sirupsen/logrus"
-)
 
-// FromCLICommand helper function to setup Minio Client from the CLI arguments.
-//func FromCLICommand(ctx context.Context, c *cli.Command) (Storage, error) {
-//	// S3 configuration
-//	_setup := &Setup{
-//		Enable:    c.Bool("storage.enable"),
-//		Driver:    c.String("storage.driver"),
-//		Endpoint:  c.String("storage.addr"),
-//		AccessKey: c.String("storage.access.key"),
-//		SecretKey: c.String("storage.secret.key"),
-//		Bucket:    c.String("storage.bucket.name"),
-//		Secure:    c.Bool("storage.use.ssl"),
-//	}
-//
-//	return New(ctx, _setup)
-//}
+	"github.com/go-vela/server/constants"
+)
 
 // New creates and returns a Vela service capable of
 // integrating with the configured storage environment.

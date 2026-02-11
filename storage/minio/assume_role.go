@@ -40,6 +40,7 @@ func (c *Client) AssumeRole(_ context.Context, durationSeconds int, policy, sess
 	if err != nil {
 		return nil, fmt.Errorf("unable to get credentials: %w", err)
 	}
+
 	return &types.STSCreds{
 		AccessKey:    val.AccessKeyID,
 		SecretKey:    val.SecretAccessKey,
