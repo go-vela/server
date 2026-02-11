@@ -191,11 +191,27 @@ func TestMinioClient_ListBuildObjectNames_Success(t *testing.T) {
 		c.Data(http.StatusOK, "application/xml", []byte(xmlResponse))
 	})
 
+	// mock stat object call
+	engine.HEAD("/foo/octocat/hello-world/1/test.xml", func(c *gin.Context) {
+		c.Header("Content-Type", "application/xml")
+		c.Header("Last-Modified", "Mon, 2 Jan 2006 15:04:05 GMT")
+		c.XML(200, gin.H{
+			"name": "test.xml",
+		})
+	})
 	// Mock presigned URL requests
 	engine.GET("/foo/octocat/hello-world/1/test.xml", func(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, "http://presigned.url/test.xml")
 	})
 
+	// mock stat object call
+	engine.HEAD("/foo/octocat/hello-world/1/coverage.xml", func(c *gin.Context) {
+		c.Header("Content-Type", "application/xml")
+		c.Header("Last-Modified", "Mon, 2 Jan 2006 15:04:05 GMT")
+		c.XML(200, gin.H{
+			"name": "test.xml",
+		})
+	})
 	engine.GET("/foo/octocat/hello-world/1/coverage.xml", func(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, "http://presigned.url/coverage.xml")
 	})

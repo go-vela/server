@@ -87,10 +87,12 @@ func (c *Client) ListBuildObjectNames(ctx context.Context, b *api.Bucket, org, r
 			ObjectName: object.Key,
 			Bucket:     *b,
 		}
+
 		url, err := c.PresignedGetObject(ctx, obj)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate presigned URL for object %s: %w", object.Key, err)
 		}
+
 		objectsWithURLs[object.Key] = url
 	}
 

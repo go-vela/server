@@ -18,6 +18,7 @@ import (
 
 func GetSTSCreds(c *gin.Context) {
 	l := c.MustGet("logger").(*logrus.Entry)
+
 	enabled := c.MustGet("storage-enable").(bool)
 	if !enabled {
 		l.Info("storage is not enabled, skipping credentials request")
@@ -44,11 +45,14 @@ func GetSTSCreds(c *gin.Context) {
 	if creds == nil {
 		l.Errorf("unable to assume role and generate temporary credentials without error %s", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to assume role and generate temporary credentials"})
+
 		return
 	}
+
 	if err != nil {
 		l.Errorf("unable to assume role: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
