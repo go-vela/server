@@ -744,20 +744,31 @@ func TestNative_Validate_Steps_StepNameConflict(t *testing.T) {
 	}
 }
 
-func TestNative_Validate_Artifact(t *testing.T) {
+func TestNative_Validate_Secrets_SecretOriginNameConflict(t *testing.T) {
 	// setup types
 	str := "foo"
-	p := &yaml.Build{
+	p := &pipeline.Build{
 		Version: "v1",
-		Steps: yaml.StepSlice{
-			&yaml.Step{
+		Secrets: pipeline.SecretSlice{
+			&pipeline.Secret{
+				Origin: &pipeline.Container{
+					Name:  "secrets",
+					Image: "vault",
+				},
+			},
+			&pipeline.Secret{
+				Origin: &pipeline.Container{
+					Name:  "secrets",
+					Image: "vault",
+				},
+			},
+		},
+		Steps: pipeline.ContainerSlice{
+			&pipeline.Container{
 				Commands: raw.StringSlice{"echo hello"},
 				Image:    "alpine",
 				Name:     str,
 				Pull:     "always",
-				Artifacts: yaml.Artifacts{
-					Paths: []string{"results.xml", "artifacts.png"},
-				},
 			},
 		},
 	}
@@ -768,8 +779,8 @@ func TestNative_Validate_Artifact(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	err = compiler.ValidateYAML(p)
-	if err != nil {
-		t.Errorf("Validate returned err: %v", err)
+	err = compiler.ValidatePipeline(p)
+	if err == nil {
+		t.Errorf("Validate should have returned err")
 	}
 }
