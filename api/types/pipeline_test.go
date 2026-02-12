@@ -82,10 +82,6 @@ func TestAPI_Pipeline_Getters(t *testing.T) {
 			t.Errorf("GetTemplates is %v, want %v", test.pipeline.GetTemplates(), test.want.GetTemplates())
 		}
 
-		if test.pipeline.GetArtifact() != test.want.GetArtifact() {
-			t.Errorf("GetArtifact is %v, want %v", test.pipeline.GetArtifact(), test.want.GetArtifact())
-		}
-
 		if !reflect.DeepEqual(test.pipeline.GetWarnings(), test.want.GetWarnings()) {
 			t.Errorf("GetWarnings is %v, want %v", test.pipeline.GetWarnings(), test.want.GetWarnings())
 		}
@@ -190,10 +186,6 @@ func TestAPI_Pipeline_Setters(t *testing.T) {
 			t.Errorf("SetTemplates is %v, want %v", test.pipeline.GetTemplates(), test.want.GetTemplates())
 		}
 
-		if test.pipeline.GetArtifact() != test.want.GetArtifact() {
-			t.Errorf("SetArtifact is %v, want %v", test.pipeline.GetArtifact(), test.want.GetArtifact())
-		}
-
 		if !reflect.DeepEqual(test.pipeline.GetWarnings(), test.want.GetWarnings()) {
 			t.Errorf("SetWarnings is %v, want %v", test.pipeline.GetWarnings(), test.want.GetWarnings())
 		}
@@ -222,7 +214,6 @@ func TestAPI_Pipeline_String(t *testing.T) {
   Stages: %t,
   Steps: %t,
   Templates: %t,
-  Artifacts: %t,
   Type: %s,
   Version: %s,
   Warnings: %v,
@@ -240,7 +231,6 @@ func TestAPI_Pipeline_String(t *testing.T) {
 		p.GetStages(),
 		p.GetSteps(),
 		p.GetTemplates(),
-		p.GetArtifact(),
 		p.GetType(),
 		p.GetVersion(),
 		p.GetWarnings(),
@@ -273,7 +263,6 @@ func testPipeline() *Pipeline {
 	p.SetStages(false)
 	p.SetSteps(true)
 	p.SetTemplates(false)
-	p.SetArtifact(true)
 	p.SetData(testPipelineData())
 	p.SetWarnings([]string{"42:this is a warning"})
 
