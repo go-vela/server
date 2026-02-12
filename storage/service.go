@@ -4,7 +4,6 @@ package storage
 
 import (
 	"context"
-	"io"
 
 	"github.com/minio/minio-go/v7"
 
@@ -20,8 +19,6 @@ type Storage interface {
 	GetBucket() string
 	// Object Operations
 	StatObject(ctx context.Context, object *api.Object) (*api.Object, error)
-	Upload(ctx context.Context, object *api.Object) error
-	UploadObject(ctx context.Context, object *api.Object, reader io.Reader, size int64) error
 	//Download(ctx context.Context, object *api.Object) error
 	ListObjects(ctx context.Context, bucket *api.Bucket) ([]minio.ObjectInfo, error)
 	ListObjectNames(ctx context.Context, bucket *api.Bucket) ([]string, error)
