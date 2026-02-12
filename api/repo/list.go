@@ -5,7 +5,6 @@ package repo
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -74,28 +73,11 @@ func ListRepos(c *gin.Context) {
 
 	l.Debugf("listing repos for user %s", u.GetName())
 
-	// capture page query parameter if present
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pagination, err := api.ParsePagination(c)
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert page query parameter for user %s: %w", u.GetName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
+		util.HandleError(c, http.StatusBadRequest, err)
 		return
 	}
-
-	// capture per_page query parameter if present
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
-	if err != nil {
-		retErr := fmt.Errorf("unable to convert per_page query parameter for user %s: %w", u.GetName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// ensure per_page isn't above or below allowed values
-	perPage = max(1, min(100, perPage))
 
 	// capture the sort_by query parameter if present
 	sortBy := util.QueryParameter(c, "sort_by", "name")
@@ -108,7 +90,7 @@ func ListRepos(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the user
-	r, err := database.FromContext(c).ListReposForUser(ctx, u, sortBy, filters, page, perPage)
+	r, err := database.FromContext(c).ListReposForUser(ctx, u, sortBy, filters, pagination.Page, pagination.PerPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for user %s: %w", u.GetName(), err)
 
@@ -117,13 +99,8 @@ func ListRepos(c *gin.Context) {
 		return
 	}
 
-	// create pagination object
-	pagination := api.Pagination{
-		Page:    page,
-		PerPage: perPage,
-		Results: len(r),
-	}
-	// set pagination headers
+	// set pagination results
+	pagination.Results = len(r)
 	pagination.SetHeaderLink(c)
 
 	c.JSON(http.StatusOK, r)

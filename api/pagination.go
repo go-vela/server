@@ -18,6 +18,134 @@ type Pagination struct {
 	Results int
 }
 
+const (
+	defaultPage       = 1
+	defaultPerPage    = 10
+	defaultMinPerPage = 1
+	defaultMaxPerPage = 100
+)
+
+// PaginationOpt represents a configuration option for parsing pagination.
+type PaginationOpt func(*paginationConfig) error
+
+type paginationConfig struct {
+	DefaultPage    int
+	DefaultPerPage int
+	MinPerPage     int
+	MaxPerPage     int
+	Errorf         func(string, error) error
+}
+
+func defaultPaginationConfig() paginationConfig {
+	return paginationConfig{
+		DefaultPage:    defaultPage,
+		DefaultPerPage: defaultPerPage,
+		MinPerPage:     defaultMinPerPage,
+		MaxPerPage:     defaultMaxPerPage,
+		Errorf:         defaultPaginationErrorf,
+	}
+}
+
+// WithDefaultPage sets the default page value.
+func WithDefaultPage(page int) PaginationOpt {
+	return func(cfg *paginationConfig) error {
+		if page <= 0 {
+			return fmt.Errorf("default page must be positive")
+		}
+
+		cfg.DefaultPage = page
+		return nil
+	}
+}
+
+// WithDefaultPerPage sets the default per-page value.
+func WithDefaultPerPage(perPage int) PaginationOpt {
+	return func(cfg *paginationConfig) error {
+		if perPage <= 0 {
+			return fmt.Errorf("default per_page must be positive")
+		}
+
+		cfg.DefaultPerPage = perPage
+		return nil
+	}
+}
+
+// WithPerPageMin sets the minimum per-page value.
+func WithPerPageMin(minPerPage int) PaginationOpt {
+	return func(cfg *paginationConfig) error {
+		if minPerPage <= 0 {
+			return fmt.Errorf("min per_page must be positive")
+		}
+
+		cfg.MinPerPage = minPerPage
+		return nil
+	}
+}
+
+// WithPerPageMax sets the maximum per-page value.
+func WithPerPageMax(maxPerPage int) PaginationOpt {
+	return func(cfg *paginationConfig) error {
+		if maxPerPage <= 0 {
+			return fmt.Errorf("max per_page must be positive")
+		}
+
+		cfg.MaxPerPage = maxPerPage
+		return nil
+	}
+}
+
+// WithPaginationErrorf sets the error formatter used when parsing fails.
+func WithPaginationErrorf(errorf func(string, error) error) PaginationOpt {
+	return func(cfg *paginationConfig) error {
+		if errorf == nil {
+			return fmt.Errorf("pagination error formatter cannot be nil")
+		}
+
+		cfg.Errorf = errorf
+		return nil
+	}
+}
+
+// ParsePagination parses the page and per_page query parameters from a request.
+func ParsePagination(c *gin.Context, opts ...PaginationOpt) (Pagination, error) {
+	cfg := defaultPaginationConfig()
+	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
+
+		if err := opt(&cfg); err != nil {
+			return Pagination{}, err
+		}
+	}
+
+	if cfg.MinPerPage <= 0 {
+		return Pagination{}, fmt.Errorf("min per_page must be positive")
+	}
+
+	if cfg.MaxPerPage < cfg.MinPerPage {
+		return Pagination{}, fmt.Errorf("max per_page must be greater than or equal to min per_page")
+	}
+
+	page, err := strconv.Atoi(c.DefaultQuery("page", strconv.Itoa(cfg.DefaultPage)))
+	if err != nil {
+		return Pagination{}, cfg.Errorf("page", err)
+	}
+
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(cfg.DefaultPerPage)))
+	if err != nil {
+		return Pagination{}, cfg.Errorf("per_page", err)
+	}
+
+	perPage = max(cfg.MinPerPage, min(cfg.MaxPerPage, perPage))
+
+	return Pagination{Page: page, PerPage: perPage}, nil
+}
+
+func defaultPaginationErrorf(param string, err error) error {
+	return fmt.Errorf("unable to convert %s query parameter: %w", param, err)
+}
+
 // HeaderLink will hold the information needed to form a link element in the header.
 type HeaderLink map[string]int
 

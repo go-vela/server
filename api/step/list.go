@@ -5,7 +5,6 @@ package step
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -96,31 +95,14 @@ func ListSteps(c *gin.Context) {
 
 	l.Debugf("listing steps for build %s", entry)
 
-	// capture page query parameter if present
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pagination, err := api.ParsePagination(c)
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert page query parameter for build %s: %w", entry, err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
+		util.HandleError(c, http.StatusBadRequest, err)
 		return
 	}
-
-	// capture per_page query parameter if present
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
-	if err != nil {
-		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s: %w", entry, err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// ensure per_page isn't above or below allowed values
-	perPage = max(1, min(100, perPage))
 
 	// send API call to capture the list of steps for the build
-	s, err := database.FromContext(c).ListStepsForBuild(ctx, b, map[string]interface{}{}, page, perPage)
+	s, err := database.FromContext(c).ListStepsForBuild(ctx, b, map[string]interface{}{}, pagination.Page, pagination.PerPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list steps for build %s: %w", entry, err)
 
@@ -129,13 +111,8 @@ func ListSteps(c *gin.Context) {
 		return
 	}
 
-	// create pagination object
-	pagination := api.Pagination{
-		Page:    page,
-		PerPage: perPage,
-		Results: len(s),
-	}
-	// set pagination headers
+	// set pagination results
+	pagination.Results = len(s)
 	pagination.SetHeaderLink(c)
 
 	c.JSON(http.StatusOK, s)

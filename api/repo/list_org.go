@@ -96,28 +96,11 @@ func ListReposForOrg(c *gin.Context) {
 
 	l.Debugf("listing repos for org %s", o)
 
-	// capture page query parameter if present
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pagination, err := api.ParsePagination(c)
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert page query parameter for user %s: %w", u.GetName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
+		util.HandleError(c, http.StatusBadRequest, err)
 		return
 	}
-
-	// capture per_page query parameter if present
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
-	if err != nil {
-		retErr := fmt.Errorf("unable to convert per_page query parameter for user %s: %w", u.GetName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// ensure per_page isn't above or below allowed values
-	perPage = max(1, min(100, perPage))
 
 	// capture the sort_by query parameter if present
 	sortBy := util.QueryParameter(c, "sort_by", "name")
@@ -145,7 +128,7 @@ func ListReposForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the org
-	r, err := database.FromContext(c).ListReposForOrg(ctx, o, sortBy, filters, page, perPage)
+	r, err := database.FromContext(c).ListReposForOrg(ctx, o, sortBy, filters, pagination.Page, pagination.PerPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for org %s: %w", o, err)
 
@@ -154,12 +137,8 @@ func ListReposForOrg(c *gin.Context) {
 		return
 	}
 
-	// create pagination object
-	pagination := api.Pagination{
-		Page:    page,
-		PerPage: perPage,
-		Results: len(r),
-	}
+	// set pagination results
+	pagination.Results = len(r)
 	// set pagination headers
 	pagination.SetHeaderLink(c)
 

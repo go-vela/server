@@ -193,28 +193,11 @@ func ListBuildsForRepo(c *gin.Context) {
 		filters["commit"] = commit
 	}
 
-	// capture page query parameter if present
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pagination, err := api.ParsePagination(c)
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
+		util.HandleError(c, http.StatusBadRequest, err)
 		return
 	}
-
-	// capture per_page query parameter if present
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
-	if err != nil {
-		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// ensure per_page isn't above or below allowed values
-	perPage = max(1, min(100, perPage))
 
 	// capture before query parameter if present, default to now
 	before, err := strconv.ParseInt(c.DefaultQuery("before", strconv.FormatInt(time.Now().UTC().Unix(), 10)), 10, 64)
@@ -236,7 +219,7 @@ func ListBuildsForRepo(c *gin.Context) {
 		return
 	}
 
-	b, err = database.FromContext(c).ListBuildsForRepo(ctx, r, filters, before, after, page, perPage)
+	b, err = database.FromContext(c).ListBuildsForRepo(ctx, r, filters, before, after, pagination.Page, pagination.PerPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for repo %s: %w", r.GetFullName(), err)
 
@@ -245,13 +228,8 @@ func ListBuildsForRepo(c *gin.Context) {
 		return
 	}
 
-	// create pagination object
-	pagination := api.Pagination{
-		Page:    page,
-		PerPage: perPage,
-		Results: len(b),
-	}
-	// set pagination headers
+	// set pagination results
+	pagination.Results = len(b)
 	pagination.SetHeaderLink(c)
 
 	c.JSON(http.StatusOK, b)

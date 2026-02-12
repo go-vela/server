@@ -5,7 +5,6 @@ package build
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -165,28 +164,11 @@ func ListBuildsForOrg(c *gin.Context) {
 		buildFilters["status"] = status
 	}
 
-	// capture page query parameter if present
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pagination, err := api.ParsePagination(c)
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert page query parameter for org %s: %w", o, err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
+		util.HandleError(c, http.StatusBadRequest, err)
 		return
 	}
-
-	// capture per_page query parameter if present
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
-	if err != nil {
-		retErr := fmt.Errorf("unable to convert per_page query parameter for Org %s: %w", o, err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// ensure per_page isn't above or below allowed values
-	perPage = max(1, min(100, perPage))
 
 	// See if the user is an org admin to bypass individual permission checks
 	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
@@ -199,7 +181,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
-	b, err = database.FromContext(c).ListBuildsForOrg(ctx, o, repoFilters, buildFilters, page, perPage)
+	b, err = database.FromContext(c).ListBuildsForOrg(ctx, o, repoFilters, buildFilters, pagination.Page, pagination.PerPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for org %s: %w", o, err)
 
@@ -208,13 +190,8 @@ func ListBuildsForOrg(c *gin.Context) {
 		return
 	}
 
-	// create pagination object
-	pagination := api.Pagination{
-		Page:    page,
-		PerPage: perPage,
-		Results: len(b),
-	}
-	// set pagination headers
+	// set pagination results
+	pagination.Results = len(b)
 	pagination.SetHeaderLink(c)
 
 	c.JSON(http.StatusOK, b)

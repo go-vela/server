@@ -5,7 +5,6 @@ package log
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -89,30 +88,14 @@ func ListLogsForBuild(c *gin.Context) {
 
 	l.Debugf("listing logs for build %s", entry)
 
-	// capture page query parameter if present
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pagination, err := api.ParsePagination(c)
 	if err != nil {
-		//nolint:lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to convert page query parameter for build %s: %w", entry, err)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
+		util.HandleError(c, http.StatusBadRequest, err)
 		return
 	}
-
-	// capture per_page query parameter if present
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
-	if err != nil {
-		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s: %w", entry, err)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// ensure per_page isn't above or below allowed values
-	perPage = max(1, min(100, perPage))
 
 	// send API call to capture the list of logs for the build
-	bl, err := database.FromContext(c).ListLogsForBuild(ctx, b, page, perPage)
+	bl, err := database.FromContext(c).ListLogsForBuild(ctx, b, pagination.Page, pagination.PerPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list logs for build %s: %w", entry, err)
 
@@ -121,13 +104,8 @@ func ListLogsForBuild(c *gin.Context) {
 		return
 	}
 
-	// create pagination object
-	pagination := api.Pagination{
-		Page:    page,
-		PerPage: perPage,
-		Results: len(bl),
-	}
-	// set pagination headers
+	// set pagination results
+	pagination.Results = len(bl)
 	pagination.SetHeaderLink(c)
 
 	c.JSON(http.StatusOK, bl)
