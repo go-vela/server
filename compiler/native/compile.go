@@ -71,7 +71,7 @@ func (c *Client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *
 	action := c.build.GetEventAction()
 
 	// if the build has an event action, concatenate event and event action for matching
-	if !strings.EqualFold(action, "") {
+	if action != "" && event != constants.EventMergeGroup {
 		event = event + ":" + action
 	}
 

@@ -143,6 +143,10 @@ func TestTypes_Repo_Getters(t *testing.T) {
 			t.Errorf("GetRepo is %v, want %v", test.repo.GetAllowEvents(), test.want.GetAllowEvents())
 		}
 
+		if !reflect.DeepEqual(test.repo.GetMergeQueueEvents(), test.want.GetMergeQueueEvents()) {
+			t.Errorf("GetMergeQueueEvents is %v, want %v", test.repo.GetMergeQueueEvents(), test.want.GetMergeQueueEvents())
+		}
+
 		if test.repo.GetPipelineType() != test.want.GetPipelineType() {
 			t.Errorf("GetPipelineType is %v, want %v", test.repo.GetPipelineType(), test.want.GetPipelineType())
 		}
@@ -208,6 +212,7 @@ func TestTypes_Repo_Setters(t *testing.T) {
 		test.repo.SetTrusted(test.want.GetTrusted())
 		test.repo.SetActive(test.want.GetActive())
 		test.repo.SetAllowEvents(test.want.GetAllowEvents())
+		test.repo.SetMergeQueueEvents(test.want.GetMergeQueueEvents())
 		test.repo.SetPipelineType(test.want.GetPipelineType())
 		test.repo.SetPreviousName(test.want.GetPreviousName())
 		test.repo.SetApproveBuild(test.want.GetApproveBuild())
@@ -283,6 +288,10 @@ func TestTypes_Repo_Setters(t *testing.T) {
 			t.Errorf("GetRepo is %v, want %v", test.repo.GetAllowEvents(), test.want.GetAllowEvents())
 		}
 
+		if !reflect.DeepEqual(test.repo.GetMergeQueueEvents(), test.want.GetMergeQueueEvents()) {
+			t.Errorf("GetMergeQueueEvents is %v, want %v", test.repo.GetMergeQueueEvents(), test.want.GetMergeQueueEvents())
+		}
+
 		if test.repo.GetPipelineType() != test.want.GetPipelineType() {
 			t.Errorf("SetPipelineType is %v, want %v", test.repo.GetPipelineType(), test.want.GetPipelineType())
 		}
@@ -326,6 +335,7 @@ func TestTypes_Repo_String(t *testing.T) {
   HookCounter: %d,
   ID: %d,
   Link: %s,
+  MergeQueueEvents: %s,
   Name: %s,
   Org: %s,
   Owner: %v,
@@ -351,6 +361,7 @@ func TestTypes_Repo_String(t *testing.T) {
 		r.GetHookCounter(),
 		r.GetID(),
 		r.GetLink(),
+		r.GetMergeQueueEvents(),
 		r.GetName(),
 		r.GetOrg(),
 		r.GetOwner(),
@@ -398,6 +409,7 @@ func testRepo() *Repo {
 	r.SetTrusted(false)
 	r.SetActive(true)
 	r.SetAllowEvents(e)
+	r.SetMergeQueueEvents([]string{"pull_request"})
 	r.SetPipelineType("")
 	r.SetPreviousName("")
 	r.SetApproveBuild(constants.ApproveNever)

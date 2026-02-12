@@ -59,6 +59,7 @@ const (
 		"edited": false
 	}
   },
+  "merge_queue_events": [],
   "approve_build": "fork-always",
   "approval_timeout": 7,
   "previous_name": "",
