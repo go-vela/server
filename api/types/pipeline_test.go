@@ -82,6 +82,10 @@ func TestAPI_Pipeline_Getters(t *testing.T) {
 			t.Errorf("GetTemplates is %v, want %v", test.pipeline.GetTemplates(), test.want.GetTemplates())
 		}
 
+		if test.pipeline.GetArtifact() != test.want.GetArtifact() {
+			t.Errorf("GetArtifact is %v, want %v", test.pipeline.GetArtifact(), test.want.GetArtifact())
+		}
+
 		if !reflect.DeepEqual(test.pipeline.GetWarnings(), test.want.GetWarnings()) {
 			t.Errorf("GetWarnings is %v, want %v", test.pipeline.GetWarnings(), test.want.GetWarnings())
 		}
@@ -184,6 +188,10 @@ func TestAPI_Pipeline_Setters(t *testing.T) {
 
 		if test.pipeline.GetTemplates() != test.want.GetTemplates() {
 			t.Errorf("SetTemplates is %v, want %v", test.pipeline.GetTemplates(), test.want.GetTemplates())
+		}
+
+		if test.pipeline.GetArtifact() != test.want.GetArtifact() {
+			t.Errorf("SetArtifact is %v, want %v", test.pipeline.GetArtifact(), test.want.GetArtifact())
 		}
 
 		if !reflect.DeepEqual(test.pipeline.GetWarnings(), test.want.GetWarnings()) {

@@ -275,6 +275,7 @@ func APIPipeline() *api.Pipeline {
 		Stages:          new(bool),
 		Steps:           new(bool),
 		Templates:       new(bool),
+		Artifact:        new(bool),
 		Warnings:        new([]string),
 		Data:            new([]byte),
 	}
@@ -298,19 +299,6 @@ func APIDashboardRepo() *api.DashboardRepo {
 		ID:       new(int64),
 		Branches: new([]string),
 		Events:   new([]string),
-	}
-}
-
-func APIArtifact() *api.Artifact {
-	return &api.Artifact{
-		ID:           new(int64),
-		BuildID:      new(int64),
-		FileName:     new(string),
-		ObjectPath:   new(string),
-		FileSize:     new(int64),
-		FileType:     new(string),
-		PresignedURL: new(string),
-		CreatedAt:    new(int64),
 	}
 }
 
