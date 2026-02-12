@@ -30,7 +30,7 @@ import (
 	"github.com/go-vela/server/tracing"
 )
 
-//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
+//nolint:funlen, gocyclo // ignore function length and cyclomatic complexity
 func server(ctx context.Context, cmd *cli.Command) error {
 	// set log formatter
 	switch cmd.String("log-formatter") {
@@ -109,6 +109,11 @@ func server(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	scm, err := setupSCM(ctx, cmd, tc)
+	if err != nil {
+		return err
+	}
+
+	st, err := setupStorage(ctx, cmd)
 	if err != nil {
 		return err
 	}
@@ -197,6 +202,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.Secret(cmd.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
+		middleware.Storage(st),
 		middleware.QueueSigningPrivateKey(cmd.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(cmd.String("queue.public-key")),
 		middleware.QueueAddress(cmd.String("queue.addr")),
@@ -213,6 +219,11 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.ScheduleFrequency(cmd.Duration("schedule-minimum-frequency")),
 		middleware.TracingClient(tc),
 		middleware.TracingInstrumentation(tc),
+		middleware.StorageAddress(cmd.String("storage.addr")),
+		middleware.StorageAccessKey(cmd.String("storage.access.key")),
+		middleware.StorageSecretKey(cmd.String("storage.secret.key")),
+		middleware.StorageBucket(cmd.String("storage.bucket.name")),
+		middleware.StorageEnable(cmd.Bool("storage.enable")),
 	)
 
 	addr, err := url.Parse(cmd.String("server-addr"))
