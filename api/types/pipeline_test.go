@@ -214,7 +214,6 @@ func TestAPI_Pipeline_String(t *testing.T) {
   Stages: %t,
   Steps: %t,
   Templates: %t,
-  Artifacts: %t,
   Type: %s,
   Version: %s,
   Warnings: %v,
@@ -232,7 +231,6 @@ func TestAPI_Pipeline_String(t *testing.T) {
 		p.GetStages(),
 		p.GetSteps(),
 		p.GetTemplates(),
-		p.GetArtifact(),
 		p.GetType(),
 		p.GetVersion(),
 		p.GetWarnings(),
@@ -265,7 +263,6 @@ func testPipeline() *Pipeline {
 	p.SetStages(false)
 	p.SetSteps(true)
 	p.SetTemplates(false)
-	p.SetArtifact(true)
 	p.SetData(testPipelineData())
 	p.SetWarnings([]string{"42:this is a warning"})
 

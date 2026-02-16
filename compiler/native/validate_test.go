@@ -743,7 +743,6 @@ func TestNative_Validate_Steps_StepNameConflict(t *testing.T) {
 		t.Errorf("Validate should have returned err")
 	}
 }
-
 func TestNative_Validate_Artifact(t *testing.T) {
 	// setup types
 	str := "foo"

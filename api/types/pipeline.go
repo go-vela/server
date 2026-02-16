@@ -212,6 +212,19 @@ func (p *Pipeline) GetTemplates() bool {
 	return *p.Templates
 }
 
+// GetArtifact returns the Artifact field.
+//
+// When the provided Pipeline type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (p *Pipeline) GetArtifact() bool {
+	// return zero value if Pipeline type or Artifact field is nil
+	if p == nil || p.Artifact == nil {
+		return false
+	}
+
+	return *p.Artifact
+}
+
 // GetWarnings returns the Warnings field.
 //
 // When the provided Pipeline type is nil, or the field within
@@ -236,19 +249,6 @@ func (p *Pipeline) GetData() []byte {
 	}
 
 	return *p.Data
-}
-
-// GetArtifact returns the Artifact flag.
-//
-// When the provided Pipeline type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (p *Pipeline) GetArtifact() bool {
-	// return zero value if Pipeline type or Artifact field is nil
-	if p == nil || p.Artifact == nil {
-		return false
-	}
-
-	return *p.Artifact
 }
 
 // SetID sets the ID field.
@@ -488,7 +488,7 @@ func (p *Pipeline) String() string {
   Stages: %t,
   Steps: %t,
   Templates: %t,
-  Artifacts: %t,
+	  Artifacts: %t,
   Type: %s,
   Version: %s,
   Warnings: %v,
