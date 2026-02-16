@@ -169,11 +169,6 @@ func (c *Client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 		for _, secret := range tmplBuild.Secrets {
 			found := false
 
-			originName := ""
-			if !secret.Origin.Empty() {
-				originName = secret.Origin.Name
-			}
-
 			// loop over secrets within base configuration
 			for _, sec := range secrets {
 				// check if the template secret and base secret name match
@@ -183,7 +178,7 @@ func (c *Client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 
 				if !sec.Origin.Empty() && !secret.Origin.Empty() {
 					// check if the template secret and base secret origin match
-					if sec.Origin.Name == originName {
+					if sec.Origin.Name == secret.Origin.Name {
 						found = true
 					}
 				}
