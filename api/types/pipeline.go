@@ -488,7 +488,7 @@ func (p *Pipeline) String() string {
   Stages: %t,
   Steps: %t,
   Templates: %t,
-	  Artifacts: %t,
+  Artifacts: %t,
   Type: %s,
   Version: %s,
   Warnings: %v,
