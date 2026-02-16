@@ -30,7 +30,7 @@ import (
 	"github.com/go-vela/server/tracing"
 )
 
-//nolint:funlen, gocyclo // ignore function length and cyclomatic complexity
+//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func server(ctx context.Context, cmd *cli.Command) error {
 	// set log formatter
 	switch cmd.String("log-formatter") {
