@@ -19,7 +19,6 @@ type statement struct {
 }
 
 func (c *Client) GetPolicy(prefix string) string {
-
 	policy, err := buildPutOnlyPolicy(c.GetBucket(), prefix)
 	if err != nil {
 		c.Logger.Debugf("failed to build policy: %v", err)
