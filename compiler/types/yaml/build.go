@@ -74,6 +74,7 @@ func (b *Build) hasArtifacts() bool {
 		if stage == nil {
 			continue
 		}
+
 		for _, step := range stage.Steps {
 			if step != nil && len(step.Artifacts.Paths) > 0 {
 				return true
