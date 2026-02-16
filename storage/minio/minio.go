@@ -88,8 +88,6 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 // integrates with a local MinIO instance.
 //
 // This function is intended for running tests only.
-//
-
 func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*Client, error) {
 	return New(endpoint,
 		WithOptions(true, secure,

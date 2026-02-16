@@ -29,7 +29,7 @@ func (c *Client) PresignedGetObject(ctx context.Context, object *api.Object) (st
 	}
 
 	// Generate presigned URL for downloading the object.
-	// The URL is valid for 7 days.
+	// The URL is valid for 2 minutes.
 	presignedURL, err := c.client.PresignedGetObject(ctx, object.Bucket.BucketName, object.ObjectName, 2*time.Minute, nil)
 	if err != nil {
 		return fmt.Sprintf("Unable to generate presigned URL for object %s", object.ObjectName), err

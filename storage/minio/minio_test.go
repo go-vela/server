@@ -15,11 +15,6 @@ var (
 )
 
 func TestMinio_New(t *testing.T) {
-	// setup types
-	// create a local fake MinIO instance
-	//
-	// https://pkg.go.dev/github.com/minio/minio-go/v7#New
-	// setup tests
 	tests := []struct {
 		failure  bool
 		endpoint string
