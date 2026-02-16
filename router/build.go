@@ -49,7 +49,7 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build/id_request_token
 // GET    /api/v1/repos/:org/:repo/builds/:build/install_token
 // GET   /api/v1/repos/:org/:repo/builds/:build/storage/sts
-// GET   /api/v1/repos/:org/:repo/builds/:build/storage/:bucket/names .
+// GET   /api/v1/repos/:org/:repo/builds/:build/storage/names .
 func BuildHandlers(base *gin.RouterGroup) {
 	// Builds endpoints
 	builds := base.Group("/builds")

@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/api/types"
 )
 
-func (c *Client) AssumeRole(_ context.Context, durationSeconds int, policy, sessionName string) (*types.STSCreds, error) {
+func (c *Client) AssumeRole(_ context.Context, durationSeconds int, prefix, sessionName string) (*types.STSCreds, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"sessionName": sessionName,
 	}).Tracef("creating STS assume role credentials")
@@ -28,7 +28,7 @@ func (c *Client) AssumeRole(_ context.Context, durationSeconds int, policy, sess
 		RoleARN:         "arn:minio:iam:::role/vela-uploader",
 		RoleSessionName: sessionName,
 		DurationSeconds: durationSeconds,
-		Policy:          policy,
+		Policy:          c.GetPolicy(prefix),
 	}
 
 	stsCreds, err := credentials.NewSTSAssumeRole(c.config.Endpoint, opts)

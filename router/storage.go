@@ -13,12 +13,12 @@ import (
 // with the API handlers for storage functionality.
 //
 // GET   /api/v1/repos/:org/:repo/builds/:build/storage/sts
-// GET   /api/v1/repos/:org/:repo/builds/:build/storage/:bucket/names.
+// GET   /api/v1/repos/:org/:repo/builds/:build/storage/names.
 func StorageHandlers(base *gin.RouterGroup) {
 	// Storage endpoints
 	_storage := base.Group("/storage")
 	{
-		_storage.GET("/:bucket/names", perm.MustRead(), storage.ListBuildObjectNames)
+		_storage.GET("/names", perm.MustRead(), storage.ListBuildObjectNames)
 		_storage.GET("/sts", perm.MustBuildAccess(), storage.GetSTSCreds)
 	} // end of storage endpoints
 }

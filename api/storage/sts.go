@@ -3,10 +3,8 @@
 package storage
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -78,14 +76,11 @@ func GetSTSCreds(c *gin.Context) {
 	buildNum := b.GetNumber()
 	ctx := c.Request.Context()
 
-	bucket := c.MustGet("storage-bucket").(string)
-
 	prefix := fmt.Sprintf("%s/%s/%d/", org, repoName, buildNum)
 
-	policy, _ := buildPutOnlyPolicy(bucket, prefix)
 	sessionName := fmt.Sprintf("vela-%s-%s-%d", org, repoName, buildNum)
 
-	creds, err := storage.FromGinContext(c).AssumeRole(ctx, int(r.GetTimeout())*60, policy, sessionName)
+	creds, err := storage.FromGinContext(c).AssumeRole(ctx, int(r.GetTimeout())*60, prefix, sessionName)
 	if creds == nil {
 		l.Errorf("unable to assume role and generate temporary credentials without error %s", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to assume role and generate temporary credentials"})
@@ -101,47 +96,4 @@ func GetSTSCreds(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, creds)
-}
-
-type policyDoc struct {
-	Version   string      `json:"Version"`
-	Statement []statement `json:"Statement"`
-}
-
-type statement struct {
-	Effect   string   `json:"Effect"`
-	Action   []string `json:"Action"`
-	Resource []string `json:"Resource"`
-}
-
-func buildPutOnlyPolicy(bucket, prefix string) (string, error) {
-	// Normalize prefix
-	prefix = strings.TrimPrefix(prefix, "/")
-	if prefix != "" && !strings.HasSuffix(prefix, "/") {
-		prefix += "/"
-	}
-
-	doc := policyDoc{
-		Version: "2012-10-17",
-		Statement: []statement{
-			{
-				Effect: "Allow",
-				Action: []string{
-					"s3:PutObject",
-					"s3:AbortMultipartUpload",
-					"s3:ListMultipartUploadParts",
-				},
-				Resource: []string{
-					"arn:aws:s3:::" + bucket + "/" + prefix + "*",
-				},
-			},
-		},
-	}
-
-	b, err := json.Marshal(doc)
-	if err != nil {
-		return "", err
-	}
-
-	return string(b), nil
 }
