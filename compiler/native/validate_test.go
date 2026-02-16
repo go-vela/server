@@ -773,3 +773,43 @@ func TestNative_Validate_Artifact(t *testing.T) {
 		t.Errorf("Validate returned err: %v", err)
 	}
 }
+func TestNative_Validate_Secrets_SecretOriginNameConflict(t *testing.T) {
+	// setup types
+	str := "foo"
+	p := &pipeline.Build{
+		Version: "v1",
+		Secrets: pipeline.SecretSlice{
+			&pipeline.Secret{
+				Origin: &pipeline.Container{
+					Name:  "secrets",
+					Image: "vault",
+				},
+			},
+			&pipeline.Secret{
+				Origin: &pipeline.Container{
+					Name:  "secrets",
+					Image: "vault",
+				},
+			},
+		},
+		Steps: pipeline.ContainerSlice{
+			&pipeline.Container{
+				Commands: raw.StringSlice{"echo hello"},
+				Image:    "alpine",
+				Name:     str,
+				Pull:     "always",
+			},
+		},
+	}
+
+	// run test
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.ValidatePipeline(p)
+	if err == nil {
+		t.Errorf("Validate should have returned err")
+	}
+}

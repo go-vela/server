@@ -98,6 +98,7 @@ func TestPipeline_Establish(t *testing.T) {
 	want.SetStages(false)
 	want.SetSteps(false)
 	want.SetTemplates(false)
+	want.SetArtifact(false)
 	want.SetWarnings([]string{})
 	want.SetData([]byte{})
 

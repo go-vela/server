@@ -157,6 +157,20 @@ func (c *Client) ValidatePipeline(p *pipeline.Build) error {
 		result = multierror.Append(result, err)
 	}
 
+	secretContainers := pipeline.ContainerSlice{}
+
+	for _, s := range p.Secrets {
+		if !s.Origin.Empty() {
+			secretContainers = append(secretContainers, s.Origin)
+		}
+	}
+
+	// validate the secrets block provided
+	err = validatePipelineContainers(secretContainers, &reportCount, make(map[string]string), make(map[string]bool), "")
+	if err != nil {
+		result = multierror.Append(result, err)
+	}
+
 	return result
 }
 

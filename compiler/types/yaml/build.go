@@ -33,6 +33,7 @@ func (b *Build) ToPipelineAPI() *api.Pipeline {
 	pipeline.SetStages(len(b.Stages) > 0)
 	pipeline.SetSteps(len(b.Steps) > 0)
 	pipeline.SetTemplates(len(b.Templates) > 0)
+	pipeline.SetArtifact(b.hasArtifacts())
 
 	// set default for external and internal secrets
 	external := false
@@ -60,6 +61,27 @@ func (b *Build) ToPipelineAPI() *api.Pipeline {
 	pipeline.SetInternalSecrets(internal)
 
 	return pipeline
+}
+
+func (b *Build) hasArtifacts() bool {
+	for _, step := range b.Steps {
+		if step != nil && len(step.Artifacts.Paths) > 0 {
+			return true
+		}
+	}
+
+	for _, stage := range b.Stages {
+		if stage == nil {
+			continue
+		}
+		for _, step := range stage.Steps {
+			if step != nil && len(step.Artifacts.Paths) > 0 {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the Build type.

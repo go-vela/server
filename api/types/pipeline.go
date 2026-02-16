@@ -24,7 +24,7 @@ type Pipeline struct {
 	Stages          *bool     `json:"stages,omitempty"`
 	Steps           *bool     `json:"steps,omitempty"`
 	Templates       *bool     `json:"templates,omitempty"`
-	Artifact        *bool     `json:"artifact,omitempty"`
+	Artifact        *bool     `json:"artifacts,omitempty"`
 	Warnings        *[]string `json:"warnings,omitempty"`
 	// swagger:strfmt base64
 	Data *[]byte `json:"data,omitempty"`
