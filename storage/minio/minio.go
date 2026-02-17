@@ -3,8 +3,7 @@
 package minio
 
 import (
-	"fmt"
-	"strings"
+	"net/url"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -36,9 +35,6 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 	// create new Minio client
 	c := new(Client)
 
-	// default to secure connection
-	var urlEndpoint string
-
 	// create new fields
 	c.config = new(config)
 	c.Options = new(minio.Options)
@@ -57,24 +53,14 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 
 	c.Options.Creds = credentials.NewStaticV4(c.config.AccessKey, c.config.SecretKey, c.config.Token)
 	c.Options.Secure = c.config.Secure
-	logrus.Debugf("secure: %v", c.config.Secure)
 
-	if len(endpoint) > 0 {
-		useSSL := strings.HasPrefix(endpoint, "https://")
-
-		if !useSSL {
-			if !strings.HasPrefix(endpoint, "http://") {
-				return nil, fmt.Errorf("invalid server %s: must to be a HTTP URI", endpoint)
-			}
-
-			urlEndpoint = endpoint[7:]
-		} else {
-			urlEndpoint = endpoint[8:]
-		}
+	urlEndpoint, err := url.Parse(endpoint)
+	if err != nil {
+		return nil, err
 	}
 
 	// create the Minio client from the provided endpoint and options
-	minioClient, err := minio.New(urlEndpoint, c.Options)
+	minioClient, err := minio.New(urlEndpoint.Host, c.Options)
 	if err != nil {
 		return nil, err
 	}

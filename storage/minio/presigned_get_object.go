@@ -14,7 +14,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-// TODO hide URL behind a different name
 // PresignedGetObject generates a presigned URL for downloading an object.
 func (c *Client) PresignedGetObject(ctx context.Context, object *api.Object) (string, error) {
 	c.Logger.Tracef("generating presigned URL for object %s in bucket %s", object.ObjectName, object.Bucket.BucketName)
