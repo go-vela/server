@@ -30,6 +30,10 @@ const (
 	AppInstallResourceStatuses = "statuses"
 	// GitHub App install deployments resource.
 	AppInstallResourceDeployments = "deployments"
+	// GitHub App install pull requests resource.
+	AppInstallResourcePullRequests = "pull_requests"
+	// GitHub App install issues resource.
+	AppInstallResourceIssues = "issues"
 	// add more supported resources as needed.
 )
 
@@ -72,6 +76,10 @@ func ApplyInstallationPermissions(resource, perm string, perms *github.Installat
 		perms.Statuses = github.Ptr(perm)
 	case AppInstallResourceDeployments:
 		perms.Deployments = github.Ptr(perm)
+	case AppInstallResourcePullRequests:
+		perms.PullRequests = github.Ptr(perm)
+	case AppInstallResourceIssues:
+		perms.Issues = github.Ptr(perm)
 	// add more supported resources as needed.
 	default:
 		return perms, fmt.Errorf("invalid permission resource given for <resource>:<level> in %s:%s", resource, perm)
