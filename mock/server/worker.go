@@ -191,7 +191,7 @@ const (
 
 	// StorageSTSResp represents a JSON return for an admin requesting a storage sts creds.
 	//
-	//nolint:gosec // not actual credentials.
+	//nolint // not actual credentials.
 	StorageSTSResp = `{
 		"storage_access_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
 		"storage_secret_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
