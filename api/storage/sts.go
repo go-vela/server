@@ -56,10 +56,6 @@ import (
 //     description: Unable to assume role or generate credentials
 //     schema:
 //       $ref: '#/definitions/Error'
-//   403:
-//     description: Storage is not enabled
-//     schema:
-//       $ref: '#/definitions/Error'
 
 // GetSTSCreds represents the API handler to generate temporary STS credentials for build storage uploads.
 func GetSTSCreds(c *gin.Context) {
