@@ -123,11 +123,9 @@ var Flags = []cli.Flag{
 				if !cmd.Bool("vela-disable-webhook-validation") && cmd.String("scm.app.webhook-secret") == "" {
 					return fmt.Errorf("webhook-validation enabled and app ID provided but no app webhook secret is provided")
 				}
-
 				if cmd.String("scm.app.private-key") == "" && cmd.String("scm.app.private-key.path") == "" {
 					return fmt.Errorf("app ID provided but no app private key is provided")
 				}
-				
 				if cmd.String("scm.app.private-key") != "" && cmd.String("scm.app.private-key.path") != "" {
 					return fmt.Errorf("app ID provided but both app private key and app private key path are provided")
 				}
