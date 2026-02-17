@@ -47,6 +47,10 @@ import (
 //     description: Unexpected server error
 //     schema:
 //       $ref: '#/definitions/Error'
+//   403:
+//     description: Storage is not enabled
+//     schema:
+//       $ref: '#/definitions/Error'
 
 // ListBuildObjectNames represents the API handler to list object names for a specific build.
 func ListBuildObjectNames(c *gin.Context) {
