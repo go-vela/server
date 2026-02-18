@@ -7,6 +7,8 @@ import "time"
 // STSCreds defines the structure for temporary credentials used for object storage access.
 //
 // swagger:model STSCreds
+//
+//nolint:gosec // STS credentials are temporary and not hardcoded secrets.
 type STSCreds struct {
 	AccessKey    string `json:"access_key"`
 	SecretKey    string `json:"secret_key"`

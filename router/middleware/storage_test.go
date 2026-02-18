@@ -73,7 +73,7 @@ func TestMiddleware_StorageAddress(t *testing.T) {
 		t.Errorf("StorageAddress returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
+	if got != want {
 		t.Errorf("StorageAddress is %v, want %v", got, want)
 	}
 }
@@ -105,7 +105,7 @@ func TestMiddleware_StorageAccessKey(t *testing.T) {
 		t.Errorf("StorageAccessKey returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
+	if got != want {
 		t.Errorf("StorageAccessKey is %v, want %v", got, want)
 	}
 }
@@ -137,7 +137,7 @@ func TestMiddleware_StorageSecretKey(t *testing.T) {
 		t.Errorf("StorageSecretKey returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
+	if got != want {
 		t.Errorf("StorageSecretKey is %v, want %v", got, want)
 	}
 }
@@ -169,7 +169,7 @@ func TestMiddleware_StorageBucket(t *testing.T) {
 		t.Errorf("StorageBucket returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
+	if got != want {
 		t.Errorf("StorageBucket is %v, want %v", got, want)
 	}
 }
@@ -199,7 +199,7 @@ func TestMiddleware_StorageEnable(t *testing.T) {
 		t.Errorf("StorageEnable returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(got, want) {
+	if got != want {
 		t.Errorf("StorageEnable is %v, want %v", got, want)
 	}
 }

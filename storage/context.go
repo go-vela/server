@@ -63,7 +63,6 @@ func WithContext(ctx context.Context, s Storage) context.Context {
 	// set the storage Service in the context.Context
 	//
 	// https://pkg.go.dev/context?tab=doc#WithValue
-	//
 	return context.WithValue(ctx, key, s)
 }
 

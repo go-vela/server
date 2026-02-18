@@ -43,12 +43,20 @@ import (
 // responses:
 //   200:
 //     description: Successfully listed object names for the build
-//   500:
-//     description: Unexpected server error
+//   400:
+//     description: Bad request due to invalid parameters
 //     schema:
 //       $ref: '#/definitions/Error'
 //   403:
-//     description: Storage is not enabled
+//     description: Storage is not enabled or invalid token
+//     schema:
+//       $ref: '#/definitions/Error'
+//   404:
+//     description: Repo not found
+//     schema:
+//       $ref: '#/definitions/Error'
+//   500:
+//     description: Unexpected server error
 //     schema:
 //       $ref: '#/definitions/Error'
 

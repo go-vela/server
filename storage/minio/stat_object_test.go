@@ -9,10 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/minio/minio-go/v7"
-	"github.com/stretchr/testify/assert"
-
 	api "github.com/go-vela/server/api/types"
+	"github.com/minio/minio-go/v7"
 )
 
 func Test_StatObject_Success(t *testing.T) {
@@ -88,8 +86,13 @@ func Test_StatObject_Success(t *testing.T) {
 
 	// run test
 	result, err := client.StatObject(ctx, object)
-	assert.NoError(t, err)
-	assert.Equal(t, "test.xml", result.ObjectName)
+	if err != nil {
+		t.Errorf("StatObject returned err: %v", err)
+	}
+
+	if "test.xml" != result.ObjectName {
+		t.Errorf("StatObject is %v, want \"test.xml\"", result.ObjectName)
+	}
 }
 
 func Test_StatObject_Failure(t *testing.T) {
@@ -122,6 +125,10 @@ func Test_StatObject_Failure(t *testing.T) {
 
 	// run test
 	result, err := client.StatObject(ctx, object)
-	assert.Error(t, err)
-	assert.Nil(t, result)
+	if err == nil {
+		t.Errorf("StatObject should have returned err: %v", err)
+	}
+	if result != nil {
+		t.Errorf("StatObject should have returned nil result, got: %v", result)
+	}
 }

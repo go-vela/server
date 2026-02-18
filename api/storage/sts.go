@@ -48,8 +48,16 @@ import (
 //     description: Successfully generated temporary STS credentials
 //     schema:
 //       $ref: '#/definitions/STSCreds'
+//   400:
+//     description: Bad request due to invalid parameters
+//     schema:
+//       $ref: '#/definitions/Error'
 //   403:
-//     description: Storage is not enabled
+//     description: Storage is not enabled or invalid token
+//     schema:
+//       $ref: '#/definitions/Error'
+//   404:
+//     description: Repo not found
 //     schema:
 //       $ref: '#/definitions/Error'
 //   500:
