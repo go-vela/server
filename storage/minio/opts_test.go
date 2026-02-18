@@ -3,7 +3,6 @@
 package minio
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -46,7 +45,7 @@ func TestWithAccessKey(t *testing.T) {
 			t.Errorf("WithAccessKey returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(client.config.AccessKey, test.want) {
+		if client.config.AccessKey != test.want {
 			t.Errorf("WithAccessKey is %v, want %v", client.config.AccessKey, test.want)
 		}
 	}
@@ -91,7 +90,7 @@ func TestWithSecretKey(t *testing.T) {
 			t.Errorf("WithSecretKey returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(client.config.SecretKey, test.want) {
+		if client.config.SecretKey != test.want {
 			t.Errorf("WithSecretKey is %v, want %v", client.config.SecretKey, test.want)
 		}
 	}
@@ -136,7 +135,7 @@ func TestWithSecure(t *testing.T) {
 			t.Errorf("WithSecure returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(client.config.Secure, test.want) {
+		if client.config.Secure != test.want {
 			t.Errorf("WithSecure is %v, want %v", client.config.Secure, test.want)
 		}
 	}
@@ -181,7 +180,7 @@ func TestWithBucket(t *testing.T) {
 			t.Errorf("WithBucket returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(client.config.Bucket, test.want) {
+		if client.config.Bucket != test.want {
 			t.Errorf("WithBucket is %v, want %v", client.config.Bucket, test.want)
 		}
 	}

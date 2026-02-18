@@ -53,7 +53,8 @@ func (s *Setup) Validate() error {
 	// storage disabled: nothing to validate
 	if s.Enable {
 		if s.Driver != "" && s.Driver != constants.DriverMinio {
-			return fmt.Errorf("storage driver should not be set (got %q)", s.Driver)
+			return fmt.Errorf("storage driver should be set to %s (got %q)",
+				constants.DriverMinio, s.Driver)
 		}
 
 		if s.Bucket == "" {

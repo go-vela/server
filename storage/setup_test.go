@@ -5,8 +5,6 @@ package storage
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/go-vela/server/constants"
 )
 
@@ -22,8 +20,13 @@ func TestSetup_Minio(t *testing.T) {
 	}
 
 	storageClient, err := setup.Minio()
-	assert.NoError(t, err)
-	assert.NotNil(t, storageClient)
+	if err != nil {
+		t.Errorf("unable to create minio client: %v", err)
+	}
+
+	if storageClient == nil {
+		t.Error("expected minio client, got nil")
+	}
 }
 
 func TestSetup_Validate(t *testing.T) {
@@ -109,9 +112,16 @@ func TestSetup_Validate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			err := tc.setup.Validate()
 			if tc.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
+				if err == nil {
+					t.Errorf("Validate() expected error, got nil")
+				}
+
+				return
+			}
+
+			// success case
+			if err != nil {
+				t.Errorf("Validate() unexpected error: %v", err)
 			}
 		})
 	}

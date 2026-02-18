@@ -9,8 +9,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
 	"github.com/minio/minio-go/v7"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func Test_StatObject_Success(t *testing.T) {
@@ -128,6 +129,7 @@ func Test_StatObject_Failure(t *testing.T) {
 	if err == nil {
 		t.Errorf("StatObject should have returned err: %v", err)
 	}
+
 	if result != nil {
 		t.Errorf("StatObject should have returned nil result, got: %v", result)
 	}
