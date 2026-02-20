@@ -534,6 +534,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 	}
 }
 
+//nolint:gosec // ignore hardcoded credentials since this is only test data
 func TestNative_environment(t *testing.T) {
 	// setup types
 	booL := false
@@ -683,6 +684,7 @@ func Test_mergeMap(t *testing.T) {
 	}
 }
 
+//nolint:gosec // ignore hardcoded credentials since this is only test data
 func Test_client_EnvironmentBuild(t *testing.T) {
 	// setup types
 	booL := false

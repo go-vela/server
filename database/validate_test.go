@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+//nolint:gosec // ignore hardcoded credentials in tests
 func TestDatabase_Config_Validate(t *testing.T) {
 	// setup tests
 	tests := []struct {

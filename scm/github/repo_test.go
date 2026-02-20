@@ -1680,6 +1680,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	}
 }
 
+//nolint:gosec // ignore hardcoded credentials in test
 func TestGithub_GetNetrcPassword(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)

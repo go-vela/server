@@ -38,6 +38,7 @@ const (
 	mergeQueueBranchPrefix = "gh-readonly-queue/"
 )
 
+//nolint:gosec // because these fields are required for the GitHub client configuration
 type config struct {
 	// specifies the address to use for the GitHub client
 	Address string

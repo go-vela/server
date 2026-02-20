@@ -17,6 +17,8 @@ import (
 // Setup represents the configuration necessary for
 // creating a Vela service capable of integrating
 // with a configured scm system.
+//
+//nolint:gosec // because these fields are required for the scm client configuration
 type Setup struct {
 	// scm Configuration
 

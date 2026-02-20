@@ -200,6 +200,8 @@ func CancelRunning(c *gin.Context, b *types.Build) (*types.Build, error) {
 }
 
 // getWorkerExecutors is a helper function that retrieves the list of executors from a worker.
+//
+//nolint:gosec // ignore taint analysis
 func getWorkerExecutors(c *gin.Context, w *types.Worker) (*[]types.Executor, error) {
 	e := new([]types.Executor)
 
@@ -237,6 +239,8 @@ func getWorkerExecutors(c *gin.Context, w *types.Worker) (*[]types.Executor, err
 }
 
 // cancelBuildForExecutor is a helper function that sends an API call to a specific executor to cancel the build.
+//
+//nolint:gosec // ignore taint analysis
 func cancelBuildForExecutor(c *gin.Context, l *logrus.Entry, w *types.Worker, executor *types.Executor) (*types.Build, error) {
 	b := new(types.Build)
 

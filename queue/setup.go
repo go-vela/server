@@ -17,6 +17,8 @@ import (
 // Setup represents the configuration necessary for
 // creating a Vela service capable of integrating
 // with a configured queue environment.
+//
+//nolint:gosec // because these fields are required for the queue client configuration
 type Setup struct {
 	// Queue Configuration
 

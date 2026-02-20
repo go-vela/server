@@ -9,6 +9,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+//nolint:gosec // ignore hardcoded credentials in tests
 func TestDatabase_Flags(t *testing.T) {
 	// deep copy flags since they are global variables and will hold onto modifications during testing
 	deepCopyFlags := func(flags []cli.Flag) []cli.Flag {
