@@ -7,5 +7,6 @@ func (c *Client) GetSecretKey() string {
 	if c == nil || c.config == nil {
 		return ""
 	}
+
 	return c.config.SecretKey
 }

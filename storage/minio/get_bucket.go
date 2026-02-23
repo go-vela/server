@@ -7,6 +7,6 @@ func (c *Client) GetBucket() string {
 	if c == nil || c.config == nil {
 		return ""
 	}
+
 	return c.config.Bucket
 }
-

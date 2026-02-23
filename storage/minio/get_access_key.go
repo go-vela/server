@@ -7,5 +7,6 @@ func (c *Client) GetAccessKey() string {
 	if c == nil || c.config == nil {
 		return ""
 	}
+
 	return c.config.AccessKey
 }
