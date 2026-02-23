@@ -15,7 +15,6 @@ import (
 	"github.com/go-vela/server/tracing"
 )
 
-//nolint:gosec // ignore hardcoded credentials in tests
 func TestDatabase_New(t *testing.T) {
 	// setup tests
 	tests := []struct {

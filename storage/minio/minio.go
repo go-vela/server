@@ -13,8 +13,6 @@ import (
 // config holds the configuration for the MinIO client.
 //
 // but it is necessary for the MinIO client to function properly.
-//
-//nolint:gosec // This struct contains sensitive information,
 type config struct {
 	Enable    bool
 	Endpoint  string

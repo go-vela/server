@@ -22,7 +22,6 @@ import (
 	"github.com/go-vela/server/scm"
 )
 
-//nolint:gosec // because the modification service is an internal service
 type ModificationConfig struct {
 	Timeout  time.Duration
 	Retries  int

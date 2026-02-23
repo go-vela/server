@@ -1626,7 +1626,6 @@ func TestPerm_MustWrite(t *testing.T) {
 	}
 }
 
-//nolint:gosec // ignore hardcoded token in test
 func TestPerm_MustWrite_InstallToken(t *testing.T) {
 	// setup types
 	secret := "superSecret"
@@ -1735,7 +1734,6 @@ func TestPerm_MustWrite_InstallToken(t *testing.T) {
 	}
 }
 
-//nolint:gosec // ignore test token being hardcoded
 func TestPerm_MustWrite_InstallTokenRead(t *testing.T) {
 	// setup types
 	secret := "superSecret"
@@ -2244,7 +2242,6 @@ func TestPerm_MustRead(t *testing.T) {
 	}
 }
 
-//nolint:gosec // ignoring hardcoded token for testing purposes
 func TestPerm_MustRead_InstallTokenRead(t *testing.T) {
 	// setup types
 	secret := "superSecret"

@@ -74,7 +74,6 @@ func Test_client_initialize(t *testing.T) {
 	}
 }
 
-//nolint:gosec // not actual credentials
 func Test_client_getAwsToken(t *testing.T) {
 	defaultPresigned := func() *sigV4.PresignedHTTPRequest {
 		return &sigV4.PresignedHTTPRequest{

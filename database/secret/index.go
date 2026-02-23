@@ -32,7 +32,6 @@ ON secrets (type, org);
 
 	// CreateSecretID represents a query to create an
 	// index on the secret_repo_allowlist tabe for the secret_id column.
-	//nolint:gosec // not credentials
 	CreateSecretID = `
 CREATE INDEX
 IF NOT EXISTS

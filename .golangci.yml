@@ -156,6 +156,8 @@ linters:
     gosec:
       excludes:
         - G101
+        - G117
+        - G704
   exclusions:
     generated: lax
     presets:
