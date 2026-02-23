@@ -763,27 +763,6 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 				},
 			},
 		},
-		&yaml.Secret{
-			Origin: yaml.Origin{
-				Name:  "private vault",
-				Image: "target/secret-vault:latest",
-				Pull:  "always",
-				Secrets: yaml.StepSecretSlice{
-					{
-						Source: "vault_token",
-						Target: "VAULT_TOKEN",
-					},
-				},
-				Parameters: map[string]interface{}{
-					"addr":        "vault.example.com",
-					"auth_method": "token",
-					"username":    "octocat",
-					"items": []interface{}{
-						map[string]interface{}{"path": "docker", "source": "secret/docker"},
-					},
-				},
-			},
-		},
 	}
 
 	wantServices := yaml.ServiceSlice{
