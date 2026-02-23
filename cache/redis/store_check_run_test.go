@@ -5,6 +5,7 @@ package redis
 import (
 	"testing"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache/models"
 )
 
@@ -18,6 +19,11 @@ func TestRedis_StoreCheckRuns(t *testing.T) {
 			BuildNumber: 1,
 		},
 	}
+
+	repo := new(api.Repo)
+	repo.SetInstallID(1)
+	repo.SetApprovalTimeout(7)
+	repo.SetTimeout(30)
 
 	// setup redis mock
 	_redis, err := NewTest("123abc")
@@ -42,7 +48,7 @@ func TestRedis_StoreCheckRuns(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := test.redis.StoreCheckRuns(t.Context(), test.buildID, test.checkRun, 30)
+		err := test.redis.StoreCheckRuns(t.Context(), test.buildID, test.checkRun, repo)
 
 		if test.failure {
 			if err == nil {
@@ -69,6 +75,11 @@ func TestRedis_StoreStepCheckRuns(t *testing.T) {
 		},
 	}
 
+	repo := new(api.Repo)
+	repo.SetInstallID(1)
+	repo.SetApprovalTimeout(7)
+	repo.SetTimeout(30)
+
 	// setup redis mock
 	_redis, err := NewTest("123abc")
 	if err != nil {
@@ -92,7 +103,7 @@ func TestRedis_StoreStepCheckRuns(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := test.redis.StoreStepCheckRuns(t.Context(), test.stepID, test.checkRun, 30)
+		err := test.redis.StoreStepCheckRuns(t.Context(), test.stepID, test.checkRun, repo)
 
 		if test.failure {
 			if err == nil {

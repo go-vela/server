@@ -114,7 +114,7 @@ func planStep(ctx context.Context, cache cache.Service, database database.Interf
 			logrus.Errorf("unable to set commit status for build: %v", err)
 		}
 
-		err = cache.StoreStepCheckRuns(ctx, s.GetID(), stepCheckRuns, b.GetRepo().GetApprovalTimeout())
+		err = cache.StoreStepCheckRuns(ctx, s.GetID(), stepCheckRuns, b.GetRepo())
 		if err != nil {
 			logrus.Errorf("unable to store step check runs in cache: %v", err)
 		}

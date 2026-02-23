@@ -16,6 +16,11 @@ func TestRedis_GetCheckRuns(t *testing.T) {
 	build := new(api.Build)
 	build.SetID(1)
 
+	repo := new(api.Repo)
+	repo.SetInstallID(1)
+	repo.SetApprovalTimeout(7)
+	repo.SetTimeout(30)
+
 	checkRuns := []models.CheckRun{
 		{
 			ID:          1,
@@ -30,7 +35,7 @@ func TestRedis_GetCheckRuns(t *testing.T) {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
-	err = _redis.StoreCheckRuns(t.Context(), 1, checkRuns, 30)
+	err = _redis.StoreCheckRuns(t.Context(), 1, checkRuns, repo)
 	if err != nil {
 		t.Errorf("unable to store check runs: %v", err)
 	}
@@ -73,6 +78,11 @@ func TestRedis_GetStepCheckRuns(t *testing.T) {
 	step := new(api.Step)
 	step.SetID(1)
 
+	repo := new(api.Repo)
+	repo.SetInstallID(1)
+	repo.SetApprovalTimeout(7)
+	repo.SetTimeout(30)
+
 	checkRuns := []models.CheckRun{
 		{
 			ID:          1,
@@ -87,7 +97,7 @@ func TestRedis_GetStepCheckRuns(t *testing.T) {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
-	err = _redis.StoreStepCheckRuns(t.Context(), 1, checkRuns, 30)
+	err = _redis.StoreStepCheckRuns(t.Context(), 1, checkRuns, repo)
 	if err != nil {
 		t.Errorf("unable to store step check runs: %v", err)
 	}

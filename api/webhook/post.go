@@ -621,7 +621,7 @@ func PostWebhook(c *gin.Context) {
 			l.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 		}
 
-		err = cache.FromContext(c).StoreCheckRuns(ctx, b.GetID(), checks, repo.GetApprovalTimeout())
+		err = cache.FromContext(c).StoreCheckRuns(ctx, b.GetID(), checks, repo)
 		if err != nil {
 			l.Errorf("unable to store check runs for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 		}

@@ -8,13 +8,18 @@ import (
 	"strconv"
 	"time"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache/models"
 )
 
 // StoreCheckRuns stores the check runs in Redis with a TTL.
-func (c *Client) StoreCheckRuns(ctx context.Context, buildID int64, checkRuns []models.CheckRun, timeout int32) error {
+func (c *Client) StoreCheckRuns(ctx context.Context, buildID int64, checkRuns []models.CheckRun, repo *api.Repo) error {
+	if repo.GetInstallID() == 0 {
+		return nil
+	}
+
 	// set TTL based on repo approval timeout (should be deleted at end of build each time)
-	ttl := time.Hour * 24 * time.Duration(timeout+1)
+	ttl := (time.Hour * 24 * time.Duration(repo.GetApprovalTimeout())) + (time.Minute * time.Duration(repo.GetTimeout()+1))
 
 	checkRunBytes, err := json.Marshal(checkRuns)
 	if err != nil {
@@ -33,9 +38,13 @@ func (c *Client) StoreCheckRuns(ctx context.Context, buildID int64, checkRuns []
 }
 
 // StoreStepCheckRuns stores the check runs in Redis with a TTL.
-func (c *Client) StoreStepCheckRuns(ctx context.Context, stepID int64, checkRuns []models.CheckRun, timeout int32) error {
+func (c *Client) StoreStepCheckRuns(ctx context.Context, stepID int64, checkRuns []models.CheckRun, repo *api.Repo) error {
+	if repo.GetInstallID() == 0 {
+		return nil
+	}
+
 	// set TTL based on repo approval timeout (should be deleted at end of build each time)
-	ttl := time.Hour * 24 * time.Duration(timeout+1)
+	ttl := (time.Hour * 24 * time.Duration(repo.GetApprovalTimeout())) + (time.Minute * time.Duration(repo.GetTimeout()+1))
 
 	checkRunBytes, err := json.Marshal(checkRuns)
 	if err != nil {

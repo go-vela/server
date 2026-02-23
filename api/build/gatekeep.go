@@ -51,7 +51,7 @@ func GatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo, token string) 
 		l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
 
-	err = cache.FromContext(c).StoreCheckRuns(c, b.GetID(), checks, r.GetApprovalTimeout())
+	err = cache.FromContext(c).StoreCheckRuns(c, b.GetID(), checks, r)
 	if err != nil {
 		l.Errorf("unable to store check runs for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
