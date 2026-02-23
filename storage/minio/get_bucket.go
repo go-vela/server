@@ -2,7 +2,11 @@
 
 package minio
 
+// GetBucket returns the configured bucket name.
 func (c *Client) GetBucket() string {
-	// GetBucket returns the bucket name for the MinIO client.
+	if c == nil || c.config == nil {
+		return ""
+	}
 	return c.config.Bucket
 }
+

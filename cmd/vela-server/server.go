@@ -219,10 +219,6 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.ScheduleFrequency(cmd.Duration("schedule-minimum-frequency")),
 		middleware.TracingClient(tc),
 		middleware.TracingInstrumentation(tc),
-		middleware.StorageAddress(cmd.String("storage.addr")),
-		middleware.StorageAccessKey(cmd.String("storage.access.key")),
-		middleware.StorageSecretKey(cmd.String("storage.secret.key")),
-		middleware.StorageBucket(cmd.String("storage.bucket.name")),
 		middleware.StorageEnable(cmd.Bool("storage.enable")),
 	)
 

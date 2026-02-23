@@ -23,15 +23,16 @@ func (c *Client) AssumeRole(_ context.Context, durationSeconds int, prefix, sess
 	}
 
 	opts := credentials.STSAssumeRoleOptions{
-		AccessKey:       c.config.AccessKey, // server long-lived
-		SecretKey:       c.config.SecretKey, // server long-lived
+		AccessKey:       c.GetAccessKey(), // server long-lived
+		SecretKey:       c.GetSecretKey(), // server long-lived
 		RoleARN:         "arn:minio:iam:::role/vela-uploader",
 		RoleSessionName: sessionName,
 		DurationSeconds: durationSeconds,
 		Policy:          c.GetPolicy(prefix),
 	}
 
-	stsCreds, err := credentials.NewSTSAssumeRole(c.config.Endpoint, opts)
+	// using GetEndpoint because STS needs full URL, not just host:port
+	stsCreds, err := credentials.NewSTSAssumeRole(c.GetEndpoint(), opts)
 	if err != nil {
 		return nil, fmt.Errorf("unable to assume role: %w", err)
 	}
