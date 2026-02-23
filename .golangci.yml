@@ -121,6 +121,11 @@ linters:
     # https://github.com/denis-tingaikin/go-header
     goheader:
       template: "SPDX-License-Identifier: Apache-2.0"
+    # https://golangci-lint.run/docs/linters/configuration/#gosec
+    gosec:
+      excludes:
+        - G101 # hardcoded credentials
+        - G117 # exported field of "Secret" style
     # https://github.com/client9/misspell
     misspell:
       locale: US
