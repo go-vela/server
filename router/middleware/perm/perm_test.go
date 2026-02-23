@@ -1648,6 +1648,7 @@ func TestPerm_MustWrite_InstallToken(t *testing.T) {
 
 	_repo := new(api.Repo)
 	_repo.SetID(1)
+	_repo.SetInstallID(123)
 	_repo.SetOwner(owner)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
@@ -1658,7 +1659,8 @@ func TestPerm_MustWrite_InstallToken(t *testing.T) {
 
 	installTokenWrite := &models.InstallToken{
 		Token:        "ghs_write_token",
-		Repositories: []string{"foo/bar"},
+		InstallID:    123,
+		Repositories: []string{"bar"},
 		Permissions: map[string]string{
 			"contents": "write",
 		},
@@ -1756,6 +1758,7 @@ func TestPerm_MustWrite_InstallTokenRead(t *testing.T) {
 
 	_repo := new(api.Repo)
 	_repo.SetID(1)
+	_repo.SetInstallID(123)
 	_repo.SetOwner(owner)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
@@ -1766,7 +1769,8 @@ func TestPerm_MustWrite_InstallTokenRead(t *testing.T) {
 
 	installTokenRead := &models.InstallToken{
 		Token:        "ghs_read_token",
-		Repositories: []string{"foo/bar"},
+		InstallID:    123,
+		Repositories: []string{"bar"},
 		Permissions: map[string]string{
 			"contents": "read",
 		},
@@ -2264,6 +2268,7 @@ func TestPerm_MustRead_InstallTokenRead(t *testing.T) {
 
 	_repo := new(api.Repo)
 	_repo.SetID(1)
+	_repo.SetInstallID(123)
 	_repo.SetOwner(owner)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
@@ -2274,7 +2279,8 @@ func TestPerm_MustRead_InstallTokenRead(t *testing.T) {
 
 	installTokenRead := &models.InstallToken{
 		Token:        "ghs_read_token",
-		Repositories: []string{"foo/bar"},
+		InstallID:    123,
+		Repositories: []string{"bar"},
 		Permissions: map[string]string{
 			"contents": "read",
 		},

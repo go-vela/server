@@ -483,7 +483,7 @@ func PostWebhook(c *gin.Context) {
 
 		util.HandleError(c, code, err)
 
-		err = scm.FromContext(c).Status(ctx, b, repo.GetOrg(), repo.GetName(), p.Token)
+		_, err = scm.FromContext(c).Status(ctx, b, p.Token, nil)
 		if err != nil {
 			l.Debugf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 		}
@@ -616,9 +616,14 @@ func PostWebhook(c *gin.Context) {
 
 	if shouldEnqueue {
 		// send API call to set the status on the commit
-		err := scm.FromContext(c).Status(c.Request.Context(), b, repo.GetOrg(), repo.GetName(), p.Token)
+		checks, err := scm.FromContext(c).Status(c.Request.Context(), b, p.Token, nil)
 		if err != nil {
 			l.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
+		}
+
+		err = cache.FromContext(c).StoreCheckRuns(ctx, b.GetID(), checks, repo.GetApprovalTimeout())
+		if err != nil {
+			l.Errorf("unable to store check runs for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 		}
 
 		// publish the build to the queue

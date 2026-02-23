@@ -14,12 +14,16 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
+	"github.com/go-vela/server/cache/models"
+	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 )
 
@@ -155,8 +159,35 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
+	var (
+		checks   []models.CheckRun
+		scmToken string
+	)
+
+	if b.GetRepo().GetInstallID() != 0 {
+		checks, err = cache.FromContext(c).GetCheckRuns(ctx, b)
+		if err != nil {
+			l.Errorf("unable to retrieve check runs for build %s: %v", entry, err)
+		}
+
+		scmToken, _, err = scm.FromContext(c).GetNetrcPassword(ctx, database.FromContext(c), cache.FromContext(c), b, yaml.Git{})
+		if err != nil {
+			l.Errorf("unable to generate new installation token for build %s: %v", entry, err)
+
+			return
+		}
+	} else {
+		scmToken = b.GetRepo().GetOwner().GetToken()
+	}
+
+	// send API call to set the status on the commit
+	_, err = scm.FromContext(c).Status(ctx, b, scmToken, checks)
+	if err != nil {
+		l.Errorf("unable to set commit status for build %s: %v", entry, err)
+	}
+
 	// update component statuses to canceled
-	err = UpdateComponentStatuses(c, b, constants.StatusCanceled)
+	err = UpdateComponentStatuses(c, b, constants.StatusCanceled, scmToken)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update component statuses for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
