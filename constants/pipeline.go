@@ -43,7 +43,5 @@ const (
 
 	// SecretIDPattern defines the string pattern for the secret ID
 	// format: `secret_<org name>_<repo name>_<build number>_<secret name>`
-	//
-	//nolint:gosec // ignore gosec keying off of secret as no credentials are hardcoded
 	SecretIDPattern = "secret_%s_%s_%d_%s"
 )

@@ -42,6 +42,7 @@ var JwkKeyOpts = cmp.Options{
 	cmp.FilterValues(func(x, y interface{}) bool {
 		_, xOk := x.(jwk.RSAPublicKey)
 		_, yOk := y.(jwk.RSAPublicKey)
+
 		return xOk && yOk
 	}, cmp.Comparer(func(x, y interface{}) bool {
 		xJWK := x.(jwk.RSAPublicKey)
