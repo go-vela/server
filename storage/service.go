@@ -13,12 +13,8 @@ type Storage interface {
 	GetAddress() string
 	GetBucket() string
 	GetPolicy(string) string
-	// Object Operations
 	StatObject(context.Context, *api.Object) (*api.Object, error)
 	ListBuildObjectNames(context.Context, string, string, string) (map[string]string, error)
-	// Presigned URLs
 	PresignedGetObject(context.Context, *api.Object) (string, error)
-	// Storage info
-	StorageEnable() bool
 	AssumeRole(ctx context.Context, durationSeconds int, prefix, sessionName string) (*api.STSCreds, error)
 }

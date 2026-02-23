@@ -5,7 +5,6 @@ package minio
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -38,10 +37,10 @@ func (c *Client) PresignedGetObject(ctx context.Context, object *api.Object) (st
 
 	// replace minio:9000 with minio
 	// for local development
-	if strings.Contains(url, "minio:9000") {
-		// replace with minio:9002
-		url = strings.Replace(url, "minio:9000", "minio", 1)
-	}
+	//if strings.Contains(url, "minio:9000") {
+	//	// replace with minio:9002
+	//	url = strings.Replace(url, "minio:9000", "minio", 1)
+	//}
 
 	return url, nil
 }
