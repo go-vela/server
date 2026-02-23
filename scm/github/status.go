@@ -17,6 +17,20 @@ import (
 	"github.com/go-vela/server/constants"
 )
 
+const (
+	// Below are github status constants.
+	StatePending = "pending"
+	StateSuccess = "success"
+	StateFailure = "failure"
+	StateError   = "error"
+	//nolint:misspell // GitHub uses cancelled
+	StateCancelled  = "cancelled"
+	StateSkipped    = "skipped"
+	StateQueued     = "queued"
+	StateInProgress = "in_progress"
+	StateCompleted  = "completed"
+)
+
 // Status sends the commit status for the given SHA from the GitHub repo.
 func (c *Client) Status(ctx context.Context, b *api.Build, token string, checkRuns []models.CheckRun) ([]models.CheckRun, error) {
 	c.Logger.WithFields(logrus.Fields{
@@ -366,9 +380,13 @@ func stepCheckRun(ctx context.Context, ghClient *github.Client, addr, statusCtx 
 }
 
 // parseCommitStatus is a helper function to determine the url, state, and description for a commit status.
-func parseCommitStatus(status, addr, repo string, buildNumber int64, stepNumber int32) (state string, description string, url string) {
-	url = fmt.Sprintf("%s/%s/%d", addr, repo, buildNumber)
-	target := "build"
+func parseCommitStatus(status, addr, repo string, buildNumber int64, stepNumber int32) (string, string, string) {
+	var (
+		url         = fmt.Sprintf("%s/%s/%d", addr, repo, buildNumber)
+		target      = "build"
+		state       string
+		description string
+	)
 
 	if stepNumber != 0 {
 		url = fmt.Sprintf("%s#%d", url, stepNumber)
@@ -377,25 +395,25 @@ func parseCommitStatus(status, addr, repo string, buildNumber int64, stepNumber 
 
 	switch status {
 	case constants.StatusRunning, constants.StatusPending:
-		state = "pending"
+		state = StatePending
 		description = fmt.Sprintf("the %s is %s", target, status)
 	case constants.StatusPendingApproval:
-		state = "pending"
+		state = StatePending
 		description = fmt.Sprintf("the %s needs approval from repo admin to run", target)
 	case constants.StatusSuccess:
-		state = "success"
+		state = StateSuccess
 		description = fmt.Sprintf("the %s was successful", target)
 	case constants.StatusFailure:
-		state = "failure"
+		state = StateFailure
 		description = fmt.Sprintf("the %s has failed", target)
 	case constants.StatusCanceled:
-		state = "failure"
+		state = StateFailure
 		description = fmt.Sprintf("the %s was canceled", target)
 	case constants.StatusKilled:
-		state = "failure"
+		state = StateFailure
 		description = fmt.Sprintf("the %s was killed", target)
 	case constants.StatusSkipped:
-		state = "success"
+		state = StateSuccess
 		description = fmt.Sprintf("the %s was skipped as no steps/stages found", target)
 	default:
 		state = "error"
@@ -409,13 +427,18 @@ func parseCommitStatus(status, addr, repo string, buildNumber int64, stepNumber 
 		}
 	}
 
-	return
+	return state, description, url
 }
 
 // parseCheckRunStatus is a helper function to determine the url, state, description, and conclusion for a check run.
-func parseCheckRunStatus(status, addr, repo string, buildNumber int64, stepNumber int32) (state string, conclusion string, description string, url string) {
-	url = fmt.Sprintf("%s/%s/%d", addr, repo, buildNumber)
-	target := "build"
+func parseCheckRunStatus(status, addr, repo string, buildNumber int64, stepNumber int32) (string, string, string, string) {
+	var (
+		url         = fmt.Sprintf("%s/%s/%d", addr, repo, buildNumber)
+		target      = "build"
+		state       string
+		description string
+		conclusion  string
+	)
 
 	if stepNumber != 0 {
 		url = fmt.Sprintf("%s#%d", url, stepNumber)
@@ -426,37 +449,37 @@ func parseCheckRunStatus(status, addr, repo string, buildNumber int64, stepNumbe
 	// depending on what the status of the build is
 	switch status {
 	case constants.StatusRunning:
-		state = "in_progress"
+		state = StateInProgress
 		description = fmt.Sprintf("the %s is %s", target, status)
 	case constants.StatusPending:
-		state = "queued"
+		state = StateQueued
 		description = fmt.Sprintf("the %s is %s", target, status)
 	case constants.StatusPendingApproval:
-		state = "queued"
+		state = StateQueued
 		description = fmt.Sprintf("the %s needs approval from repo admin to run", target)
 	case constants.StatusSuccess:
-		state = "completed"
-		conclusion = "success"
+		state = StateCompleted
+		conclusion = StateSuccess
 		description = fmt.Sprintf("the %s was successful", target)
 	case constants.StatusFailure:
-		state = "completed"
-		conclusion = "failure"
+		state = StateCompleted
+		conclusion = StateFailure
 		description = fmt.Sprintf("the %s has failed", target)
 	case constants.StatusCanceled:
-		state = "completed"
-		conclusion = "cancelled"
+		state = StateCompleted
+		conclusion = StateCancelled
 		description = fmt.Sprintf("the %s was canceled", target)
 	case constants.StatusKilled:
-		state = "completed"
-		conclusion = "cancelled"
+		state = StateCompleted
+		conclusion = StateCancelled
 		description = fmt.Sprintf("the %s was killed", target)
 	case constants.StatusSkipped:
-		state = "completed"
-		conclusion = "skipped"
+		state = StateCompleted
+		conclusion = StateSkipped
 		description = fmt.Sprintf("the %s was skipped as no steps/stages found", target)
 	default:
-		state = "completed"
-		conclusion = "failure"
+		state = StateCompleted
+		conclusion = StateFailure
 
 		// if there is no build, then this status update is from a failed compilation
 		if buildNumber == 0 && stepNumber == 0 {
@@ -467,13 +490,13 @@ func parseCheckRunStatus(status, addr, repo string, buildNumber int64, stepNumbe
 		}
 	}
 
-	return
+	return state, conclusion, description, url
 }
 
 // buildCheckRunSummary creates the summary section of the check run output.
 func buildCheckRunSummary(b *api.Build) string {
 	return fmt.Sprintf(
-		"### Build\n- Repo: `%s`\n- Build: `%d`\n- Event: `%s`\n-Action: `%s`\n- Branch: `%s`\n- Status: `%s`\n\n### Commit\n- SHA: `%s`\n- Sender: `%s`",
+		"### Build\n- Repo: `%s`\n- Build: `%d`\n- Event: `%s`\n- Action: `%s`\n- Branch: `%s`\n- Status: `%s`\n\n### Commit\n- SHA: `%s`\n- Sender: `%s`",
 		b.GetRepo().GetFullName(),
 		b.GetNumber(),
 		b.GetEvent(),
