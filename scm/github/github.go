@@ -32,6 +32,7 @@ const (
 	eventDeployment   = "deployment"
 	eventIssueComment = "issue_comment"
 	eventRepository   = "repository"
+	eventMergeGroup   = "merge_group"
 	eventInitialize   = "initialize"
 
 	// merge queue prefix.
