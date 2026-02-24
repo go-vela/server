@@ -24,10 +24,10 @@ func TestYaml_Origin_MergeEnv(t *testing.T) {
 				Name:        "vault",
 				Environment: map[string]string{"FOO": "bar"},
 				Image:       "target/vela-vault:latest",
-				Parameters: map[string]any{
+				Parameters: map[string]interface{}{
 					"addr":        "vault.example.com",
 					"auth_method": "token",
-					"items": []any{
+					"items": []interface{}{
 						map[string]string{"source": "secret/docker", "path": "docker"},
 					},
 				},
@@ -57,10 +57,10 @@ func TestYaml_Origin_MergeEnv(t *testing.T) {
 				Name:        "vault",
 				Environment: map[string]string{"FOO": "bar"},
 				Image:       "target/vela-vault:latest",
-				Parameters: map[string]any{
+				Parameters: map[string]interface{}{
 					"addr":        "vault.example.com",
 					"auth_method": "token",
-					"items": []any{
+					"items": []interface{}{
 						map[string]string{"source": "secret/docker", "path": "docker"},
 					},
 				},
@@ -120,7 +120,7 @@ func TestYaml_SecretSlice_ToPipeline(t *testing.T) {
 						Name:        "vault",
 						Environment: map[string]string{"FOO": "bar"},
 						Image:       "target/vela-vault:latest",
-						Parameters: map[string]any{
+						Parameters: map[string]interface{}{
 							"addr": "vault.company.com",
 						},
 						Pull: "always",
@@ -252,7 +252,7 @@ func TestYaml_SecretSlice_UnmarshalYAML(t *testing.T) {
 					Origin: Origin{
 						Environment: map[string]string{"FOO": "bar"},
 						Image:       "target/vela-vault:latest",
-						Parameters: map[string]any{
+						Parameters: map[string]interface{}{
 							"addr": "vault.company.com",
 						},
 						Pull: "always",
@@ -284,7 +284,7 @@ func TestYaml_SecretSlice_UnmarshalYAML(t *testing.T) {
 					Origin: Origin{
 						Environment: map[string]string{"FOO": "bar"},
 						Image:       "target/vela-vault:latest",
-						Parameters: map[string]any{
+						Parameters: map[string]interface{}{
 							"addr": "vault.company.com",
 						},
 						Pull: "always",

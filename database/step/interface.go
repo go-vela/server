@@ -29,7 +29,7 @@ type StepInterface interface {
 	// CountSteps defines a function that gets the count of all steps.
 	CountSteps(context.Context) (int64, error)
 	// CountStepsForBuild defines a function that gets the count of steps by build ID.
-	CountStepsForBuild(context.Context, *api.Build, map[string]any) (int64, error)
+	CountStepsForBuild(context.Context, *api.Build, map[string]interface{}) (int64, error)
 	// CreateStep defines a function that creates a new step.
 	CreateStep(context.Context, *api.Step) (*api.Step, error)
 	// DeleteStep defines a function that deletes an existing step.
@@ -41,7 +41,7 @@ type StepInterface interface {
 	// ListSteps defines a function that gets a list of all steps.
 	ListSteps(ctx context.Context) ([]*api.Step, error)
 	// ListStepsForBuild defines a function that gets a list of steps by build ID.
-	ListStepsForBuild(context.Context, *api.Build, map[string]any, int, int) ([]*api.Step, error)
+	ListStepsForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*api.Step, error)
 	// ListStepImageCount defines a function that gets a list of all step images and the count of their occurrence.
 	ListStepImageCount(context.Context) (map[string]float64, error)
 	// ListStepStatusCount defines a function that gets a list of all step statuses and the count of their occurrence.

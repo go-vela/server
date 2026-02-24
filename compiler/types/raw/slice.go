@@ -47,7 +47,7 @@ func (s *StringSlice) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the StringSlice type.
-func (s *StringSlice) UnmarshalYAML(unmarshal func(any) error) error {
+func (s *StringSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	// yaml string we try unmarshalling to
 	yamlString := ""
 

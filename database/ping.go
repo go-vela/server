@@ -12,7 +12,7 @@ func (e *engine) Ping() error {
 	e.logger.Tracef("sending ping request to the %s database", e.Driver())
 
 	// create a loop to attempt ping requests 5 times
-	for i := range 5 {
+	for i := 0; i < 5; i++ {
 		// capture database/sql database from gorm.io/gorm database
 		_sql, err := e.client.DB()
 		if err != nil {

@@ -15,7 +15,7 @@ import (
 // ListSecretsForRepo gets a list of secrets by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *Engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]any, page, perPage int) ([]*api.Secret, error) {
+func (e *Engine) ListSecretsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, page, perPage int) ([]*api.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

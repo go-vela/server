@@ -52,7 +52,7 @@ func TestCache_FromGinContext(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		context *gin.Context
-		value   any
+		value   interface{}
 		want    Service
 	}{
 		{

@@ -34,7 +34,7 @@ type Secret struct {
 
 // UnmarshalYAML implements the Unmarshaler interface for the Secret type.
 // This allows custom fields in the Secret type to be read from a YAML file, like AllowEvents.
-func (s *Secret) UnmarshalYAML(unmarshal func(any) error) error {
+func (s *Secret) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	// create an alias to perform a normal unmarshal and avoid an infinite loop
 	type jsonSecret Secret
 

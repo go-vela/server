@@ -23,7 +23,7 @@ func TestInternal_ParseYAML(t *testing.T) {
 			&yaml.Step{
 				Name:  "example",
 				Image: "alpine:latest",
-				Parameters: map[string]any{
+				Parameters: map[string]interface{}{
 					"REGION": "dev",
 				},
 				Pull: "not_present",

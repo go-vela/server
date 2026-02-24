@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"maps"
 	"net/http"
 	"strings"
 	"time"
@@ -39,7 +38,7 @@ type ModifyResponse struct {
 }
 
 // Compile produces an executable pipeline from a yaml configuration.
-func (c *Client) Compile(ctx context.Context, v any) (*pipeline.Build, *api.Pipeline, error) {
+func (c *Client) Compile(ctx context.Context, v interface{}) (*pipeline.Build, *api.Pipeline, error) {
 	p, data, warnings, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -121,7 +120,7 @@ func (c *Client) Compile(ctx context.Context, v any) (*pipeline.Build, *api.Pipe
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *Client) CompileLite(ctx context.Context, v any, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *api.Pipeline, error) {
+func (c *Client) CompileLite(ctx context.Context, v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *api.Pipeline, error) {
 	p, data, warnings, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -257,7 +256,7 @@ func (c *Client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 
 		// initialize variable map if not parsed from config
 		if len(template.Variables) == 0 {
-			template.Variables = make(map[string]any)
+			template.Variables = make(map[string]interface{})
 		}
 
 		// inject template name into variables
@@ -280,7 +279,9 @@ func (c *Client) compileInline(ctx context.Context, p *yaml.Build, depth int) (*
 
 		switch {
 		case len(parsed.Environment) > 0:
-			maps.Copy(newPipeline.Environment, parsed.Environment)
+			for key, value := range parsed.Environment {
+				newPipeline.Environment[key] = value
+			}
 
 			fallthrough
 		case len(parsed.Stages) > 0:

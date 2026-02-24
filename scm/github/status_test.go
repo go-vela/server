@@ -222,7 +222,7 @@ func TestGithub_Status_PendingApproval_CheckRun_Create(t *testing.T) {
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
-	var payload map[string]any
+	var payload map[string]interface{}
 
 	// setup mock server
 	engine.POST("/api/v3/repos/:org/:repo/check-runs", func(c *gin.Context) {
@@ -282,7 +282,7 @@ func TestGithub_Status_Running_CheckRun_Update(t *testing.T) {
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
-	var payload map[string]any
+	var payload map[string]interface{}
 
 	// setup mock server
 	engine.PATCH("/api/v3/repos/:org/:repo/check-runs/:id", func(c *gin.Context) {
@@ -353,7 +353,7 @@ func TestGithub_StepStatus_Success_CheckRun_Update(t *testing.T) {
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
-	var payload map[string]any
+	var payload map[string]interface{}
 
 	// setup mock server
 	engine.PATCH("/api/v3/repos/:org/:repo/check-runs/:id", func(c *gin.Context) {

@@ -12,7 +12,7 @@ import (
 )
 
 // CountServicesForBuild gets the count of services by build ID from the database.
-func (e *Engine) CountServicesForBuild(ctx context.Context, b *api.Build, filters map[string]any) (int64, error) {
+func (e *Engine) CountServicesForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("getting count of services for build %d", b.GetNumber())

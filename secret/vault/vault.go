@@ -148,10 +148,10 @@ func NewWithContext(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 func secretFromVault(vault *api.Secret) *velaAPI.Secret {
 	s := new(velaAPI.Secret)
 
-	var data map[string]any
+	var data map[string]interface{}
 	// handle k/v v2
 	if _, ok := vault.Data["data"]; ok {
-		data = vault.Data["data"].(map[string]any)
+		data = vault.Data["data"].(map[string]interface{})
 	} else {
 		data = vault.Data
 	}
@@ -173,7 +173,7 @@ func secretFromVault(vault *api.Secret) *velaAPI.Secret {
 		if ok {
 			allowEventsMask := int64(0)
 
-			for _, element := range events.([]any) {
+			for _, element := range events.([]interface{}) {
 				event, ok := element.(string)
 				if ok {
 					switch event {
@@ -200,7 +200,7 @@ func secretFromVault(vault *api.Secret) *velaAPI.Secret {
 	// set images if found in Vault secret
 	v, ok = data["images"]
 	if ok {
-		images, ok := v.([]any)
+		images, ok := v.([]interface{})
 		if ok {
 			for _, element := range images {
 				image, ok := element.(string)
@@ -353,7 +353,7 @@ func secretFromVault(vault *api.Secret) *velaAPI.Secret {
 
 // vaultFromSecret is a helper function to convert a Vela secret to a HashiCorp Vault secret.
 func vaultFromSecret(s *velaAPI.Secret) *api.Secret {
-	data := make(map[string]any)
+	data := make(map[string]interface{})
 	vault := new(api.Secret)
 	vault.Data = data
 

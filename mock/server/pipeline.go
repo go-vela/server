@@ -484,7 +484,7 @@ func getTemplates(c *gin.Context) {
 	writeYAML(c, http.StatusOK, body)
 }
 
-func writeYAML(c *gin.Context, status int, value any) {
+func writeYAML(c *gin.Context, status int, value interface{}) {
 	body, err := yml.Marshal(value)
 	if err != nil {
 		msg := fmt.Sprintf("unable to marshal YAML response: %v", err)

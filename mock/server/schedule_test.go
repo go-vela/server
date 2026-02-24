@@ -18,7 +18,7 @@ func TestSchedule_ActiveScheduleResp(t *testing.T) {
 		t.Errorf("error unmarshaling schedule: %v", err)
 	}
 
-	tSchedule := reflect.TypeFor[api.Schedule]()
+	tSchedule := reflect.TypeOf(testSchedule)
 
 	for i := 0; i < tSchedule.NumField(); i++ {
 		if reflect.ValueOf(testSchedule).Field(i).IsNil() {

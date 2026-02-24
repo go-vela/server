@@ -280,7 +280,7 @@ func exceededField(indexes int) []string {
 	values := []string{}
 
 	// add enough strings to exceed the character limit
-	for i := range indexes {
+	for i := 0; i < indexes; i++ {
 		// construct field
 		// use i to adhere to unique favorites
 		field := "github/octocat-" + strconv.Itoa(i)

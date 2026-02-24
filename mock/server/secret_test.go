@@ -18,7 +18,7 @@ func TestSecret_ActiveSecretResp(t *testing.T) {
 		t.Errorf("error unmarshaling secret: %v", err)
 	}
 
-	tSecret := reflect.TypeFor[api.Secret]()
+	tSecret := reflect.TypeOf(testSecret)
 
 	for i := 0; i < tSecret.NumField(); i++ {
 		if reflect.ValueOf(testSecret).Field(i).IsNil() {

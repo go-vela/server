@@ -2288,8 +2288,8 @@ func Test_client_modifyConfig(t *testing.T) {
 				Environment: nil,
 				Name:        "docker",
 				Pull:        "always",
-				Parameters: map[string]any{
-					"init_options": map[string]any{
+				Parameters: map[string]interface{}{
+					"init_options": map[string]interface{}{
 						"get_plugins": "true",
 					},
 				},
@@ -2321,8 +2321,8 @@ func Test_client_modifyConfig(t *testing.T) {
 				Environment: nil,
 				Name:        "docker",
 				Pull:        "always",
-				Parameters: map[string]any{
-					"init_options": map[string]any{
+				Parameters: map[string]interface{}{
+					"init_options": map[string]interface{}{
 						"get_plugins": "true",
 					},
 				},

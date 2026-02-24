@@ -18,7 +18,7 @@ func TestDeployment_ActiveDeploymentResp(t *testing.T) {
 		t.Errorf("error unmarshaling deployment: %v", err)
 	}
 
-	tDeployment := reflect.TypeFor[api.Deployment]()
+	tDeployment := reflect.TypeOf(testDeployment)
 
 	for i := 0; i < tDeployment.NumField(); i++ {
 		if reflect.ValueOf(testDeployment).Field(i).IsNil() {

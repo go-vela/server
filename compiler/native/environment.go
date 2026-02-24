@@ -4,7 +4,6 @@ package native
 
 import (
 	"fmt"
-	"maps"
 	"os"
 	"strconv"
 	"strings"
@@ -45,13 +44,17 @@ func (c *Client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 
 	// inject the declared environment
 	// variables to the build stage
-	maps.Copy(env, s.Environment)
+	for k, v := range s.Environment {
+		env[k] = v
+	}
 
 	// inject the default environment
 	// variables to the build stage
 	// we do this after injecting the declared environment
 	// to ensure the default env overrides any conflicts
-	maps.Copy(env, defaultEnv)
+	for k, v := range defaultEnv {
+		env[k] = v
+	}
 
 	// overwrite existing build stage environment
 	s.Environment = env
@@ -96,13 +99,17 @@ func (c *Client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 
 	// inject the declared environment
 	// variables to the build step
-	maps.Copy(env, s.Environment)
+	for k, v := range s.Environment {
+		env[k] = v
+	}
 
 	// inject the default environment
 	// variables to the build step
 	// we do this after injecting the declared environment
 	// to ensure the default env overrides any conflicts
-	maps.Copy(env, defaultEnv)
+	for k, v := range defaultEnv {
+		env[k] = v
+	}
 
 	// check if the compiler is setup for a local pipeline
 	if c.local && !s.Detach {
@@ -154,13 +161,17 @@ func (c *Client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSl
 
 		// inject the declared environment
 		// variables to the build service
-		maps.Copy(env, service.Environment)
+		for k, v := range service.Environment {
+			env[k] = v
+		}
 
 		// inject the default environment
 		// variables to the build service
 		// we do this after injecting the declared environment
 		// to ensure the default env overrides any conflicts
-		maps.Copy(env, defaultEnv)
+		for k, v := range defaultEnv {
+			env[k] = v
+		}
 
 		// overwrite existing build service environment
 		service.Environment = env
@@ -191,13 +202,17 @@ func (c *Client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 
 		// inject the declared environment
 		// variables to the build secret
-		maps.Copy(env, secret.Origin.Environment)
+		for k, v := range secret.Origin.Environment {
+			env[k] = v
+		}
 
 		// inject the default environment
 		// variables to the build secret
 		// we do this after injecting the declared environment
 		// to ensure the default env overrides any conflicts
-		maps.Copy(env, defaultEnv)
+		for k, v := range defaultEnv {
+			env[k] = v
+		}
 
 		// check if the compiler is setup for a local pipeline
 		if c.local {
@@ -246,7 +261,9 @@ func (c *Client) EnvironmentBuild() map[string]string {
 	// variables to the build
 	// we do this after injecting the declared environment
 	// to ensure the default env overrides any conflicts
-	maps.Copy(env, defaultEnv)
+	for k, v := range defaultEnv {
+		env[k] = v
+	}
 
 	// check if the compiler is setup for a local pipeline
 	if c.local {
@@ -264,7 +281,9 @@ func (c *Client) EnvironmentBuild() map[string]string {
 
 // helper function to merge two maps together.
 func appendMap(originalMap, otherMap map[string]string) map[string]string {
-	maps.Copy(originalMap, otherMap)
+	for key, value := range otherMap {
+		originalMap[key] = value
+	}
 
 	return originalMap
 }

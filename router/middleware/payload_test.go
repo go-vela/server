@@ -15,7 +15,7 @@ import (
 
 func TestMiddleware_Payload(t *testing.T) {
 	// setup types
-	var got any
+	var got interface{}
 
 	want := `{"foo": "bar"}`
 	jsonBody, _ := json.Marshal(want)

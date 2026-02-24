@@ -13,7 +13,7 @@ const key = "minio"
 
 // Setter defines a context that enables setting values.
 type Setter interface {
-	Set(any, any)
+	Set(string, interface{})
 }
 
 // FromContext retrieves minio service from the context.

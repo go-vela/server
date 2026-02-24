@@ -16,7 +16,7 @@ import (
 )
 
 // ParseRaw converts an object to a string.
-func (c *Client) ParseRaw(v any) (string, error) {
+func (c *Client) ParseRaw(v interface{}) (string, error) {
 	switch v := v.(type) {
 	case []byte:
 		return string(v), nil
@@ -40,7 +40,7 @@ func (c *Client) ParseRaw(v any) (string, error) {
 }
 
 // Parse converts an object to a yaml configuration.
-func (c *Client) Parse(v any, pipelineType string, template *yaml.Template) (*yaml.Build, []byte, []string, error) {
+func (c *Client) Parse(v interface{}, pipelineType string, template *yaml.Template) (*yaml.Build, []byte, []string, error) {
 	var (
 		p        *yaml.Build
 		warnings []string

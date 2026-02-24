@@ -242,11 +242,11 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 					},
 					{
 						Name: "docker_build",
-						Parameters: map[string]any{
+						Parameters: map[string]interface{}{
 							"dry_run":  true,
 							"registry": "index.docker.io",
 							"repo":     "github/octocat",
-							"tags":     []any{"latest", "dev"},
+							"tags":     []interface{}{"latest", "dev"},
 						},
 						Image: "plugins/docker:18.09",
 						Pull:  "always",
@@ -260,10 +260,10 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 					},
 					{
 						Name: "docker_publish",
-						Parameters: map[string]any{
+						Parameters: map[string]interface{}{
 							"registry": "index.docker.io",
 							"repo":     "github/octocat",
-							"tags":     []any{"latest", "dev"},
+							"tags":     []interface{}{"latest", "dev"},
 						},
 						Image: "plugins/docker:18.09",
 						Pull:  "always",
@@ -332,7 +332,7 @@ func TestYaml_Build_UnmarshalYAML(t *testing.T) {
 					{
 						Origin: Origin{
 							Image: "target/vela-vault:latest",
-							Parameters: map[string]any{
+							Parameters: map[string]interface{}{
 								"addr": "vault.example.com",
 							},
 							Pull: "always",

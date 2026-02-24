@@ -74,7 +74,7 @@ func (c *Client) getAwsToken(ctx context.Context) (string, time.Duration, error)
 
 // generateAwsAuthHeader will generate the necessary data
 // to send to the Vault server for generating a token.
-func (c *Client) generateAwsAuthHeader(ctx context.Context) (map[string]any, error) {
+func (c *Client) generateAwsAuthHeader(ctx context.Context) (map[string]interface{}, error) {
 	c.Logger.Trace("generating AWS auth headers for vault")
 
 	if c.AWS.Presigner == nil {
@@ -91,7 +91,7 @@ func (c *Client) generateAwsAuthHeader(ctx context.Context) (map[string]any, err
 		return nil, err
 	}
 
-	loginData := map[string]any{
+	loginData := map[string]interface{}{
 		"role":                    c.AWS.Role,
 		"iam_http_request_method": presignedReq.Method,
 		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(presignedReq.URL)),

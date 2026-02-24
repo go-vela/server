@@ -125,7 +125,7 @@ func failoverFromOptions(source *redis.Options) *redis.FailoverOptions {
 	// the first host from the csv list is set as
 	// the master node all subsequent hosts get
 	// added as sentinel nodes
-	for host := range strings.SplitSeq(hosts, ",") {
+	for _, host := range strings.Split(hosts, ",") {
 		if len(target.MasterName) == 0 {
 			target.MasterName = host
 			continue

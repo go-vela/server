@@ -123,7 +123,7 @@ func ListReposForOrg(c *gin.Context) {
 	sortBy := util.QueryParameter(c, "sort_by", "name")
 
 	// prep filters
-	filters := make(map[string]any)
+	filters := make(map[string]interface{})
 
 	// capture the query parameters if present:
 	//

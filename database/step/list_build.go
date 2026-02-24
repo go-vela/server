@@ -13,7 +13,7 @@ import (
 )
 
 // ListStepsForBuild gets a list of all steps from the database.
-func (e *Engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters map[string]any, page int, perPage int) ([]*api.Step, error) {
+func (e *Engine) ListStepsForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}, page int, perPage int) ([]*api.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("listing steps for build %d", b.GetNumber())

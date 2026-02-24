@@ -31,13 +31,13 @@ type BuildInterface interface {
 	// CountBuilds defines a function that gets the count of all builds.
 	CountBuilds(context.Context) (int64, error)
 	// CountBuildsForDeployment defines a function that gets the count of builds by deployment url.
-	CountBuildsForDeployment(context.Context, *api.Deployment, map[string]any) (int64, error)
+	CountBuildsForDeployment(context.Context, *api.Deployment, map[string]interface{}) (int64, error)
 	// CountBuildsForOrg defines a function that gets the count of builds by org name.
-	CountBuildsForOrg(context.Context, string, map[string]any) (int64, error)
+	CountBuildsForOrg(context.Context, string, map[string]interface{}) (int64, error)
 	// CountBuildsForRepo defines a function that gets the count of builds by repo ID.
-	CountBuildsForRepo(context.Context, *api.Repo, map[string]any, int64, int64) (int64, error)
+	CountBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64) (int64, error)
 	// CountBuildsForStatus defines a function that gets the count of builds by status.
-	CountBuildsForStatus(context.Context, string, map[string]any) (int64, error)
+	CountBuildsForStatus(context.Context, string, map[string]interface{}) (int64, error)
 	// CreateBuild defines a function that creates a new build.
 	CreateBuild(context.Context, *api.Build) (*api.Build, error)
 	// DeleteBuild defines a function that deletes an existing build.
@@ -55,7 +55,7 @@ type BuildInterface interface {
 	// ListBuildsForDashboardRepo defines a function that gets a list of builds based on dashboard filters.
 	ListBuildsForDashboardRepo(context.Context, *api.Repo, []string, []string) ([]*api.Build, error)
 	// ListBuildsForRepo defines a function that gets a list of builds by repo ID.
-	ListBuildsForRepo(context.Context, *api.Repo, map[string]any, int64, int64, int, int) ([]*api.Build, error)
+	ListBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64, int, int) ([]*api.Build, error)
 	// ListPendingAndRunningBuilds defines a function that gets a list of pending and running builds.
 	ListPendingAndRunningBuilds(context.Context, string) ([]*api.QueueBuild, error)
 	// ListPendingAndRunningBuildsForRepo defines a function that gets a list of pending and running builds for a repo.

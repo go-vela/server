@@ -203,10 +203,10 @@ func TestYaml_StepSlice_UnmarshalYAML(t *testing.T) {
 					Image:    "plugins/docker:18.09",
 					Pull:     "always",
 					ReportAs: "docker",
-					Parameters: map[string]any{
+					Parameters: map[string]interface{}{
 						"registry": "index.docker.io",
 						"repo":     "github/octocat",
-						"tags":     []any{"latest", "dev"},
+						"tags":     []interface{}{"latest", "dev"},
 					},
 				},
 				{
@@ -214,10 +214,10 @@ func TestYaml_StepSlice_UnmarshalYAML(t *testing.T) {
 					Pull: "not_present",
 					Template: StepTemplate{
 						Name: "docker_publish",
-						Variables: map[string]any{
+						Variables: map[string]interface{}{
 							"registry": "index.docker.io",
 							"repo":     "github/octocat",
-							"tags":     []any{"latest", "dev"},
+							"tags":     []interface{}{"latest", "dev"},
 						},
 					},
 				},

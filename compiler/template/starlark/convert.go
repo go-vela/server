@@ -17,7 +17,7 @@ import (
 //
 // Explanation of type "starlark.StringDict":
 // https://pkg.go.dev/go.starlark.net/starlark#StringDict
-func convertTemplateVars(m map[string]any) (*starlark.Dict, error) {
+func convertTemplateVars(m map[string]interface{}) (*starlark.Dict, error) {
 	dict := starlark.NewDict(0)
 
 	// loop through user vars converting provided types to starlark primitives
@@ -90,9 +90,9 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) (*starlark.Dict,
 		// iterate through the list of possible prefixes to look for
 		for _, prefix := range []string{"deployment_parameter_", "vela_"} {
 			// check if the key has the prefix
-			if after, ok := strings.CutPrefix(key, prefix); ok {
+			if strings.HasPrefix(key, prefix) {
 				// trim the prefix from the input key
-				key = after
+				key = strings.TrimPrefix(key, prefix)
 
 				// check if the prefix is from 'vela_*'
 				if strings.EqualFold(prefix, "vela_") {

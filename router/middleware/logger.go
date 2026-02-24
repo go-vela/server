@@ -176,8 +176,8 @@ func Logger(logger *logrus.Logger, _ string) gin.HandlerFunc {
 	}
 }
 
-func sanitize(body any) any {
-	if m, ok := body.(map[string]any); ok {
+func sanitize(body interface{}) interface{} {
+	if m, ok := body.(map[string]interface{}); ok {
 		if _, ok = m["email"]; ok {
 			m["email"] = constants.SecretMask
 			body = m

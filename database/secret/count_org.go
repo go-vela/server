@@ -11,7 +11,7 @@ import (
 )
 
 // CountSecretsForOrg gets the count of secrets by org name from the database.
-func (e *Engine) CountSecretsForOrg(ctx context.Context, org string, filters map[string]any) (int64, error) {
+func (e *Engine) CountSecretsForOrg(ctx context.Context, org string, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"type": constants.SecretOrg,

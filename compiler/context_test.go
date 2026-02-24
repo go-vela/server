@@ -52,7 +52,7 @@ func TestCompiler_FromGinContext(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		context *gin.Context
-		value   any
+		value   interface{}
 		want    Engine
 	}{
 		{

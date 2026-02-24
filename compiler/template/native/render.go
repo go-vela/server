@@ -15,11 +15,11 @@ import (
 )
 
 // Render combines the template with the step in the yaml pipeline.
-func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]any) (*types.Build, []string, error) {
+func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}) (*types.Build, []string, error) {
 	buffer := new(bytes.Buffer)
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(environment, name)}
-	templateFuncMap := map[string]any{
+	templateFuncMap := map[string]interface{}{
 		"vela":   velaFuncs.returnPlatformVar,
 		"toYaml": toYAML,
 	}
@@ -69,11 +69,11 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 }
 
 // RenderBuild renders the templated build.
-func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]any) (*types.Build, []string, error) {
+func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}) (*types.Build, []string, error) {
 	buffer := new(bytes.Buffer)
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(envs, tmpl)}
-	templateFuncMap := map[string]any{
+	templateFuncMap := map[string]interface{}{
 		"vela":   velaFuncs.returnPlatformVar,
 		"toYaml": toYAML,
 	}

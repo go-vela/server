@@ -12,7 +12,7 @@ const key = "user"
 
 // Setter defines a context that enables setting values.
 type Setter interface {
-	Set(any, any)
+	Set(string, interface{})
 }
 
 // FromContext returns the User associated with this context.

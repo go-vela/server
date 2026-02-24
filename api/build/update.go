@@ -230,7 +230,7 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status, scmToken st
 
 	for page > 0 {
 		// retrieve build steps (per page) from the database
-		stepsPart, err := database.FromContext(c).ListStepsForBuild(ctx, b, map[string]any{}, page, perPage)
+		stepsPart, err := database.FromContext(c).ListStepsForBuild(ctx, b, map[string]interface{}{}, page, perPage)
 		if err != nil {
 			return err
 		}
@@ -285,7 +285,7 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status, scmToken st
 
 	for page > 0 {
 		// retrieve build services (per page) from the database
-		servicesPart, err := database.FromContext(c).ListServicesForBuild(ctx, b, map[string]any{}, page, perPage)
+		servicesPart, err := database.FromContext(c).ListServicesForBuild(ctx, b, map[string]interface{}{}, page, perPage)
 		if err != nil {
 			return err
 		}

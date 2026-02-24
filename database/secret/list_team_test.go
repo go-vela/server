@@ -95,7 +95,7 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 		},
 	}
 
-	filters := map[string]any{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {
@@ -210,7 +210,7 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 		},
 	}
 
-	filters := map[string]any{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {

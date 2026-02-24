@@ -30,9 +30,9 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceM
 		}
 
 		// check if the key has a 'vela_*' prefix
-		if after, ok := strings.CutPrefix(key, "vela_"); ok {
+		if strings.HasPrefix(key, "vela_") {
 			// add the key/value pair without the 'vela_` prefix
-			envs[after] = value
+			envs[strings.TrimPrefix(key, "vela_")] = value
 		}
 	}
 
@@ -49,7 +49,7 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceM
 // https://github.com/helm/helm/blob/a499b4b179307c267bdf3ec49b880e3dbd2a5591/pkg/engine/funcs.go#L83
 //
 // This is designed to be called from a template.
-func toYAML(v any) string {
+func toYAML(v interface{}) string {
 	data, err := yaml.Marshal(v)
 	if err != nil {
 		// Swallow errors inside of a template.

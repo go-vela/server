@@ -233,7 +233,7 @@ func generateBuilds(amount int) []string {
 	// initialize empty builds
 	builds := []string{}
 
-	for range amount {
+	for i := 0; i < amount; i++ {
 		builds = append(builds, "123456789")
 	}
 

@@ -18,7 +18,7 @@ func TestSettings_GetResp(t *testing.T) {
 		t.Errorf("error unmarshaling settings: %v", err)
 	}
 
-	tSettings := reflect.TypeFor[settings.Platform]()
+	tSettings := reflect.TypeOf(testSettings)
 
 	for i := 0; i < tSettings.NumField(); i++ {
 		f := reflect.ValueOf(testSettings).Field(i)
@@ -36,7 +36,7 @@ func TestSettings_UpdateResp(t *testing.T) {
 		t.Errorf("error unmarshaling settings: %v", err)
 	}
 
-	tSettings := reflect.TypeFor[settings.Platform]()
+	tSettings := reflect.TypeOf(testSettings)
 
 	for i := 0; i < tSettings.NumField(); i++ {
 		f := reflect.ValueOf(testSettings).Field(i)
@@ -54,7 +54,7 @@ func TestSettings_RestoreResp(t *testing.T) {
 		t.Errorf("error unmarshaling settings: %v", err)
 	}
 
-	tSettings := reflect.TypeFor[settings.Platform]()
+	tSettings := reflect.TypeOf(testSettings)
 
 	for i := 0; i < tSettings.NumField(); i++ {
 		f := reflect.ValueOf(testSettings).Field(i)

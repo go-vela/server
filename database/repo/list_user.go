@@ -15,7 +15,7 @@ import (
 // ListReposForUser gets a list of repos by user ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *Engine) ListReposForUser(ctx context.Context, u *api.User, sortBy string, filters map[string]any, page, perPage int) ([]*api.Repo, error) {
+func (e *Engine) ListReposForUser(ctx context.Context, u *api.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*api.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing repos for user %s", u.GetName())

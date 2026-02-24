@@ -22,7 +22,7 @@ func TestStarlark_toStarlark(t *testing.T) {
 	a = append(a, starlark.Value(starlark.String("bar")))
 
 	type args struct {
-		value any
+		value interface{}
 	}
 
 	tests := []struct {

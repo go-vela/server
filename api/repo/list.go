@@ -103,7 +103,7 @@ func ListRepos(c *gin.Context) {
 	// capture the query parameters if present:
 	//
 	// * active
-	filters := map[string]any{
+	filters := map[string]interface{}{
 		"active": util.QueryParameter(c, "active", "true"),
 	}
 

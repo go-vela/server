@@ -18,7 +18,7 @@ func TestRepo_ActiveRepoResp(t *testing.T) {
 		t.Errorf("error unmarshaling repo: %v", err)
 	}
 
-	tRepo := reflect.TypeFor[api.Repo]()
+	tRepo := reflect.TypeOf(testRepo)
 
 	for i := 0; i < tRepo.NumField(); i++ {
 		if tRepo.Field(i).Name == "Hash" {

@@ -32,7 +32,7 @@ var (
 // https://github.com/wonderix/shalm/blob/899b8f7787883d40619eefcc39bd12f42a09b5e7/pkg/shalm/convert.go#L14-L85
 //
 //nolint:gocyclo // ignore complexity
-func toStarlark(value any) (starlark.Value, error) {
+func toStarlark(value interface{}) (starlark.Value, error) {
 	logrus.Tracef("converting %v to starlark type", value)
 
 	if value == nil {
@@ -81,7 +81,7 @@ func toStarlark(value any) (starlark.Value, error) {
 		}
 
 		return starlark.Tuple(a), nil
-	case reflect.Pointer:
+	case reflect.Ptr:
 		val, err := toStarlark(v.Elem().Interface())
 		if err != nil {
 			return nil, err
@@ -126,7 +126,7 @@ func toStarlark(value any) (starlark.Value, error) {
 				return nil, err
 			}
 
-			var m map[string]any
+			var m map[string]interface{}
 
 			err = json.Unmarshal(data, &m)
 			if err != nil {

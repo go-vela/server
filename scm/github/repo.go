@@ -26,7 +26,7 @@ func (c *Client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, re
 	// number of times to retry
 	retryLimit := 5
 
-	for i := range retryLimit {
+	for i := 0; i < retryLimit; i++ {
 		logrus.Debugf("fetching config file - Attempt %d", i+1)
 		// attempt to fetch the config
 		data, err = c.Config(ctx, u, r, ref)

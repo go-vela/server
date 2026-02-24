@@ -120,7 +120,7 @@ func ListSteps(c *gin.Context) {
 	perPage = max(1, min(100, perPage))
 
 	// send API call to capture the list of steps for the build
-	s, err := database.FromContext(c).ListStepsForBuild(ctx, b, map[string]any{}, page, perPage)
+	s, err := database.FromContext(c).ListStepsForBuild(ctx, b, map[string]interface{}{}, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list steps for build %s: %w", entry, err)
 

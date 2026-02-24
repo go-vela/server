@@ -166,7 +166,7 @@ func (c *Client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, *u.Token)
 
-	var payload any
+	var payload interface{}
 	if d.Payload == nil {
 		payload = make(map[string]string)
 	} else {

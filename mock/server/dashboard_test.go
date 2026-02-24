@@ -18,7 +18,7 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 		t.Errorf("error unmarshaling dashboard: %v", err)
 	}
 
-	tDashboard := reflect.TypeFor[api.Dashboard]()
+	tDashboard := reflect.TypeOf(testDashboard)
 
 	for i := 0; i < tDashboard.NumField(); i++ {
 		if reflect.ValueOf(testDashboard).Field(i).IsNil() {
@@ -33,7 +33,7 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 		t.Errorf("error unmarshaling dash card: %v", err)
 	}
 
-	tDashCard := reflect.TypeFor[api.DashCard]()
+	tDashCard := reflect.TypeOf(testDashCard)
 
 	for i := 0; i < tDashCard.NumField(); i++ {
 		if reflect.ValueOf(testDashCard).Field(i).IsNil() {
@@ -49,7 +49,7 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 	}
 
 	for _, testDashCard := range testDashCards {
-		tDashCard := reflect.TypeFor[api.DashCard]()
+		tDashCard := reflect.TypeOf(testDashCard)
 
 		for i := 0; i < tDashCard.NumField(); i++ {
 			if reflect.ValueOf(testDashCard).Field(i).IsNil() {

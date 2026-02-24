@@ -43,7 +43,7 @@ type Version struct {
 	// PreRelease represents unstable changes that might not be compatible.
 	PreRelease string `json:"pre_release,omitempty"`
 	// Metadata represents extra information surrounding the application version.
-	Metadata Metadata `json:"metadata"`
+	Metadata Metadata `json:"metadata,omitempty"`
 }
 
 // Meta implements a formatted string containing only metadata for the Version type.

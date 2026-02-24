@@ -18,7 +18,7 @@ func TestService_ActiveServiceResp(t *testing.T) {
 		t.Errorf("error unmarshaling service: %v", err)
 	}
 
-	tService := reflect.TypeFor[api.Service]()
+	tService := reflect.TypeOf(testService)
 
 	for i := 0; i < tService.NumField(); i++ {
 		if reflect.ValueOf(testService).Field(i).IsNil() {

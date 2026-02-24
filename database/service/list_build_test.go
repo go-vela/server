@@ -80,7 +80,7 @@ func TestService_Engine_ListServicesForBuild(t *testing.T) {
 		},
 	}
 
-	filters := map[string]any{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {

@@ -105,21 +105,21 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 		failure  bool
 		name     string
 		database *Engine
-		filters  map[string]any
+		filters  map[string]interface{}
 		want     int64
 	}{
 		{
 			failure:  false,
 			name:     "postgres without filters",
 			database: _postgres,
-			filters:  map[string]any{},
+			filters:  map[string]interface{}{},
 			want:     2,
 		},
 		{
 			failure:  false,
 			name:     "postgres with event filter",
 			database: _postgres,
-			filters: map[string]any{
+			filters: map[string]interface{}{
 				"event": "push",
 			},
 			want: 2,
@@ -128,14 +128,14 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "sqlite3 without filters",
 			database: _sqlite,
-			filters:  map[string]any{},
+			filters:  map[string]interface{}{},
 			want:     2,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3 with event filter",
 			database: _sqlite,
-			filters: map[string]any{
+			filters: map[string]interface{}{
 				"event": "push",
 			},
 			want: 2,

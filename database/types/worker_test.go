@@ -200,7 +200,7 @@ func exceededRunningBuildIDs() []string {
 	runningBuildIDs := []string{}
 
 	// add enough build ids to exceed the character limit
-	for i := range 50 {
+	for i := 0; i < 50; i++ {
 		// construct runningBuildID
 		// use i to adhere to unique runningBuildIDs
 		runningBuildID := "1234567890-" + strconv.Itoa(i)

@@ -18,7 +18,7 @@ func TestPipeline_ActivePipelineResp(t *testing.T) {
 		t.Errorf("error unmarshaling pipeline: %v", err)
 	}
 
-	tPipeline := reflect.TypeFor[api.Pipeline]()
+	tPipeline := reflect.TypeOf(testPipeline)
 
 	for i := 0; i < tPipeline.NumField(); i++ {
 		if reflect.ValueOf(testPipeline).Field(i).IsNil() {
