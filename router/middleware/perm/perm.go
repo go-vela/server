@@ -590,7 +590,11 @@ func validInstallToken(r *api.Repo, tkn *models.InstallToken, access []string) b
 		return false
 	}
 
-	if !slices.Contains(tkn.Repositories, r.GetFullName()) {
+	if r.GetInstallID() != tkn.InstallID {
+		return false
+	}
+
+	if !slices.Contains(tkn.Repositories, r.GetName()) {
 		return false
 	}
 

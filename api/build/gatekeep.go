@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm"
@@ -39,15 +40,20 @@ func GatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo, token string) 
 	l.Info("build updated")
 
 	// update the build components to pending approval status
-	err = UpdateComponentStatuses(c, b, constants.StatusPendingApproval)
+	err = UpdateComponentStatuses(c, b, constants.StatusPendingApproval, token)
 	if err != nil {
 		return fmt.Errorf("unable to update build components for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(c, b, r.GetOrg(), r.GetName(), token)
+	checks, err := scm.FromContext(c).Status(c, b, token, nil)
 	if err != nil {
 		l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+	}
+
+	err = cache.FromContext(c).StoreCheckRuns(c, b.GetID(), checks, r)
+	if err != nil {
+		l.Errorf("unable to store check runs for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	return nil
