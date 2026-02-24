@@ -12,7 +12,7 @@ import (
 )
 
 // CountBuildsForDeployment gets the count of builds by deployment URL from the database.
-func (e *Engine) CountBuildsForDeployment(ctx context.Context, d *api.Deployment, filters map[string]interface{}) (int64, error) {
+func (e *Engine) CountBuildsForDeployment(ctx context.Context, d *api.Deployment, filters map[string]any) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetURL(),
 	}).Tracef("getting count of builds for deployment %s", d.GetURL())

@@ -4,6 +4,7 @@ package yaml
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
@@ -27,7 +28,7 @@ type (
 		Pull        string             `yaml:"pull,omitempty"        json:"pull,omitempty"        jsonschema:"enum=always,enum=not_present,enum=on_start,enum=never,default=not_present,description=Declaration to configure if and when the Docker image is pulled.\nReference: https://go-vela.github.io/docs/reference/yaml/services/#the-pul-key"`
 		Ulimits     UlimitSlice        `yaml:"ulimits,omitempty"     json:"ulimits,omitempty"     jsonschema:"description=Set the user limits for the container.\nReference: https://go-vela.github.io/docs/reference/yaml/services/#the-ulimits-key"`
 		User        string             `yaml:"user,omitempty"        json:"user,omitempty"        jsonschema:"description=Set the user for the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-user-key"`
-		Ruleset     Ruleset            `yaml:"ruleset,omitempty"     json:"ruleset,omitempty"     jsonschema:"description=Conditions to limit the execution of the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
+		Ruleset     Ruleset            `yaml:"ruleset,omitempty"     json:"ruleset"               jsonschema:"description=Conditions to limit the execution of the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-ruleset-key"`
 	}
 )
 
@@ -58,7 +59,7 @@ func (s *ServiceSlice) ToPipeline() *pipeline.ContainerSlice {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the ServiceSlice type.
-func (s *ServiceSlice) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *ServiceSlice) UnmarshalYAML(unmarshal func(any) error) error {
 	// service slice we try unmarshalling to
 	serviceSlice := new([]*Service)
 
@@ -126,10 +127,8 @@ func (s *Service) MergeEnv(environment map[string]string) error {
 	}
 
 	// iterate through all environment variables provided
-	for key, value := range environment {
-		// set or update the service environment variable
-		s.Environment[key] = value
-	}
+	// set or update the service environment variable
+	maps.Copy(s.Environment, environment)
 
 	return nil
 }

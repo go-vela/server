@@ -18,5 +18,5 @@ type STSCreds struct {
 	Prefix   string `json:"prefix,omitempty"`
 	Secure   bool   `json:"secure,omitempty"`
 
-	ExpiresAt time.Time `json:"expires_at,omitempty"`
+	ExpiresAt time.Time `json:"expires_at"`
 }

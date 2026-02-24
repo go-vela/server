@@ -18,7 +18,7 @@ func TestLog_ActiveLogResp(t *testing.T) {
 		t.Errorf("error unmarshaling log: %v", err)
 	}
 
-	tLog := reflect.TypeOf(testLog)
+	tLog := reflect.TypeFor[api.Log]()
 
 	for i := 0; i < tLog.NumField(); i++ {
 		if reflect.ValueOf(testLog).Field(i).IsNil() {

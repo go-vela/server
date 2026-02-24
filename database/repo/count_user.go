@@ -12,7 +12,7 @@ import (
 )
 
 // CountReposForUser gets the count of repos by user ID from the database.
-func (e *Engine) CountReposForUser(ctx context.Context, u *api.User, filters map[string]interface{}) (int64, error) {
+func (e *Engine) CountReposForUser(ctx context.Context, u *api.User, filters map[string]any) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("getting count of repos for user %s", u.GetName())

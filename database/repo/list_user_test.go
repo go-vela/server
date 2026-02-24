@@ -156,7 +156,7 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 		},
 	}
 
-	filters := map[string]interface{}{}
+	filters := map[string]any{}
 
 	// run tests
 	for _, test := range tests {

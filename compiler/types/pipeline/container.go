@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"math/rand"
 	"reflect"
 	"strings"
@@ -46,9 +47,9 @@ type (
 		Ports       []string          `json:"ports,omitempty"       yaml:"ports,omitempty"`
 		Privileged  bool              `json:"privileged,omitempty"  yaml:"privileged,omitempty"`
 		Pull        string            `json:"pull,omitempty"        yaml:"pull,omitempty"`
-		Ruleset     Ruleset           `json:"ruleset,omitempty"     yaml:"ruleset,omitempty"`
+		Ruleset     Ruleset           `json:"ruleset"               yaml:"ruleset,omitempty"`
 		Secrets     StepSecretSlice   `json:"secrets,omitempty"     yaml:"secrets,omitempty"`
-		Artifacts   Artifacts         `json:"artifacts,omitempty"   yaml:"artifacts,omitempty"`
+		Artifacts   Artifacts         `json:"artifacts"             yaml:"artifacts,omitempty"`
 		Ulimits     UlimitSlice       `json:"ulimits,omitempty"     yaml:"ulimits,omitempty"`
 		Volumes     VolumeSlice       `json:"volumes,omitempty"     yaml:"volumes,omitempty"`
 		User        string            `json:"user,omitempty"        yaml:"user,omitempty"`
@@ -200,10 +201,8 @@ func (c *Container) MergeEnv(environment map[string]string) error {
 	}
 
 	// iterate through all environment variables provided
-	for key, value := range environment {
-		// set or update the container environment variable
-		c.Environment[key] = value
-	}
+	// set or update the container environment variable
+	maps.Copy(c.Environment, environment)
 
 	return nil
 }

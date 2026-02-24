@@ -22,7 +22,7 @@ func (tm *Manager) ParseToken(token string) (*Claims, error) {
 	p := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
 
 	// parse and validate given token
-	tkn, err := p.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
+	tkn, err := p.ParseWithClaims(token, claims, func(t *jwt.Token) (any, error) {
 		var err error
 
 		// extract the claims from the token

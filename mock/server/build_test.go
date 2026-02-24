@@ -18,7 +18,7 @@ func TestBuild_ActiveBuildResp(t *testing.T) {
 		t.Errorf("error unmarshaling build: %v", err)
 	}
 
-	tBuild := reflect.TypeOf(testBuild)
+	tBuild := reflect.TypeFor[api.Build]()
 
 	for i := 0; i < tBuild.NumField(); i++ {
 		if reflect.ValueOf(testBuild).Field(i).IsNil() {

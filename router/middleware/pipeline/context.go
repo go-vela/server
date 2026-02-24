@@ -12,7 +12,7 @@ const key = "pipeline"
 
 // Setter defines a context that enables setting values.
 type Setter interface {
-	Set(string, interface{})
+	Set(any, any)
 }
 
 // FromContext returns the Pipeline associated with this context.
