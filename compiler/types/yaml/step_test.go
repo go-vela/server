@@ -77,6 +77,9 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 							AccessMode:  "ro",
 						},
 					},
+					Artifacts: Artifacts{
+						Paths: []string{"test-results/*.xml", "screenshots/**/*.png", " video/*.mp4"},
+					},
 				},
 			},
 			want: &pipeline.ContainerSlice{
@@ -135,6 +138,9 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 							Destination: "/bar",
 							AccessMode:  "ro",
 						},
+					},
+					Artifacts: pipeline.Artifacts{
+						Paths: []string{"test-results/*.xml", "screenshots/**/*.png", " video/*.mp4"},
 					},
 				},
 			},
@@ -213,6 +219,14 @@ func TestYaml_StepSlice_UnmarshalYAML(t *testing.T) {
 							"repo":     "github/octocat",
 							"tags":     []interface{}{"latest", "dev"},
 						},
+					},
+				},
+				{
+					Name:  "artifact",
+					Image: "golang:1.20",
+					Pull:  "always",
+					Artifacts: Artifacts{
+						Paths: []string{"test-results/*.xml", "screenshots/**/*.png", " video/*.mp4"},
 					},
 				},
 			},

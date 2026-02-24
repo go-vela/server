@@ -275,6 +275,7 @@ func APIPipeline() *api.Pipeline {
 		Stages:          new(bool),
 		Steps:           new(bool),
 		Templates:       new(bool),
+		Artifact:        new(bool),
 		Warnings:        new([]string),
 		Data:            new([]byte),
 	}

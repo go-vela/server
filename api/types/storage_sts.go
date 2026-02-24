@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: Apache-2.0
+
+package types
+
+import "time"
+
+// STSCreds defines the structure for temporary credentials used for object storage access.
+//
+// swagger:model STSCreds
+type STSCreds struct {
+	AccessKey    string `json:"access_key"`
+	SecretKey    string `json:"secret_key"`
+	SessionToken string `json:"session_token"`
+
+	Endpoint string `json:"endpoint"`
+	Bucket   string `json:"bucket"`
+	Region   string `json:"region,omitempty"`
+	Prefix   string `json:"prefix,omitempty"`
+	Secure   bool   `json:"secure,omitempty"`
+
+	ExpiresAt time.Time `json:"expires_at,omitempty"`
+}

@@ -3125,6 +3125,7 @@ func newResources() *Resources {
 	pipelineOne.SetStages(false)
 	pipelineOne.SetSteps(true)
 	pipelineOne.SetTemplates(false)
+	pipelineOne.SetArtifact(false)
 	pipelineOne.SetWarnings([]string{})
 	pipelineOne.SetData([]byte("version: 1"))
 
@@ -3143,6 +3144,7 @@ func newResources() *Resources {
 	pipelineTwo.SetStages(false)
 	pipelineTwo.SetSteps(true)
 	pipelineTwo.SetTemplates(false)
+	pipelineTwo.SetArtifact(false)
 	pipelineTwo.SetWarnings([]string{"42:this is a warning"})
 	pipelineTwo.SetData([]byte("version: 1"))
 

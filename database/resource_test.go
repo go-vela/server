@@ -83,6 +83,7 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 
 	// create a test database without mocking the call
 	_unmocked, _ := testPostgres(t)
+	defer _unmocked.Close()
 
 	_sqlite := testSqlite(t)
 	defer _sqlite.Close()

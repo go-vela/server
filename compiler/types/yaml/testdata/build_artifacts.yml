@@ -1,0 +1,13 @@
+---
+version: '1'
+
+steps:
+  - name: test
+    image: alpine:latest
+    commands:
+      - echo "artifact test"
+    artifacts:
+      paths:
+        - 'test-results.xml'
+        - 'coverage.html'
+        - 'junit-report.json'

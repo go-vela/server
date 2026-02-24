@@ -55,6 +55,7 @@ type Pipeline struct {
 	Stages          sql.NullBool   `sql:"stages"`
 	Steps           sql.NullBool   `sql:"steps"`
 	Templates       sql.NullBool   `sql:"templates"`
+	Artifacts       sql.NullBool   `sql:"artifacts"`
 	Warnings        pq.StringArray `sql:"warnings"         gorm:"type:varchar(5000)"`
 	Data            []byte         `sql:"data"`
 
@@ -168,6 +169,7 @@ func (p *Pipeline) ToAPI() *api.Pipeline {
 	pipeline.SetStages(p.Stages.Bool)
 	pipeline.SetSteps(p.Steps.Bool)
 	pipeline.SetTemplates(p.Templates.Bool)
+	pipeline.SetArtifact(p.Artifacts.Bool)
 	pipeline.SetWarnings(p.Warnings)
 	pipeline.SetData(p.Data)
 
@@ -246,6 +248,7 @@ func PipelineFromAPI(p *api.Pipeline) *Pipeline {
 		Stages:          sql.NullBool{Bool: p.GetStages(), Valid: true},
 		Steps:           sql.NullBool{Bool: p.GetSteps(), Valid: true},
 		Templates:       sql.NullBool{Bool: p.GetTemplates(), Valid: true},
+		Artifacts:       sql.NullBool{Bool: p.GetArtifact(), Valid: true},
 		Warnings:        pq.StringArray(p.GetWarnings()),
 		Data:            p.GetData(),
 	}
