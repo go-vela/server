@@ -30,12 +30,12 @@ func New(s *Setup) (Storage, error) {
 		// process the storage driver being provided
 		switch s.Driver {
 		case constants.DriverMinio:
-			// handle the Kafka queue driver being provided
+			// handle the storage driver being provided
 			//
-			// https://pkg.go.dev/github.com/go-vela/server/queue?tab=doc#Setup.Kafka
+			// https://pkg.go.dev/github.com/go-vela/server/storage?tab=doc#Setup.Minio
 			return s.Minio()
 		default:
-			// handle an invalid queue driver being provided
+			// handle an invalid storage driver being provided
 			return nil, fmt.Errorf("invalid storage driver provided: %s", s.Driver)
 		}
 	}
