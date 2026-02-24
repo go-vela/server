@@ -31,6 +31,6 @@ func setupStorage(_ context.Context, c *cli.Command) (storage.Storage, error) {
 	}
 	// setup the storage
 	//
-	// https://pkg.go.dev/github.com/go-vela/server/storage?tab=doc#FromCLICommand
+	// https://pkg.go.dev/github.com/go-vela/server/storage#New
 	return storage.New(_setup)
 }

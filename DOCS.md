@@ -56,11 +56,9 @@ echo "VELA_SCM_CLIENT=<Github OAuth Client ID>" >> .env
 echo "VELA_SCM_SECRET=<Github OAuth Client Secret>" >> .env
 ```
 
-* Add `minio` to `/etc/hosts` for nginx to resolve the local minio service when running Vela:
-
-```bash
- sudo sh -c 'echo "127.0.0.1 minio" >> /etc/hosts'
-````
+* Using Artifacts:
+* Set `VELA_STORAGE_ENABLE: true` in the docker-compose file.
+* Create a bucket in Minio UI and add the bucket in docker-compose file as `VELA_STORAGE_BUCKET`.
 
 ## Start
 
