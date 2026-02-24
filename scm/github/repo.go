@@ -173,36 +173,9 @@ func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo) (*
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, *u.Token)
 
-	// always listen to repository events in case of repo name change
-	events := []string{eventRepository, constants.EventCustomProperties}
-
-	// subscribe to comment event if any comment action is allowed
-	if r.GetAllowEvents().GetComment().GetCreated() ||
-		r.GetAllowEvents().GetComment().GetEdited() {
-		events = append(events, eventIssueComment)
-	}
-
-	// subscribe to deployment event if allowed
-	if r.GetAllowEvents().GetDeployment().GetCreated() {
-		events = append(events, eventDeployment)
-	}
-
-	// subscribe to pull_request event if any PR action is allowed
-	if r.GetAllowEvents().GetPullRequest().GetOpened() ||
-		r.GetAllowEvents().GetPullRequest().GetEdited() ||
-		r.GetAllowEvents().GetPullRequest().GetSynchronize() {
-		events = append(events, eventPullRequest)
-	}
-
-	// subscribe to push event if branch push or tag is allowed
-	if r.GetAllowEvents().GetPush().GetBranch() ||
-		r.GetAllowEvents().GetPush().GetTag() {
-		events = append(events, eventPush)
-	}
-
 	// create the hook object to make the API call
 	hook := &github.Hook{
-		Events: events,
+		Events: webhookConfigEvents(r),
 		Config: &github.HookConfig{
 			URL:         github.Ptr(c.config.ServerWebhookAddress),
 			ContentType: github.Ptr("form"),
@@ -246,6 +219,27 @@ func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, *u.Token)
 
+	// create the hook object to make the API call
+	hook := &github.Hook{
+		Events: webhookConfigEvents(r),
+		Config: &github.HookConfig{
+			URL:         github.Ptr(c.config.ServerWebhookAddress),
+			ContentType: github.Ptr("form"),
+			Secret:      github.Ptr(r.GetHash()),
+		},
+		Active: github.Ptr(true),
+	}
+
+	// send API call to update the webhook
+	_, resp, err := client.Repositories.EditHook(ctx, r.GetOrg(), r.GetName(), hookID, hook)
+
+	// track if webhook exists in GitHub; a missing webhook
+	// indicates the webhook has been manually deleted from GitHub
+	return resp.StatusCode != http.StatusNotFound, err
+}
+
+// webhookConfigEvents returns a list of events to subscribe to for the webhook based on the repo's allowed events.
+func webhookConfigEvents(r *api.Repo) []string {
 	// always listen to repository events in case of repo name change
 	events := []string{eventRepository, constants.EventCustomProperties}
 
@@ -273,23 +267,12 @@ func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 		events = append(events, eventPush)
 	}
 
-	// create the hook object to make the API call
-	hook := &github.Hook{
-		Events: events,
-		Config: &github.HookConfig{
-			URL:         github.Ptr(c.config.ServerWebhookAddress),
-			ContentType: github.Ptr("form"),
-			Secret:      github.Ptr(r.GetHash()),
-		},
-		Active: github.Ptr(true),
+	// subscribe to merge_group event if repo has merge group events
+	if len(r.GetMergeQueueEvents()) > 0 {
+		events = append(events, eventMergeGroup)
 	}
 
-	// send API call to update the webhook
-	_, resp, err := client.Repositories.EditHook(ctx, r.GetOrg(), r.GetName(), hookID, hook)
-
-	// track if webhook exists in GitHub; a missing webhook
-	// indicates the webhook has been manually deleted from GitHub
-	return resp.StatusCode != http.StatusNotFound, err
+	return events
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
