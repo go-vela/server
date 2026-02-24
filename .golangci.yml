@@ -158,11 +158,6 @@ linters:
       allow-first-in-block: true
       allow-whole-block: false
       branch-max-lines: 2
-    gosec:
-      excludes:
-        - G101
-        - G117
-        - G704
   exclusions:
     generated: lax
     presets:
