@@ -245,6 +245,8 @@ func getWorkerExecutors(c *gin.Context, w *types.Worker) (*[]types.Executor, err
 	}
 
 	// make the request to the worker and check the response
+	//
+	//nolint:gosec // worker address set by platform admin, not user input
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -283,6 +285,8 @@ func cancelBuildForExecutor(c *gin.Context, l *logrus.Entry, w *types.Worker, ex
 	}
 
 	// perform the request to the worker
+	//
+	//nolint:gosec // worker address set by platform admin, not user input
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err

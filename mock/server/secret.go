@@ -13,7 +13,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-//nolint:gosec // these are mock responses
 const (
 	// SecretResp represents a JSON return for a single secret.
 	SecretResp = `{
