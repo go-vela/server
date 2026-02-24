@@ -76,11 +76,7 @@ services:
   # https://go-vela.github.io/docs/administration/worker/
   worker:
     container_name: worker
-    image: worker:local
-    #    image: target/vela-worker:latest
-    build:
-      context: ../worker
-      dockerfile: ${VELA_WORKER_DOCKERFILE:-Dockerfile}
+    image: target/vela-worker:latest
     networks:
       - vela
     environment:
