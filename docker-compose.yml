@@ -24,7 +24,6 @@ services:
       DATABASE_COMPRESSION_LEVEL: 3
       DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
       QUEUE_DRIVER: redis
-      QUEUE_ADDR: 'redis://redis:6379'
       QUEUE_PRIVATE_KEY: 'tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=='
       SCM_DRIVER: github
       SCM_CONTEXT: 'continuous-integration/vela'
