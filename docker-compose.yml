@@ -48,9 +48,9 @@ services:
       VELA_OTEL_TRACING_ENABLE: true
       VELA_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
       VELA_OTEL_TRACING_SAMPLER_RATELIMIT_PER_SECOND: 100
-      VELA_STORAGE_ENABLE: false
+      VELA_STORAGE_ENABLE: true
       VELA_STORAGE_DRIVER: minio
-      VELA_STORAGE_ADDRESS: 'http://minio:9000' # Address of the MinIO server
+      VELA_STORAGE_ADDRESS: 'http://minio:9001' # Address of the MinIO server
       VELA_STORAGE_ACCESS_KEY: minioadmin
       VELA_STORAGE_SECRET_KEY: minioadmin
       VELA_STORAGE_USE_SSL: 'false'
@@ -76,7 +76,11 @@ services:
   # https://go-vela.github.io/docs/administration/worker/
   worker:
     container_name: worker
-    image: target/vela-worker:latest
+    image: worker:local
+    #    image: target/vela-worker:latest
+    build:
+      context: ../worker
+      dockerfile: ${VELA_WORKER_DOCKERFILE:-Dockerfile}
     networks:
       - vela
     environment:
