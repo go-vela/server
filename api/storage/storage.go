@@ -14,7 +14,7 @@ import (
 	"github.com/go-vela/server/storage"
 )
 
-// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/storage/names storage ListBuildObjectNames
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/storage storage ListBuildObjectNames
 //
 // List object names for a specific build in a bucket.
 //
