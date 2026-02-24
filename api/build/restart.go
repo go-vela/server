@@ -191,9 +191,14 @@ func RestartBuild(c *gin.Context) {
 
 	if shouldEnqueue {
 		// send API call to set the status on the commit
-		err := scm.Status(c.Request.Context(), b, r.GetOrg(), r.GetName(), p.Token)
+		checks, err := scm.Status(c.Request.Context(), b, p.Token, nil)
 		if err != nil {
 			l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		}
+
+		err = cache.FromContext(c).StoreCheckRuns(ctx, b.GetID(), checks, r)
+		if err != nil {
+			l.Errorf("unable to store check runs for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 		}
 
 		// publish the build to the queue

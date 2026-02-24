@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache"
+	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/auth"
@@ -104,8 +105,14 @@ func UpdateBuild(c *gin.Context) {
 		return
 	}
 
+	scmStatusReq := false
+
 	// update build fields if provided
 	if len(input.GetStatus()) > 0 {
+		if !strings.EqualFold(input.GetStatus(), b.GetStatus()) {
+			scmStatusReq = true
+		}
+
 		// update status if set
 		b.SetStatus(input.GetStatus())
 	}
@@ -169,31 +176,40 @@ func UpdateBuild(c *gin.Context) {
 
 	// check if the build is in a "final" state
 	// and if build is not a scheduled event
-	if (b.GetStatus() == constants.StatusSuccess ||
-		b.GetStatus() == constants.StatusFailure ||
-		b.GetStatus() == constants.StatusCanceled ||
-		b.GetStatus() == constants.StatusKilled ||
-		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
+	if scmStatusReq && b.GetEvent() != constants.EventSchedule {
 		// no need to update status for auto canceled merge group builds
 		if b.GetEvent() == constants.EventMergeGroup && strings.Contains(b.GetError(), constants.ErrorMergeGroupBuildCanceled) {
 			return
 		}
+
+		var checks []models.CheckRun
+
+		if b.GetRepo().GetInstallID() != 0 {
+			checks, err = cache.FromContext(c).GetCheckRuns(ctx, b)
+			if err != nil {
+				l.Errorf("unable to retrieve check runs for build %s: %v", entry, err)
+			}
+		}
+
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(ctx, b, r.GetOrg(), r.GetName(), scmToken)
+		_, err = scm.FromContext(c).Status(ctx, b, scmToken, checks)
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
 
-		// evict installation token from cache
-		err = cache.FromContext(c).EvictInstallToken(ctx, scmToken)
-		if err != nil {
-			l.Errorf("unable to evict installation token from cache: %v", err)
+		// if the build has reached a final state, evict the install token from cache
+		if b.GetStatus() != constants.StatusRunning {
+			// evict installation token from cache
+			err = cache.FromContext(c).EvictInstallToken(ctx, scmToken)
+			if err != nil {
+				l.Errorf("unable to evict installation token from cache: %v", err)
+			}
 		}
 	}
 }
 
 // UpdateComponentStatuses updates all components (steps and services) for a build to a given status.
-func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) error {
+func UpdateComponentStatuses(c *gin.Context, b *types.Build, status, scmToken string) error {
 	l := c.MustGet("logger").(*logrus.Entry)
 	ctx := c.Request.Context()
 
@@ -244,6 +260,23 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) erro
 			"step":    step.GetNumber(),
 			"step_id": step.GetID(),
 		}).Infof("step status updated")
+
+		if len(step.GetReportAs()) > 0 {
+			var checks []models.CheckRun
+
+			if b.GetRepo().GetInstallID() != 0 {
+				checks, err = cache.FromContext(c).GetStepCheckRuns(ctx, step)
+				if err != nil {
+					l.Errorf("unable to retrieve check runs for step %s: %v", step.GetName(), err)
+				}
+			}
+
+			// send API call to set the status on the commit
+			_, err = scm.FromContext(c).StepStatus(ctx, b, step, scmToken, checks)
+			if err != nil {
+				l.Errorf("unable to set commit status for step %s: %v", step.GetName(), err)
+			}
+		}
 	}
 
 	// retrieve the services for the build from the service table

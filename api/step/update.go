@@ -5,11 +5,14 @@ package step
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
+	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/auth"
@@ -104,8 +107,14 @@ func UpdateStep(c *gin.Context) {
 		return
 	}
 
+	scmStatusReq := len(s.GetReportAs()) > 0
+
 	// update step fields if provided
 	if len(input.GetStatus()) > 0 {
+		if strings.EqualFold(input.GetStatus(), s.GetStatus()) {
+			scmStatusReq = false
+		}
+
 		// update status if set
 		s.SetStatus(input.GetStatus())
 	}
@@ -159,20 +168,23 @@ func UpdateStep(c *gin.Context) {
 
 	// check if the build is in a "final" state
 	// and if build is not a scheduled event
-	if (s.GetStatus() == constants.StatusSuccess ||
-		s.GetStatus() == constants.StatusFailure ||
-		s.GetStatus() == constants.StatusCanceled ||
-		s.GetStatus() == constants.StatusKilled ||
-		s.GetStatus() == constants.StatusError) &&
-		(b.GetEvent() != constants.EventSchedule) &&
-		(len(s.GetReportAs()) > 0) {
+	if scmStatusReq && b.GetEvent() != constants.EventSchedule {
 		scmToken := auth.RetrieveTokenHeader(c.Request)
 		if scmToken == "" {
 			scmToken = r.GetOwner().GetToken()
 		}
 
+		var checks []models.CheckRun
+
+		if b.GetRepo().GetInstallID() != 0 {
+			checks, err = cache.FromContext(c).GetStepCheckRuns(ctx, s)
+			if err != nil {
+				l.Errorf("unable to retrieve check runs for build %s: %v", entry, err)
+			}
+		}
+
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).StepStatus(ctx, b, s, r.GetOrg(), r.GetName(), scmToken)
+		_, err = scm.FromContext(c).StepStatus(ctx, b, s, scmToken, checks)
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
