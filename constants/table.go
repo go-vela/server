@@ -31,6 +31,9 @@ const (
 	// TableRepo defines the table type for the database repos table.
 	TableRepo = "repos"
 
+	// TableArtifact defines the table type for the database artifacts table.
+	TableArtifact = "artifacts"
+
 	// TableSchedule defines the table type for the database schedules table.
 	TableSchedule = "schedules"
 

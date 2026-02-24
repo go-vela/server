@@ -28,6 +28,7 @@ pipelines (
 	stages           BOOLEAN,
 	steps            BOOLEAN,
 	templates        BOOLEAN,
+	artifacts        BOOLEAN,
 	warnings         VARCHAR(5000),
 	data             BYTEA,
 	UNIQUE(repo_id, commit)
@@ -53,6 +54,7 @@ pipelines (
 	stages           BOOLEAN,
 	steps            BOOLEAN,
 	templates        BOOLEAN,
+	artifacts        BOOLEAN,
 	warnings         TEXT,
 	data             BLOB,
 	UNIQUE(repo_id, 'commit')

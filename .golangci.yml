@@ -157,7 +157,7 @@ linters:
     wsl_v5:
       allow-first-in-block: true
       allow-whole-block: false
-      branch-max-lines: 2 
+      branch-max-lines: 2
   exclusions:
     generated: lax
     presets:

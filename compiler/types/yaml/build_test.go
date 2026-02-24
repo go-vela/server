@@ -25,6 +25,7 @@ func TestYaml_Build_ToAPI(t *testing.T) {
 	build.SetStages(false)
 	build.SetSteps(true)
 	build.SetTemplates(true)
+	build.SetArtifact(false)
 
 	stages := new(api.Pipeline)
 	stages.SetFlavor("")
@@ -36,6 +37,7 @@ func TestYaml_Build_ToAPI(t *testing.T) {
 	stages.SetStages(true)
 	stages.SetSteps(false)
 	stages.SetTemplates(false)
+	stages.SetArtifact(false)
 
 	steps := new(api.Pipeline)
 	steps.SetFlavor("")
@@ -47,6 +49,19 @@ func TestYaml_Build_ToAPI(t *testing.T) {
 	steps.SetStages(false)
 	steps.SetSteps(true)
 	steps.SetTemplates(false)
+	steps.SetArtifact(false)
+
+	artifacts := new(api.Pipeline)
+	artifacts.SetFlavor("")
+	artifacts.SetPlatform("")
+	artifacts.SetVersion("1")
+	artifacts.SetExternalSecrets(false)
+	artifacts.SetInternalSecrets(false)
+	artifacts.SetServices(false)
+	artifacts.SetStages(false)
+	artifacts.SetSteps(true)
+	artifacts.SetTemplates(false)
+	artifacts.SetArtifact(true)
 
 	// setup tests
 	tests := []struct {
@@ -68,6 +83,11 @@ func TestYaml_Build_ToAPI(t *testing.T) {
 			name: "steps",
 			file: "testdata/build_anchor_step.yml",
 			want: steps,
+		},
+		{
+			name: "artifacts",
+			file: "testdata/build_artifacts.yml",
+			want: artifacts,
 		},
 	}
 

@@ -743,7 +743,35 @@ func TestNative_Validate_Steps_StepNameConflict(t *testing.T) {
 		t.Errorf("Validate should have returned err")
 	}
 }
+func TestNative_Validate_Artifact(t *testing.T) {
+	// setup types
+	str := "foo"
+	p := &yaml.Build{
+		Version: "v1",
+		Steps: yaml.StepSlice{
+			&yaml.Step{
+				Commands: raw.StringSlice{"echo hello"},
+				Image:    "alpine",
+				Name:     str,
+				Pull:     "always",
+				Artifacts: yaml.Artifacts{
+					Paths: []string{"results.xml", "artifacts.png"},
+				},
+			},
+		},
+	}
 
+	// run test
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.ValidateYAML(p)
+	if err != nil {
+		t.Errorf("Validate returned err: %v", err)
+	}
+}
 func TestNative_Validate_Secrets_SecretOriginNameConflict(t *testing.T) {
 	// setup types
 	str := "foo"

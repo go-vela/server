@@ -38,6 +38,7 @@ secrets.env
 
 # Dotenv environment file
 .env
+.env_*
 .env.test
 
 # Files to be excluded.

@@ -113,6 +113,11 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	st, err := setupStorage(ctx, cmd)
+	if err != nil {
+		return err
+	}
+
 	metadata, err := setupMetadata(cmd)
 	if err != nil {
 		return err
@@ -197,6 +202,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.Secret(cmd.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
+		middleware.Storage(st),
 		middleware.QueueSigningPrivateKey(cmd.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(cmd.String("queue.public-key")),
 		middleware.QueueAddress(cmd.String("queue.addr")),
@@ -213,6 +219,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		middleware.ScheduleFrequency(cmd.Duration("schedule-minimum-frequency")),
 		middleware.TracingClient(tc),
 		middleware.TracingInstrumentation(tc),
+		middleware.StorageEnable(cmd.Bool("storage.enable")),
 	)
 
 	addr, err := url.Parse(cmd.String("server-addr"))
