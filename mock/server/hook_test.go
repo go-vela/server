@@ -18,7 +18,7 @@ func TestHook_ActiveHookResp(t *testing.T) {
 		t.Errorf("error unmarshaling hook: %v", err)
 	}
 
-	tHook := reflect.TypeOf(testHook)
+	tHook := reflect.TypeFor[api.Hook]()
 
 	for i := 0; i < tHook.NumField(); i++ {
 		if reflect.ValueOf(testHook).Field(i).IsNil() {

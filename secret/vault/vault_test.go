@@ -101,17 +101,17 @@ func TestVault_secretFromVault(t *testing.T) {
 	}
 
 	inputV2 := &api.Secret{
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"data": testVaultSecretData(),
 		},
 	}
 
 	// test vault secret from pre-v0.23 release
 	inputLegacy := &api.Secret{
-		Data: map[string]interface{}{
-			"data": map[string]interface{}{
-				"events":         []interface{}{"push", "tag", "deployment"},
-				"images":         []interface{}{"foo", "bar"},
+		Data: map[string]any{
+			"data": map[string]any{
+				"events":         []any{"push", "tag", "deployment"},
+				"images":         []any{"foo", "bar"},
 				"name":           "bar",
 				"org":            "foo",
 				"repo":           "*",
@@ -189,7 +189,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 	s.SetUpdatedBy("octocat2")
 
 	want := &api.Secret{
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"allow_events":       int64(1),
 			"images":             []string{"foo", "bar"},
 			"name":               "bar",
@@ -217,9 +217,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 }
 
 func TestVault_AccurateSecretFields(t *testing.T) {
-	testSecret := velaAPI.Secret{}
-
-	tSecret := reflect.TypeOf(testSecret)
+	tSecret := reflect.TypeFor[velaAPI.Secret]()
 
 	vaultSecret := testVaultSecretData()
 
@@ -243,10 +241,10 @@ func TestVault_AccurateSecretFields(t *testing.T) {
 }
 
 // helper function to return a test Vault secret data.
-func testVaultSecretData() map[string]interface{} {
-	return map[string]interface{}{
+func testVaultSecretData() map[string]any {
+	return map[string]any{
 		"allow_events":       json.Number("8195"),
-		"images":             []interface{}{"foo", "bar"},
+		"images":             []any{"foo", "bar"},
 		"name":               "bar",
 		"org":                "foo",
 		"repo":               "*",

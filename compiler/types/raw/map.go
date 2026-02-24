@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/invopop/jsonschema"
@@ -26,7 +27,7 @@ func (s StringSliceMap) Value() (driver.Value, error) {
 }
 
 // Scan decodes the JSON string into map[string]string.
-func (s *StringSliceMap) Scan(value interface{}) error {
+func (s *StringSliceMap) Scan(value any) error {
 	b, ok := value.(string)
 	if !ok {
 		return errors.New("type assertion to string failed")
@@ -77,10 +78,8 @@ func (s *StringSliceMap) UnmarshalJSON(b []byte) error {
 	err = json.Unmarshal(b, &jsonMap)
 	if err == nil {
 		// iterate through each item in the json map
-		for k, v := range jsonMap {
-			// append each key/value pair to our target map
-			targetMap[k] = v
-		}
+		// append each key/value pair to our target map
+		maps.Copy(targetMap, jsonMap)
 
 		// overwrite existing StringSliceMap
 		*s = targetMap
@@ -92,7 +91,7 @@ func (s *StringSliceMap) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalYAML implements the Unmarshaler interface for the StringSliceMap type.
-func (s *StringSliceMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *StringSliceMap) UnmarshalYAML(unmarshal func(any) error) error {
 	// target map we want to return
 	targetMap := map[string]string{}
 
@@ -128,10 +127,8 @@ func (s *StringSliceMap) UnmarshalYAML(unmarshal func(interface{}) error) error 
 	err = unmarshal(&yamlMap)
 	if err == nil {
 		// iterate through each item in the yaml map
-		for k, v := range yamlMap {
-			// append each key/value pair to our target map
-			targetMap[k] = v
-		}
+		// append each key/value pair to our target map
+		maps.Copy(targetMap, yamlMap)
 
 		// overwrite existing StringSliceMap
 		*s = targetMap

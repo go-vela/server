@@ -62,7 +62,7 @@ func (c *Client) List(ctx context.Context, sType, org, name string, _, _ int, _ 
 	}
 
 	// cast the list of secrets to the expected type
-	keys, ok := vault.Data["keys"].([]interface{})
+	keys, ok := vault.Data["keys"].([]any)
 	if !ok {
 		return nil, fmt.Errorf("not a valid list of secrets from Vault")
 	}
@@ -109,9 +109,9 @@ func (c *Client) listShared(org, team string) (*api.Secret, error) {
 // list of secrets for the provided path.
 func (c *Client) list(path string) (*api.Secret, error) {
 	// handle k/v v2
-	if strings.HasPrefix(path, "secret/data/") {
+	if after, ok := strings.CutPrefix(path, "secret/data/"); ok {
 		// remove secret/data/ prefix
-		path = strings.TrimPrefix(path, "secret/data/")
+		path = after
 		// add secret/metadata/ prefix
 		path = fmt.Sprintf("secret/metadata/%s", path)
 	}

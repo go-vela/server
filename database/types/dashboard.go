@@ -49,7 +49,7 @@ func (r DashReposJSON) Value() (driver.Value, error) {
 }
 
 // Scan - Implement the database/sql scanner interface for DashReposJSON.
-func (r *DashReposJSON) Scan(value interface{}) error {
+func (r *DashReposJSON) Scan(value any) error {
 	switch v := value.(type) {
 	case []byte:
 		return json.Unmarshal(v, &r)
@@ -67,7 +67,7 @@ func (a AdminsJSON) Value() (driver.Value, error) {
 }
 
 // Scan - Implement the database/sql scanner interface for AdminsJSON.
-func (a *AdminsJSON) Scan(value interface{}) error {
+func (a *AdminsJSON) Scan(value any) error {
 	switch v := value.(type) {
 	case []byte:
 		return json.Unmarshal(v, &a)

@@ -69,7 +69,7 @@ func (r Compiler) Value() (driver.Value, error) {
 }
 
 // Scan - Implement the database/sql scanner interface for Compiler.
-func (r *Compiler) Scan(value interface{}) error {
+func (r *Compiler) Scan(value any) error {
 	switch v := value.(type) {
 	case []byte:
 		return json.Unmarshal(v, &r)
@@ -87,7 +87,7 @@ func (r Queue) Value() (driver.Value, error) {
 }
 
 // Scan - Implement the database/sql scanner interface for Queue.
-func (r *Queue) Scan(value interface{}) error {
+func (r *Queue) Scan(value any) error {
 	switch v := value.(type) {
 	case []byte:
 		return json.Unmarshal(v, &r)
@@ -105,7 +105,7 @@ func (s SCM) Value() (driver.Value, error) {
 }
 
 // Scan - Implement the database/sql scanner interface for Queue.
-func (s *SCM) Scan(value interface{}) error {
+func (s *SCM) Scan(value any) error {
 	switch v := value.(type) {
 	case []byte:
 		return json.Unmarshal(v, &s)

@@ -18,7 +18,7 @@ func TestStep_ActiveStepResp(t *testing.T) {
 		t.Errorf("error unmarshaling step: %v", err)
 	}
 
-	tStep := reflect.TypeOf(testStep)
+	tStep := reflect.TypeFor[api.Step]()
 
 	for i := 0; i < tStep.NumField(); i++ {
 		if reflect.ValueOf(testStep).Field(i).IsNil() {

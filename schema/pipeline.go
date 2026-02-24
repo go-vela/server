@@ -24,7 +24,8 @@ import (
 // The returned value can be marshaled into actual JSON.
 func NewPipelineSchema() (*jsonschema.Schema, error) {
 	ref := jsonschema.Reflector{
-		ExpandedStruct: true,
+		ExpandedStruct:             true,
+		RequiredFromJSONSchemaTags: true,
 	}
 	s := ref.Reflect(types.Build{})
 

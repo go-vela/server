@@ -553,12 +553,11 @@ func getInstallToken(c *gin.Context) {
 
 	var body api.Token
 
-	data := []byte(
-		fmt.Sprintf(
+	data :=
+		fmt.Appendf(nil,
 			InstallTokenResp,
 			time.Now().Add(1*time.Hour).Unix(),
-		),
-	)
+		)
 
 	_ = json.Unmarshal(data, &body)
 

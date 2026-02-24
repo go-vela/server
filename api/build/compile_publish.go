@@ -116,7 +116,7 @@ func CompileAndPublish(
 	}
 
 	// create SQL filters for querying pending and running builds for repo
-	filters := map[string]interface{}{
+	filters := map[string]any{
 		"status": []string{constants.StatusPending, constants.StatusRunning},
 	}
 

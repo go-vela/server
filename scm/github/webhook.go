@@ -205,8 +205,8 @@ func (c *Client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 		b.SetEvent(constants.EventTag)
 
 		// set the proper branch from the base ref
-		if strings.HasPrefix(payload.GetBaseRef(), "refs/heads/") {
-			b.SetBranch(strings.TrimPrefix(payload.GetBaseRef(), "refs/heads/"))
+		if after, ok := strings.CutPrefix(payload.GetBaseRef(), "refs/heads/"); ok {
+			b.SetBranch(after)
 		}
 	}
 
@@ -224,8 +224,8 @@ func (c *Client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 		// set the proper event for the build
 		b.SetEvent(constants.EventDelete)
 
-		if strings.HasPrefix(payload.GetRef(), "refs/tags/") {
-			b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/tags/"))
+		if after, ok := strings.CutPrefix(payload.GetRef(), "refs/tags/"); ok {
+			b.SetBranch(after)
 			// set the proper action for the build
 			b.SetEventAction(constants.ActionTag)
 			// set the proper message for the build

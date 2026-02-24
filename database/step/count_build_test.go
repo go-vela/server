@@ -82,7 +82,7 @@ func TestStep_Engine_CountStepsForBuild(t *testing.T) {
 		},
 	}
 
-	filters := map[string]interface{}{}
+	filters := map[string]any{}
 
 	// run tests
 	for _, test := range tests {

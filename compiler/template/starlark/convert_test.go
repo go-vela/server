@@ -48,22 +48,22 @@ func TestStarlark_Render_convertTemplateVars(t *testing.T) {
 
 	tests := []struct {
 		name string
-		args map[string]interface{}
+		args map[string]any
 		want *starlark.Dict
 	}{
 		{
 			name: "test for a user passed string",
-			args: map[string]interface{}{"pull": "always"},
+			args: map[string]any{"pull": "always"},
 			want: strWant,
 		},
 		{
 			name: "test for a user passed array",
-			args: map[string]interface{}{"tags": []string{"latest", "1.14", "1.15"}},
+			args: map[string]any{"tags": []string{"latest", "1.14", "1.15"}},
 			want: arrayWant,
 		},
 		{
 			name: "test for a user passed map",
-			args: map[string]interface{}{"commands": map[string]string{"test": "go test ./..."}},
+			args: map[string]any{"commands": map[string]string{"test": "go test ./..."}},
 			want: mapWant,
 		}}
 

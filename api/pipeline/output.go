@@ -21,7 +21,7 @@ const (
 // writeOutput is a helper function to return the provided value to the
 // request based off the output query parameter provided. If no output
 // query parameter is provided, then YAML is used by default.
-func writeOutput(c *gin.Context, value interface{}) {
+func writeOutput(c *gin.Context, value any) {
 	output := util.QueryParameter(c, "output", outputYAML)
 
 	// format response body based off output query parameter

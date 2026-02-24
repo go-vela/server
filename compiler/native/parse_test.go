@@ -187,10 +187,10 @@ func TestNative_Parse_Parameters(t *testing.T) {
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Image: "plugins/docker:18.09",
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"registry": "index.docker.io",
 					"repo":     "github/octocat",
-					"tags":     []interface{}{"latest", "dev"},
+					"tags":     []any{"latest", "dev"},
 				},
 				Name: "docker",
 				Pull: "always",
@@ -297,10 +297,10 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 				Steps: yaml.StepSlice{
 					&yaml.Step{
 						Image: "plugins/docker:18.09",
-						Parameters: map[string]interface{}{
+						Parameters: map[string]any{
 							"registry": "index.docker.io",
 							"repo":     "github/octocat",
-							"tags":     []interface{}{"latest", "dev"},
+							"tags":     []any{"latest", "dev"},
 						},
 						Name: "publish",
 						Pull: "always",
@@ -409,10 +409,10 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 			},
 			&yaml.Step{
 				Image: "plugins/docker:18.09",
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"registry": "index.docker.io",
 					"repo":     "github/octocat",
-					"tags":     []interface{}{"latest", "dev"},
+					"tags":     []any{"latest", "dev"},
 				},
 				Name: "publish",
 				Pull: "always",
@@ -884,7 +884,7 @@ func Test_client_Parse(t *testing.T) {
 				Name:  "foo",
 				Image: "alpine",
 				Pull:  "not_present",
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"registry": "foo",
 				},
 			},
@@ -968,7 +968,7 @@ func Test_client_ParseRaw(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var (
-				content interface{}
+				content any
 				err     error
 			)
 
