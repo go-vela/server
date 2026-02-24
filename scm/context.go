@@ -14,7 +14,7 @@ const key = "scm"
 
 // Setter defines a context that enables setting values.
 type Setter interface {
-	Set(string, interface{})
+	Set(any, any)
 }
 
 // FromContext returns the scm Service

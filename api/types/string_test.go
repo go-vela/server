@@ -10,8 +10,8 @@ import (
 func TestTypes_ToString(t *testing.T) {
 	// setup tests
 	tests := []struct {
-		parameter interface{}
-		want      interface{}
+		parameter any
+		want      any
 	}{
 		{parameter: "string", want: "string"},  // string
 		{parameter: true, want: "true"},        // bool
@@ -33,11 +33,11 @@ func TestTypes_ToString(t *testing.T) {
 			want:      "{\"hello\":\"world\"}",
 		},
 		{ // slice
-			parameter: []interface{}{1, 2, 3},
+			parameter: []any{1, 2, 3},
 			want:      "1,2,3",
 		},
 		{ // slice complex
-			parameter: []interface{}{struct{ Foo string }{Foo: "bar"}},
+			parameter: []any{struct{ Foo string }{Foo: "bar"}},
 			want:      "[{\"foo\":\"bar\"}]",
 		},
 		{ // complex

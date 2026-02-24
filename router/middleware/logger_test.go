@@ -160,7 +160,7 @@ func TestMiddleware_Logger_Error(t *testing.T) {
 }
 
 func TestMiddleware_Logger_Sanitize(t *testing.T) {
-	var logBody, logWant map[string]interface{}
+	var logBody, logWant map[string]any
 
 	r := new(api.Repo)
 	r.SetID(1)

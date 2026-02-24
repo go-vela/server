@@ -54,7 +54,7 @@ func (c *Client) Count(_ context.Context, sType, org, name string, _ []string) (
 	}
 
 	// cast the list of secrets to the expected type
-	keys, ok := vault.Data["keys"].([]interface{})
+	keys, ok := vault.Data["keys"].([]any)
 	if !ok {
 		return 0, fmt.Errorf("not a valid list of secrets from Vault")
 	}

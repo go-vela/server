@@ -395,7 +395,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 				Image: "vault",
 				Name:  str,
 				Pull:  "always",
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"foo": "bar",
 				},
 				Environment: raw.StringSliceMap{
@@ -412,7 +412,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 				Image: "vault",
 				Name:  str,
 				Pull:  "always",
-				Parameters: map[string]interface{}{
+				Parameters: map[string]any{
 					"foo": "bar",
 				},
 				Environment: raw.StringSliceMap{

@@ -29,13 +29,13 @@ type SecretInterface interface {
 	// CountSecrets defines a function that gets the count of all secrets.
 	CountSecrets(context.Context) (int64, error)
 	// CountSecretsForOrg defines a function that gets the count of secrets by org name.
-	CountSecretsForOrg(context.Context, string, map[string]interface{}) (int64, error)
+	CountSecretsForOrg(context.Context, string, map[string]any) (int64, error)
 	// CountSecretsForRepo defines a function that gets the count of secrets by org and repo name.
-	CountSecretsForRepo(context.Context, *api.Repo, map[string]interface{}) (int64, error)
+	CountSecretsForRepo(context.Context, *api.Repo, map[string]any) (int64, error)
 	// CountSecretsForTeam defines a function that gets the count of secrets by org and team name.
-	CountSecretsForTeam(context.Context, string, string, map[string]interface{}) (int64, error)
+	CountSecretsForTeam(context.Context, string, string, map[string]any) (int64, error)
 	// CountSecretsForTeams defines a function that gets the count of secrets by teams within an org.
-	CountSecretsForTeams(context.Context, string, []string, map[string]interface{}) (int64, error)
+	CountSecretsForTeams(context.Context, string, []string, map[string]any) (int64, error)
 	// CreateSecret defines a function that creates a new secret.
 	CreateSecret(context.Context, *api.Secret) (*api.Secret, error)
 	// DeleteSecret defines a function that deletes an existing secret.
@@ -55,13 +55,13 @@ type SecretInterface interface {
 	// ListSecrets defines a function that gets a list of all secrets.
 	ListSecrets(context.Context) ([]*api.Secret, error)
 	// ListSecretsForOrg defines a function that gets a list of secrets by org name.
-	ListSecretsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Secret, error)
+	ListSecretsForOrg(context.Context, string, map[string]any, int, int) ([]*api.Secret, error)
 	// ListSecretsForRepo defines a function that gets a list of secrets by org and repo name.
-	ListSecretsForRepo(context.Context, *api.Repo, map[string]interface{}, int, int) ([]*api.Secret, error)
+	ListSecretsForRepo(context.Context, *api.Repo, map[string]any, int, int) ([]*api.Secret, error)
 	// ListSecretsForTeam defines a function that gets a list of secrets by org and team name.
-	ListSecretsForTeam(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Secret, error)
+	ListSecretsForTeam(context.Context, string, string, map[string]any, int, int) ([]*api.Secret, error)
 	// ListSecretsForTeams defines a function that gets a list of secrets by teams within an org.
-	ListSecretsForTeams(context.Context, string, []string, map[string]interface{}, int, int) ([]*api.Secret, error)
+	ListSecretsForTeams(context.Context, string, []string, map[string]any, int, int) ([]*api.Secret, error)
 	// MigrateSecrets defines a function that updates the org and name of all repo secrets when there is a name change.
 	MigrateSecrets(context.Context, string, string, string, string) error
 	// UpdateSecret defines a function that updates an existing secret.

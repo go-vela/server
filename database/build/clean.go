@@ -21,7 +21,7 @@ func (e *Engine) CleanBuilds(ctx context.Context, msg string, before int64) (int
 		Table(constants.TableBuild).
 		Where("created < ?", before).
 		Where("status = 'running' OR status = 'pending'").
-		Updates(map[string]interface{}{
+		Updates(map[string]any{
 			"status":   constants.StatusError,
 			"error":    msg,
 			"finished": time.Now().UTC().Unix(),

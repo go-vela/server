@@ -18,7 +18,7 @@ func TestUser_ActiveUserResp(t *testing.T) {
 		t.Errorf("error unmarshaling user: %v", err)
 	}
 
-	tUser := reflect.TypeOf(testUser)
+	tUser := reflect.TypeFor[api.User]()
 
 	for i := 0; i < tUser.NumField(); i++ {
 		if tUser.Field(i).Name == "Token" || tUser.Field(i).Name == "RefreshToken" || tUser.Field(i).Name == "Hash" {

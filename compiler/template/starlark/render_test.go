@@ -220,7 +220,7 @@ func TestNative_RenderBuild(t *testing.T) {
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "main",
 				"VELA_REPO_ORG":       "octocat",
-			}, map[string]interface{}{}, tt.execLimit)
+			}, map[string]any{}, tt.execLimit)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RenderBuild() error = %v, wantErr %v", err, tt.wantErr)
 				return

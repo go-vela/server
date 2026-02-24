@@ -18,7 +18,7 @@ func TestWorker_ActiveWorkerResp(t *testing.T) {
 		t.Errorf("error unmarshaling worker: %v", err)
 	}
 
-	tWorker := reflect.TypeOf(testWorker)
+	tWorker := reflect.TypeFor[api.Worker]()
 
 	for i := 0; i < tWorker.NumField(); i++ {
 		if reflect.ValueOf(testWorker).Field(i).IsNil() {
@@ -36,7 +36,7 @@ func TestWorker_ListActiveWorkerResp(t *testing.T) {
 	}
 
 	for index, worker := range testWorkers {
-		tWorker := reflect.TypeOf(worker)
+		tWorker := reflect.TypeFor[api.Worker]()
 
 		for i := 0; i < tWorker.NumField(); i++ {
 			if reflect.ValueOf(worker).Field(i).IsNil() {

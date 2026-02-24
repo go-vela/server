@@ -231,7 +231,7 @@ func validateEntry(minimum time.Duration, entry string) error {
 	// start with now
 	t := time.Now().UTC()
 
-	for i := 0; i < tickForward; i++ {
+	for range tickForward {
 		// check the previous occurrence of the entry
 		prevTime, err := gronx.PrevTickBefore(entry, t, true)
 		if err != nil {

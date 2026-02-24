@@ -176,7 +176,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for builds
 	methods := make(map[string]bool)
 	// capture the element type of the build interface
-	element := reflect.TypeOf(new(build.BuildInterface)).Elem()
+	element := reflect.TypeFor[build.BuildInterface]()
 	// iterate through all methods found in the build interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for builds
@@ -483,7 +483,7 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for schedules
 	methods := make(map[string]bool)
 	// capture the element type of the schedule interface
-	element := reflect.TypeOf(new(dashboard.DashboardInterface)).Elem()
+	element := reflect.TypeFor[dashboard.DashboardInterface]()
 	// iterate through all methods found in the schedule interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for schedules
@@ -575,7 +575,7 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for pipelines
 	methods := make(map[string]bool)
 	// capture the element type of the pipeline interface
-	element := reflect.TypeOf(new(executable.BuildExecutableInterface)).Elem()
+	element := reflect.TypeFor[executable.BuildExecutableInterface]()
 	// iterate through all methods found in the pipeline interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for pipelines
@@ -664,7 +664,7 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for deployments
 	methods := make(map[string]bool)
 	// capture the element type of the deployment interface
-	element := reflect.TypeOf(new(deployment.DeploymentInterface)).Elem()
+	element := reflect.TypeFor[deployment.DeploymentInterface]()
 	// iterate through all methods found in the deployment interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for deployments
@@ -844,7 +844,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for hooks
 	methods := make(map[string]bool)
 	// capture the element type of the hook interface
-	element := reflect.TypeOf(new(hook.HookInterface)).Elem()
+	element := reflect.TypeFor[hook.HookInterface]()
 	// iterate through all methods found in the hook interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for hooks
@@ -1032,7 +1032,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for jwks
 	methods := make(map[string]bool)
 	// capture the element type of the jwk interface
-	element := reflect.TypeOf(new(dbJWK.JWKInterface)).Elem()
+	element := reflect.TypeFor[dbJWK.JWKInterface]()
 	// iterate through all methods found in the jwk interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for jwks
@@ -1131,7 +1131,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for logs
 	methods := make(map[string]bool)
 	// capture the element type of the log interface
-	element := reflect.TypeOf(new(log.LogInterface)).Elem()
+	element := reflect.TypeFor[log.LogInterface]()
 	// iterate through all methods found in the log interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for logs
@@ -1288,7 +1288,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for pipelines
 	methods := make(map[string]bool)
 	// capture the element type of the pipeline interface
-	element := reflect.TypeOf(new(pipeline.PipelineInterface)).Elem()
+	element := reflect.TypeFor[pipeline.PipelineInterface]()
 	// iterate through all methods found in the pipeline interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for pipelines
@@ -1479,7 +1479,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for repos
 	methods := make(map[string]bool)
 	// capture the element type of the repo interface
-	element := reflect.TypeOf(new(repo.RepoInterface)).Elem()
+	element := reflect.TypeFor[repo.RepoInterface]()
 	// iterate through all methods found in the repo interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for repos
@@ -1695,7 +1695,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for schedules
 	methods := make(map[string]bool)
 	// capture the element type of the schedule interface
-	element := reflect.TypeOf(new(schedule.ScheduleInterface)).Elem()
+	element := reflect.TypeFor[schedule.ScheduleInterface]()
 	// iterate through all methods found in the schedule interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for schedules
@@ -1878,7 +1878,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for secrets
 	methods := make(map[string]bool)
 	// capture the element type of the secret interface
-	element := reflect.TypeOf(new(secret.SecretInterface)).Elem()
+	element := reflect.TypeFor[secret.SecretInterface]()
 	// iterate through all methods found in the secret interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for secrets
@@ -2149,7 +2149,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for services
 	methods := make(map[string]bool)
 	// capture the element type of the service interface
-	element := reflect.TypeOf(new(service.ServiceInterface)).Elem()
+	element := reflect.TypeFor[service.ServiceInterface]()
 	// iterate through all methods found in the service interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for services
@@ -2323,7 +2323,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for steps
 	methods := make(map[string]bool)
 	// capture the element type of the step interface
-	element := reflect.TypeOf(new(step.StepInterface)).Elem()
+	element := reflect.TypeFor[step.StepInterface]()
 	// iterate through all methods found in the step interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for steps
@@ -2499,7 +2499,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for users
 	methods := make(map[string]bool)
 	// capture the element type of the user interface
-	element := reflect.TypeOf(new(user.UserInterface)).Elem()
+	element := reflect.TypeFor[user.UserInterface]()
 	// iterate through all methods found in the user interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for users
@@ -2634,7 +2634,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for workers
 	methods := make(map[string]bool)
 	// capture the element type of the worker interface
-	element := reflect.TypeOf(new(worker.WorkerInterface)).Elem()
+	element := reflect.TypeFor[worker.WorkerInterface]()
 	// iterate through all methods found in the worker interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for workers
@@ -2735,7 +2735,7 @@ func testSettings(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for settings
 	methods := make(map[string]bool)
 	// capture the element type of the settings interface
-	element := reflect.TypeOf(new(dbSettings.SettingsInterface)).Elem()
+	element := reflect.TypeFor[dbSettings.SettingsInterface]()
 	// iterate through all methods found in the settings interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for settings
