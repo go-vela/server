@@ -11,7 +11,7 @@ import (
 
 // Storage defines the service interface for object storage operations.
 type Storage interface {
-	GetAddress() string
+	GetEndpoint() string
 	GetBucket() string
 	GetPolicy(string) string
 	StatObject(context.Context, *api.Object) (*api.Object, error)
