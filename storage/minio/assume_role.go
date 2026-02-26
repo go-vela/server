@@ -5,7 +5,6 @@ package minio
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
@@ -46,7 +45,8 @@ func (c *Client) AssumeRole(_ context.Context, durationSeconds int, prefix, sess
 		AccessKey:    val.AccessKeyID,
 		SecretKey:    val.SecretAccessKey,
 		SessionToken: val.SessionToken,
-		ExpiresAt:    time.Now().Add(time.Duration(durationSeconds) * time.Second),
+		Enable:       c.config.Enable,
+		Driver:       c.config.Driver,
 		Endpoint:     c.config.Endpoint,
 		Bucket:       c.config.Bucket,
 		Secure:       c.config.Secure,

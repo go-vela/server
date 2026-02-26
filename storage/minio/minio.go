@@ -8,6 +8,8 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/constants"
 )
 
 // config holds the configuration for the MinIO client.
@@ -21,6 +23,7 @@ type config struct {
 	Bucket    string
 	Secure    bool
 	Token     string
+	Driver    string
 }
 
 // Client implements the Storage interface using MinIO.
@@ -79,5 +82,5 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*Client, error) {
 	return New(endpoint,
 		WithOptions(true, secure,
-			endpoint, accessKey, secretKey, bucket, ""))
+			endpoint, accessKey, secretKey, bucket, "", constants.DriverMinio))
 }

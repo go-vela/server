@@ -10,7 +10,7 @@ import (
 type ClientOpt func(client *Client) error
 
 // WithOptions sets multiple options in the MinIO client.
-func WithOptions(enable, secure bool, endpoint, accessKey, secretKey, bucket, token string) ClientOpt {
+func WithOptions(enable, secure bool, endpoint, accessKey, secretKey, bucket, token, driver string) ClientOpt {
 	return func(c *Client) error {
 		c.Logger.Trace("configuring multiple options in minio client")
 
@@ -39,6 +39,8 @@ func WithOptions(enable, secure bool, endpoint, accessKey, secretKey, bucket, to
 		c.config.Bucket = bucket
 		// set the token in the minio client
 		c.config.Token = token
+		// set the driver in the minio client
+		c.config.Driver = driver
 
 		return nil
 	}

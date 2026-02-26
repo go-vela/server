@@ -4,6 +4,8 @@ package minio
 
 import (
 	"testing"
+
+	"github.com/go-vela/server/constants"
 )
 
 var (
@@ -34,7 +36,7 @@ func TestMinio_New(t *testing.T) {
 		_, err := New(
 			test.endpoint,
 			WithOptions(true, _useSSL,
-				test.endpoint, _accessKey, _secretKey, _bucket, ""),
+				test.endpoint, _accessKey, _secretKey, _bucket, "", constants.DriverMinio),
 		)
 
 		if test.failure {
