@@ -2,8 +2,6 @@
 
 package types
 
-import "time"
-
 // STSCreds defines the structure for temporary credentials used for object storage access.
 //
 // swagger:model STSCreds
@@ -13,10 +11,10 @@ type STSCreds struct {
 	SessionToken string `json:"session_token"`
 
 	Endpoint string `json:"endpoint"`
+	Enable   bool   `json:"enable"`
+	Driver   string `json:"driver"`
 	Bucket   string `json:"bucket"`
 	Region   string `json:"region,omitempty"`
 	Prefix   string `json:"prefix,omitempty"`
 	Secure   bool   `json:"secure,omitempty"`
-
-	ExpiresAt time.Time `json:"expires_at"`
 }

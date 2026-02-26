@@ -39,7 +39,8 @@ func (s *Setup) Minio() (Storage, error) {
 			s.AccessKey,
 			s.SecretKey,
 			s.Bucket,
-			s.Token),
+			s.Token,
+			s.Driver),
 	)
 }
 

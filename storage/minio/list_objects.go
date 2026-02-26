@@ -20,7 +20,7 @@ func (c *Client) ListBuildObjectNames(ctx context.Context, org, repo, build stri
 	c.Logger.Tracef("listing object names in bucket %s with prefix %s", c.config.Bucket, prefix)
 
 	b := api.Bucket{
-		BucketName: c.GetBucket(),
+		BucketName: c.config.Bucket,
 		ListObjectsOptions: minio.ListObjectsOptions{
 			Prefix:    prefix,
 			Recursive: true,
