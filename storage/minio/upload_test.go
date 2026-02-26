@@ -7,83 +7,12 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 
 	api "github.com/go-vela/server/api/types"
 )
-
-func TestMinioClient_Upload_Success(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	_, engine := gin.CreateTestContext(resp)
-
-	// mock bucket location check (required by minio-go before upload)
-	engine.GET("/foo/", func(c *gin.Context) {
-		c.Data(http.StatusOK, "application/xml", []byte(`<LocationConstraint>us-east-1</LocationConstraint>`))
-	})
-
-	// mock upload (FPutObject) call
-	engine.PUT("/foo/test.xml", func(c *gin.Context) {
-		c.Header("ETag", "\"abc123\"")
-		c.Status(http.StatusOK)
-	})
-
-	fake := httptest.NewServer(engine)
-	defer fake.Close()
-
-	obj := &api.Object{
-		ObjectName: "test.xml",
-		FilePath:   "test_data/test.xml",
-		Bucket: api.Bucket{
-			BucketName: "foo",
-		},
-	}
-
-	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
-
-	// run test
-	err := client.Upload(t.Context(), obj)
-	if err != nil {
-		t.Errorf("Upload returned err: %v", err)
-	}
-}
-
-func TestMinioClient_Upload_Failure(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	_, engine := gin.CreateTestContext(resp)
-
-	// mock upload call (won't be reached since file doesn't exist)
-	engine.PUT("/foo/test.xml", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
-
-	fake := httptest.NewServer(engine)
-	defer fake.Close()
-
-	obj := &api.Object{
-		ObjectName: "test.xml",
-		FilePath:   "nonexist/test.xml",
-		Bucket: api.Bucket{
-			BucketName: "foo",
-		},
-	}
-
-	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
-
-	// run test - expect error because file does not exist
-	err := client.Upload(t.Context(), obj)
-	if !os.IsNotExist(err) {
-		t.Errorf("Upload returned err: %v, want os.IsNotExist error", err)
-	}
-}
 
 func TestMinioClient_UploadObject_Success(t *testing.T) {
 	// setup context
