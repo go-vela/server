@@ -17,5 +17,4 @@ type STSCreds struct {
 	Region   string `json:"region,omitempty"`
 	Prefix   string `json:"prefix,omitempty"`
 	Secure   bool   `json:"secure,omitempty"`
-
 }
