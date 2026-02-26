@@ -4,6 +4,7 @@ package storage
 
 import (
 	"context"
+	"io"
 
 	api "github.com/go-vela/server/api/types"
 )
@@ -17,4 +18,5 @@ type Storage interface {
 	ListBuildObjectNames(context.Context, string, string, string) (map[string]string, error)
 	PresignedGetObject(context.Context, *api.Object) (string, error)
 	AssumeRole(ctx context.Context, durationSeconds int, prefix, sessionName string) (*api.STSCreds, error)
+	UploadObject(ctx context.Context, object *api.Object, reader io.Reader, size int64) error
 }

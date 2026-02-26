@@ -47,7 +47,7 @@ func (c *Client) AssumeRole(_ context.Context, durationSeconds int, prefix, sess
 		SecretKey:    val.SecretAccessKey,
 		SessionToken: val.SessionToken,
 		ExpiresAt:    time.Now().Add(time.Duration(durationSeconds) * time.Second),
-		Endpoint:     c.GetAddress(),
+		Endpoint:     c.GetEndpoint(),
 		Bucket:       c.config.Bucket,
 		Secure:       c.config.Secure,
 	}, nil
