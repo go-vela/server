@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestMinioClient_GetAddress_ReturnsConfiguredBucket(t *testing.T) {
+func TestMinioClient_GetEndpoint_ReturnsConfiguredBucket(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	_, engine := gin.CreateTestContext(httptest.NewRecorder())
@@ -22,15 +22,15 @@ func TestMinioClient_GetAddress_ReturnsConfiguredBucket(t *testing.T) {
 		t.Fatalf("failed to create minio test client: %v", err)
 	}
 
-	got := client.GetAddress()
-	want := fake.Listener.Addr().String()
+	got := client.GetEndpoint()
+	want := fake.URL
 
 	if got != want {
 		t.Fatalf("GetAddress() = %q, want %q", got, want)
 	}
 }
 
-func TestMinioClient_GetAddress_EmptyWhenUnset(t *testing.T) {
+func TestMinioClient_GetEndpoint_EmptyWhenUnset(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	_, engine := gin.CreateTestContext(httptest.NewRecorder())
@@ -45,7 +45,7 @@ func TestMinioClient_GetAddress_EmptyWhenUnset(t *testing.T) {
 
 	client.config.Endpoint = ""
 
-	got := client.GetAddress()
+	got := client.GetEndpoint()
 	if got != "" {
 		t.Fatalf("GetAddress() = %q, want empty string", got)
 	}
