@@ -13,7 +13,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/google/go-github/v83/github"
+	"github.com/google/go-github/v84/github"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 
