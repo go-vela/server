@@ -163,10 +163,11 @@ func checkRun(ctx context.Context, ghClient *github.Client, addr, statusCtx stri
 
 		for _, context := range contexts {
 			checkOpts := github.CreateCheckRunOptions{
-				Name:      context,
-				HeadSHA:   b.GetCommit(),
-				Status:    github.Ptr(state),
-				StartedAt: startedAt,
+				Name:       context,
+				DetailsURL: b.Link,
+				HeadSHA:    b.GetCommit(),
+				Status:     github.Ptr(state),
+				StartedAt:  startedAt,
 				Output: &github.CheckRunOutput{
 					Title:   github.Ptr(title),
 					Summary: github.Ptr(summary),
@@ -202,8 +203,9 @@ func checkRun(ctx context.Context, ghClient *github.Client, addr, statusCtx stri
 
 	for _, checkRun := range checkRuns {
 		checkOpts := github.UpdateCheckRunOptions{
-			Name:   checkRun.Context,
-			Status: github.Ptr(state),
+			Name:       checkRun.Context,
+			DetailsURL: b.Link,
+			Status:     github.Ptr(state),
 			Output: &github.CheckRunOutput{
 				Title:   github.Ptr(title),
 				Summary: github.Ptr(summary),
