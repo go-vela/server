@@ -187,11 +187,9 @@ const (
 		"queue_address": "redis://redis:6000"
 	}`
 
-	// StorageSTSResp represents a JSON return for an admin requesting a storage sts creds.
-	StorageSTSResp = `{
-		"storage_access_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
-		"storage_secret_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
-		"storage_address": "http://storage:9000"
+	// PresignedPutResp represents a JSON return for an admin requesting a presigned put url.
+	PresignedPutResp = `{
+		"presigned_url": "http://storage:9000/bucket/object?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko%3D%2F20230901%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230901T123456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
 	}`
 )
 
@@ -347,9 +345,9 @@ func getQueueCreds(c *gin.Context) {
 	c.JSON(http.StatusCreated, body)
 }
 
-// getStorageCreds returns mock JSON for a http GET.
+// getPresignedPutURL returns mock JSON for a http GET.
 // Pass "" to Authorization header to test receiving a http 401 response.
-func getStorageCreds(c *gin.Context) {
+func getPresignedPutURL(c *gin.Context) {
 	token := c.Request.Header.Get("Authorization")
 	// verify token if empty
 	if token == "" {
@@ -360,9 +358,9 @@ func getStorageCreds(c *gin.Context) {
 		return
 	}
 
-	data := []byte(StorageSTSResp)
+	data := []byte(PresignedPutResp)
 
-	var body api.STSCreds
+	var body api.PresignURL
 
 	_ = json.Unmarshal(data, &body)
 
