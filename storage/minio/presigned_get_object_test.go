@@ -3,7 +3,6 @@
 package minio
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -40,7 +39,6 @@ func Test_PresignedGetObject_Success(t *testing.T) {
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
-	ctx := context.TODO()
 	client, _ := NewTest(fake.URL, "miniokey", "miniosecret", "foo", false)
 
 	object := &api.Object{
@@ -51,7 +49,7 @@ func Test_PresignedGetObject_Success(t *testing.T) {
 	}
 
 	// run test
-	url, err := client.PresignedGetObject(ctx, object)
+	url, err := client.PresignedGetObject(t.Context(), object)
 	if err != nil {
 		t.Errorf("PresignedGetObject returned err: %v", err)
 	}
@@ -67,7 +65,7 @@ func Test_PresignedGetObject_Failure(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	resp := httptest.NewRecorder()
-	ctx, engine := gin.CreateTestContext(resp)
+	_, engine := gin.CreateTestContext(resp)
 
 	// mock presigned get object call
 	engine.GET("/foo/", func(c *gin.Context) {
@@ -91,7 +89,7 @@ func Test_PresignedGetObject_Failure(t *testing.T) {
 	}
 
 	// run test
-	url, err := client.PresignedGetObject(ctx, object)
+	url, err := client.PresignedGetObject(t.Context(), object)
 	if err == nil {
 		t.Errorf("PresignedGetObject expected error but got none")
 	}

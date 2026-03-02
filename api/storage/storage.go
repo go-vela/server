@@ -3,6 +3,7 @@
 package storage
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/storage"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/storage storage ListBuildObjectNames
@@ -170,27 +172,26 @@ func GetPresignedPutURL(c *gin.Context) {
 	}
 
 	r := repo.Retrieve(c)
-	objName := c.Param("name")
 	org := r.GetOrg()
 	b := build.Retrieve(c)
 	repoName := r.GetName()
 	buildNum := b.GetNumber()
-	ctx := c.Request.Context()
 
-	path := fmt.Sprintf("%s/%s/%d/%s", org, repoName, buildNum, objName)
-	timeout := time.Duration(r.GetTimeout()) * time.Minute
-
-	putURL, err := storage.FromGinContext(c).PresignedPutObject(ctx, path, timeout)
-	if putURL == "" {
-		l.Errorf("unable to generate PUT url: %s", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to generate PUT url"})
+	objName := util.PathParameter(c, "name")
+	if objName == "" {
+		util.HandleError(c, http.StatusInternalServerError, errors.New("object name required"))
+		c.JSON(http.StatusBadRequest, &types.PresignURL{URL: ""})
 
 		return
 	}
 
-	if err != nil {
-		l.Errorf("unable to generate PUT url: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	path := fmt.Sprintf("%s/%s/%d/%s", org, repoName, buildNum, objName)
+	timeout := time.Duration(r.GetTimeout()) * time.Minute
+
+	putURL, err := storage.FromGinContext(c).PresignedPutObject(c, path, timeout)
+	if putURL == "" || err != nil {
+		util.HandleError(c, http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, &types.PresignURL{URL: ""})
 
 		return
 	}
