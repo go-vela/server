@@ -10,7 +10,7 @@ import (
 
 func (c *Client) PresignedPutObject(ctx context.Context, path string, durationSeconds time.Duration) (string, error) {
 	c.Logger.Tracef("generating presigned PUT URL for object %s in bucket %s", path, c.config.Bucket)
-	// Generate presigned URL for downloading the object.
+	// Generate presigned URL for uploading the object.
 	// The URL uses repo timeout for expiration.
 	presignedURL, err := c.client.PresignedPutObject(ctx, c.config.Bucket, path, durationSeconds)
 	if err != nil {
