@@ -345,7 +345,7 @@ func getQueueCreds(c *gin.Context) {
 	c.JSON(http.StatusCreated, body)
 }
 
-// getPresignedPutURL returns mock JSON for a http GET.
+// getPresignedPutURL returns mock JSON for a http PUT.
 // Pass "" to Authorization header to test receiving a http 401 response.
 func getPresignedPutURL(c *gin.Context) {
 	token := c.Request.Header.Get("Authorization")
