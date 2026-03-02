@@ -12,7 +12,7 @@ import (
 // StorageHandlers is a function that extends the provided base router group
 // with the API handlers for storage functionality.
 //
-// GET   /api/v1/repos/:org/:repo/builds/:build/storage/:name/upload-url
+// PUT   /api/v1/repos/:org/:repo/builds/:build/storage/:name/upload-url
 // GET   /api/v1/repos/:org/:repo/builds/:build/storage/.
 func StorageHandlers(base *gin.RouterGroup) {
 	// Storage endpoints

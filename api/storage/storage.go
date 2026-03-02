@@ -102,7 +102,7 @@ func ListBuildObjectNames(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"names": objectNames})
 }
 
-// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/storage/{name}/presigned-put storage GetPresignedPutURL
+// swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/storage/{name}/upload-url storage GetPresignedPutURL
 //
 // Get temporary presigned PUT URL for build storage uploads.
 //
