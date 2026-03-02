@@ -190,6 +190,8 @@ func UpdateRepo(c *gin.Context) {
 		}
 
 		r.SetMergeQueueEvents(input.GetMergeQueueEvents())
+
+		eventsChanged = true
 	}
 
 	// set default events if no events are enabled
