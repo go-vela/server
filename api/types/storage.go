@@ -26,5 +26,5 @@ type Object struct {
 //
 // swagger:model PresignURL
 type PresignURL struct {
-	URL string `json:"endpoint"`
+	URL string `json:"url,omitempty"`
 }
