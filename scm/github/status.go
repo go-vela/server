@@ -143,6 +143,11 @@ func checkRun(ctx context.Context, ghClient *github.Client, addr, statusCtx stri
 
 	title := fmt.Sprintf("Vela Build #%d • %s", b.GetNumber(), description)
 
+	// if build was not created, drop the build number from title
+	if b.GetNumber() == 0 {
+		title = description
+	}
+
 	summary := buildCheckRunSummary(b)
 	text := buildCheckRunText(b, url)
 	startedAt := buildCheckRunStartedAt(b)
