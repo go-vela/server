@@ -178,8 +178,8 @@ func GetPresignedPutURL(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	path := fmt.Sprintf("%s/%s/%d/%s", org, repoName, buildNum, objName)
-	l.Infof("generating PUT URL for object %s", path)
 	timeout := time.Duration(r.GetTimeout()) * time.Minute
+
 	putURL, err := storage.FromGinContext(c).PresignedPutObject(ctx, path, timeout)
 	if putURL == "" {
 		l.Errorf("unable to generate PUT url: %s", err)
