@@ -139,7 +139,7 @@ func ListBuildObjectNames(c *gin.Context) {
 //   200:
 //     description: Successfully generated presigned PUT URL for build storage upload
 //     schema:
-//       $ref: '#/definitions/STSCreds'
+//       $ref: '#/definitions/PresignURL'
 //   400:
 //     description: Bad request due to invalid parameters
 //     schema:
