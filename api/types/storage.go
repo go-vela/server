@@ -21,3 +21,10 @@ type Object struct {
 	Bucket     Bucket `json:"bucket"`
 	FilePath   string `json:"file_path,omitempty"`
 }
+
+// PresignURL defines the structure for temporary presigned url.
+//
+// swagger:model PresignURL
+type PresignURL struct {
+	URL string `json:"endpoint"`
+}

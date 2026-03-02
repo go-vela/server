@@ -48,7 +48,7 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build/id_token
 // GET    /api/v1/repos/:org/:repo/builds/:build/id_request_token
 // GET    /api/v1/repos/:org/:repo/builds/:build/install_token
-// GET   /api/v1/repos/:org/:repo/builds/:build/storage/sts
+// GET   /api/v1/repos/:org/:repo/builds/:build/storage/:name/upload-url
 // GET   /api/v1/repos/:org/:repo/builds/:build/storage/ .
 func BuildHandlers(base *gin.RouterGroup) {
 	// Builds endpoints
