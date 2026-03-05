@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/go-vela/server/constants"
 )
 
@@ -1030,6 +1032,62 @@ func TestPipeline_Container_Substitute(t *testing.T) {
 		if !reflect.DeepEqual(test.container, test.want) {
 			t.Errorf("Substitute is %v, want %v", test.container, test.want)
 		}
+	}
+}
+
+func TestPipeline_Container_Script(t *testing.T) {
+	// setup types
+	baseEnv := make(map[string]string)
+
+	s := &Container{
+		Commands:    []string{"./gradlew check"},
+		Environment: baseEnv,
+		Image:       "openjdk:latest",
+		Name:        "test",
+		Pull:        "always",
+	}
+
+	baseEnv["HOME"] = constants.DefaultHomeDir
+	baseEnv["SHELL"] = constants.DefaultShell
+
+	installEnv := baseEnv
+	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
+	testEnv := baseEnv
+	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew check"})
+
+	want := &Container{
+		Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+		Entrypoint:  []string{constants.DefaultShell, "-c"},
+		Environment: installEnv,
+		Image:       "openjdk:latest",
+		Name:        "test",
+		Pull:        "always",
+	}
+
+	s.Script()
+
+	if diff := cmp.Diff(want, s); diff != "" {
+		t.Errorf("Script mismatch (-want +got):\n%s", diff)
+	}
+
+	sNoCommands := &Container{
+		Environment: baseEnv,
+		Image:       "openjdk:latest",
+		Name:        "test",
+		Pull:        "always",
+	}
+
+	wantNoCommands := &Container{
+		Environment: testEnv,
+		Image:       "openjdk:latest",
+		Name:        "test",
+		Pull:        "always",
+	}
+
+	sNoCommands.Script()
+
+	if diff := cmp.Diff(wantNoCommands, sNoCommands); diff != "" {
+		t.Errorf("Script mismatch (-want +got):\n%s", diff)
 	}
 }
 

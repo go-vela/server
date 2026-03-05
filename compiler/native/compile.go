@@ -417,12 +417,6 @@ func (c *Client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 		return nil, _pipeline, err
 	}
 
-	// inject the scripts into the steps
-	p.Steps, err = c.ScriptSteps(p.Steps)
-	if err != nil {
-		return nil, _pipeline, err
-	}
-
 	// create executable representation
 	build, err := c.TransformSteps(r, p)
 	if err != nil {
@@ -521,12 +515,6 @@ func (c *Client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 
 	// inject the substituted environment variables into the stages
 	p.Stages, err = c.SubstituteStages(p.Stages)
-	if err != nil {
-		return nil, _pipeline, err
-	}
-
-	// inject the scripts into the stages
-	p.Stages, err = c.ScriptStages(p.Stages)
 	if err != nil {
 		return nil, _pipeline, err
 	}
