@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm"
@@ -46,14 +45,9 @@ func GatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo, token string) 
 	}
 
 	// send API call to set the status on the commit
-	checks, err := scm.FromContext(c).Status(c, b, token, nil)
+	err = scm.FromContext(c).Status(c, b, token)
 	if err != nil {
 		l.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
-	}
-
-	err = cache.FromContext(c).StoreCheckRuns(c, b.GetID(), checks, r)
-	if err != nil {
-		l.Errorf("unable to store check runs for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	return nil
