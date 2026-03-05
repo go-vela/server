@@ -230,31 +230,6 @@ func MustSecretAdmin() gin.HandlerFunc {
 			return
 		}
 
-		// check if secret types are enabled in platform settings
-		if t == constants.SecretRepo && !ps.GetEnableRepoSecrets() {
-			retErr := fmt.Errorf("repository level secrets have been disabled by Vela admins")
-
-			util.HandleError(c, http.StatusForbidden, retErr)
-
-			return
-		}
-
-		if t == constants.SecretOrg && !ps.GetEnableOrgSecrets() {
-			retErr := fmt.Errorf("organization level secrets have been disabled by Vela admins")
-
-			util.HandleError(c, http.StatusForbidden, retErr)
-
-			return
-		}
-
-		if t == constants.SecretShared && !ps.GetEnableSharedSecrets() {
-			retErr := fmt.Errorf("shared secrets have been disabled by Vela admins")
-
-			util.HandleError(c, http.StatusForbidden, retErr)
-
-			return
-		}
-
 		// if caller is worker with build token, verify it has access to requested secret
 		if cl.TokenType == constants.WorkerBuildTokenType {
 			err := buildTokenSecretAccess(logger, cl, t, s, o, n)
@@ -263,6 +238,35 @@ func MustSecretAdmin() gin.HandlerFunc {
 			}
 
 			return
+		}
+
+		// check if secret types are enabled in platform settings
+		//
+		// ignore for GET requests if there are existing secrets created prior to setting
+		if m != http.MethodGet {
+			if t == constants.SecretRepo && !ps.GetEnableRepoSecrets() {
+				retErr := fmt.Errorf("repository level secrets have been disabled by Vela admins")
+
+				util.HandleError(c, http.StatusForbidden, retErr)
+
+				return
+			}
+
+			if t == constants.SecretOrg && !ps.GetEnableOrgSecrets() {
+				retErr := fmt.Errorf("organization level secrets have been disabled by Vela admins")
+
+				util.HandleError(c, http.StatusForbidden, retErr)
+
+				return
+			}
+
+			if t == constants.SecretShared && !ps.GetEnableSharedSecrets() {
+				retErr := fmt.Errorf("shared secrets have been disabled by Vela admins")
+
+				util.HandleError(c, http.StatusForbidden, retErr)
+
+				return
+			}
 		}
 
 		switch t {
