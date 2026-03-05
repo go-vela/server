@@ -140,6 +140,7 @@ func CompileAndPublish(
 	// update fields in build object
 	// this is necessary in case source is restart and the build is prepopulated with these values
 	b.SetID(0)
+	b.SetNumber(0)
 	b.SetCreated(time.Now().UTC().Unix())
 	b.SetEnqueued(0)
 	b.SetStarted(0)
