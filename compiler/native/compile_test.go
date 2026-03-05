@@ -63,25 +63,16 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	installEnv := environment(nil, m, nil, nil, nil, 0)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
-	installEnv["HOME"] = constants.DefaultHomeDir
-	installEnv["SHELL"] = constants.DefaultShell
-	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
 	installEnv["HELLO"] = "Hello, Global Environment"
 
 	testEnv := environment(nil, m, nil, nil, nil, 0)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
-	testEnv["HOME"] = constants.DefaultHomeDir
-	testEnv["SHELL"] = constants.DefaultShell
-	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew check"})
 	testEnv["HELLO"] = "Hello, Global Environment"
 
 	buildEnv := environment(nil, m, nil, nil, nil, 0)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
-	buildEnv["HOME"] = constants.DefaultHomeDir
-	buildEnv["SHELL"] = constants.DefaultShell
-	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build"})
 	buildEnv["HELLO"] = "Hello, Global Environment"
 
 	dockerEnv := environment(nil, m, nil, nil, nil, 0)
@@ -137,9 +128,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Commands:    []string{"./gradlew downloadDependencies"},
 						Directory:   "",
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: installEnv,
 						Image:       "openjdk:latest",
 						Name:        "install",
@@ -155,9 +145,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Commands:    []string{"./gradlew check"},
 						Directory:   "",
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: testEnv,
 						Image:       "openjdk:latest",
 						Name:        "test",
@@ -173,9 +162,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Commands:    []string{"./gradlew build"},
 						Directory:   "",
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: buildEnv,
 						Image:       "openjdk:latest",
 						Name:        "build",
@@ -474,25 +462,16 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 	installEnv := environment(nil, m, nil, nil, nil, 0)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
-	installEnv["HOME"] = constants.DefaultHomeDir
-	installEnv["SHELL"] = constants.DefaultShell
-	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
 	installEnv["HELLO"] = "Hello, Global Environment"
 
 	testEnv := environment(nil, m, nil, nil, nil, 0)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
-	testEnv["HOME"] = constants.DefaultHomeDir
-	testEnv["SHELL"] = constants.DefaultShell
-	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew check"})
 	testEnv["HELLO"] = "Hello, Global Environment"
 
 	buildEnv := environment(nil, m, nil, nil, nil, 0)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
-	buildEnv["HOME"] = constants.DefaultHomeDir
-	buildEnv["SHELL"] = constants.DefaultShell
-	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build"})
 	buildEnv["HELLO"] = "Hello, Global Environment"
 
 	dockerEnv := environment(nil, m, nil, nil, nil, 0)
@@ -534,9 +513,8 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 			},
 			&pipeline.Container{
 				ID:          "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Commands:    []string{"./gradlew downloadDependencies"},
 				Directory:   "",
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: installEnv,
 				Image:       "openjdk:latest",
 				Name:        "install",
@@ -545,9 +523,8 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 			},
 			&pipeline.Container{
 				ID:          "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Commands:    []string{"./gradlew check"},
 				Directory:   "",
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: testEnv,
 				Image:       "openjdk:latest",
 				Name:        "test",
@@ -556,9 +533,8 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 			},
 			&pipeline.Container{
 				ID:          "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Commands:    []string{"./gradlew build"},
 				Directory:   "",
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: buildEnv,
 				Image:       "openjdk:latest",
 				Name:        "build",
@@ -690,27 +666,18 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	installEnv := environment(nil, m, nil, nil, nil, 0)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
-	installEnv["HOME"] = constants.DefaultHomeDir
-	installEnv["SHELL"] = constants.DefaultShell
-	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
 	installEnv["bar"] = "test4"
 	installEnv["star"] = "test3"
 
 	testEnv := environment(nil, m, nil, nil, nil, 0)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
-	testEnv["HOME"] = constants.DefaultHomeDir
-	testEnv["SHELL"] = constants.DefaultShell
-	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew check"})
 	testEnv["bar"] = "test4"
 	testEnv["star"] = "test3"
 
 	buildEnv := environment(nil, m, nil, nil, nil, 0)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
-	buildEnv["HOME"] = constants.DefaultHomeDir
-	buildEnv["SHELL"] = constants.DefaultShell
-	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build", "echo gradle"})
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
@@ -772,9 +739,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Commands:    []string{"./gradlew downloadDependencies"},
 						Directory:   "",
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: installEnv,
 						Image:       "openjdk:latest",
 						Name:        "sample_install",
@@ -783,9 +749,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 					},
 					&pipeline.Container{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Commands:    []string{"./gradlew check"},
 						Directory:   "",
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: testEnv,
 						Image:       "openjdk:latest",
 						Name:        "sample_test",
@@ -794,9 +759,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 					},
 					&pipeline.Container{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Commands:    []string{"./gradlew build", "echo gradle"},
 						Directory:   "",
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: buildEnv,
 						Image:       "openjdk:latest",
 						Name:        "sample_build",
@@ -952,27 +916,18 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	installEnv := environment(nil, m, nil, nil, nil, 0)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
-	installEnv["HOME"] = constants.DefaultHomeDir
-	installEnv["SHELL"] = constants.DefaultShell
-	installEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew downloadDependencies"})
 	installEnv["bar"] = "test4"
 	installEnv["star"] = "test3"
 
 	testEnv := environment(nil, m, nil, nil, nil, 0)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
-	testEnv["HOME"] = constants.DefaultHomeDir
-	testEnv["SHELL"] = constants.DefaultShell
-	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew check"})
 	testEnv["bar"] = "test4"
 	testEnv["star"] = "test3"
 
 	buildEnv := environment(nil, m, nil, nil, nil, 0)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
-	buildEnv["HOME"] = constants.DefaultHomeDir
-	buildEnv["SHELL"] = constants.DefaultShell
-	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build", "echo gradle"})
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
@@ -1018,8 +973,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 			&pipeline.Container{
 				ID:          "",
 				Directory:   "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
+				Commands:    []string{"./gradlew downloadDependencies"},
 				Environment: installEnv,
 				Image:       "openjdk:latest",
 				Name:        "sample_install",
@@ -1029,8 +983,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 			&pipeline.Container{
 				ID:          "",
 				Directory:   "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
+				Commands:    []string{"./gradlew check"},
 				Environment: testEnv,
 				Image:       "openjdk:latest",
 				Name:        "sample_test",
@@ -1040,8 +993,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 			&pipeline.Container{
 				ID:          "",
 				Directory:   "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
+				Commands:    []string{"./gradlew build", "echo gradle"},
 				Environment: buildEnv,
 				Image:       "openjdk:latest",
 				Name:        "sample_build",
@@ -1174,9 +1126,6 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 	setupEnv := environment(nil, m, nil, nil, nil, 0)
 
 	helloEnv := environment(nil, m, nil, nil, nil, 0)
-	helloEnv["HOME"] = constants.DefaultHomeDir
-	helloEnv["SHELL"] = constants.DefaultShell
-	helloEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo sample"})
 
 	want := &pipeline.Build{
 		Version: "1",
@@ -1209,8 +1158,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 			&pipeline.Container{
 				ID:          "",
 				Directory:   "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
+				Commands:    []string{"echo sample"},
 				Environment: helloEnv,
 				Image:       "sample",
 				Name:        "sample_hello",
@@ -1287,9 +1235,6 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 	setupEnv := environment(nil, m, nil, nil, nil, 0)
 
 	helloEnv := environment(nil, m, nil, nil, nil, 0)
-	helloEnv["HOME"] = constants.DefaultHomeDir
-	helloEnv["SHELL"] = constants.DefaultShell
-	helloEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo inline_templatename"})
 
 	want := &pipeline.Build{
 		Version: "1",
@@ -1322,8 +1267,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 			&pipeline.Container{
 				ID:          "",
 				Directory:   "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
+				Commands:    []string{"echo inline_templatename"},
 				Environment: helloEnv,
 				Image:       "inline_templatename",
 				Name:        "inline_templatename_hello",
@@ -1903,9 +1847,6 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 	initEnv := environment(build, m, nil, nil, nil, 0)
 
 	stepEnv := environment(build, m, nil, nil, nil, 0)
-	stepEnv["HOME"] = constants.DefaultHomeDir
-	stepEnv["SHELL"] = constants.DefaultShell
-	stepEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Building..."`})
 
 	want := &pipeline.Build{
 		Version: "1",
@@ -1954,9 +1895,8 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Commands:    []string{`echo "Building..."`},
 						Directory:   "",
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
 						Environment: stepEnv,
 						Image:       "alpine",
 						Name:        "word_key_build",
@@ -2086,14 +2026,8 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 	initEnv := environment(build, m, nil, nil, nil, 0)
 
 	buildEnv := environment(build, m, nil, nil, nil, 0)
-	buildEnv["HOME"] = constants.DefaultHomeDir
-	buildEnv["SHELL"] = constants.DefaultShell
-	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Building..."`})
 
 	testEnv := environment(build, m, nil, nil, nil, 0)
-	testEnv["HOME"] = constants.DefaultHomeDir
-	testEnv["SHELL"] = constants.DefaultShell
-	testEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{`echo "Testing..."`})
 
 	want := &pipeline.Build{
 		Version: "1",
@@ -2125,9 +2059,8 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 			},
 			&pipeline.Container{
 				ID:          "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Commands:    []string{`echo "Building..."`},
 				Directory:   "",
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: buildEnv,
 				Image:       "alpine",
 				Name:        "build",
@@ -2136,9 +2069,8 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 			},
 			&pipeline.Container{
 				ID:          "",
-				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Commands:    []string{`echo "Testing..."`},
 				Directory:   "",
-				Entrypoint:  []string{constants.DefaultShell, "-c"},
 				Environment: testEnv,
 				Image:       "alpine",
 				Name:        "test",
@@ -2501,9 +2433,6 @@ func convertFileToGithubResponse(file string) (github.RepositoryContent, error) 
 
 func generateTestEnv(command string, m *internal.Metadata, pipelineType string) map[string]string {
 	output := environment(nil, m, nil, nil, nil, 0)
-	output["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{command})
-	output["HOME"] = constants.DefaultHomeDir
-	output["SHELL"] = constants.DefaultShell
 	output["VELA_REPO_PIPELINE_TYPE"] = pipelineType
 
 	return output
@@ -2632,9 +2561,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo from inline"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline", m, ""),
 								Image:       "alpine",
 								Name:        "test",
@@ -2650,9 +2578,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo hello from foo"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from foo", m, ""),
 								Image:       "alpine",
 								Name:        "starlark_build_foo",
@@ -2668,9 +2595,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo hello from bar"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from bar", m, ""),
 								Image:       "alpine",
 								Name:        "starlark_build_bar",
@@ -2734,9 +2660,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo from inline"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline", m, ""),
 								Image:       "alpine",
 								Name:        "test",
@@ -2752,9 +2677,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo from inline"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline", m, ""),
 								Image:       "alpine",
 								Name:        "nested_test",
@@ -2770,9 +2694,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo hello from foo"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from foo", m, ""),
 								Image:       "alpine",
 								Name:        "nested_starlark_build_foo",
@@ -2788,9 +2711,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo hello from bar"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from bar", m, ""),
 								Image:       "alpine",
 								Name:        "nested_starlark_build_bar",
@@ -2837,8 +2759,7 @@ func Test_Compile_Inline(t *testing.T) {
 					},
 					{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
+						Commands:    []string{"echo from inline"},
 						Directory:   "",
 						Environment: generateTestEnv("echo from inline", m, ""),
 						Name:        "test",
@@ -2848,8 +2769,7 @@ func Test_Compile_Inline(t *testing.T) {
 					},
 					{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
+						Commands:    []string{"echo hello from foo"},
 						Directory:   "",
 						Environment: generateTestEnv("echo hello from foo", m, ""),
 						Name:        "golang_foo",
@@ -2859,8 +2779,7 @@ func Test_Compile_Inline(t *testing.T) {
 					},
 					{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
+						Commands:    []string{"echo hello from bar"},
 						Directory:   "",
 						Environment: generateTestEnv("echo hello from bar", m, ""),
 						Name:        "golang_bar",
@@ -2870,8 +2789,7 @@ func Test_Compile_Inline(t *testing.T) {
 					},
 					{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
+						Commands:    []string{"echo hello from star"},
 						Directory:   "",
 						Environment: generateTestEnv("echo hello from star", m, ""),
 						Name:        "golang_star",
@@ -2881,8 +2799,7 @@ func Test_Compile_Inline(t *testing.T) {
 					},
 					{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
+						Commands:    []string{"echo hello from foo"},
 						Directory:   "",
 						Environment: generateTestEnv("echo hello from foo", m, ""),
 						Name:        "starlark_build_foo",
@@ -2892,8 +2809,7 @@ func Test_Compile_Inline(t *testing.T) {
 					},
 					{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
+						Commands:    []string{"echo hello from bar"},
 						Directory:   "",
 						Environment: generateTestEnv("echo hello from bar", m, ""),
 						Name:        "starlark_build_bar",
@@ -2954,8 +2870,7 @@ func Test_Compile_Inline(t *testing.T) {
 					},
 					{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
+						Commands:    []string{"echo from inline"},
 						Directory:   "",
 						Environment: generateTestEnv("echo from inline", m, ""),
 						Name:        "test",
@@ -3059,8 +2974,7 @@ func Test_Compile_Inline(t *testing.T) {
 					},
 					{
 						ID:          "",
-						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-						Entrypoint:  []string{constants.DefaultShell, "-c"},
+						Commands:    []string{"echo from inline"},
 						Directory:   "",
 						Environment: generateTestEnv("echo from inline", m, ""),
 						Name:        "test",
@@ -3197,9 +3111,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo from inline foo"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline foo", m, constants.PipelineTypeGo),
 								Image:       "alpine",
 								Name:        "foo",
@@ -3215,9 +3128,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo from inline bar"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline bar", m, constants.PipelineTypeGo),
 								Image:       "alpine",
 								Name:        "bar",
@@ -3233,9 +3145,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo from inline star"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo from inline star", m, constants.PipelineTypeGo),
 								Image:       "alpine",
 								Name:        "star",
@@ -3251,9 +3162,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo hello from foo"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from foo", m, constants.PipelineTypeGo),
 								Image:       "alpine",
 								Name:        "starlark_build_foo",
@@ -3269,9 +3179,8 @@ func Test_Compile_Inline(t *testing.T) {
 						Steps: []*pipeline.Container{
 							{
 								ID:          "",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Commands:    []string{"echo hello from bar"},
 								Directory:   "",
-								Entrypoint:  []string{constants.DefaultShell, "-c"},
 								Environment: generateTestEnv("echo hello from bar", m, constants.PipelineTypeGo),
 								Image:       "alpine",
 								Name:        "starlark_build_bar",
