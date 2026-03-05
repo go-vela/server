@@ -329,7 +329,7 @@ func CompileAndPublish(
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		b, err = PlanBuild(ctx, cache, database, scm, p, b, r)
+		b, err = PlanBuild(ctx, database, scm, p, b, r)
 		if err != nil {
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
