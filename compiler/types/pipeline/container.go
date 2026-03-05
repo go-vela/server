@@ -4,6 +4,7 @@ package pipeline
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -330,6 +331,70 @@ func (c *Container) Substitute() error {
 	return nil
 }
 
+func (c *Container) Script() {
+	if len(c.Commands) == 0 {
+		return
+	}
+
+	// set the default home
+	home := constants.DefaultHomeDir
+
+	// override the home value if user is defined
+	if c.User != "" {
+		home = fmt.Sprintf("/home/%s", c.User)
+	}
+
+	// if user provides a home directory, use that
+	if override, ok := c.Environment["HOME"]; ok {
+		home = override
+	}
+
+	// generate script from commands
+	script := generateScriptPosix(c.Commands)
+
+	// set the entrypoint for the step
+	c.Entrypoint = []string{constants.DefaultShell, "-c"}
+
+	// set the commands for the step
+	c.Commands = []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"}
+
+	// set the environment variables for the step
+	c.Environment["VELA_BUILD_SCRIPT"] = script
+	c.Environment["HOME"] = home
+
+	c.Environment["SHELL"] = constants.DefaultShell
+}
+
+// generateScriptPosix is a helper function that generates a build script
+// for a linux container using the given commands.
+func generateScriptPosix(commands []string) string {
+	var buf bytes.Buffer
+
+	// iterate through each command provided
+	for _, command := range commands {
+		// safely escape entire command
+		escaped := fmt.Sprintf("%q", command)
+
+		// safely escape trace character
+		escaped = strings.Replace(escaped, "$", `\$`, -1)
+
+		// write escaped lines to buffer
+		buf.WriteString(fmt.Sprintf(
+			traceScript,
+			escaped,
+			command,
+		))
+	}
+
+	// create build script with netrc and buffer information
+	script := fmt.Sprintf(
+		setupScript,
+		buf.String(),
+	)
+
+	return base64.StdEncoding.EncodeToString([]byte(script))
+}
+
 // dnsSafeRandomString creates a lowercase alphanumeric string of length n.
 // Some kubernetes IDs must be dns-safe, so the character set and length is limited.
 // If an ID is too long, use this to generate a random suffix for a truncated ID.
@@ -345,3 +410,26 @@ func dnsSafeRandomString(n int) string {
 
 	return string(b)
 }
+
+// setupScript is a helper script this is added to the build to ensure
+// a minimum set of environment variables are set correctly.
+const setupScript = `
+cat <<EOF > $HOME/.netrc
+machine $VELA_NETRC_MACHINE
+login $VELA_NETRC_USERNAME
+password $VELA_NETRC_PASSWORD
+EOF
+chmod 0600 $HOME/.netrc
+unset VELA_NETRC_MACHINE
+unset VELA_NETRC_USERNAME
+unset VELA_NETRC_PASSWORD
+unset VELA_BUILD_SCRIPT
+%s
+`
+
+// traceScript is a helper script that is added to the build script
+// to trace a command.
+const traceScript = `
+echo $ %s
+%s
+`

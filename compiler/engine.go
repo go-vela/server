@@ -92,15 +92,6 @@ type Engine interface {
 	// InitStep step process into a yaml configuration.
 	InitStep(*yaml.Build) (*yaml.Build, error)
 
-	// Script Compiler Interface Functions
-
-	// ScriptStages defines a function that injects the script
-	// for each step in every stage in a yaml configuration.
-	ScriptStages(yaml.StageSlice) (yaml.StageSlice, error)
-	// ScriptSteps defines a function that injects the script
-	// for each step in a yaml configuration.
-	ScriptSteps(yaml.StepSlice) (yaml.StepSlice, error)
-
 	// Substitute Compiler Interface Functions
 
 	// SubstituteStages defines a function that replaces every
