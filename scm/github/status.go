@@ -7,13 +7,11 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/google/go-github/v83/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 )
 
@@ -32,7 +30,7 @@ const (
 )
 
 // Status sends the commit status for the given SHA from the GitHub repo.
-func (c *Client) Status(ctx context.Context, b *api.Build, token string, checkRuns []models.CheckRun) ([]models.CheckRun, error) {
+func (c *Client) Status(ctx context.Context, b *api.Build, token string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   b.GetRepo().GetOrg(),
@@ -42,22 +40,18 @@ func (c *Client) Status(ctx context.Context, b *api.Build, token string, checkRu
 	// only report opened, synchronize, and reopened action types for pull_request events
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) && !strings.EqualFold(b.GetEventAction(), constants.ActionOpened) &&
 		!strings.EqualFold(b.GetEventAction(), constants.ActionSynchronize) && !strings.EqualFold(b.GetEventAction(), constants.ActionReopened) {
-		return nil, nil
+		return nil
 	}
 
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, token)
 
-	if b.GetRepo().GetInstallID() != 0 && b.GetEvent() != constants.EventDeploy {
-		return checkRun(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b, checkRuns)
-	}
-
 	err := commitStatus(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return checkRuns, nil
+	return nil
 }
 
 // commitStatus sends a commit status update to GitHub for non-GitHub app installed repos or deployment events.
@@ -135,110 +129,8 @@ func commitStatus(ctx context.Context, ghClient *github.Client, addr, statusCtx 
 	return nil
 }
 
-// checkRun creates or updates a check run for the build.
-func checkRun(ctx context.Context, ghClient *github.Client, addr, statusCtx string, b *api.Build, checkRuns []models.CheckRun) ([]models.CheckRun, error) {
-	state, conclusion, description, url := parseCheckRunStatus(b.GetStatus(), addr, b.GetRepo().GetFullName(), b.GetNumber(), 0)
-
-	result := checkRuns
-
-	title := fmt.Sprintf("Vela Build #%d • %s", b.GetNumber(), description)
-
-	// if build was not created, drop the build number from title
-	if b.GetNumber() == 0 {
-		title = description
-	}
-
-	summary := buildCheckRunSummary(b)
-	text := buildCheckRunText(b, url)
-	startedAt := buildCheckRunStartedAt(b)
-	completedAt := buildCheckRunCompletedAt(b)
-
-	if len(checkRuns) == 0 {
-		var contexts []string
-
-		if b.GetEvent() == constants.EventMergeGroup {
-			for _, e := range b.GetRepo().GetMergeQueueEvents() {
-				context := fmt.Sprintf("%s/%s", statusCtx, e)
-
-				contexts = append(contexts, context)
-			}
-		} else {
-			contexts = append(contexts, fmt.Sprintf("%s/%s", statusCtx, b.GetEvent()))
-		}
-
-		for _, context := range contexts {
-			checkOpts := github.CreateCheckRunOptions{
-				Name:       context,
-				DetailsURL: b.Link,
-				HeadSHA:    b.GetCommit(),
-				Status:     github.Ptr(state),
-				StartedAt:  startedAt,
-				Output: &github.CheckRunOutput{
-					Title:   github.Ptr(title),
-					Summary: github.Ptr(summary),
-					Text:    github.Ptr(text),
-				},
-			}
-
-			if conclusion != "" {
-				checkOpts.Conclusion = github.Ptr(conclusion)
-				checkOpts.CompletedAt = completedAt
-			}
-
-			// provide "Details" link in GitHub UI if server was configured with it
-			if len(addr) > 0 && b.GetStatus() != constants.StatusSkipped {
-				checkOpts.DetailsURL = github.Ptr(url)
-			}
-
-			check, _, err := ghClient.Checks.CreateCheckRun(ctx, b.GetRepo().GetOrg(), b.GetRepo().GetName(), checkOpts)
-			if err != nil {
-				return nil, err
-			}
-
-			result = append(result, models.CheckRun{
-				ID:          check.GetID(),
-				Context:     context,
-				Repo:        b.GetRepo().GetFullName(),
-				BuildNumber: b.GetNumber(),
-			})
-		}
-
-		return result, nil
-	}
-
-	for _, checkRun := range checkRuns {
-		checkOpts := github.UpdateCheckRunOptions{
-			Name:       checkRun.Context,
-			DetailsURL: b.Link,
-			Status:     github.Ptr(state),
-			Output: &github.CheckRunOutput{
-				Title:   github.Ptr(title),
-				Summary: github.Ptr(summary),
-				Text:    github.Ptr(text),
-			},
-		}
-
-		if conclusion != "" {
-			checkOpts.Conclusion = github.Ptr(conclusion)
-			checkOpts.CompletedAt = completedAt
-		}
-
-		// provide "Details" link in GitHub UI if server was configured with it
-		if len(addr) > 0 && b.GetStatus() != constants.StatusSkipped {
-			checkOpts.DetailsURL = github.Ptr(url)
-		}
-
-		_, _, err := ghClient.Checks.UpdateCheckRun(ctx, b.GetRepo().GetOrg(), b.GetRepo().GetName(), checkRun.ID, checkOpts)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return result, nil
-}
-
 // StepStatus sends the commit status for the given SHA from the GitHub repo.
-func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, token string, checkRuns []models.CheckRun) ([]models.CheckRun, error) {
+func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, token string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"step":  s.GetName(),
 		"build": b.GetNumber(),
@@ -248,22 +140,18 @@ func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, toke
 
 	// no commit statuses on deployments
 	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
-		return nil, nil
+		return nil
 	}
 
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, token)
 
-	if b.GetRepo().GetInstallID() != 0 {
-		return stepCheckRun(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b, s, checkRuns)
-	}
-
 	err := stepCommitStatus(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b, s)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return checkRuns, nil
+	return nil
 }
 
 func stepCommitStatus(ctx context.Context, ghClient *github.Client, addr, statusCtx string, b *api.Build, s *api.Step) error {
@@ -301,89 +189,6 @@ func stepCommitStatus(ctx context.Context, ghClient *github.Client, addr, status
 	}
 
 	return nil
-}
-
-func stepCheckRun(ctx context.Context, ghClient *github.Client, addr, statusCtx string, b *api.Build, s *api.Step, checkRuns []models.CheckRun) ([]models.CheckRun, error) {
-	state, conclusion, description, url := parseCheckRunStatus(s.GetStatus(), addr, b.GetRepo().GetFullName(), b.GetNumber(), s.GetNumber())
-
-	result := checkRuns
-
-	if len(checkRuns) == 0 {
-		var contexts []string
-
-		if b.GetEvent() == constants.EventMergeGroup {
-			for _, e := range b.GetRepo().GetMergeQueueEvents() {
-				context := fmt.Sprintf("%s/%s/%s", statusCtx, e, s.GetReportAs())
-
-				contexts = append(contexts, context)
-			}
-		} else {
-			contexts = append(contexts, fmt.Sprintf("%s/%s/%s", statusCtx, b.GetEvent(), s.GetReportAs()))
-		}
-
-		for _, context := range contexts {
-			checkOpts := github.CreateCheckRunOptions{
-				Name:       context,
-				HeadSHA:    b.GetCommit(),
-				ExternalID: github.Ptr(strconv.FormatInt(b.GetID(), 10)),
-				Status:     github.Ptr(state),
-				Output: &github.CheckRunOutput{
-					Title:   github.Ptr(description),
-					Summary: github.Ptr(description),
-				},
-			}
-
-			if conclusion != "" {
-				checkOpts.Conclusion = github.Ptr(conclusion)
-			}
-
-			// provide "Details" link in GitHub UI if server was configured with it
-			if len(addr) > 0 && b.GetStatus() != constants.StatusSkipped {
-				checkOpts.DetailsURL = github.Ptr(url)
-			}
-
-			check, _, err := ghClient.Checks.CreateCheckRun(ctx, b.GetRepo().GetOrg(), b.GetRepo().GetName(), checkOpts)
-			if err != nil {
-				return nil, err
-			}
-
-			result = append(result, models.CheckRun{
-				ID:          check.GetID(),
-				Context:     context,
-				Repo:        b.GetRepo().GetFullName(),
-				BuildNumber: b.GetNumber(),
-			})
-		}
-
-		return result, nil
-	}
-
-	for _, checkRun := range checkRuns {
-		checkOpts := github.UpdateCheckRunOptions{
-			Name:   checkRun.Context,
-			Status: github.Ptr(state),
-			Output: &github.CheckRunOutput{
-				Title:   github.Ptr(description),
-				Summary: github.Ptr(fmt.Sprintf("%s#%d", b.GetLink(), s.GetNumber())),
-			},
-		}
-
-		if conclusion != "" {
-			checkOpts.Conclusion = github.Ptr(conclusion)
-		}
-
-		// provide "Details" link in GitHub UI if server was configured with it
-		if len(addr) > 0 && b.GetStatus() != constants.StatusSkipped {
-			checkOpts.DetailsURL = github.Ptr(url)
-		}
-
-		_, _, err := ghClient.Checks.UpdateCheckRun(ctx, b.GetRepo().GetOrg(), b.GetRepo().GetName(), checkRun.ID, checkOpts)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return result, nil
 }
 
 // parseCommitStatus is a helper function to determine the url, state, and description for a commit status.
@@ -435,108 +240,4 @@ func parseCommitStatus(status, addr, repo string, buildNumber int64, stepNumber 
 	}
 
 	return state, description, url
-}
-
-// parseCheckRunStatus is a helper function to determine the url, state, description, and conclusion for a check run.
-func parseCheckRunStatus(status, addr, repo string, buildNumber int64, stepNumber int32) (string, string, string, string) {
-	var (
-		url         = fmt.Sprintf("%s/%s/%d", addr, repo, buildNumber)
-		target      = "build"
-		state       string
-		description string
-		conclusion  string
-	)
-
-	if stepNumber != 0 {
-		url = fmt.Sprintf("%s#%d", url, stepNumber)
-		target = "step"
-	}
-
-	// set the state and description for the status context
-	// depending on what the status of the build is
-	switch status {
-	case constants.StatusRunning:
-		state = StateInProgress
-		description = fmt.Sprintf("the %s is %s", target, status)
-	case constants.StatusPending:
-		state = StateQueued
-		description = fmt.Sprintf("the %s is %s", target, status)
-	case constants.StatusPendingApproval:
-		state = StateQueued
-		description = fmt.Sprintf("the %s needs approval from repo admin to run", target)
-	case constants.StatusSuccess:
-		state = StateCompleted
-		conclusion = StateSuccess
-		description = fmt.Sprintf("the %s was successful", target)
-	case constants.StatusFailure:
-		state = StateCompleted
-		conclusion = StateFailure
-		description = fmt.Sprintf("the %s has failed", target)
-	case constants.StatusCanceled:
-		state = StateCompleted
-		conclusion = StateCancelled
-		description = fmt.Sprintf("the %s was canceled", target)
-	case constants.StatusKilled:
-		state = StateCompleted
-		conclusion = StateCancelled
-		description = fmt.Sprintf("the %s was killed", target)
-	case constants.StatusSkipped:
-		state = StateCompleted
-		conclusion = StateSkipped
-		description = fmt.Sprintf("the %s was skipped as no steps/stages found", target)
-	default:
-		state = StateCompleted
-		conclusion = StateFailure
-
-		// if there is no build, then this status update is from a failed compilation
-		if buildNumber == 0 && stepNumber == 0 {
-			description = "error compiling pipeline - check audit for more information"
-			url = fmt.Sprintf("%s/%s/hooks", addr, repo)
-		} else {
-			description = "there was an error"
-		}
-	}
-
-	return state, conclusion, description, url
-}
-
-// buildCheckRunSummary creates the summary section of the check run output.
-func buildCheckRunSummary(b *api.Build) string {
-	return fmt.Sprintf(
-		"### Build\n- Repo: `%s`\n- Build: `%d`\n- Event: `%s`\n- Action: `%s`\n- Branch: `%s`\n- Status: `%s`\n\n### Commit\n- SHA: `%s`\n- Sender: `%s`",
-		b.GetRepo().GetFullName(),
-		b.GetNumber(),
-		b.GetEvent(),
-		b.GetEventAction(),
-		b.GetBranch(),
-		b.GetStatus(),
-		b.GetCommit(),
-		b.GetSender(),
-	)
-}
-
-// buildCheckRunText creates the text section of the check run output.
-func buildCheckRunText(b *api.Build, detailsURL string) string {
-	return fmt.Sprintf(
-		"### Links\n- [Open build in Vela](%s)\n\n### Context\n- Ref: `%s`\n- Message: %s",
-		detailsURL,
-		b.GetRef(),
-		b.GetMessage(),
-	)
-}
-
-func buildCheckRunStartedAt(b *api.Build) *github.Timestamp {
-	if b.GetStarted() > 0 {
-		return &github.Timestamp{Time: time.Unix(b.GetStarted(), 0).UTC()}
-	}
-
-	return &github.Timestamp{Time: time.Now().UTC()}
-}
-
-func buildCheckRunCompletedAt(b *api.Build) *github.Timestamp {
-	if b.GetFinished() > 0 {
-		return &github.Timestamp{Time: time.Unix(b.GetFinished(), 0).UTC()}
-	}
-
-	return &github.Timestamp{Time: time.Now().UTC()}
 }

@@ -15,7 +15,6 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache"
-	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
@@ -159,17 +158,9 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
-	var (
-		checks   []models.CheckRun
-		scmToken string
-	)
+	var scmToken string
 
 	if b.GetRepo().GetInstallID() != 0 {
-		checks, err = cache.FromContext(c).GetCheckRuns(ctx, b)
-		if err != nil {
-			l.Errorf("unable to retrieve check runs for build %s: %v", entry, err)
-		}
-
 		scmToken, _, err = scm.FromContext(c).GetNetrcPassword(ctx, database.FromContext(c), cache.FromContext(c), b, yaml.Git{})
 		if err != nil {
 			l.Errorf("unable to generate new installation token for build %s: %v", entry, err)
@@ -181,7 +172,7 @@ func CancelBuild(c *gin.Context) {
 	}
 
 	// send API call to set the status on the commit
-	_, err = scm.FromContext(c).Status(ctx, b, scmToken, checks)
+	err = scm.FromContext(c).Status(ctx, b, scmToken)
 	if err != nil {
 		l.Errorf("unable to set commit status for build %s: %v", entry, err)
 	}

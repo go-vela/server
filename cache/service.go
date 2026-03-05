@@ -5,7 +5,6 @@ package cache
 import (
 	"context"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache/models"
 )
 
@@ -21,9 +20,4 @@ type Service interface {
 	StoreInstallToken(ctx context.Context, token *models.InstallToken, timeout int32) error
 	GetInstallToken(ctx context.Context, token string) (*models.InstallToken, error)
 	EvictInstallToken(ctx context.Context, token string) error
-
-	StoreCheckRuns(ctx context.Context, buildID int64, checkRuns []models.CheckRun, repo *api.Repo) error
-	StoreStepCheckRuns(ctx context.Context, stepID int64, checkRuns []models.CheckRun, repo *api.Repo) error
-	GetCheckRuns(ctx context.Context, build *api.Build) ([]models.CheckRun, error)
-	GetStepCheckRuns(ctx context.Context, step *api.Step) ([]models.CheckRun, error)
 }
