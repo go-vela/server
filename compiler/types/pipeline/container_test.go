@@ -6,8 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/constants"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/go-vela/server/constants"
 )
 
 func TestPipeline_ContainerSlice_Purge(t *testing.T) {
