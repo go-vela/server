@@ -12,7 +12,6 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache"
-	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/auth"
@@ -182,17 +181,8 @@ func UpdateBuild(c *gin.Context) {
 			return
 		}
 
-		var checks []models.CheckRun
-
-		if b.GetRepo().GetInstallID() != 0 {
-			checks, err = cache.FromContext(c).GetCheckRuns(ctx, b)
-			if err != nil {
-				l.Errorf("unable to retrieve check runs for build %s: %v", entry, err)
-			}
-		}
-
 		// send API call to set the status on the commit
-		_, err = scm.FromContext(c).Status(ctx, b, scmToken, checks)
+		err = scm.FromContext(c).Status(ctx, b, scmToken)
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
@@ -262,17 +252,8 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status, scmToken st
 		}).Infof("step status updated")
 
 		if len(step.GetReportAs()) > 0 {
-			var checks []models.CheckRun
-
-			if b.GetRepo().GetInstallID() != 0 {
-				checks, err = cache.FromContext(c).GetStepCheckRuns(ctx, step)
-				if err != nil {
-					l.Errorf("unable to retrieve check runs for step %s: %v", step.GetName(), err)
-				}
-			}
-
 			// send API call to set the status on the commit
-			_, err = scm.FromContext(c).StepStatus(ctx, b, step, scmToken, checks)
+			err = scm.FromContext(c).StepStatus(ctx, b, step, scmToken)
 			if err != nil {
 				l.Errorf("unable to set commit status for step %s: %v", step.GetName(), err)
 			}

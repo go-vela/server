@@ -266,7 +266,7 @@ func CompileAndPublish(
 			b.SetStatus(constants.StatusSkipped)
 
 			// send API call to set the status on the commit using installation OR owner token
-			_, err = scm.Status(ctx, b, p.Token, nil)
+			err = scm.Status(ctx, b, p.Token)
 			if err != nil {
 				logger.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 			}

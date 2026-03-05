@@ -109,14 +109,9 @@ func planStep(ctx context.Context, cache cache.Service, database database.Interf
 
 	if len(s.GetReportAs()) > 0 {
 		// send API call to set the status on the commit using token in environment
-		stepCheckRuns, err := scm.StepStatus(ctx, b, s, c.Environment["VELA_NETRC_PASSWORD"], nil)
+		err := scm.StepStatus(ctx, b, s, c.Environment["VELA_NETRC_PASSWORD"])
 		if err != nil {
 			logrus.Errorf("unable to set commit status for build: %v", err)
-		}
-
-		err = cache.StoreStepCheckRuns(ctx, s.GetID(), stepCheckRuns, b.GetRepo())
-		if err != nil {
-			logrus.Errorf("unable to store step check runs in cache: %v", err)
 		}
 	}
 

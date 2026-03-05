@@ -11,8 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/cache"
-	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/auth"
@@ -174,17 +172,8 @@ func UpdateStep(c *gin.Context) {
 			scmToken = r.GetOwner().GetToken()
 		}
 
-		var checks []models.CheckRun
-
-		if b.GetRepo().GetInstallID() != 0 {
-			checks, err = cache.FromContext(c).GetStepCheckRuns(ctx, s)
-			if err != nil {
-				l.Errorf("unable to retrieve check runs for build %s: %v", entry, err)
-			}
-		}
-
 		// send API call to set the status on the commit
-		_, err = scm.FromContext(c).StepStatus(ctx, b, s, scmToken, checks)
+		err = scm.FromContext(c).StepStatus(ctx, b, s, scmToken)
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
