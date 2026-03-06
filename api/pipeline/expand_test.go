@@ -61,7 +61,7 @@ func TestExpandPipelineStagesReturnsCleanYAML(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req := httptest.NewRequest(http.MethodPost, requestPath, nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, requestPath, nil)
 		c.Request = req
 
 		logger := logrus.New()
