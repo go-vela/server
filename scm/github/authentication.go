@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-github/v83/github"
+	"github.com/google/go-github/v84/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/random"
