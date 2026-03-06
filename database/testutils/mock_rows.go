@@ -15,8 +15,8 @@ func CreateMockRows(data []any) *sqlmock.Rows {
 
 	headers := []string{}
 
-	for i := range t.NumField() {
-		field := t.Field(i)
+	for field := range t.Fields() {
+		field := field
 		tag := field.Tag.Get("sql")
 
 		if tag == "" || tag == "-" {

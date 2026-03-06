@@ -1499,48 +1499,48 @@ func TestGithub_applyGitHubInstallationPermission(t *testing.T) {
 		{
 			name: "valid read permission for contents",
 			perms: &github.InstallationPermissions{
-				Contents: github.Ptr(AppInstallPermissionNone),
+				Contents: new(AppInstallPermissionNone),
 			},
 			resource: AppInstallResourceContents,
 			perm:     AppInstallPermissionRead,
 			wantPerms: &github.InstallationPermissions{
-				Contents: github.Ptr(AppInstallPermissionRead),
+				Contents: new(AppInstallPermissionRead),
 			},
 			wantErr: false,
 		},
 		{
 			name: "valid write permission for checks",
 			perms: &github.InstallationPermissions{
-				Checks: github.Ptr(AppInstallPermissionNone),
+				Checks: new(AppInstallPermissionNone),
 			},
 			resource: AppInstallResourceChecks,
 			perm:     AppInstallPermissionWrite,
 			wantPerms: &github.InstallationPermissions{
-				Checks: github.Ptr(AppInstallPermissionWrite),
+				Checks: new(AppInstallPermissionWrite),
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid permission value",
 			perms: &github.InstallationPermissions{
-				Contents: github.Ptr(AppInstallPermissionNone),
+				Contents: new(AppInstallPermissionNone),
 			},
 			resource: AppInstallResourceContents,
 			perm:     "invalid",
 			wantPerms: &github.InstallationPermissions{
-				Contents: github.Ptr(AppInstallPermissionNone),
+				Contents: new(AppInstallPermissionNone),
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid permission key",
 			perms: &github.InstallationPermissions{
-				Contents: github.Ptr(AppInstallPermissionNone),
+				Contents: new(AppInstallPermissionNone),
 			},
 			resource: "invalid",
 			perm:     AppInstallPermissionRead,
 			wantPerms: &github.InstallationPermissions{
-				Contents: github.Ptr(AppInstallPermissionNone),
+				Contents: new(AppInstallPermissionNone),
 			},
 			wantErr: true,
 		},
