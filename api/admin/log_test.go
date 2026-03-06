@@ -30,7 +30,7 @@ func TestAdmin_CleanLogs(t *testing.T) {
 
 	// setup request body
 	body := types.Error{
-		Message: String("Test log cleanup"),
+		Message: new("Test log cleanup"),
 	}
 	data, _ := json.Marshal(body)
 
@@ -217,6 +217,8 @@ func TestAdmin_CleanLogs_ValidationEdgeCases(t *testing.T) {
 }
 
 // String is a helper routine that returns a pointer to the string value passed in.
+//
+//go:fix inline
 func String(v string) *string {
-	return &v
+	return new(v)
 }

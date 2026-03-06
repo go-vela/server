@@ -177,7 +177,7 @@ func (c *Client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	deployment := &github.DeploymentRequest{
 		Ref:              d.Ref,
 		Task:             d.Task,
-		AutoMerge:        github.Ptr(false),
+		AutoMerge:        new(false),
 		RequiredContexts: &[]string{},
 		Payload:          payload,
 		Environment:      d.Target,

@@ -67,19 +67,19 @@ func ApplyInstallationPermissions(resource, perm string, perms *github.Installat
 	// convert resource from string
 	switch strings.ToLower(resource) {
 	case AppInstallResourceContents:
-		perms.Contents = github.Ptr(perm)
+		perms.Contents = new(perm)
 	case AppInstallResourceChecks:
-		perms.Checks = github.Ptr(perm)
+		perms.Checks = new(perm)
 	case AppInstallResourcePackages:
-		perms.Packages = github.Ptr(perm)
+		perms.Packages = new(perm)
 	case AppInstallResourceStatuses:
-		perms.Statuses = github.Ptr(perm)
+		perms.Statuses = new(perm)
 	case AppInstallResourceDeployments:
-		perms.Deployments = github.Ptr(perm)
+		perms.Deployments = new(perm)
 	case AppInstallResourcePullRequests:
-		perms.PullRequests = github.Ptr(perm)
+		perms.PullRequests = new(perm)
 	case AppInstallResourceIssues:
-		perms.Issues = github.Ptr(perm)
+		perms.Issues = new(perm)
 	// add more supported resources as needed.
 	default:
 		return perms, fmt.Errorf("invalid permission resource given for <resource>:<level> in %s:%s", resource, perm)

@@ -178,16 +178,16 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the build interface
 	element := reflect.TypeFor[build.BuildInterface]()
 	// iterate through all methods found in the build interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for builds
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create the users for build related functions (owners of repos)
@@ -485,16 +485,16 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the schedule interface
 	element := reflect.TypeFor[dashboard.DashboardInterface]()
 	// iterate through all methods found in the schedule interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for schedules
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	ctx := context.TODO()
@@ -577,16 +577,16 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the pipeline interface
 	element := reflect.TypeFor[executable.BuildExecutableInterface]()
 	// iterate through all methods found in the pipeline interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for pipelines
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create the pipelines
@@ -666,16 +666,16 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the deployment interface
 	element := reflect.TypeFor[deployment.DeploymentInterface]()
 	// iterate through all methods found in the deployment interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for deployments
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create the users for deployment related functions (owners of repos)
@@ -846,16 +846,16 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the hook interface
 	element := reflect.TypeFor[hook.HookInterface]()
 	// iterate through all methods found in the hook interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for hooks
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create the users for hook related functions (owners of repos)
@@ -1034,15 +1034,15 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the jwk interface
 	element := reflect.TypeFor[dbJWK.JWKInterface]()
 	// iterate through all methods found in the jwk interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for jwks
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	for i := 0; i < resources.JWKs.Len(); i++ {
@@ -1133,16 +1133,16 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the log interface
 	element := reflect.TypeFor[log.LogInterface]()
 	// iterate through all methods found in the log interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for logs
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create the logs
@@ -1290,16 +1290,16 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the pipeline interface
 	element := reflect.TypeFor[pipeline.PipelineInterface]()
 	// iterate through all methods found in the pipeline interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for pipelines
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create owners
@@ -1481,16 +1481,16 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the repo interface
 	element := reflect.TypeFor[repo.RepoInterface]()
 	// iterate through all methods found in the repo interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for repos
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create owners
@@ -1697,16 +1697,16 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the schedule interface
 	element := reflect.TypeFor[schedule.ScheduleInterface]()
 	// iterate through all methods found in the schedule interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for schedules
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create owners
@@ -1880,16 +1880,16 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the secret interface
 	element := reflect.TypeFor[secret.SecretInterface]()
 	// iterate through all methods found in the secret interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for secrets
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create the secrets
@@ -2151,16 +2151,16 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the service interface
 	element := reflect.TypeFor[service.ServiceInterface]()
 	// iterate through all methods found in the service interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for services
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create the services
@@ -2325,16 +2325,16 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the step interface
 	element := reflect.TypeFor[step.StepInterface]()
 	// iterate through all methods found in the step interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for steps
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	ctx := context.TODO()
@@ -2501,16 +2501,16 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the user interface
 	element := reflect.TypeFor[user.UserInterface]()
 	// iterate through all methods found in the user interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for users
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	userOne := new(api.User)
@@ -2636,16 +2636,16 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the worker interface
 	element := reflect.TypeFor[worker.WorkerInterface]()
 	// iterate through all methods found in the worker interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for workers
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create the workers
@@ -2737,16 +2737,16 @@ func testSettings(t *testing.T, db Interface, resources *Resources) {
 	// capture the element type of the settings interface
 	element := reflect.TypeFor[dbSettings.SettingsInterface]()
 	// iterate through all methods found in the settings interface
-	for i := 0; i < element.NumMethod(); i++ {
+	for method := range element.Methods() {
 		// skip tracking the methods to create indexes and tables for settings
 		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
 			continue
 		}
 
 		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
+		methods[method.Name] = false
 	}
 
 	// create the settings

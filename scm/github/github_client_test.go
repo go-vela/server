@@ -71,9 +71,9 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 			client: appsClient,
 			repo:   accessibleRepo,
 			installation: &github.Installation{
-				ID: github.Ptr(int64(1)),
+				ID: new(int64(1)),
 				Account: &github.User{
-					Login: github.Ptr("github"),
+					Login: new("github"),
 				},
 				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
 			},
@@ -85,9 +85,9 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 			client: appsClient,
 			repo:   inaccessibleRepo,
 			installation: &github.Installation{
-				ID: github.Ptr(int64(2)),
+				ID: new(int64(2)),
 				Account: &github.User{
-					Login: github.Ptr("github"),
+					Login: new("github"),
 				},
 				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
 			},

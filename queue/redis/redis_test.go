@@ -15,8 +15,10 @@ import (
 
 // Ptr is a helper routine that allocates a new T value
 // to store v and returns a pointer to it.
+//
+//go:fix inline
 func Ptr[T any](v T) *T {
-	return &v
+	return new(v)
 }
 
 // setup global variables used for testing.
@@ -24,51 +26,51 @@ var (
 	_signingPrivateKey = "tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=="
 	_signingPublicKey  = "DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko="
 	_build             = &api.Build{
-		ID: Ptr(int64(1)),
+		ID: new(int64(1)),
 		Repo: &api.Repo{
-			ID: Ptr(int64(1)),
+			ID: new(int64(1)),
 			Owner: &api.User{
-				ID:     Ptr(int64(1)),
-				Name:   Ptr("octocat"),
+				ID:     new(int64(1)),
+				Name:   new("octocat"),
 				Token:  nil,
-				Active: Ptr(true),
-				Admin:  Ptr(false),
+				Active: new(true),
+				Admin:  new(false),
 			},
-			Org:        Ptr("github"),
-			Name:       Ptr("octocat"),
-			FullName:   Ptr("github/octocat"),
-			Link:       Ptr("https://github.com/github/octocat"),
-			Clone:      Ptr("https://github.com/github/octocat.git"),
-			Branch:     Ptr("main"),
-			Timeout:    Ptr(int32(60)),
-			Visibility: Ptr("public"),
-			Private:    Ptr(false),
-			Trusted:    Ptr(false),
-			Active:     Ptr(true),
+			Org:        new("github"),
+			Name:       new("octocat"),
+			FullName:   new("github/octocat"),
+			Link:       new("https://github.com/github/octocat"),
+			Clone:      new("https://github.com/github/octocat.git"),
+			Branch:     new("main"),
+			Timeout:    new(int32(60)),
+			Visibility: new("public"),
+			Private:    new(false),
+			Trusted:    new(false),
+			Active:     new(true),
 		},
-		Number:       Ptr(int64(2)),
-		Parent:       Ptr(int64(1)),
-		Event:        Ptr("push"),
-		Status:       Ptr("success"),
-		Error:        Ptr(""),
-		Enqueued:     Ptr(int64(1563474077)),
-		Created:      Ptr(int64(1563474076)),
-		Started:      Ptr(int64(1563474077)),
-		Finished:     Ptr(int64(0)),
-		Deploy:       Ptr(""),
-		Clone:        Ptr("https://github.com/github/octocat.git"),
-		Source:       Ptr("https://github.com/github/octocat/abcdefghi123456789"),
-		Title:        Ptr("push received from https://github.com/github/octocat"),
-		Message:      Ptr("First commit..."),
-		Commit:       Ptr("48afb5bdc41ad69bf22588491333f7cf71135163"),
-		Sender:       Ptr("OctoKitty"),
-		Author:       Ptr("OctoKitty"),
-		Branch:       Ptr("main"),
-		Ref:          Ptr("refs/heads/main"),
-		BaseRef:      Ptr(""),
-		Host:         Ptr("example.company.com"),
-		Runtime:      Ptr("docker"),
-		Distribution: Ptr("linux"),
+		Number:       new(int64(2)),
+		Parent:       new(int64(1)),
+		Event:        new("push"),
+		Status:       new("success"),
+		Error:        new(""),
+		Enqueued:     new(int64(1563474077)),
+		Created:      new(int64(1563474076)),
+		Started:      new(int64(1563474077)),
+		Finished:     new(int64(0)),
+		Deploy:       new(""),
+		Clone:        new("https://github.com/github/octocat.git"),
+		Source:       new("https://github.com/github/octocat/abcdefghi123456789"),
+		Title:        new("push received from https://github.com/github/octocat"),
+		Message:      new("First commit..."),
+		Commit:       new("48afb5bdc41ad69bf22588491333f7cf71135163"),
+		Sender:       new("OctoKitty"),
+		Author:       new("OctoKitty"),
+		Branch:       new("main"),
+		Ref:          new("refs/heads/main"),
+		BaseRef:      new(""),
+		Host:         new("example.company.com"),
+		Runtime:      new("docker"),
+		Distribution: new("linux"),
 	}
 )
 

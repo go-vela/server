@@ -80,14 +80,14 @@ func commitStatus(ctx context.Context, ghClient *github.Client, addr, statusCtx 
 
 		// create the status object to make the API call
 		status := &github.DeploymentStatusRequest{
-			Description: github.Ptr(description),
-			Environment: github.Ptr(b.GetDeploy()),
-			State:       github.Ptr(state),
+			Description: new(description),
+			Environment: new(b.GetDeploy()),
+			State:       new(state),
 		}
 
 		// provide "Details" link in GitHub UI if server was configured with it
 		if len(addr) > 0 {
-			status.LogURL = github.Ptr(url)
+			status.LogURL = new(url)
 		}
 
 		_, _, err = ghClient.Repositories.CreateDeploymentStatus(ctx, b.GetRepo().GetOrg(), b.GetRepo().GetName(), int64(number), status)
@@ -109,14 +109,14 @@ func commitStatus(ctx context.Context, ghClient *github.Client, addr, statusCtx 
 	for _, context := range contexts {
 		// create the status object to make the API call
 		status := github.RepoStatus{
-			Context:     github.Ptr(context),
-			Description: github.Ptr(description),
-			State:       github.Ptr(state),
+			Context:     new(context),
+			Description: new(description),
+			State:       new(state),
 		}
 
 		// provide "Details" link in GitHub UI if server was configured with it
 		if len(addr) > 0 && b.GetStatus() != constants.StatusSkipped {
-			status.TargetURL = github.Ptr(url)
+			status.TargetURL = new(url)
 		}
 
 		// send API call to create the status context for the commit
@@ -171,14 +171,14 @@ func stepCommitStatus(ctx context.Context, ghClient *github.Client, addr, status
 	for _, context := range contexts {
 		// create the status object to make the API call
 		status := github.RepoStatus{
-			Context:     github.Ptr(context),
-			Description: github.Ptr(description),
-			State:       github.Ptr(state),
+			Context:     new(context),
+			Description: new(description),
+			State:       new(state),
 		}
 
 		// provide "Details" link in GitHub UI if server was configured with it
 		if len(addr) > 0 && b.GetStatus() != constants.StatusSkipped {
-			status.TargetURL = github.Ptr(url)
+			status.TargetURL = new(url)
 		}
 
 		// send API call to create the status context for the commit

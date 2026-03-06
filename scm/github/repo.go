@@ -176,11 +176,11 @@ func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo) (*
 	hook := &github.Hook{
 		Events: webhookConfigEvents(r),
 		Config: &github.HookConfig{
-			URL:         github.Ptr(c.config.ServerWebhookAddress),
-			ContentType: github.Ptr("form"),
-			Secret:      github.Ptr(r.GetHash()),
+			URL:         new(c.config.ServerWebhookAddress),
+			ContentType: new("form"),
+			Secret:      new(r.GetHash()),
 		},
-		Active: github.Ptr(true),
+		Active: new(true),
 	}
 
 	// send API call to create the webhook
@@ -222,11 +222,11 @@ func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	hook := &github.Hook{
 		Events: webhookConfigEvents(r),
 		Config: &github.HookConfig{
-			URL:         github.Ptr(c.config.ServerWebhookAddress),
-			ContentType: github.Ptr("form"),
-			Secret:      github.Ptr(r.GetHash()),
+			URL:         new(c.config.ServerWebhookAddress),
+			ContentType: new("form"),
+			Secret:      new(r.GetHash()),
 		},
-		Active: github.Ptr(true),
+		Active: new(true),
 	}
 
 	// send API call to update the webhook
