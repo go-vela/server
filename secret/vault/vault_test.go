@@ -222,8 +222,6 @@ func TestVault_AccurateSecretFields(t *testing.T) {
 	vaultSecret := testVaultSecretData()
 
 	for field := range tSecret.Fields() {
-		field := field
-
 		jsonTag := field.Tag.Get("json")
 		if jsonTag == "" {
 			continue
