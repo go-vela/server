@@ -10,7 +10,6 @@ import (
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/cache/models"
-	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 )
@@ -151,7 +150,7 @@ type Service interface {
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
 	// GetNetrcPassword defines a function that returns the netrc
 	// password injected into build steps.
-	GetNetrcPassword(context.Context, database.Interface, cache.Service, *api.Build, yaml.Git) (string, int64, error)
+	GetNetrcPassword(context.Context, database.Interface, cache.Service, *api.Build, []string, map[string]string) (string, int64, error)
 	// SyncRepoWithInstallation defines a function that syncs
 	// a repo with the installation, if it exists.
 	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)

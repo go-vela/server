@@ -15,7 +15,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache"
-	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 )
@@ -488,7 +487,7 @@ func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
-func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tknCache cache.Service, b *api.Build, g yaml.Git) (string, int64, error) {
+func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tknCache cache.Service, b *api.Build, repos []string, perms map[string]string) (string, int64, error) {
 	r := b.GetRepo()
 	u := b.GetRepo().GetOwner()
 
@@ -505,11 +504,6 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	}
 
 	var err error
-
-	// repos that the token has access to
-	// providing no repos, nil, or empty slice will default the token permissions to the list
-	// of repos added to the installation
-	repos := g.Repositories
 
 	// enforce max number of repos allowed for token
 	//
@@ -541,8 +535,8 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		permissions["deployments"] = constants.PermissionWrite
 	}
 
-	if len(g.Permissions) > 0 {
-		permissions = g.Permissions
+	if len(perms) > 0 {
+		permissions = perms
 
 		normalizePermissions(permissions)
 	}
@@ -550,7 +544,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	// verify repo owner has `write` access to listed repositories before provisioning install token
 	//
 	// this prevents an app installed across the org from bypassing restrictions
-	for _, repo := range g.Repositories {
+	for _, repo := range repos {
 		if repo == r.GetName() {
 			continue
 		}
