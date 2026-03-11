@@ -17,7 +17,6 @@ import (
 	"github.com/google/go-github/v84/github"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 )
 
@@ -1277,52 +1276,41 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 		name          string
 		repo          *api.Repo
 		user          *api.User
-		git           yaml.Git
+		repos         []string
+		perms         map[string]string
 		appsTransport bool
 		wantToken     string
 		wantExp       int64
 		wantErr       bool
 	}{
 		{
-			name: "installation token",
-			repo: installedRepo,
-			user: u,
-			git: yaml.Git{
-				Token: yaml.Token{
-					Repositories: []string{"Hello-World"},
-					Permissions:  map[string]string{"contents": "read"},
-				},
-			},
+			name:          "installation token",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{"Hello-World"},
+			perms:         map[string]string{"contents": "read"},
 			appsTransport: true,
 			wantToken:     "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
 			wantExp:       1468275250,
 			wantErr:       false,
 		},
 		{
-			name: "no app configured returns user oauth token",
-			repo: installedRepo,
-			user: u,
-			git: yaml.Git{
-				Token: yaml.Token{
-					Repositories: []string{"Hello-World"},
-					Permissions:  map[string]string{"contents": "read"},
-				},
-			},
+			name:          "no app configured returns user oauth token",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{"Hello-World"},
+			perms:         map[string]string{"contents": "read"},
 			appsTransport: false,
 			wantToken:     "bar",
 			wantExp:       0,
 			wantErr:       false,
 		},
 		{
-			name: "repo not installed returns user oauth token",
-			repo: oauthRepo,
-			user: u,
-			git: yaml.Git{
-				Token: yaml.Token{
-					Repositories: []string{"Hello-World"},
-					Permissions:  map[string]string{"contents": "read"},
-				},
-			},
+			name:          "repo not installed returns user oauth token",
+			repo:          oauthRepo,
+			user:          u,
+			repos:         []string{"Hello-World"},
+			perms:         map[string]string{"contents": "read"},
 			appsTransport: true,
 			wantToken:     "bar",
 			wantExp:       0,
@@ -1338,44 +1326,32 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			wantErr:       false,
 		},
 		{
-			name: "invalid permission resource",
-			repo: installedRepo,
-			user: u,
-			git: yaml.Git{
-				Token: yaml.Token{
-					Repositories: []string{"Hello-World"},
-					Permissions:  map[string]string{"invalid": "read"},
-				},
-			},
+			name:          "invalid permission resource",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{"Hello-World"},
+			perms:         map[string]string{"invalid": "read"},
 			appsTransport: true,
 			wantToken:     "bar",
 			wantExp:       0,
 			wantErr:       false,
 		},
 		{
-			name: "invalid permission level",
-			repo: installedRepo,
-			user: u,
-			git: yaml.Git{
-				Token: yaml.Token{
-					Repositories: []string{"Hello-World"},
-					Permissions:  map[string]string{"contents": "invalid"},
-				},
-			},
+			name:          "invalid permission level",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{"Hello-World"},
+			perms:         map[string]string{"contents": "invalid"},
 			appsTransport: true,
 			wantToken:     "bar",
 			wantExp:       0,
 			wantErr:       false,
 		},
 		{
-			name: "owner with inadequate permission to other repo",
-			repo: otherRepo,
-			user: badUser,
-			git: yaml.Git{
-				Token: yaml.Token{
-					Repositories: []string{"Hello-World"},
-				},
-			},
+			name:          "owner with inadequate permission to other repo",
+			repo:          otherRepo,
+			user:          badUser,
+			repos:         []string{"Hello-World"},
 			appsTransport: true,
 			wantToken:     "bar",
 			wantExp:       0,
@@ -1395,7 +1371,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			testBuild := new(api.Build)
 			testBuild.SetRepo(test.repo)
 
-			got, gotExp, err := client.GetNetrcPassword(t.Context(), nil, nil, testBuild, test.git)
+			got, gotExp, err := client.GetNetrcPassword(t.Context(), nil, nil, testBuild, test.repos, test.perms)
 			if (err != nil) != test.wantErr {
 				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
 				return

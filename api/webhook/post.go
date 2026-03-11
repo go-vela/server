@@ -483,7 +483,21 @@ func PostWebhook(c *gin.Context) {
 
 		util.HandleError(c, code, err)
 
-		err = scm.FromContext(c).Status(ctx, b, p.Token)
+		// send status update with proper token
+		var scmToken string
+
+		if repo.GetInstallID() != 0 {
+			scmToken, _, err = scm.FromContext(c).GetNetrcPassword(ctx, database.FromContext(c), cache.FromContext(c), b, nil, nil)
+			if err != nil {
+				l.Errorf("unable to generate installation token for failed compile status %s: %v", repo.GetFullName(), err)
+
+				return
+			}
+		} else {
+			scmToken = repo.GetOwner().GetToken()
+		}
+
+		err = scm.FromContext(c).Status(ctx, b, scmToken)
 		if err != nil {
 			l.Debugf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 		}

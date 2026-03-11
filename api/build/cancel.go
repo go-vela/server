@@ -15,7 +15,6 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache"
-	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
@@ -161,7 +160,7 @@ func CancelBuild(c *gin.Context) {
 	var scmToken string
 
 	if b.GetRepo().GetInstallID() != 0 {
-		scmToken, _, err = scm.FromContext(c).GetNetrcPassword(ctx, database.FromContext(c), cache.FromContext(c), b, yaml.Git{})
+		scmToken, _, err = scm.FromContext(c).GetNetrcPassword(ctx, database.FromContext(c), cache.FromContext(c), b, nil, nil)
 		if err != nil {
 			l.Errorf("unable to generate new installation token for build %s: %v", entry, err)
 
