@@ -569,7 +569,7 @@ func (c *Client) processMergeGroupEvent(_ context.Context, h *api.Hook, payload 
 	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
 	b.SetAuthor(payload.GetMergeGroup().GetHeadCommit().GetAuthor().GetLogin())
 	b.SetEmail(payload.GetMergeGroup().GetHeadCommit().GetAuthor().GetEmail())
-	b.SetBranch(strings.TrimPrefix(payload.GetMergeGroup().GetHeadRef(), "refs/heads/"))
+	b.SetBranch(strings.TrimPrefix(payload.GetMergeGroup().GetBaseRef(), "refs/heads/"))
 	b.SetRef(payload.GetMergeGroup().GetHeadRef())
 	b.SetBaseRef(payload.GetMergeGroup().GetBaseRef())
 

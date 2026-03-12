@@ -1518,6 +1518,100 @@ func TestGitHub_ProcessWebhook_CustomPropertyValuesUpdated(t *testing.T) {
 	}
 }
 
+func TestGithub_ProcessWebhook_MergeGroup(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// run test
+	wantHook := new(api.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("merge_group")
+	wantHook.SetBranch("main")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/github/octocat/settings/hooks")
+
+	wantRepo := new(api.Repo)
+	wantRepo.SetOrg("github")
+	wantRepo.SetName("octocat")
+	wantRepo.SetFullName("github/octocat")
+	wantRepo.SetLink("https://github.com/github/octocat")
+	wantRepo.SetClone("https://github.com/github/octocat.git")
+	wantRepo.SetBranch("main")
+	wantRepo.SetPrivate(true)
+	wantRepo.SetTopics([]string{})
+	wantRepo.SetCustomProps(map[string]any{"FOO": "testing"})
+
+	wantBuild := new(api.Build)
+	wantBuild.SetEvent("merge_group")
+	wantBuild.SetEventAction("checks_requested")
+	wantBuild.SetClone("https://github.com/github/octocat.git")
+	wantBuild.SetSource("")
+	wantBuild.SetTitle("merge_group received from https://github.com/github/octocat")
+	wantBuild.SetMessage("my pull request (#2)")
+	wantBuild.SetCommit("f6b6efc1dfdd34b430accaab861ae9e399ea1b35")
+	wantBuild.SetSender("Octokitty")
+	wantBuild.SetSenderSCMID("163044140")
+	wantBuild.SetAuthor("GitHub")
+	wantBuild.SetEmail("octocat@github.com")
+	wantBuild.SetBranch("main")
+	wantBuild.SetBaseRef("refs/heads/main")
+	wantBuild.SetRef("refs/heads/gh-readonly-queue/main/pr-2-eeffa8ad00f1e032d2b2cf329211f7ae6f2b3c14")
+
+	tests := []struct {
+		name     string
+		testData string
+		want     *internal.Webhook
+		wantErr  bool
+	}{
+		{
+			name:     "success",
+			testData: "testdata/hooks/checks_requested.json",
+			want: &internal.Webhook{
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, err := os.Open(tt.testData)
+			if err != nil {
+				t.Errorf("unable to open file: %v", err)
+			}
+
+			defer body.Close()
+
+			request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+			request.Header.Set("Content-Type", "application/json")
+			request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+			request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+			request.Header.Set("X-GitHub-Hook-ID", "123456")
+			request.Header.Set("X-GitHub-Host", "github.com")
+			request.Header.Set("X-GitHub-Version", "2.16.0")
+			request.Header.Set("X-GitHub-Event", "merge_group")
+
+			client, _ := NewTest(s.URL)
+
+			got, err := client.ProcessWebhook(context.TODO(), request)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ProcessWebhook() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestGithub_Redeliver_Webhook(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
