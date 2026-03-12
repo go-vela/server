@@ -70,7 +70,7 @@ func (c *Client) SubstituteSteps(s types.StepSlice) (types.StepSlice, error) {
 		// unmarshal step configuration
 		err = yaml.Unmarshal([]byte(subStep), step)
 		if err != nil {
-			return nil, fmt.Errorf("unable to unmarshal configuration: %w", err)
+			return nil, fmt.Errorf("unable to unmarshal configuration after substitution for step %s: %w", step.Name, err)
 		}
 	}
 
