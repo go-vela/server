@@ -611,7 +611,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		if db != nil && r.GetInstallID() != id {
 			r.SetInstallID(id)
 
-			_, err = db.UpdateRepo(ctx, r)
+			err = db.PartialUpdateRepo(ctx, &api.Repo{ID: r.ID, InstallID: &id})
 			if err != nil {
 				c.Logger.Tracef("unable to update repo with install ID %d: %v", id, err)
 			}

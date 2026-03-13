@@ -258,16 +258,38 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// update custom props, topics, default branch on all events (some repos may have these fields set prior to installing Vela)
-	repo.SetBranch(r.GetBranch())
-	repo.SetCustomProps(r.GetCustomProps())
-	repo.SetTopics(r.GetTopics())
+	repoMetaUpdates := &types.Repo{ID: repo.ID}
+	changed := false
 
-	repo, err = db.UpdateRepo(ctx, repo)
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+	if !reflect.DeepEqual(r.GetCustomProps(), repo.GetCustomProps()) {
+		repo.SetCustomProps(r.GetCustomProps())
+		repoMetaUpdates.SetCustomProps(r.GetCustomProps())
 
-		return
+		changed = true
+	}
+
+	if !reflect.DeepEqual(r.GetTopics(), repo.GetTopics()) {
+		repo.SetTopics(r.GetTopics())
+		repoMetaUpdates.SetTopics(r.GetTopics())
+
+		changed = true
+	}
+
+	if r.GetBranch() != repo.GetBranch() {
+		repo.SetBranch(r.GetBranch())
+		repoMetaUpdates.SetBranch(r.GetBranch())
+
+		changed = true
+	}
+
+	if changed {
+		err = db.PartialUpdateRepo(ctx, repoMetaUpdates)
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
 	}
 
 	l.Debugf(`build author: %s,
@@ -338,7 +360,8 @@ func PostWebhook(c *gin.Context) {
 			err = fmt.Errorf("unable to create webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 
 			// check if the retry limit has been exceeded
-			if i < retryLimit {
+			if i < retryLimit-1 {
+				logrus.Infof("retrying hook creation after attempt %d error: %v", i+1, err)
 				// continue to the next iteration of the loop
 				continue
 			}
@@ -713,25 +736,31 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 
 		h.SetRepo(dbRepo)
 
+		repoMetaUpdates := &types.Repo{ID: dbRepo.ID}
+
 		// the only edits to a repo that impact Vela are to these three fields
 		if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
 			dbRepo.SetBranch(r.GetBranch())
+			repoMetaUpdates.SetBranch(r.GetBranch())
 		}
 
 		if dbRepo.GetActive() != r.GetActive() {
 			dbRepo.SetActive(r.GetActive())
+			repoMetaUpdates.SetActive(r.GetActive())
 		}
 
 		if !reflect.DeepEqual(dbRepo.GetTopics(), r.GetTopics()) {
 			dbRepo.SetTopics(r.GetTopics())
+			repoMetaUpdates.SetTopics(r.GetTopics())
 		}
 
 		if !reflect.DeepEqual(dbRepo.GetCustomProps(), r.GetCustomProps()) {
 			dbRepo.SetCustomProps(r.GetCustomProps())
+			repoMetaUpdates.SetCustomProps(r.GetCustomProps())
 		}
 
 		// update repo object in the database after applying edits
-		dbRepo, err := db.UpdateRepo(ctx, dbRepo)
+		err := db.PartialUpdateRepo(ctx, repoMetaUpdates)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
 

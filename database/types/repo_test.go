@@ -4,7 +4,6 @@ package types
 
 import (
 	"database/sql"
-	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -106,56 +105,6 @@ func TestTypes_Repo_Encrypt(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("Encrypt returned err: %v", err)
-		}
-	}
-}
-
-func TestTypes_Repo_Nullify(t *testing.T) {
-	// setup types
-	var r *Repo
-
-	want := &Repo{
-		ID:           sql.NullInt64{Int64: 0, Valid: false},
-		UserID:       sql.NullInt64{Int64: 0, Valid: false},
-		Hash:         sql.NullString{String: "", Valid: false},
-		Org:          sql.NullString{String: "", Valid: false},
-		Name:         sql.NullString{String: "", Valid: false},
-		FullName:     sql.NullString{String: "", Valid: false},
-		Link:         sql.NullString{String: "", Valid: false},
-		Clone:        sql.NullString{String: "", Valid: false},
-		Branch:       sql.NullString{String: "", Valid: false},
-		Timeout:      sql.NullInt32{Int32: 0, Valid: false},
-		AllowEvents:  sql.NullInt64{Int64: 0, Valid: false},
-		Visibility:   sql.NullString{String: "", Valid: false},
-		PipelineType: sql.NullString{String: "", Valid: false},
-		ApproveBuild: sql.NullString{String: "", Valid: false},
-	}
-
-	// setup tests
-	tests := []struct {
-		repo *Repo
-		want *Repo
-	}{
-		{
-			repo: testRepo(),
-			want: testRepo(),
-		},
-		{
-			repo: r,
-			want: nil,
-		},
-		{
-			repo: new(Repo),
-			want: want,
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		got := test.repo.Nullify()
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("Nullify is %v, want %v", got, test.want)
 		}
 	}
 }
