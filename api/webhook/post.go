@@ -8,8 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
-	"reflect"
+	"slices"
 	"strings"
 	"time"
 
@@ -261,14 +262,14 @@ func PostWebhook(c *gin.Context) {
 	repoMetaUpdates := &types.Repo{ID: repo.ID}
 	changed := false
 
-	if !reflect.DeepEqual(r.GetCustomProps(), repo.GetCustomProps()) {
+	if !maps.Equal(r.GetCustomProps(), repo.GetCustomProps()) {
 		repo.SetCustomProps(r.GetCustomProps())
 		repoMetaUpdates.SetCustomProps(r.GetCustomProps())
 
 		changed = true
 	}
 
-	if !reflect.DeepEqual(r.GetTopics(), repo.GetTopics()) {
+	if !slices.Equal(r.GetTopics(), repo.GetTopics()) {
 		repo.SetTopics(r.GetTopics())
 		repoMetaUpdates.SetTopics(r.GetTopics())
 
@@ -739,7 +740,7 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 		repoMetaUpdates := &types.Repo{ID: dbRepo.ID}
 
 		// the only edits to a repo that impact Vela are to these three fields
-		if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
+		if dbRepo.GetBranch() != r.GetBranch() {
 			dbRepo.SetBranch(r.GetBranch())
 			repoMetaUpdates.SetBranch(r.GetBranch())
 		}
@@ -749,12 +750,12 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 			repoMetaUpdates.SetActive(r.GetActive())
 		}
 
-		if !reflect.DeepEqual(dbRepo.GetTopics(), r.GetTopics()) {
+		if !slices.Equal(dbRepo.GetTopics(), r.GetTopics()) {
 			dbRepo.SetTopics(r.GetTopics())
 			repoMetaUpdates.SetTopics(r.GetTopics())
 		}
 
-		if !reflect.DeepEqual(dbRepo.GetCustomProps(), r.GetCustomProps()) {
+		if !maps.Equal(dbRepo.GetCustomProps(), r.GetCustomProps()) {
 			dbRepo.SetCustomProps(r.GetCustomProps())
 			repoMetaUpdates.SetCustomProps(r.GetCustomProps())
 		}
