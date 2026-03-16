@@ -4,7 +4,6 @@ package repo
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -14,7 +13,7 @@ import (
 	"github.com/go-vela/server/database/testutils"
 )
 
-func TestRepo_Engine_UpdateRepo(t *testing.T) {
+func TestRepo_Engine_PartialUpdateRepo(t *testing.T) {
 	// setup types
 	_repo := testutils.APIRepo()
 	_repo.SetID(1)
@@ -32,15 +31,18 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	_repo.SetApprovalTimeout(5)
 	_repo.SetCustomProps(map[string]any{"foo": "bar"})
 
+	updates := new(api.Repo)
+	updates.SetID(1)
+	updates.SetTopics([]string{"topic1", "topic2"})
+	updates.SetVisibility("private")
+
 	_postgres, _mock := testPostgres(t)
 
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
-	_mock.ExpectExec(`UPDATE "repos"
-SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"hook_counter"=$13,"visibility"=$14,"private"=$15,"trusted"=$16,"active"=$17,"allow_events"=$18,"merge_queue_events"=$19,"pipeline_type"=$20,"previous_name"=$21,"approve_build"=$22,"approval_timeout"=$23,"install_id"=$24,"custom_props"=$25
-WHERE "id" = $26`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", "", "", "", AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 1, nil, "yaml", "oldName", constants.ApproveForkAlways, 5, 0, `{"foo":"bar"}`, 1).
+	_mock.ExpectExec(`UPDATE "repos" SET "topics"=$1,"visibility"=$2 WHERE "id" = $3`).
+		WithArgs(`{"topic1","topic2"}`, "private", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
@@ -73,22 +75,18 @@ WHERE "id" = $26`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.UpdateRepo(context.TODO(), _repo)
+			err := test.database.PartialUpdateRepo(context.TODO(), updates)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("UpdateRepo for %s should have returned err", test.name)
+					t.Errorf("PartialUpdateRepo for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("UpdateRepo for %s returned err: %v", test.name, err)
-			}
-
-			if !reflect.DeepEqual(got, _repo) {
-				t.Errorf("UpdateRepo for %s returned %s, want %s", test.name, got, _repo)
+				t.Errorf("PartialUpdateRepo for %s returned err: %v", test.name, err)
 			}
 		})
 	}

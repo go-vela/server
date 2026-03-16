@@ -1651,6 +1651,35 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	methods["UpdateRepo"] = true
 	methods["GetRepo"] = true
 
+	updateRepo := new(api.Repo)
+	updateRepo.SetID(resources.Repos[0].GetID())
+	updateRepo.SetBranch("dev")
+
+	err = db.PartialUpdateRepo(context.TODO(), updateRepo)
+	if err != nil {
+		t.Errorf("unable to partially update repo: %v", err)
+	}
+
+	got, err := db.GetRepo(context.TODO(), resources.Repos[0].GetID())
+	if err != nil {
+		t.Errorf("unable to get repo %d by ID: %v", resources.Repos[0].GetID(), err)
+	}
+
+	if got.GetBranch() != "dev" {
+		t.Errorf("PartialUpdateRepo() branch is %v, want %v", got.GetBranch(), "dev")
+	}
+
+	resetUpdateRepo := new(api.Repo)
+	resetUpdateRepo.SetID(resources.Repos[0].GetID())
+	resetUpdateRepo.SetBranch("main")
+
+	err = db.PartialUpdateRepo(context.TODO(), resetUpdateRepo)
+	if err != nil {
+		t.Errorf("unable to partially update repo: %v", err)
+	}
+
+	methods["PartialUpdateRepo"] = true
+
 	for _, build := range resources.Builds {
 		err = db.DeleteBuild(context.TODO(), build)
 		if err != nil {

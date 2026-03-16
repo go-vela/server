@@ -50,4 +50,6 @@ type RepoInterface interface {
 	ListReposForUser(context.Context, *api.User, string, map[string]any, int, int) ([]*api.Repo, error)
 	// UpdateRepo defines a function that updates an existing repo.
 	UpdateRepo(context.Context, *api.Repo) (*api.Repo, error)
+	// PartialUpdateRepo defines a function that updates an existing repo with a map of fields to update.
+	PartialUpdateRepo(context.Context, *api.Repo) error
 }

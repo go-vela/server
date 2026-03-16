@@ -160,105 +160,6 @@ func (r *Repo) Encrypt(key string) error {
 	return nil
 }
 
-// Nullify ensures the valid flag for
-// the sql.Null types are properly set.
-//
-// When a field within the Repo type is the zero
-// value for the field, the valid flag is set to
-// false causing it to be NULL in the database.
-func (r *Repo) Nullify() *Repo {
-	if r == nil {
-		return nil
-	}
-
-	// check if the ID field should be false
-	if r.ID.Int64 == 0 {
-		r.ID.Valid = false
-	}
-
-	// check if the UserID field should be false
-	if r.UserID.Int64 == 0 {
-		r.UserID.Valid = false
-	}
-
-	// check if the Hash field should be false
-	if len(r.Hash.String) == 0 {
-		r.Hash.Valid = false
-	}
-
-	// check if the Org field should be false
-	if len(r.Org.String) == 0 {
-		r.Org.Valid = false
-	}
-
-	// check if the Name field should be false
-	if len(r.Name.String) == 0 {
-		r.Name.Valid = false
-	}
-
-	// check if the FullName field should be false
-	if len(r.FullName.String) == 0 {
-		r.FullName.Valid = false
-	}
-
-	// check if the Link field should be false
-	if len(r.Link.String) == 0 {
-		r.Link.Valid = false
-	}
-
-	// check if the Clone field should be false
-	if len(r.Clone.String) == 0 {
-		r.Clone.Valid = false
-	}
-
-	// check if the Branch field should be false
-	if len(r.Branch.String) == 0 {
-		r.Branch.Valid = false
-	}
-
-	// check if the BuildLimit field should be false
-	if r.BuildLimit.Int32 == 0 {
-		r.BuildLimit.Valid = false
-	}
-
-	// check if the Timeout field should be false
-	if r.Timeout.Int32 == 0 {
-		r.Timeout.Valid = false
-	}
-
-	// check if the AllowEvents field should be false
-	if r.AllowEvents.Int64 == 0 {
-		r.AllowEvents.Valid = false
-	}
-
-	// check if the Visibility field should be false
-	if len(r.Visibility.String) == 0 {
-		r.Visibility.Valid = false
-	}
-
-	// check if the PipelineType field should be false
-	if len(r.PipelineType.String) == 0 {
-		r.PipelineType.Valid = false
-	}
-
-	// check if the PreviousName field should be false
-	if len(r.PreviousName.String) == 0 {
-		r.PreviousName.Valid = false
-	}
-
-	// check if the ApproveForkBuild field should be false
-	if len(r.ApproveBuild.String) == 0 {
-		r.ApproveBuild.Valid = false
-	}
-
-	// check if the ApprovalTimeout field should be false
-	if r.ApprovalTimeout.Int32 == 0 {
-		r.ApprovalTimeout.Valid = false
-	}
-
-	return r
-}
-
 // ToAPI converts the Repo type
 // to an API Repo type.
 func (r *Repo) ToAPI() *api.Repo {
@@ -369,33 +270,42 @@ func (r *Repo) Validate() error {
 // to a database repo type.
 func RepoFromAPI(r *api.Repo) *Repo {
 	repo := &Repo{
-		ID:               sql.NullInt64{Int64: r.GetID(), Valid: true},
-		UserID:           sql.NullInt64{Int64: r.GetOwner().GetID(), Valid: true},
-		Hash:             sql.NullString{String: r.GetHash(), Valid: true},
-		Org:              sql.NullString{String: r.GetOrg(), Valid: true},
-		Name:             sql.NullString{String: r.GetName(), Valid: true},
-		FullName:         sql.NullString{String: r.GetFullName(), Valid: true},
-		Link:             sql.NullString{String: r.GetLink(), Valid: true},
-		Clone:            sql.NullString{String: r.GetClone(), Valid: true},
-		Branch:           sql.NullString{String: r.GetBranch(), Valid: true},
-		Topics:           pq.StringArray(r.GetTopics()),
-		BuildLimit:       sql.NullInt32{Int32: r.GetBuildLimit(), Valid: true},
-		Timeout:          sql.NullInt32{Int32: r.GetTimeout(), Valid: true},
-		Counter:          sql.NullInt64{Int64: r.GetCounter(), Valid: true},
-		HookCounter:      sql.NullInt64{Int64: r.GetHookCounter(), Valid: true},
-		Visibility:       sql.NullString{String: r.GetVisibility(), Valid: true},
-		Private:          sql.NullBool{Bool: r.GetPrivate(), Valid: true},
-		Trusted:          sql.NullBool{Bool: r.GetTrusted(), Valid: true},
-		Active:           sql.NullBool{Bool: r.GetActive(), Valid: true},
-		AllowEvents:      sql.NullInt64{Int64: r.GetAllowEvents().ToDatabase(), Valid: true},
-		MergeQueueEvents: pq.StringArray(r.GetMergeQueueEvents()),
-		PipelineType:     sql.NullString{String: r.GetPipelineType(), Valid: true},
-		PreviousName:     sql.NullString{String: r.GetPreviousName(), Valid: true},
-		ApproveBuild:     sql.NullString{String: r.GetApproveBuild(), Valid: true},
-		ApprovalTimeout:  sql.NullInt32{Int32: r.GetApprovalTimeout(), Valid: true},
-		InstallID:        sql.NullInt64{Int64: r.GetInstallID(), Valid: true},
-		CustomProps:      r.GetCustomProps(),
+		ID:              sql.NullInt64{Int64: r.GetID(), Valid: r.ID != nil},
+		UserID:          sql.NullInt64{Int64: r.GetOwner().GetID(), Valid: r.Owner != nil},
+		Hash:            sql.NullString{String: r.GetHash(), Valid: r.Hash != nil},
+		Org:             sql.NullString{String: r.GetOrg(), Valid: r.Org != nil},
+		Name:            sql.NullString{String: r.GetName(), Valid: r.Name != nil},
+		FullName:        sql.NullString{String: r.GetFullName(), Valid: r.FullName != nil},
+		Link:            sql.NullString{String: r.GetLink(), Valid: r.Link != nil},
+		Clone:           sql.NullString{String: r.GetClone(), Valid: r.Clone != nil},
+		Branch:          sql.NullString{String: r.GetBranch(), Valid: r.Branch != nil},
+		BuildLimit:      sql.NullInt32{Int32: r.GetBuildLimit(), Valid: r.BuildLimit != nil},
+		Timeout:         sql.NullInt32{Int32: r.GetTimeout(), Valid: r.Timeout != nil},
+		Counter:         sql.NullInt64{Int64: r.GetCounter(), Valid: r.Counter != nil},
+		HookCounter:     sql.NullInt64{Int64: r.GetHookCounter(), Valid: r.HookCounter != nil},
+		Visibility:      sql.NullString{String: r.GetVisibility(), Valid: r.Visibility != nil},
+		Private:         sql.NullBool{Bool: r.GetPrivate(), Valid: r.Private != nil},
+		Trusted:         sql.NullBool{Bool: r.GetTrusted(), Valid: r.Trusted != nil},
+		Active:          sql.NullBool{Bool: r.GetActive(), Valid: r.Active != nil},
+		AllowEvents:     sql.NullInt64{Int64: r.GetAllowEvents().ToDatabase(), Valid: r.AllowEvents != nil},
+		PipelineType:    sql.NullString{String: r.GetPipelineType(), Valid: r.PipelineType != nil},
+		PreviousName:    sql.NullString{String: r.GetPreviousName(), Valid: r.PreviousName != nil},
+		ApproveBuild:    sql.NullString{String: r.GetApproveBuild(), Valid: r.ApproveBuild != nil},
+		ApprovalTimeout: sql.NullInt32{Int32: r.GetApprovalTimeout(), Valid: r.ApprovalTimeout != nil},
+		InstallID:       sql.NullInt64{Int64: r.GetInstallID(), Valid: r.InstallID != nil},
 	}
 
-	return repo.Nullify()
+	if r.Topics != nil {
+		repo.Topics = pq.StringArray(r.GetTopics())
+	}
+
+	if r.MergeQueueEvents != nil {
+		repo.MergeQueueEvents = pq.StringArray(r.GetMergeQueueEvents())
+	}
+
+	if r.CustomProps != nil {
+		repo.CustomProps = r.GetCustomProps()
+	}
+
+	return repo
 }

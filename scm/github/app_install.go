@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/go-vela/server/api/types"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -80,7 +81,7 @@ func updateRepoInstallationID(ctx context.Context, webhook *internal.Webhook, r 
 	h.SetEvent(constants.EventInstallation)
 	h.SetStatus(webhook.Hook.GetStatus())
 
-	r, err := db.UpdateRepo(ctx, r)
+	err := db.PartialUpdateRepo(ctx, &api.Repo{ID: r.ID, InstallID: &installID})
 	if err != nil {
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(err.Error())

@@ -4,6 +4,7 @@ package repo
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -27,6 +28,14 @@ func (e *Engine) CreateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error)
 	err := repo.Validate()
 	if err != nil {
 		return nil, err
+	}
+
+	if !repo.Counter.Valid {
+		repo.Counter = sql.NullInt64{Int64: 0, Valid: true}
+	}
+
+	if !repo.HookCounter.Valid {
+		repo.HookCounter = sql.NullInt64{Int64: 0, Valid: true}
 	}
 
 	// encrypt the fields for the repo
