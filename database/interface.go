@@ -7,6 +7,7 @@ import (
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
+	"github.com/go-vela/server/database/favorite"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
@@ -53,6 +54,9 @@ type Interface interface {
 
 	// DeploymentInterface defines the interface for deployments stored in the database.
 	deployment.DeploymentInterface
+
+	// FavoriteInterface defines the interface for user favorites stored in the database.
+	favorite.FavoriteInterface
 
 	// HookInterface defines the interface for hooks stored in the database.
 	hook.HookInterface

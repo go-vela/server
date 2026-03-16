@@ -24,6 +24,7 @@ import (
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
+	"github.com/go-vela/server/database/favorite"
 	"github.com/go-vela/server/database/hook"
 	dbJWK "github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
@@ -40,25 +41,35 @@ import (
 	"github.com/go-vela/server/tracing"
 )
 
-// Resources represents the object containing test resources.
-type Resources struct {
-	Builds      []*api.Build
-	Dashboards  []*api.Dashboard
-	Deployments []*api.Deployment
-	Executables []*api.BuildExecutable
-	Hooks       []*api.Hook
-	JWKs        jwk.Set
-	Logs        []*api.Log
-	Pipelines   []*api.Pipeline
-	Repos       []*api.Repo
-	Schedules   []*api.Schedule
-	Secrets     []*api.Secret
-	Services    []*api.Service
-	Steps       []*api.Step
-	Users       []*api.User
-	Workers     []*api.Worker
-	Platform    []*settings.Platform
-}
+type (
+	FavoriteMatrix struct {
+		Repos         []*api.Repo
+		Before        []*api.Favorite
+		AfterMoveUp   []*api.Favorite
+		AfterMoveDown []*api.Favorite
+		AfterDelete   []*api.Favorite
+	}
+
+	Resources struct {
+		Builds      []*api.Build
+		Dashboards  []*api.Dashboard
+		Deployments []*api.Deployment
+		Executables []*api.BuildExecutable
+		Favorites   FavoriteMatrix
+		Hooks       []*api.Hook
+		JWKs        jwk.Set
+		Logs        []*api.Log
+		Pipelines   []*api.Pipeline
+		Repos       []*api.Repo
+		Schedules   []*api.Schedule
+		Secrets     []*api.Secret
+		Services    []*api.Service
+		Steps       []*api.Step
+		Users       []*api.User
+		Workers     []*api.Worker
+		Platform    []*settings.Platform
+	}
+)
 
 func TestDatabase_Integration(t *testing.T) {
 	// check if we should skip the integration test
@@ -139,6 +150,8 @@ func TestDatabase_Integration(t *testing.T) {
 			t.Run("test_deployments", func(t *testing.T) { testDeployments(t, db, resources) })
 
 			t.Run("test_executables", func(t *testing.T) { testExecutables(t, db, resources) })
+
+			t.Run("test_favorites", func(t *testing.T) { testFavorites(t, db, resources) })
 
 			t.Run("test_hooks", func(t *testing.T) { testHooks(t, db, resources) })
 
@@ -818,6 +831,146 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the repos for hook related functions
 	for _, repo := range resources.Repos {
+		err = db.DeleteRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to delete repo: %v", err)
+		}
+	}
+
+	// delete the users for the hook related functions
+	for _, user := range resources.Users {
+		err = db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user: %v", err)
+		}
+	}
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for deployments", method)
+		}
+	}
+}
+
+func testFavorites(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for favorites
+	methods := make(map[string]bool)
+	// capture the element type of the favorite interface
+	element := reflect.TypeOf(new(favorite.FavoriteInterface)).Elem()
+	// iterate through all methods found in the favorite interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for favorites
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	user := resources.Favorites.Repos[0].GetOwner()
+
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
+	// create the repos for favorite related functions
+	for _, repo := range resources.Favorites.Repos {
+		_, err := db.CreateRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+		}
+	}
+
+	// create the favorites
+	for _, favorite := range resources.Favorites.Before {
+		err := db.CreateFavorite(context.TODO(), user, favorite)
+		if err != nil {
+			t.Errorf("unable to create favorite %s: %v", favorite.GetRepo(), err)
+		}
+	}
+
+	methods["CreateFavorite"] = true
+
+	// list the user favorites
+	list, err := db.ListUserFavorites(context.TODO(), user)
+	if err != nil {
+		t.Errorf("unable to list user favorites: %v", err)
+	}
+
+	if diff := cmp.Diff(resources.Favorites.Before, list); diff != "" {
+		t.Errorf("ListUserFavorites() mismatch (-want +got):\n%s", diff)
+	}
+
+	methods["ListUserFavorites"] = true
+
+	// move favorite up
+	err = db.UpdateFavoritePosition(context.TODO(), user, resources.Favorites.Repos[1], resources.Favorites.AfterMoveUp[0])
+	if err != nil {
+		t.Errorf("unable to move favorite up: %v", err)
+	}
+
+	list, err = db.ListUserFavorites(context.TODO(), user)
+	if err != nil {
+		t.Errorf("unable to list user favorites: %v", err)
+	}
+
+	if diff := cmp.Diff(resources.Favorites.AfterMoveUp, list); diff != "" {
+		t.Errorf("ListUserFavorites() mismatch (-want +got):\n%s", diff)
+	}
+
+	err = db.UpdateFavoritePosition(context.TODO(), user, resources.Favorites.Repos[0], resources.Favorites.AfterMoveDown[2])
+	if err != nil {
+		t.Errorf("unable to move favorite up: %v", err)
+	}
+
+	list, err = db.ListUserFavorites(context.TODO(), user)
+	if err != nil {
+		t.Errorf("unable to list user favorites: %v", err)
+	}
+
+	if diff := cmp.Diff(resources.Favorites.AfterMoveDown, list); diff != "" {
+		t.Errorf("ListUserFavorites() mismatch (-want +got):\n%s", diff)
+	}
+
+	methods["UpdateFavoritePosition"] = true
+
+	// delete a favorite
+	err = db.DeleteFavorite(context.TODO(), user, resources.Favorites.Repos[1])
+	if err != nil {
+		t.Errorf("unable to delete favorite %d: %v", resources.Favorites.Repos[1].GetID(), err)
+	}
+
+	list, err = db.ListUserFavorites(context.TODO(), user)
+	if err != nil {
+		t.Errorf("unable to list user favorites: %v", err)
+	}
+
+	if diff := cmp.Diff(resources.Favorites.AfterDelete, list); diff != "" {
+		t.Errorf("ListUserFavorites() mismatch (-want +got):\n%s", diff)
+	}
+
+	// delete rest
+	err = db.DeleteFavorite(context.TODO(), user, resources.Favorites.Repos[0])
+	if err != nil {
+		t.Errorf("unable to delete favorite %d: %v", resources.Favorites.Repos[0].GetID(), err)
+	}
+
+	err = db.DeleteFavorite(context.TODO(), user, resources.Favorites.Repos[2])
+	if err != nil {
+		t.Errorf("unable to delete favorite %d: %v", resources.Favorites.Repos[2].GetID(), err)
+	}
+
+	methods["DeleteFavorite"] = true
+
+	// delete the repos for hook related functions
+	for _, repo := range resources.Favorites.Repos {
 		err = db.DeleteRepo(context.TODO(), repo)
 		if err != nil {
 			t.Errorf("unable to delete repo: %v", err)
@@ -2862,6 +3015,32 @@ func newResources() *Resources {
 	repoTwo.SetInstallID(0)
 	repoTwo.SetCustomProps(map[string]any{"foo": "bar"})
 
+	repoThree := new(api.Repo)
+	repoThree.SetID(3)
+	repoThree.SetOwner(userOne.Crop())
+	repoThree.SetHash("YzE0ZDI3ZTAtZTI0Zi00Y2E3LTkzZTAtY2E3N2JlMjI3NjBi")
+	repoThree.SetOrg("github")
+	repoThree.SetName("hello-world")
+	repoThree.SetFullName("github/hello-world")
+	repoThree.SetLink("https://github.com/github/hello-world")
+	repoThree.SetClone("https://github.com/github/hello-world.git")
+	repoThree.SetBranch("main")
+	repoThree.SetTopics([]string{"cloud", "security"})
+	repoThree.SetBuildLimit(10)
+	repoThree.SetTimeout(30)
+	repoThree.SetCounter(0)
+	repoThree.SetVisibility("public")
+	repoThree.SetPrivate(false)
+	repoThree.SetTrusted(false)
+	repoThree.SetActive(true)
+	repoThree.SetPipelineType("")
+	repoThree.SetPreviousName("")
+	repoThree.SetApproveBuild(constants.ApproveForkAlways)
+	repoThree.SetAllowEvents(api.NewEventsFromMask(1))
+	repoThree.SetApprovalTimeout(7)
+	repoThree.SetInstallID(0)
+	repoThree.SetCustomProps(map[string]any{"foo": "bar"})
+
 	buildOne := new(api.Build)
 	buildOne.SetID(1)
 	buildOne.SetRepo(repoOne)
@@ -3017,6 +3196,50 @@ func newResources() *Resources {
 	deploymentTwo.SetPayload(map[string]string{"foo": "test1"})
 	deploymentTwo.SetCreatedAt(1)
 	deploymentTwo.SetCreatedBy("octocat")
+
+	beforeFavoriteOne := new(api.Favorite)
+	beforeFavoriteOne.SetPosition(1)
+	beforeFavoriteOne.SetRepo("github/octocat")
+
+	beforeFavoriteTwo := new(api.Favorite)
+	beforeFavoriteTwo.SetPosition(2)
+	beforeFavoriteTwo.SetRepo("github/octokitty")
+
+	beforeFavoriteThree := new(api.Favorite)
+	beforeFavoriteThree.SetPosition(3)
+	beforeFavoriteThree.SetRepo("github/hello-world")
+
+	moveUpFavoriteOne := new(api.Favorite)
+	moveUpFavoriteOne.SetPosition(1)
+	moveUpFavoriteOne.SetRepo("github/octokitty")
+
+	moveUpFavoriteTwo := new(api.Favorite)
+	moveUpFavoriteTwo.SetPosition(2)
+	moveUpFavoriteTwo.SetRepo("github/octocat")
+
+	moveUpFavoriteThree := new(api.Favorite)
+	moveUpFavoriteThree.SetPosition(3)
+	moveUpFavoriteThree.SetRepo("github/hello-world")
+
+	moveDownFavoriteOne := new(api.Favorite)
+	moveDownFavoriteOne.SetPosition(1)
+	moveDownFavoriteOne.SetRepo("github/octokitty")
+
+	moveDownFavoriteTwo := new(api.Favorite)
+	moveDownFavoriteTwo.SetPosition(2)
+	moveDownFavoriteTwo.SetRepo("github/hello-world")
+
+	moveDownFavoriteThree := new(api.Favorite)
+	moveDownFavoriteThree.SetPosition(3)
+	moveDownFavoriteThree.SetRepo("github/octocat")
+
+	afterDeleteFavoriteOne := new(api.Favorite)
+	afterDeleteFavoriteOne.SetPosition(1)
+	afterDeleteFavoriteOne.SetRepo("github/hello-world")
+
+	afterDeleteFavoriteTwo := new(api.Favorite)
+	afterDeleteFavoriteTwo.SetPosition(2)
+	afterDeleteFavoriteTwo.SetRepo("github/octocat")
 
 	hookOne := new(api.Hook)
 	hookOne.SetID(1)
@@ -3349,17 +3572,24 @@ func newResources() *Resources {
 		Dashboards:  []*api.Dashboard{dashboardOne, dashboardTwo},
 		Deployments: []*api.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*api.BuildExecutable{executableOne, executableTwo},
-		Hooks:       []*api.Hook{hookOne, hookTwo, hookThree},
-		JWKs:        jwkSet,
-		Logs:        []*api.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
-		Pipelines:   []*api.Pipeline{pipelineOne, pipelineTwo},
-		Repos:       []*api.Repo{repoOne, repoTwo},
-		Schedules:   []*api.Schedule{scheduleOne, scheduleTwo},
-		Secrets:     []*api.Secret{secretOrg, secretRepo, secretShared},
-		Services:    []*api.Service{serviceOne, serviceTwo},
-		Steps:       []*api.Step{stepOne, stepTwo},
-		Users:       []*api.User{userOne, userTwo},
-		Workers:     []*api.Worker{workerOne, workerTwo},
+		Favorites: FavoriteMatrix{
+			Repos:         []*api.Repo{repoOne, repoTwo, repoThree},
+			Before:        []*api.Favorite{beforeFavoriteOne, beforeFavoriteTwo, beforeFavoriteThree},
+			AfterMoveUp:   []*api.Favorite{moveUpFavoriteOne, moveUpFavoriteTwo, moveUpFavoriteThree},
+			AfterMoveDown: []*api.Favorite{moveDownFavoriteOne, moveDownFavoriteTwo, moveDownFavoriteThree},
+			AfterDelete:   []*api.Favorite{afterDeleteFavoriteOne, afterDeleteFavoriteTwo},
+		},
+		Hooks:     []*api.Hook{hookOne, hookTwo, hookThree},
+		JWKs:      jwkSet,
+		Logs:      []*api.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
+		Pipelines: []*api.Pipeline{pipelineOne, pipelineTwo},
+		Repos:     []*api.Repo{repoOne, repoTwo},
+		Schedules: []*api.Schedule{scheduleOne, scheduleTwo},
+		Secrets:   []*api.Secret{secretOrg, secretRepo, secretShared},
+		Services:  []*api.Service{serviceOne, serviceTwo},
+		Steps:     []*api.Step{stepOne, stepTwo},
+		Users:     []*api.User{userOne, userTwo},
+		Workers:   []*api.Worker{workerOne, workerTwo},
 	}
 }
 
