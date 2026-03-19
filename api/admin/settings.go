@@ -255,14 +255,20 @@ func UpdateSettings(c *gin.Context) {
 
 	if input.EnableOrgSecrets != nil {
 		_s.SetEnableOrgSecrets(input.GetEnableOrgSecrets())
+
+		l.Infof("platform admin: updating enable org secrets to: %t", input.GetEnableOrgSecrets())
 	}
 
 	if input.EnableRepoSecrets != nil {
 		_s.SetEnableRepoSecrets(input.GetEnableRepoSecrets())
+
+		l.Infof("platform admin: updating enable repo secrets to: %t", input.GetEnableRepoSecrets())
 	}
 
 	if input.EnableSharedSecrets != nil {
 		_s.SetEnableSharedSecrets(input.GetEnableSharedSecrets())
+
+		l.Infof("platform admin: updating enable shared secrets to: %t", input.GetEnableSharedSecrets())
 	}
 
 	_s.SetUpdatedBy(u.GetName())
