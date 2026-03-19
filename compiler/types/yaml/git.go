@@ -23,6 +23,10 @@ type Token struct {
 // ToPipeline converts the Git type
 // to a pipeline Git type.
 func (g *Git) ToPipeline() *pipeline.Git {
+	if len(g.Repositories) == 0 && len(g.Permissions) == 0 {
+		return nil
+	}
+
 	for i, repo := range g.Repositories {
 		split := strings.Split(repo, "/")
 		if len(split) == 2 {
@@ -31,7 +35,7 @@ func (g *Git) ToPipeline() *pipeline.Git {
 	}
 
 	return &pipeline.Git{
-		Token: &pipeline.Token{
+		Token: pipeline.Token{
 			Repositories: g.Repositories,
 			Permissions:  g.Permissions,
 		},

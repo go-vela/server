@@ -20,6 +20,7 @@ type Build struct {
 	TokenExp    int64              `json:"token_exp,omitempty"   yaml:"token_exp,omitempty"`
 	Version     string             `json:"version,omitempty"     yaml:"version,omitempty"`
 	Metadata    Metadata           `json:"metadata"              yaml:"metadata,omitempty"`
+	Git         *Git               `json:"git"                   yaml:"git,omitempty"`
 	Environment raw.StringSliceMap `json:"environment,omitempty" yaml:"environment,omitempty"`
 	Worker      Worker             `json:"worker"                yaml:"worker,omitempty"`
 	Deployment  Deployment         `json:"deployment"            yaml:"deployment,omitempty"`

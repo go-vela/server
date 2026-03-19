@@ -499,6 +499,15 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// capture the build and repo from the items
+	if item == nil {
+		b = &types.Build{}
+	} else {
+		b = item.Build
+	}
+
+	scmToken := scm.FromContext(c).GenerateStatusToken(ctx, b)
+
 	if err != nil {
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(err.Error())
@@ -506,20 +515,6 @@ func PostWebhook(c *gin.Context) {
 		b.SetStatus(constants.StatusError)
 
 		util.HandleError(c, code, err)
-
-		// send status update with proper token
-		var scmToken string
-
-		if repo.GetInstallID() != 0 {
-			scmToken, _, err = scm.FromContext(c).GetNetrcPassword(ctx, database.FromContext(c), cache.FromContext(c), b, nil, nil)
-			if err != nil {
-				l.Errorf("unable to generate installation token for failed compile status %s: %v", repo.GetFullName(), err)
-
-				return
-			}
-		} else {
-			scmToken = repo.GetOwner().GetToken()
-		}
 
 		err = scm.FromContext(c).Status(ctx, b, scmToken)
 		if err != nil {
@@ -529,8 +524,10 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	// capture the build and repo from the items
-	b = item.Build
+	err = cache.FromContext(c).StoreInstallStatusToken(ctx, b.GetID(), scmToken)
+	if err != nil {
+		l.Errorf("unable to store installation status token in cache for build %d: %v", b.GetID(), err)
+	}
 
 	// set hook build
 	h.SetBuild(b)
@@ -654,7 +651,7 @@ func PostWebhook(c *gin.Context) {
 
 	if shouldEnqueue {
 		// send API call to set the status on the commit
-		err := scm.FromContext(c).Status(c.Request.Context(), b, p.Token)
+		err := scm.FromContext(c).Status(c.Request.Context(), b, scmToken)
 		if err != nil {
 			l.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 		}
@@ -668,7 +665,7 @@ func PostWebhook(c *gin.Context) {
 			b.GetRoute(),
 		)
 	} else {
-		err := build.GatekeepBuild(c, item.Build, item.Build.GetRepo(), p.Token)
+		err := build.GatekeepBuild(c, item.Build, item.Build.GetRepo(), scmToken)
 		if err != nil {
 			retErr := fmt.Errorf("unable to gate build: %w", err)
 			util.HandleError(c, http.StatusInternalServerError, err)

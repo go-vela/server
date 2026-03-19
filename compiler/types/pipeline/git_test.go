@@ -11,8 +11,14 @@ func TestPipeline_Git_Empty(t *testing.T) {
 		want bool
 	}{
 		{
-			git:  &Git{&Token{Repositories: []string{}}},
+			git: &Git{Token: Token{
+				Repositories: []string{"hello-world"},
+			}},
 			want: false,
+		},
+		{
+			git:  &Git{Token{Repositories: []string{}}},
+			want: true,
 		},
 		{
 			git:  new(Git),

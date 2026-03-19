@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
-	"slices"
 	"strings"
 	"testing"
 
@@ -1200,6 +1199,160 @@ func TestGithub_GetBranch(t *testing.T) {
 	}
 }
 
+func TestGithub_ValidateNetrcRequest(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/app/installations/:id", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installation.json")
+	})
+	engine.POST("/api/v3/app/installations/:id/access_tokens", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations_access_tokens.json")
+	})
+	engine.GET("/api/v3/repos/:org/:repo/collaborators/:user/permission", func(c *gin.Context) {
+		user := c.Param("user")
+		if user == "foo" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/repo_admin.json")
+
+			return
+		}
+
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusForbidden)
+	})
+	engine.GET("/api/v3/repos/:org/:repo", func(c *gin.Context) {
+		repo := c.Param("repo")
+		if repo == "Hello-World" || repo == "accessible-repo" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/get_repo.json")
+
+			return
+		}
+
+		c.Status(http.StatusNotFound)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	installedRepo := new(api.Repo)
+	installedRepo.SetOrg("octocat")
+	installedRepo.SetName("Hello-World")
+	installedRepo.SetInstallID(1)
+
+	u := new(api.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	badUser := new(api.User)
+	badUser.SetName("charlatan")
+	badUser.SetToken("bar")
+
+	tests := []struct {
+		name          string
+		repo          *api.Repo
+		user          *api.User
+		repos         []string
+		perms         map[string]string
+		appsTransport bool
+		wantErr       bool
+	}{
+		{
+			name:          "no app configured",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{"other-repo"},
+			perms:         map[string]string{"contents": "read"},
+			appsTransport: false,
+			wantErr:       false,
+		},
+		{
+			name:          "empty repos list",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{},
+			perms:         map[string]string{"contents": "read"},
+			appsTransport: true,
+			wantErr:       false,
+		},
+		{
+			name:          "only build repo in list",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{"Hello-World"},
+			perms:         map[string]string{"contents": "read"},
+			appsTransport: true,
+			wantErr:       false,
+		},
+		{
+			name:          "accessible other repo with installation",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{"Hello-World", "accessible-repo"},
+			perms:         map[string]string{"contents": "read"},
+			appsTransport: true,
+			wantErr:       false,
+		},
+		{
+			name:          "repo not installed on app",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{"Hello-World", "not-installed-repo"},
+			perms:         map[string]string{"contents": "read"},
+			appsTransport: true,
+			wantErr:       true,
+		},
+		{
+			name:          "owner with inadequate permissions",
+			repo:          installedRepo,
+			user:          badUser,
+			repos:         []string{"Hello-World", "accessible-repo"},
+			perms:         map[string]string{"contents": "read"},
+			appsTransport: true,
+			wantErr:       true,
+		},
+		{
+			name:          "exceeds repo limit",
+			repo:          installedRepo,
+			user:          u,
+			repos:         []string{"r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"},
+			perms:         map[string]string{"contents": "read"},
+			appsTransport: true,
+			wantErr:       true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			client, _ := NewTest(s.URL)
+			if test.appsTransport {
+				client.AppClient = NewTestAppClient(s.URL)
+			}
+
+			test.repo.SetOwner(test.user)
+
+			testBuild := new(api.Build)
+			testBuild.SetRepo(test.repo)
+
+			err := client.ValidateNetrcRequest(t.Context(), testBuild, test.repos, test.perms)
+			if (err != nil) != test.wantErr {
+				t.Errorf("ValidateNetrcRequest() error = %v, wantErr %v", err, test.wantErr)
+			}
+		})
+	}
+}
+
 func TestGithub_GetNetrcPassword(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -1214,36 +1367,21 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 		c.File("testdata/installations.json")
 	})
 	engine.POST("/api/v3/app/installations/:id/access_tokens", func(c *gin.Context) {
-		type reqBody struct {
-			Repositories []string `json:"repositories"`
-		}
-
-		b := new(reqBody)
-
-		err := c.Bind(b)
-		if err != nil {
-			c.Status(http.StatusBadRequest)
-			return
-		}
-
-		if len(b.Repositories) == 0 || !slices.Contains(b.Repositories, "Hello-World") {
-			c.Status(http.StatusBadRequest)
-
-			return
-		}
-
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/installations_access_tokens.json")
 	})
-	engine.GET("/api/v3/repos/:org/:repo/collaborators/foo/permission", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/repo_admin.json")
-	})
-	engine.GET("/api/v3/repos/:org/:repo/collaborators/charlatan/permission", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusForbidden)
+	engine.GET("/api/v3/repos/:org/:repo", func(c *gin.Context) {
+		repo := c.Param("repo")
+		if repo == "Hello-World" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/get_repo.json")
+
+			return
+		}
+
+		c.Status(http.StatusNotFound)
 	})
 
 	s := httptest.NewServer(engine)
@@ -1267,10 +1405,6 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
-
-	badUser := new(api.User)
-	badUser.SetName("charlatan")
-	badUser.SetToken("bar")
 
 	tests := []struct {
 		name          string
@@ -1332,9 +1466,9 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			repos:         []string{"Hello-World"},
 			perms:         map[string]string{"invalid": "read"},
 			appsTransport: true,
-			wantToken:     "bar",
+			wantToken:     "",
 			wantExp:       0,
-			wantErr:       false,
+			wantErr:       true,
 		},
 		{
 			name:          "invalid permission level",
@@ -1343,19 +1477,19 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			repos:         []string{"Hello-World"},
 			perms:         map[string]string{"contents": "invalid"},
 			appsTransport: true,
-			wantToken:     "bar",
-			wantExp:       0,
-			wantErr:       false,
-		},
-		{
-			name:          "owner with inadequate permission to other repo",
-			repo:          otherRepo,
-			user:          badUser,
-			repos:         []string{"Hello-World"},
-			appsTransport: true,
-			wantToken:     "bar",
+			wantToken:     "",
 			wantExp:       0,
 			wantErr:       true,
+		},
+		{
+			name:          "other repo with install ID returns installation token",
+			repo:          otherRepo,
+			user:          u,
+			repos:         []string{"Hello-World"},
+			appsTransport: true,
+			wantToken:     "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+			wantExp:       1468275250,
+			wantErr:       false,
 		},
 	}
 
@@ -1410,6 +1544,18 @@ func TestGithub_SyncRepoWithInstallation(t *testing.T) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/installation_repositories.json")
+	})
+	engine.GET("/api/v3/repos/:org/:repo", func(c *gin.Context) {
+		repo := c.Param("repo")
+		if repo == "Hello-World" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/get_repo.json")
+
+			return
+		}
+
+		c.Status(http.StatusNotFound)
 	})
 
 	s := httptest.NewServer(engine)

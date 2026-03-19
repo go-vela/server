@@ -13,7 +13,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 )
@@ -84,27 +83,20 @@ func (c *Client) IsInstallationToken(ctx context.Context, token string) bool {
 }
 
 // installationCanReadRepo checks if the installation can read the repo.
-func (c *Client) installationCanReadRepo(ctx context.Context, r *api.Repo, installation *github.Installation) (bool, error) {
+func (c *Client) installationCanReadRepo(ctx context.Context, org, repo string, installation *github.Installation) (bool, error) {
 	installationCanReadRepo := false
 
 	if installation.GetRepositorySelection() == constants.AppInstallRepositoriesSelectionSelected {
-		t, _, err := c.AppClient.Apps.CreateInstallationToken(ctx, installation.GetID(), &github.InstallationTokenOptions{})
+		t, _, err := c.AppClient.Apps.CreateInstallationToken(ctx, installation.GetID(), &github.InstallationTokenOptions{Repositories: []string{repo}})
 		if err != nil {
 			return false, err
 		}
 
 		client := c.newOAuthTokenClient(ctx, t.GetToken())
 
-		repos, _, err := client.Apps.ListRepos(ctx, &github.ListOptions{})
-		if err != nil {
-			return false, err
-		}
-
-		for _, repo := range repos.Repositories {
-			if strings.EqualFold(repo.GetFullName(), r.GetFullName()) {
-				installationCanReadRepo = true
-				break
-			}
+		_, _, err = client.Repositories.Get(ctx, org, repo)
+		if err == nil {
+			installationCanReadRepo = true
 		}
 	}
 

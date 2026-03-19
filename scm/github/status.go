@@ -29,6 +29,29 @@ const (
 	StateCompleted  = "completed"
 )
 
+// GenerateStatusToken generates a token for setting commit status on the SCM provider.
+func (c *Client) GenerateStatusToken(ctx context.Context, b *api.Build) string {
+	if c.AppClient != nil && b.GetRepo().GetInstallID() != 0 {
+		tknRepo := []string{b.GetRepo().GetName()}
+		tknPerms := map[string]string{"statuses": constants.PermissionWrite}
+
+		if b.GetEvent() == constants.EventDeploy {
+			tknPerms = map[string]string{"deployments": constants.PermissionWrite}
+		}
+
+		installTkn, err := c.NewAppInstallationToken(ctx, b.GetRepo().GetInstallID(), tknRepo, tknPerms)
+		if err != nil {
+			c.Logger.Errorf("unable to generate new installation token for build %s: %v", b.GetRepo().GetFullName(), err)
+
+			return b.GetRepo().GetOwner().GetToken()
+		}
+
+		return installTkn.Token
+	}
+
+	return b.GetRepo().GetOwner().GetToken()
+}
+
 // Status sends the commit status for the given SHA from the GitHub repo.
 func (c *Client) Status(ctx context.Context, b *api.Build, token string) error {
 	c.Logger.WithFields(logrus.Fields{

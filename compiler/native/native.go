@@ -52,8 +52,6 @@ type Client struct {
 	db             database.Interface
 	scm            scm.Service
 	cache          cache.Service
-	netrc          *string
-	netrcExp       int64
 }
 
 // FromCLICommand returns a Pipeline implementation that integrates with the supported registries.
@@ -240,13 +238,6 @@ func (c *Client) WithLabels(labels []string) compiler.Engine {
 	if len(labels) != 0 {
 		c.labels = labels
 	}
-
-	return c
-}
-
-// WithNetrc sets the netrc in the Engine.
-func (c *Client) WithNetrc(n string) compiler.Engine {
-	c.netrc = &n
 
 	return c
 }

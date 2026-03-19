@@ -11,9 +11,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/step"
@@ -167,9 +167,9 @@ func UpdateStep(c *gin.Context) {
 	// check if the build is in a "final" state
 	// and if build is not a scheduled event
 	if scmStatusReq && b.GetEvent() != constants.EventSchedule {
-		scmToken := auth.RetrieveTokenHeader(c.Request)
-		if scmToken == "" {
-			scmToken = r.GetOwner().GetToken()
+		scmToken, err := cache.FromContext(c).GetInstallStatusToken(ctx, b.GetID())
+		if err != nil || scmToken == "" {
+			scmToken = scm.FromContext(c).GenerateStatusToken(ctx, b)
 		}
 
 		// send API call to set the status on the commit
