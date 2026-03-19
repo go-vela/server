@@ -1,0 +1,24 @@
+{
+  "permission": "read",
+  "role_name": "read",
+  "user": {
+    "login": "reader",
+    "id": 1,
+    "node_id": "MDQ6VXNlcjE=",
+    "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/reader",
+    "html_url": "https://github.com/reader",
+    "followers_url": "https://api.github.com/users/reader/followers",
+    "following_url": "https://api.github.com/users/reader/following{/other_user}",
+    "gists_url": "https://api.github.com/users/reader/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/reader/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/reader/subscriptions",
+    "organizations_url": "https://api.github.com/users/reader/orgs",
+    "repos_url": "https://api.github.com/users/reader/repos",
+    "events_url": "https://api.github.com/users/reader/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/reader/received_events",
+    "type": "User",
+    "site_admin": false
+  }
+}

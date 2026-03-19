@@ -544,7 +544,7 @@ func (c *Client) ValidateNetrcRequest(ctx context.Context, b *api.Build, repos [
 		}
 	}
 
-	if !readOnly {
+	if readOnly {
 		permSet = append(permSet, constants.PermissionRead)
 	}
 

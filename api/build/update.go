@@ -175,9 +175,13 @@ func UpdateBuild(c *gin.Context) {
 			return
 		}
 
+		regenToken := false
+
 		scmToken, err := cache.FromContext(c).GetInstallStatusToken(ctx, b.GetID())
 		if err != nil || scmToken == "" {
 			scmToken = scm.FromContext(c).GenerateStatusToken(ctx, b)
+
+			regenToken = true
 		}
 
 		// send API call to set the status on the commit
@@ -197,6 +201,12 @@ func UpdateBuild(c *gin.Context) {
 			err = cache.FromContext(c).EvictBuildInstallTokens(ctx, b.GetID())
 			if err != nil {
 				l.Errorf("unable to evict installation tokens from cache: %v", err)
+			}
+		} else if regenToken {
+			// if the build is still running and we had to regenerate the token, store it in cache
+			err = cache.FromContext(c).StoreInstallStatusToken(ctx, b.GetID(), scmToken)
+			if err != nil {
+				l.Errorf("unable to store installation token in cache: %v", err)
 			}
 		}
 	}

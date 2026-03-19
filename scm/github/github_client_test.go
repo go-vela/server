@@ -40,11 +40,6 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/installations_access_tokens.json")
 	})
-	engine.GET("/api/v3/installation/repositories", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/installation_repositories.json")
-	})
 	engine.GET("/api/v3/repos/:org/:repo", func(c *gin.Context) {
 		repo := c.Param("repo")
 		if repo == "Hello-World" {
@@ -88,6 +83,20 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 					Login: new("github"),
 				},
 				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
+			},
+			want:    true,
+			wantErr: false,
+		},
+		{
+			name:   "installation can read all repos",
+			client: appsClient,
+			repo:   accessibleRepo,
+			installation: &github.Installation{
+				ID: new(int64(1)),
+				Account: &github.User{
+					Login: new("github"),
+				},
+				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionAll),
 			},
 			want:    true,
 			wantErr: false,

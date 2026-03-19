@@ -1227,6 +1227,14 @@ func TestGithub_ValidateNetrcRequest(t *testing.T) {
 			return
 		}
 
+		if user == "reader" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/repo_read.json")
+
+			return
+		}
+
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusForbidden)
 	})
@@ -1254,6 +1262,10 @@ func TestGithub_ValidateNetrcRequest(t *testing.T) {
 	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
+
+	reader := new(api.User)
+	reader.SetName("reader")
+	reader.SetToken("bar")
 
 	badUser := new(api.User)
 	badUser.SetName("charlatan")
@@ -1310,6 +1322,24 @@ func TestGithub_ValidateNetrcRequest(t *testing.T) {
 			user:          u,
 			repos:         []string{"Hello-World", "not-installed-repo"},
 			perms:         map[string]string{"contents": "read"},
+			appsTransport: true,
+			wantErr:       true,
+		},
+		{
+			name:          "reader with read request",
+			repo:          installedRepo,
+			user:          reader,
+			repos:         []string{"Hello-World", "accessible-repo"},
+			perms:         map[string]string{"contents": "read"},
+			appsTransport: true,
+			wantErr:       false,
+		},
+		{
+			name:          "reader with write request",
+			repo:          installedRepo,
+			user:          reader,
+			repos:         []string{"Hello-World", "accessible-repo"},
+			perms:         map[string]string{"contents": "write"},
 			appsTransport: true,
 			wantErr:       true,
 		},

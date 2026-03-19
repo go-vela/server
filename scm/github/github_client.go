@@ -100,5 +100,9 @@ func (c *Client) installationCanReadRepo(ctx context.Context, org, repo string, 
 		}
 	}
 
+	if installation.GetRepositorySelection() == constants.AppInstallRepositoriesSelectionAll {
+		installationCanReadRepo = true
+	}
+
 	return installationCanReadRepo, nil
 }
