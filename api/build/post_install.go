@@ -45,7 +45,7 @@ import (
 //   description: Token request
 //   required: true
 //   schema:
-//     "$ref": "#/definitions/InstallTokenRequest"
+//     "$ref": "#/definitions/TokenRequest"
 // security:
 //   - ApiKeyAuth: []
 // responses:
