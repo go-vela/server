@@ -6,7 +6,7 @@ package pipeline
 //
 // swagger:model PipelineGit
 type Git struct {
-	Token Token `json:"token,omitempty" yaml:"token,omitempty"`
+	Token Token `json:"token" yaml:"token,omitempty"`
 }
 
 // Token is the pipeline representation of git token access configurations for a pipeline.

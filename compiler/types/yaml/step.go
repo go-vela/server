@@ -38,7 +38,7 @@ type (
 		User        string             `yaml:"user,omitempty"        json:"user,omitempty"        jsonschema:"description=Set the user for the container.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-user-key"`
 		ReportAs    string             `yaml:"report_as,omitempty"   json:"report_as,omitempty"   jsonschema:"description=Set the name of the step to report as.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-report_as-key"`
 		IDRequest   string             `yaml:"id_request,omitempty"  json:"id_request,omitempty"  jsonschema:"description=Request ID Request Token for the step.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-id_request-key"`
-		Git         Git                `yaml:"git,omitempty"         json:"git,omitempty"         jsonschema:"description=Git configuration for the step.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-git-key"`
+		Git         Git                `yaml:"git,omitempty"         json:"git"                   jsonschema:"description=Git configuration for the step.\nReference: https://go-vela.github.io/docs/reference/yaml/steps/#the-git-key"`
 	}
 )
 
