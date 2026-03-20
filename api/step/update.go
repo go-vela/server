@@ -11,9 +11,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/step"
@@ -167,15 +167,27 @@ func UpdateStep(c *gin.Context) {
 	// check if the build is in a "final" state
 	// and if build is not a scheduled event
 	if scmStatusReq && b.GetEvent() != constants.EventSchedule {
-		scmToken := auth.RetrieveTokenHeader(c.Request)
-		if scmToken == "" {
-			scmToken = r.GetOwner().GetToken()
+		regenToken := false
+
+		scmToken, err := cache.FromContext(c).GetInstallStatusToken(ctx, b.GetID())
+		if err != nil || scmToken == "" {
+			scmToken = scm.FromContext(c).GenerateStatusToken(ctx, b)
+
+			regenToken = true
 		}
 
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).StepStatus(ctx, b, s, scmToken)
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
+		}
+
+		if regenToken {
+			// if the build is still running and we had to regenerate the token, store it in cache
+			err = cache.FromContext(c).StoreInstallStatusToken(ctx, b.GetID(), scmToken)
+			if err != nil {
+				l.Errorf("unable to store installation token in cache: %v", err)
+			}
 		}
 	}
 }

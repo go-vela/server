@@ -41,7 +41,7 @@ func TestRedis_New(t *testing.T) {
 		_, err := New(
 			context.Background(),
 			WithAddress(test.address),
-			WithInstallTokenKey("installKey"),
+			WithInstallTokenKey("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90"),
 			WithCluster(false),
 		)
 

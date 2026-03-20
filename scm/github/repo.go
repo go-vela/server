@@ -485,6 +485,90 @@ func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 	return data.GetName(), data.GetCommit().GetSHA(), nil
 }
 
+// ValidateNetrcRequest validates a repo and permissions set for an install token request.
+func (c *Client) ValidateNetrcRequest(ctx context.Context, token string, b *api.Build, repos []string, perms map[string]string) error {
+	r := b.GetRepo()
+	u := b.GetRepo().GetOwner()
+
+	l := c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	})
+
+	l.Tracef("validating netrc request for %s/%s", r.GetOrg(), r.GetName())
+
+	// no GitHub App configured, oauth token is used and valid
+	if c.AppClient == nil {
+		return nil
+	}
+
+	if len(repos) == 0 {
+		return nil
+	}
+
+	// enforce max number of repos allowed for token
+	//
+	// this prevents a large number of access checks for the repo owner
+	if len(repos) > constants.GitTokenRepoLimit {
+		return fmt.Errorf("number of repositories specified (%d) exceeds the maximum allowed (%d)", len(repos), constants.GitTokenRepoLimit)
+	}
+
+	// permissions that are applied to the token for every repo provided
+	// providing no permissions, nil, or empty map will default to the permissions
+	// of the GitHub App installation
+	//
+	// the Vela compiler follows a least-privileged-defaults model where
+	// the list contains only the triggering repo, unless provided in the git yaml block
+	//
+	// the below map is the default
+	permissions := map[string]string{
+		"contents": constants.PermissionRead,
+	}
+
+	if len(perms) > 0 {
+		permissions = perms
+
+		if _, ok := perms["contents"]; !ok {
+			permissions["contents"] = "read"
+		}
+	}
+
+	permSet := []string{constants.PermissionWrite, constants.PermissionAdmin}
+
+	readOnly := true
+
+	for _, perm := range permissions {
+		if perm == constants.PermissionWrite {
+			readOnly = false
+			break
+		}
+	}
+
+	if readOnly {
+		permSet = append(permSet, constants.PermissionRead)
+	}
+
+	// verify repo owner has proper access to listed repositories before provisioning install token
+	//
+	// this prevents an app installed across the org from bypassing restrictions
+	for _, repo := range repos {
+		if repo == r.GetName() {
+			continue
+		}
+
+		access, err := c.RepoAccess(ctx, u.GetName(), token, r.GetOrg(), repo)
+		if err != nil {
+			return fmt.Errorf("unable to get user %s access level for org %s and repo %s: %w", u.GetName(), r.GetOrg(), repo, err)
+		}
+
+		if !slices.Contains(permSet, access) {
+			return fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)
+		}
+	}
+
+	return nil
+}
+
 // GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
 // If not, it defaults to the user OAuth token.
 func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tknCache cache.Service, b *api.Build, repos []string, perms map[string]string) (string, int64, error) {
@@ -499,7 +583,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	l.Tracef("getting netrc password for %s/%s", r.GetOrg(), r.GetName())
 
 	// no GitHub App configured, use legacy oauth token
-	if c.AppClient == nil {
+	if c.AppClient == nil || r.GetInstallID() == 0 {
 		return u.GetToken(), 0, nil
 	}
 
@@ -509,7 +593,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	//
 	// this prevents a large number of access checks for the repo owner
 	if len(repos) > constants.GitTokenRepoLimit {
-		return u.GetToken(), 0, fmt.Errorf("number of repositories specified (%d) exceeds the maximum allowed (%d)", len(repos), constants.GitTokenRepoLimit)
+		return "", 0, fmt.Errorf("number of repositories specified (%d) exceeds the maximum allowed (%d)", len(repos), constants.GitTokenRepoLimit)
 	}
 
 	// ensure build repo is included in list
@@ -527,98 +611,29 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	// the below map is the default
 	permissions := map[string]string{
 		"contents": constants.PermissionRead,
-		"checks":   constants.PermissionWrite,
-		"statuses": constants.PermissionWrite,
-	}
-
-	if b.GetEvent() == constants.EventDeploy {
-		permissions["deployments"] = constants.PermissionWrite
 	}
 
 	if len(perms) > 0 {
 		permissions = perms
 
-		normalizePermissions(permissions)
-	}
-
-	// verify repo owner has `write` access to listed repositories before provisioning install token
-	//
-	// this prevents an app installed across the org from bypassing restrictions
-	for _, repo := range repos {
-		if repo == r.GetName() {
-			continue
-		}
-
-		access, err := c.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), repo)
-		if err != nil || (access != constants.PermissionAdmin && access != constants.PermissionWrite) {
-			return u.GetToken(), 0, fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)
-		}
-	}
-
-	id := r.GetInstallID()
-
-	// if the source scm repo has an install ID but the Vela db record does not
-	// then use the source repo to create an installation token
-	if id == 0 {
-		// list all installations (a.k.a. orgs) where the GitHub App is installed
-		installations, _, err := c.AppClient.Apps.ListInstallations(ctx, &github.ListOptions{})
-		if err != nil {
-			l.Tracef("unable to list github app installations: %s", err.Error())
-
-			return u.GetToken(), 0, err
-		}
-
-		// iterate through the list of installations
-		for _, install := range installations {
-			// find the installation that matches the org for the repo
-			if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
-				if install.GetRepositorySelection() == constants.AppInstallRepositoriesSelectionSelected {
-					installationCanReadRepo, err := c.installationCanReadRepo(ctx, r, install)
-					if err != nil {
-						l.Tracef("unable to check if installation for org %s can read repo %s: %s", install.GetAccount().GetLogin(), r.GetFullName(), err.Error())
-
-						return u.GetToken(), 0, nil
-					}
-
-					if !installationCanReadRepo {
-						l.Tracef("installation for org %s exists but does not have access to repo %s", install.GetAccount().GetLogin(), r.GetFullName())
-
-						return u.GetToken(), 0, nil
-					}
-				}
-
-				id = install.GetID()
-			}
+		if _, ok := perms["contents"]; !ok {
+			permissions["contents"] = "read"
 		}
 	}
 
 	// the app might not be installed therefore we retain backwards compatibility via the user oauth token
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 	// the optional list of repos and permissions are driven by yaml
-	installToken, err := c.NewAppInstallationToken(ctx, id, repos, permissions)
+	installToken, err := c.NewAppInstallationToken(ctx, r.GetInstallID(), repos, permissions)
 	if err != nil {
-		// return the legacy token along with no error for backwards compatibility
-		// todo: return an error based based on app installation requirements
-		l.Tracef("unable to create github app installation token for repos %v with permissions %v: %v", repos, permissions, err)
-
-		return u.GetToken(), 0, nil
+		return "", 0, fmt.Errorf("unable to create github app installation token for repos %v with permissions %v: %w", repos, permissions, err)
 	}
 
 	if installToken != nil && len(installToken.Token) != 0 {
 		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
 
-		// (optional) sync the install ID with the repo
-		if db != nil && r.GetInstallID() != id {
-			r.SetInstallID(id)
-
-			err = db.PartialUpdateRepo(ctx, &api.Repo{ID: r.ID, InstallID: &id})
-			if err != nil {
-				c.Logger.Tracef("unable to update repo with install ID %d: %v", id, err)
-			}
-		}
-
 		if tknCache != nil {
-			err = tknCache.StoreInstallToken(ctx, installToken, r.GetTimeout())
+			err = tknCache.StoreInstallToken(ctx, installToken, b.GetID(), r.GetTimeout())
 			if err != nil {
 				l.Tracef("unable to store installation token in cache: %v", err)
 
@@ -629,9 +644,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		return installToken.Token, installToken.Expiration, nil
 	}
 
-	l.Tracef("using user oauth token for %s/%s", r.GetOrg(), r.GetName())
-
-	return u.GetToken(), 0, nil
+	return "", 0, fmt.Errorf("installation token is empty for repo %s/%s", r.GetOrg(), r.GetName())
 }
 
 // SyncRepoWithInstallation ensures the repo is synchronized with the scm installation, if it exists.
@@ -663,7 +676,7 @@ func (c *Client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 		return r, nil
 	}
 
-	installationCanReadRepo, err := c.installationCanReadRepo(ctx, r, installation)
+	installationCanReadRepo, err := c.installationCanReadRepo(ctx, r.GetOrg(), r.GetName(), installation)
 	if err != nil {
 		return r, err
 	}
@@ -675,17 +688,23 @@ func (c *Client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 	return r, nil
 }
 
-// normalizePermissions ensures minimum required permissions are set for installation token generation.
-func normalizePermissions(perms map[string]string) {
-	if _, ok := perms["contents"]; !ok {
-		perms["contents"] = "read"
+// GeneratePermissionToken generates a token for checking permissions for an installation.
+func (c *Client) GeneratePermissionToken(ctx context.Context, installID int64) (string, error) {
+	if c.AppClient != nil && installID != 0 {
+		opts := &github.InstallationTokenOptions{
+			Permissions: &github.InstallationPermissions{
+				Metadata: new("read"),
+				Contents: new("read"),
+			},
+		}
+		// create installation token for the repo
+		t, _, err := c.AppClient.Apps.CreateInstallationToken(ctx, installID, opts)
+		if err != nil {
+			return "", err
+		}
+
+		return t.GetToken(), nil
 	}
 
-	if _, ok := perms["checks"]; !ok {
-		perms["checks"] = "write"
-	}
-
-	if _, ok := perms["statuses"]; !ok {
-		perms["statuses"] = "write"
-	}
+	return "", fmt.Errorf("github app client not configured or install ID is 0")
 }

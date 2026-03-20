@@ -61,8 +61,8 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetInstallToken represents the API handler to generate and return an install token.
-func GetInstallToken(c *gin.Context) {
+// RefreshInstallToken represents the API handler to generate and return an install token.
+func RefreshInstallToken(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
@@ -116,7 +116,7 @@ func GetInstallToken(c *gin.Context) {
 	}
 
 	// store new token in cache with timeout matching cached token
-	err = tknCache.StoreInstallToken(ctx, newToken, cachedToken.Timeout)
+	err = tknCache.StoreInstallToken(ctx, newToken, b.GetID(), cachedToken.Timeout)
 	if err != nil {
 		retErr := fmt.Errorf("unable to store installation token in cache: %w", err)
 

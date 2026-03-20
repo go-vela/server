@@ -6,7 +6,7 @@ package pipeline
 //
 // swagger:model PipelineGit
 type Git struct {
-	Token *Token `json:"token,omitempty" yaml:"token,omitempty"`
+	Token Token `json:"token" yaml:"token,omitempty"`
 }
 
 // Token is the pipeline representation of git token access configurations for a pipeline.
@@ -20,14 +20,12 @@ type Token struct {
 // Empty returns true if the provided struct is empty.
 func (g *Git) Empty() bool {
 	// return false if any of the fields are provided
-	if g.Token != nil {
-		if g.Token.Repositories != nil {
-			return false
-		}
+	if len(g.Token.Repositories) > 0 {
+		return false
+	}
 
-		if g.Token.Permissions != nil {
-			return false
-		}
+	if len(g.Token.Permissions) > 0 {
+		return false
 	}
 
 	// return true if all fields are empty

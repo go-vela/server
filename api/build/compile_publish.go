@@ -67,16 +67,21 @@ func CompileAndPublish(
 	b := cfg.Build
 	baseErr := cfg.BaseErr
 
-	// confirm current repo owner has at least write access to repo (needed for status update later)
-	_, err := scm.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
-	if err != nil {
-		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
+	// for non-app repos, confirm current repo owner has at least write access to repo (needed for status update later)
+	if r.GetInstallID() == 0 {
+		_, err := scm.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
+		if err != nil {
+			retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
 
-		return nil, nil, http.StatusUnauthorized, retErr
+			return nil, nil, http.StatusUnauthorized, retErr
+		}
 	}
 
 	// get pull request number from build if event is pull_request or issue_comment
-	var prNum int
+	var (
+		prNum int
+		err   error
+	)
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) || strings.EqualFold(b.GetEvent(), constants.EventComment) {
 		prNum, err = getPRNumberFromBuild(b)
 		if err != nil {
@@ -266,8 +271,10 @@ func CompileAndPublish(
 			// set build to successful status
 			b.SetStatus(constants.StatusSkipped)
 
+			scmToken := scm.GenerateStatusToken(ctx, b)
+
 			// send API call to set the status on the commit using installation OR owner token
-			err = scm.Status(ctx, b, p.Token)
+			err = scm.Status(ctx, b, scmToken)
 			if err != nil {
 				logger.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 			}
@@ -379,6 +386,26 @@ func CompileAndPublish(
 
 		return nil, nil, http.StatusInternalServerError, retErr
 	}
+
+	var (
+		scmRepos []string
+		scmPerms map[string]string
+	)
+
+	if p.Git != nil {
+		scmRepos = p.Git.Token.Repositories
+		scmPerms = p.Git.Token.Permissions
+	}
+
+	scmBuildToken, scmBuildTokenExp, err := scm.GetNetrcPassword(ctx, database, cache, b, scmRepos, scmPerms)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to get SCM build token for %s: %w", baseErr, r.GetFullName(), err)
+
+		return nil, nil, http.StatusInternalServerError, retErr
+	}
+
+	p.Token = scmBuildToken
+	p.TokenExp = scmBuildTokenExp
 
 	// determine queue route
 	route, err := queue.Route(&p.Worker)

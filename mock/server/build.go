@@ -563,3 +563,29 @@ func getInstallToken(c *gin.Context) {
 
 	c.JSON(http.StatusOK, body)
 }
+
+// postInstallToken returns mock JSON for a http POST.
+//
+// pass empty build token to get a http 401 response.
+func postInstallToken(c *gin.Context) {
+	buildToken, err := auth.RetrieveAccessToken(c.Request)
+	if err != nil || buildToken == "" {
+		errMsg := "unable to retrieve access token from request"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &errMsg})
+
+		return
+	}
+
+	var body api.Token
+
+	data :=
+		fmt.Appendf(nil,
+			InstallTokenResp,
+			time.Now().Add(1*time.Hour).Unix(),
+		)
+
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}

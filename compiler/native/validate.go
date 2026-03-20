@@ -139,8 +139,11 @@ func (c *Client) ValidatePipeline(p *pipeline.Build) error {
 	// report count for custom report containers
 	reportCount := 0
 
+	// git token count for per step token requests
+	gitTokenCount := 0
+
 	// validate the services block provided
-	err := validatePipelineContainers(p.Services, &reportCount, make(map[string]string), make(map[string]bool), "")
+	err := validatePipelineContainers(p.Services, &reportCount, &gitTokenCount, make(map[string]string), make(map[string]bool), "")
 	if err != nil {
 		result = multierror.Append(result, err)
 	}
@@ -152,7 +155,7 @@ func (c *Client) ValidatePipeline(p *pipeline.Build) error {
 	}
 
 	// validate the steps block provided
-	err = validatePipelineContainers(p.Steps, &reportCount, make(map[string]string), make(map[string]bool), "")
+	err = validatePipelineContainers(p.Steps, &reportCount, &gitTokenCount, make(map[string]string), make(map[string]bool), "")
 	if err != nil {
 		result = multierror.Append(result, err)
 	}
@@ -166,7 +169,7 @@ func (c *Client) ValidatePipeline(p *pipeline.Build) error {
 	}
 
 	// validate the secrets block provided
-	err = validatePipelineContainers(secretContainers, &reportCount, make(map[string]string), make(map[string]bool), "")
+	err = validatePipelineContainers(secretContainers, &reportCount, &gitTokenCount, make(map[string]string), make(map[string]bool), "")
 	if err != nil {
 		result = multierror.Append(result, err)
 	}
@@ -180,6 +183,8 @@ func validatePipelineStages(s pipeline.StageSlice) error {
 	reportMap := make(map[string]string)
 	reportCount := 0
 
+	gitTokenCount := 0
+
 	stageNameMap := make(map[string]bool)
 	stepNameMap := make(map[string]bool)
 
@@ -190,7 +195,7 @@ func validatePipelineStages(s pipeline.StageSlice) error {
 
 		stageNameMap[stage.Name] = true
 
-		err := validatePipelineContainers(stage.Steps, &reportCount, reportMap, stepNameMap, stage.Name)
+		err := validatePipelineContainers(stage.Steps, &reportCount, &gitTokenCount, reportMap, stepNameMap, stage.Name)
 		if err != nil {
 			return err
 		}
@@ -202,7 +207,7 @@ func validatePipelineStages(s pipeline.StageSlice) error {
 // validatePipelineContainers is a helper function that
 // ensures custom report containers do not exceed the limit
 // and that the container names are unique.
-func validatePipelineContainers(s pipeline.ContainerSlice, reportCount *int, reportMap map[string]string, nameMap map[string]bool, stageName string) error {
+func validatePipelineContainers(s pipeline.ContainerSlice, reportCount, gitTokenCount *int, reportMap map[string]string, nameMap map[string]bool, stageName string) error {
 	for _, ctn := range s {
 		if ctn.Name == constants.CloneName || ctn.Name == constants.InitName {
 			continue
@@ -222,10 +227,22 @@ func validatePipelineContainers(s pipeline.ContainerSlice, reportCount *int, rep
 			reportMap[ctn.ReportAs] = ctn.Name
 			*reportCount++
 		}
+
+		if ctn.Git != nil && len(ctn.Git.Token.Repositories) > 0 {
+			*gitTokenCount++
+
+			if len(ctn.Git.Token.Repositories) > constants.GitTokenRepoLimit {
+				return fmt.Errorf("git token repository count for step %s exceeds the limit of %d", ctn.Name, constants.GitTokenRepoLimit)
+			}
+		}
 	}
 
 	if *reportCount > constants.ReportStepStatusLimit {
 		return fmt.Errorf("report_as is limited to %d steps, counted %d", constants.ReportStepStatusLimit, reportCount)
+	}
+
+	if *gitTokenCount > constants.GitTokenRequestLimit {
+		return fmt.Errorf("git token requests are limited to %d steps, counted %d", constants.GitTokenRequestLimit, gitTokenCount)
 	}
 
 	return nil

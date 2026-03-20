@@ -341,7 +341,7 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 			}
 
 			// use private (authenticated) github instance to pull from
-			bytes, err = c.PrivateGithub.Template(ctx, c.user, src)
+			bytes, err = c.PrivateGithub.Template(ctx, c.repo, c.user, src, c.token)
 			if err != nil {
 				return bytes, err
 			}
@@ -353,7 +353,7 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 				"host": src.Host,
 			}).Tracef("Using GitHub client to pull template")
 
-			bytes, err = c.Github.Template(ctx, nil, src)
+			bytes, err = c.Github.Template(ctx, c.repo, nil, src, "")
 			if err != nil {
 				return bytes, err
 			}
@@ -374,7 +374,7 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 				"path": src.Name,
 			}).Tracef("Using GitHub client to pull template")
 
-			bytes, err = c.Github.Template(ctx, nil, src)
+			bytes, err = c.Github.Template(ctx, c.repo, nil, src, "")
 			if err != nil {
 				return bytes, err
 			}
@@ -390,7 +390,7 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 			}
 
 			// use private (authenticated) github instance to pull from
-			bytes, err = c.PrivateGithub.Template(ctx, c.user, src)
+			bytes, err = c.PrivateGithub.Template(ctx, c.repo, c.user, src, c.token)
 			if err != nil {
 				return bytes, err
 			}

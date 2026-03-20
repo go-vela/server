@@ -1667,7 +1667,7 @@ func TestPerm_MustWrite_InstallToken(t *testing.T) {
 		Expiration: time.Now().Add(time.Hour).Unix(),
 	}
 
-	err = tknCache.StoreInstallToken(t.Context(), installTokenWrite, _repo.GetTimeout())
+	err = tknCache.StoreInstallToken(t.Context(), installTokenWrite, 1, _repo.GetTimeout())
 	if err != nil {
 		t.Errorf("unable to store install token in redis: %v", err)
 	}
@@ -1777,7 +1777,7 @@ func TestPerm_MustWrite_InstallTokenRead(t *testing.T) {
 		Expiration: time.Now().Add(time.Hour).Unix(),
 	}
 
-	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, _repo.GetTimeout())
+	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, 1, _repo.GetTimeout())
 	if err != nil {
 		t.Errorf("unable to store install token in redis: %v", err)
 	}
@@ -2287,7 +2287,7 @@ func TestPerm_MustRead_InstallTokenRead(t *testing.T) {
 		Expiration: time.Now().Add(time.Hour).Unix(),
 	}
 
-	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, _repo.GetTimeout())
+	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, 1, _repo.GetTimeout())
 	if err != nil {
 		t.Errorf("unable to store install token in redis: %v", err)
 	}

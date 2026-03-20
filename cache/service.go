@@ -17,7 +17,15 @@ type Service interface {
 	// the configured queue driver.
 	Driver() string
 
-	StoreInstallToken(ctx context.Context, token *models.InstallToken, timeout int32) error
+	StoreInstallToken(ctx context.Context, token *models.InstallToken, build int64, timeout int32) error
 	GetInstallToken(ctx context.Context, token string) (*models.InstallToken, error)
 	EvictInstallToken(ctx context.Context, token string) error
+	EvictBuildInstallTokens(ctx context.Context, build int64) error
+
+	StoreInstallStatusToken(ctx context.Context, build int64, token string) error
+	GetInstallStatusToken(ctx context.Context, build int64) (string, error)
+	EvictInstallStatusToken(ctx context.Context, build int64) error
+
+	StorePermissionToken(ctx context.Context, installID int64, token string) error
+	GetPermissionToken(ctx context.Context, installID int64) (string, error)
 }

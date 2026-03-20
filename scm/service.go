@@ -151,6 +151,8 @@ type Service interface {
 	// GetNetrcPassword defines a function that returns the netrc
 	// password injected into build steps.
 	GetNetrcPassword(context.Context, database.Interface, cache.Service, *api.Build, []string, map[string]string) (string, int64, error)
+	// ValidateNetrcRequest defines a function that validates the request for a netrc password.
+	ValidateNetrcRequest(ctx context.Context, token string, b *api.Build, repos []string, perms map[string]string) error
 	// SyncRepoWithInstallation defines a function that syncs
 	// a repo with the installation, if it exists.
 	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)
@@ -180,6 +182,10 @@ type Service interface {
 	NewAppInstallationToken(ctx context.Context, installID int64, repos []string, permissions map[string]string) (*models.InstallToken, error)
 	// IsInstallationToken defines a function that determines if a token is an installation token.
 	IsInstallationToken(ctx context.Context, token string) bool
+	// GenerateStatusToken defines a function that generates a token for setting commit status on the SCM provider.
+	GenerateStatusToken(ctx context.Context, build *api.Build) string
+	// GeneratePermissionToken defines a function that generates a token for retrieving permissions from the SCM provider.
+	GeneratePermissionToken(ctx context.Context, installID int64) (string, error)
 
 	// GetSettings defines a function that returns
 	// scm settings.

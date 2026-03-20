@@ -46,36 +46,36 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 		},
 	}
 
-	initEnv := environment(nil, m, nil, nil, nil, 0)
+	initEnv := environment(nil, m, nil, nil)
 	initEnv["HELLO"] = "Hello, Global Environment"
 
-	stageEnvInstall := environment(nil, m, nil, nil, nil, 0)
+	stageEnvInstall := environment(nil, m, nil, nil)
 	stageEnvInstall["HELLO"] = "Hello, Global Environment"
 	stageEnvInstall["GRADLE_USER_HOME"] = ".gradle"
 
-	stageEnvTest := environment(nil, m, nil, nil, nil, 0)
+	stageEnvTest := environment(nil, m, nil, nil)
 	stageEnvTest["HELLO"] = "Hello, Global Environment"
 	stageEnvTest["GRADLE_USER_HOME"] = "willBeOverwrittenInStep"
 
-	cloneEnv := environment(nil, m, nil, nil, nil, 0)
+	cloneEnv := environment(nil, m, nil, nil)
 	cloneEnv["HELLO"] = "Hello, Global Environment"
 
-	installEnv := environment(nil, m, nil, nil, nil, 0)
+	installEnv := environment(nil, m, nil, nil)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
 	installEnv["HELLO"] = "Hello, Global Environment"
 
-	testEnv := environment(nil, m, nil, nil, nil, 0)
+	testEnv := environment(nil, m, nil, nil)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
 	testEnv["HELLO"] = "Hello, Global Environment"
 
-	buildEnv := environment(nil, m, nil, nil, nil, 0)
+	buildEnv := environment(nil, m, nil, nil)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HELLO"] = "Hello, Global Environment"
 
-	dockerEnv := environment(nil, m, nil, nil, nil, 0)
+	dockerEnv := environment(nil, m, nil, nil)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
@@ -453,28 +453,28 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 		},
 	}
 
-	initEnv := environment(nil, m, nil, nil, nil, 0)
+	initEnv := environment(nil, m, nil, nil)
 	initEnv["HELLO"] = "Hello, Global Environment"
 
-	cloneEnv := environment(nil, m, nil, nil, nil, 0)
+	cloneEnv := environment(nil, m, nil, nil)
 	cloneEnv["HELLO"] = "Hello, Global Environment"
 
-	installEnv := environment(nil, m, nil, nil, nil, 0)
+	installEnv := environment(nil, m, nil, nil)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
 	installEnv["HELLO"] = "Hello, Global Environment"
 
-	testEnv := environment(nil, m, nil, nil, nil, 0)
+	testEnv := environment(nil, m, nil, nil)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
 	testEnv["HELLO"] = "Hello, Global Environment"
 
-	buildEnv := environment(nil, m, nil, nil, nil, 0)
+	buildEnv := environment(nil, m, nil, nil)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HELLO"] = "Hello, Global Environment"
 
-	dockerEnv := environment(nil, m, nil, nil, nil, 0)
+	dockerEnv := environment(nil, m, nil, nil)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
@@ -659,36 +659,36 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 		},
 	}
 
-	setupEnv := environment(nil, m, nil, nil, nil, 0)
+	setupEnv := environment(nil, m, nil, nil)
 	setupEnv["bar"] = "test4"
 	setupEnv["star"] = "test3"
 
-	installEnv := environment(nil, m, nil, nil, nil, 0)
+	installEnv := environment(nil, m, nil, nil)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
 	installEnv["bar"] = "test4"
 	installEnv["star"] = "test3"
 
-	testEnv := environment(nil, m, nil, nil, nil, 0)
+	testEnv := environment(nil, m, nil, nil)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
 	testEnv["bar"] = "test4"
 	testEnv["star"] = "test3"
 
-	buildEnv := environment(nil, m, nil, nil, nil, 0)
+	buildEnv := environment(nil, m, nil, nil)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
-	dockerEnv := environment(nil, m, nil, nil, nil, 0)
+	dockerEnv := environment(nil, m, nil, nil)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
 	dockerEnv["bar"] = "test4"
 	dockerEnv["star"] = "test3"
 
-	serviceEnv := environment(nil, m, nil, nil, nil, 0)
+	serviceEnv := environment(nil, m, nil, nil)
 	serviceEnv["bar"] = "test4"
 	serviceEnv["star"] = "test3"
 
@@ -909,36 +909,36 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 		},
 	}
 
-	setupEnv := environment(nil, m, nil, nil, nil, 0)
+	setupEnv := environment(nil, m, nil, nil)
 	setupEnv["bar"] = "test4"
 	setupEnv["star"] = "test3"
 
-	installEnv := environment(nil, m, nil, nil, nil, 0)
+	installEnv := environment(nil, m, nil, nil)
 	installEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	installEnv["GRADLE_USER_HOME"] = ".gradle"
 	installEnv["bar"] = "test4"
 	installEnv["star"] = "test3"
 
-	testEnv := environment(nil, m, nil, nil, nil, 0)
+	testEnv := environment(nil, m, nil, nil)
 	testEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	testEnv["GRADLE_USER_HOME"] = ".gradle"
 	testEnv["bar"] = "test4"
 	testEnv["star"] = "test3"
 
-	buildEnv := environment(nil, m, nil, nil, nil, 0)
+	buildEnv := environment(nil, m, nil, nil)
 	buildEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
-	dockerEnv := environment(nil, m, nil, nil, nil, 0)
+	dockerEnv := environment(nil, m, nil, nil)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
 	dockerEnv["bar"] = "test4"
 	dockerEnv["star"] = "test3"
 
-	serviceEnv := environment(nil, m, nil, nil, nil, 0)
+	serviceEnv := environment(nil, m, nil, nil)
 	serviceEnv["bar"] = "test4"
 	serviceEnv["star"] = "test3"
 
@@ -1123,9 +1123,9 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 		},
 	}
 
-	setupEnv := environment(nil, m, nil, nil, nil, 0)
+	setupEnv := environment(nil, m, nil, nil)
 
-	helloEnv := environment(nil, m, nil, nil, nil, 0)
+	helloEnv := environment(nil, m, nil, nil)
 
 	want := &pipeline.Build{
 		Version: "1",
@@ -1232,9 +1232,9 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 		},
 	}
 
-	setupEnv := environment(nil, m, nil, nil, nil, 0)
+	setupEnv := environment(nil, m, nil, nil)
 
-	helloEnv := environment(nil, m, nil, nil, nil, 0)
+	helloEnv := environment(nil, m, nil, nil)
 
 	want := &pipeline.Build{
 		Version: "1",
@@ -1340,11 +1340,11 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 		},
 	}
 
-	gradleEnv := environment(nil, m, nil, nil, nil, 0)
+	gradleEnv := environment(nil, m, nil, nil)
 	gradleEnv["GRADLE_OPTS"] = "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 	gradleEnv["GRADLE_USER_HOME"] = ".gradle"
 
-	dockerEnv := environment(nil, m, nil, nil, nil, 0)
+	dockerEnv := environment(nil, m, nil, nil)
 	dockerEnv["PARAMETER_REGISTRY"] = "index.docker.io"
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
@@ -1389,10 +1389,10 @@ func TestNative_Compile_Clone(t *testing.T) {
 		},
 	}
 
-	fooEnv := environment(nil, m, nil, nil, nil, 0)
+	fooEnv := environment(nil, m, nil, nil)
 	fooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	cloneEnv := environment(nil, m, nil, nil, nil, 0)
+	cloneEnv := environment(nil, m, nil, nil)
 	cloneEnv["PARAMETER_DEPTH"] = "5"
 
 	wantFalse := &pipeline.Build{
@@ -1408,7 +1408,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 			&pipeline.Container{
 				ID:          "",
 				Directory:   "",
-				Environment: environment(nil, m, nil, nil, nil, 0),
+				Environment: environment(nil, m, nil, nil),
 				Image:       "#init",
 				Name:        "init",
 				Number:      1,
@@ -1439,7 +1439,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 			&pipeline.Container{
 				ID:          "",
 				Directory:   "",
-				Environment: environment(nil, m, nil, nil, nil, 0),
+				Environment: environment(nil, m, nil, nil),
 				Image:       "#init",
 				Name:        "init",
 				Number:      1,
@@ -1448,7 +1448,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 			&pipeline.Container{
 				ID:          "",
 				Directory:   "",
-				Environment: environment(nil, m, nil, nil, nil, 0),
+				Environment: environment(nil, m, nil, nil),
 				Image:       defaultCloneImage,
 				Name:        "clone",
 				Number:      2,
@@ -1479,7 +1479,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 			&pipeline.Container{
 				ID:          "",
 				Directory:   "",
-				Environment: environment(nil, m, nil, nil, nil, 0),
+				Environment: environment(nil, m, nil, nil),
 				Image:       "#init",
 				Name:        "init",
 				Number:      1,
@@ -1575,10 +1575,10 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		},
 	}
 
-	defaultFooEnv := environment(nil, m, nil, nil, nil, 0)
+	defaultFooEnv := environment(nil, m, nil, nil)
 	defaultFooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	defaultEnv := environment(nil, m, nil, nil, nil, 0)
+	defaultEnv := environment(nil, m, nil, nil)
 	wantDefault := &pipeline.Build{
 		Version: "1",
 		ID:      "",
@@ -1621,10 +1621,10 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 
 	goPipelineType := "go"
 
-	goFooEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil, nil, 0)
+	goFooEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil)
 	goFooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	defaultGoEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil, nil, 0)
+	defaultGoEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil)
 	wantGo := &pipeline.Build{
 		Version: "1",
 		ID:      "",
@@ -1667,10 +1667,10 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 
 	starPipelineType := "starlark"
 
-	starlarkFooEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil, nil, 0)
+	starlarkFooEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil)
 	starlarkFooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	defaultStarlarkEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil, nil, 0)
+	defaultStarlarkEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil)
 	wantStarlark := &pipeline.Build{
 		Version: "1",
 		ID:      "",
@@ -1844,9 +1844,9 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 
 	compiler.WithBuild(build)
 
-	initEnv := environment(build, m, nil, nil, nil, 0)
+	initEnv := environment(build, m, nil, nil)
 
-	stepEnv := environment(build, m, nil, nil, nil, 0)
+	stepEnv := environment(build, m, nil, nil)
 
 	want := &pipeline.Build{
 		Version: "1",
@@ -2023,11 +2023,11 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 
 	compiler.WithBuild(build)
 
-	initEnv := environment(build, m, nil, nil, nil, 0)
+	initEnv := environment(build, m, nil, nil)
 
-	buildEnv := environment(build, m, nil, nil, nil, 0)
+	buildEnv := environment(build, m, nil, nil)
 
-	testEnv := environment(build, m, nil, nil, nil, 0)
+	testEnv := environment(build, m, nil, nil)
 
 	want := &pipeline.Build{
 		Version: "1",
@@ -2204,13 +2204,13 @@ func Test_client_modifyConfig(t *testing.T) {
 		},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
-				Environment: environment(nil, m, nil, nil, nil, 0),
+				Environment: environment(nil, m, nil, nil),
 				Image:       "#init",
 				Name:        "init",
 				Pull:        "not_present",
 			},
 			&yaml.Step{
-				Environment: environment(nil, m, nil, nil, nil, 0),
+				Environment: environment(nil, m, nil, nil),
 				Image:       defaultCloneImage,
 				Name:        "clone",
 				Pull:        "not_present",
@@ -2237,13 +2237,13 @@ func Test_client_modifyConfig(t *testing.T) {
 		},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
-				Environment: environment(nil, m, nil, nil, nil, 0),
+				Environment: environment(nil, m, nil, nil),
 				Image:       "#init",
 				Name:        "init",
 				Pull:        "not_present",
 			},
 			&yaml.Step{
-				Environment: environment(nil, m, nil, nil, nil, 0),
+				Environment: environment(nil, m, nil, nil),
 				Image:       defaultCloneImage,
 				Name:        "clone",
 				Pull:        "not_present",
@@ -2432,7 +2432,7 @@ func convertFileToGithubResponse(file string) (github.RepositoryContent, error) 
 }
 
 func generateTestEnv(m *internal.Metadata, pipelineType string) map[string]string {
-	output := environment(nil, m, nil, nil, nil, 0)
+	output := environment(nil, m, nil, nil)
 	output["VELA_REPO_PIPELINE_TYPE"] = pipelineType
 
 	return output
@@ -2478,15 +2478,15 @@ func Test_Compile_Inline(t *testing.T) {
 		},
 	}
 
-	initEnv := environment(nil, m, nil, nil, nil, 0)
-	testEnv := environment(nil, m, nil, nil, nil, 0)
+	initEnv := environment(nil, m, nil, nil)
+	testEnv := environment(nil, m, nil, nil)
 	testEnv["FOO"] = "Hello, foo!"
 	testEnv["HELLO"] = "Hello, Vela!"
-	stepEnv := environment(nil, m, nil, nil, nil, 0)
+	stepEnv := environment(nil, m, nil, nil)
 	stepEnv["FOO"] = "Hello, foo!"
 	stepEnv["HELLO"] = "Hello, Vela!"
 	stepEnv["PARAMETER_FIRST"] = "foo"
-	golangEnv := environment(nil, m, nil, nil, nil, 0)
+	golangEnv := environment(nil, m, nil, nil)
 	golangEnv["VELA_REPO_PIPELINE_TYPE"] = "go"
 
 	type args struct {

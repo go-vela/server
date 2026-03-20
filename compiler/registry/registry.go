@@ -17,5 +17,5 @@ type Service interface {
 
 	// Template defines a function that captures the
 	// templated pipeline configuration from a repo.
-	Template(context.Context, *api.User, *Source) ([]byte, error)
+	Template(context.Context, *api.Repo, *api.User, *Source, string) ([]byte, error)
 }

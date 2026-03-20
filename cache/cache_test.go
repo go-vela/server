@@ -31,7 +31,7 @@ func TestCache_New(t *testing.T) {
 			setup: &Setup{
 				Driver:          "redis",
 				Address:         fmt.Sprintf("redis://%s", _redis.Addr()),
-				InstallTokenKey: "example",
+				InstallTokenKey: "c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90",
 				Cluster:         false,
 			},
 		},
@@ -40,7 +40,7 @@ func TestCache_New(t *testing.T) {
 			setup: &Setup{
 				Driver:          "unsupported cache",
 				Address:         "cache://cache.example.com",
-				InstallTokenKey: "example",
+				InstallTokenKey: "c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90",
 				Cluster:         false,
 			},
 		},

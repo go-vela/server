@@ -57,4 +57,7 @@ const (
 
 	// GitTokenRepoLimit defines the maximum number of repositories that can be declared in a git token.
 	GitTokenRepoLimit = 10
+
+	// GitTokenRequestLimit defines the maximum number of git token requests that can be made in a pipeline.
+	GitTokenRequestLimit = 10
 )

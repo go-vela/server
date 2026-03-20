@@ -15,16 +15,12 @@ func (c *Client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline
 	pipeline := &pipeline.Build{
 		Version:    p.Version,
 		Metadata:   *p.Metadata.ToPipeline(),
+		Git:        p.Git.ToPipeline(),
 		Stages:     *p.Stages.ToPipeline(),
 		Secrets:    *p.Secrets.ToPipeline(),
 		Services:   *p.Services.ToPipeline(),
 		Worker:     *p.Worker.ToPipeline(),
 		Deployment: *p.Deployment.ToPipeline(),
-	}
-
-	if c.netrc != nil {
-		pipeline.Token = *c.netrc
-		pipeline.TokenExp = c.netrcExp
 	}
 
 	build, err := pipeline.Purge(r)
@@ -41,16 +37,12 @@ func (c *Client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.
 	pipeline := &pipeline.Build{
 		Version:    p.Version,
 		Metadata:   *p.Metadata.ToPipeline(),
+		Git:        p.Git.ToPipeline(),
 		Deployment: *p.Deployment.ToPipeline(),
 		Steps:      *p.Steps.ToPipeline(),
 		Secrets:    *p.Secrets.ToPipeline(),
 		Services:   *p.Services.ToPipeline(),
 		Worker:     *p.Worker.ToPipeline(),
-	}
-
-	if c.netrc != nil {
-		pipeline.Token = *c.netrc
-		pipeline.TokenExp = c.netrcExp
 	}
 
 	build, err := pipeline.Purge(r)

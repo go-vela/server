@@ -157,17 +157,9 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
-	var scmToken string
-
-	if b.GetRepo().GetInstallID() != 0 {
-		scmToken, _, err = scm.FromContext(c).GetNetrcPassword(ctx, database.FromContext(c), cache.FromContext(c), b, nil, nil)
-		if err != nil {
-			l.Errorf("unable to generate new installation token for build %s: %v", entry, err)
-
-			return
-		}
-	} else {
-		scmToken = b.GetRepo().GetOwner().GetToken()
+	scmToken, err := cache.FromContext(c).GetInstallStatusToken(ctx, b.GetID())
+	if err != nil || scmToken == "" {
+		scmToken = scm.FromContext(c).GenerateStatusToken(ctx, b)
 	}
 
 	// send API call to set the status on the commit

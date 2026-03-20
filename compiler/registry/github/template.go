@@ -14,12 +14,18 @@ import (
 )
 
 // Template captures the templated pipeline configuration from the GitHub repo.
-func (c *Client) Template(ctx context.Context, u *api.User, s *registry.Source) ([]byte, error) {
+func (c *Client) Template(ctx context.Context, r *api.Repo, u *api.User, s *registry.Source, token string) ([]byte, error) {
 	// use default GitHub OAuth client we provide
 	cli := c.githubClient
-	if u != nil {
+	if u != nil && (token == "" || r.GetOrg() != s.Org) {
 		// create GitHub OAuth client with user's token
 		cli = c.newOAuthTokenClient(ctx, u.GetToken())
+	}
+
+	// if install token provided and orgs match, use GitHub OAuth client with install token
+	if token != "" && r.GetOrg() == s.Org {
+		// create GitHub OAuth client with provided token
+		cli = c.newOAuthTokenClient(ctx, token)
 	}
 
 	// create the options to pass

@@ -45,18 +45,30 @@ func (c *Client) Compile(ctx context.Context, v any) (*pipeline.Build, *api.Pipe
 		return nil, nil, err
 	}
 
-	// create the netrc using the scm
-	// this has to occur after Parse because the scm configurations might be set in yaml
-	// netrc can be provided directly using WithNetrc for situations like local exec
-	if c.netrc == nil && c.scm != nil {
-		// get the netrc password from the scm
-		netrc, exp, err := c.scm.GetNetrcPassword(ctx, c.db, c.cache, c.build, p.Git.Repositories, p.Git.Permissions)
+	if c.scm != nil && c.build.GetRepo().GetInstallID() != 0 {
+		collabToken, err := c.cache.GetPermissionToken(ctx, c.build.GetRepo().GetInstallID())
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to get permission token from cache: %w", err)
+		}
+
+		if collabToken == "" {
+			collabToken, err = c.scm.GeneratePermissionToken(ctx, c.build.GetRepo().GetInstallID())
+			if err != nil {
+				return nil, nil, fmt.Errorf("failed to generate permission token: %w", err)
+			}
+
+			err = c.cache.StorePermissionToken(ctx, c.build.GetRepo().GetInstallID(), collabToken)
+			if err != nil {
+				return nil, nil, fmt.Errorf("failed to store permission token in cache: %w", err)
+			}
+		}
+
+		c.token = collabToken
+
+		err = c.scm.ValidateNetrcRequest(ctx, collabToken, c.build, p.Git.Repositories, p.Git.Permissions)
 		if err != nil {
 			return nil, nil, err
 		}
-
-		c.WithNetrc(netrc)
-		c.netrcExp = exp
 	}
 
 	// create the API pipeline object from the yaml configuration

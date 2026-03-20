@@ -3,6 +3,7 @@
 package redis
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 )
@@ -49,8 +50,13 @@ func WithInstallTokenKey(key string) ClientOpt {
 			return errors.New("no install token key provided")
 		}
 
+		keyBytes, err := hex.DecodeString(key)
+		if err != nil {
+			return fmt.Errorf("invalid install token key: %w", err)
+		}
+
 		// set the install token key in the redis cache client
-		c.config.InstallTokenKey = key
+		c.config.InstallTokenKey = string(keyBytes)
 
 		return nil
 	}

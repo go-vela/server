@@ -14,7 +14,6 @@ import (
 	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/scm"
@@ -82,11 +81,6 @@ func UpdateBuild(c *gin.Context) {
 	b := build.Retrieve(c)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
-
-	scmToken := auth.RetrieveTokenHeader(c.Request)
-	if scmToken == "" {
-		scmToken = r.GetOwner().GetToken()
-	}
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -181,6 +175,15 @@ func UpdateBuild(c *gin.Context) {
 			return
 		}
 
+		regenToken := false
+
+		scmToken, err := cache.FromContext(c).GetInstallStatusToken(ctx, b.GetID())
+		if err != nil || scmToken == "" {
+			scmToken = scm.FromContext(c).GenerateStatusToken(ctx, b)
+
+			regenToken = true
+		}
+
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).Status(ctx, b, scmToken)
 		if err != nil {
@@ -188,11 +191,22 @@ func UpdateBuild(c *gin.Context) {
 		}
 
 		// if the build has reached a final state, evict the install token from cache
-		if b.GetStatus() != constants.StatusRunning {
-			// evict installation token from cache
-			err = cache.FromContext(c).EvictInstallToken(ctx, scmToken)
+		if b.GetStatus() != constants.StatusRunning && b.GetStatus() != constants.StatusPending && b.GetStatus() != constants.StatusPendingApproval {
+			// evict installation tokens from cache
+			err = cache.FromContext(c).EvictInstallStatusToken(ctx, b.GetID())
 			if err != nil {
 				l.Errorf("unable to evict installation token from cache: %v", err)
+			}
+
+			err = cache.FromContext(c).EvictBuildInstallTokens(ctx, b.GetID())
+			if err != nil {
+				l.Errorf("unable to evict installation tokens from cache: %v", err)
+			}
+		} else if regenToken {
+			// if the build is still running and we had to regenerate the token, store it in cache
+			err = cache.FromContext(c).StoreInstallStatusToken(ctx, b.GetID(), scmToken)
+			if err != nil {
+				l.Errorf("unable to store installation token in cache: %v", err)
 			}
 		}
 	}

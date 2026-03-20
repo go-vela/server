@@ -8,13 +8,16 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/go-vela/server/cache/models"
+	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/util"
 )
 
 // StoreInstallToken computes an HMAC-SHA256 of the token and stores it in Redis with a TTL.
-func (c *Client) StoreInstallToken(ctx context.Context, t *models.InstallToken, timeout int32) error {
+func (c *Client) StoreInstallToken(ctx context.Context, t *models.InstallToken, build int64, timeout int32) error {
 	meta := new(models.InstallToken)
 	meta.InstallID = t.InstallID
 	meta.Repositories = t.Repositories
@@ -36,10 +39,66 @@ func (c *Client) StoreInstallToken(ctx context.Context, t *models.InstallToken, 
 
 	hmacHex := hex.EncodeToString(h.Sum(nil))
 
-	key := "install_token:" + hmacHex
+	key := constants.CacheInstallTokenPrefix + hmacHex
 
 	// store a small marker value (or metadata JSON if needed)
 	err = c.Redis.Set(ctx, key, metaBytes, ttl).Err()
+	if err != nil {
+		return err
+	}
+
+	// add the key to a Redis set for the build to enable eviction of all tokens for a build
+	idxKey := fmt.Sprintf("%s%d", constants.CacheBuildIndexPrefix, build)
+
+	err = c.Redis.SAdd(ctx, idxKey, key).Err()
+	if err != nil {
+		return err
+	}
+
+	// set an expiry on the index in case eviction routine is never called
+	err = c.Redis.Expire(ctx, idxKey, ttl).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// StoreInstallStatusToken stores the installation status token in Redis with a TTL.
+func (c *Client) StoreInstallStatusToken(ctx context.Context, build int64, token string) error {
+	// set TTL to 55 minutes to ensure it expires before the GitHub token does
+	ttl := time.Minute * 55
+
+	key := fmt.Sprintf("%s%d", constants.CacheInstallStatusTokenPrefix, build)
+
+	encrypted, err := util.Encrypt(c.config.InstallTokenKey, []byte(token))
+	if err != nil {
+		return err
+	}
+
+	// store the token with a TTL
+	err = c.Redis.Set(ctx, key, encrypted, ttl).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// StorePermissionToken stores the permission token for a single installation in Redis with a TTL.
+func (c *Client) StorePermissionToken(ctx context.Context, installID int64, token string) error {
+	ttl := time.Minute * 55
+
+	key := fmt.Sprintf("%s%d", constants.CachePermissionTokenPrefix, installID)
+
+	// encrypt the token
+	encrypted, err := util.Encrypt(c.config.InstallTokenKey, []byte(token))
+	if err != nil {
+		return err
+	}
+
+	// store the token with a TTL
+	err = c.Redis.Set(ctx, key, encrypted, ttl).Err()
 	if err != nil {
 		return err
 	}

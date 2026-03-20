@@ -56,6 +56,7 @@ type (
 		User        string            `json:"user,omitempty"        yaml:"user,omitempty"`
 		ReportAs    string            `json:"report_as,omitempty"   yaml:"report_as,omitempty"`
 		IDRequest   string            `json:"id_request,omitempty"  yaml:"id_request,omitempty"`
+		Git         *Git              `json:"git,omitempty"         yaml:"git,omitempty"`
 	}
 )
 

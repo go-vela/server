@@ -14,6 +14,65 @@ import (
 	"github.com/go-vela/server/constants"
 )
 
+func TestGithub_GenerateStatusToken(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.POST("/api/v3/app/installations/:id/access_tokens", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/installations_access_tokens.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	owner := new(api.User)
+	owner.SetToken("oauth_token")
+
+	r := new(api.Repo)
+	r.SetID(1)
+	r.SetOwner(owner)
+	r.SetOrg("foo")
+	r.SetName("bar")
+
+	b := new(api.Build)
+	b.SetID(1)
+	b.SetRepo(r)
+	b.SetNumber(1)
+	b.SetEvent(constants.EventDeploy)
+	b.SetStatus(constants.StatusPending)
+	b.SetCommit("abcd1234")
+
+	client, _ := NewTest(s.URL)
+	client.AppClient = NewTestAppClient(s.URL)
+
+	// run test for oauth
+	token := client.GenerateStatusToken(t.Context(), b)
+
+	expectedToken := "oauth_token"
+
+	if token != expectedToken {
+		t.Errorf("GenerateStatusToken returned token %s, want %s", token, expectedToken)
+	}
+
+	r.SetInstallID(1)
+
+	// run test for installation token
+	token = client.GenerateStatusToken(t.Context(), b)
+
+	expectedToken = "ghs_16C7e42F292c6912E7710c838347Ae178B4a"
+
+	if token != expectedToken {
+		t.Errorf("GenerateStatusToken returned token %s, want %s", token, expectedToken)
+	}
+}
+
 func TestGithub_Status_Deployment(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)

@@ -26,12 +26,18 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 					Detach:      false,
 					Entrypoint:  []string{"/bin/sh"},
 					Environment: map[string]string{"FOO": "bar"},
-					Image:       "alpine:latest",
-					Name:        "echo",
-					Privileged:  false,
-					Pull:        "not_present",
-					ReportAs:    "my-step",
-					IDRequest:   "yes",
+					Git: Git{
+						Token{
+							Repositories: []string{"foo"},
+							Permissions:  map[string]string{"contents": "write"},
+						},
+					},
+					Image:      "alpine:latest",
+					Name:       "echo",
+					Privileged: false,
+					Pull:       "not_present",
+					ReportAs:   "my-step",
+					IDRequest:  "yes",
 					Ruleset: Ruleset{
 						If: Rules{
 							Branch:   []string{"main"},
@@ -88,12 +94,18 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 					Detach:      false,
 					Entrypoint:  []string{"/bin/sh"},
 					Environment: map[string]string{"FOO": "bar"},
-					Image:       "alpine:latest",
-					Name:        "echo",
-					Privileged:  false,
-					Pull:        "not_present",
-					ReportAs:    "my-step",
-					IDRequest:   "yes",
+					Git: &pipeline.Git{
+						Token: pipeline.Token{
+							Repositories: []string{"foo"},
+							Permissions:  map[string]string{"contents": "write"},
+						},
+					},
+					Image:      "alpine:latest",
+					Name:       "echo",
+					Privileged: false,
+					Pull:       "not_present",
+					ReportAs:   "my-step",
+					IDRequest:  "yes",
 					Ruleset: pipeline.Ruleset{
 						If: pipeline.Rules{
 							Branch:   []string{"main"},

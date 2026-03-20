@@ -23,7 +23,7 @@ func TestYaml_Git_ToPipeline(t *testing.T) {
 				},
 			},
 			want: &pipeline.Git{
-				Token: &pipeline.Token{
+				Token: pipeline.Token{
 					Repositories: []string{"foo", "bar"},
 				},
 			},
@@ -35,7 +35,7 @@ func TestYaml_Git_ToPipeline(t *testing.T) {
 				},
 			},
 			want: &pipeline.Git{
-				Token: &pipeline.Token{
+				Token: pipeline.Token{
 					Permissions: map[string]string{"foo": "bar"},
 				},
 			},
@@ -47,7 +47,7 @@ func TestYaml_Git_ToPipeline(t *testing.T) {
 				},
 			},
 			want: &pipeline.Git{
-				Token: &pipeline.Token{
+				Token: pipeline.Token{
 					Repositories: []string{"bar"},
 				},
 			},
@@ -56,9 +56,7 @@ func TestYaml_Git_ToPipeline(t *testing.T) {
 			git: &Git{
 				Token: Token{},
 			},
-			want: &pipeline.Git{
-				Token: &pipeline.Token{},
-			},
+			want: nil,
 		},
 	}
 
