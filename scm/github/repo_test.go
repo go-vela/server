@@ -1218,6 +1218,13 @@ func TestGithub_ValidateNetrcRequest(t *testing.T) {
 		c.File("testdata/installations_access_tokens.json")
 	})
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:user/permission", func(c *gin.Context) {
+		repo := c.Param("repo")
+		if repo == "not-installed-repo" {
+			c.Status(http.StatusNotFound)
+
+			return
+		}
+
 		user := c.Param("user")
 		if user == "foo" {
 			c.Header("Content-Type", "application/json")
@@ -1238,18 +1245,6 @@ func TestGithub_ValidateNetrcRequest(t *testing.T) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusForbidden)
 	})
-	engine.GET("/api/v3/repos/:org/:repo", func(c *gin.Context) {
-		repo := c.Param("repo")
-		if repo == "Hello-World" || repo == "accessible-repo" {
-			c.Header("Content-Type", "application/json")
-			c.Status(http.StatusOK)
-			c.File("testdata/get_repo.json")
-
-			return
-		}
-
-		c.Status(http.StatusNotFound)
-	})
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
@@ -1261,15 +1256,12 @@ func TestGithub_ValidateNetrcRequest(t *testing.T) {
 
 	u := new(api.User)
 	u.SetName("foo")
-	u.SetToken("bar")
 
 	reader := new(api.User)
 	reader.SetName("reader")
-	reader.SetToken("bar")
 
 	badUser := new(api.User)
 	badUser.SetName("charlatan")
-	badUser.SetToken("bar")
 
 	tests := []struct {
 		name          string
@@ -1375,7 +1367,7 @@ func TestGithub_ValidateNetrcRequest(t *testing.T) {
 			testBuild := new(api.Build)
 			testBuild.SetRepo(test.repo)
 
-			err := client.ValidateNetrcRequest(t.Context(), testBuild, test.repos, test.perms)
+			err := client.ValidateNetrcRequest(t.Context(), "bar", testBuild, test.repos, test.perms)
 			if (err != nil) != test.wantErr {
 				t.Errorf("ValidateNetrcRequest() error = %v, wantErr %v", err, test.wantErr)
 			}

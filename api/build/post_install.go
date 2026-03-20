@@ -73,6 +73,14 @@ func PostInstallToken(c *gin.Context) {
 	b := build.Retrieve(c)
 	ctx := c.Request.Context()
 
+	if b.GetRepo().GetInstallID() == 0 {
+		retErr := fmt.Errorf("repository does not have an installation ID, cannot generate install token")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	l.Debugf("generating install token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
 
 	// build must be running to generate install token
@@ -96,7 +104,36 @@ func PostInstallToken(c *gin.Context) {
 		return
 	}
 
-	err = scm.FromContext(c).ValidateNetrcRequest(ctx, b, input.Repositories, input.Permissions)
+	collabToken, err := cache.FromContext(c).GetPermissionToken(ctx, b.GetRepo().GetInstallID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to retrieve permission token from cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	if collabToken == "" {
+		collabToken, err = scm.FromContext(c).GeneratePermissionToken(ctx, b.GetRepo().GetInstallID())
+		if err != nil {
+			retErr := fmt.Errorf("unable to generate permission token for installation %d: %w", b.GetRepo().GetInstallID(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		err = cache.FromContext(c).StorePermissionToken(ctx, b.GetRepo().GetInstallID(), collabToken)
+		if err != nil {
+			retErr := fmt.Errorf("unable to store permission token in cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+
+	err = scm.FromContext(c).ValidateNetrcRequest(ctx, collabToken, b, input.Repositories, input.Permissions)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate token request: %w", err)
 

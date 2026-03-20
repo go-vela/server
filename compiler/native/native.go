@@ -52,6 +52,7 @@ type Client struct {
 	db             database.Interface
 	scm            scm.Service
 	cache          cache.Service
+	token          string
 }
 
 // FromCLICommand returns a Pipeline implementation that integrates with the supported registries.

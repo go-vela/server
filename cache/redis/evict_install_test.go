@@ -22,7 +22,7 @@ func TestRedis_EvictInstall(t *testing.T) {
 	_repo.SetTimeout(30)
 
 	// setup redis mock
-	_redis, err := NewTest("installKey")
+	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
@@ -78,7 +78,7 @@ func TestRedis_EvictBuildInstallTokens(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("installKey")
+	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
@@ -135,7 +135,7 @@ func TestRedis_EvictBuildInstallTokens(t *testing.T) {
 
 func TestRedis_EvictInstallStatusToken(t *testing.T) {
 	// setup redis mock
-	_redis, err := NewTest("installKey")
+	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}

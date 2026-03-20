@@ -486,7 +486,7 @@ func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 }
 
 // ValidateNetrcRequest validates a repo and permissions set for an install token request.
-func (c *Client) ValidateNetrcRequest(ctx context.Context, b *api.Build, repos []string, perms map[string]string) error {
+func (c *Client) ValidateNetrcRequest(ctx context.Context, token string, b *api.Build, repos []string, perms map[string]string) error {
 	r := b.GetRepo()
 	u := b.GetRepo().GetOwner()
 
@@ -548,11 +548,6 @@ func (c *Client) ValidateNetrcRequest(ctx context.Context, b *api.Build, repos [
 		permSet = append(permSet, constants.PermissionRead)
 	}
 
-	installation, _, err := c.AppClient.Apps.GetInstallation(ctx, r.GetInstallID())
-	if err != nil {
-		return fmt.Errorf("unable to get installation for repository %s/%s: %w", r.GetOrg(), r.GetName(), err)
-	}
-
 	// verify repo owner has proper access to listed repositories before provisioning install token
 	//
 	// this prevents an app installed across the org from bypassing restrictions
@@ -561,18 +556,13 @@ func (c *Client) ValidateNetrcRequest(ctx context.Context, b *api.Build, repos [
 			continue
 		}
 
-		access, err := c.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), repo)
-		if err != nil || !slices.Contains(permSet, access) {
-			return fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)
-		}
-
-		installed, err := c.installationCanReadRepo(ctx, r.GetOrg(), repo, installation)
+		access, err := c.RepoAccess(ctx, u.GetName(), token, r.GetOrg(), repo)
 		if err != nil {
-			return fmt.Errorf("unable to check if installation for org %s can read repo %s: %w", installation.GetAccount().GetLogin(), repo, err)
+			return fmt.Errorf("unable to get user %s access level for org %s and repo %s: %w", u.GetName(), r.GetOrg(), repo, err)
 		}
 
-		if !installed {
-			return fmt.Errorf("installation for org %s exists but does not have access to repo %s", installation.GetAccount().GetLogin(), repo)
+		if !slices.Contains(permSet, access) {
+			return fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)
 		}
 	}
 
@@ -593,7 +583,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 	l.Tracef("getting netrc password for %s/%s", r.GetOrg(), r.GetName())
 
 	// no GitHub App configured, use legacy oauth token
-	if c.AppClient == nil {
+	if c.AppClient == nil || r.GetInstallID() == 0 {
 		return u.GetToken(), 0, nil
 	}
 
@@ -631,66 +621,16 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		}
 	}
 
-	id := r.GetInstallID()
-
-	// if the source scm repo has an install ID but the Vela db record does not
-	// then use the source repo to create an installation token
-	if id == 0 {
-		// list all installations (a.k.a. orgs) where the GitHub App is installed
-		installations, _, err := c.AppClient.Apps.ListInstallations(ctx, &github.ListOptions{})
-		if err != nil {
-			l.Tracef("unable to list github app installations: %s", err.Error())
-
-			return "", 0, err
-		}
-
-		// iterate through the list of installations
-		for _, install := range installations {
-			// find the installation that matches the org for the repo
-			if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
-				if install.GetRepositorySelection() == constants.AppInstallRepositoriesSelectionSelected {
-					installationCanReadRepo, err := c.installationCanReadRepo(ctx, r.GetOrg(), r.GetName(), install)
-					if err != nil {
-						l.Tracef("unable to check if installation for org %s can read repo %s: %s", install.GetAccount().GetLogin(), r.GetFullName(), err.Error())
-
-						return "", 0, fmt.Errorf("unable to check if installation for org %s can read repo %s: %s", install.GetAccount().GetLogin(), r.GetFullName(), err.Error())
-					}
-
-					if !installationCanReadRepo {
-						return u.GetToken(), 0, nil
-					}
-				}
-
-				id = install.GetID()
-			}
-		}
-	}
-
-	// if there is no installation ID found after checking the source repo and listing installations, then default to the user oauth token
-	if id == 0 {
-		return u.GetToken(), 0, nil
-	}
-
 	// the app might not be installed therefore we retain backwards compatibility via the user oauth token
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 	// the optional list of repos and permissions are driven by yaml
-	installToken, err := c.NewAppInstallationToken(ctx, id, repos, permissions)
+	installToken, err := c.NewAppInstallationToken(ctx, r.GetInstallID(), repos, permissions)
 	if err != nil {
 		return "", 0, fmt.Errorf("unable to create github app installation token for repos %v with permissions %v: %w", repos, permissions, err)
 	}
 
 	if installToken != nil && len(installToken.Token) != 0 {
 		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
-
-		// (optional) sync the install ID with the repo
-		if db != nil && r.GetInstallID() != id {
-			r.SetInstallID(id)
-
-			err = db.PartialUpdateRepo(ctx, &api.Repo{ID: r.ID, InstallID: &id})
-			if err != nil {
-				c.Logger.Tracef("unable to update repo with install ID %d: %v", id, err)
-			}
-		}
 
 		if tknCache != nil {
 			err = tknCache.StoreInstallToken(ctx, installToken, b.GetID(), r.GetTimeout())
@@ -746,4 +686,25 @@ func (c *Client) SyncRepoWithInstallation(ctx context.Context, r *api.Repo) (*ap
 	}
 
 	return r, nil
+}
+
+// GeneratePermissionToken generates a token for checking permissions for an installation.
+func (c *Client) GeneratePermissionToken(ctx context.Context, installID int64) (string, error) {
+	if c.AppClient != nil && installID != 0 {
+		opts := &github.InstallationTokenOptions{
+			Permissions: &github.InstallationPermissions{
+				Metadata: new("read"),
+				Contents: new("read"),
+			},
+		}
+		// create installation token for the repo
+		t, _, err := c.AppClient.Apps.CreateInstallationToken(ctx, installID, opts)
+		if err != nil {
+			return "", err
+		}
+
+		return t.GetToken(), nil
+	}
+
+	return "", fmt.Errorf("github app client not configured or install ID is 0")
 }

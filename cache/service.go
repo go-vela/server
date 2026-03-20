@@ -25,4 +25,7 @@ type Service interface {
 	StoreInstallStatusToken(ctx context.Context, build int64, token string) error
 	GetInstallStatusToken(ctx context.Context, build int64) (string, error)
 	EvictInstallStatusToken(ctx context.Context, build int64) error
+
+	StorePermissionToken(ctx context.Context, installID int64, token string) error
+	GetPermissionToken(ctx context.Context, installID int64) (string, error)
 }

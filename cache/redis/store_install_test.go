@@ -25,7 +25,7 @@ func TestRedis_StoreInstall(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("installKey")
+	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
@@ -63,7 +63,7 @@ func TestRedis_StoreInstall(t *testing.T) {
 
 func TestRedis_StoreInstallStatusToken(t *testing.T) {
 	// setup redis mock
-	_redis, err := NewTest("installKey")
+	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
@@ -117,7 +117,7 @@ func TestRedis_StoreInstallToken_TTL(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("installKey")
+	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
@@ -129,7 +129,7 @@ func TestRedis_StoreInstallToken_TTL(t *testing.T) {
 	}
 
 	// verify the token key has a TTL set
-	tokenTTL := _redis.Redis.TTL(t.Context(), tokenKey(t, "installKey", "ttl_test_token"))
+	tokenTTL := _redis.Redis.TTL(t.Context(), tokenKey(t, "c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90", "ttl_test_token"))
 	if tokenTTL.Err() != nil {
 		t.Fatalf("unable to get TTL for token key: %v", tokenTTL.Err())
 	}
@@ -165,7 +165,7 @@ func TestRedis_StoreInstallToken_TTL(t *testing.T) {
 
 func TestRedis_StoreInstallStatusToken_TTL(t *testing.T) {
 	// setup redis mock
-	_redis, err := NewTest("installKey")
+	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
@@ -206,7 +206,12 @@ func TestRedis_StoreInstallStatusToken_TTL(t *testing.T) {
 func tokenKey(t *testing.T, installTokenKey, token string) string {
 	t.Helper()
 
-	h := hmac.New(sha256.New, []byte(installTokenKey))
+	keyBytes, err := hex.DecodeString(installTokenKey)
+	if err != nil {
+		t.Fatalf("invalid install token key: %v", err)
+	}
+
+	h := hmac.New(sha256.New, keyBytes)
 	h.Write([]byte(token))
 
 	return fmt.Sprintf("install_token:%s", hex.EncodeToString(h.Sum(nil)))

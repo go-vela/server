@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/util"
 )
 
 func (c *Client) GetInstallToken(ctx context.Context, token string) (*models.InstallToken, error) {
@@ -49,5 +50,28 @@ func (c *Client) GetInstallStatusToken(ctx context.Context, build int64) (string
 		return "", err
 	}
 
-	return token, nil
+	decoded, err := util.Decrypt(c.config.InstallTokenKey, []byte(token))
+	if err != nil {
+		return "", err
+	}
+
+	return string(decoded), nil
+}
+
+// GetPermissionToken retrieves the permission token from Redis.
+func (c *Client) GetPermissionToken(ctx context.Context, installID int64) (string, error) {
+	key := fmt.Sprintf("%s%d", constants.CachePermissionTokenPrefix, installID)
+
+	token, err := c.Redis.Get(ctx, key).Result()
+	if err != nil {
+		//nolint:nilerr // cache miss return non-error with empty token
+		return "", nil
+	}
+
+	decoded, err := util.Decrypt(c.config.InstallTokenKey, []byte(token))
+	if err != nil {
+		return "", err
+	}
+
+	return string(decoded), nil
 }

@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/util"
 )
 
 // StoreInstallToken computes an HMAC-SHA256 of the token and stores it in Redis with a TTL.
@@ -65,13 +66,39 @@ func (c *Client) StoreInstallToken(ctx context.Context, t *models.InstallToken, 
 
 // StoreInstallStatusToken stores the installation status token in Redis with a TTL.
 func (c *Client) StoreInstallStatusToken(ctx context.Context, build int64, token string) error {
-	// set TTL to 59 minutes to ensure it expires before the GitHub token does
-	ttl := time.Minute * 59
+	// set TTL to 55 minutes to ensure it expires before the GitHub token does
+	ttl := time.Minute * 55
 
 	key := fmt.Sprintf("%s%d", constants.CacheInstallStatusTokenPrefix, build)
 
+	encrypted, err := util.Encrypt(c.config.InstallTokenKey, []byte(token))
+	if err != nil {
+		return err
+	}
+
 	// store the token with a TTL
-	err := c.Redis.Set(ctx, key, token, ttl).Err()
+	err = c.Redis.Set(ctx, key, encrypted, ttl).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// StorePermissionToken stores the permission token for a single installation in Redis with a TTL.
+func (c *Client) StorePermissionToken(ctx context.Context, installID int64, token string) error {
+	ttl := time.Minute * 55
+
+	key := fmt.Sprintf("%s%d", constants.CachePermissionTokenPrefix, installID)
+
+	// encrypt the token
+	encrypted, err := util.Encrypt(c.config.InstallTokenKey, []byte(token))
+	if err != nil {
+		return err
+	}
+
+	// store the token with a TTL
+	err = c.Redis.Set(ctx, key, encrypted, ttl).Err()
 	if err != nil {
 		return err
 	}

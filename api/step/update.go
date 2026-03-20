@@ -167,15 +167,27 @@ func UpdateStep(c *gin.Context) {
 	// check if the build is in a "final" state
 	// and if build is not a scheduled event
 	if scmStatusReq && b.GetEvent() != constants.EventSchedule {
+		regenToken := false
+
 		scmToken, err := cache.FromContext(c).GetInstallStatusToken(ctx, b.GetID())
 		if err != nil || scmToken == "" {
 			scmToken = scm.FromContext(c).GenerateStatusToken(ctx, b)
+
+			regenToken = true
 		}
 
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).StepStatus(ctx, b, s, scmToken)
 		if err != nil {
 			l.Errorf("unable to set commit status for build %s: %v", entry, err)
+		}
+
+		if regenToken {
+			// if the build is still running and we had to regenerate the token, store it in cache
+			err = cache.FromContext(c).StoreInstallStatusToken(ctx, b.GetID(), scmToken)
+			if err != nil {
+				l.Errorf("unable to store installation token in cache: %v", err)
+			}
 		}
 	}
 }

@@ -12,4 +12,7 @@ const (
 
 	// CacheBuildIndexPrefix defines the prefix for install tokens index for a build stored in the cache.
 	CacheBuildIndexPrefix = "idx:build:"
+
+	// CachePermissionTokenPrefix defines the prefix for permission tokens stored in the cache.
+	CachePermissionTokenPrefix = "perm_token:"
 )

@@ -4,6 +4,7 @@ package redis
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"reflect"
 	"testing"
@@ -76,6 +77,13 @@ func TestRedis_ClientOpt_WithInstallTokenKey(t *testing.T) {
 	}
 	defer _redis.Close()
 
+	key := "c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90"
+
+	wantBytes, err := hex.DecodeString(key)
+	if err != nil {
+		t.Errorf("invalid install token key: %v", err)
+	}
+
 	tests := []struct {
 		failure    bool
 		installKey string
@@ -83,8 +91,8 @@ func TestRedis_ClientOpt_WithInstallTokenKey(t *testing.T) {
 	}{
 		{
 			failure:    false,
-			installKey: "foo",
-			want:       "foo",
+			installKey: key,
+			want:       string(wantBytes),
 		},
 		{
 			failure:    true,
