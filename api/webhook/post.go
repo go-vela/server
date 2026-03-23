@@ -499,10 +499,10 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	// capture the build and repo from the items
-	if item == nil {
-		b = &types.Build{}
-	} else {
+	// capture the build from generated item
+	//
+	// if item is nil, keep b as webhook parsed build
+	if item != nil {
 		b = item.Build
 	}
 
