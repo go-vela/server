@@ -182,8 +182,9 @@ func CompileAndPublish(
 	// variable to store changeset files
 	files := cfg.Files
 
-	// fetch changeset for deploy and schedule events because they don't have it in the payload
-	if b.GetEvent() == constants.EventDeploy || b.GetEvent() == constants.EventSchedule {
+	// fetch changeset for deploy and schedule events and push/tag events that are not from webhooks
+	if b.GetEvent() == constants.EventDeploy || b.GetEvent() == constants.EventSchedule ||
+		(cfg.Source != "webhook" && (b.GetEvent() == constants.EventPush || b.GetEvent() == constants.EventTag)) {
 		files, err = scm.Changeset(ctx, compileToken, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
