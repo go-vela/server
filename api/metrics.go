@@ -13,10 +13,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/settings"
+	"github.com/go-vela/server/scm"
 )
 
 // MetricsQueryParameters holds query parameter information pertaining to requested metrics.
@@ -70,6 +72,9 @@ type MetricsQueryParameters struct {
 	BusyWorkerCount bool `form:"busy_worker_count"`
 	// ErrorWorkerCount represents total number of workers with a status of error
 	ErrorWorkerCount bool `form:"error_worker_count"`
+
+	// SCMAppRateLimit represents the SCM app rate limit
+	SCMAppRateLimitInstallID int64 `form:"scm_app_rate_limit_install_id"`
 }
 
 // predefine Prometheus metrics else they will be regenerated
@@ -212,6 +217,11 @@ var (
 // - in: query
 //   name: error_worker_count
 //   description: Indicates a request for error worker count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: scm_app_rate_limit
+//   description: Indicates a request for SCM app rate limit
 //   type: boolean
 //   default: false
 // responses:
@@ -499,6 +509,25 @@ func recordGauges(c *gin.Context) {
 		// error_worker_count
 		if q.ErrorWorkerCount {
 			totals.WithLabelValues("worker", "count", "error").Set(float64(errorWorkers))
+		}
+	}
+
+	if q.SCMAppRateLimitInstallID != 0 {
+		token, err := cache.FromContext(c).GetPermissionToken(ctx, q.SCMAppRateLimitInstallID)
+		if err != nil {
+			logrus.Errorf("unable to get SCM app rate limit token: %v", err)
+		}
+
+		// only get rate limit if cached token is available
+		if token != "" {
+			limit, remaining, reset, err := scm.FromContext(c).InstallRateLimit(ctx, token, q.SCMAppRateLimitInstallID)
+			if err != nil {
+				logrus.Errorf("unable to get SCM app rate limit: %v", err)
+			}
+
+			totals.WithLabelValues("scm_app_rate_limit", "limit", fmt.Sprintf("%d", q.SCMAppRateLimitInstallID)).Set(float64(limit))
+			totals.WithLabelValues("scm_app_rate_limit", "remaining", fmt.Sprintf("%d", q.SCMAppRateLimitInstallID)).Set(float64(remaining))
+			totals.WithLabelValues("scm_app_rate_limit", "reset", fmt.Sprintf("%d", q.SCMAppRateLimitInstallID)).Set(float64(reset))
 		}
 	}
 }

@@ -42,6 +42,7 @@ type Webhook struct {
 	PullRequest  PullRequest
 	Deployment   *api.Deployment
 	Installation *Installation
+	Files        []string
 }
 
 // ShouldSkip uses the build information
