@@ -4,6 +4,8 @@ package util
 
 import (
 	"testing"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestUtil_Sanitize(t *testing.T) {
@@ -77,6 +79,54 @@ func TestUtil_Sanitize(t *testing.T) {
 
 			if got != test.want {
 				t.Errorf("sanitize is %v, want %v", got, test.want)
+			}
+		})
+	}
+}
+
+func TestUtil_CheckAllowlist(t *testing.T) {
+	tests := []struct {
+		allowlist []string
+		repoName  string
+		want      bool
+	}{
+		{
+			allowlist: []string{"*"},
+			repoName:  "octocat/hello-world",
+			want:      true,
+		},
+		{
+			allowlist: []string{"octocat/*"},
+			repoName:  "octocat/hello-world",
+			want:      true,
+		},
+		{
+			allowlist: []string{"octocat/hello-world"},
+			repoName:  "octocat/hello-world",
+			want:      true,
+		},
+		{
+			allowlist: []string{"octocat/*"},
+			repoName:  "octocat-test/hello-world",
+			want:      false,
+		},
+		{
+			allowlist: []string{"octocat/hello-world"},
+			repoName:  "octocat/other-repo",
+			want:      false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.repoName, func(t *testing.T) {
+			repo := new(api.Repo)
+
+			repo.SetFullName(test.repoName)
+
+			got := CheckAllowlist(repo, test.allowlist)
+
+			if got != test.want {
+				t.Errorf("CheckAllowlist is %v, want %v", got, test.want)
 			}
 		})
 	}
