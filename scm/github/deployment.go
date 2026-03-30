@@ -22,7 +22,7 @@ func (c *Client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id
 	}).Tracef("capturing deployment %d for repo %s", id, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// send API call to capture the deployment
 	deployment, _, err := client.Repositories.GetDeployment(ctx, r.GetOrg(), r.GetName(), id)
@@ -63,7 +63,7 @@ func (c *Client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Rep
 	}).Tracef("counting deployments for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newUserOAuthTokenClient(ctx, u)
 	// create variable to track the deployments
 	deployments := []*github.Deployment{}
 
@@ -105,7 +105,7 @@ func (c *Client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 	}).Tracef("listing deployments for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// set pagination options for listing deployments
 	opts := &github.DeploymentsListOptions{
@@ -164,7 +164,7 @@ func (c *Client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	}).Tracef("creating deployment for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	var payload any
 	if d.Payload == nil {

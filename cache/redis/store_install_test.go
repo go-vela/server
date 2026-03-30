@@ -9,21 +9,9 @@ import (
 	"fmt"
 	"testing"
 	"time"
-
-	"github.com/go-vela/server/cache/models"
 )
 
 func TestRedis_StoreInstall(t *testing.T) {
-	// setup types
-	// use global variables in redis_test.go
-	_item := &models.InstallToken{
-		Token:        "test_token",
-		Repositories: []string{"octocat/hello-world"},
-		Permissions: map[string]string{
-			"contents": "read",
-		},
-	}
-
 	// setup redis mock
 	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
@@ -34,12 +22,12 @@ func TestRedis_StoreInstall(t *testing.T) {
 	tests := []struct {
 		failure bool
 		redis   *Client
-		token   *models.InstallToken
+		token   string
 	}{
 		{
 			failure: false,
 			redis:   _redis,
-			token:   _item,
+			token:   "test_token",
 		},
 	}
 
@@ -109,13 +97,6 @@ func TestRedis_StoreInstallStatusToken(t *testing.T) {
 	}
 }
 func TestRedis_StoreInstallToken_TTL(t *testing.T) {
-	// setup types
-	_item := &models.InstallToken{
-		Token:        "ttl_test_token",
-		Repositories: []string{"octocat/hello-world"},
-		Permissions:  map[string]string{"contents": "read"},
-	}
-
 	// setup redis mock
 	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
@@ -123,7 +104,7 @@ func TestRedis_StoreInstallToken_TTL(t *testing.T) {
 	}
 
 	// store token with a 30-minute timeout
-	err = _redis.StoreInstallToken(t.Context(), _item, 1, 30)
+	err = _redis.StoreInstallToken(t.Context(), "ttl_test_token", 1, 30)
 	if err != nil {
 		t.Fatalf("StoreInstallToken returned err: %v", err)
 	}

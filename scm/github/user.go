@@ -16,7 +16,7 @@ func (c *Client) GetUserID(ctx context.Context, name string, token string) (stri
 	}).Tracef("capturing SCM user id for %s", name)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client := c.newTokenClient(ctx, token)
 
 	// send API call to capture user
 	user, _, err := client.Users.Get(ctx, name)

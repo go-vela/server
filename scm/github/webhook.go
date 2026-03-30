@@ -102,7 +102,7 @@ func (c *Client) VerifyWebhook(_ context.Context, request *http.Request, secret 
 // RedeliverWebhook redelivers webhooks from GitHub.
 func (c *Client) RedeliverWebhook(ctx context.Context, u *api.User, h *api.Hook) error {
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// capture the delivery ID of the hook using GitHub API
 	deliveryID, err := c.getDeliveryID(ctx, client, h)

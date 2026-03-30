@@ -30,8 +30,8 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 		return constants.PermissionAdmin, nil
 	}
 
-	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	// create OAuth client for user
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// send API call to capture org access level for user
 	membership, _, err := client.Organizations.GetOrgMembership(ctx, *u.Name, org)
@@ -54,29 +54,66 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 }
 
 // RepoAccess captures the user's access level for a repo.
-func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string) (string, error) {
+func (c *Client) RepoAccess(ctx context.Context, user *api.User, org, repo string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
-		"user": name,
-	}).Tracef("capturing %s access level to repo %s/%s", name, org, repo)
+		"user": user.GetName(),
+	}).Tracef("capturing %s access level to repo %s/%s", user.GetName(), org, repo)
 
 	// check if user is accessing repo in personal org
-	if strings.EqualFold(org, name) {
+	if strings.EqualFold(org, user.GetName()) {
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
 			"repo": repo,
-			"user": name,
-		}).Debugf("skipping access level check for user %s with repo %s/%s", name, org, repo)
+			"user": user.GetName(),
+		}).Debugf("skipping access level check for user %s with repo %s/%s", user.GetName(), org, repo)
 
 		return constants.PermissionAdmin, nil
 	}
 
 	// create github oauth client with the given token
-	client := c.newOAuthTokenClient(ctx, token)
+	client := c.newUserOAuthTokenClient(ctx, user)
 
 	// send API call to capture repo access level for user
-	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, name)
+	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, user.GetName())
+	if err != nil {
+		return constants.PermissionNone, err
+	}
+
+	role, ok := c.GetRepoRoleMap()[perm.GetRoleName()]
+	if !ok {
+		// fall back to legacy permissions
+		return perm.GetPermission(), nil
+	}
+
+	return role, nil
+}
+
+// RepoAccessForUser captures the user's access level for a repo using their username and installation token.
+func (c *Client) RepoAccessForUser(ctx context.Context, token, username, org, repo string) (string, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  org,
+		"repo": repo,
+		"user": username,
+	}).Tracef("capturing %s access level to repo %s/%s", username, org, repo)
+
+	// check if user is accessing repo in personal org
+	if strings.EqualFold(org, username) {
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"repo": repo,
+			"user": username,
+		}).Debugf("skipping access level check for user %s with repo %s/%s", username, org, repo)
+
+		return constants.PermissionAdmin, nil
+	}
+
+	// create GitHub OAuth client with the given token
+	client := c.newTokenClient(ctx, token)
+
+	// send API call to capture repo access level for user
+	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, username)
 	if err != nil {
 		return constants.PermissionNone, err
 	}
@@ -110,7 +147,7 @@ func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string) 
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	membership, _, err := client.Teams.GetTeamMembershipBySlug(ctx, org, team, u.GetName())
 	if err != nil {
@@ -134,7 +171,7 @@ func (c *Client) ListUsersTeamsForOrg(ctx context.Context, u *api.User, org stri
 	}).Tracef("capturing %s team membership for org %s", u.GetName(), org)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client := c.newUserOAuthTokenClient(ctx, u)
 	teams := []*github.Team{}
 
 	// set the max per page for the options to capture the list of repos
@@ -171,7 +208,7 @@ func (c *Client) ListUsersTeamsForOrg(ctx context.Context, u *api.User, org stri
 }
 
 // RepoContributor lists all contributors from a repository and checks if the sender is one of the contributors.
-func (c *Client) RepoContributor(ctx context.Context, owner *api.User, sender, org, repo string) (bool, error) {
+func (c *Client) RepoContributor(ctx context.Context, token, sender, org, repo string) (bool, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
@@ -179,7 +216,7 @@ func (c *Client) RepoContributor(ctx context.Context, owner *api.User, sender, o
 	}).Tracef("capturing %s contributor status for repo %s/%s", sender, org, repo)
 
 	// create GitHub OAuth client with repo owner's token
-	client := c.newOAuthTokenClient(ctx, owner.GetToken())
+	client := c.newTokenClient(ctx, token)
 
 	// set the max per page for the options to capture the list of repos
 	opts := github.ListContributorsOptions{

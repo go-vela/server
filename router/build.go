@@ -71,8 +71,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 			b.GET("/token", perm.MustWorkerAuthToken(), build.GetBuildToken)
 			b.GET("/id_token", perm.MustIDRequestToken(), build.GetIDToken)
 			b.GET("/id_request_token", perm.MustBuildAccess(), build.GetIDRequestToken)
-			b.GET("/install_token", perm.MustBuildAccess(), build.RefreshInstallToken)
-			b.POST("/install_token", perm.MustBuildAccess(), build.PostInstallToken)
+			b.POST("/git_token", perm.MustBuildAccess(), build.PostGitToken)
 			b.GET("/graph", perm.MustRead(), build.GetBuildGraph)
 			b.GET("/executable", perm.MustBuildAccess(), build.GetBuildExecutable)
 

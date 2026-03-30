@@ -108,7 +108,7 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	scm, err := setupSCM(ctx, cmd, tc)
+	scm, err := setupSCM(ctx, cmd, tc, database)
 	if err != nil {
 		return err
 	}

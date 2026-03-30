@@ -21,7 +21,6 @@ func TestSCM_Setup_Github(t *testing.T) {
 		ServerWebhookAddress: "",
 		StatusContext:        "continuous-integration/vela",
 		WebUIAddress:         "https://vela.example.com",
-		OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 		RepoRoleMap:          map[string]string{"read": constants.PermissionRead, "write": constants.PermissionWrite, "admin": constants.PermissionAdmin},
 		OrgRoleMap:           map[string]string{"read": constants.PermissionRead, "admin": constants.PermissionAdmin},
 		TeamRoleMap:          map[string]string{"admin": constants.PermissionAdmin},
@@ -113,7 +112,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -127,7 +125,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -141,7 +138,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -155,7 +151,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -169,7 +164,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -183,7 +177,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -197,7 +190,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -211,7 +203,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -225,7 +216,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -239,7 +229,6 @@ func TestSCM_Setup_Validate(t *testing.T) {
 				ServerWebhookAddress: "",
 				StatusContext:        "continuous-integration/vela",
 				WebUIAddress:         "https://vela.example.com",
-				OAuthScopes:          []string{},
 			},
 		},
 	}

@@ -72,7 +72,7 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 
 // ShouldEnqueue is a helper function that will determine whether to publish a build to the queue or place it
 // in pending approval status.
-func ShouldEnqueue(c *gin.Context, l *logrus.Entry, b *types.Build, r *types.Repo) (bool, error) {
+func ShouldEnqueue(c *gin.Context, l *logrus.Entry, b *types.Build, r *types.Repo, token string) (bool, error) {
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
 	if b.GetFork() {
 		l.Tracef("inside %s workflow for fork PR build %s/%d", r.GetApproveBuild(), r.GetFullName(), b.GetNumber())
@@ -82,7 +82,7 @@ func ShouldEnqueue(c *gin.Context, l *logrus.Entry, b *types.Build, r *types.Rep
 			return false, nil
 		case constants.ApproveForkNoWrite:
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
-			level, err := scm.FromContext(c).RepoAccess(c.Request.Context(), b.GetSender(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
+			level, err := scm.FromContext(c).RepoAccessForUser(c.Request.Context(), token, b.GetSender(), r.GetOrg(), r.GetName())
 			if err != nil || (level != constants.PermissionAdmin && level != constants.PermissionWrite) {
 				//nolint:nilerr // an error here is not something we want to return since we are gating it anyway
 				return false, nil
@@ -94,7 +94,7 @@ func ShouldEnqueue(c *gin.Context, l *logrus.Entry, b *types.Build, r *types.Rep
 			//
 			// NOTE: this call is cumbersome for repos with lots of contributors. Potential TODO: improve this if
 			// GitHub adds a single-contributor API endpoint.
-			contributor, err := scm.FromContext(c).RepoContributor(c.Request.Context(), r.GetOwner(), b.GetSender(), r.GetOrg(), r.GetName())
+			contributor, err := scm.FromContext(c).RepoContributor(c.Request.Context(), token, b.GetSender(), r.GetOrg(), r.GetName())
 			if err != nil {
 				return false, err
 			}

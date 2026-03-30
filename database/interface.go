@@ -8,6 +8,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/installation"
 	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -56,6 +57,9 @@ type Interface interface {
 
 	// HookInterface defines the interface for hooks stored in the database.
 	hook.HookInterface
+
+	// InstallationInterface defines the interface for installations stored in the database.
+	installation.InstallationInterface
 
 	// JWKInterface defines the interface for JWKs stored in the database.
 	jwk.JWKInterface

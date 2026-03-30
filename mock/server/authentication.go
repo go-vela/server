@@ -129,20 +129,6 @@ func validateToken(c *gin.Context) {
 	c.JSON(http.StatusOK, "vela-server")
 }
 
-// validateOAuthToken returns mock response for a http GET.
-//
-// Don't pass "Authorization" in header to receive an unauthorized error message.
-func validateOAuthToken(c *gin.Context) {
-	err := constants.ErrorMock
-
-	token := c.Request.Header.Get("Authorization")
-	if len(token) == 0 {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &err})
-	}
-
-	c.JSON(http.StatusOK, "oauth token was created by vela")
-}
-
 // openIDConfig returns a mock response for a http GET.
 func openIDConfig(c *gin.Context) {
 	data := []byte(OpenIDConfigResp)

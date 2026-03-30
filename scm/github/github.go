@@ -19,6 +19,7 @@ import (
 
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/tracing"
 )
 
@@ -64,16 +65,14 @@ type config struct {
 	StatusContext string
 	// specifies the Vela web UI address to use for the GitHub client
 	WebUIAddress string
-	// specifies the OAuth scopes to use for the GitHub client
-	OAuthScopes []string
 }
 
 type Client struct {
 	config    *config
 	OAuth     *oauth2.Config
-	AuthReq   *github.AuthorizationRequest
 	Tracing   *tracing.Client
 	AppClient *github.Client
+	Database  database.Interface
 
 	settings.SCM
 
@@ -90,7 +89,6 @@ func New(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 	// create new fields
 	c.config = new(config)
 	c.OAuth = new(oauth2.Config)
-	c.AuthReq = new(github.AuthorizationRequest)
 
 	// create new logger for the client
 	//
@@ -114,82 +112,70 @@ func New(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 	c.OAuth = &oauth2.Config{
 		ClientID:     c.config.ClientID,
 		ClientSecret: c.config.ClientSecret,
-		Scopes:       c.config.OAuthScopes,
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", c.config.Address),
 			TokenURL: fmt.Sprintf("%s/login/oauth/access_token", c.config.Address),
 		},
 	}
 
-	var oauthScopes []github.Scope
-	for _, scope := range c.config.OAuthScopes {
-		oauthScopes = append(oauthScopes, github.Scope(scope))
-	}
-
-	// create the GitHub authorization object
-	c.AuthReq = &github.AuthorizationRequest{
-		ClientID:     &c.config.ClientID,
-		ClientSecret: &c.config.ClientSecret,
-		Scopes:       oauthScopes,
-	}
-
 	var err error
 
-	if c.config.AppID != 0 {
-		c.Logger.Infof("configurating github app integration for app_id %d", c.config.AppID)
+	if c.config.AppID == 0 {
+		return nil, fmt.Errorf("GitHub App ID not provided")
+	}
+	c.Logger.Infof("configurating github app integration for app_id %d", c.config.AppID)
 
-		var privateKeyPEM []byte
+	var privateKeyPEM []byte
 
-		if len(c.config.AppPrivateKey) == 0 && len(c.config.AppPrivateKeyPath) == 0 {
-			return nil, errors.New("GitHub App ID provided but no valid private key was provided in either VELA_SCM_APP_PRIVATE_KEY or VELA_SCM_APP_PRIVATE_KEY_PATH")
-		}
+	if len(c.config.AppPrivateKey) == 0 && len(c.config.AppPrivateKeyPath) == 0 {
+		return nil, errors.New("GitHub App ID provided but no valid private key was provided in either VELA_SCM_APP_PRIVATE_KEY or VELA_SCM_APP_PRIVATE_KEY_PATH")
+	}
 
-		if len(c.config.AppPrivateKey) > 0 {
-			privateKeyPEM, err = base64.StdEncoding.DecodeString(c.config.AppPrivateKey)
-			if err != nil {
-				return nil, fmt.Errorf("error decoding base64: %w", err)
-			}
-		} else {
-			// try reading from path if necessary
-			c.Logger.Infof("no VELA_SCM_APP_PRIVATE_KEY provided, reading github app private key from path %s", c.config.AppPrivateKeyPath)
-
-			privateKeyPEM, err = os.ReadFile(c.config.AppPrivateKeyPath)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		if len(privateKeyPEM) == 0 {
-			return nil, errors.New("GitHub App ID provided but no valid private key was provided in either VELA_SCM_APP_PRIVATE_KEY or VELA_SCM_APP_PRIVATE_KEY_PATH")
-		}
-
-		block, _ := pem.Decode(privateKeyPEM)
-		if block == nil {
-			return nil, fmt.Errorf("failed to parse GitHub App private key PEM block containing the key")
-		}
-
-		parsedPrivateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if len(c.config.AppPrivateKey) > 0 {
+		privateKeyPEM, err = base64.StdEncoding.DecodeString(c.config.AppPrivateKey)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse GitHub App RSA private key: %w", err)
+			return nil, fmt.Errorf("error decoding base64: %w", err)
 		}
+	} else {
+		// try reading from path if necessary
+		c.Logger.Infof("no VELA_SCM_APP_PRIVATE_KEY provided, reading github app private key from path %s", c.config.AppPrivateKeyPath)
 
-		// create a github client based off the existing GitHub App configuration
-		c.AppClient = github.NewClient(
-			&http.Client{
-				Transport: c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey),
-			})
-
-		if c.config.API != defaultAPI {
-			c.AppClient, err = c.AppClient.WithEnterpriseURLs(c.config.API, c.config.API)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		err = c.ValidateGitHubApp(ctx)
+		privateKeyPEM, err = os.ReadFile(c.config.AppPrivateKeyPath)
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if len(privateKeyPEM) == 0 {
+		return nil, errors.New("GitHub App ID provided but no valid private key was provided in either VELA_SCM_APP_PRIVATE_KEY or VELA_SCM_APP_PRIVATE_KEY_PATH")
+	}
+
+	block, _ := pem.Decode(privateKeyPEM)
+	if block == nil {
+		return nil, fmt.Errorf("failed to parse GitHub App private key PEM block containing the key")
+	}
+
+	parsedPrivateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse GitHub App RSA private key: %w", err)
+	}
+
+	// create a github client based off the existing GitHub App configuration
+	c.AppClient = github.NewClient(
+		&http.Client{
+			Transport: c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey),
+		})
+
+	if c.config.API != defaultAPI {
+		c.AppClient, err = c.AppClient.WithEnterpriseURLs(c.config.API, c.config.API)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = c.ValidateGitHubApp(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	return c, nil

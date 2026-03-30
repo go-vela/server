@@ -7,42 +7,28 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/util"
 )
 
 // StoreInstallToken computes an HMAC-SHA256 of the token and stores it in Redis with a TTL.
-func (c *Client) StoreInstallToken(ctx context.Context, t *models.InstallToken, build int64, timeout int32) error {
-	meta := new(models.InstallToken)
-	meta.InstallID = t.InstallID
-	meta.Repositories = t.Repositories
-	meta.Permissions = t.Permissions
-	meta.Expiration = t.Expiration
-	meta.Timeout = timeout
-
-	metaBytes, err := json.Marshal(meta)
-	if err != nil {
-		return err
-	}
-
+func (c *Client) StoreInstallToken(ctx context.Context, t string, build int64, timeout int32) error {
 	// set TTL based on repo timeout
 	ttl := time.Minute * time.Duration(timeout)
 
 	h := hmac.New(sha256.New, []byte(c.config.InstallTokenKey))
 
-	h.Write([]byte(t.Token))
+	h.Write([]byte(t))
 
 	hmacHex := hex.EncodeToString(h.Sum(nil))
 
 	key := constants.CacheInstallTokenPrefix + hmacHex
 
 	// store a small marker value (or metadata JSON if needed)
-	err = c.Redis.Set(ctx, key, metaBytes, ttl).Err()
+	err := c.Redis.Set(ctx, key, 1, ttl).Err()
 	if err != nil {
 		return err
 	}

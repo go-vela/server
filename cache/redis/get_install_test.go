@@ -4,30 +4,15 @@ package redis
 
 import (
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
-
-	"github.com/go-vela/server/cache/models"
 )
 
 func TestRedis_GetInstallToken(t *testing.T) {
-	// setup types
-	installToken := &models.InstallToken{
-		Token:        "test_token",
-		InstallID:    1,
-		Repositories: []string{"octocat/hello-world"},
-		Permissions: map[string]string{
-			"contents": "read",
-		},
-		Timeout: 30,
-	}
-
 	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
-	err = _redis.StoreInstallToken(t.Context(), installToken, 1, 30)
+	err = _redis.StoreInstallToken(t.Context(), "test_token", 1, 30)
 	if err != nil {
 		t.Errorf("unable to store install token: %v", err)
 	}
@@ -36,19 +21,16 @@ func TestRedis_GetInstallToken(t *testing.T) {
 	tests := []struct {
 		name    string
 		token   string
-		want    *models.InstallToken
 		wantErr bool
 	}{
 		{
 			name:    "existing token",
 			token:   "test_token",
-			want:    installToken,
 			wantErr: false,
 		},
 		{
 			name:    "non-existent token",
 			token:   "missing_token",
-			want:    nil,
 			wantErr: true,
 		},
 	}
@@ -56,7 +38,7 @@ func TestRedis_GetInstallToken(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := _redis.GetInstallToken(t.Context(), test.token)
+			err := _redis.GetInstallToken(t.Context(), test.token)
 
 			if test.wantErr {
 				if err == nil {
@@ -68,10 +50,6 @@ func TestRedis_GetInstallToken(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("GetInstallToken returned err: %v", err)
-			}
-
-			if diff := cmp.Diff(test.want, got); diff != "" {
-				t.Errorf("GetInstallToken() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

@@ -147,6 +147,8 @@ func GetAuthToken(c *gin.Context) {
 		u := new(types.User)
 		u.SetName(newUser.GetName())
 		u.SetToken(newUser.GetToken())
+		u.SetTokenExp(newUser.GetTokenExp())
+		u.SetOAuthRefreshToken(newUser.GetOAuthRefreshToken())
 		u.SetActive(true)
 		u.SetAdmin(false)
 
@@ -186,6 +188,8 @@ func GetAuthToken(c *gin.Context) {
 
 	// update the user account
 	u.SetToken(newUser.GetToken())
+	u.SetTokenExp(newUser.GetTokenExp())
+	u.SetOAuthRefreshToken(newUser.GetOAuthRefreshToken())
 	u.SetActive(true)
 
 	// compose jwt tokens for user

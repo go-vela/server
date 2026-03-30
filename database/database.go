@@ -19,6 +19,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/installation"
 	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -87,6 +88,7 @@ type (
 		executable.BuildExecutableInterface
 		deployment.DeploymentInterface
 		hook.HookInterface
+		installation.InstallationInterface
 		jwk.JWKInterface
 		log.LogInterface
 		pipeline.PipelineInterface

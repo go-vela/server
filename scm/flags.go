@@ -87,16 +87,6 @@ var Flags = []cli.Flag{
 		),
 		Value: "continuous-integration/vela",
 	},
-	&cli.StringSliceFlag{
-		Name:  "scm.scopes",
-		Usage: "OAuth scopes to be used for the version control system",
-		Sources: cli.NewValueSourceChain(
-			cli.EnvVar("VELA_SCM_SCOPES"),
-			cli.EnvVar("SCM_SCOPES"),
-			cli.File("/vela/scm/scopes"),
-		),
-		Value: []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
-	},
 	&cli.StringFlag{
 		Name: "scm.webhook.addr",
 		Usage: "Alternative or proxy server address as a fully qualified url (<scheme>://<host>). " +

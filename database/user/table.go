@@ -14,14 +14,16 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 users (
-	id             BIGSERIAL PRIMARY KEY,
-	name           VARCHAR(250),
-	refresh_token  VARCHAR(500),
-	token          VARCHAR(500),
-	favorites      VARCHAR(5000),
-	active         BOOLEAN,
-	admin          BOOLEAN,
-	dashboards     VARCHAR(5000),
+	id                  BIGSERIAL PRIMARY KEY,
+	name                VARCHAR(250),
+	refresh_token       VARCHAR(500),
+	token               VARCHAR(500),
+	token_exp           BIGINT,
+	oauth_refresh_token VARCHAR(500),
+	favorites           VARCHAR(5000),
+	active              BOOLEAN,
+	admin               BOOLEAN,
+	dashboards          VARCHAR(5000),
 	UNIQUE(name)
 );
 `
@@ -31,14 +33,16 @@ users (
 CREATE TABLE
 IF NOT EXISTS
 users (
-	id             INTEGER PRIMARY KEY AUTOINCREMENT,
-	name           TEXT,
-	refresh_token  TEXT,
-	token          TEXT,
-	favorites      TEXT,
-	active         BOOLEAN,
-	admin          BOOLEAN,
-	dashboards     TEXT,
+	id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+	name                TEXT,
+	refresh_token       TEXT,
+	token               TEXT,
+	token_exp           INTEGER,
+	oauth_refresh_token TEXT,
+	favorites           TEXT,
+	active              BOOLEAN,
+	admin               BOOLEAN,
+	dashboards          TEXT,
 	UNIQUE(name)
 );
 `

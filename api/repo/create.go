@@ -4,6 +4,7 @@ package repo
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 	"slices"
@@ -12,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
@@ -312,6 +314,32 @@ func CreateRepo(c *gin.Context) {
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			return
+		}
+
+		if r.GetInstallID() != 0 {
+			_, err := database.FromContext(c).GetInstallation(ctx, r.GetOrg())
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					newInstall := new(types.Installation)
+					newInstall.SetInstallID(r.GetInstallID())
+					newInstall.SetTarget(r.GetOrg())
+
+					_, err = database.FromContext(c).CreateInstallation(ctx, newInstall)
+					if err != nil {
+						retErr := fmt.Errorf("unable to create installation for org %s: %w", r.GetOrg(), err)
+
+						util.HandleError(c, http.StatusInternalServerError, retErr)
+
+						return
+					}
+				} else {
+					retErr := fmt.Errorf("unable to retrieve installation for org %s: %w", r.GetOrg(), err)
+
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+			}
 		}
 	}
 

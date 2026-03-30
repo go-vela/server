@@ -15,7 +15,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
-	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/cache/redis"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
@@ -1657,17 +1656,7 @@ func TestPerm_MustWrite_InstallToken(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetTimeout(30)
 
-	installTokenWrite := &models.InstallToken{
-		Token:        "ghs_write_token",
-		InstallID:    123,
-		Repositories: []string{"bar"},
-		Permissions: map[string]string{
-			"contents": "write",
-		},
-		Expiration: time.Now().Add(time.Hour).Unix(),
-	}
-
-	err = tknCache.StoreInstallToken(t.Context(), installTokenWrite, 1, _repo.GetTimeout())
+	err = tknCache.StoreInstallToken(t.Context(), "ghs_write_token", 1, _repo.GetTimeout())
 	if err != nil {
 		t.Errorf("unable to store install token in redis: %v", err)
 	}
@@ -1767,17 +1756,7 @@ func TestPerm_MustWrite_InstallTokenRead(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetTimeout(30)
 
-	installTokenRead := &models.InstallToken{
-		Token:        "ghs_read_token",
-		InstallID:    123,
-		Repositories: []string{"bar"},
-		Permissions: map[string]string{
-			"contents": "read",
-		},
-		Expiration: time.Now().Add(time.Hour).Unix(),
-	}
-
-	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, 1, _repo.GetTimeout())
+	err = tknCache.StoreInstallToken(t.Context(), "ghs_read_token", 1, _repo.GetTimeout())
 	if err != nil {
 		t.Errorf("unable to store install token in redis: %v", err)
 	}
@@ -2277,17 +2256,7 @@ func TestPerm_MustRead_InstallTokenRead(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetTimeout(30)
 
-	installTokenRead := &models.InstallToken{
-		Token:        "ghs_read_token",
-		InstallID:    123,
-		Repositories: []string{"bar"},
-		Permissions: map[string]string{
-			"contents": "read",
-		},
-		Expiration: time.Now().Add(time.Hour).Unix(),
-	}
-
-	err = tknCache.StoreInstallToken(t.Context(), installTokenRead, 1, _repo.GetTimeout())
+	err = tknCache.StoreInstallToken(t.Context(), "ghs_read_token", 1, _repo.GetTimeout())
 	if err != nil {
 		t.Errorf("unable to store install token in redis: %v", err)
 	}

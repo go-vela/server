@@ -24,8 +24,8 @@ func (c *Client) Changeset(ctx context.Context, token string, r *api.Repo, sha s
 		token = r.GetOwner().GetToken()
 	}
 
-	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	// create token client
+	client := c.newTokenClient(ctx, token)
 	s := []string{}
 
 	// set the max per page for the options to capture the commit
@@ -58,7 +58,7 @@ func (c *Client) ChangesetPR(ctx context.Context, token string, r *api.Repo, num
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client := c.newTokenClient(ctx, token)
 	s := []string{}
 	f := []*github.CommitFile{}
 

@@ -212,7 +212,7 @@ func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Pl
 		Retries:  1,
 	}
 
-	_, item, _, err := build.CompileAndPublish(
+	result, _, err := build.CompileAndPublish(
 		ctx,
 		config,
 		database,
@@ -224,6 +224,8 @@ func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Pl
 	if err != nil {
 		return err
 	}
+
+	item := result.Item
 
 	// publish the build to the queue
 	go build.Enqueue(

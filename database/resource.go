@@ -10,6 +10,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/installation"
 	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -94,6 +95,16 @@ func (e *engine) NewResources(ctx context.Context) error {
 		hook.WithLogger(e.logger),
 		hook.WithEncryptionKey(e.config.EncryptionKey),
 		hook.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	e.InstallationInterface, err = installation.New(
+		installation.WithContext(ctx),
+		installation.WithClient(e.client),
+		installation.WithLogger(e.logger),
+		installation.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

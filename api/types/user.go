@@ -10,14 +10,16 @@ import (
 //
 // swagger:model User
 type User struct {
-	ID           *int64    `json:"id,omitempty"`
-	Name         *string   `json:"name,omitempty"`
-	RefreshToken *string   `json:"-"`
-	Token        *string   `json:"-"`
-	Favorites    *[]string `json:"favorites,omitempty"`
-	Active       *bool     `json:"active,omitempty"`
-	Admin        *bool     `json:"admin,omitempty"`
-	Dashboards   *[]string `json:"dashboards,omitempty"`
+	ID                *int64    `json:"id,omitempty"`
+	Name              *string   `json:"name,omitempty"`
+	RefreshToken      *string   `json:"-"`
+	Token             *string   `json:"-"`
+	OAuthRefreshToken *string   `json:"-"`
+	TokenExp          *int64    `json:"-"`
+	Favorites         *[]string `json:"favorites,omitempty"`
+	Active            *bool     `json:"active,omitempty"`
+	Admin             *bool     `json:"admin,omitempty"`
+	Dashboards        *[]string `json:"dashboards,omitempty"`
 }
 
 // Crop creates a duplicate of the User with certain fields cropped.
@@ -25,11 +27,13 @@ type User struct {
 // Generally used for cropping large fields that aren't useful for all API calls like favorites and dashboards.
 func (u *User) Crop() *User {
 	return &User{
-		ID:           u.ID,
-		Name:         u.Name,
-		RefreshToken: u.RefreshToken,
-		Token:        u.Token,
-		Active:       u.Active,
+		ID:                u.ID,
+		Name:              u.Name,
+		RefreshToken:      u.RefreshToken,
+		Token:             u.Token,
+		OAuthRefreshToken: u.OAuthRefreshToken,
+		TokenExp:          u.TokenExp,
+		Active:            u.Active,
 	}
 }
 
@@ -37,10 +41,7 @@ func (u *User) Crop() *User {
 // provided from the fields of the User type.
 func (u *User) Environment() map[string]string {
 	return map[string]string{
-		"VELA_USER_ACTIVE":    ToString(u.GetActive()),
-		"VELA_USER_ADMIN":     ToString(u.GetAdmin()),
-		"VELA_USER_FAVORITES": ToString(u.GetFavorites()),
-		"VELA_USER_NAME":      ToString(u.GetName()),
+		"VELA_USER_NAME": ToString(u.GetName()),
 	}
 }
 
@@ -94,6 +95,32 @@ func (u *User) GetToken() string {
 	}
 
 	return *u.Token
+}
+
+// GetOAuthRefreshToken returns the OAuthRefreshToken field.
+//
+// When the provided User type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (u *User) GetOAuthRefreshToken() string {
+	// return zero value if User type or OAuthRefreshToken field is nil
+	if u == nil || u.OAuthRefreshToken == nil {
+		return ""
+	}
+
+	return *u.OAuthRefreshToken
+}
+
+// GetTokenExp returns the TokenExp field.
+//
+// When the provided User type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (u *User) GetTokenExp() int64 {
+	// return zero value if User type or TokenExp field is nil
+	if u == nil || u.TokenExp == nil {
+		return 0
+	}
+
+	return *u.TokenExp
 }
 
 // GetActive returns the Active field.
@@ -198,6 +225,32 @@ func (u *User) SetToken(v string) {
 	}
 
 	u.Token = &v
+}
+
+// SetOAuthRefreshToken sets the OAuthRefreshToken field.
+//
+// When the provided User type is nil, it
+// will set nothing and immediately return.
+func (u *User) SetOAuthRefreshToken(v string) {
+	// return if User type is nil
+	if u == nil {
+		return
+	}
+
+	u.OAuthRefreshToken = &v
+}
+
+// SetTokenExp sets the TokenExp field.
+//
+// When the provided User type is nil, it
+// will set nothing and immediately return.
+func (u *User) SetTokenExp(v int64) {
+	// return if User type is nil
+	if u == nil {
+		return
+	}
+
+	u.TokenExp = &v
 }
 
 // SetActive sets the Active field.

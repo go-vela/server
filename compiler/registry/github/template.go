@@ -9,24 +9,12 @@ import (
 
 	"github.com/google/go-github/v84/github"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/registry"
 )
 
 // Template captures the templated pipeline configuration from the GitHub repo.
-func (c *Client) Template(ctx context.Context, r *api.Repo, u *api.User, s *registry.Source, token string) ([]byte, error) {
-	// use default GitHub OAuth client we provide
-	cli := c.githubClient
-	if u != nil && (token == "" || r.GetOrg() != s.Org) {
-		// create GitHub OAuth client with user's token
-		cli = c.newOAuthTokenClient(ctx, u.GetToken())
-	}
-
-	// if install token provided and orgs match, use GitHub OAuth client with install token
-	if token != "" && r.GetOrg() == s.Org {
-		// create GitHub OAuth client with provided token
-		cli = c.newOAuthTokenClient(ctx, token)
-	}
+func (c *Client) Template(ctx context.Context, s *registry.Source, token string) ([]byte, error) {
+	cli := c.newOAuthTokenClient(ctx, token)
 
 	// create the options to pass
 	opts := &github.RepositoryContentGetOptions{}

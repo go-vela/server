@@ -51,10 +51,10 @@ func Establish() gin.HandlerFunc {
 			}
 		}
 
-		// if this is an installation token, no claims, set token in context
-		if scmService != nil && scmService.IsInstallationToken(c.Request.Context(), at) {
-			installToken, err := cache.FromContext(c).GetInstallToken(c.Request.Context(), at)
-			if err != nil || installToken == nil {
+		// if this is a Git token, no claims, set token in context
+		if scmService != nil && scmService.IsGitToken(c.Request.Context(), at) {
+			err := cache.FromContext(c).GetInstallToken(c.Request.Context(), at)
+			if err != nil {
 				retErr := fmt.Errorf("unable to validate installation token: %w", err)
 
 				util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -62,7 +62,7 @@ func Establish() gin.HandlerFunc {
 				return
 			}
 
-			c.Set("app-installation-token", installToken)
+			c.Set("app-installation-token", at)
 			c.Next()
 
 			return

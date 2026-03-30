@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/tracing"
 )
 
@@ -142,27 +143,19 @@ func WithWebUIAddress(address string) ClientOpt {
 	}
 }
 
-// WithOAuthScopes sets the OAuth scopes in the scm client for GitHub.
-func WithOAuthScopes(scopes []string) ClientOpt {
-	return func(c *Client) error {
-		c.Logger.Trace("configuring oauth scopes in github scm client")
-
-		// check if the scopes provided is empty
-		if len(scopes) == 0 {
-			return fmt.Errorf("no GitHub OAuth scopes provided")
-		}
-
-		// set the scopes in the github client
-		c.config.OAuthScopes = scopes
+// WithTracing sets the shared tracing config in the scm client for GitHub.
+func WithTracing(tracing *tracing.Client) ClientOpt {
+	return func(e *Client) error {
+		e.Tracing = tracing
 
 		return nil
 	}
 }
 
-// WithTracing sets the shared tracing config in the scm client for GitHub.
-func WithTracing(tracing *tracing.Client) ClientOpt {
+// WithDatabase sets the database interface in the scm client for GitHub.
+func WithDatabase(db database.Interface) ClientOpt {
 	return func(e *Client) error {
-		e.Tracing = tracing
+		e.Database = db
 
 		return nil
 	}

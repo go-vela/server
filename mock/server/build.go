@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -220,10 +219,9 @@ const (
     "data": "eyAKICAgICJpZCI6ICJzdGVwX25hbWUiLAogICAgInZlcnNpb24iOiAiMSIsCiAgICAibWV0YWRhdGEiOnsKICAgICAgICAiY2xvbmUiOnRydWUsCiAgICAgICAgImVudmlyb25tZW50IjpbInN0ZXBzIiwic2VydmljZXMiLCJzZWNyZXRzIl19LAogICAgIndvcmtlciI6e30sCiAgICAic3RlcHMiOlsKICAgICAgICB7CiAgICAgICAgICAgICJpZCI6InN0ZXBfZ2l0aHViX29jdG9jYXRfMV9pbml0IiwKICAgICAgICAgICAgImRpcmVjdG9yeSI6Ii92ZWxhL3NyYy9naXRodWIuY29tL2dpdGh1Yi9vY3RvY2F0IiwKICAgICAgICAgICAgImVudmlyb25tZW50IjogeyJCVUlMRF9BVVRIT1IiOiJPY3RvY2F0In0KICAgICAgICB9CiAgICBdCn0KCg=="
   }`
 
-	// InstallTokenResp represents a JSON return for an installation token.
-	InstallTokenResp = `{
-  "token": "ghs_123",
-  "expiration": "%d"
+	// GitTokenResp represents a JSON return for a Git token.
+	GitTokenResp = `{
+  "token": "ghu_123"
 }`
 
 	// CleanResourcesResp represents a string return for cleaning resources as an admin.
@@ -529,45 +527,10 @@ func cleanResoures(c *gin.Context) {
 	c.JSON(http.StatusOK, CleanResourcesResp)
 }
 
-// getInstallToken returns mock JSON for a http GET.
-//
-// pass empty build or scm token to get a http 401 response.
-func getInstallToken(c *gin.Context) {
-	buildToken, err := auth.RetrieveAccessToken(c.Request)
-	if err != nil || buildToken == "" {
-		errMsg := "unable to retrieve access token from request"
-
-		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &errMsg})
-
-		return
-	}
-
-	scmToken := auth.RetrieveTokenHeader(c.Request)
-	if scmToken == "" {
-		errMsg := "unable to retrieve scm token from request"
-
-		c.AbortWithStatusJSON(http.StatusUnauthorized, api.Error{Message: &errMsg})
-
-		return
-	}
-
-	var body api.Token
-
-	data :=
-		fmt.Appendf(nil,
-			InstallTokenResp,
-			time.Now().Add(1*time.Hour).Unix(),
-		)
-
-	_ = json.Unmarshal(data, &body)
-
-	c.JSON(http.StatusOK, body)
-}
-
-// postInstallToken returns mock JSON for a http POST.
+// postGitToken returns mock JSON for a http POST.
 //
 // pass empty build token to get a http 401 response.
-func postInstallToken(c *gin.Context) {
+func postGitToken(c *gin.Context) {
 	buildToken, err := auth.RetrieveAccessToken(c.Request)
 	if err != nil || buildToken == "" {
 		errMsg := "unable to retrieve access token from request"
@@ -579,11 +542,7 @@ func postInstallToken(c *gin.Context) {
 
 	var body api.Token
 
-	data :=
-		fmt.Appendf(nil,
-			InstallTokenResp,
-			time.Now().Add(1*time.Hour).Unix(),
-		)
+	data := []byte(GitTokenResp)
 
 	_ = json.Unmarshal(data, &body)
 

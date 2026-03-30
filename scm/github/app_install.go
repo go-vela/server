@@ -22,6 +22,22 @@ import (
 func (c *Client) ProcessInstallation(ctx context.Context, _ *http.Request, webhook *internal.Webhook, db database.Interface) error {
 	c.Logger.Tracef("processing GitHub App installation")
 
+	_, err := db.GetInstallation(ctx, webhook.Installation.Org)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			newInstall := new(api.Installation)
+			newInstall.SetInstallID(webhook.Installation.ID)
+			newInstall.SetTarget(webhook.Installation.Org)
+
+			_, err = db.CreateInstallation(ctx, newInstall)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
 	errs := []string{}
 
 	// set install_id for repos added to the installation

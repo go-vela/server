@@ -341,7 +341,12 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 			}
 
 			// use private (authenticated) github instance to pull from
-			bytes, err = c.PrivateGithub.Template(ctx, c.repo, c.user, src, c.token)
+			tkn, err := c.templateToken(ctx, src.Org)
+			if err != nil {
+				return nil, fmt.Errorf("unable to fetch template %s: %w", src.Name, err)
+			}
+
+			bytes, err = c.PrivateGithub.Template(ctx, src, tkn)
 			if err != nil {
 				return bytes, err
 			}
@@ -353,7 +358,7 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 				"host": src.Host,
 			}).Tracef("Using GitHub client to pull template")
 
-			bytes, err = c.Github.Template(ctx, c.repo, nil, src, "")
+			bytes, err = c.Github.Template(ctx, src, "")
 			if err != nil {
 				return bytes, err
 			}
@@ -374,7 +379,7 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 				"path": src.Name,
 			}).Tracef("Using GitHub client to pull template")
 
-			bytes, err = c.Github.Template(ctx, c.repo, nil, src, "")
+			bytes, err = c.Github.Template(ctx, src, "")
 			if err != nil {
 				return bytes, err
 			}
@@ -390,7 +395,12 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 			}
 
 			// use private (authenticated) github instance to pull from
-			bytes, err = c.PrivateGithub.Template(ctx, c.repo, c.user, src, c.token)
+			tkn, err := c.templateToken(ctx, src.Org)
+			if err != nil {
+				return nil, fmt.Errorf("unable to fetch template %s: %w", src.Name, err)
+			}
+
+			bytes, err = c.PrivateGithub.Template(ctx, src, tkn)
 			if err != nil {
 				return bytes, err
 			}
@@ -403,6 +413,23 @@ func (c *Client) getTemplate(ctx context.Context, tmpl *yaml.Template, name stri
 	c.TemplateCache[tmpl.Source] = bytes
 
 	return bytes, nil
+}
+
+func (c *Client) templateToken(ctx context.Context, srcTarget string) (string, error) {
+	if c.user != nil {
+		return c.user.GetToken(), nil
+	}
+
+	if c.build.GetRepo().GetOrg() == srcTarget {
+		return c.token, nil
+	}
+
+	installation, err := c.db.GetInstallation(ctx, srcTarget)
+	if err != nil {
+		return "", err
+	}
+
+	return c.scm.GeneratePermissionToken(ctx, installation.GetInstallID())
 }
 
 //nolint:lll // ignore long line length due to input arguments

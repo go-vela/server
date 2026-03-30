@@ -47,14 +47,16 @@ var (
 
 // User is the database representation of a user.
 type User struct {
-	ID           sql.NullInt64  `sql:"id"`
-	Name         sql.NullString `sql:"name"`
-	RefreshToken sql.NullString `sql:"refresh_token"`
-	Token        sql.NullString `sql:"token"`
-	Favorites    pq.StringArray `sql:"favorites"     gorm:"type:varchar(5000)"`
-	Active       sql.NullBool   `sql:"active"`
-	Admin        sql.NullBool   `sql:"admin"`
-	Dashboards   pq.StringArray `sql:"dashboards"    gorm:"type:varchar(5000)"`
+	ID                sql.NullInt64  `sql:"id"`
+	Name              sql.NullString `sql:"name"`
+	RefreshToken      sql.NullString `sql:"refresh_token"`
+	Token             sql.NullString `sql:"token"`
+	TokenExp          sql.NullInt64  `sql:"token_exp"`
+	OauthRefreshToken sql.NullString `sql:"oauth_refresh_token"`
+	Favorites         pq.StringArray `sql:"favorites"     gorm:"type:varchar(5000)"`
+	Active            sql.NullBool   `sql:"active"`
+	Admin             sql.NullBool   `sql:"admin"`
+	Dashboards        pq.StringArray `sql:"dashboards"    gorm:"type:varchar(5000)"`
 }
 
 // Decrypt will manipulate the existing user tokens by
@@ -98,6 +100,22 @@ func (u *User) Decrypt(key string) error {
 		Valid:  true,
 	}
 
+	decoded, err = base64.StdEncoding.DecodeString(u.OauthRefreshToken.String)
+	if err != nil {
+		return err
+	}
+
+	decrypted, err = util.Decrypt(key, decoded)
+	if err != nil {
+		return err
+	}
+
+	// set the decrypted user OAuth refresh token
+	u.OauthRefreshToken = sql.NullString{
+		String: string(decrypted),
+		Valid:  true,
+	}
+
 	return nil
 }
 
@@ -127,6 +145,18 @@ func (u *User) Encrypt(key string) error {
 
 	// base64 encode the encrypted user refresh token to make it network safe
 	u.RefreshToken = sql.NullString{
+		String: base64.StdEncoding.EncodeToString(encrypted),
+		Valid:  true,
+	}
+
+	// encrypt the user OAuth refresh token
+	encrypted, err = util.Encrypt(key, []byte(u.OauthRefreshToken.String))
+	if err != nil {
+		return err
+	}
+
+	// base64 encode the encrypted user OAuth refresh token to make it network safe
+	u.OauthRefreshToken = sql.NullString{
 		String: base64.StdEncoding.EncodeToString(encrypted),
 		Valid:  true,
 	}
@@ -165,6 +195,16 @@ func (u *User) Nullify() *User {
 		u.Token.Valid = false
 	}
 
+	// check if the TokenExp field should be false
+	if u.TokenExp.Int64 == 0 {
+		u.TokenExp.Valid = false
+	}
+
+	// check if the OauthRefreshToken field should be false
+	if len(u.OauthRefreshToken.String) == 0 {
+		u.OauthRefreshToken.Valid = false
+	}
+
 	return u
 }
 
@@ -177,6 +217,8 @@ func (u *User) ToAPI() *api.User {
 	user.SetName(u.Name.String)
 	user.SetRefreshToken(u.RefreshToken.String)
 	user.SetToken(u.Token.String)
+	user.SetTokenExp(u.TokenExp.Int64)
+	user.SetOAuthRefreshToken(u.OauthRefreshToken.String)
 	user.SetActive(u.Active.Bool)
 	user.SetAdmin(u.Admin.Bool)
 	user.SetFavorites(u.Favorites)
@@ -195,6 +237,14 @@ func (u *User) Validate() error {
 
 	// verify the Token field is populated
 	if len(u.Token.String) == 0 {
+		return ErrEmptyUserToken
+	}
+
+	if len(u.OauthRefreshToken.String) == 0 {
+		return ErrEmptyUserRefreshToken
+	}
+
+	if u.TokenExp.Int64 == 0 {
 		return ErrEmptyUserToken
 	}
 
@@ -239,14 +289,16 @@ func (u *User) Validate() error {
 // to a database User type.
 func UserFromAPI(u *api.User) *User {
 	user := &User{
-		ID:           sql.NullInt64{Int64: u.GetID(), Valid: true},
-		Name:         sql.NullString{String: u.GetName(), Valid: true},
-		RefreshToken: sql.NullString{String: u.GetRefreshToken(), Valid: true},
-		Token:        sql.NullString{String: u.GetToken(), Valid: true},
-		Active:       sql.NullBool{Bool: u.GetActive(), Valid: true},
-		Admin:        sql.NullBool{Bool: u.GetAdmin(), Valid: true},
-		Favorites:    pq.StringArray(u.GetFavorites()),
-		Dashboards:   pq.StringArray(u.GetDashboards()),
+		ID:                sql.NullInt64{Int64: u.GetID(), Valid: true},
+		Name:              sql.NullString{String: u.GetName(), Valid: true},
+		RefreshToken:      sql.NullString{String: u.GetRefreshToken(), Valid: true},
+		Token:             sql.NullString{String: u.GetToken(), Valid: true},
+		TokenExp:          sql.NullInt64{Int64: u.GetTokenExp(), Valid: true},
+		OauthRefreshToken: sql.NullString{String: u.GetOAuthRefreshToken(), Valid: true},
+		Active:            sql.NullBool{Bool: u.GetActive(), Valid: true},
+		Admin:             sql.NullBool{Bool: u.GetAdmin(), Valid: true},
+		Favorites:         pq.StringArray(u.GetFavorites()),
+		Dashboards:        pq.StringArray(u.GetDashboards()),
 	}
 
 	return user.Nullify()

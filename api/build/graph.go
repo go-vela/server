@@ -160,7 +160,7 @@ func GetBuildGraph(c *gin.Context) {
 	lp, err := database.FromContext(c).GetPipelineForRepo(ctx, b.GetCommit(), r)
 	if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
 		// send API call to capture the pipeline configuration file
-		config, err = scm.FromContext(c).ConfigBackoff(ctx, u, r, b.GetCommit())
+		config, err = scm.FromContext(c).ConfigBackoff(ctx, r, b.GetCommit(), u.GetToken())
 		if err != nil {
 			retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", r.GetFullName(), err)
 
@@ -187,7 +187,7 @@ func GetBuildGraph(c *gin.Context) {
 		// check if the build event is not pull_request
 		if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
 			// send API call to capture list of files changed for the commit
-			files, err = scm.FromContext(c).Changeset(ctx, "", r, b.GetCommit())
+			files, err = scm.FromContext(c).Changeset(ctx, u.GetToken(), r, b.GetCommit())
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 

@@ -7,15 +7,13 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 
-	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/util"
 )
 
-func (c *Client) GetInstallToken(ctx context.Context, token string) (*models.InstallToken, error) {
+func (c *Client) GetInstallToken(ctx context.Context, token string) error {
 	h := hmac.New(sha256.New, []byte(c.config.InstallTokenKey))
 
 	h.Write([]byte(token))
@@ -24,21 +22,12 @@ func (c *Client) GetInstallToken(ctx context.Context, token string) (*models.Ins
 
 	key := constants.CacheInstallTokenPrefix + hmacHex
 
-	meta, err := c.Redis.Get(ctx, key).Bytes()
+	_, err := c.Redis.Get(ctx, key).Result()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	installToken := new(models.InstallToken)
-
-	err = json.Unmarshal(meta, installToken)
-	if err != nil {
-		return nil, err
-	}
-
-	installToken.Token = token
-
-	return installToken, nil
+	return nil
 }
 
 // GetInstallStatusToken retrieves the installation status token from Redis.

@@ -309,49 +309,6 @@ func TestGithub_ClientOpt_WithWebUIAddress(t *testing.T) {
 	}
 }
 
-func TestGithub_ClientOpt_WithOAuthScopes(t *testing.T) {
-	// setup tests
-	tests := []struct {
-		failure bool
-		scopes  []string
-		want    []string
-	}{
-		{
-			failure: false,
-			scopes:  []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
-			want:    []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
-		},
-		{
-			failure: true,
-			scopes:  []string{},
-			want:    []string{},
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		_service, err := New(context.Background(),
-			WithOAuthScopes(test.scopes),
-		)
-
-		if test.failure {
-			if err == nil {
-				t.Errorf("WithOAuthScopes should have returned err")
-			}
-
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("WithOAuthScopes returned err: %v", err)
-		}
-
-		if !reflect.DeepEqual(_service.config.OAuthScopes, test.want) {
-			t.Errorf("WithOAuthScopes is %v, want %v", _service.config.OAuthScopes, test.want)
-		}
-	}
-}
-
 func TestGithub_ClientOpt_WithTracing(t *testing.T) {
 	// setup tests
 	tests := []struct {

@@ -31,25 +31,20 @@ const (
 
 // GenerateStatusToken generates a token for setting commit status on the SCM provider.
 func (c *Client) GenerateStatusToken(ctx context.Context, b *api.Build) string {
-	if c.AppClient != nil && b.GetRepo().GetInstallID() != 0 {
-		tknRepo := []string{b.GetRepo().GetName()}
-		tknPerms := map[string]string{"statuses": constants.PermissionWrite}
+	tknRepo := []string{b.GetRepo().GetName()}
+	tknPerms := map[string]string{"statuses": constants.PermissionWrite}
 
-		if b.GetEvent() == constants.EventDeploy {
-			tknPerms = map[string]string{"deployments": constants.PermissionWrite}
-		}
-
-		installTkn, err := c.NewAppInstallationToken(ctx, b.GetRepo().GetInstallID(), tknRepo, tknPerms)
-		if err != nil {
-			c.Logger.Errorf("unable to generate new installation token for build %s: %v", b.GetRepo().GetFullName(), err)
-
-			return b.GetRepo().GetOwner().GetToken()
-		}
-
-		return installTkn.Token
+	if b.GetEvent() == constants.EventDeploy {
+		tknPerms = map[string]string{"deployments": constants.PermissionWrite}
 	}
 
-	return b.GetRepo().GetOwner().GetToken()
+	tkn, err := c.NewAppInstallationToken(ctx, b.GetRepo().GetInstallID(), tknRepo, tknPerms)
+	if err != nil {
+		c.Logger.Errorf("unable to generate status token for build %d: %v", b.GetNumber(), err)
+		return ""
+	}
+
+	return tkn
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
@@ -66,8 +61,8 @@ func (c *Client) Status(ctx context.Context, b *api.Build, token string) error {
 		return nil
 	}
 
-	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	// create token client
+	client := c.newTokenClient(ctx, token)
 
 	err := commitStatus(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b)
 	if err != nil {
@@ -167,7 +162,7 @@ func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, toke
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client := c.newTokenClient(ctx, token)
 
 	err := stepCommitStatus(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b, s)
 	if err != nil {

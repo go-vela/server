@@ -310,6 +310,10 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) m
 	// populate environment variables from build api
 	env = appendMap(env, b.Environment(workspace))
 	// populate environment variables from user api
+	if u == nil {
+		u = b.GetRepo().GetOwner()
+	}
+
 	env = appendMap(env, u.Environment())
 
 	return env

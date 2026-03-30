@@ -120,7 +120,7 @@ func CreateBuild(c *gin.Context) {
 		Retries:  1,
 	}
 
-	_, item, code, err := CompileAndPublish(
+	result, code, err := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -144,18 +144,18 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	l.WithFields(logrus.Fields{
-		"build":    item.Build.GetNumber(),
-		"build_id": item.Build.GetID(),
+		"build":    result.Item.Build.GetNumber(),
+		"build_id": result.Item.Build.GetID(),
 	}).Info("build created")
 
-	c.JSON(http.StatusCreated, item.Build)
+	c.JSON(http.StatusCreated, result.Item.Build)
 
 	// publish the build to the queue
 	go Enqueue(
 		context.WithoutCancel(ctx),
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		item,
-		item.Build.GetRoute(),
+		result.Item,
+		result.Item.Build.GetRoute(),
 	)
 }

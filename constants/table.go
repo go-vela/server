@@ -19,6 +19,9 @@ const (
 	// TableHook defines the table type for the database hooks table.
 	TableHook = "hooks"
 
+	// TableInstallation defines the table type for the database installations table.
+	TableInstallation = "installations"
+
 	// TableJWK defines the table type for the database jwks table.
 	TableJWK = "jwks"
 

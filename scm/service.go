@@ -8,8 +8,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
-	"github.com/go-vela/server/cache"
-	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 )
@@ -40,10 +38,6 @@ type Service interface {
 	// the OAuth workflow for the session using PAT Token
 	AuthenticateToken(context.Context, *http.Request) (*api.User, error)
 
-	// ValidateOAuthToken defines a function that validates
-	// an OAuth access token was created by Vela
-	ValidateOAuthToken(context.Context, string) (bool, error)
-
 	// Login defines a function that begins
 	// the OAuth workflow for the session.
 	Login(context.Context, http.ResponseWriter, *http.Request) (string, error)
@@ -61,13 +55,16 @@ type Service interface {
 	OrgAccess(context.Context, *api.User, string) (string, error)
 	// RepoAccess defines a function that captures
 	// the user's access level for a repo.
-	RepoAccess(context.Context, string, string, string, string) (string, error)
+	RepoAccess(context.Context, *api.User, string, string) (string, error)
+	// RepoAccessForUser defines a function that captures
+	// a user's access level using an installation token for a repo.
+	RepoAccessForUser(context.Context, string, string, string, string) (string, error)
 	// TeamAccess defines a function that captures
 	// the user's access level for a team.
 	TeamAccess(context.Context, *api.User, string, string) (string, error)
 	// RepoContributor defines a function that captures
 	// whether the user is a contributor for a repo.
-	RepoContributor(context.Context, *api.User, string, string, string) (bool, error)
+	RepoContributor(context.Context, string, string, string, string) (bool, error)
 
 	// Teams SCM Interface Functions
 
@@ -107,11 +104,11 @@ type Service interface {
 
 	// Config defines a function that captures
 	// the pipeline configuration from a repo.
-	Config(context.Context, *api.User, *api.Repo, string) ([]byte, error)
+	Config(context.Context, *api.Repo, string, string) ([]byte, error)
 	// ConfigBackoff is a truncated constant backoff wrapper for Config.
 	// Retry again in five seconds if Config fails to retrieve yaml/yml file.
 	// Will return an error after five failed attempts.
-	ConfigBackoff(context.Context, *api.User, *api.Repo, string) ([]byte, error)
+	ConfigBackoff(context.Context, *api.Repo, string, string) ([]byte, error)
 	// Disable defines a function that deactivates
 	// a repo by destroying the webhook.
 	Disable(context.Context, *api.User, string, string) error
@@ -132,10 +129,10 @@ type Service interface {
 	ListUserRepos(context.Context, *api.User) ([]string, error)
 	// GetBranch defines a function that retrieves
 	// a branch for a repo.
-	GetBranch(context.Context, *api.Repo, string) (string, string, error)
+	GetBranch(context.Context, *api.Repo, string, string) (string, string, error)
 	// GetPullRequest defines a function that retrieves
 	// a pull request for a repo.
-	GetPullRequest(context.Context, *api.Repo, int) (string, string, string, string, error)
+	GetPullRequest(context.Context, *api.Repo, int, string) (string, string, string, string, error)
 	// GetRepo defines a function that retrieves
 	// details for a repo.
 	GetRepo(context.Context, *api.User, *api.Repo) (*api.Repo, int, error)
@@ -150,9 +147,7 @@ type Service interface {
 	GetHTMLURL(context.Context, *api.User, string, string, string, string) (string, error)
 	// GetNetrcPassword defines a function that returns the netrc
 	// password injected into build steps.
-	GetNetrcPassword(context.Context, database.Interface, cache.Service, *api.Build, []string, map[string]string) (string, int64, error)
-	// ValidateNetrcRequest defines a function that validates the request for a netrc password.
-	ValidateNetrcRequest(ctx context.Context, token string, b *api.Build, repos []string, perms map[string]string) error
+	GetNetrcPassword(context.Context, *api.Build, []string, map[string]string) (string, error)
 	// SyncRepoWithInstallation defines a function that syncs
 	// a repo with the installation, if it exists.
 	SyncRepoWithInstallation(context.Context, *api.Repo) (*api.Repo, error)
@@ -179,9 +174,9 @@ type Service interface {
 	FinishInstallation(context.Context, *http.Request, int64) (string, error)
 	// NewAppInstallationToken defines a function that
 	// creates a new installation token for the app integration.
-	NewAppInstallationToken(ctx context.Context, installID int64, repos []string, permissions map[string]string) (*models.InstallToken, error)
-	// IsInstallationToken defines a function that determines if a token is an installation token.
-	IsInstallationToken(ctx context.Context, token string) bool
+	NewAppInstallationToken(ctx context.Context, installID int64, repos []string, permissions map[string]string) (string, error)
+	// IsGitToken defines a function that determines if a token is a Git token.
+	IsGitToken(ctx context.Context, token string) bool
 	// GenerateStatusToken defines a function that generates a token for setting commit status on the SCM provider.
 	GenerateStatusToken(ctx context.Context, build *api.Build) string
 	// GeneratePermissionToken defines a function that generates a token for retrieving permissions from the SCM provider.

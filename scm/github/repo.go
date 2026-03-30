@@ -14,21 +14,19 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/constants"
-	"github.com/go-vela/server/database"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
-func (c *Client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, ref string) (data []byte, err error) {
+func (c *Client) ConfigBackoff(ctx context.Context, r *api.Repo, ref, token string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
 
 	for i := range retryLimit {
 		logrus.Debugf("fetching config file - Attempt %d", i+1)
 		// attempt to fetch the config
-		data, err = c.Config(ctx, u, r, ref)
+		data, err = c.Config(ctx, r, ref, token)
 
 		// return err if the last attempt returns error
 		if err != nil && i == retryLimit-1 {
@@ -49,15 +47,14 @@ func (c *Client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, re
 }
 
 // Config gets the pipeline configuration from the GitHub repo.
-func (c *Client) Config(ctx context.Context, u *api.User, r *api.Repo, ref string) ([]byte, error) {
+func (c *Client) Config(ctx context.Context, r *api.Repo, ref, token string) ([]byte, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-		"user": u.GetName(),
 	}).Tracef("capturing configuration file for %s/commit/%s", r.GetFullName(), ref)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newTokenClient(ctx, token)
 
 	// default pipeline file names
 	files := []string{".vela.yml", ".vela.yaml"}
@@ -109,7 +106,7 @@ func (c *Client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 	}).Tracef("deleting repository webhooks for %s/%s", org, name)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// send API call to capture the hooks for the repo
 	hooks, _, err := client.Repositories.ListHooks(ctx, org, name, nil)
@@ -169,7 +166,7 @@ func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo) (*
 	}).Tracef("creating repository webhook for %s/%s", r.GetOrg(), r.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// create the hook object to make the API call
 	hook := &github.Hook{
@@ -215,7 +212,7 @@ func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	}).Tracef("updating repository webhook for %s/%s", r.GetOrg(), r.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// create the hook object to make the API call
 	hook := &github.Hook{
@@ -282,7 +279,7 @@ func (c *Client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Re
 	}).Tracef("retrieving repository information for %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// send an API call to get the repo info
 	repo, resp, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
@@ -309,7 +306,7 @@ func (c *Client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r
 	}).Tracef("retrieving repository information for %s/%s", o, r)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// send an API call to get the repo info
 	repo, _, err := client.Repositories.Get(ctx, o, r)
@@ -327,7 +324,7 @@ func (c *Client) ListUserRepos(ctx context.Context, u *api.User) ([]string, erro
 	}).Tracef("listing source repositories for %s", u.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	r := []*github.Repository{}
 	f := []string{}
@@ -409,7 +406,7 @@ func toAPIRepo(gr github.Repository) *api.Repo {
 
 // GetPullRequest defines a function that retrieves
 // a pull request for a repo.
-func (c *Client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (string, string, string, string, error) {
+func (c *Client) GetPullRequest(ctx context.Context, r *api.Repo, number int, token string) (string, string, string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -417,7 +414,7 @@ func (c *Client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (s
 	}).Tracef("retrieving pull request %d for repo %s", number, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, r.GetOwner().GetToken())
+	client := c.newTokenClient(ctx, token)
 
 	pull, _, err := client.PullRequests.Get(ctx, r.GetOrg(), r.GetName(), number)
 	if err != nil {
@@ -441,7 +438,7 @@ func (c *Client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, r
 	}).Tracef("capturing html_url for %s/%s/%s@%s", org, repo, name, ref)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newUserOAuthTokenClient(ctx, u)
 
 	// set the reference for the options to capture the repository contents
 	opts := &github.RepositoryContentGetOptions{
@@ -465,7 +462,7 @@ func (c *Client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, r
 }
 
 // GetBranch defines a function that retrieves a branch for a repo.
-func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (string, string, error) {
+func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch, token string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -473,7 +470,7 @@ func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 	}).Tracef("retrieving branch %s for repo %s", branch, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, r.GetOwner().GetToken())
+	client := c.newTokenClient(ctx, token)
 
 	maxRedirects := 3
 
@@ -485,95 +482,11 @@ func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 	return data.GetName(), data.GetCommit().GetSHA(), nil
 }
 
-// ValidateNetrcRequest validates a repo and permissions set for an install token request.
-func (c *Client) ValidateNetrcRequest(ctx context.Context, token string, b *api.Build, repos []string, perms map[string]string) error {
+// GetNetrcPassword returns a scoped access token for cloning repos during a build.
+// It takes the repo owner's user access token and scopes it down to the requested
+// repositories and permissions using the GitHub App's client credentials.
+func (c *Client) GetNetrcPassword(ctx context.Context, b *api.Build, repos []string, perms map[string]string) (string, error) {
 	r := b.GetRepo()
-	u := b.GetRepo().GetOwner()
-
-	l := c.Logger.WithFields(logrus.Fields{
-		"org":  r.GetOrg(),
-		"repo": r.GetName(),
-	})
-
-	l.Tracef("validating netrc request for %s/%s", r.GetOrg(), r.GetName())
-
-	// no GitHub App configured, oauth token is used and valid
-	if c.AppClient == nil {
-		return nil
-	}
-
-	if len(repos) == 0 {
-		return nil
-	}
-
-	// enforce max number of repos allowed for token
-	//
-	// this prevents a large number of access checks for the repo owner
-	if len(repos) > constants.GitTokenRepoLimit {
-		return fmt.Errorf("number of repositories specified (%d) exceeds the maximum allowed (%d)", len(repos), constants.GitTokenRepoLimit)
-	}
-
-	// permissions that are applied to the token for every repo provided
-	// providing no permissions, nil, or empty map will default to the permissions
-	// of the GitHub App installation
-	//
-	// the Vela compiler follows a least-privileged-defaults model where
-	// the list contains only the triggering repo, unless provided in the git yaml block
-	//
-	// the below map is the default
-	permissions := map[string]string{
-		"contents": constants.PermissionRead,
-	}
-
-	if len(perms) > 0 {
-		permissions = perms
-
-		if _, ok := perms["contents"]; !ok {
-			permissions["contents"] = "read"
-		}
-	}
-
-	permSet := []string{constants.PermissionWrite, constants.PermissionAdmin}
-
-	readOnly := true
-
-	for _, perm := range permissions {
-		if perm == constants.PermissionWrite {
-			readOnly = false
-			break
-		}
-	}
-
-	if readOnly {
-		permSet = append(permSet, constants.PermissionRead)
-	}
-
-	// verify repo owner has proper access to listed repositories before provisioning install token
-	//
-	// this prevents an app installed across the org from bypassing restrictions
-	for _, repo := range repos {
-		if repo == r.GetName() {
-			continue
-		}
-
-		access, err := c.RepoAccess(ctx, u.GetName(), token, r.GetOrg(), repo)
-		if err != nil {
-			return fmt.Errorf("unable to get user %s access level for org %s and repo %s: %w", u.GetName(), r.GetOrg(), repo, err)
-		}
-
-		if !slices.Contains(permSet, access) {
-			return fmt.Errorf("repository owner does not have adequate permissions to request install token for repository %s/%s", r.GetOrg(), repo)
-		}
-	}
-
-	return nil
-}
-
-// GetNetrcPassword returns a clone token using the repo's github app installation if it exists.
-// If not, it defaults to the user OAuth token.
-func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tknCache cache.Service, b *api.Build, repos []string, perms map[string]string) (string, int64, error) {
-	r := b.GetRepo()
-	u := b.GetRepo().GetOwner()
 
 	l := c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
@@ -582,28 +495,12 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 
 	l.Tracef("getting netrc password for %s/%s", r.GetOrg(), r.GetName())
 
-	// no GitHub App configured, use legacy oauth token
-	if c.AppClient == nil || r.GetInstallID() == 0 {
-		return u.GetToken(), 0, nil
-	}
-
-	var err error
-
-	// enforce max number of repos allowed for token
-	//
-	// this prevents a large number of access checks for the repo owner
-	if len(repos) > constants.GitTokenRepoLimit {
-		return "", 0, fmt.Errorf("number of repositories specified (%d) exceeds the maximum allowed (%d)", len(repos), constants.GitTokenRepoLimit)
-	}
-
 	// ensure build repo is included in list
 	if !slices.Contains(repos, r.GetName()) {
 		repos = append(repos, r.GetName())
 	}
 
-	// permissions that are applied to the token for every repo provided
-	// providing no permissions, nil, or empty map will default to the permissions
-	// of the GitHub App installation
+	// permissions that are applied to the scoped token
 	//
 	// the Vela compiler follows a least-privileged-defaults model where
 	// the list contains only the triggering repo, unless provided in the git yaml block
@@ -621,30 +518,19 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		}
 	}
 
-	// the app might not be installed therefore we retain backwards compatibility via the user oauth token
-	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
-	// the optional list of repos and permissions are driven by yaml
-	installToken, err := c.NewAppInstallationToken(ctx, r.GetInstallID(), repos, permissions)
+	// create a scoped access token from the repo owner's user token
+	scopedToken, err := c.CreateScopedAccessToken(ctx, r, repos, permissions)
 	if err != nil {
-		return "", 0, fmt.Errorf("unable to create github app installation token for repos %v with permissions %v: %w", repos, permissions, err)
+		return "", fmt.Errorf("unable to create scoped access token for repos %v with permissions %v: %w", repos, permissions, err)
 	}
 
-	if installToken != nil && len(installToken.Token) != 0 {
-		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
-
-		if tknCache != nil {
-			err = tknCache.StoreInstallToken(ctx, installToken, b.GetID(), r.GetTimeout())
-			if err != nil {
-				l.Tracef("unable to store installation token in cache: %v", err)
-
-				return "", 0, fmt.Errorf("unable to store installation token in cache: %w", err)
-			}
-		}
-
-		return installToken.Token, installToken.Expiration, nil
+	if len(scopedToken.Token) == 0 {
+		return "", fmt.Errorf("scoped access token is empty for repo %s/%s", r.GetOrg(), r.GetName())
 	}
 
-	return "", 0, fmt.Errorf("installation token is empty for repo %s/%s", r.GetOrg(), r.GetName())
+	l.Tracef("using scoped access token for %s/%s", r.GetOrg(), r.GetName())
+
+	return scopedToken.Token, nil
 }
 
 // SyncRepoWithInstallation ensures the repo is synchronized with the scm installation, if it exists.

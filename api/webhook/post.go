@@ -480,7 +480,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// generate the queue item
-	p, item, code, err := build.CompileAndPublish(
+	result, code, err := build.CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -503,8 +503,8 @@ func PostWebhook(c *gin.Context) {
 	// capture the build from generated item
 	//
 	// if item is nil, keep b as webhook parsed build
-	if item != nil {
-		b = item.Build
+	if result != nil && result.Item != nil {
+		b = result.Item.Build
 	}
 
 	scmToken := scm.FromContext(c).GenerateStatusToken(ctx, b)
@@ -598,7 +598,7 @@ func PostWebhook(c *gin.Context) {
 
 	// regardless of whether the build is published to queue, we want to attempt to auto-cancel if no errors
 	defer func() {
-		if err == nil && build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
+		if err == nil && build.ShouldAutoCancel(result.Pipeline.Metadata.AutoCancel, b, repo.GetBranch()) {
 			// fetch pending and running builds
 			rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c, repo)
 			if err != nil {
@@ -615,7 +615,7 @@ func PostWebhook(c *gin.Context) {
 
 			for _, rB := range rBs {
 				// call auto cancel routine
-				canceled, err := build.AutoCancel(c, b, rB, p.Metadata.AutoCancel)
+				canceled, err := build.AutoCancel(c, b, rB, result.Pipeline.Metadata.AutoCancel)
 				if err != nil {
 					// continue cancel loop if error, but log based on type of error
 					if canceled {
@@ -639,7 +639,7 @@ func PostWebhook(c *gin.Context) {
 	}()
 
 	// determine whether to send compiled build to queue
-	shouldEnqueue, err := build.ShouldEnqueue(c, l, b, repo)
+	shouldEnqueue, err := build.ShouldEnqueue(c, l, b, repo, result.Token)
 	if err != nil {
 		retErr := fmt.Errorf("unable to process build destination: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -662,14 +662,14 @@ func PostWebhook(c *gin.Context) {
 			context.WithoutCancel(c.Request.Context()),
 			queue.FromGinContext(c),
 			database.FromContext(c),
-			item,
+			result.Item,
 			b.GetRoute(),
 		)
 	} else {
-		err := build.GatekeepBuild(c, item.Build, item.Build.GetRepo(), scmToken)
+		err := build.GatekeepBuild(c, result.Item.Build, result.Item.Build.GetRepo(), scmToken)
 		if err != nil {
 			retErr := fmt.Errorf("unable to gate build: %w", err)
-			util.HandleError(c, http.StatusInternalServerError, err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())

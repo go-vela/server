@@ -47,11 +47,6 @@ func TestGithub_Config_YML(t *testing.T) {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
 
-	// setup types
-	u := new(api.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
 	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -59,7 +54,7 @@ func TestGithub_Config_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), r, "", "token")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -121,7 +116,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ConfigBackoff(t.Context(), u, r, "")
+	got, err := client.ConfigBackoff(t.Context(), r, "", "token")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("ConfigBackoff returned %v, want %v", resp.Code, http.StatusOK)
@@ -176,7 +171,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), r, "", "token")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -232,7 +227,7 @@ func TestGithub_Config_Star(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), r, "", "token")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -292,7 +287,7 @@ func TestGithub_Config_Star_Prefer(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), r, "", "token")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -348,7 +343,7 @@ func TestGithub_Config_Py(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), r, "", "token")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -397,7 +392,7 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), r, "", "token")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -439,7 +434,7 @@ func TestGithub_Config_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), r, "", "token")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -489,7 +484,7 @@ func TestGithub_Config_BadEncoding(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), r, "", "token")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -1128,7 +1123,7 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(t.Context(), r, 1)
+	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(t.Context(), r, 1, "token")
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1185,7 +1180,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotBranch, gotCommit, err := client.GetBranch(t.Context(), r, "main")
+	gotBranch, gotCommit, err := client.GetBranch(t.Context(), r, "main", "token")
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1196,182 +1191,6 @@ func TestGithub_GetBranch(t *testing.T) {
 
 	if !strings.EqualFold(gotCommit, wantCommit) {
 		t.Errorf("Commit is %v, want %v", gotCommit, wantCommit)
-	}
-}
-
-func TestGithub_ValidateNetrcRequest(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	_, engine := gin.CreateTestContext(resp)
-
-	// setup mock server
-	engine.GET("/api/v3/app/installations/:id", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/installation.json")
-	})
-	engine.POST("/api/v3/app/installations/:id/access_tokens", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/installations_access_tokens.json")
-	})
-	engine.GET("/api/v3/repos/:org/:repo/collaborators/:user/permission", func(c *gin.Context) {
-		repo := c.Param("repo")
-		if repo == "not-installed-repo" {
-			c.Status(http.StatusNotFound)
-
-			return
-		}
-
-		user := c.Param("user")
-		if user == "foo" {
-			c.Header("Content-Type", "application/json")
-			c.Status(http.StatusOK)
-			c.File("testdata/repo_admin.json")
-
-			return
-		}
-
-		if user == "reader" {
-			c.Header("Content-Type", "application/json")
-			c.Status(http.StatusOK)
-			c.File("testdata/repo_read.json")
-
-			return
-		}
-
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusForbidden)
-	})
-
-	s := httptest.NewServer(engine)
-	defer s.Close()
-
-	installedRepo := new(api.Repo)
-	installedRepo.SetOrg("octocat")
-	installedRepo.SetName("Hello-World")
-	installedRepo.SetInstallID(1)
-
-	u := new(api.User)
-	u.SetName("foo")
-
-	reader := new(api.User)
-	reader.SetName("reader")
-
-	badUser := new(api.User)
-	badUser.SetName("charlatan")
-
-	tests := []struct {
-		name          string
-		repo          *api.Repo
-		user          *api.User
-		repos         []string
-		perms         map[string]string
-		appsTransport bool
-		wantErr       bool
-	}{
-		{
-			name:          "no app configured",
-			repo:          installedRepo,
-			user:          u,
-			repos:         []string{"other-repo"},
-			perms:         map[string]string{"contents": "read"},
-			appsTransport: false,
-			wantErr:       false,
-		},
-		{
-			name:          "empty repos list",
-			repo:          installedRepo,
-			user:          u,
-			repos:         []string{},
-			perms:         map[string]string{"contents": "read"},
-			appsTransport: true,
-			wantErr:       false,
-		},
-		{
-			name:          "only build repo in list",
-			repo:          installedRepo,
-			user:          u,
-			repos:         []string{"Hello-World"},
-			perms:         map[string]string{"contents": "read"},
-			appsTransport: true,
-			wantErr:       false,
-		},
-		{
-			name:          "accessible other repo with installation",
-			repo:          installedRepo,
-			user:          u,
-			repos:         []string{"Hello-World", "accessible-repo"},
-			perms:         map[string]string{"contents": "read"},
-			appsTransport: true,
-			wantErr:       false,
-		},
-		{
-			name:          "repo not installed on app",
-			repo:          installedRepo,
-			user:          u,
-			repos:         []string{"Hello-World", "not-installed-repo"},
-			perms:         map[string]string{"contents": "read"},
-			appsTransport: true,
-			wantErr:       true,
-		},
-		{
-			name:          "reader with read request",
-			repo:          installedRepo,
-			user:          reader,
-			repos:         []string{"Hello-World", "accessible-repo"},
-			perms:         map[string]string{"contents": "read"},
-			appsTransport: true,
-			wantErr:       false,
-		},
-		{
-			name:          "reader with write request",
-			repo:          installedRepo,
-			user:          reader,
-			repos:         []string{"Hello-World", "accessible-repo"},
-			perms:         map[string]string{"contents": "write"},
-			appsTransport: true,
-			wantErr:       true,
-		},
-		{
-			name:          "owner with inadequate permissions",
-			repo:          installedRepo,
-			user:          badUser,
-			repos:         []string{"Hello-World", "accessible-repo"},
-			perms:         map[string]string{"contents": "read"},
-			appsTransport: true,
-			wantErr:       true,
-		},
-		{
-			name:          "exceeds repo limit",
-			repo:          installedRepo,
-			user:          u,
-			repos:         []string{"r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"},
-			perms:         map[string]string{"contents": "read"},
-			appsTransport: true,
-			wantErr:       true,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			client, _ := NewTest(s.URL)
-			if test.appsTransport {
-				client.AppClient = NewTestAppClient(s.URL)
-			}
-
-			test.repo.SetOwner(test.user)
-
-			testBuild := new(api.Build)
-			testBuild.SetRepo(test.repo)
-
-			err := client.ValidateNetrcRequest(t.Context(), "bar", testBuild, test.repos, test.perms)
-			if (err != nil) != test.wantErr {
-				t.Errorf("ValidateNetrcRequest() error = %v, wantErr %v", err, test.wantErr)
-			}
-		})
 	}
 }
 
@@ -1527,7 +1346,7 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 			testBuild := new(api.Build)
 			testBuild.SetRepo(test.repo)
 
-			got, gotExp, err := client.GetNetrcPassword(t.Context(), nil, nil, testBuild, test.repos, test.perms)
+			got, err := client.GetNetrcPassword(t.Context(), testBuild, test.repos, test.perms)
 			if (err != nil) != test.wantErr {
 				t.Errorf("GetNetrcPassword() error = %v, wantErr %v", err, test.wantErr)
 				return
@@ -1535,10 +1354,6 @@ func TestGithub_GetNetrcPassword(t *testing.T) {
 
 			if got != test.wantToken {
 				t.Errorf("GetNetrcPassword() = %v, want %v", got, test.wantToken)
-			}
-
-			if gotExp != test.wantExp {
-				t.Errorf("GetNetrcPassword() expiration = %v, want %v", gotExp, test.wantExp)
 			}
 		})
 	}

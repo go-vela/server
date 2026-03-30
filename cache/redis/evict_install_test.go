@@ -6,17 +6,10 @@ import (
 	"testing"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/cache/models"
 )
 
 func TestRedis_EvictInstall(t *testing.T) {
 	// setup types
-	// use global variables in redis_test.go
-	_item := &models.InstallToken{
-		Token:        "ghs_123abc",
-		Repositories: []string{"vela"},
-		Permissions:  map[string]string{"contents": "read"},
-	}
 
 	_repo := new(api.Repo)
 	_repo.SetTimeout(30)
@@ -29,17 +22,14 @@ func TestRedis_EvictInstall(t *testing.T) {
 
 	// setup tests
 	tests := []struct {
-		token   *models.InstallToken
 		evict   string
 		wantErr bool
 	}{
 		{
-			token:   _item,
 			evict:   "ghs_123abc",
 			wantErr: false,
 		},
 		{
-			token:   _item,
 			evict:   "not_found",
 			wantErr: false,
 		},
@@ -47,7 +37,7 @@ func TestRedis_EvictInstall(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _redis.StoreInstallToken(t.Context(), test.token, 1, 30)
+		err := _redis.StoreInstallToken(t.Context(), test.evict, 1, 30)
 		if err != nil {
 			t.Errorf("unable to store install token in cache: %v", err)
 		}
@@ -64,19 +54,6 @@ func TestRedis_EvictInstall(t *testing.T) {
 }
 
 func TestRedis_EvictBuildInstallTokens(t *testing.T) {
-	// setup types
-	_item := &models.InstallToken{
-		Token:        "ghs_123abc",
-		Repositories: []string{"vela"},
-		Permissions:  map[string]string{"contents": "read"},
-	}
-
-	_item2 := &models.InstallToken{
-		Token:        "ghs_456def",
-		Repositories: []string{"vela", "other-repo"},
-		Permissions:  map[string]string{"contents": "read"},
-	}
-
 	// setup redis mock
 	_redis, err := NewTest("c94bc43c11613ceb6c9f6ac73451e41de90806b2ca6953010b547b20fde9ad90")
 	if err != nil {
@@ -87,19 +64,19 @@ func TestRedis_EvictBuildInstallTokens(t *testing.T) {
 	tests := []struct {
 		name    string
 		build   int64
-		tokens  []*models.InstallToken
+		tokens  []string
 		wantErr bool
 	}{
 		{
 			name:    "evict single token for build",
 			build:   1,
-			tokens:  []*models.InstallToken{_item},
+			tokens:  []string{"ghs_123abc"},
 			wantErr: false,
 		},
 		{
 			name:    "evict multiple tokens for build",
 			build:   2,
-			tokens:  []*models.InstallToken{_item, _item2},
+			tokens:  []string{"ghs_123abc", "ghs_456def"},
 			wantErr: false,
 		},
 		{

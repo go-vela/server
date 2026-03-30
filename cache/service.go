@@ -4,8 +4,6 @@ package cache
 
 import (
 	"context"
-
-	"github.com/go-vela/server/cache/models"
 )
 
 // Service represents the interface for Vela integrating
@@ -17,8 +15,8 @@ type Service interface {
 	// the configured queue driver.
 	Driver() string
 
-	StoreInstallToken(ctx context.Context, token *models.InstallToken, build int64, timeout int32) error
-	GetInstallToken(ctx context.Context, token string) (*models.InstallToken, error)
+	StoreInstallToken(ctx context.Context, token string, build int64, timeout int32) error
+	GetInstallToken(ctx context.Context, token string) error
 	EvictInstallToken(ctx context.Context, token string) error
 	EvictBuildInstallTokens(ctx context.Context, build int64) error
 

@@ -47,8 +47,7 @@ func FakeHandler() http.Handler {
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/executable", buildExecutable)
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/id_token", idToken)
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/id_request_token", idTokenRequestToken)
-	e.GET("/api/v1/repos/:org/:repo/builds/:build/install_token", getInstallToken)
-	e.POST("/api/v1/repos/:org/:repo/builds/:build/install_token", postInstallToken)
+	e.POST("/api/v1/repos/:org/:repo/builds/:build/git_token", postGitToken)
 
 	// mock endpoints for dashboard calls
 	e.GET("/api/v1/dashboards/:dashboard", getDashboard)
@@ -150,7 +149,6 @@ func FakeHandler() http.Handler {
 	e.GET("/authenticate", getAuthenticate)
 	e.POST("/authenticate/token", getAuthenticateFromToken)
 	e.GET("/validate-token", validateToken)
-	e.GET("/validate-oauth", validateOAuthToken)
 
 	// mock endpoints for oidc calls
 	e.GET("/_services/token/.well-known/openid-configuration", openIDConfig)

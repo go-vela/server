@@ -12,7 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/registry"
 )
 
@@ -34,19 +33,6 @@ func TestGithub_Template(t *testing.T) {
 
 	defer s.Close()
 
-	// setup types
-	str := "foo"
-
-	r := &api.Repo{
-		Org:  new("github"),
-		Name: new("octocat"),
-	}
-
-	u := &api.User{
-		Name:  &str,
-		Token: &str,
-	}
-
 	src := &registry.Source{
 		Org:  "github",
 		Repo: "octocat",
@@ -64,7 +50,7 @@ func TestGithub_Template(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(context.Background(), r, u, src, "")
+	got, err := c.Template(context.Background(), src, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -101,19 +87,6 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 
 	defer s.Close()
 
-	// setup types
-	str := "foo"
-
-	r := &api.Repo{
-		Org:  new("github"),
-		Name: new("octocat"),
-	}
-
-	u := &api.User{
-		Name:  &str,
-		Token: &str,
-	}
-
 	src := &registry.Source{
 		Org:  "github",
 		Repo: "octocat",
@@ -132,7 +105,7 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(context.Background(), r, u, src, "")
+	got, err := c.Template(context.Background(), src, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -173,19 +146,6 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 
 	defer s.Close()
 
-	// setup types
-	str := "foo"
-
-	r := &api.Repo{
-		Org:  new("github"),
-		Name: new("octocat"),
-	}
-
-	u := &api.User{
-		Name:  &str,
-		Token: &str,
-	}
-
 	src := &registry.Source{
 		Org:  "github",
 		Repo: "octocat",
@@ -203,7 +163,7 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(context.Background(), r, u, src, "")
+	got, err := c.Template(context.Background(), src, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -238,19 +198,6 @@ func TestGithub_Template_BadRequest(t *testing.T) {
 
 	defer s.Close()
 
-	// setup types
-	str := "foo"
-
-	r := &api.Repo{
-		Org:  new("github"),
-		Name: new("octocat"),
-	}
-
-	u := &api.User{
-		Name:  &str,
-		Token: &str,
-	}
-
 	src := &registry.Source{
 		Org:  "github",
 		Repo: "octocat",
@@ -263,7 +210,7 @@ func TestGithub_Template_BadRequest(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(context.Background(), r, u, src, "")
+	got, err := c.Template(context.Background(), src, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)
@@ -294,19 +241,6 @@ func TestGithub_Template_NotFound(t *testing.T) {
 
 	defer s.Close()
 
-	// setup types
-	str := "foo"
-
-	r := &api.Repo{
-		Org:  new("github"),
-		Name: new("octocat"),
-	}
-
-	u := &api.User{
-		Name:  &str,
-		Token: &str,
-	}
-
 	src := &registry.Source{
 		Org:  "github",
 		Repo: "octocat",
@@ -319,7 +253,7 @@ func TestGithub_Template_NotFound(t *testing.T) {
 		t.Errorf("Creating client returned err: %v", err)
 	}
 
-	got, err := c.Template(context.Background(), r, u, src, "")
+	got, err := c.Template(context.Background(), src, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Template returned %v, want %v", resp.Code, http.StatusOK)

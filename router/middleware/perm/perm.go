@@ -5,15 +5,11 @@ package perm
 import (
 	"fmt"
 	"net/http"
-	"slices"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
@@ -288,7 +284,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 		case constants.SecretRepo:
 			logger.Debugf("verifying user %s has 'admin' permissions for repo %s/%s", u.GetName(), o, n)
 
-			perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, n)
+			perm, err := scm.FromContext(c).RepoAccess(ctx, u, o, n)
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
 			}
@@ -393,7 +389,7 @@ func MustAdmin() gin.HandlerFunc {
 		ctx := c.Request.Context()
 
 		installTkn := retrieveInstallToken(c)
-		if installTkn != nil {
+		if installTkn != "" {
 			retErr := fmt.Errorf("cannot use installation token for 'admin' level activity")
 
 			util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -408,13 +404,13 @@ func MustAdmin() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
+		perm, err := scm.FromContext(c).RepoAccess(ctx, u, r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccessForUser(ctx, r.GetOwner().GetToken(), u.GetName(), r.GetOrg(), r.GetName())
 			if err != nil {
 				l.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -443,17 +439,8 @@ func MustWrite() gin.HandlerFunc {
 		ctx := c.Request.Context()
 
 		tkn := retrieveInstallToken(c)
-		if tkn != nil {
-			valid := validInstallToken(r, tkn, []string{constants.PermissionWrite})
-			if !valid {
-				retErr := fmt.Errorf("installation token does not have 'write' permissions for repo %s", r.GetFullName())
-
-				util.HandleError(c, http.StatusUnauthorized, retErr)
-
-				return
-			}
-
-			return
+		if tkn != "" {
+			u.SetToken(tkn)
 		}
 
 		l.Debugf("verifying user %s has 'write' permissions for repo %s", u.GetName(), r.GetFullName())
@@ -463,13 +450,13 @@ func MustWrite() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
+		perm, err := scm.FromContext(c).RepoAccess(ctx, u, r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccessForUser(ctx, r.GetOwner().GetToken(), u.GetName(), r.GetOrg(), r.GetName())
 			if err != nil {
 				l.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -501,17 +488,8 @@ func MustRead() gin.HandlerFunc {
 		ctx := c.Request.Context()
 
 		tkn := retrieveInstallToken(c)
-		if tkn != nil {
-			valid := validInstallToken(r, tkn, []string{constants.PermissionRead, constants.PermissionWrite})
-			if !valid {
-				retErr := fmt.Errorf("installation token does not have 'read' permissions for repo %s", r.GetFullName())
-
-				util.HandleError(c, http.StatusUnauthorized, retErr)
-
-				return
-			}
-
-			return
+		if tkn != "" {
+			u.SetToken(tkn)
 		}
 
 		// check if the repo visibility field is set to public
@@ -543,13 +521,13 @@ func MustRead() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
+		perm, err := scm.FromContext(c).RepoAccess(ctx, u, r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccessForUser(ctx, r.GetOwner().GetToken(), u.GetName(), r.GetOrg(), r.GetName())
 			if err != nil {
 				l.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -573,38 +551,16 @@ func MustRead() gin.HandlerFunc {
 }
 
 // retrieveInstallToken gets the installation token from the context.
-func retrieveInstallToken(c *gin.Context) *models.InstallToken {
+func retrieveInstallToken(c *gin.Context) string {
 	installToken, ok := c.Get("app-installation-token")
 	if !ok {
-		return nil
+		return ""
 	}
 
-	result, ok := installToken.(*models.InstallToken)
+	result, ok := installToken.(string)
 	if !ok {
-		return nil
+		return ""
 	}
 
 	return result
-}
-
-// validInstallToken checks if the installation token has access to the repo with the required permissions.
-func validInstallToken(r *api.Repo, tkn *models.InstallToken, access []string) bool {
-	// reject expired tokens
-	if tkn.Expiration < time.Now().Unix() {
-		return false
-	}
-
-	if r.GetInstallID() != tkn.InstallID {
-		return false
-	}
-
-	if !slices.Contains(tkn.Repositories, r.GetName()) {
-		return false
-	}
-
-	if !slices.Contains(access, tkn.Permissions["contents"]) {
-		return false
-	}
-
-	return true
 }

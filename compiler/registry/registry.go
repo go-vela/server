@@ -4,8 +4,6 @@ package registry
 
 import (
 	"context"
-
-	api "github.com/go-vela/server/api/types"
 )
 
 // Service represents the interface for Vela integrating
@@ -17,5 +15,5 @@ type Service interface {
 
 	// Template defines a function that captures the
 	// templated pipeline configuration from a repo.
-	Template(context.Context, *api.Repo, *api.User, *Source, string) ([]byte, error)
+	Template(context.Context, *Source, string) ([]byte, error)
 }

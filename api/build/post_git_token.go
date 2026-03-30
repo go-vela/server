@@ -17,9 +17,9 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/install_token build PostInstallToken
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/git_token build PostGitToken
 //
-// Generate a Vela GitHub App install token
+// Generate a scoped git token for a build
 //
 // ---
 // produces:
@@ -66,15 +66,15 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// PostInstallToken represents the API handler to generate and return an install token.
-func PostInstallToken(c *gin.Context) {
+// PostGitToken represents the API handler to generate and return a git token.
+func PostGitToken(c *gin.Context) {
 	// capture middleware values
 	l := c.MustGet("logger").(*logrus.Entry)
 	b := build.Retrieve(c)
 	ctx := c.Request.Context()
 
 	if b.GetRepo().GetInstallID() == 0 {
-		retErr := fmt.Errorf("repository does not have an installation ID, cannot generate install token")
+		retErr := fmt.Errorf("repository does not have an installation ID, cannot generate git token")
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -104,46 +104,8 @@ func PostInstallToken(c *gin.Context) {
 		return
 	}
 
-	collabToken, err := cache.FromContext(c).GetPermissionToken(ctx, b.GetRepo().GetInstallID())
-	if err != nil {
-		retErr := fmt.Errorf("unable to retrieve permission token from cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	if collabToken == "" {
-		collabToken, err = scm.FromContext(c).GeneratePermissionToken(ctx, b.GetRepo().GetInstallID())
-		if err != nil {
-			retErr := fmt.Errorf("unable to generate permission token for installation %d: %w", b.GetRepo().GetInstallID(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-
-		err = cache.FromContext(c).StorePermissionToken(ctx, b.GetRepo().GetInstallID(), collabToken)
-		if err != nil {
-			retErr := fmt.Errorf("unable to store permission token in cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-	}
-
-	err = scm.FromContext(c).ValidateNetrcRequest(ctx, collabToken, b, input.Repositories, input.Permissions)
-	if err != nil {
-		retErr := fmt.Errorf("unable to validate token request: %w", err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
 	// mint new token
-	newToken, err := scm.FromContext(c).NewAppInstallationToken(ctx, b.GetRepo().GetInstallID(), input.Repositories, input.Permissions)
+	newToken, err := scm.FromContext(c).GetNetrcPassword(ctx, b, input.Repositories, input.Permissions)
 	if err != nil {
 		retErr := fmt.Errorf("unable to generate new installation token: %w", err)
 
@@ -152,10 +114,9 @@ func PostInstallToken(c *gin.Context) {
 		return
 	}
 
-	// store the new token in cache with TTL based on repo timeout
 	err = cache.FromContext(c).StoreInstallToken(ctx, newToken, b.GetID(), b.GetRepo().GetTimeout())
 	if err != nil {
-		retErr := fmt.Errorf("unable to store installation token in cache: %w", err)
+		retErr := fmt.Errorf("unable to store installation token in cache for build %d: %w", b.GetID(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -163,8 +124,7 @@ func PostInstallToken(c *gin.Context) {
 	}
 
 	resp := new(types.Token)
-	resp.SetToken(newToken.Token)
-	resp.SetExpiration(newToken.Expiration)
+	resp.SetToken(newToken)
 
 	c.JSON(http.StatusOK, resp)
 }

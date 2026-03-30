@@ -166,7 +166,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// generate queue items
-	_, item, code, err := CompileAndPublish(
+	result, code, err := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -181,8 +181,10 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
+	item := result.Item
+
 	// determine whether or not to send compiled build to queue
-	shouldEnqueue, err := ShouldEnqueue(c, l, item.Build, r)
+	shouldEnqueue, err := ShouldEnqueue(c, l, item.Build, r, result.Token)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 

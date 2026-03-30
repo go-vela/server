@@ -8,12 +8,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v3"
 
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/tracing"
 )
 
 // helper function to setup the scm from the CLI arguments.
-func setupSCM(ctx context.Context, c *cli.Command, tc *tracing.Client) (scm.Service, error) {
+func setupSCM(ctx context.Context, c *cli.Command, tc *tracing.Client, db database.Interface) (scm.Service, error) {
 	logrus.Debug("creating scm client from CLI configuration")
 
 	// scm configuration
@@ -30,11 +31,11 @@ func setupSCM(ctx context.Context, c *cli.Command, tc *tracing.Client) (scm.Serv
 		ServerWebhookAddress: c.String("scm.webhook.addr"),
 		StatusContext:        c.String("scm.context"),
 		WebUIAddress:         c.String("webui-addr"),
-		OAuthScopes:          c.StringSlice("scm.scopes"),
 		RepoRoleMap:          c.StringMap("scm.repo.roles-map"),
 		OrgRoleMap:           c.StringMap("scm.org.roles-map"),
 		TeamRoleMap:          c.StringMap("scm.team.roles-map"),
 		Tracing:              tc,
+		Database:             db,
 	}
 
 	// setup the scm

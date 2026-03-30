@@ -38,6 +38,12 @@ type CompileAndPublishConfig struct {
 	Retries    int
 }
 
+type CompileAndPublishResult struct {
+	Pipeline *pipeline.Build
+	Item     *models.Item
+	Token    string
+}
+
 // CompileAndPublish is a helper function to generate the queue items for a build. It takes a form
 // as well as the database, scm, compiler, and queue services as arguments. It is used in webhook handling,
 // schedule processing, and API build creation.
@@ -51,7 +57,7 @@ func CompileAndPublish(
 	scm scm.Service,
 	compiler compiler.Engine,
 	queue queue.Service,
-) (*pipeline.Build, *models.Item, int, error) {
+) (*CompileAndPublishResult, int, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"org":      cfg.Build.GetRepo().GetOrg(),
 		"repo":     cfg.Build.GetRepo().GetName(),
@@ -64,42 +70,45 @@ func CompileAndPublish(
 
 	// assign variables from form for readibility
 	r := cfg.Build.GetRepo()
-	u := cfg.Build.GetRepo().GetOwner()
 	b := cfg.Build
 	baseErr := cfg.BaseErr
 
-	// for non-app repos, confirm current repo owner has at least write access to repo (needed for status update later)
-	if r.GetInstallID() == 0 {
-		_, err := scm.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
-		if err != nil {
-			retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
+	compileToken, err := cache.GetPermissionToken(ctx, b.GetRepo().GetInstallID())
+	if err != nil {
+		return nil, http.StatusInternalServerError, fmt.Errorf("unable to retrieve permission token from cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
+	}
 
-			return nil, nil, http.StatusUnauthorized, retErr
+	if compileToken == "" {
+		compileToken, err = scm.GeneratePermissionToken(ctx, b.GetRepo().GetInstallID())
+		if err != nil {
+			return nil, http.StatusInternalServerError, fmt.Errorf("unable to generate permission token for installation %d: %w", b.GetRepo().GetInstallID(), err)
+		}
+
+		err = cache.StorePermissionToken(ctx, b.GetRepo().GetInstallID(), compileToken)
+		if err != nil {
+			return nil, http.StatusInternalServerError, fmt.Errorf("unable to store permission token in cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
 		}
 	}
 
 	// get pull request number from build if event is pull_request or issue_comment
-	var (
-		prNum int
-		err   error
-	)
+	var prNum int
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) || strings.EqualFold(b.GetEvent(), constants.EventComment) {
 		prNum, err = getPRNumberFromBuild(b)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request number for %s: %w", baseErr, r.GetFullName(), err)
 
-			return nil, nil, http.StatusBadRequest, retErr
+			return nil, http.StatusBadRequest, retErr
 		}
 	}
 
 	// if the event is issue_comment and the issue is a pull request,
 	// call SCM for more data not provided in webhook payload
 	if strings.EqualFold(cfg.Source, "webhook") && strings.EqualFold(b.GetEvent(), constants.EventComment) {
-		commit, branch, baseref, headref, err := scm.GetPullRequest(ctx, r, prNum)
+		commit, branch, baseref, headref, err := scm.GetPullRequest(ctx, r, prNum, compileToken)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, r.GetFullName(), err)
 
-			return nil, nil, http.StatusInternalServerError, retErr
+			return nil, http.StatusInternalServerError, retErr
 		}
 
 		b.SetCommit(commit)
@@ -111,11 +120,11 @@ func CompileAndPublish(
 	// if the source is from a schedule, fetch the commit sha from schedule branch (same as build branch at this moment)
 	if strings.EqualFold(cfg.Source, "schedule") {
 		// send API call to capture the commit sha for the branch
-		_, commit, err := scm.GetBranch(ctx, r, b.GetBranch())
+		_, commit, err := scm.GetBranch(ctx, r, b.GetBranch(), compileToken)
 		if err != nil {
 			retErr := fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
 
-			return nil, nil, http.StatusInternalServerError, retErr
+			return nil, http.StatusInternalServerError, retErr
 		}
 
 		b.SetCommit(commit)
@@ -131,7 +140,7 @@ func CompileAndPublish(
 	if err != nil {
 		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, r.GetFullName())
 
-		return nil, nil, http.StatusInternalServerError, retErr
+		return nil, http.StatusInternalServerError, retErr
 	}
 
 	logger.Debugf("currently %d builds running on repo %s", builds, r.GetFullName())
@@ -140,7 +149,7 @@ func CompileAndPublish(
 	if builds >= int64(r.GetBuildLimit()) {
 		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
 
-		return nil, nil, http.StatusTooManyRequests, retErr
+		return nil, http.StatusTooManyRequests, retErr
 	}
 
 	// update fields in build object
@@ -157,28 +166,6 @@ func CompileAndPublish(
 	b.SetRuntime("")
 	b.SetDistribution("")
 
-	var compileToken string
-
-	// if this is an app repo, generate an installation token to capture the changeset
-	if r.GetInstallID() != 0 {
-		compileToken, err = cache.GetPermissionToken(ctx, b.GetRepo().GetInstallID())
-		if err != nil {
-			return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to retrieve permission token from cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
-		}
-
-		if compileToken == "" {
-			compileToken, err = scm.GeneratePermissionToken(ctx, b.GetRepo().GetInstallID())
-			if err != nil {
-				return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to generate permission token for installation %d: %w", b.GetRepo().GetInstallID(), err)
-			}
-
-			err = cache.StorePermissionToken(ctx, b.GetRepo().GetInstallID(), compileToken)
-			if err != nil {
-				return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to store permission token in cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
-			}
-		}
-	}
-
 	// variable to store changeset files
 	files := cfg.Files
 
@@ -189,7 +176,7 @@ func CompileAndPublish(
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
-			return nil, nil, http.StatusInternalServerError, retErr
+			return nil, http.StatusInternalServerError, retErr
 		}
 	}
 
@@ -199,7 +186,7 @@ func CompileAndPublish(
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
-			return nil, nil, http.StatusInternalServerError, retErr
+			return nil, http.StatusInternalServerError, retErr
 		}
 	}
 
@@ -231,11 +218,11 @@ func CompileAndPublish(
 		pipeline, err = database.GetPipelineForRepo(ctx, b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
-			pipelineFile, err = scm.ConfigBackoff(ctx, u, r, b.GetCommit())
+			pipelineFile, err = scm.ConfigBackoff(ctx, r, b.GetCommit(), compileToken)
 			if err != nil {
 				retErr := fmt.Errorf("%s: unable to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 
-				return nil, nil, http.StatusNotFound, retErr
+				return nil, http.StatusNotFound, retErr
 			}
 		} else {
 			pipelineFile = pipeline.GetData()
@@ -261,7 +248,6 @@ func CompileAndPublish(
 			WithFiles(files).
 			WithMetadata(cfg.Metadata).
 			WithRepo(r).
-			WithUser(u).
 			WithLabels(cfg.Labels).
 			WithSCM(scm).
 			WithDatabase(database).
@@ -275,7 +261,7 @@ func CompileAndPublish(
 			// log the error for traceability
 			logger.Error(err.Error())
 
-			return nil, nil, http.StatusInternalServerError, fmt.Errorf("%s: %w", baseErr, err)
+			return nil, http.StatusInternalServerError, fmt.Errorf("%s: %w", baseErr, err)
 		}
 
 		// reset the pipeline type for the repo
@@ -300,10 +286,13 @@ func CompileAndPublish(
 				logger.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 			}
 
-			return nil,
-				&models.Item{
+			result := &CompileAndPublishResult{
+				Item: &models.Item{
 					Build: b,
 				},
+			}
+
+			return result,
 				http.StatusOK,
 				errors.New(skip)
 		}
@@ -313,7 +302,7 @@ func CompileAndPublish(
 			if err := p.Deployment.Validate(cfg.Deployment.GetTarget(), cfg.Deployment.GetPayload()); err != nil {
 				retErr := fmt.Errorf("%s: failed to validate deployment for %s: %w", baseErr, r.GetFullName(), err)
 
-				return nil, nil, http.StatusBadRequest, retErr
+				return nil, http.StatusBadRequest, retErr
 			}
 		}
 
@@ -337,7 +326,7 @@ func CompileAndPublish(
 					continue
 				}
 
-				return nil, nil, http.StatusInternalServerError, retErr
+				return nil, http.StatusInternalServerError, retErr
 			}
 
 			logger.WithFields(logrus.Fields{
@@ -374,7 +363,7 @@ func CompileAndPublish(
 				continue
 			}
 
-			return nil, nil, http.StatusInternalServerError, retErr
+			return nil, http.StatusInternalServerError, retErr
 		}
 
 		// populate the build link if a web address is provided
@@ -398,14 +387,14 @@ func CompileAndPublish(
 	if p == nil {
 		retErr := fmt.Errorf("%s: failed to set pipeline for %s: %w", baseErr, r.GetFullName(), err)
 
-		return nil, nil, http.StatusInternalServerError, retErr
+		return nil, http.StatusInternalServerError, retErr
 	}
 
 	// return error if build didn't get populated
 	if b == nil {
 		retErr := fmt.Errorf("%s: failed to set build for %s: %w", baseErr, r.GetFullName(), err)
 
-		return nil, nil, http.StatusInternalServerError, retErr
+		return nil, http.StatusInternalServerError, retErr
 	}
 
 	var (
@@ -418,15 +407,21 @@ func CompileAndPublish(
 		scmPerms = p.Git.Token.Permissions
 	}
 
-	scmBuildToken, scmBuildTokenExp, err := scm.GetNetrcPassword(ctx, database, cache, b, scmRepos, scmPerms)
+	scmBuildToken, err := scm.GetNetrcPassword(ctx, b, scmRepos, scmPerms)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get SCM build token for %s: %w", baseErr, r.GetFullName(), err)
 
-		return nil, nil, http.StatusInternalServerError, retErr
+		CleanBuild(ctx, database, b, nil, nil, retErr)
+
+		return nil, http.StatusInternalServerError, retErr
 	}
 
 	p.Token = scmBuildToken
-	p.TokenExp = scmBuildTokenExp
+
+	err = cache.StoreInstallToken(ctx, scmBuildToken, b.GetID(), b.GetRepo().GetTimeout())
+	if err != nil {
+		logger.Errorf("unable to store installation token in cache for build %d: %v", b.GetID(), err)
+	}
 
 	// determine queue route
 	route, err := queue.Route(&p.Worker)
@@ -436,7 +431,7 @@ func CompileAndPublish(
 		// error out the build
 		CleanBuild(ctx, database, b, nil, nil, retErr)
 
-		return nil, nil, http.StatusBadRequest, retErr
+		return nil, http.StatusBadRequest, retErr
 	}
 
 	b.SetRoute(route)
@@ -446,10 +441,19 @@ func CompileAndPublish(
 	if err != nil {
 		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
-		return nil, nil, http.StatusInternalServerError, retErr
+		// error out the build
+		CleanBuild(ctx, database, b, nil, nil, retErr)
+
+		return nil, http.StatusInternalServerError, retErr
 	}
 
-	return p, models.ToItem(b), http.StatusCreated, nil
+	result := &CompileAndPublishResult{
+		Pipeline: p,
+		Item:     models.ToItem(b),
+		Token:    compileToken,
+	}
+
+	return result, http.StatusCreated, nil
 }
 
 // getPRNumberFromBuild is a helper function to

@@ -3,12 +3,15 @@
 package scm
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
@@ -116,7 +119,7 @@ func SyncRepo(c *gin.Context) {
 
 	// verify the user is an admin of the repo
 	// we cannot use our normal permissions check due to the possibility the repo was deleted
-	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, r.GetName())
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u, o, r.GetName())
 	if err != nil {
 		l.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
@@ -188,7 +191,31 @@ func SyncRepo(c *gin.Context) {
 
 	// install_id was synced
 	if r.GetInstallID() != installID {
-		_, err := database.FromContext(c).UpdateRepo(ctx, r)
+		_, err := database.FromContext(c).GetInstallation(ctx, r.GetOrg())
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				newInstall := new(types.Installation)
+				newInstall.SetInstallID(r.GetInstallID())
+				newInstall.SetTarget(r.GetOrg())
+
+				_, err = database.FromContext(c).CreateInstallation(ctx, newInstall)
+				if err != nil {
+					retErr := fmt.Errorf("unable to create installation for org %s: %w", o, err)
+
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+			} else {
+				retErr := fmt.Errorf("unable to retrieve installation for org %s: %w", o, err)
+
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+		}
+
+		_, err = database.FromContext(c).UpdateRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to update repo %s during repair: %w", r.GetFullName(), err)
 

@@ -302,6 +302,13 @@ func APIDashboardRepo() *api.DashboardRepo {
 	}
 }
 
+func APIInstallation() *api.Installation {
+	return &api.Installation{
+		InstallID: new(int64),
+		Target:    new(string),
+	}
+}
+
 func JWK() jwk.RSAPublicKey {
 	privateRSAKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

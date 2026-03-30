@@ -218,7 +218,7 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat")
+	got, err := client.RepoAccess(context.TODO(), u, "github", "octocat")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("RepoAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -248,7 +248,7 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(context.TODO(), "foo", u.GetToken(), "github", "octocat")
+	got, err := client.RepoAccess(context.TODO(), u, "github", "octocat")
 	if err == nil {
 		t.Errorf("RepoAccess should have returned err")
 	}
@@ -432,11 +432,6 @@ func TestGithub_RepoContributor(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	// setup types
-	u := new(api.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
 	tests := []struct {
 		name    string
 		sender  string
@@ -472,7 +467,7 @@ func TestGithub_RepoContributor(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := client.RepoContributor(context.TODO(), u, tt.sender, tt.org, tt.repo)
+			got, err := client.RepoContributor(context.TODO(), "foo", tt.sender, tt.org, tt.repo)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RepoContributor() error = %v, wantErr %v", err, tt.wantErr)

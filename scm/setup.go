@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/server/tracing"
 )
@@ -44,8 +45,6 @@ type Setup struct {
 	StatusContext string
 	// specifies the Vela web UI address to use for the scm client
 	WebUIAddress string
-	// specifies the OAuth scopes to use for the scm client
-	OAuthScopes []string
 	// specifies the repo role map to use for the scm client
 	RepoRoleMap map[string]string
 	// specifies the org role map to use for the scm client
@@ -54,6 +53,8 @@ type Setup struct {
 	TeamRoleMap map[string]string
 	// specifies OTel tracing configurations
 	Tracing *tracing.Client
+	// specifies the database interface to use for the scm client
+	Database database.Interface
 }
 
 // Github creates and returns a Vela service capable of
@@ -73,7 +74,6 @@ func (s *Setup) Github(ctx context.Context) (Service, error) {
 		github.WithServerWebhookAddress(s.ServerWebhookAddress),
 		github.WithStatusContext(s.StatusContext),
 		github.WithWebUIAddress(s.WebUIAddress),
-		github.WithOAuthScopes(s.OAuthScopes),
 		github.WithTracing(s.Tracing),
 		github.WithGithubAppID(s.AppID),
 		github.WithGithubPrivateKey(s.AppPrivateKey),
@@ -82,6 +82,7 @@ func (s *Setup) Github(ctx context.Context) (Service, error) {
 		github.WithRepoRoleMap(s.RepoRoleMap),
 		github.WithOrgRoleMap(s.OrgRoleMap),
 		github.WithTeamRoleMap(s.TeamRoleMap),
+		github.WithDatabase(s.Database),
 	)
 }
 
@@ -131,10 +132,6 @@ func (s *Setup) Validate() error {
 	// verify a scm status context secret was provided
 	if len(s.StatusContext) == 0 {
 		return fmt.Errorf("no scm status context provided")
-	}
-
-	if len(s.OAuthScopes) == 0 {
-		return fmt.Errorf("no scm scopes provided")
 	}
 
 	// setup is valid

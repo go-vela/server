@@ -7,10 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
-	"strings"
-
-	"github.com/google/go-github/v84/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/random"
@@ -21,7 +17,7 @@ func (c *Client) Authorize(ctx context.Context, token string) (string, error) {
 	c.Logger.Trace("authorizing user with token")
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client := c.newUserOAuthTokenClient(ctx, &api.User{Token: &token})
 
 	// send API call to capture the current user making the call
 	u, _, err := client.Users.Get(ctx, "")
@@ -89,9 +85,13 @@ func (c *Client) Authenticate(ctx context.Context, _ http.ResponseWriter, r *htt
 		return nil, err
 	}
 
+	exp := token.Expiry.Unix()
+
 	return &api.User{
-		Name:  &u,
-		Token: &token.AccessToken,
+		Name:              &u,
+		Token:             &token.AccessToken,
+		OAuthRefreshToken: &token.RefreshToken,
+		TokenExp:          &exp,
 	}, nil
 }
 
@@ -105,16 +105,6 @@ func (c *Client) AuthenticateToken(ctx context.Context, r *http.Request) (*api.U
 		return nil, errors.New("no token provided")
 	}
 
-	// validate that the token was not created by vela
-	ok, err := c.ValidateOAuthToken(ctx, token)
-	if err != nil {
-		return nil, fmt.Errorf("unable to validate oauth token: %w", err)
-	}
-
-	if ok {
-		return nil, errors.New("token must not be created by vela")
-	}
-
 	u, err := c.Authorize(ctx, token)
 	if err != nil {
 		return nil, err
@@ -124,52 +114,4 @@ func (c *Client) AuthenticateToken(ctx context.Context, r *http.Request) (*api.U
 		Name:  &u,
 		Token: &token,
 	}, nil
-}
-
-// ValidateOAuthToken takes a user oauth integration token and
-// validates that it was created by the Vela OAuth app.
-// In essence, the function expects either a 200 or 404 from the GitHub API and returns
-// error in any other failure case.
-func (c *Client) ValidateOAuthToken(ctx context.Context, token string) (bool, error) {
-	// create http client to connect to GitHub API
-	transport := github.BasicAuthTransport{
-		Username: c.config.ClientID,
-		Password: c.config.ClientSecret,
-	}
-	// create client to connect to GitHub API
-	client := github.NewClient(transport.Client())
-	// check if github url was set
-	if c.config.Address != "" && c.config.Address != "https://github.com" {
-		// check if address has trailing slash
-		if !strings.HasSuffix(c.config.Address, "/") {
-			// add trailing slash
-			c.config.Address = c.config.Address + "/api/v3/"
-		}
-		// parse the provided url into url type
-		enterpriseURL, err := url.Parse(c.config.Address)
-		if err != nil {
-			return false, err
-		}
-		// set the base and upload url
-		client.BaseURL = enterpriseURL
-		client.UploadURL = enterpriseURL
-	}
-	// check if the provided token was created by Vela
-	_, resp, err := client.Authorizations.Check(ctx, c.config.ClientID, token)
-	// check if the error is of type ErrorResponse
-	var gerr *github.ErrorResponse
-	if errors.As(err, &gerr) {
-		// check the status code
-		switch gerr.Response.StatusCode {
-		// 404 is expected when non vela token is used
-		case http.StatusNotFound:
-			break
-		default:
-			return false, err
-		}
-	} else if err != nil {
-		return false, err
-	}
-
-	return resp.StatusCode == http.StatusOK, nil
 }
