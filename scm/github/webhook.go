@@ -210,6 +210,14 @@ func (c *Client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 		}
 	}
 
+	var files []string
+
+	if payload.GetHeadCommit() != nil {
+		files = append(files, payload.GetHeadCommit().Added...)
+		files = append(files, payload.GetHeadCommit().Removed...)
+		files = append(files, payload.GetHeadCommit().Modified...)
+	}
+
 	// handle when push event is a delete
 	if strings.EqualFold(b.GetCommit(), "") {
 		b.SetCommit(payload.GetBefore())
@@ -242,6 +250,7 @@ func (c *Client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 		Hook:  h,
 		Repo:  r,
 		Build: b,
+		Files: files,
 	}, nil
 }
 

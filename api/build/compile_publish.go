@@ -34,6 +34,7 @@ type CompileAndPublishConfig struct {
 	Source     string
 	Comment    string
 	Labels     []string
+	Files      []string
 	Retries    int
 }
 
@@ -156,15 +157,35 @@ func CompileAndPublish(
 	b.SetRuntime("")
 	b.SetDistribution("")
 
-	// variable to store changeset files
-	var files []string
+	var compileToken string
 
-	// check if the build event is not issue_comment or pull_request
-	if !strings.EqualFold(b.GetEvent(), constants.EventComment) &&
-		!strings.EqualFold(b.GetEvent(), constants.EventPull) &&
-		!strings.EqualFold(b.GetEvent(), constants.EventDelete) {
-		// send API call to capture list of files changed for the commit
-		files, err = scm.Changeset(ctx, r, b.GetCommit())
+	// if this is an app repo, generate an installation token to capture the changeset
+	if r.GetInstallID() != 0 {
+		compileToken, err = cache.GetPermissionToken(ctx, b.GetRepo().GetInstallID())
+		if err != nil {
+			return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to retrieve permission token from cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
+		}
+
+		if compileToken == "" {
+			compileToken, err = scm.GeneratePermissionToken(ctx, b.GetRepo().GetInstallID())
+			if err != nil {
+				return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to generate permission token for installation %d: %w", b.GetRepo().GetInstallID(), err)
+			}
+
+			err = cache.StorePermissionToken(ctx, b.GetRepo().GetInstallID(), compileToken)
+			if err != nil {
+				return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to store permission token in cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
+			}
+		}
+	}
+
+	// variable to store changeset files
+	files := cfg.Files
+
+	// fetch changeset for deploy and schedule events and push/tag events that are not from webhooks
+	if b.GetEvent() == constants.EventDeploy || b.GetEvent() == constants.EventSchedule ||
+		(cfg.Source != "webhook" && (b.GetEvent() == constants.EventPush || b.GetEvent() == constants.EventTag)) {
+		files, err = scm.Changeset(ctx, compileToken, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -172,10 +193,9 @@ func CompileAndPublish(
 		}
 	}
 
-	// check if the build event is a pull_request
+	// fetch changeset for PR events
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) && prNum > 0 {
-		// send API call to capture list of files changed for the pull request
-		files, err = scm.ChangesetPR(ctx, r, prNum)
+		files, err = scm.ChangesetPR(ctx, compileToken, r, prNum)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -246,6 +266,7 @@ func CompileAndPublish(
 			WithSCM(scm).
 			WithDatabase(database).
 			WithCache(cache).
+			WithToken(compileToken).
 			Compile(ctx, pipelineFile)
 		if err != nil {
 			// format the error message with extra information

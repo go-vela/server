@@ -243,6 +243,15 @@ func (c *Client) WithLabels(labels []string) compiler.Engine {
 	return c
 }
 
+// WithToken sets the token in the Engine.
+func (c *Client) WithToken(token string) compiler.Engine {
+	if token != "" {
+		c.token = token
+	}
+
+	return c
+}
+
 // WithSCM sets the scm in the Engine.
 func (c *Client) WithSCM(_scm scm.Service) compiler.Engine {
 	c.scm = _scm

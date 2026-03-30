@@ -13,15 +13,19 @@ import (
 )
 
 // Changeset captures the list of files changed for a commit.
-func (c *Client) Changeset(ctx context.Context, r *api.Repo, sha string) ([]string, error) {
+func (c *Client) Changeset(ctx context.Context, token string, r *api.Repo, sha string) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 		"user": r.GetOwner().GetName(),
 	}).Tracef("capturing commit changeset for %s/commit/%s", r.GetFullName(), sha)
 
+	if token == "" {
+		token = r.GetOwner().GetToken()
+	}
+
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, r.GetOwner().GetToken())
+	client := c.newOAuthTokenClient(ctx, token)
 	s := []string{}
 
 	// set the max per page for the options to capture the commit
@@ -42,15 +46,19 @@ func (c *Client) Changeset(ctx context.Context, r *api.Repo, sha string) ([]stri
 }
 
 // ChangesetPR captures the list of files changed for a pull request.
-func (c *Client) ChangesetPR(ctx context.Context, r *api.Repo, number int) ([]string, error) {
+func (c *Client) ChangesetPR(ctx context.Context, token string, r *api.Repo, number int) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 		"user": r.GetOwner().GetName(),
 	}).Tracef("capturing pull request changeset for %s/pull/%d", r.GetFullName(), number)
 
+	if token == "" {
+		token = r.GetOwner().GetToken()
+	}
+
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, r.GetOwner().GetToken())
+	client := c.newOAuthTokenClient(ctx, token)
 	s := []string{}
 	f := []*github.CommitFile{}
 

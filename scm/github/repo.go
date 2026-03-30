@@ -693,8 +693,9 @@ func (c *Client) GeneratePermissionToken(ctx context.Context, installID int64) (
 	if c.AppClient != nil && installID != 0 {
 		opts := &github.InstallationTokenOptions{
 			Permissions: &github.InstallationPermissions{
-				Metadata: new("read"),
-				Contents: new("read"),
+				Metadata:     new("read"),
+				Contents:     new("read"),
+				PullRequests: new("read"),
 			},
 		}
 		// create installation token for the repo

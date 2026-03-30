@@ -475,6 +475,7 @@ func PostWebhook(c *gin.Context) {
 		Source:     "webhook",
 		Comment:    prComment,
 		Labels:     prLabels,
+		Files:      webhook.Files,
 		Retries:    3,
 	}
 

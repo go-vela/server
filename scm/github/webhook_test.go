@@ -86,6 +86,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 		Hook:  wantHook,
 		Repo:  wantRepo,
 		Build: wantBuild,
+		Files: []string{"README.md"},
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -165,6 +166,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 		Hook:  wantHook,
 		Repo:  wantRepo,
 		Build: wantBuild,
+		Files: []string{"README.md"},
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)

@@ -81,12 +81,12 @@ type Service interface {
 	// of files changed for a commit.
 	//
 	// https://en.wikipedia.org/wiki/Changeset.
-	Changeset(context.Context, *api.Repo, string) ([]string, error)
+	Changeset(context.Context, string, *api.Repo, string) ([]string, error)
 	// ChangesetPR defines a function that captures the list
 	// of files changed for a pull request.
 	//
 	// https://en.wikipedia.org/wiki/Changeset.
-	ChangesetPR(context.Context, *api.Repo, int) ([]string, error)
+	ChangesetPR(context.Context, string, *api.Repo, int) ([]string, error)
 
 	// Deployment SCM Interface Functions
 
@@ -186,6 +186,8 @@ type Service interface {
 	GenerateStatusToken(ctx context.Context, build *api.Build) string
 	// GeneratePermissionToken defines a function that generates a token for retrieving permissions from the SCM provider.
 	GeneratePermissionToken(ctx context.Context, installID int64) (string, error)
+	// InstallRateLimit defines a function that captures the SCM app rate limit for a given installation.
+	InstallRateLimit(ctx context.Context, token string, installID int64) (int, int, int64, error)
 
 	// GetSettings defines a function that returns
 	// scm settings.

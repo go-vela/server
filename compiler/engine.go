@@ -147,6 +147,9 @@ type Engine interface {
 	// WithLabel defines a function that sets
 	// the label(s) in the Engine.
 	WithLabels([]string) Engine
+	// WithToken defines a function that sets
+	// the token in the Engine.
+	WithToken(string) Engine
 	// WithSCM defines a function that sets
 	// the scm in the Engine.
 	WithSCM(scm.Service) Engine
