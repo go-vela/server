@@ -37,6 +37,14 @@ func TestTypes_Compiler_Getters(t *testing.T) {
 		if !reflect.DeepEqual(test.compiler.GetStarlarkExecLimit(), test.want.GetStarlarkExecLimit()) {
 			t.Errorf("GetStarlarkExecLimit is %v, want %v", test.compiler.GetStarlarkExecLimit(), test.want.GetStarlarkExecLimit())
 		}
+
+		if !reflect.DeepEqual(test.compiler.GetBlockedImages(), test.want.GetBlockedImages()) {
+			t.Errorf("GetBlockedImages is %v, want %v", test.compiler.GetBlockedImages(), test.want.GetBlockedImages())
+		}
+
+		if !reflect.DeepEqual(test.compiler.GetWarnImages(), test.want.GetWarnImages()) {
+			t.Errorf("GetWarnImages is %v, want %v", test.compiler.GetWarnImages(), test.want.GetWarnImages())
+		}
 	}
 }
 
@@ -78,6 +86,18 @@ func TestTypes_Compiler_Setters(t *testing.T) {
 		if !reflect.DeepEqual(test.compiler.GetStarlarkExecLimit(), test.want.GetStarlarkExecLimit()) {
 			t.Errorf("SetStarlarkExecLimit is %v, want %v", test.compiler.GetStarlarkExecLimit(), test.want.GetStarlarkExecLimit())
 		}
+
+		test.compiler.SetBlockedImages(test.want.GetBlockedImages())
+
+		if !reflect.DeepEqual(test.compiler.GetBlockedImages(), test.want.GetBlockedImages()) {
+			t.Errorf("SetBlockedImages is %v, want %v", test.compiler.GetBlockedImages(), test.want.GetBlockedImages())
+		}
+
+		test.compiler.SetWarnImages(test.want.GetWarnImages())
+
+		if !reflect.DeepEqual(test.compiler.GetWarnImages(), test.want.GetWarnImages()) {
+			t.Errorf("SetWarnImages is %v, want %v", test.compiler.GetWarnImages(), test.want.GetWarnImages())
+		}
 	}
 }
 
@@ -89,10 +109,14 @@ func TestTypes_Compiler_String(t *testing.T) {
   CloneImage: %s,
   TemplateDepth: %d,
   StarlarkExecLimit: %d,
+  BlockedImages: %v,
+  WarnImages: %v,
 }`,
 		cs.GetCloneImage(),
 		cs.GetTemplateDepth(),
 		cs.GetStarlarkExecLimit(),
+		cs.GetBlockedImages(),
+		cs.GetWarnImages(),
 	)
 
 	// run test
@@ -111,6 +135,17 @@ func testCompilerSettings() *Compiler {
 	cs.SetCloneImage("target/vela-git-slim:latest")
 	cs.SetTemplateDepth(1)
 	cs.SetStarlarkExecLimit(100)
+	cs.SetBlockedImages([]ImageRestriction{
+		{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is blocked")},
+	})
+	cs.SetWarnImages([]ImageRestriction{
+		{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
+	})
 
 	return cs
+}
+
+//go:fix inline
+func stringPtr(s string) *string {
+	return new(s)
 }

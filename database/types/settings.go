@@ -44,9 +44,11 @@ type (
 
 	// Compiler is the database representation of compiler settings.
 	Compiler struct {
-		CloneImage        sql.NullString `json:"clone_image"         sql:"clone_image"`
-		TemplateDepth     sql.NullInt64  `json:"template_depth"      sql:"template_depth"`
-		StarlarkExecLimit sql.NullInt64  `json:"starlark_exec_limit" sql:"starlark_exec_limit"`
+		CloneImage        sql.NullString              `json:"clone_image"         sql:"clone_image"`
+		TemplateDepth     sql.NullInt64               `json:"template_depth"      sql:"template_depth"`
+		StarlarkExecLimit sql.NullInt64               `json:"starlark_exec_limit" sql:"starlark_exec_limit"`
+		BlockedImages     []settings.ImageRestriction `json:"blocked_images,omitempty" sql:"blocked_images"`
+		WarnImages        []settings.ImageRestriction `json:"warn_images,omitempty"    sql:"warn_images"`
 	}
 
 	// Queue is the database representation of queue settings.
@@ -179,6 +181,14 @@ func (ps *Platform) ToAPI() *settings.Platform {
 	psAPI.SetTemplateDepth(int(ps.TemplateDepth.Int64))
 	psAPI.SetStarlarkExecLimit(ps.StarlarkExecLimit.Int64)
 
+	if len(ps.BlockedImages) > 0 {
+		psAPI.SetBlockedImages(ps.BlockedImages)
+	}
+
+	if len(ps.WarnImages) > 0 {
+		psAPI.SetWarnImages(ps.WarnImages)
+	}
+
 	psAPI.Queue = new(settings.Queue)
 	psAPI.SetRoutes(ps.Routes)
 
@@ -262,6 +272,8 @@ func SettingsFromAPI(s *settings.Platform) *Platform {
 			CloneImage:        sql.NullString{String: s.GetCloneImage(), Valid: true},
 			TemplateDepth:     sql.NullInt64{Int64: int64(s.GetTemplateDepth()), Valid: true},
 			StarlarkExecLimit: sql.NullInt64{Int64: s.GetStarlarkExecLimit(), Valid: true},
+			BlockedImages:     s.GetBlockedImages(),
+			WarnImages:        s.GetWarnImages(),
 		},
 		Queue: Queue{
 			Routes: pq.StringArray(s.GetRoutes()),

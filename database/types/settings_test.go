@@ -66,6 +66,12 @@ func TestTypes_Platform_ToAPI(t *testing.T) {
 	want.SetCloneImage("target/vela-git-slim:latest")
 	want.SetTemplateDepth(10)
 	want.SetStarlarkExecLimit(100)
+	want.SetBlockedImages([]api.ImageRestriction{
+		{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is blocked")},
+	})
+	want.SetWarnImages([]api.ImageRestriction{
+		{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
+	})
 
 	want.Queue = new(api.Queue)
 	want.SetRoutes([]string{"vela"})
@@ -210,6 +216,12 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 	s.SetCloneImage("target/vela-git-slim:latest")
 	s.SetTemplateDepth(10)
 	s.SetStarlarkExecLimit(100)
+	s.SetBlockedImages([]api.ImageRestriction{
+		{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is blocked")},
+	})
+	s.SetWarnImages([]api.ImageRestriction{
+		{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
+	})
 
 	s.Queue = new(api.Queue)
 	s.SetRoutes([]string{"vela"})
@@ -246,6 +258,12 @@ func testPlatform() *Platform {
 			CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
 			TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
 			StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
+			BlockedImages: []api.ImageRestriction{
+				{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is blocked")},
+			},
+			WarnImages: []api.ImageRestriction{
+				{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
+			},
 		},
 		Queue: Queue{
 			Routes: []string{"vela"},
@@ -274,4 +292,9 @@ func testPlatform() *Platform {
 		UpdatedAt:           sql.NullInt64{Int64: 0, Valid: true},
 		UpdatedBy:           sql.NullString{String: "", Valid: true},
 	}
+}
+
+//go:fix inline
+func stringPtr(s string) *string {
+	return new(s)
 }
