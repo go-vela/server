@@ -144,8 +144,3 @@ func testCompilerSettings() *Compiler {
 
 	return cs
 }
-
-//go:fix inline
-func stringPtr(s string) *string {
-	return new(s)
-}

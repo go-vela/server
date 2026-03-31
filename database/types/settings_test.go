@@ -293,8 +293,3 @@ func testPlatform() *Platform {
 		UpdatedBy:           sql.NullString{String: "", Valid: true},
 	}
 }
-
-//go:fix inline
-func stringPtr(s string) *string {
-	return new(s)
-}

@@ -44,9 +44,9 @@ type (
 
 	// Compiler is the database representation of compiler settings.
 	Compiler struct {
-		CloneImage        sql.NullString              `json:"clone_image"         sql:"clone_image"`
-		TemplateDepth     sql.NullInt64               `json:"template_depth"      sql:"template_depth"`
-		StarlarkExecLimit sql.NullInt64               `json:"starlark_exec_limit" sql:"starlark_exec_limit"`
+		CloneImage        sql.NullString              `json:"clone_image"              sql:"clone_image"`
+		TemplateDepth     sql.NullInt64               `json:"template_depth"           sql:"template_depth"`
+		StarlarkExecLimit sql.NullInt64               `json:"starlark_exec_limit"      sql:"starlark_exec_limit"`
 		BlockedImages     []settings.ImageRestriction `json:"blocked_images,omitempty" sql:"blocked_images"`
 		WarnImages        []settings.ImageRestriction `json:"warn_images,omitempty"    sql:"warn_images"`
 	}
