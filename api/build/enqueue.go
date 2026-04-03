@@ -111,5 +111,10 @@ func ShouldEnqueue(c *gin.Context, l *logrus.Entry, b *types.Build, r *types.Rep
 		}
 	}
 
+	// check if repo has deploy approval enabled
+	if b.GetEvent() == constants.EventDeploy && r.GetApproveDeploy() {
+		return false, nil
+	}
+
 	return true, nil
 }

@@ -169,6 +169,11 @@ func UpdateRepo(c *gin.Context) {
 		r.SetActive(input.GetActive())
 	}
 
+	if input.ApproveDeploy != nil {
+		// update approve deploy if set
+		r.SetApproveDeploy(input.GetApproveDeploy())
+	}
+
 	// set allow events based on input if given
 	if input.AllowEvents != nil {
 		r.SetAllowEvents(input.GetAllowEvents())

@@ -72,6 +72,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetApprovalTimeout(7)
 	want.SetInstallID(0)
 	want.SetCustomProps(map[string]any{"foo": "bar"})
+	want.SetApproveDeploy(false)
 
 	got := new(api.Repo)
 

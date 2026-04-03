@@ -2862,6 +2862,7 @@ func newResources() *Resources {
 	repoOne.SetApprovalTimeout(7)
 	repoOne.SetInstallID(0)
 	repoOne.SetCustomProps(map[string]any{"foo": "bar"})
+	repoOne.SetApproveDeploy(false)
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
@@ -2890,6 +2891,7 @@ func newResources() *Resources {
 	repoTwo.SetApprovalTimeout(7)
 	repoTwo.SetInstallID(0)
 	repoTwo.SetCustomProps(map[string]any{"foo": "bar"})
+	repoTwo.SetApproveDeploy(false)
 
 	buildOne := new(api.Build)
 	buildOne.SetID(1)

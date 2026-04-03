@@ -76,6 +76,7 @@ type (
 		ApprovalTimeout  sql.NullInt32   `sql:"approval_timeout"`
 		InstallID        sql.NullInt64   `sql:"install_id"`
 		CustomProps      CustomPropsJSON `sql:"custom_props"`
+		ApproveDeploy    sql.NullBool    `sql:"approve_deploy"`
 
 		Owner User `gorm:"foreignKey:UserID"`
 	}
@@ -199,6 +200,7 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetApprovalTimeout(r.ApprovalTimeout.Int32)
 	repo.SetInstallID(r.InstallID.Int64)
 	repo.SetCustomProps(r.CustomProps)
+	repo.SetApproveDeploy(r.ApproveDeploy.Bool)
 
 	return repo
 }
@@ -293,6 +295,7 @@ func RepoFromAPI(r *api.Repo) *Repo {
 		ApproveBuild:    sql.NullString{String: r.GetApproveBuild(), Valid: r.ApproveBuild != nil},
 		ApprovalTimeout: sql.NullInt32{Int32: r.GetApprovalTimeout(), Valid: r.ApprovalTimeout != nil},
 		InstallID:       sql.NullInt64{Int64: r.GetInstallID(), Valid: r.InstallID != nil},
+		ApproveDeploy:   sql.NullBool{Bool: r.GetApproveDeploy(), Valid: r.ApproveDeploy != nil},
 	}
 
 	if r.Topics != nil {

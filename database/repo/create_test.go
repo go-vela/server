@@ -40,9 +40,9 @@ func TestRepo_Engine_CreateRepo(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "repos"
-("user_id","hash","org","name","full_name","link","clone","branch","topics","build_limit","timeout","counter","hook_counter","visibility","private","trusted","active","allow_events","merge_queue_events","pipeline_type","previous_name","approve_build","approval_timeout","install_id","custom_props","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26) RETURNING "id"`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", "", "", "", AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 0, nil, "yaml", "oldName", "", 0, 0, `{"foo":"bar"}`, 1).
+("user_id","hash","org","name","full_name","link","clone","branch","topics","build_limit","timeout","counter","hook_counter","visibility","private","trusted","active","allow_events","merge_queue_events","pipeline_type","previous_name","approve_build","approval_timeout","install_id","custom_props","approve_deploy","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27) RETURNING "id"`).
+		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", "", "", "", AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 0, nil, "yaml", "oldName", "", 0, 0, `{"foo":"bar"}`, false, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

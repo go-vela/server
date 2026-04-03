@@ -31,6 +31,7 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 	_repo.SetApprovalTimeout(5)
 	_repo.SetCustomProps(map[string]any{"foo": "bar"})
+	_repo.SetApproveDeploy(false)
 
 	_postgres, _mock := testPostgres(t)
 
@@ -38,9 +39,9 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "repos"
-SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"hook_counter"=$13,"visibility"=$14,"private"=$15,"trusted"=$16,"active"=$17,"allow_events"=$18,"merge_queue_events"=$19,"pipeline_type"=$20,"previous_name"=$21,"approve_build"=$22,"approval_timeout"=$23,"install_id"=$24,"custom_props"=$25
-WHERE "id" = $26`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", "", "", "", AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 1, nil, "yaml", "oldName", constants.ApproveForkAlways, 5, 0, `{"foo":"bar"}`, 1).
+SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"hook_counter"=$13,"visibility"=$14,"private"=$15,"trusted"=$16,"active"=$17,"allow_events"=$18,"merge_queue_events"=$19,"pipeline_type"=$20,"previous_name"=$21,"approve_build"=$22,"approval_timeout"=$23,"install_id"=$24,"custom_props"=$25,"approve_deploy"=$26
+WHERE "id" = $27`).
+		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", "", "", "", AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 1, nil, "yaml", "oldName", constants.ApproveForkAlways, 5, 0, `{"foo":"bar"}`, false, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
