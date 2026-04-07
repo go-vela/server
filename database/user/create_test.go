@@ -18,6 +18,8 @@ func TestUser_Engine_CreateUser(t *testing.T) {
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")
+	_user.SetOAuthRefreshToken("baz")
+	_user.SetTokenExp(1)
 
 	_postgres, _mock := testPostgres(t)
 
@@ -28,9 +30,9 @@ func TestUser_Engine_CreateUser(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "users"
-("name","refresh_token","token","favorites","active","admin","dashboards","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
-		WithArgs("foo", AnyArgument{}, AnyArgument{}, nil, false, false, AnyArgument{}, 1).
+("name","refresh_token","token","token_exp","oauth_refresh_token","favorites","active","admin","dashboards","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
+		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, nil, false, false, AnyArgument{}, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

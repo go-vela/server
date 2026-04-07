@@ -19,12 +19,16 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	_userOne.SetID(1)
 	_userOne.SetName("foo")
 	_userOne.SetToken("bar")
+	_userOne.SetOAuthRefreshToken("baz")
+	_userOne.SetTokenExp(1)
 	_userOne.SetFavorites([]string{})
 	_userOne.SetDashboards([]string{})
 
 	_userTwo := testutils.APIUser()
 	_userTwo.SetID(2)
 	_userTwo.SetName("baz")
+	_userTwo.SetOAuthRefreshToken("qux")
+	_userTwo.SetTokenExp(2)
 	_userTwo.SetToken("bar")
 	_userTwo.SetFavorites([]string{})
 	_userTwo.SetDashboards([]string{})
@@ -59,11 +63,15 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	// empty fields not returned by query
 	_userOne.RefreshToken = new(string)
 	_userOne.Token = new(string)
+	_userOne.TokenExp = new(int64)
+	_userOne.OAuthRefreshToken = new(string)
 	_userOne.Favorites = new([]string)
 	_userOne.Dashboards = new([]string)
 
 	_userTwo.RefreshToken = new(string)
 	_userTwo.Token = new(string)
+	_userTwo.TokenExp = new(int64)
+	_userTwo.OAuthRefreshToken = new(string)
 	_userTwo.Favorites = new([]string)
 	_userTwo.Dashboards = new([]string)
 

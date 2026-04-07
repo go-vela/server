@@ -17,6 +17,8 @@ func TestUser_Engine_DeleteUser(t *testing.T) {
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")
+	_user.SetOAuthRefreshToken("baz")
+	_user.SetTokenExp(1)
 
 	_postgres, _mock := testPostgres(t)
 

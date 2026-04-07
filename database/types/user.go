@@ -32,6 +32,10 @@ var (
 	// User type has an empty Token field provided.
 	ErrEmptyUserToken = errors.New("empty user token provided")
 
+	// ErrEmptyUserTokenExp defines the error type when a
+	// User type has an empty TokenExp field provided.
+	ErrEmptyUserTokenExp = errors.New("empty user token expiration provided")
+
 	// ErrInvalidUserName defines the error type when a
 	// User type has an invalid Name field provided.
 	ErrInvalidUserName = errors.New("invalid user name provided")
@@ -245,7 +249,7 @@ func (u *User) Validate() error {
 	}
 
 	if u.TokenExp.Int64 == 0 {
-		return ErrEmptyUserToken
+		return ErrEmptyUserTokenExp
 	}
 
 	// verify the Name field is valid

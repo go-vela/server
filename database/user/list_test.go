@@ -18,6 +18,8 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 	_userOne.SetID(1)
 	_userOne.SetName("foo")
 	_userOne.SetToken("bar")
+	_userOne.SetOAuthRefreshToken("baz")
+	_userOne.SetTokenExp(1)
 	_userOne.SetFavorites([]string{})
 	_userOne.SetDashboards([]string{})
 
@@ -25,6 +27,8 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 	_userTwo.SetID(2)
 	_userTwo.SetName("baz")
 	_userTwo.SetToken("bar")
+	_userTwo.SetOAuthRefreshToken("qux")
+	_userTwo.SetTokenExp(2)
 	_userTwo.SetFavorites([]string{})
 	_userTwo.SetDashboards([]string{})
 

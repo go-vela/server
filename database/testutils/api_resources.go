@@ -138,14 +138,16 @@ func APIRepo() *api.Repo {
 
 func APIUser() *api.User {
 	return &api.User{
-		ID:           new(int64),
-		Name:         new(string),
-		RefreshToken: new(string),
-		Token:        new(string),
-		Favorites:    new([]string),
-		Dashboards:   new([]string),
-		Active:       new(bool),
-		Admin:        new(bool),
+		ID:                new(int64),
+		Name:              new(string),
+		RefreshToken:      new(string),
+		Token:             new(string),
+		TokenExp:          new(int64),
+		OAuthRefreshToken: new(string),
+		Favorites:         new([]string),
+		Dashboards:        new([]string),
+		Active:            new(bool),
+		Admin:             new(bool),
 	}
 }
 

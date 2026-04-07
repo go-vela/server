@@ -18,6 +18,8 @@ func TestUser_Engine_UpdateUser(t *testing.T) {
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")
+	_user.SetOAuthRefreshToken("baz")
+	_user.SetTokenExp(1)
 
 	_postgres, _mock := testPostgres(t)
 
@@ -25,9 +27,9 @@ func TestUser_Engine_UpdateUser(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "users"
-SET "name"=$1,"refresh_token"=$2,"token"=$3,"favorites"=$4,"active"=$5,"admin"=$6,"dashboards"=$7
-WHERE "id" = $8`).
-		WithArgs("foo", AnyArgument{}, AnyArgument{}, nil, false, false, nil, 1).
+SET "name"=$1,"refresh_token"=$2,"token"=$3,"token_exp"=$4,"oauth_refresh_token"=$5,"favorites"=$6,"active"=$7,"admin"=$8,"dashboards"=$9
+WHERE "id" = $10`).
+		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, nil, false, false, nil, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

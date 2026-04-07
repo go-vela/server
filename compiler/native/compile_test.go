@@ -230,8 +230,6 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
 
-	compiler.WithMetadata(m)
-
 	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
@@ -841,12 +839,18 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
+	compileRepo := new(api.Repo)
+	compileRepo.SetOrg("github")
+
+	compileBuild := new(api.Build)
+	compileBuild.SetRepo(compileRepo)
+
 	compiler, err := FromCLICommand(context.Background(), c)
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
 
-	compiler.WithMetadata(m)
+	compiler.WithMetadata(m).WithBuild(compileBuild).WithToken("foo")
 
 	got, _, err := compiler.Compile(context.Background(), yaml)
 	if err != nil {

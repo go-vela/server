@@ -28,10 +28,7 @@ func TestTypes_User_Crop(t *testing.T) {
 func TestTypes_User_Environment(t *testing.T) {
 	// setup types
 	want := map[string]string{
-		"VELA_USER_ACTIVE":    "true",
-		"VELA_USER_ADMIN":     "false",
-		"VELA_USER_FAVORITES": "[\"github/octocat\"]",
-		"VELA_USER_NAME":      "octocat",
+		"VELA_USER_NAME": "octocat",
 	}
 
 	// run test

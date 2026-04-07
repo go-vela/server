@@ -18,11 +18,15 @@ func TestUser_Engine_CountUsers(t *testing.T) {
 	_userOne.SetID(1)
 	_userOne.SetName("foo")
 	_userOne.SetToken("bar")
+	_userOne.SetOAuthRefreshToken("baz")
+	_userOne.SetTokenExp(1)
 
 	_userTwo := testutils.APIUser()
 	_userTwo.SetID(2)
 	_userTwo.SetName("baz")
 	_userTwo.SetToken("bar")
+	_userTwo.SetOAuthRefreshToken("qux")
+	_userTwo.SetTokenExp(2)
 
 	_postgres, _mock := testPostgres(t)
 
