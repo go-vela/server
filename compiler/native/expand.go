@@ -172,7 +172,7 @@ func (c *Client) ExpandSteps(ctx context.Context, s *yaml.Build, tmpls map[strin
 			// loop over secrets within base configuration
 			for _, sec := range secrets {
 				// check if the template secret and base secret name match
-				if sec.Name == secret.Name {
+				if len(secret.Name) > 0 && sec.Name == secret.Name {
 					found = true
 				}
 
