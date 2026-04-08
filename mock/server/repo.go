@@ -66,7 +66,8 @@ const (
   "install_id": 0,
   "custom_props": {
 	"foo": "bar"
-  }
+  },
+  "approve_deploy": false
 }`
 
 	// ReposResp represents a JSON return for one to many repos.

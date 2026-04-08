@@ -123,6 +123,11 @@ func CreateRepo(c *gin.Context) {
 		r.SetActive(input.GetActive())
 	}
 
+	// set approve deploy based on input (false by default)
+	if input.ApproveDeploy != nil {
+		r.SetApproveDeploy(input.GetApproveDeploy())
+	}
+
 	// set the build limit field based off the input provided
 	if input.GetBuildLimit() == 0 {
 		// default build limit to value configured by server

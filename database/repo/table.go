@@ -40,6 +40,7 @@ repos (
 	approval_timeout   INTEGER,
 	install_id         BIGINT,
 	custom_props       JSON DEFAULT NULL,
+	approve_deploy     BOOLEAN,
 	UNIQUE(full_name)
 );
 `
@@ -75,6 +76,7 @@ repos (
 	approval_timeout   INTEGER,
 	install_id         INTEGER,
 	custom_props       TEXT,
+	approve_deploy     BOOLEAN,
 	UNIQUE(full_name)
 );
 `

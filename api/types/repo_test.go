@@ -35,6 +35,7 @@ func TestTypes_Repo_Environment(t *testing.T) {
 		"VELA_REPO_OWNER":            "octocat",
 		"VELA_REPO_INSTALL_ID":       "123",
 		"VELA_REPO_CUSTOM_PROPS":     `{"foo":"bar"}`,
+		"VELA_REPO_APPROVE_DEPLOY":   "false",
 		"REPOSITORY_ACTIVE":          "true",
 		"REPOSITORY_ALLOW_EVENTS":    "push,pull_request:opened,pull_request:synchronize,pull_request:reopened,pull_request:unlabeled,tag,comment:created,schedule,delete:branch",
 		"REPOSITORY_BRANCH":          "main",
@@ -170,6 +171,10 @@ func TestTypes_Repo_Getters(t *testing.T) {
 		if !reflect.DeepEqual(test.repo.GetCustomProps(), test.want.GetCustomProps()) {
 			t.Errorf("GetCustomProps is %v, want %v", test.repo.GetCustomProps(), test.want.GetCustomProps())
 		}
+
+		if test.repo.GetApproveDeploy() != test.want.GetApproveDeploy() {
+			t.Errorf("GetApproveDeploy is %v, want %v", test.repo.GetApproveDeploy(), test.want.GetApproveDeploy())
+		}
 	}
 }
 
@@ -219,6 +224,7 @@ func TestTypes_Repo_Setters(t *testing.T) {
 		test.repo.SetApprovalTimeout(test.want.GetApprovalTimeout())
 		test.repo.SetInstallID(test.want.GetInstallID())
 		test.repo.SetCustomProps(test.want.GetCustomProps())
+		test.repo.SetApproveDeploy(test.want.GetApproveDeploy())
 
 		if test.repo.GetID() != test.want.GetID() {
 			t.Errorf("SetID is %v, want %v", test.repo.GetID(), test.want.GetID())
@@ -315,6 +321,10 @@ func TestTypes_Repo_Setters(t *testing.T) {
 		if !reflect.DeepEqual(test.repo.GetCustomProps(), test.want.GetCustomProps()) {
 			t.Errorf("SetCustomProps is %v, want %v", test.repo.GetCustomProps(), test.want.GetCustomProps())
 		}
+
+		if test.repo.GetApproveDeploy() != test.want.GetApproveDeploy() {
+			t.Errorf("SetApproveDeploy is %v, want %v", test.repo.GetApproveDeploy(), test.want.GetApproveDeploy())
+		}
 	}
 }
 
@@ -327,6 +337,7 @@ func TestTypes_Repo_String(t *testing.T) {
   AllowEvents: %s,
   ApprovalTimeout: %d,
   ApproveBuild: %s,
+  ApproveDeploy: %t,
   Branch: %s,
   BuildLimit: %d,
   Clone: %s,
@@ -353,6 +364,7 @@ func TestTypes_Repo_String(t *testing.T) {
 		r.GetAllowEvents().List(),
 		r.GetApprovalTimeout(),
 		r.GetApproveBuild(),
+		r.GetApproveDeploy(),
 		r.GetBranch(),
 		r.GetBuildLimit(),
 		r.GetClone(),
@@ -416,6 +428,7 @@ func testRepo() *Repo {
 	r.SetApprovalTimeout(7)
 	r.SetInstallID(123)
 	r.SetCustomProps(map[string]any{"foo": "bar"})
+	r.SetApproveDeploy(false)
 
 	return r
 }

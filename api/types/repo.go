@@ -37,6 +37,7 @@ type Repo struct {
 	ApprovalTimeout  *int32          `json:"approval_timeout,omitempty"`
 	InstallID        *int64          `json:"install_id,omitempty"`
 	CustomProps      *map[string]any `json:"custom_props,omitempty"`
+	ApproveDeploy    *bool           `json:"approve_deploy,omitempty"`
 }
 
 // Environment returns a list of environment variables
@@ -63,7 +64,7 @@ func (r *Repo) Environment() map[string]string {
 		"VELA_REPO_OWNER":            ToString(r.GetOwner().GetName()),
 		"VELA_REPO_INSTALL_ID":       ToString(r.GetInstallID()),
 		"VELA_REPO_CUSTOM_PROPS":     ToString(r.GetCustomProps()),
-
+		"VELA_REPO_APPROVE_DEPLOY":   ToString(r.GetApproveDeploy()),
 		// deprecated environment variables
 		"REPOSITORY_ACTIVE":       ToString(r.GetActive()),
 		"REPOSITORY_ALLOW_EVENTS": strings.Join(r.GetAllowEvents().List()[:], ","),
@@ -418,6 +419,19 @@ func (r *Repo) GetCustomProps() map[string]any {
 	return *r.CustomProps
 }
 
+// GetApproveDeploy returns the ApproveDeploy field.
+//
+// When the provided Repo type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (r *Repo) GetApproveDeploy() bool {
+	// return zero value if Repo type or ApproveDeploy field is nil
+	if r == nil || r.ApproveDeploy == nil {
+		return false
+	}
+
+	return *r.ApproveDeploy
+}
+
 // SetID sets the ID field.
 //
 // When the provided Repo type is nil, it
@@ -756,6 +770,19 @@ func (r *Repo) SetCustomProps(v map[string]any) {
 	r.CustomProps = &v
 }
 
+// SetApproveDeploy sets the ApproveDeploy field.
+//
+// When the provided Repo type is nil, it
+// will set nothing and immediately return.
+func (r *Repo) SetApproveDeploy(v bool) {
+	// return if Repo type is nil
+	if r == nil {
+		return
+	}
+
+	r.ApproveDeploy = &v
+}
+
 // String implements the Stringer interface for the Repo type.
 func (r *Repo) String() string {
 	return fmt.Sprintf(`{
@@ -763,6 +790,7 @@ func (r *Repo) String() string {
   AllowEvents: %s,
   ApprovalTimeout: %d,
   ApproveBuild: %s,
+  ApproveDeploy: %t,
   Branch: %s,
   BuildLimit: %d,
   Clone: %s,
@@ -789,6 +817,7 @@ func (r *Repo) String() string {
 		r.GetAllowEvents().List(),
 		r.GetApprovalTimeout(),
 		r.GetApproveBuild(),
+		r.GetApproveDeploy(),
 		r.GetBranch(),
 		r.GetBuildLimit(),
 		r.GetClone(),

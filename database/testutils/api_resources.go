@@ -133,6 +133,7 @@ func APIRepo() *api.Repo {
 		ApprovalTimeout:  new(int32),
 		InstallID:        new(int64),
 		CustomProps:      new(map[string]any),
+		ApproveDeploy:    new(bool),
 	}
 }
 
