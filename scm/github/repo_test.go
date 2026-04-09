@@ -428,6 +428,7 @@ func TestGithub_Config_NoContinueOnNon404(t *testing.T) {
 			c.Status(http.StatusInternalServerError)
 		case ".vela.yaml":
 			calledYAML = true
+
 			c.Header("Content-Type", "application/json")
 			c.Status(http.StatusOK)
 			c.File("testdata/yaml.json")
@@ -452,7 +453,6 @@ func TestGithub_Config_NoContinueOnNon404(t *testing.T) {
 
 	// run test
 	got, err := client.Config(t.Context(), u, r, "")
-
 	if err == nil {
 		t.Error("Config should have returned err")
 	}
@@ -485,7 +485,6 @@ func TestGithub_Config_NilResponse(t *testing.T) {
 
 	// run test
 	got, err := client.Config(t.Context(), u, r, "")
-
 	if err == nil {
 		t.Error("Config should have returned err")
 	}
