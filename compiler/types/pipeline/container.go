@@ -357,6 +357,7 @@ func substituteValue(v reflect.Value, env map[string]string, path string) error 
 		if v.IsNil() {
 			return nil
 		}
+
 		return substituteValue(v.Elem(), env, path)
 
 	case reflect.String:
@@ -372,6 +373,7 @@ func substituteValue(v reflect.Value, env map[string]string, path string) error 
 		}
 
 		v.SetString(out)
+
 		return nil
 
 	case reflect.Struct:
@@ -388,6 +390,7 @@ func substituteValue(v reflect.Value, env map[string]string, path string) error 
 				return err
 			}
 		}
+
 		return nil
 
 	case reflect.Slice, reflect.Array:
@@ -396,6 +399,7 @@ func substituteValue(v reflect.Value, env map[string]string, path string) error 
 				return err
 			}
 		}
+
 		return nil
 
 	case reflect.Map:
@@ -416,6 +420,7 @@ func substituteValue(v reflect.Value, env map[string]string, path string) error 
 
 			v.SetMapIndex(key, cp)
 		}
+
 		return nil
 
 	default:
