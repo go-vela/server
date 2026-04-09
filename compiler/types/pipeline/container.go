@@ -5,7 +5,6 @@ package pipeline
 import (
 	"bytes"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
@@ -272,66 +271,6 @@ func (c *Container) Sanitize(driver string) *Container {
 	}
 }
 
-// Substitute replaces every reference (${VAR} or $${VAR}) to an
-// environment variable in the container configuration with the
-// corresponding value for that environment variable.
-func (c *Container) Substitute() error {
-	// check if container or container environment are nil
-	if c == nil || c.Environment == nil {
-		return errors.New("empty container environment provided")
-	}
-
-	// marshal container configuration
-	body, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
-
-	// create substitute function
-	subFunc := func(name string) string {
-		// capture the environment variable value
-		value := c.Environment[name]
-
-		// check for a new line in the value
-		if strings.Contains(value, "\n") {
-			// safely escape the environment variable
-			value = fmt.Sprintf("%q", value)
-		}
-
-		return value
-	}
-
-	// substitute the environment variables
-	//
-	// https://pkg.go.dev/github.com/drone/envsubst?tab=doc#Eval
-	ctn, err := envsubst.Eval(string(body), subFunc)
-	if err != nil {
-		return err
-	}
-
-	// unmarshal container configuration
-	err = json.Unmarshal([]byte(ctn), c)
-	if err != nil {
-		// create a new buffer for encoded JSON
-		//
-		// will be thrown away after encoding
-		b := new(bytes.Buffer)
-
-		// create new JSON encoder attached to buffer
-		enc := json.NewEncoder(b)
-
-		// JSON encode container output
-		//
-		// buffer is thrown away
-		err = enc.Encode(c)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (c *Container) Script() {
 	if len(c.Commands) == 0 {
 		return
@@ -394,6 +333,99 @@ func generateScriptPosix(commands []string) string {
 	)
 
 	return base64.StdEncoding.EncodeToString([]byte(script))
+}
+
+// Substitute replaces every reference (${VAR} or $${VAR}) to an
+// environment variable in the container configuration with the
+// corresponding value for that environment variable.
+func (c *Container) Substitute() error {
+	if c == nil || c.Environment == nil {
+		return errors.New("empty container environment provided")
+	}
+
+	return substituteValue(reflect.ValueOf(c).Elem(), maps.Clone(c.Environment), "container")
+}
+
+// substituteValue is a helper function that recursively traverses the fields of a struct value and substitutes any string fields.
+func substituteValue(v reflect.Value, env map[string]string, path string) error {
+	if !v.IsValid() {
+		return nil
+	}
+
+	switch v.Kind() {
+	case reflect.Pointer:
+		if v.IsNil() {
+			return nil
+		}
+
+		return substituteValue(v.Elem(), env, path)
+
+	case reflect.String:
+		if !v.CanSet() {
+			return nil
+		}
+
+		out, err := envsubst.Eval(v.String(), func(name string) string {
+			return env[name]
+		})
+		if err != nil {
+			return fmt.Errorf("%s: %w", path, err)
+		}
+
+		v.SetString(out)
+
+		return nil
+
+	case reflect.Struct:
+		t := v.Type()
+		for i := 0; i < v.NumField(); i++ {
+			field := t.Field(i)
+
+			// skip unexported fields
+			if field.PkgPath != "" {
+				continue
+			}
+
+			if err := substituteValue(v.Field(i), env, path+"."+field.Name); err != nil {
+				return err
+			}
+		}
+
+		return nil
+
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < v.Len(); i++ {
+			if err := substituteValue(v.Index(i), env, fmt.Sprintf("%s[%d]", path, i)); err != nil {
+				return err
+			}
+		}
+
+		return nil
+
+	case reflect.Map:
+		if v.Type().Key().Kind() != reflect.String {
+			return nil
+		}
+
+		for _, key := range v.MapKeys() {
+			val := v.MapIndex(key)
+
+			cp := reflect.New(val.Type()).Elem()
+			cp.Set(val)
+
+			keyPath := fmt.Sprintf("%s[%q]", path, key.String())
+			if err := substituteValue(cp, env, keyPath); err != nil {
+				return err
+			}
+
+			v.SetMapIndex(key, cp)
+		}
+
+		return nil
+
+	default:
+		return nil
+	}
 }
 
 // dnsSafeRandomString creates a lowercase alphanumeric string of length n.
