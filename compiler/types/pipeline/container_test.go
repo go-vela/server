@@ -1009,6 +1009,51 @@ func TestPipeline_Container_Substitute(t *testing.T) {
 		},
 		{
 			container: &Container{
+				ID:       "step_github_octocat_1_echo",
+				Commands: []string{"echo ${FOO}", "echo ${BAR}"},
+				Git: &Git{
+					Token: Token{
+						Repositories: []string{"${VELA_REPO_NAME}"},
+						Permissions: map[string]string{
+							"contents": "write",
+						},
+					},
+				},
+				Environment: map[string]string{
+					"FOO":            "1\n2\n",
+					"BAR":            "`~!@#$%^&*()-_=+[{]}\\|;:',<.>/?",
+					"VELA_REPO_NAME": "project",
+				},
+				Image:  "alpine:latest",
+				Name:   "echo",
+				Number: 1,
+				Pull:   "always",
+			},
+			want: &Container{
+				ID:       "step_github_octocat_1_echo",
+				Commands: []string{"echo 1\n2\n", "echo `~!@#$%^&*()-_=+[{]}\\|;:',<.>/?"},
+				Git: &Git{
+					Token: Token{
+						Repositories: []string{"project"},
+						Permissions: map[string]string{
+							"contents": "write",
+						},
+					},
+				},
+				Environment: map[string]string{
+					"FOO":            "1\n2\n",
+					"BAR":            "`~!@#$%^&*()-_=+[{]}\\|;:',<.>/?",
+					"VELA_REPO_NAME": "project",
+				},
+				Image:  "alpine:latest",
+				Name:   "echo",
+				Number: 1,
+				Pull:   "always",
+			},
+			failure: false,
+		},
+		{
+			container: &Container{
 				ID:          "step_github_octocat_1_echo",
 				Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
 				Image:       "${FOO",
