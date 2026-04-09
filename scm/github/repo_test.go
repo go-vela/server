@@ -412,6 +412,89 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	}
 }
 
+func TestGithub_Config_NoContinueOnNon404(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	calledYAML := false
+
+	// setup mock server
+	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
+		switch c.Param("path") {
+		case ".vela.yml":
+			c.Status(http.StatusInternalServerError)
+		case ".vela.yaml":
+			calledYAML = true
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/yaml.json")
+		default:
+			c.Status(http.StatusNotFound)
+		}
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(api.User)
+	u.SetName("foo")
+	u.SetToken("token")
+
+	r := new(api.Repo)
+	r.SetOrg("foo")
+	r.SetName("bar")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.Config(t.Context(), u, r, "")
+
+	if err == nil {
+		t.Error("Config should have returned err")
+	}
+
+	if got != nil {
+		t.Errorf("Config is %v, want nil", got)
+	}
+
+	if calledYAML {
+		t.Error("Config should not continue to .vela.yaml after non-404 response")
+	}
+}
+
+func TestGithub_Config_NilResponse(t *testing.T) {
+	// setup mock server and close immediately to force a transport error
+	s := httptest.NewServer(http.NewServeMux())
+	url := s.URL
+	s.Close()
+
+	// setup types
+	u := new(api.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(api.Repo)
+	r.SetOrg("foo")
+	r.SetName("bar")
+
+	client, _ := NewTest(url)
+
+	// run test
+	got, err := client.Config(t.Context(), u, r, "")
+
+	if err == nil {
+		t.Error("Config should have returned err")
+	}
+
+	if got != nil {
+		t.Errorf("Config is %v, want nil", got)
+	}
+}
+
 func TestGithub_Config_NotFound(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
