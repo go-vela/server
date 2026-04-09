@@ -979,8 +979,11 @@ func TestPipeline_Container_Substitute(t *testing.T) {
 				ID:       "step_github_octocat_1_echo",
 				Commands: []string{"echo ${FOO}", "echo ${BAR}"},
 				Environment: map[string]string{
-					"FOO": "1\n2\n",
-					"BAR": "`~!@#$%^&*()-_=+[{]}\\|;:',<.>/?",
+					"FOO":               "1\n2\n",
+					"BAR":               "`~!@#$%^&*()-_=+[{]}\\|;:',<.>/?",
+					"VELA_BUILD_NUMBER": "1",
+					"VELA_BUILD_COMMIT": "d4760eae489c0f1b599a85b206ea47d90b1d6f02",
+					"PARAMETER_TAG":     "b${VELA_BUILD_NUMBER}-${VELA_BUILD_COMMIT:0:8}",
 				},
 				Image:  "alpine:latest",
 				Name:   "echo",
@@ -989,10 +992,13 @@ func TestPipeline_Container_Substitute(t *testing.T) {
 			},
 			want: &Container{
 				ID:       "step_github_octocat_1_echo",
-				Commands: []string{"echo ${FOO}", "echo ${BAR}"},
+				Commands: []string{"echo 1\n2\n", "echo `~!@#$%^&*()-_=+[{]}\\|;:',<.>/?"},
 				Environment: map[string]string{
-					"FOO": "1\n2\n",
-					"BAR": "`~!@#$%^&*()-_=+[{]}\\|;:',<.>/?",
+					"FOO":               "1\n2\n",
+					"BAR":               "`~!@#$%^&*()-_=+[{]}\\|;:',<.>/?",
+					"VELA_BUILD_NUMBER": "1",
+					"VELA_BUILD_COMMIT": "d4760eae489c0f1b599a85b206ea47d90b1d6f02",
+					"PARAMETER_TAG":     "b1-d4760eae",
 				},
 				Image:  "alpine:latest",
 				Name:   "echo",
@@ -1000,6 +1006,18 @@ func TestPipeline_Container_Substitute(t *testing.T) {
 				Pull:   "always",
 			},
 			failure: false,
+		},
+		{
+			container: &Container{
+				ID:          "step_github_octocat_1_echo",
+				Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
+				Image:       "${FOO",
+				Name:        "echo",
+				Number:      1,
+				Pull:        "always",
+			},
+			want:    nil,
+			failure: true,
 		},
 		{
 			container: nil,
@@ -1029,8 +1047,8 @@ func TestPipeline_Container_Substitute(t *testing.T) {
 			t.Errorf("Substitute returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(test.container, test.want) {
-			t.Errorf("Substitute is %v, want %v", test.container, test.want)
+		if diff := cmp.Diff(test.want, test.container); diff != "" {
+			t.Errorf("Substitute mismatch (-want +got):\n%s", diff)
 		}
 	}
 }
