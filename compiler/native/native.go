@@ -109,6 +109,9 @@ func FromCLICommand(ctx context.Context, cmd *cli.Command) (*Client, error) {
 		c.UsePrivateGithub = true
 	}
 
+	c.SetBlockedImages(nil)
+	c.SetWarnImages(nil)
+
 	c.TemplateCache = make(map[string][]byte)
 
 	return c, nil

@@ -8,6 +8,47 @@ import (
 	"testing"
 )
 
+func TestTypes_ImageRestriction_String(t *testing.T) {
+	// setup types
+	blocked := ImageRestriction{
+		Image:  new("docker.io/blocked/image:latest"),
+		Reason: new("this image is blocked"),
+	}
+
+	warning := ImageRestriction{
+		Image:  new("docker.io/deprecated/image:latest"),
+		Reason: new("this image is deprecated"),
+	}
+
+	wantBlocked := fmt.Sprintf(`{
+  Image: %s,
+  Reason: %s,
+}`,
+		blocked.GetImage(),
+		blocked.GetReason(),
+	)
+
+	wantWarning := fmt.Sprintf(`{
+  Image: %s,
+  Reason: %s,
+}`,
+		warning.GetImage(),
+		warning.GetReason(),
+	)
+
+	// run test
+	gotBlocked := blocked.String()
+	if !reflect.DeepEqual(gotBlocked, wantBlocked) {
+		t.Errorf("String is %v, want %v", gotBlocked, wantBlocked)
+	}
+
+	gotWarning := warning.String()
+	if !reflect.DeepEqual(gotWarning, wantWarning) {
+		t.Errorf("String is %v, want %v", gotWarning, wantWarning)
+	}
+
+}
+
 func TestTypes_Compiler_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {

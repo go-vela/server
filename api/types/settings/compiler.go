@@ -59,6 +59,17 @@ func (ir *ImageRestriction) SetReason(v string) {
 	ir.Reason = &v
 }
 
+// String implements the Stringer interface for the ImageRestriction type.
+func (ir *ImageRestriction) String() string {
+	return fmt.Sprintf(`{
+  Image: %s,
+  Reason: %s,
+}`,
+		ir.GetImage(),
+		ir.GetReason(),
+	)
+}
+
 type Compiler struct {
 	CloneImage        *string             `json:"clone_image,omitempty"         yaml:"clone_image,omitempty"`
 	TemplateDepth     *int                `json:"template_depth,omitempty"      yaml:"template_depth,omitempty"`
@@ -214,6 +225,8 @@ func CompilerMockEmpty() Compiler {
 	cs.SetCloneImage("")
 	cs.SetTemplateDepth(0)
 	cs.SetStarlarkExecLimit(0)
+	cs.SetBlockedImages(nil)
+	cs.SetWarnImages(nil)
 
 	return cs
 }
