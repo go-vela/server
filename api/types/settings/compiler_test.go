@@ -46,7 +46,6 @@ func TestTypes_ImageRestriction_String(t *testing.T) {
 	if !reflect.DeepEqual(gotWarning, wantWarning) {
 		t.Errorf("String is %v, want %v", gotWarning, wantWarning)
 	}
-
 }
 
 func TestTypes_Compiler_Getters(t *testing.T) {
