@@ -9,7 +9,6 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 
-	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
@@ -261,17 +260,17 @@ func (c *Client) checkImageRestrictions(p *pipeline.Build) ([]string, error) {
 		warnings []string
 	)
 
-	// collect all containers: steps, services, and secret origins
-	containers := make(pipeline.ContainerSlice, 0, len(p.Steps)+len(p.Services))
-	containers = append(containers, p.Steps...)
-	containers = append(containers, p.Services...)
+	// collect all containers from the steps and services
+	containers := append(p.Steps, p.Services...)
 
+	// collect all containers from the secrets
 	for _, s := range p.Secrets {
 		if !s.Origin.Empty() {
 			containers = append(containers, s.Origin)
 		}
 	}
 
+	// collect all containers from the stages
 	for _, stage := range p.Stages {
 		containers = append(containers, stage.Steps...)
 	}
@@ -285,7 +284,7 @@ func (c *Client) checkImageRestrictions(p *pipeline.Build) ([]string, error) {
 		for _, restriction := range c.GetBlockedImages() {
 			if matchesImagePattern(restriction.GetImage(), ctn.Image) {
 				result = multierror.Append(result,
-					fmt.Errorf("image %s for %s is blocked: %s", ctn.Image, ctn.Name, restriction.GetReason()),
+					fmt.Errorf("image %s for container %s is blocked: %s", ctn.Image, ctn.Name, restriction.GetReason()),
 				)
 			}
 		}
@@ -293,7 +292,7 @@ func (c *Client) checkImageRestrictions(p *pipeline.Build) ([]string, error) {
 		for _, restriction := range c.GetWarnImages() {
 			if matchesImagePattern(restriction.GetImage(), ctn.Image) {
 				warnings = append(warnings,
-					fmt.Sprintf("image %s for %s: %s", ctn.Image, ctn.Name, restriction.GetReason()),
+					fmt.Sprintf("image %s for container %s has warning: %s", ctn.Image, ctn.Name, restriction.GetReason()),
 				)
 			}
 		}
@@ -325,14 +324,4 @@ func matchesImagePattern(pattern, img string) bool {
 	}
 
 	return false
-}
-
-// imageRestrictionsFromSettings is a helper used in tests to build a Compiler
-// settings value containing image restriction lists.
-func imageRestrictionsFromSettings(blocked, warned []settings.ImageRestriction) settings.Compiler {
-	cs := settings.Compiler{}
-	cs.SetBlockedImages(blocked)
-	cs.SetWarnImages(warned)
-
-	return cs
 }

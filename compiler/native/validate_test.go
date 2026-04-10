@@ -820,12 +820,11 @@ func TestNative_CheckImageRestrictions_BlockedImage(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	compiler.Compiler = imageRestrictionsFromSettings(
-		[]settings.ImageRestriction{
+	compiler.Compiler = settings.Compiler{
+		BlockedImages: &[]settings.ImageRestriction{
 			{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is not allowed")},
 		},
-		nil,
-	)
+	}
 
 	p := &pipeline.Build{
 		Steps: pipeline.ContainerSlice{
@@ -850,12 +849,11 @@ func TestNative_CheckImageRestrictions_WarnImage(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	compiler.Compiler = imageRestrictionsFromSettings(
-		nil,
-		[]settings.ImageRestriction{
+	compiler.Compiler = settings.Compiler{
+		WarnImages: &[]settings.ImageRestriction{
 			{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
 		},
-	)
+	}
 
 	p := &pipeline.Build{
 		Steps: pipeline.ContainerSlice{
@@ -880,12 +878,11 @@ func TestNative_CheckImageRestrictions_WildcardPattern(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	compiler.Compiler = imageRestrictionsFromSettings(
-		[]settings.ImageRestriction{
-			{Image: new("docker.io/blocked/*"), Reason: new("entire org is blocked")},
+	compiler.Compiler = settings.Compiler{
+		BlockedImages: &[]settings.ImageRestriction{
+			{Image: new("docker.io/blocked/*"), Reason: new("entire namespace is blocked")},
 		},
-		nil,
-	)
+	}
 
 	p := &pipeline.Build{
 		Steps: pipeline.ContainerSlice{
@@ -907,14 +904,14 @@ func TestNative_CheckImageRestrictions_NoMatch(t *testing.T) {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
-	compiler.Compiler = imageRestrictionsFromSettings(
-		[]settings.ImageRestriction{
-			{Image: new("docker.io/blocked/image:latest"), Reason: new("blocked")},
+	compiler.Compiler = settings.Compiler{
+		BlockedImages: &[]settings.ImageRestriction{
+			{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is not allowed")},
 		},
-		[]settings.ImageRestriction{
-			{Image: new("docker.io/deprecated/image:latest"), Reason: new("deprecated")},
+		WarnImages: &[]settings.ImageRestriction{
+			{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
 		},
-	)
+	}
 
 	p := &pipeline.Build{
 		Steps: pipeline.ContainerSlice{

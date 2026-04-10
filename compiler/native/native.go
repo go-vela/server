@@ -140,6 +140,8 @@ func (c *Client) Duplicate() compiler.Engine {
 	cc.CloneImage = c.CloneImage
 	cc.TemplateDepth = c.TemplateDepth
 	cc.StarlarkExecLimit = c.StarlarkExecLimit
+	cc.BlockedImages = c.BlockedImages
+	cc.WarnImages = c.WarnImages
 	cc.TemplateCache = make(map[string][]byte)
 
 	return cc
