@@ -763,6 +763,17 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 				},
 			},
 		},
+		&yaml.Secret{
+			Origin: yaml.Origin{
+				Name:  "gcp secrets",
+				Image: "target/secret-gcp:latest",
+				Pull:  "always",
+				Parameters: map[string]any{
+					"project_id": "my-project",
+				},
+				IDRequest: "true",
+			},
+		},
 	}
 
 	wantServices := yaml.ServiceSlice{

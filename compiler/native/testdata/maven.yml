@@ -49,6 +49,14 @@ secrets:
           - source: secret/docker
             path: docker
 
+  - origin:
+      name: gcp secrets
+      image: target/secret-gcp:latest
+      pull: always
+      id_request: true
+      parameters:
+        project_id: my-project
+
   {{ if .secret }}
 
 - name: bar_password
