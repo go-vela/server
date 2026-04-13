@@ -87,22 +87,24 @@ func RepairRepo(c *gin.Context) {
 		return
 	}
 
-	lastHook := lastHooks[0]
+	if len(lastHooks) > 0 {
+		lastHook := lastHooks[0]
 
-	if lastHook.GetNumber() != r.GetHookCounter() {
-		repoMetaUpdates := &types.Repo{ID: r.ID}
-		repoMetaUpdates.SetHookCounter(lastHook.GetNumber())
+		if lastHook.GetNumber() != r.GetHookCounter() {
+			repoMetaUpdates := &types.Repo{ID: r.ID}
+			repoMetaUpdates.SetHookCounter(lastHook.GetNumber())
 
-		err = database.FromContext(c).PartialUpdateRepo(ctx, repoMetaUpdates)
-		if err != nil {
-			retErr := fmt.Errorf("unable to update hook counter for repo %s: %w", r.GetFullName(), err)
+			err = database.FromContext(c).PartialUpdateRepo(ctx, repoMetaUpdates)
+			if err != nil {
+				retErr := fmt.Errorf("unable to update hook counter for repo %s: %w", r.GetFullName(), err)
 
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
 
-			return
+				return
+			}
+
+			l.Tracef("repo %s repaired - updated hook counter to %d", r.GetFullName(), lastHook.GetNumber())
 		}
-
-		l.Tracef("repo %s repaired - updated hook counter to %d", r.GetFullName(), lastHook.GetNumber())
 	}
 
 	// check if we should create the webhook
