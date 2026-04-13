@@ -77,6 +77,34 @@ func RepairRepo(c *gin.Context) {
 
 	var hook *types.Hook
 
+	// repair out-of-sync hook counter
+	lastHooks, err := database.FromContext(c).ListHooksForRepo(ctx, r, 1, 1)
+	if err != nil {
+		retErr := fmt.Errorf("unable to retrieve hooks for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	lastHook := lastHooks[0]
+
+	if lastHook.GetNumber() != r.GetHookCounter() {
+		repoMetaUpdates := &types.Repo{ID: r.ID}
+		repoMetaUpdates.SetHookCounter(lastHook.GetNumber())
+
+		err = database.FromContext(c).PartialUpdateRepo(ctx, repoMetaUpdates)
+		if err != nil {
+			retErr := fmt.Errorf("unable to update hook counter for repo %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		l.Tracef("repo %s repaired - updated hook counter to %d", r.GetFullName(), lastHook.GetNumber())
+	}
+
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to remove the webhook
