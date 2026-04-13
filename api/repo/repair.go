@@ -75,83 +75,25 @@ func RepairRepo(c *gin.Context) {
 
 	l.Debugf("repairing repo %s", r.GetFullName())
 
-	var hook *types.Hook
-
-	// repair out-of-sync hook counter
-	lastHooks, err := database.FromContext(c).ListHooksForRepo(ctx, r, 1, 1)
+	err := syncHookCounter(c, l, r)
 	if err != nil {
-		retErr := fmt.Errorf("unable to retrieve hooks for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to synchronize hook counter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	if len(lastHooks) > 0 {
-		lastHook := lastHooks[0]
-
-		if lastHook.GetNumber() != r.GetHookCounter() {
-			repoMetaUpdates := &types.Repo{ID: r.ID}
-			repoMetaUpdates.SetHookCounter(lastHook.GetNumber())
-
-			err = database.FromContext(c).PartialUpdateRepo(ctx, repoMetaUpdates)
-			if err != nil {
-				retErr := fmt.Errorf("unable to update hook counter for repo %s: %w", r.GetFullName(), err)
-
-				util.HandleError(c, http.StatusInternalServerError, retErr)
-
-				return
-			}
-
-			l.Tracef("repo %s repaired - updated hook counter to %d", r.GetFullName(), lastHook.GetNumber())
-		}
-	}
-
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
-		// send API call to remove the webhook
-		err := scm.FromContext(c).Disable(ctx, u, r.GetOrg(), r.GetName())
+		err = recreateWebhook(c, l, r)
 		if err != nil {
-			retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to recreate webhook for repo %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			return
 		}
-
-		// send API call to create the webhook
-		hook, _, err = scm.FromContext(c).Enable(ctx, u, r)
-		if err != nil {
-			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
-
-			switch err.Error() {
-			case "repo already enabled":
-				util.HandleError(c, http.StatusConflict, retErr)
-				return
-			case "repo not found":
-				util.HandleError(c, http.StatusNotFound, retErr)
-				return
-			}
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-
-		hook.SetRepo(r)
-
-		_, err = database.FromContext(c).CreateHook(ctx, hook)
-		if err != nil {
-			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-
-		l.WithFields(logrus.Fields{
-			"hook": hook.GetID(),
-		}).Info("new webhook created")
 	}
 
 	// get repo information from the source
@@ -225,4 +167,64 @@ func RepairRepo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("repo %s repaired", r.GetFullName()))
+}
+
+// syncHookCounter is a helper function to synchronize the hook counter for a repo
+// with the latest hook number in the database.
+func syncHookCounter(c *gin.Context, l *logrus.Entry, r *types.Repo) error {
+	ctx := c.Request.Context()
+
+	lastHooks, err := database.FromContext(c).ListHooksForRepo(ctx, r, 1, 1)
+	if err != nil {
+		return fmt.Errorf("unable to retrieve hooks for repo %s: %w", r.GetFullName(), err)
+	}
+
+	if len(lastHooks) > 0 {
+		lastHook := lastHooks[0]
+
+		if lastHook.GetNumber() != r.GetHookCounter() {
+			repoMetaUpdates := &types.Repo{ID: r.ID}
+			repoMetaUpdates.SetHookCounter(lastHook.GetNumber())
+
+			err = database.FromContext(c).PartialUpdateRepo(ctx, repoMetaUpdates)
+			if err != nil {
+				return fmt.Errorf("unable to update hook counter for repo %s: %w", r.GetFullName(), err)
+			}
+
+			l.Tracef("repo %s repaired - updated hook counter to %d", r.GetFullName(), lastHook.GetNumber())
+		}
+	}
+
+	return nil
+}
+
+// recreateWebhook is a helper function to remove and then create a webhook for a repo.
+func recreateWebhook(c *gin.Context, l *logrus.Entry, r *types.Repo) error {
+	ctx := c.Request.Context()
+	u := user.Retrieve(c)
+
+	// send API call to remove the webhook
+	err := scm.FromContext(c).Disable(ctx, u, r.GetOrg(), r.GetName())
+	if err != nil {
+		return fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
+	}
+
+	// send API call to create the webhook
+	hook, _, err := scm.FromContext(c).Enable(ctx, u, r)
+	if err != nil {
+		return fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
+	}
+
+	hook.SetRepo(r)
+
+	_, err = database.FromContext(c).CreateHook(ctx, hook)
+	if err != nil {
+		return fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
+	}
+
+	l.WithFields(logrus.Fields{
+		"hook": hook.GetID(),
+	}).Info("new webhook created")
+
+	return nil
 }
