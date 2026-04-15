@@ -5,6 +5,7 @@ package types
 import (
 	"database/sql"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -12,6 +13,26 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 )
+
+func TestTypes_Hook_Crop(t *testing.T) {
+	err := strings.Repeat("x", 501)
+
+	h := testHook()
+	h.Error = sql.NullString{String: err, Valid: true}
+
+	want := testHook()
+	want.Error = sql.NullString{String: err[:497] + "...", Valid: true}
+
+	got := h.Crop()
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Crop is %v, want %v", got, want)
+	}
+
+	if len(got.Error.String) != 500 {
+		t.Errorf("Crop returned error length %d, want 500", len(got.Error.String))
+	}
+}
 
 func TestTypes_Hook_Nullify(t *testing.T) {
 	// setup types
