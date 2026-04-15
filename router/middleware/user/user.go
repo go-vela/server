@@ -3,6 +3,7 @@
 package user
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache/models"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -26,10 +28,17 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
 
-		_, ok := c.Get("app-installation-token")
+		it, ok := c.Get("app-installation-token")
 		if ok {
+			tkn, ok := it.(*models.InstallToken)
+			if !ok {
+				util.HandleError(c, http.StatusInternalServerError, fmt.Errorf("invalid type for app installation token"))
+				return
+			}
+
 			u := new(api.User)
-			u.SetName("app-installation")
+			u.SetName("vela-app")
+			u.SetToken(tkn.Token)
 
 			ToContext(c, u)
 			c.Next()

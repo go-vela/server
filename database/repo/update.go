@@ -39,6 +39,7 @@ func (e *Engine) UpdateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error)
 	err = e.client.
 		WithContext(ctx).
 		Table(constants.TableRepo).
+		Omit("hook_counter").
 		Save(repo).Error
 	if err != nil {
 		return nil, err

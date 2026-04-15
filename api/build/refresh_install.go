@@ -71,9 +71,9 @@ func RefreshInstallToken(c *gin.Context) {
 
 	l.Debugf("generating install token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
 
-	// build must be running to refresh install token
-	if b.GetStatus() != constants.StatusRunning {
-		retErr := fmt.Errorf("unable to generate install token for build not in %s status", constants.StatusRunning)
+	// build must be pending or running to refresh install token
+	if b.GetStatus() != constants.StatusRunning && b.GetStatus() != constants.StatusPending {
+		retErr := fmt.Errorf("unable to generate install token for build not in %s or %s status", constants.StatusRunning, constants.StatusPending)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
