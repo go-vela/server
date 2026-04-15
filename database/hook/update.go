@@ -25,6 +25,8 @@ func (e *Engine) UpdateHook(ctx context.Context, h *api.Hook) (*api.Hook, error)
 		return nil, err
 	}
 
+	hook = hook.Crop()
+
 	// send query to the database
 	err = e.client.WithContext(ctx).Table(constants.TableHook).Save(hook).Error
 	if err != nil {
