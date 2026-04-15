@@ -62,9 +62,23 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 			}
 		case strings.EqualFold(status, constants.StatusRunning) && cancelOpts.Running:
 			// call cancelRunning routine for builds already running on worker
-			_, err := CancelRunning(c, rB)
+			build, err := CancelRunning(c, rB)
 			if err != nil {
 				return false, err
+			}
+
+			if build == nil {
+				l.Debugf("unable to find running build on any executor, marking as canceled in database")
+
+				b.SetError(fmt.Sprintf("%s build was auto canceled in favor of build %d", status, b.GetNumber()))
+				b.SetStatus(constants.StatusCanceled)
+
+				err = updateBuildStatus(c, l, b)
+				if err != nil {
+					return true, fmt.Errorf("unable to update status for build %s/%d: %w", build.GetRepo().GetFullName(), build.GetNumber(), err)
+				}
+
+				return true, nil
 			}
 		default:
 			return false, nil

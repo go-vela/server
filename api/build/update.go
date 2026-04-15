@@ -253,6 +253,11 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status, scmToken st
 	// iterate over each step for the build
 	// setting status
 	for _, step := range steps {
+		// skip completed steps for accuracy
+		if step.GetStatus() == constants.StatusSuccess || step.GetStatus() == constants.StatusFailure || step.GetStatus() == constants.StatusError {
+			continue
+		}
+
 		step.SetStatus(status)
 
 		_, err := database.FromContext(c).UpdateStep(ctx, step)

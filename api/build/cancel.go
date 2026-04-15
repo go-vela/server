@@ -95,13 +95,28 @@ func CancelBuild(c *gin.Context) {
 			return
 		}
 
+		// if build not found on executor, treat stale build like a pending build and update statuses
 		if build == nil {
-			c.JSON(http.StatusOK, "no running build found to cancel")
+			l.Debugf("unable to find running build %s on any executor, marking as canceled in database", entry)
+
+			b.SetError(fmt.Sprintf("stale build was canceled by %s", user.GetName()))
+			b.SetStatus(constants.StatusCanceled)
+
+			err = updateBuildStatus(c, l, b)
+			if err != nil {
+				retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
+			c.JSON(http.StatusOK, b)
 
 			return
 		}
 
-		build.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
+		build.SetError(fmt.Sprintf("running build was canceled by %s", user.GetName()))
+		build.SetStatus(constants.StatusCanceled)
 
 		build, err = database.FromContext(c).UpdateBuild(ctx, build)
 		if err != nil {
@@ -132,24 +147,11 @@ func CancelBuild(c *gin.Context) {
 
 	// build has been abandoned
 	// update the status in the build table
+	b.SetError(fmt.Sprintf("%s build was canceled by %s", b.GetStatus(), user.GetName()))
 	b.SetStatus(constants.StatusCanceled)
-	b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
-
-	b, err := database.FromContext(c).UpdateBuild(ctx, b)
-	if err != nil {
-		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	l.WithFields(logrus.Fields{
-		"build":    b.GetNumber(),
-		"build_id": b.GetID(),
-	}).Info("build updated - build canceled")
 
 	// remove build executable for clean up
-	_, err = database.FromContext(c).PopBuildExecutable(ctx, b.GetID())
+	_, err := database.FromContext(c).PopBuildExecutable(ctx, b.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to pop build %s from executables table: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -157,21 +159,9 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
-	scmToken, err := cache.FromContext(c).GetInstallStatusToken(ctx, b.GetID())
-	if err != nil || scmToken == "" {
-		scmToken = scm.FromContext(c).GenerateStatusToken(ctx, b)
-	}
-
-	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(ctx, b, scmToken)
+	err = updateBuildStatus(c, l, b)
 	if err != nil {
-		l.Errorf("unable to set commit status for build %s: %v", entry, err)
-	}
-
-	// update component statuses to canceled
-	err = UpdateComponentStatuses(c, b, constants.StatusCanceled, scmToken)
-	if err != nil {
-		retErr := fmt.Errorf("unable to update component statuses for build %s: %w", entry, err)
+		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
@@ -313,4 +303,39 @@ func createWorkerRequest(c *gin.Context, method, endpoint string) (*http.Request
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
 	return req, nil
+}
+
+// updateBuildStatus is a helper function that updates the build and its components. It also sends an SCM status update.
+func updateBuildStatus(c *gin.Context, l *logrus.Entry, b *types.Build) error {
+	ctx := c.Request.Context()
+	entry := fmt.Sprintf("%s/%d", b.GetRepo().GetFullName(), b.GetNumber())
+
+	b, err := database.FromContext(c).UpdateBuild(ctx, b)
+	if err != nil {
+		return fmt.Errorf("unable to update status for build %s: %w", entry, err)
+	}
+
+	l.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+	}).Info("build updated - build canceled")
+
+	scmToken, err := cache.FromContext(c).GetInstallStatusToken(ctx, b.GetID())
+	if err != nil || scmToken == "" {
+		scmToken = scm.FromContext(c).GenerateStatusToken(ctx, b)
+	}
+
+	// send API call to set the status on the commit
+	err = scm.FromContext(c).Status(ctx, b, scmToken)
+	if err != nil {
+		l.Errorf("unable to set commit status for build %s: %v", entry, err)
+	}
+
+	// update component statuses to canceled
+	err = UpdateComponentStatuses(c, b, constants.StatusCanceled, scmToken)
+	if err != nil {
+		return fmt.Errorf("unable to update component statuses for build %s: %w", entry, err)
+	}
+
+	return nil
 }
