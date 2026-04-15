@@ -309,7 +309,7 @@ func PostWebhook(c *gin.Context) {
 		//nolint:contextcheck // false positive
 		_, err = database.FromContext(c).UpdateHook(ctx, h)
 		if err != nil {
-			l.Errorf("unable to update webhook %s/%d: %v", repo.GetFullName(), h.GetNumber(), err)
+			l.Errorf("unable to update hook %s/%d: %v", repo.GetFullName(), h.GetNumber(), err)
 		}
 
 		l.WithFields(logrus.Fields{
