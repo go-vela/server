@@ -28,6 +28,13 @@ var (
 	ErrEmptyHookWebhookID = errors.New("empty webhook webhook_id provided")
 )
 
+const (
+	// Maximum error field length.
+	maxHookErrorLength = 500
+	// Suffix to indicate values were truncated.
+	hookTruncatedSuffix = "..."
+)
+
 // Hook is the database representation of a webhook for a repo.
 type Hook struct {
 	ID          sql.NullInt64  `sql:"id"`
@@ -128,6 +135,18 @@ func (h *Hook) Nullify() *Hook {
 	// check if the WebhookID field should be false
 	if h.WebhookID.Int64 == 0 {
 		h.WebhookID.Valid = false
+	}
+
+	return h
+}
+
+// Crop prepares the Hook type for inserting into the database by
+// trimming values that may exceed the database column limit.
+func (h *Hook) Crop() *Hook {
+	// trim the Error field to 500 characters
+	if len(h.Error.String) > maxHookErrorLength {
+		trimmedLength := maxHookErrorLength - len(hookTruncatedSuffix)
+		h.Error = sql.NullString{String: h.Error.String[:trimmedLength] + hookTruncatedSuffix, Valid: true}
 	}
 
 	return h
