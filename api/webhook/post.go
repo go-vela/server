@@ -223,6 +223,10 @@ func PostWebhook(c *gin.Context) {
 		}
 	}
 
+	// set the RepoID fields
+	b.SetRepo(repo)
+	h.SetRepo(repo)
+
 	// verify the webhook from the source control provider using DB repo hash
 	if c.Value("webhookvalidation").(bool) {
 		l.WithFields(logrus.Fields{
@@ -305,15 +309,15 @@ func PostWebhook(c *gin.Context) {
 		//nolint:contextcheck // false positive
 		_, err = database.FromContext(c).UpdateHook(ctx, h)
 		if err != nil {
-			l.Errorf("unable to update webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
+			l.Errorf("unable to update webhook %s/%d: %v", repo.GetFullName(), h.GetNumber(), err)
 		}
 
 		l.WithFields(logrus.Fields{
 			"hook":    h.GetNumber(),
 			"hook_id": h.GetID(),
-			"org":     r.GetOrg(),
-			"repo":    r.GetName(),
-			"repo_id": r.GetID(),
+			"org":     repo.GetOrg(),
+			"repo":    repo.GetName(),
+			"repo_id": repo.GetID(),
 		}).Info("hook updated")
 	}()
 
@@ -336,10 +340,6 @@ func PostWebhook(c *gin.Context) {
 		b.SetSenderSCMID(senderID)
 	}
 
-	// set the RepoID fields
-	b.SetRepo(repo)
-	h.SetRepo(repo)
-
 	// number of times to retry
 	retryLimit := 3
 	// implement a loop to process asynchronous operations with a retry limit
@@ -358,7 +358,7 @@ func PostWebhook(c *gin.Context) {
 		h, err = database.FromContext(c).CreateHook(ctx, h)
 		if err != nil {
 			// format the error message with extra information
-			err = fmt.Errorf("unable to create webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
+			err = fmt.Errorf("unable to create webhook %s/%d: %w", repo.GetFullName(), h.GetNumber(), err)
 
 			// check if the retry limit has been exceeded
 			if i < retryLimit-1 {
@@ -693,7 +693,7 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 	l.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
 
 	defer func() {
-		h.SetRepo(r)
+		h.SetRepo(dbRepo)
 
 		// send API call to update the webhook
 		hr, err := db.CreateHook(ctx, h)
@@ -704,9 +704,9 @@ func handleRepositoryEvent(ctx context.Context, l *logrus.Entry, db database.Int
 		l.WithFields(logrus.Fields{
 			"hook":    hr.GetNumber(),
 			"hook_id": hr.GetID(),
-			"org":     r.GetOrg(),
-			"repo":    r.GetName(),
-			"repo_id": r.GetID(),
+			"org":     dbRepo.GetOrg(),
+			"repo":    dbRepo.GetName(),
+			"repo_id": dbRepo.GetID(),
 		}).Info("hook created")
 	}()
 
@@ -841,16 +841,16 @@ func RenameRepository(ctx context.Context, l *logrus.Entry, db database.Interfac
 		}).Info("build updated")
 	}
 
-	// update the repo name information
-	dbR.SetName(r.GetName())
-	dbR.SetOrg(r.GetOrg())
-	dbR.SetFullName(r.GetFullName())
-	dbR.SetClone(r.GetClone())
-	dbR.SetLink(r.GetLink())
-	dbR.SetPreviousName(r.GetPreviousName())
+	repoMetaUpdates := &types.Repo{ID: dbR.ID}
+	repoMetaUpdates.SetName(r.GetName())
+	repoMetaUpdates.SetOrg(r.GetOrg())
+	repoMetaUpdates.SetFullName(r.GetFullName())
+	repoMetaUpdates.SetClone(r.GetClone())
+	repoMetaUpdates.SetLink(r.GetLink())
+	repoMetaUpdates.SetPreviousName(r.GetPreviousName())
 
 	// update the repo in the database
-	dbR, err = db.UpdateRepo(ctx, dbR)
+	err = db.PartialUpdateRepo(ctx, repoMetaUpdates)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s/%s", baseErr, dbR.GetOrg(), dbR.GetName())
 
