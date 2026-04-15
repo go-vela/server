@@ -73,7 +73,7 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 				b.SetError(fmt.Sprintf("%s build was auto canceled in favor of build %d", status, b.GetNumber()))
 				b.SetStatus(constants.StatusCanceled)
 
-				err = updateBuildStatus(c, l, b)
+				err = updateCanceledBuildStatus(c, l, b)
 				if err != nil {
 					return true, fmt.Errorf("unable to update status for build %s/%d: %w", build.GetRepo().GetFullName(), build.GetNumber(), err)
 				}

@@ -102,7 +102,7 @@ func CancelBuild(c *gin.Context) {
 			b.SetError(fmt.Sprintf("stale build was canceled by %s", user.GetName()))
 			b.SetStatus(constants.StatusCanceled)
 
-			err = updateBuildStatus(c, l, b)
+			err = updateCanceledBuildStatus(c, l, b)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -159,7 +159,7 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
-	err = updateBuildStatus(c, l, b)
+	err = updateCanceledBuildStatus(c, l, b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -305,8 +305,8 @@ func createWorkerRequest(c *gin.Context, method, endpoint string) (*http.Request
 	return req, nil
 }
 
-// updateBuildStatus is a helper function that updates the build and its components. It also sends an SCM status update.
-func updateBuildStatus(c *gin.Context, l *logrus.Entry, b *types.Build) error {
+// updateCanceledBuildStatus is a helper function that updates a canceled build and its components. It also sends an SCM status update.
+func updateCanceledBuildStatus(c *gin.Context, l *logrus.Entry, b *types.Build) error {
 	ctx := c.Request.Context()
 	entry := fmt.Sprintf("%s/%d", b.GetRepo().GetFullName(), b.GetNumber())
 
