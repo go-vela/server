@@ -31,7 +31,7 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	// send API call to capture org access level for user
 	membership, _, err := client.Organizations.GetOrgMembership(ctx, *u.Name, org)

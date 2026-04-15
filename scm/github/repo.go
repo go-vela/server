@@ -57,7 +57,7 @@ func (c *Client) Config(ctx context.Context, u *api.User, r *api.Repo, ref strin
 	}).Tracef("capturing configuration file for %s/commit/%s", r.GetFullName(), ref)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	// default pipeline file names
 	files := []string{".vela.yml", ".vela.yaml"}
@@ -109,7 +109,7 @@ func (c *Client) DestroyWebhook(ctx context.Context, u *api.User, org, name stri
 	}).Tracef("deleting repository webhooks for %s/%s", org, name)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	// send API call to capture the hooks for the repo
 	hooks, _, err := client.Repositories.ListHooks(ctx, org, name, nil)
@@ -169,7 +169,7 @@ func (c *Client) CreateWebhook(ctx context.Context, u *api.User, r *api.Repo) (*
 	}).Tracef("creating repository webhook for %s/%s", r.GetOrg(), r.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	// create the hook object to make the API call
 	hook := &github.Hook{
@@ -215,7 +215,7 @@ func (c *Client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 	}).Tracef("updating repository webhook for %s/%s", r.GetOrg(), r.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	// create the hook object to make the API call
 	hook := &github.Hook{
@@ -441,7 +441,7 @@ func (c *Client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, r
 	}).Tracef("capturing html_url for %s/%s/%s@%s", org, repo, name, ref)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, *u.Token)
+	client := c.newOAuthTokenClient(ctx, u.GetToken())
 
 	// set the reference for the options to capture the repository contents
 	opts := &github.RepositoryContentGetOptions{
