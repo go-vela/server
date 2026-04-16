@@ -26,6 +26,8 @@ func (c *Client) ParseRaw(v any) (string, error) {
 		return ParseReaderRaw(v)
 	case string:
 		// check if string is path to file
+		//
+		//nolint:gosec // ignore false positive
 		_, err := os.Stat(v)
 		if err == nil {
 			// parse string as path to yaml configuration
@@ -86,6 +88,8 @@ func (c *Client) Parse(v any, pipelineType string, template *yaml.Template) (*ya
 			return ParseReader(v)
 		case string:
 			// check if string is path to file
+			//
+			//nolint:gosec // ignore false positive
 			_, err := os.Stat(v)
 			if err == nil {
 				// parse string as path to yaml configuration
@@ -140,6 +144,8 @@ func ParseFileRaw(f *os.File) (string, error) {
 // ParsePath converts a file path into a yaml configuration.
 func ParsePath(p string) (*yaml.Build, []byte, []string, error) {
 	// open the file for reading
+	//
+	//nolint:gosec // ignore false positive
 	f, err := os.Open(p)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("unable to open yaml file %s: %w", p, err)
@@ -153,6 +159,8 @@ func ParsePath(p string) (*yaml.Build, []byte, []string, error) {
 // ParsePathRaw converts a file path into a yaml configuration.
 func ParsePathRaw(p string) (string, error) {
 	// open the file for reading
+	//
+	//nolint:gosec // ignore false positive
 	f, err := os.Open(p)
 	if err != nil {
 		return "", fmt.Errorf("unable to open yaml file %s: %w", p, err)

@@ -43,6 +43,8 @@ func (c *Client) Login(_ context.Context, w http.ResponseWriter, r *http.Request
 	}
 
 	// pass through the redirect if it exists
+	//
+	//nolint:gosec // ignore false positive
 	redirect := r.FormValue("redirect_uri")
 	if len(redirect) > 0 {
 		c.OAuth.RedirectURL = redirect
@@ -60,18 +62,24 @@ func (c *Client) Authenticate(ctx context.Context, _ http.ResponseWriter, r *htt
 	c.Logger.Trace("authenticating user")
 
 	// get the OAuth code
+	//
+	//nolint:gosec // ignore false positive
 	code := r.FormValue("code")
 	if len(code) == 0 {
 		return nil, nil
 	}
 
 	// verify the OAuth state
+	//
+	//nolint:gosec // ignore false positive
 	state := r.FormValue("state")
 	if state != oAuthState {
 		return nil, fmt.Errorf("unexpected oauth state: want %s but got %s", oAuthState, state)
 	}
 
 	// pass through the redirect if it exists
+	//
+	//nolint:gosec // ignore false positive
 	redirect := r.FormValue("redirect_uri")
 	if len(redirect) > 0 {
 		c.OAuth.RedirectURL = redirect

@@ -4,6 +4,7 @@ package native
 
 import (
 	"fmt"
+	"path/filepath"
 	"slices"
 
 	"github.com/hashicorp/go-multierror"
@@ -11,6 +12,7 @@ import (
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/yaml"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/internal/image"
 )
 
 // ValidateYAML verifies the yaml configuration is valid.
@@ -246,4 +248,80 @@ func validatePipelineContainers(s pipeline.ContainerSlice, reportCount, gitToken
 	}
 
 	return nil
+}
+
+// checkImageRestrictions inspects every container in the compiled pipeline against
+// the platform's blocked and warn image lists. Blocked images cause compilation to
+// fail. Warned images produce non-fatal warning strings that are surfaced on the
+// build's Pipeline tab.
+func (c *Client) checkImageRestrictions(p *pipeline.Build) ([]string, error) {
+	var (
+		result   error
+		warnings []string
+	)
+
+	// collect all containers from the steps and services
+	containers := append(p.Steps, p.Services...)
+
+	// collect all containers from the secrets
+	for _, s := range p.Secrets {
+		if !s.Origin.Empty() {
+			containers = append(containers, s.Origin)
+		}
+	}
+
+	// collect all containers from the stages
+	for _, stage := range p.Stages {
+		containers = append(containers, stage.Steps...)
+	}
+
+	for _, ctn := range containers {
+		// skip injected init and clone containers
+		if ctn.Name == constants.CloneName || ctn.Name == constants.InitName {
+			continue
+		}
+
+		for _, restriction := range c.GetBlockedImages() {
+			if matchesImagePattern(restriction.GetImage(), ctn.Image) {
+				result = multierror.Append(result,
+					fmt.Errorf("image %s for container %s is blocked: %s", ctn.Image, ctn.Name, restriction.GetReason()),
+				)
+			}
+		}
+
+		for _, restriction := range c.GetWarnImages() {
+			if matchesImagePattern(restriction.GetImage(), ctn.Image) {
+				warnings = append(warnings,
+					fmt.Sprintf("image %s for container %s has warning: %s", ctn.Image, ctn.Name, restriction.GetReason()),
+				)
+			}
+		}
+	}
+
+	return warnings, result
+}
+
+// matchesImagePattern reports whether the provided image matches the given pattern.
+// Patterns support glob wildcards via filepath.Match (e.g. "index.docker.io/org/*").
+// Both the raw image and its normalized (fully-qualified) form are tested so that
+// patterns can omit the registry prefix or tag.
+func matchesImagePattern(pattern, img string) bool {
+	if pattern == "" || img == "" {
+		return false
+	}
+
+	// direct match against the image as provided
+	if ok, err := filepath.Match(pattern, img); err == nil && ok {
+		return true
+	}
+
+	// match against the normalized, fully-qualified image reference
+	normalized, err := image.ParseWithError(img)
+	if err == nil && normalized != img {
+		if ok, err := filepath.Match(pattern, normalized); err == nil && ok {
+			return true
+		}
+	}
+
+	return false
 }
