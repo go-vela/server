@@ -3,6 +3,8 @@
 package minio
 
 import (
+	"context"
+	"fmt"
 	"net/url"
 
 	"github.com/minio/minio-go/v7"
@@ -16,14 +18,15 @@ import (
 //
 // but it is necessary for the MinIO client to function properly.
 type config struct {
-	Enable    bool
-	Endpoint  string
-	AccessKey string
-	SecretKey string
-	Bucket    string
-	Secure    bool
-	Token     string
-	Driver    string
+	Enable       bool
+	Endpoint     string
+	AccessKey    string
+	SecretKey    string
+	Bucket       string
+	Secure       bool
+	Token        string
+	Driver       string
+	PublicPolicy bool
 }
 
 // Client implements the Storage interface using MinIO.
@@ -72,7 +75,31 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 
 	c.client = minioClient
 
+	if c.config.PublicPolicy {
+		if err := c.applyPublicPolicy(context.Background()); err != nil {
+			logrus.Warnf("storage: failed to apply public bucket policy: %v", err)
+		}
+	}
+
 	return c, nil
+}
+
+// applyPublicPolicy sets an anonymous read-only policy on the public/* prefix of the bucket,
+// allowing unauthenticated GET requests for objects stored under that prefix.
+func (c *Client) applyPublicPolicy(ctx context.Context) error {
+	policy := fmt.Sprintf(`{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": {"AWS": ["*"]},
+    "Action": ["s3:GetObject"],
+    "Resource": ["arn:aws:s3:::%s/public/*"]
+  }]
+}`, c.config.Bucket)
+
+	c.Logger.Infof("storage: applying public-read policy for public/* prefix in bucket %s", c.config.Bucket)
+
+	return c.client.SetBucketPolicy(ctx, c.config.Bucket, policy)
 }
 
 // NewTest returns a Storage implementation that
@@ -82,5 +109,5 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*Client, error) {
 	return New(endpoint,
 		WithOptions(true, secure,
-			endpoint, accessKey, secretKey, bucket, "", constants.DriverMinio))
+			endpoint, accessKey, secretKey, bucket, "", constants.DriverMinio, false))
 }

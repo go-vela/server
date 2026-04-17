@@ -9,13 +9,21 @@ import (
 
 // Artifacts represents the structure for artifacts configuration.
 type Artifacts struct {
-	Paths raw.StringSlice `yaml:"paths,omitempty" json:"paths,omitempty"`
+	Paths   raw.StringSlice `yaml:"paths,omitempty"   json:"paths,omitempty"`
+	Secured *bool           `yaml:"secured,omitempty" json:"secured,omitempty"`
 }
 
 // ToPipeline converts the Artifact type
 // to a pipeline Artifact type.
 func (a *Artifacts) ToPipeline() *pipeline.Artifacts {
+	// default secured to true when not explicitly set
+	secured := true
+	if a.Secured != nil {
+		secured = *a.Secured
+	}
+
 	return &pipeline.Artifacts{
-		Paths: a.Paths,
+		Paths:   a.Paths,
+		Secured: secured,
 	}
 }

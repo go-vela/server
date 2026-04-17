@@ -110,6 +110,11 @@ func ListBuildObjectNames(c *gin.Context) {
 // The URL is valid for a limited time and can be used to securely upload files directly
 // to the storage service without exposing credentials.
 //
+// When the optional `secured` query parameter is set to `false`, the object is stored under
+// a `public/` prefix in the bucket, making it downloadable via a direct URL without authentication.
+// This requires the storage bucket to have a public-read policy configured for the `public/*` prefix.
+// Defaults to `true` (authenticated presigned GET URLs) when omitted.
+//
 // ---
 // produces:
 // - application/json
@@ -135,6 +140,11 @@ func ListBuildObjectNames(c *gin.Context) {
 //     description: Object name for the PUT URL
 //     required: true
 //     type: string
+//   - name: secured
+//     in: query
+//     description: "When false, stores the object under the public/ prefix for unauthenticated downloads. Defaults to true."
+//     required: false
+//     type: boolean
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -185,7 +195,18 @@ func GetPresignedPutURL(c *gin.Context) {
 		return
 	}
 
-	path := fmt.Sprintf("%s/%s/%d/%s", org, repoName, buildNum, objName)
+	// when secured=false the object is stored under the public/ prefix, making
+	// it accessible without authentication via a direct (non-presigned) URL.
+	// defaults to true (authenticated presigned GET) when the param is absent.
+	secured := c.Query("secured") != "false"
+
+	var path string
+	if secured {
+		path = fmt.Sprintf("%s/%s/%d/%s", org, repoName, buildNum, objName)
+	} else {
+		path = fmt.Sprintf("public/%s/%s/%d/%s", org, repoName, buildNum, objName)
+	}
+
 	timeout := time.Duration(r.GetTimeout()) * time.Minute
 
 	putURL, err := storage.FromGinContext(c).PresignedPutObject(c, path, timeout)
