@@ -3,6 +3,7 @@
 package user
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -26,10 +27,17 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		l := c.MustGet("logger").(*logrus.Entry)
 
-		_, ok := c.Get("app-installation-token")
+		it, ok := c.Get("app-installation-token")
 		if ok {
+			tkn, ok := it.(string)
+			if !ok {
+				util.HandleError(c, http.StatusInternalServerError, fmt.Errorf("invalid type for app installation token"))
+				return
+			}
+
 			u := new(api.User)
-			u.SetName("app-installation")
+			u.SetName("vela-app")
+			u.SetToken(tkn)
 
 			ToContext(c, u)
 			c.Next()

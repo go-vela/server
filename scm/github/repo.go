@@ -73,7 +73,7 @@ func (c *Client) Config(ctx context.Context, r *api.Repo, ref, token string) ([]
 		// send API call to capture the .vela.yml pipeline configuration
 		data, _, resp, err := client.Repositories.GetContents(ctx, r.GetOrg(), r.GetName(), file, opts)
 		if err != nil {
-			if resp.StatusCode != http.StatusNotFound {
+			if resp == nil || resp.StatusCode != http.StatusNotFound {
 				return nil, err
 			}
 		}

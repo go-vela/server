@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html"
 	"net/url"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -101,15 +102,7 @@ func CheckAllowlist(r *api.Repo, allowlist []string) bool {
 	}
 
 	for _, repo := range allowlist {
-		// allow all repos in org
-		if strings.Contains(repo, "/*") {
-			if strings.HasPrefix(repo, r.GetOrg()) {
-				return true
-			}
-		}
-
-		// allow specific repo within org
-		if repo == r.GetFullName() {
+		if match, err := filepath.Match(repo, r.GetFullName()); err == nil && match {
 			return true
 		}
 	}

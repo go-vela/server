@@ -4,6 +4,7 @@ package hook
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -26,7 +27,10 @@ func TestHook_Engine_UpdateHook(t *testing.T) {
 	_hook.SetBuild(_build)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetError(strings.Repeat("x", 501))
 	_hook.SetWebhookID(1)
+
+	err500 := strings.Repeat("x", 497) + "..."
 
 	_postgres, _mock := testPostgres(t)
 
@@ -36,7 +40,7 @@ func TestHook_Engine_UpdateHook(t *testing.T) {
 	_mock.ExpectExec(`UPDATE "hooks"
 SET "repo_id"=$1,"build_id"=$2,"number"=$3,"source_id"=$4,"created"=$5,"host"=$6,"event"=$7,"event_action"=$8,"branch"=$9,"error"=$10,"status"=$11,"link"=$12,"webhook_id"=$13
 WHERE "id" = $14`).
-		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, nil, 1, 1).
+		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, err500, nil, nil, 1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

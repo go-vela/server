@@ -3,11 +3,8 @@
 package github
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptrace"
 	"net/url"
@@ -95,18 +92,58 @@ func (c *Client) newTokenClient(ctx context.Context, token string) *github.Clien
 	return githubClient
 }
 
-// scopedAccessTokenRequest is the request body for creating a scoped access token.
-type scopedAccessTokenRequest struct {
-	Target       string            `json:"target,omitempty"`
-	AccessToken  string            `json:"access_token"`
-	Repositories []string          `json:"repositories,omitempty"`
-	Permissions  map[string]string `json:"permissions,omitempty"`
-}
-
 // scopedAccessTokenResponse is the response from creating a scoped access token.
 type scopedAccessTokenResponse struct {
 	Token     string    `json:"token"`
 	ExpiresAt time.Time `json:"expires_at"`
+}
+
+// basicAuthRoundTripper is an http.RoundTripper that applies HTTP Basic
+// Authentication to each request.
+type basicAuthRoundTripper struct {
+	username string
+	password string
+	base     http.RoundTripper
+}
+
+func (t *basicAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	req = req.Clone(req.Context())
+	req.SetBasicAuth(t.username, t.password)
+
+	if t.base == nil {
+		return http.DefaultTransport.RoundTrip(req)
+	}
+
+	return t.base.RoundTrip(req)
+}
+
+// applyUserTokenPermissions converts a map of resource:level pairs to a
+// UserAccessTokenPermissions struct for use with the go-github SDK.
+func applyUserTokenPermissions(perms map[string]string) *github.UserAccessTokenPermissions {
+	p := &github.UserAccessTokenPermissions{}
+
+	for resource, level := range perms {
+		level := level
+
+		switch strings.ToLower(resource) {
+		case AppInstallResourceContents:
+			p.Contents = &level
+		case AppInstallResourceChecks:
+			p.Checks = &level
+		case AppInstallResourcePackages:
+			p.Packages = &level
+		case AppInstallResourceStatuses:
+			p.Statuses = &level
+		case AppInstallResourceDeployments:
+			p.Deployments = &level
+		case AppInstallResourcePullRequests:
+			p.PullRequests = &level
+		case AppInstallResourceIssues:
+			p.Issues = &level
+		}
+	}
+
+	return p
 }
 
 // CreateScopedAccessToken creates a scoped access token from a user's existing token
@@ -137,63 +174,42 @@ func (c *Client) CreateScopedAccessToken(ctx context.Context, repo *api.Repo, re
 		}
 	}
 
-	reqBody := &scopedAccessTokenRequest{
-		Target:       repo.GetOrg(),
+	opts := &github.ScopedUserAccessTokenOptions{
 		AccessToken:  owner.GetToken(),
+		Target:       repo.GetOrg(),
 		Repositories: repos,
-		Permissions:  permissions,
+		Permissions:  applyUserTokenPermissions(permissions),
 	}
 
-	bodyBytes, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, fmt.Errorf("unable to marshal scoped token request: %w", err)
-	}
-
-	requestURL := fmt.Sprintf("%sapplications/%s/token/scoped", c.config.API, c.config.ClientID)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL, bytes.NewReader(bodyBytes))
-	if err != nil {
-		return nil, fmt.Errorf("unable to create scoped token request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/vnd.github+json")
-	req.SetBasicAuth(c.config.ClientID, c.config.ClientSecret)
-
-	httpClient := &http.Client{}
+	var transport http.RoundTripper = http.DefaultTransport
 
 	if c.Tracing != nil && c.Tracing.Config.EnableTracing {
-		httpClient.Transport = otelhttp.NewTransport(
-			http.DefaultTransport,
+		transport = otelhttp.NewTransport(
+			transport,
 			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
 				return otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
 			}),
 		)
 	}
 
-	resp, err := httpClient.Do(req)
+	client := github.NewClient(&http.Client{
+		Transport: &basicAuthRoundTripper{
+			username: c.config.ClientID,
+			password: c.config.ClientSecret,
+			base:     transport,
+		},
+	})
+	client.BaseURL, _ = url.Parse(c.config.API)
+
+	token, _, err := client.Apps.CreateScopedUserAccessToken(ctx, c.config.ClientID, opts)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create scoped access token: %w", err)
 	}
 
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		respBody, _ := io.ReadAll(resp.Body)
-
-		return nil, fmt.Errorf("unable to create scoped access token: status %d, body: %s", resp.StatusCode, string(respBody))
-	}
-
-	var tokenResp scopedAccessTokenResponse
-
-	err = json.NewDecoder(resp.Body).Decode(&tokenResp)
-	if err != nil {
-		return nil, fmt.Errorf("unable to decode scoped token response: %w", err)
-	}
-
-	c.Logger.Debugf("DEBUG: created scoped access token that expires at %s", tokenResp.ExpiresAt)
-
-	return &tokenResp, nil
+	return &scopedAccessTokenResponse{
+		Token:     token.GetToken(),
+		ExpiresAt: token.ExpiresAt.Time,
+	}, nil
 }
 
 // NewAppInstallationToken returns the GitHub App installation token for a particular repo with granular permissions.
