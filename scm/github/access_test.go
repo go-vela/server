@@ -385,7 +385,7 @@ func TestGithub_TeamList(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := []string{"Justice League", "octocat"}
+	want := []string{"justice-league", "octocat"}
 
 	u := new(api.User)
 	u.SetName("foo")
@@ -397,15 +397,15 @@ func TestGithub_TeamList(t *testing.T) {
 	got, err := client.ListUsersTeamsForOrg(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("ListUsersTeamsForOrg returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if err != nil {
-		t.Errorf("TeamAccess returned err: %v", err)
+		t.Errorf("ListUsersTeamsForOrg returned err: %v", err)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("TeamAccess is %v, want %v", got, want)
+		t.Errorf("ListUsersTeamsForOrg is %v, want %v", got, want)
 	}
 }
 
