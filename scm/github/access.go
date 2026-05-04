@@ -163,7 +163,7 @@ func (c *Client) ListUsersTeamsForOrg(ctx context.Context, u *api.User, org stri
 	for _, t := range teams {
 		// skip the org if does not match the org we are checking
 		if strings.EqualFold(org, t.GetOrganization().GetLogin()) {
-			userTeams = append(userTeams, t.GetName())
+			userTeams = append(userTeams, t.GetSlug())
 		}
 	}
 
