@@ -6,6 +6,9 @@ BUILD_DATE = $(shell date +%Y-%m-%dT%H:%M:%SZ)
 # set the filename for the api spec
 SPEC_FILE = api-spec.json
 
+# set GOEXPERIMENT to jsonv2 for github.com/lestrrat-go/jwx/v4, as it requires it.
+export GOEXPERIMENT := jsonv2
+
 # check if a git commit sha is already set
 ifndef GITHUB_SHA
 	# capture the current git commit sha we build the application from
