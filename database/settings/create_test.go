@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/api/types/settings"
 )
 
 func TestSettings_Engine_CreateSettings(t *testing.T) {
@@ -17,6 +19,12 @@ func TestSettings_Engine_CreateSettings(t *testing.T) {
 	_settings.SetCloneImage("target/vela-git-slim:latest")
 	_settings.SetTemplateDepth(10)
 	_settings.SetStarlarkExecLimit(100)
+	_settings.SetBlockedImages([]settings.ImageRestriction{
+		{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is blocked")},
+	})
+	_settings.SetWarnImages([]settings.ImageRestriction{
+		{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
+	})
 	_settings.SetRoutes([]string{"vela"})
 	_settings.SetRepoRoleMap(map[string]string{"admin": "admin", "triage": "read"})
 	_settings.SetOrgRoleMap(map[string]string{"admin": "admin", "member": "read"})
@@ -41,7 +49,7 @@ func TestSettings_Engine_CreateSettings(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "settings" ("compiler","queue","scm","repo_allowlist","schedule_allowlist","max_dashboard_repos","queue_restart_limit","enable_repo_secrets","enable_org_secrets","enable_shared_secrets","created_at","updated_at","updated_by","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
-		WithArgs(`{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
+		WithArgs(`{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true},"blocked_images":[{"image":"docker.io/blocked/image:latest","reason":"this image is blocked"}],"warn_images":[{"image":"docker.io/deprecated/image:latest","reason":"this image is deprecated"}]}`,
 			`{"routes":["vela"]}`, `{"repo_role_map":{"admin":"admin","triage":"read"},"org_role_map":{"admin":"admin","member":"read"},"team_role_map":{"admin":"admin"}}`, `{"octocat/hello-world"}`, `{"*"}`, 10, 30, true, true, true, 1, 1, ``, 1).
 		WillReturnRows(_rows)
 

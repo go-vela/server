@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
 	"github.com/go-vela/server/compiler/types/yaml"
@@ -810,5 +811,198 @@ func TestNative_Validate_Secrets_SecretOriginNameConflict(t *testing.T) {
 	err = compiler.ValidatePipeline(p)
 	if err == nil {
 		t.Errorf("Validate should have returned err")
+	}
+}
+
+func TestNative_CheckImageRestrictions_BlockedImage(t *testing.T) {
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	compiler.Compiler = settings.Compiler{
+		BlockedImages: &[]settings.ImageRestriction{
+			{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is not allowed")},
+		},
+	}
+
+	p := &pipeline.Build{
+		Steps: pipeline.ContainerSlice{
+			{Name: "blocked-step", Image: "blocked/image:latest"},
+			{Name: "allowed-step", Image: "alpine:latest"},
+		},
+	}
+
+	warnings, err := compiler.checkImageRestrictions(p)
+	if err == nil {
+		t.Errorf("checkImageRestrictions should have returned err for blocked image")
+	}
+
+	if len(warnings) != 0 {
+		t.Errorf("checkImageRestrictions should not have returned warnings, got: %v", warnings)
+	}
+}
+
+func TestNative_CheckImageRestrictions_WarnImage(t *testing.T) {
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	compiler.Compiler = settings.Compiler{
+		WarnImages: &[]settings.ImageRestriction{
+			{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
+		},
+	}
+
+	p := &pipeline.Build{
+		Steps: pipeline.ContainerSlice{
+			{Name: "warn-step", Image: "deprecated/image:latest"},
+			{Name: "fine-step", Image: "alpine:latest"},
+		},
+	}
+
+	warnings, err := compiler.checkImageRestrictions(p)
+	if err != nil {
+		t.Errorf("checkImageRestrictions returned unexpected err: %v", err)
+	}
+
+	if len(warnings) != 1 {
+		t.Errorf("checkImageRestrictions should have returned 1 warning, got: %d", len(warnings))
+	}
+}
+
+func TestNative_CheckImageRestrictions_WildcardPattern(t *testing.T) {
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	compiler.Compiler = settings.Compiler{
+		BlockedImages: &[]settings.ImageRestriction{
+			{Image: new("docker.io/blocked/*"), Reason: new("entire namespace is blocked")},
+		},
+	}
+
+	p := &pipeline.Build{
+		Steps: pipeline.ContainerSlice{
+			{Name: "step-a", Image: "blocked/image-one:latest"},
+			{Name: "step-b", Image: "blocked/image-two:v2"},
+			{Name: "step-c", Image: "allowed/image:latest"},
+		},
+	}
+
+	_, err = compiler.checkImageRestrictions(p)
+	if err == nil {
+		t.Errorf("checkImageRestrictions should have returned err for wildcard blocked images")
+	}
+}
+
+func TestNative_CheckImageRestrictions_NoMatch(t *testing.T) {
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	compiler.Compiler = settings.Compiler{
+		BlockedImages: &[]settings.ImageRestriction{
+			{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is not allowed")},
+		},
+		WarnImages: &[]settings.ImageRestriction{
+			{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
+		},
+	}
+
+	p := &pipeline.Build{
+		Steps: pipeline.ContainerSlice{
+			{Name: "fine-step", Image: "alpine:latest"},
+		},
+	}
+
+	warnings, err := compiler.checkImageRestrictions(p)
+	if err != nil {
+		t.Errorf("checkImageRestrictions returned unexpected err: %v", err)
+	}
+
+	if len(warnings) != 0 {
+		t.Errorf("checkImageRestrictions should not have returned warnings, got: %v", warnings)
+	}
+}
+
+func TestNative_CheckImageRestrictions_EmptyLists(t *testing.T) {
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	p := &pipeline.Build{
+		Steps: pipeline.ContainerSlice{
+			{Name: "step", Image: "alpine:latest"},
+		},
+	}
+
+	warnings, err := compiler.checkImageRestrictions(p)
+	if err != nil {
+		t.Errorf("checkImageRestrictions returned unexpected err: %v", err)
+	}
+
+	if len(warnings) != 0 {
+		t.Errorf("checkImageRestrictions should not have returned warnings, got: %v", warnings)
+	}
+}
+
+func TestNative_MatchesImagePattern(t *testing.T) {
+	tests := []struct {
+		name    string
+		pattern string
+		image   string
+		want    bool
+	}{
+		{
+			name:    "exact match normalized",
+			pattern: "docker.io/library/alpine:latest",
+			image:   "alpine:latest",
+			want:    true,
+		},
+		{
+			name:    "wildcard tag",
+			pattern: "docker.io/org/image:*",
+			image:   "org/image:v1.2.3",
+			want:    true,
+		},
+		{
+			name:    "wildcard org",
+			pattern: "docker.io/blocked/*",
+			image:   "blocked/tool:latest",
+			want:    true,
+		},
+		{
+			name:    "no match",
+			pattern: "docker.io/blocked/image:latest",
+			image:   "allowed/image:latest",
+			want:    false,
+		},
+		{
+			name:    "empty pattern",
+			pattern: "",
+			image:   "alpine:latest",
+			want:    false,
+		},
+		{
+			name:    "empty image",
+			pattern: "alpine:latest",
+			image:   "",
+			want:    false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := matchesImagePattern(test.pattern, test.image)
+
+			if got != test.want {
+				t.Errorf("matchesImagePattern(%q, %q) = %v, want %v", test.pattern, test.image, got, test.want)
+			}
+		})
 	}
 }

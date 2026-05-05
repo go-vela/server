@@ -346,6 +346,26 @@ func CompileAndPublish(
 				"repo":     r.GetName(),
 				"repo_id":  r.GetID(),
 			}).Info("pipeline created")
+		} else {
+			// reset the pipeline warnings if the compiled pipeline returned any
+			//
+			// The pipeline warnings can change at any time due to the image registry since
+			// new images could be added to the blocked or warning list. To account for this,
+			// we update the pipeline warnings to match what was compiled with the latest
+			// results. In general, this shouldn't be called often since we create a new
+			// pipeline record for every new commit so this covers scenarios where this
+			// isn't the case such as restarting a build.
+			if len(compiled.GetWarnings()) > 0 {
+				pipeline.SetWarnings(compiled.GetWarnings())
+
+				// send API call to update the pipeline
+				pipeline, err = database.UpdatePipeline(ctx, pipeline)
+				if err != nil {
+					retErr := fmt.Errorf("%s: failed to update pipeline for %s: %w", baseErr, r.GetFullName(), err)
+
+					return nil, nil, http.StatusInternalServerError, retErr
+				}
+			}
 		}
 
 		b.SetPipelineID(pipeline.GetID())
