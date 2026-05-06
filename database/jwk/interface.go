@@ -5,7 +5,7 @@ package jwk
 import (
 	"context"
 
-	"github.com/lestrrat-go/jwx/v3/jwk"
+	"github.com/lestrrat-go/jwx/v4/jwk"
 )
 
 // JWKInterface represents the Vela interface for JWK
