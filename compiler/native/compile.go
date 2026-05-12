@@ -45,6 +45,14 @@ func (c *Client) Compile(ctx context.Context, v any) (*pipeline.Build, *api.Pipe
 		return nil, nil, err
 	}
 
+	// validate netrc request before continuing with compile
+	if c.scm != nil {
+		err = c.scm.ValidateNetrcRequest(ctx, c.token, c.build, p.Git.Repositories, p.Git.Permissions)
+		if err != nil {
+			return nil, nil, fmt.Errorf("unable to validate token request: %w", err)
+		}
+	}
+
 	// create the API pipeline object from the yaml configuration
 	_pipeline := p.ToPipelineAPI()
 	_pipeline.SetData(data)
