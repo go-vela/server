@@ -31,6 +31,8 @@ jobs:
           git fetch --tags
 
       - name: validate
+        env:
+          GOEXPERIMENT: "jsonv2"
         run: |
           # Check that go mod tidy produces a zero diff; clean up any changes afterwards.
           go mod tidy && git diff --exit-code; code=$?; git checkout -- .; (exit $code)

@@ -12,6 +12,8 @@ permissions:
 jobs:
   diff-review:
     runs-on: ubuntu-latest
+    env:
+      GOEXPERIMENT: "jsonv2"
 
     permissions:
       contents: read # for actions/checkout to fetch code
@@ -40,6 +42,8 @@ jobs:
 
   full-review:
     runs-on: ubuntu-latest
+    env:
+      GOEXPERIMENT: "jsonv2"
 
     permissions:
       checks: write # for reviewdog/action-golangci-lint to report issues using checks
