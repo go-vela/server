@@ -882,7 +882,7 @@ func handleMergeGroupDestroy(c *gin.Context, l *logrus.Entry, db database.Interf
 	}
 
 	for _, rB := range rBs {
-		if rB.GetCommit() == b.GetCommit() {
+		if rB.GetCommit() == b.GetCommit() && rB.GetEvent() == b.GetEvent() {
 			switch rB.GetStatus() {
 			case constants.StatusPending:
 				rB.SetStatus(constants.StatusCanceled)
