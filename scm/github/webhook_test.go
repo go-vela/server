@@ -99,6 +99,84 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	}
 }
 
+func TestGithub_ProcessWebhook_Push_Multicommit(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/hooks/push_multicommit.json")
+	if err != nil {
+		t.Errorf("unable to open file: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
+	request.Header.Set("X-GitHub-Event", "push")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(api.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("push")
+	wantHook.SetBranch("main")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
+	wantRepo := new(api.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("main")
+	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics([]string{"go", "vela"})
+	wantRepo.SetCustomProps(map[string]any{"prop_1": "foo", "prop_2": "bar"})
+
+	wantBuild := new(api.Build)
+	wantBuild.SetEvent("push")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/commit/9c93babf58917cd6f6f6772b5df2b098f507ff95")
+	wantBuild.SetTitle("push received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetMessage("Update README.md")
+	wantBuild.SetCommit("9c93babf58917cd6f6f6772b5df2b098f507ff95")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetSenderSCMID("21031067")
+	wantBuild.SetAuthor("Codertocat")
+	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("refs/heads/main")
+	wantBuild.SetBaseRef("")
+
+	want := &internal.Webhook{
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
+		Files: []string{"CONTRIBUTING.md", "README.md", "readme.txt"},
+	}
+
+	got, err := client.ProcessWebhook(context.TODO(), request)
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	}
+}
+
 func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	// setup router
 	s := httptest.NewServer(http.NotFoundHandler())
