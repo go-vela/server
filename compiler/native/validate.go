@@ -67,6 +67,12 @@ func (c *Client) ValidateYAML(p *yaml.Build) error {
 		result = multierror.Append(result, err)
 	}
 
+	// validate the secrets block provided
+	err = validateYAMLSecrets(p.Secrets)
+	if err != nil {
+		result = multierror.Append(result, err)
+	}
+
 	return result
 }
 
@@ -128,6 +134,24 @@ func validateYAMLServices(s yaml.ServiceSlice) error {
 
 		if len(service.Image) == 0 {
 			return fmt.Errorf("no image provided for service %s", service.Name)
+		}
+	}
+
+	return nil
+}
+
+// validateYAMLSecretOrigin is a helper function that verifies the
+// secret origin block in the yaml configuration is valid.
+func validateYAMLSecrets(s yaml.SecretSlice) error {
+	for _, secret := range s {
+		if !secret.Origin.Empty() {
+			if len(secret.Origin.Name) == 0 {
+				return fmt.Errorf("no name provided for secret origin")
+			}
+
+			if len(secret.Origin.Image) == 0 {
+				return fmt.Errorf("no image provided for secret origin %s", secret.Origin.Name)
+			}
 		}
 	}
 
