@@ -23,6 +23,9 @@ func Test_isCancelable(t *testing.T) {
 	actionSync := constants.ActionSynchronize
 	actionEdited := constants.ActionEdited
 
+	oldBuildNumber := int64(1)
+	newBuildNumber := int64(2)
+
 	tests := []struct {
 		name    string
 		target  *types.Build
@@ -32,10 +35,12 @@ func Test_isCancelable(t *testing.T) {
 		{
 			name: "Wrong Event",
 			target: &types.Build{
+				Number: &oldBuildNumber,
 				Event:  &tagEvent,
 				Branch: &branchDev,
 			},
 			current: &types.Build{
+				Number: &newBuildNumber,
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
@@ -44,10 +49,12 @@ func Test_isCancelable(t *testing.T) {
 		{
 			name: "Cancelable Push",
 			target: &types.Build{
+				Number: &oldBuildNumber,
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
 			current: &types.Build{
+				Number: &newBuildNumber,
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
@@ -56,10 +63,12 @@ func Test_isCancelable(t *testing.T) {
 		{
 			name: "Push Branch Mismatch",
 			target: &types.Build{
+				Number: &oldBuildNumber,
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
 			current: &types.Build{
+				Number: &newBuildNumber,
 				Event:  &pushEvent,
 				Branch: &branchPatch,
 			},
@@ -68,10 +77,12 @@ func Test_isCancelable(t *testing.T) {
 		{
 			name: "Event Mismatch",
 			target: &types.Build{
+				Number: &oldBuildNumber,
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
 			current: &types.Build{
+				Number:  &newBuildNumber,
 				Event:   &pullEvent,
 				Branch:  &branchDev,
 				HeadRef: &branchPatch,
@@ -81,12 +92,14 @@ func Test_isCancelable(t *testing.T) {
 		{
 			name: "Cancelable Pull",
 			target: &types.Build{
+				Number:      &oldBuildNumber,
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchPatch,
 				EventAction: &actionOpened,
 			},
 			current: &types.Build{
+				Number:      &newBuildNumber,
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchPatch,
@@ -97,12 +110,14 @@ func Test_isCancelable(t *testing.T) {
 		{
 			name: "Pull Head Ref Mismatch",
 			target: &types.Build{
+				Number:      &oldBuildNumber,
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchPatch,
 				EventAction: &actionSync,
 			},
 			current: &types.Build{
+				Number:      &newBuildNumber,
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchDev,
@@ -113,16 +128,46 @@ func Test_isCancelable(t *testing.T) {
 		{
 			name: "Pull Ineligible Action",
 			target: &types.Build{
+				Number:      &oldBuildNumber,
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchPatch,
 				EventAction: &actionEdited,
 			},
 			current: &types.Build{
+				Number:      &newBuildNumber,
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchDev,
 				EventAction: &actionSync,
+			},
+			want: false,
+		},
+		{
+			name: "Newer Target Not Cancelable",
+			target: &types.Build{
+				Number: &newBuildNumber,
+				Event:  &pushEvent,
+				Branch: &branchDev,
+			},
+			current: &types.Build{
+				Number: &oldBuildNumber,
+				Event:  &pushEvent,
+				Branch: &branchDev,
+			},
+			want: false,
+		},
+		{
+			name: "Same Build Number Not Cancelable",
+			target: &types.Build{
+				Number: &oldBuildNumber,
+				Event:  &pushEvent,
+				Branch: &branchDev,
+			},
+			current: &types.Build{
+				Number: &oldBuildNumber,
+				Event:  &pushEvent,
+				Branch: &branchDev,
 			},
 			want: false,
 		},
