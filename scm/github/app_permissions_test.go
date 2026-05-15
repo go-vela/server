@@ -5,7 +5,7 @@ package github
 import (
 	"testing"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v86/github"
 )
 
 func TestGetInstallationPermission(t *testing.T) {
