@@ -281,19 +281,14 @@ func (s *StepSecretSlice) UnmarshalYAML(unmarshal func(any) error) error {
 //   - if 'origin' is present: validate as an external secret (only 'origin' required)
 //   - else: validate as a native secret ('name' required, 'origin' not allowed)
 func (Secret) JSONSchemaExtend(schema *jsonschema.Schema) {
-	originalAdditionalProperties := schema.AdditionalProperties
+	additionalProperties := schema.AdditionalProperties
 
-	// partition properties into two sets: origin-only and native (else)
-	originProps := orderedmap.New[string, *jsonschema.Schema]()
-	nativeProps := orderedmap.New[string, *jsonschema.Schema]()
+	originProperty, _ := schema.Properties.Get("origin")
+	originProperties := orderedmap.New[string, *jsonschema.Schema]()
+	originProperties.Set("origin", originProperty)
 
-	for pair := schema.Properties.Oldest(); pair != nil; pair = pair.Next() {
-		if pair.Key == "origin" {
-			originProps.Set(pair.Key, pair.Value)
-		} else {
-			nativeProps.Set(pair.Key, pair.Value)
-		}
-	}
+	schema.Properties.Delete("origin")
+	nativeProperties := schema.Properties
 
 	schema.If = &jsonschema.Schema{
 		Required: []string{"origin"},
@@ -301,15 +296,15 @@ func (Secret) JSONSchemaExtend(schema *jsonschema.Schema) {
 
 	schema.Then = &jsonschema.Schema{
 		Type:                 "object",
-		Properties:           originProps,
-		AdditionalProperties: originalAdditionalProperties,
+		Properties:           originProperties,
+		AdditionalProperties: additionalProperties,
 		Required:             []string{"origin"},
 	}
 
 	schema.Else = &jsonschema.Schema{
 		Type:                 "object",
-		Properties:           nativeProps,
-		AdditionalProperties: originalAdditionalProperties,
+		Properties:           nativeProperties,
+		AdditionalProperties: additionalProperties,
 		Required:             []string{"name"},
 	}
 
