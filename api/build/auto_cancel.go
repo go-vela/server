@@ -70,12 +70,12 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 			if build == nil {
 				l.Debugf("unable to find running build on any executor, marking as canceled in database")
 
-				b.SetError(fmt.Sprintf("%s build was auto canceled in favor of build %d", status, b.GetNumber()))
-				b.SetStatus(constants.StatusCanceled)
+				rB.SetError(fmt.Sprintf("%s build was auto canceled in favor of build %d", status, b.GetNumber()))
+				rB.SetStatus(constants.StatusCanceled)
 
-				err = updateCanceledBuildStatus(c, l, b)
+				err = updateCanceledBuildStatus(c, l, rB)
 				if err != nil {
-					return true, fmt.Errorf("unable to update status for build %s/%d: %w", build.GetRepo().GetFullName(), build.GetNumber(), err)
+					return true, fmt.Errorf("unable to update status for build %s/%d: %w", rB.GetRepo().GetFullName(), rB.GetNumber(), err)
 				}
 
 				return true, nil
@@ -105,6 +105,11 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 // isCancelable is a helper function that determines whether a `target` build should be auto-canceled
 // given a current build that intends to supersede it.
 func isCancelable(target *types.Build, current *types.Build) bool {
+	// only older builds can be canceled by newer ones — prevents mutual cancellation
+	if target.GetNumber() >= current.GetNumber() {
+		return false
+	}
+
 	switch target.GetEvent() {
 	case constants.EventPush:
 		// target is cancelable if current build is also a push event and the branches are the same

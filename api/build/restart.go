@@ -193,6 +193,11 @@ func RestartBuild(c *gin.Context) {
 
 	scmToken := scm.GenerateStatusToken(ctx, item.Build)
 
+	err = cache.FromContext(c).StoreInstallStatusToken(ctx, b.GetID(), scmToken)
+	if err != nil {
+		l.Errorf("unable to store installation status token in cache for build %d: %v", b.GetID(), err)
+	}
+
 	if shouldEnqueue {
 		// send API call to set the status on the commit
 		err := scm.Status(c.Request.Context(), b, scmToken)

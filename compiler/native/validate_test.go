@@ -224,6 +224,76 @@ func TestNative_Validate_Services_NoImage(t *testing.T) {
 	}
 }
 
+func TestNative_ValidateYAML_SecretOrigin_NoName(t *testing.T) {
+	// setup types
+	str := "foo"
+	p := &yaml.Build{
+		Version: "v1",
+		Secrets: yaml.SecretSlice{
+			&yaml.Secret{
+				Origin: yaml.Origin{
+					Image: "vault",
+					Name:  "",
+				},
+			},
+		},
+		Steps: yaml.StepSlice{
+			&yaml.Step{
+				Commands: raw.StringSlice{"echo hello"},
+				Image:    "alpine",
+				Name:     str,
+				Pull:     "always",
+			},
+		},
+	}
+
+	// run test
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.ValidateYAML(p)
+	if err == nil {
+		t.Errorf("Validate should have returned err")
+	}
+}
+
+func TestNative_Validate_SecretOrigin_NoImage(t *testing.T) {
+	// setup types
+	str := "foo"
+	p := &yaml.Build{
+		Version: "v1",
+		Secrets: yaml.SecretSlice{
+			&yaml.Secret{
+				Origin: yaml.Origin{
+					Image: "",
+					Name:  str,
+				},
+			},
+		},
+		Steps: yaml.StepSlice{
+			&yaml.Step{
+				Commands: raw.StringSlice{"echo hello"},
+				Image:    "alpine",
+				Name:     str,
+				Pull:     "always",
+			},
+		},
+	}
+
+	// run test
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.ValidateYAML(p)
+	if err == nil {
+		t.Errorf("Validate should have returned err")
+	}
+}
+
 func TestNative_Validate_Stages(t *testing.T) {
 	// setup types
 	str := "foo"

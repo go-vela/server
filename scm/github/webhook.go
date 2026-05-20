@@ -7,8 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"mime"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -213,9 +215,7 @@ func (c *Client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 	var files []string
 
 	if payload.GetHeadCommit() != nil {
-		files = append(files, payload.GetHeadCommit().Added...)
-		files = append(files, payload.GetHeadCommit().Removed...)
-		files = append(files, payload.GetHeadCommit().Modified...)
+		files = GetAllFilesTouched(payload)
 	}
 
 	// handle when push event is a delete
@@ -252,6 +252,25 @@ func (c *Client) processPushEvent(_ context.Context, h *api.Hook, payload *githu
 		Build: b,
 		Files: files,
 	}, nil
+}
+
+func GetAllFilesTouched(payload *github.PushEvent) []string {
+	set := make(map[string]struct{})
+
+	commits := payload.GetCommits()
+	for _, commit := range commits {
+		for _, file := range commit.Added {
+			set[file] = struct{}{}
+		}
+		for _, file := range commit.Removed {
+			set[file] = struct{}{}
+		}
+		for _, file := range commit.Modified {
+			set[file] = struct{}{}
+		}
+	}
+
+	return slices.Sorted(maps.Keys(set))
 }
 
 // processPREvent is a helper function to process the pull_request event.
