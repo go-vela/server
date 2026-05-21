@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v87/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
