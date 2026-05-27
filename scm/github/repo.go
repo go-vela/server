@@ -21,14 +21,14 @@ import (
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
-func (c *Client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, ref string) (data []byte, err error) {
+func (c *Client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, ref, token string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
 
 	for i := range retryLimit {
 		logrus.Debugf("fetching config file - Attempt %d", i+1)
 		// attempt to fetch the config
-		data, err = c.Config(ctx, u, r, ref)
+		data, err = c.Config(ctx, u, r, ref, token)
 
 		// return err if the last attempt returns error
 		if err != nil && i == retryLimit-1 {
@@ -49,15 +49,21 @@ func (c *Client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, re
 }
 
 // Config gets the pipeline configuration from the GitHub repo.
-func (c *Client) Config(ctx context.Context, u *api.User, r *api.Repo, ref string) ([]byte, error) {
+func (c *Client) Config(ctx context.Context, u *api.User, r *api.Repo, ref, token string) ([]byte, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 		"user": u.GetName(),
 	}).Tracef("capturing configuration file for %s/commit/%s", r.GetFullName(), ref)
 
-	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	// create GitHub OAuth client
+	var client *github.Client
+
+	if token == "" {
+		client = c.newOAuthTokenClient(ctx, u.GetToken())
+	} else {
+		client = c.newOAuthTokenClient(ctx, token)
+	}
 
 	// default pipeline file names
 	files := []string{".vela.yml", ".vela.yaml"}
@@ -409,7 +415,7 @@ func toAPIRepo(gr github.Repository) *api.Repo {
 
 // GetPullRequest defines a function that retrieves
 // a pull request for a repo.
-func (c *Client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (string, string, string, string, error) {
+func (c *Client) GetPullRequest(ctx context.Context, r *api.Repo, number int, token string) (string, string, string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -417,7 +423,7 @@ func (c *Client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (s
 	}).Tracef("retrieving pull request %d for repo %s", number, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, r.GetOwner().GetToken())
+	client := c.newOAuthTokenClient(ctx, token)
 
 	pull, _, err := client.PullRequests.Get(ctx, r.GetOrg(), r.GetName(), number)
 	if err != nil {
@@ -465,7 +471,7 @@ func (c *Client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, r
 }
 
 // GetBranch defines a function that retrieves a branch for a repo.
-func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (string, string, error) {
+func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch, token string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -473,7 +479,7 @@ func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch string) (str
 	}).Tracef("retrieving branch %s for repo %s", branch, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, r.GetOwner().GetToken())
+	client := c.newOAuthTokenClient(ctx, token)
 
 	maxRedirects := 3
 
@@ -633,7 +639,7 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
 
 		if tknCache != nil {
-			err = tknCache.StoreInstallToken(ctx, installToken, b.GetID(), r.GetTimeout())
+			err = tknCache.StoreInstallToken(ctx, installToken, b.GetID(), r.GetApprovalTimeout())
 			if err != nil {
 				l.Tracef("unable to store installation token in cache: %v", err)
 

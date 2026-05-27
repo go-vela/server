@@ -92,10 +92,32 @@ func CompileAndPublish(
 		}
 	}
 
+	var compileToken string
+
+	// if this is an app repo, generate an installation token to capture the changeset
+	if r.GetInstallID() != 0 {
+		compileToken, err = cache.GetPermissionToken(ctx, b.GetRepo().GetInstallID())
+		if err != nil {
+			return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to retrieve permission token from cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
+		}
+
+		if compileToken == "" {
+			compileToken, err = scm.GeneratePermissionToken(ctx, b.GetRepo().GetInstallID())
+			if err != nil {
+				return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to generate permission token for installation %d: %w", b.GetRepo().GetInstallID(), err)
+			}
+
+			err = cache.StorePermissionToken(ctx, b.GetRepo().GetInstallID(), compileToken)
+			if err != nil {
+				return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to store permission token in cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
+			}
+		}
+	}
+
 	// if the event is issue_comment and the issue is a pull request,
 	// call SCM for more data not provided in webhook payload
 	if strings.EqualFold(cfg.Source, "webhook") && strings.EqualFold(b.GetEvent(), constants.EventComment) {
-		commit, branch, baseref, headref, err := scm.GetPullRequest(ctx, r, prNum)
+		commit, branch, baseref, headref, err := scm.GetPullRequest(ctx, r, prNum, compileToken)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -111,7 +133,7 @@ func CompileAndPublish(
 	// if the source is from a schedule, fetch the commit sha from schedule branch (same as build branch at this moment)
 	if strings.EqualFold(cfg.Source, "schedule") {
 		// send API call to capture the commit sha for the branch
-		_, commit, err := scm.GetBranch(ctx, r, b.GetBranch())
+		_, commit, err := scm.GetBranch(ctx, r, b.GetBranch(), compileToken)
 		if err != nil {
 			retErr := fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
 
@@ -157,26 +179,17 @@ func CompileAndPublish(
 	b.SetRuntime("")
 	b.SetDistribution("")
 
-	var compileToken string
-
-	// if this is an app repo, generate an installation token to capture the changeset
-	if r.GetInstallID() != 0 {
-		compileToken, err = cache.GetPermissionToken(ctx, b.GetRepo().GetInstallID())
+	// attach a sender SCM id if the webhook payload from the SCM has no sender id
+	// the code in ProcessWebhook implies that the sender may not always be present
+	// fallbacks like pusher/commit_author do not have an id
+	if len(b.GetSenderSCMID()) == 0 || b.GetSenderSCMID() == "0" {
+		// fetch scm user id for pusher
+		senderID, err := scm.GetUserID(ctx, b.GetSender(), compileToken)
 		if err != nil {
-			return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to retrieve permission token from cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
+			return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to get SCM user id for %s: %w", b.GetSender(), err)
 		}
 
-		if compileToken == "" {
-			compileToken, err = scm.GeneratePermissionToken(ctx, b.GetRepo().GetInstallID())
-			if err != nil {
-				return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to generate permission token for installation %d: %w", b.GetRepo().GetInstallID(), err)
-			}
-
-			err = cache.StorePermissionToken(ctx, b.GetRepo().GetInstallID(), compileToken)
-			if err != nil {
-				return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to store permission token in cache for installation %d: %w", b.GetRepo().GetInstallID(), err)
-			}
-		}
+		b.SetSenderSCMID(senderID)
 	}
 
 	// variable to store changeset files
@@ -231,7 +244,7 @@ func CompileAndPublish(
 		pipeline, err = database.GetPipelineForRepo(ctx, b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
-			pipelineFile, err = scm.ConfigBackoff(ctx, u, r, b.GetCommit())
+			pipelineFile, err = scm.ConfigBackoff(ctx, u, r, b.GetCommit(), compileToken)
 			if err != nil {
 				retErr := fmt.Errorf("%s: unable to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 
