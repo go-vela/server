@@ -422,6 +422,11 @@ func (c *Client) GetPullRequest(ctx context.Context, r *api.Repo, number int, to
 		"user": r.GetOwner().GetName(),
 	}).Tracef("retrieving pull request %d for repo %s", number, r.GetFullName())
 
+	// use owner token if token is not provided
+	if token == "" {
+		token = r.GetOwner().GetToken()
+	}
+
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, token)
 
@@ -477,6 +482,11 @@ func (c *Client) GetBranch(ctx context.Context, r *api.Repo, branch, token strin
 		"repo": r.GetName(),
 		"user": r.GetOwner().GetName(),
 	}).Tracef("retrieving branch %s for repo %s", branch, r.GetFullName())
+
+	// use owner token if token is not provided
+	if token == "" {
+		token = r.GetOwner().GetToken()
+	}
 
 	// create GitHub OAuth client with user's token
 	client := c.newOAuthTokenClient(ctx, token)

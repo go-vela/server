@@ -183,8 +183,15 @@ func CompileAndPublish(
 	// the code in ProcessWebhook implies that the sender may not always be present
 	// fallbacks like pusher/commit_author do not have an id
 	if len(b.GetSenderSCMID()) == 0 || b.GetSenderSCMID() == "0" {
+		senderFetchToken := compileToken
+
+		// use owner token if token is not provided
+		if compileToken == "" {
+			senderFetchToken = r.GetOwner().GetToken()
+		}
+
 		// fetch scm user id for pusher
-		senderID, err := scm.GetUserID(ctx, b.GetSender(), compileToken)
+		senderID, err := scm.GetUserID(ctx, b.GetSender(), senderFetchToken)
 		if err != nil {
 			return nil, nil, http.StatusInternalServerError, fmt.Errorf("unable to get SCM user id for %s: %w", b.GetSender(), err)
 		}
