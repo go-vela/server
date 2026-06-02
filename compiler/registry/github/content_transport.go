@@ -99,7 +99,6 @@ func (t *ContentsTransport) RoundTrip(req *http.Request) (*http.Response, error)
 				Body:      append([]byte(nil), body...),
 				UpdatedAt: time.Now().UTC(),
 			})
-
 			if err != nil {
 				logrus.Errorf("failed to store template contents in cache for key %s: %v", key, err)
 			}
