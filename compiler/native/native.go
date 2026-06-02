@@ -56,7 +56,7 @@ type Client struct {
 }
 
 // FromCLICommand returns a Pipeline implementation that integrates with the supported registries.
-func FromCLICommand(ctx context.Context, cmd *cli.Command) (*Client, error) {
+func FromCLICommand(ctx context.Context, cmd *cli.Command, templateCache cache.Service) (*Client, error) {
 	logrus.Debug("creating registry clients from CLI configuration")
 
 	c := new(Client)
@@ -71,7 +71,7 @@ func FromCLICommand(ctx context.Context, cmd *cli.Command) (*Client, error) {
 	}
 
 	// setup github template service
-	github, err := setupGithub(ctx)
+	github, err := setupGithub(ctx, templateCache)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func FromCLICommand(ctx context.Context, cmd *cli.Command) (*Client, error) {
 	if cmd.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", cmd.String("github-url"))
 		// setup private github service
-		privGithub, err := setupPrivateGithub(ctx, cmd.String("github-url"), cmd.String("github-token"))
+		privGithub, err := setupPrivateGithub(ctx, cmd.String("github-url"), cmd.String("github-token"), templateCache)
 		if err != nil {
 			return nil, err
 		}
@@ -116,16 +116,16 @@ func FromCLICommand(ctx context.Context, cmd *cli.Command) (*Client, error) {
 
 // setupGithub is a helper function to setup the
 // Github registry service from the CLI arguments.
-func setupGithub(ctx context.Context) (registry.Service, error) {
+func setupGithub(ctx context.Context, templateCache cache.Service) (registry.Service, error) {
 	logrus.Tracef("creating %s registry client from CLI configuration", "github")
-	return github.New(ctx, "", "")
+	return github.New(ctx, "", "", templateCache)
 }
 
 // setupPrivateGithub is a helper function to setup the
 // Github registry service from the CLI arguments.
-func setupPrivateGithub(ctx context.Context, addr, token string) (registry.Service, error) {
+func setupPrivateGithub(ctx context.Context, addr, token string, templateCache cache.Service) (registry.Service, error) {
 	logrus.Tracef("creating private %s registry client from CLI configuration", "github")
-	return github.New(ctx, addr, token)
+	return github.New(ctx, addr, token, templateCache)
 }
 
 // Duplicate creates a clone of the Engine.
@@ -207,7 +207,7 @@ func (c *Client) WithMetadata(m *internal.Metadata) compiler.Engine {
 // WithPrivateGitHub sets the private github client in the Engine.
 func (c *Client) WithPrivateGitHub(ctx context.Context, url, token string) compiler.Engine {
 	if len(url) != 0 && len(token) != 0 {
-		privGithub, _ := setupPrivateGithub(ctx, url, token)
+		privGithub, _ := setupPrivateGithub(ctx, url, token, c.cache)
 
 		c.PrivateGithub = privGithub
 		c.UsePrivateGithub = true

@@ -137,7 +137,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	// run test -- missing private github
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -160,7 +160,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err = FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err = FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -336,7 +336,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -441,7 +441,7 @@ func TestNative_ExpandStepsWarnings(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -541,7 +541,7 @@ func TestNative_ExpandDeployment(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -787,7 +787,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	wantEnvironment := raw.StringSliceMap{}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -880,7 +880,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -1056,7 +1056,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -1283,7 +1283,7 @@ func TestNative_ExpandStepsDuplicateCalls(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -1386,7 +1386,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -1470,7 +1470,7 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, s.URL), nil)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}

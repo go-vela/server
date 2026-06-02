@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/server/compiler/types/yaml"
@@ -115,7 +116,7 @@ func GetTemplates(c *gin.Context) {
 		templates[name] = template.ToAPI()
 
 		// create a compiler registry client for parsing (no address or token needed for Parse)
-		registry, err := github.New(ctx, "", "")
+		registry, err := github.New(ctx, "", "", cache.FromContext(c))
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("%s: unable to create compiler github client: %w", baseErr, err))
 

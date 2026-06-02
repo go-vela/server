@@ -4,6 +4,7 @@ package cache
 
 import (
 	"context"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -24,6 +25,8 @@ type Setup struct {
 	Cluster bool
 
 	InstallTokenKey string
+
+	TemplateTTL time.Duration
 }
 
 // Redis creates and returns a Vela service capable
@@ -39,5 +42,6 @@ func (s *Setup) Redis(ctx context.Context) (Service, error) {
 		redis.WithAddress(s.Address),
 		redis.WithCluster(s.Cluster),
 		redis.WithInstallTokenKey(s.InstallTokenKey),
+		redis.WithTemplateTTL(s.TemplateTTL),
 	)
 }

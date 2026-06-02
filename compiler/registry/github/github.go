@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/go-vela/server/cache"
 	"github.com/google/go-github/v84/github"
 	"golang.org/x/oauth2"
 )
@@ -18,9 +19,10 @@ const (
 )
 
 type Client struct {
-	githubClient *github.Client
-	URL          string
-	API          string
+	githubClient  *github.Client
+	templateCache cache.Service
+	URL           string
+	API           string
 }
 
 func (c *Client) Equal(other *Client) bool {
@@ -29,11 +31,12 @@ func (c *Client) Equal(other *Client) bool {
 
 // New returns a Registry implementation that integrates
 // with GitHub or a GitHub Enterprise instance.
-func New(ctx context.Context, address, token string) (*Client, error) {
+func New(ctx context.Context, address, token string, templateCache cache.Service) (*Client, error) {
 	// create the client object
 	c := &Client{
-		URL: defaultURL,
-		API: defaultAPI,
+		URL:           defaultURL,
+		API:           defaultAPI,
+		templateCache: templateCache,
 	}
 
 	// ensure we have the URL and API set
@@ -71,6 +74,8 @@ func (c *Client) newOAuthTokenClient(ctx context.Context, token string) *github.
 
 	// create the OAuth client
 	tc := oauth2.NewClient(ctx, ts)
+
+	tc.Transport = NewContentsTransport(c.templateCache, tc.Transport)
 
 	// create the GitHub client from the OAuth client
 	github := github.NewClient(tc)

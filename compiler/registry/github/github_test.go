@@ -6,12 +6,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v84/github"
-	"golang.org/x/oauth2"
 )
 
 func TestGithub_New(t *testing.T) {
@@ -19,24 +14,21 @@ func TestGithub_New(t *testing.T) {
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
 
-	gitClient := github.NewClient(nil)
-
-	gitClient.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
-
-	want := &Client{
-		githubClient: gitClient,
-		URL:          s.URL,
-		API:          s.URL + "/api/v3/",
-	}
+	wantURL := s.URL
+	wantAPI := s.URL + "/api/v3/"
 
 	// run test
-	got, err := New(context.Background(), s.URL, "")
+	got, err := New(context.Background(), s.URL, "", nil)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	if !cmp.Equal(got, want) {
-		t.Errorf("New is %v, want %v", got, want)
+	if got.URL != wantURL {
+		t.Errorf("New URL is %v, want %v", got.URL, wantURL)
+	}
+
+	if got.API != wantAPI {
+		t.Errorf("New API is %v, want %v", got.API, wantAPI)
 	}
 }
 
@@ -46,27 +38,21 @@ func TestGithub_NewToken(t *testing.T) {
 	defer s.Close()
 
 	token := "foobar"
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(context.Background(), ts)
-	gitClient := github.NewClient(tc)
-	gitClient.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
-
-	want := &Client{
-		githubClient: gitClient,
-		URL:          s.URL,
-		API:          s.URL + "/api/v3/",
-	}
+	wantURL := s.URL
+	wantAPI := s.URL + "/api/v3/"
 
 	// run test
-	got, err := New(context.Background(), s.URL, token)
+	got, err := New(context.Background(), s.URL, token, nil)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	if !cmp.Equal(got, want) {
-		t.Errorf("New is %v, want %v", got, want)
+	if got.URL != wantURL {
+		t.Errorf("New URL is %v, want %v", got.URL, wantURL)
+	}
+
+	if got.API != wantAPI {
+		t.Errorf("New API is %v, want %v", got.API, wantAPI)
 	}
 }
 
@@ -113,7 +99,7 @@ func TestGithub_NewURL(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		// run test
-		got, err := New(context.Background(), test.address, "foobar")
+		got, err := New(context.Background(), test.address, "foobar", nil)
 		if err != nil {
 			t.Errorf("New returned err: %v", err)
 		}
