@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -42,7 +43,9 @@ func (t *ContentsTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	entry, err := t.Store.GetTemplateContents(req.Context(), key)
 	if err != nil {
 		logrus.Errorf("failed to get template contents from cache for key %s: %v", key, err)
-		return nil, err
+
+		// continue to request if cache is acting up
+		return t.Base.RoundTrip(req)
 	}
 
 	clonedReq := req.Clone(req.Context())
@@ -69,7 +72,7 @@ func (t *ContentsTransport) RoundTrip(req *http.Request) (*http.Response, error)
 		}
 
 		return &http.Response{
-			Status:        http.StatusText(entry.Status),
+			Status:        fmt.Sprintf("%d %s", entry.Status, http.StatusText(entry.Status)),
 			StatusCode:    entry.Status,
 			Header:        entry.Header.Clone(),
 			Body:          io.NopCloser(bytes.NewReader(entry.Body)),
@@ -89,13 +92,17 @@ func (t *ContentsTransport) RoundTrip(req *http.Request) (*http.Response, error)
 
 		etag := resp.Header.Get("Etag")
 		if etag != "" {
-			_ = t.Store.StoreTemplateContents(req.Context(), key, &models.TemplateEntry{
+			err = t.Store.StoreTemplateContents(req.Context(), key, &models.TemplateEntry{
 				ETag:      etag,
 				Status:    resp.StatusCode,
 				Header:    resp.Header.Clone(),
 				Body:      append([]byte(nil), body...),
 				UpdatedAt: time.Now().UTC(),
 			})
+
+			if err != nil {
+				logrus.Errorf("failed to store template contents in cache for key %s: %v", key, err)
+			}
 		}
 
 		resp.Body = io.NopCloser(bytes.NewReader(body))
