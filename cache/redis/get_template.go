@@ -7,8 +7,9 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/go-vela/server/cache/models"
 	"github.com/redis/go-redis/v9"
+
+	"github.com/go-vela/server/cache/models"
 )
 
 func (c *Client) GetTemplateContents(ctx context.Context, key string) (*models.TemplateEntry, error) {

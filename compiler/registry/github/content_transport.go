@@ -10,9 +10,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/cache/models"
-	"github.com/sirupsen/logrus"
 )
 
 type ContentsTransport struct {
@@ -25,6 +26,7 @@ func NewContentsTransport(store cache.Service, base http.RoundTripper) *Contents
 	if base == nil {
 		base = http.DefaultTransport
 	}
+
 	return &ContentsTransport{Base: base, Store: store}
 }
 
@@ -44,8 +46,10 @@ func (t *ContentsTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	}
 
 	clonedReq := req.Clone(req.Context())
+
 	if entry != nil && entry.ETag != "" {
 		logrus.Debug("adding If-None-Match header to request for cache validation")
+
 		clonedReq.Header = clonedReq.Header.Clone()
 		clonedReq.Header.Set("If-None-Match", entry.ETag)
 	}
@@ -78,13 +82,14 @@ func (t *ContentsTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	if resp.StatusCode == http.StatusOK {
 		body, readErr := io.ReadAll(resp.Body)
 		_ = resp.Body.Close()
+
 		if readErr != nil {
 			return nil, readErr
 		}
 
 		etag := resp.Header.Get("Etag")
 		if etag != "" {
-			_ = t.Store.StoreTemplateContents(clonedReq.Context(), key, &models.TemplateEntry{
+			_ = t.Store.StoreTemplateContents(req.Context(), key, &models.TemplateEntry{
 				ETag:      etag,
 				Status:    resp.StatusCode,
 				Header:    resp.Header.Clone(),

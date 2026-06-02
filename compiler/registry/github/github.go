@@ -8,9 +8,10 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/go-vela/server/cache"
 	"github.com/google/go-github/v84/github"
 	"golang.org/x/oauth2"
+
+	"github.com/go-vela/server/cache"
 )
 
 const (
