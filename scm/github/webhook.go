@@ -262,9 +262,11 @@ func GetAllFilesTouched(payload *github.PushEvent) []string {
 		for _, file := range commit.Added {
 			set[file] = struct{}{}
 		}
+
 		for _, file := range commit.Removed {
 			set[file] = struct{}{}
 		}
+
 		for _, file := range commit.Modified {
 			set[file] = struct{}{}
 		}
