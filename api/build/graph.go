@@ -160,7 +160,7 @@ func GetBuildGraph(c *gin.Context) {
 	lp, err := database.FromContext(c).GetPipelineForRepo(ctx, b.GetCommit(), r)
 	if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
 		// send API call to capture the pipeline configuration file
-		config, err = scm.FromContext(c).ConfigBackoff(ctx, u, r, b.GetCommit())
+		config, err = scm.FromContext(c).ConfigBackoff(ctx, u, r, b.GetCommit(), u.GetToken())
 		if err != nil {
 			retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", r.GetFullName(), err)
 

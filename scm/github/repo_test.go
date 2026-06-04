@@ -59,7 +59,7 @@ func TestGithub_Config_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -121,7 +121,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ConfigBackoff(t.Context(), u, r, "")
+	got, err := client.ConfigBackoff(t.Context(), u, r, "", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("ConfigBackoff returned %v, want %v", resp.Code, http.StatusOK)
@@ -176,7 +176,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -232,7 +232,7 @@ func TestGithub_Config_Star(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -292,7 +292,7 @@ func TestGithub_Config_Star_Prefer(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -348,7 +348,7 @@ func TestGithub_Config_Py(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -397,7 +397,7 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -452,7 +452,7 @@ func TestGithub_Config_NoContinueOnNon404(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 	if err == nil {
 		t.Error("Config should have returned err")
 	}
@@ -484,7 +484,7 @@ func TestGithub_Config_NilResponse(t *testing.T) {
 	client, _ := NewTest(url)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 	if err == nil {
 		t.Error("Config should have returned err")
 	}
@@ -521,7 +521,7 @@ func TestGithub_Config_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -571,7 +571,7 @@ func TestGithub_Config_BadEncoding(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(t.Context(), u, r, "")
+	got, err := client.Config(t.Context(), u, r, "", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -1210,7 +1210,7 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(t.Context(), r, 1)
+	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(t.Context(), r, 1, "bar")
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1267,7 +1267,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotBranch, gotCommit, err := client.GetBranch(t.Context(), r, "main")
+	gotBranch, gotCommit, err := client.GetBranch(t.Context(), r, "main", "bar")
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}

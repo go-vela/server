@@ -107,11 +107,11 @@ type Service interface {
 
 	// Config defines a function that captures
 	// the pipeline configuration from a repo.
-	Config(context.Context, *api.User, *api.Repo, string) ([]byte, error)
+	Config(context.Context, *api.User, *api.Repo, string, string) ([]byte, error)
 	// ConfigBackoff is a truncated constant backoff wrapper for Config.
 	// Retry again in five seconds if Config fails to retrieve yaml/yml file.
 	// Will return an error after five failed attempts.
-	ConfigBackoff(context.Context, *api.User, *api.Repo, string) ([]byte, error)
+	ConfigBackoff(context.Context, *api.User, *api.Repo, string, string) ([]byte, error)
 	// Disable defines a function that deactivates
 	// a repo by destroying the webhook.
 	Disable(context.Context, *api.User, string, string) error
@@ -132,10 +132,10 @@ type Service interface {
 	ListUserRepos(context.Context, *api.User) ([]string, error)
 	// GetBranch defines a function that retrieves
 	// a branch for a repo.
-	GetBranch(context.Context, *api.Repo, string) (string, string, error)
+	GetBranch(context.Context, *api.Repo, string, string) (string, string, error)
 	// GetPullRequest defines a function that retrieves
 	// a pull request for a repo.
-	GetPullRequest(context.Context, *api.Repo, int) (string, string, string, string, error)
+	GetPullRequest(context.Context, *api.Repo, int, string) (string, string, string, string, error)
 	// GetRepo defines a function that retrieves
 	// details for a repo.
 	GetRepo(context.Context, *api.User, *api.Repo) (*api.Repo, int, error)
