@@ -102,7 +102,9 @@ func UpdateBuild(c *gin.Context) {
 
 	// update build fields if provided
 	if len(input.GetStatus()) > 0 {
-		if !strings.EqualFold(input.GetStatus(), b.GetStatus()) {
+		// if status is canceled, there is a chance it was set by Cancel handler, which does not update status. Assume a status update is needed.
+		// otherwise, only update status if there is a change.
+		if input.GetStatus() == constants.StatusCanceled || !strings.EqualFold(input.GetStatus(), b.GetStatus()) {
 			scmStatusReq = true
 		}
 
