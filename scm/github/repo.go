@@ -649,7 +649,8 @@ func (c *Client) GetNetrcPassword(ctx context.Context, db database.Interface, tk
 		l.Tracef("using github app installation token for %s/%s", r.GetOrg(), r.GetName())
 
 		if tknCache != nil {
-			err = tknCache.StoreInstallToken(ctx, installToken, b.GetID(), r.GetApprovalTimeout())
+			// store install token with a TTL of the pending approval timeout (days -> minutes)
+			err = tknCache.StoreInstallToken(ctx, installToken, b.GetID(), r.GetApprovalTimeout()*60*24)
 			if err != nil {
 				l.Tracef("unable to store installation token in cache: %v", err)
 
