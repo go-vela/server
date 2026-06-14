@@ -21,6 +21,7 @@ func FromCLICommand(ctx context.Context, c *cli.Command) (Service, error) {
 		Address:         c.String("cache.addr"),
 		Cluster:         c.Bool("cache.cluster"),
 		InstallTokenKey: c.String("cache.install-token-key"),
+		TemplateTTL:     c.Duration("cache.template-ttl"),
 	}
 
 	// setup the queue

@@ -69,7 +69,12 @@ func server(ctx context.Context, cmd *cli.Command) error {
 		logrus.SetLevel(logrus.PanicLevel)
 	}
 
-	compiler, err := native.FromCLICommand(ctx, cmd)
+	cache, err := cache.FromCLICommand(ctx, cmd)
+	if err != nil {
+		return err
+	}
+
+	compiler, err := native.FromCLICommand(ctx, cmd, cache)
 	if err != nil {
 		return err
 	}
@@ -86,11 +91,6 @@ func server(ctx context.Context, cmd *cli.Command) error {
 				logrus.Errorf("unable to shutdown tracer provider: %v", err)
 			}
 		}()
-	}
-
-	cache, err := cache.FromCLICommand(ctx, cmd)
-	if err != nil {
-		return err
 	}
 
 	database, err := database.FromCLICommand(cmd, tc)

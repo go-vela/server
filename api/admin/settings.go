@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/cache"
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/image"
@@ -337,7 +338,7 @@ func RestoreSettings(c *gin.Context) {
 		return
 	}
 
-	compiler, err := native.FromCLICommand(ctx, cliCmd)
+	compiler, err := native.FromCLICommand(ctx, cliCmd, cache.FromContext(c))
 	if err != nil {
 		retErr := fmt.Errorf("unable to restore platform settings: %w", err)
 
