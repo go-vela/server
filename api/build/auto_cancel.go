@@ -86,6 +86,7 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pip
 
 		// set error message that references current build
 		rB.SetError(fmt.Sprintf("%s build was auto canceled in favor of build %d", status, b.GetNumber()))
+		rB.SetStatus(constants.StatusCanceled)
 
 		_, err := database.FromContext(c).UpdateBuild(c, rB)
 		if err != nil {
