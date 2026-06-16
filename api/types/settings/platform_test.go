@@ -169,6 +169,7 @@ func TestTypes_Platform_Update(t *testing.T) {
 	sUpdate.SetEnableRepoSecrets(true)
 	sUpdate.SetEnableOrgSecrets(true)
 	sUpdate.SetEnableSharedSecrets(true)
+	sUpdate.SetEnableOrgBuildLimit(true)
 
 	// setup tests
 	tests := []struct {
@@ -214,6 +215,7 @@ func TestTypes_Platform_String(t *testing.T) {
   EnableRepoSecrets: %t,
   EnableOrgSecrets: %t,
   EnableSharedSecrets: %t,
+  EnableOrgBuildLimit: %t,
   CreatedAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -229,6 +231,7 @@ func TestTypes_Platform_String(t *testing.T) {
 		s.GetEnableRepoSecrets(),
 		s.GetEnableOrgSecrets(),
 		s.GetEnableSharedSecrets(),
+		s.GetEnableOrgBuildLimit(),
 		s.GetCreatedAt(),
 		s.GetUpdatedAt(),
 		s.GetUpdatedBy(),
@@ -258,6 +261,7 @@ func testPlatformSettings() *Platform {
 	s.SetEnableRepoSecrets(false)
 	s.SetEnableOrgSecrets(false)
 	s.SetEnableSharedSecrets(false)
+	s.SetEnableOrgBuildLimit(false)
 
 	// setup types
 	// setup compiler

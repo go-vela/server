@@ -25,6 +25,7 @@ settings (
 	enable_repo_secrets   BOOLEAN,
 	enable_org_secrets    BOOLEAN,
 	enable_shared_secrets BOOLEAN,
+	enable_org_build_limit BOOLEAN,
 	created_at            BIGINT,
 	updated_at            BIGINT,
 	updated_by            VARCHAR(250)
@@ -47,6 +48,7 @@ settings (
 	enable_repo_secrets     BOOLEAN,
 	enable_org_secrets      BOOLEAN,
 	enable_shared_secrets   BOOLEAN,
+	enable_org_build_limit  BOOLEAN,
 	created_at              INTEGER,
 	updated_at              INTEGER,
 	updated_by              TEXT

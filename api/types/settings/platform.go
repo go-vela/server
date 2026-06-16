@@ -23,6 +23,7 @@ type Platform struct {
 	EnableRepoSecrets   *bool     `json:"enable_repo_secrets,omitempty"   yaml:"enable_repo_secrets,omitempty"`
 	EnableOrgSecrets    *bool     `json:"enable_org_secrets,omitempty"    yaml:"enable_org_secrets,omitempty"`
 	EnableSharedSecrets *bool     `json:"enable_shared_secrets,omitempty" yaml:"enable_shared_secrets,omitempty"`
+	EnableOrgBuildLimit *bool     `json:"enable_org_build_limit,omitempty" yaml:"enable_org_build_limit,omitempty"`
 	CreatedAt           *int64    `json:"created_at,omitempty"            yaml:"created_at,omitempty"`
 	UpdatedAt           *int64    `json:"updated_at,omitempty"            yaml:"updated_at,omitempty"`
 	UpdatedBy           *string   `json:"updated_by,omitempty"            yaml:"updated_by,omitempty"`
@@ -52,6 +53,9 @@ func FromCLICommand(c *cli.Command) *Platform {
 
 	// set enable shared secrets
 	ps.SetEnableSharedSecrets(c.Bool("vela-enable-shared-secrets"))
+
+	// set enable org build limit
+	ps.SetEnableOrgBuildLimit(c.Bool("vela-enable-org-build-limit"))
 
 	return ps
 }
@@ -197,6 +201,18 @@ func (ps *Platform) GetEnableSharedSecrets() bool {
 	}
 
 	return *ps.EnableSharedSecrets
+}
+
+// GetEnableOrgBuildLimit returns the EnableOrgBuildLimit field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (ps *Platform) GetEnableOrgBuildLimit() bool {
+	if ps == nil || ps.EnableOrgBuildLimit == nil {
+		return false
+	}
+
+	return *ps.EnableOrgBuildLimit
 }
 
 // GetCreatedAt returns the CreatedAt field.
@@ -381,6 +397,18 @@ func (ps *Platform) SetEnableSharedSecrets(v bool) {
 	ps.EnableSharedSecrets = &v
 }
 
+// SetEnableOrgBuildLimit sets the EnableOrgBuildLimit field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (ps *Platform) SetEnableOrgBuildLimit(v bool) {
+	if ps == nil {
+		return
+	}
+
+	ps.EnableOrgBuildLimit = &v
+}
+
 // SetCreatedAt sets the CreatedAt field.
 //
 // When the provided Platform type is nil, it
@@ -441,6 +469,7 @@ func (ps *Platform) FromSettings(_ps *Platform) {
 	ps.SetEnableRepoSecrets(_ps.GetEnableRepoSecrets())
 	ps.SetEnableOrgSecrets(_ps.GetEnableOrgSecrets())
 	ps.SetEnableSharedSecrets(_ps.GetEnableSharedSecrets())
+	ps.SetEnableOrgBuildLimit(_ps.GetEnableOrgBuildLimit())
 
 	ps.SetCreatedAt(_ps.GetCreatedAt())
 	ps.SetUpdatedAt(_ps.GetUpdatedAt())
@@ -465,6 +494,7 @@ func (ps *Platform) String() string {
   EnableRepoSecrets: %t,
   EnableOrgSecrets: %t,
   EnableSharedSecrets: %t,
+  EnableOrgBuildLimit: %t,
   CreatedAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -480,6 +510,7 @@ func (ps *Platform) String() string {
 		ps.GetEnableRepoSecrets(),
 		ps.GetEnableOrgSecrets(),
 		ps.GetEnableSharedSecrets(),
+		ps.GetEnableOrgBuildLimit(),
 		ps.GetCreatedAt(),
 		ps.GetUpdatedAt(),
 		ps.GetUpdatedBy(),
@@ -501,6 +532,7 @@ func PlatformMockEmpty() Platform {
 	ps.SetEnableRepoSecrets(false)
 	ps.SetEnableOrgSecrets(false)
 	ps.SetEnableSharedSecrets(false)
+	ps.SetEnableOrgBuildLimit(false)
 
 	return ps
 }
