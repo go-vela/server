@@ -9,6 +9,7 @@ import (
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/jwk"
+	"github.com/go-vela/server/database/limits"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -59,6 +60,9 @@ type Interface interface {
 
 	// JWKInterface defines the interface for JWKs stored in the database.
 	jwk.JWKInterface
+
+	// LimitInterface defines the interface for limits stored in the database.
+	limits.LimitInterface
 
 	// LogInterface defines the interface for logs stored in the database.
 	log.LogInterface

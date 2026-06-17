@@ -11,6 +11,7 @@ import (
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/jwk"
+	"github.com/go-vela/server/database/limits"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -105,6 +106,16 @@ func (e *engine) NewResources(ctx context.Context) error {
 		jwk.WithClient(e.client),
 		jwk.WithLogger(e.logger),
 		jwk.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	e.LimitInterface, err = limits.New(
+		limits.WithContext(ctx),
+		limits.WithClient(e.client),
+		limits.WithLogger(e.logger),
+		limits.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

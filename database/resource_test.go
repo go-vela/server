@@ -14,6 +14,7 @@ import (
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/jwk"
+	"github.com/go-vela/server/database/limits"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -50,6 +51,8 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the jwk queries
 	_mock.ExpectExec(jwk.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the limit queries
+	_mock.ExpectExec(limits.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the log queries
 	_mock.ExpectExec(log.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(log.CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
