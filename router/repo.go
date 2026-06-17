@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/go-vela/server/api/build"
+	orgapi "github.com/go-vela/server/api/org"
 	"github.com/go-vela/server/api/repo"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/org"
@@ -20,6 +21,8 @@ import (
 // GET    /api/v1/repos
 // GET    /api/v1/repos/:org
 // GET    /api/v1/repos/:org/builds
+// GET    /api/v1/repos/:org/limit
+// PUT    /api/v1/repos/:org/limit
 // GET    /api/v1/repos/:org/:repo
 // PUT    /api/v1/repos/:org/:repo
 // DELETE /api/v1/repos/:org/:repo
@@ -64,6 +67,8 @@ func RepoHandlers(base *gin.RouterGroup) {
 		{
 			org.GET("", repo.ListReposForOrg)
 			org.GET("/builds", build.ListBuildsForOrg)
+			org.GET("/limit", perm.MustOrgAdmin(), orgapi.GetBuildLimit)
+			org.PUT("/limit", perm.MustOrgAdmin(), middleware.Payload(), orgapi.UpdateBuildLimit)
 
 			// Repo endpoints
 			_repo := org.Group("/:repo", rmiddleware.Establish())
