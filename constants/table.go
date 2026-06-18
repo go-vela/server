@@ -25,6 +25,9 @@ const (
 	// TableLog defines the table type for the database logs table.
 	TableLog = "logs"
 
+	// TableOrgBuildLimit defines the table type for the database org_build_limits table.
+	TableOrgBuildLimit = "org_build_limits"
+
 	// TablePipeline defines the table type for the database pipelines table.
 	TablePipeline = "pipelines"
 

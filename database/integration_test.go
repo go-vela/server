@@ -26,6 +26,7 @@ import (
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	dbJWK "github.com/go-vela/server/database/jwk"
+	dbLimits "github.com/go-vela/server/database/limits"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -48,6 +49,7 @@ type Resources struct {
 	Executables []*api.BuildExecutable
 	Hooks       []*api.Hook
 	JWKs        jwk.Set
+	Limits      []*api.OrgBuildLimit
 	Logs        []*api.Log
 	Pipelines   []*api.Pipeline
 	Repos       []*api.Repo
@@ -143,6 +145,8 @@ func TestDatabase_Integration(t *testing.T) {
 			t.Run("test_hooks", func(t *testing.T) { testHooks(t, db, resources) })
 
 			t.Run("test_jwks", func(t *testing.T) { testJWKs(t, db, resources) })
+
+			t.Run("test_limits", func(t *testing.T) { testLimits(t, db, resources) })
 
 			t.Run("test_logs", func(t *testing.T) { testLogs(t, db, resources) })
 
@@ -2760,6 +2764,74 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	}
 }
 
+func testLimits(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for limits
+	methods := make(map[string]bool)
+	// capture the element type of the limit interface
+	element := reflect.TypeFor[dbLimits.LimitInterface]()
+	// iterate through all methods found in the limit interface
+	for method := range element.Methods() {
+		// skip tracking the methods to create indexes and tables for limits
+		// since those are already called when the database engine starts
+		if strings.Contains(method.Name, "Index") ||
+			strings.Contains(method.Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[method.Name] = false
+	}
+
+	ctx := context.TODO()
+
+	// create the org build limits
+	for _, limit := range resources.Limits {
+		_, err := db.CreateOrgBuildLimit(ctx, limit)
+		if err != nil {
+			t.Errorf("unable to create org build limit for %s: %v", limit.GetOrg(), err)
+		}
+	}
+
+	methods["CreateOrgBuildLimit"] = true
+
+	// lookup the org build limits by org
+	for _, limit := range resources.Limits {
+		got, err := db.GetOrgBuildLimit(ctx, limit.GetOrg())
+		if err != nil {
+			t.Errorf("unable to get org build limit for %s: %v", limit.GetOrg(), err)
+		}
+
+		if got.GetBuildLimit() != limit.GetBuildLimit() {
+			t.Errorf("GetOrgBuildLimit() build limit is %v, want %v", got.GetBuildLimit(), limit.GetBuildLimit())
+		}
+	}
+
+	methods["GetOrgBuildLimit"] = true
+
+	// update the org build limits
+	for _, limit := range resources.Limits {
+		limit.SetBuildLimit(50)
+
+		got, err := db.UpdateOrgBuildLimit(ctx, limit)
+		if err != nil {
+			t.Errorf("unable to update org build limit for %s: %v", limit.GetOrg(), err)
+		}
+
+		if got.GetBuildLimit() != int32(50) {
+			t.Errorf("UpdateOrgBuildLimit() build limit is %v, want %v", got.GetBuildLimit(), 50)
+		}
+	}
+
+	methods["UpdateOrgBuildLimit"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for limits", method)
+		}
+	}
+}
+
 func testSettings(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for settings
 	methods := make(map[string]bool)
@@ -3103,6 +3175,22 @@ func newResources() *Resources {
 
 	_ = jwkSet.AddKey(jwkTwo)
 
+	orgBuildLimitOne := new(api.OrgBuildLimit)
+	orgBuildLimitOne.SetID(1)
+	orgBuildLimitOne.SetOrg("github")
+	orgBuildLimitOne.SetBuildLimit(30)
+	orgBuildLimitOne.SetCreatedAt(time.Now().UTC().Unix())
+	orgBuildLimitOne.SetUpdatedAt(time.Now().UTC().Unix())
+	orgBuildLimitOne.SetUpdatedBy("octocat")
+
+	orgBuildLimitTwo := new(api.OrgBuildLimit)
+	orgBuildLimitTwo.SetID(2)
+	orgBuildLimitTwo.SetOrg("octocat")
+	orgBuildLimitTwo.SetBuildLimit(60)
+	orgBuildLimitTwo.SetCreatedAt(time.Now().UTC().Unix())
+	orgBuildLimitTwo.SetUpdatedAt(time.Now().UTC().Unix())
+	orgBuildLimitTwo.SetUpdatedBy("octocat")
+
 	logServiceOne := new(api.Log)
 	logServiceOne.SetID(1)
 	logServiceOne.SetBuildID(1)
@@ -3380,6 +3468,7 @@ func newResources() *Resources {
 		Executables: []*api.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*api.Hook{hookOne, hookTwo, hookThree},
 		JWKs:        jwkSet,
+		Limits:      []*api.OrgBuildLimit{orgBuildLimitOne, orgBuildLimitTwo},
 		Logs:        []*api.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*api.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},

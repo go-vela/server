@@ -384,6 +384,36 @@ func buildTokenSecretAccess(logger *logrus.Entry, cl *token.Claims, t, name, pat
 	}
 }
 
+// MustOrgAdmin ensures the user has admin access to the org.
+func MustOrgAdmin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		l := c.MustGet("logger").(*logrus.Entry)
+		u := user.Retrieve(c)
+		o := util.PathParameter(c, "org")
+		ctx := c.Request.Context()
+
+		// platform admins may manage any org
+		if u.GetAdmin() {
+			return
+		}
+
+		l.Debugf("verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
+
+		perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
+		if err != nil {
+			l.Errorf("unable to get user %s access level for org %s: %v", u.GetName(), o, err)
+		}
+
+		if perm != constants.PermissionAdmin {
+			retErr := fmt.Errorf("user %s does not have 'admin' permissions for the org %s", u.GetName(), o)
+
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+	}
+}
+
 // MustAdmin ensures the user has admin access to the repo.
 func MustAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {

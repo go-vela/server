@@ -1226,6 +1226,261 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	}
 }
 
+func TestPerm_MustOrgAdmin(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKeyHMAC:           "123abc",
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	u := new(api.User)
+	u.SetID(1)
+	u.SetName("foob")
+	u.SetToken("bar")
+	u.SetAdmin(false)
+
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+
+	defer func() {
+		_ = db.DeleteUser(_context.TODO(), u)
+		db.Close()
+	}()
+
+	_, _ = db.CreateUser(_context.TODO(), u)
+
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup github mock server
+	engine.GET("/api/v3/orgs/:org/memberships/:username", func(c *gin.Context) {
+		c.String(http.StatusOK, orgAdminMembershipPayload)
+	})
+	engine.GET("/api/v3/user", func(c *gin.Context) {
+		c.String(http.StatusOK, userPayload)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup client
+	client, _ := github.NewTest(s.URL)
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(MustOrgAdmin())
+	engine.GET("/test/:org", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustOrgAdmin returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustOrgAdmin_PlatAdmin(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKeyHMAC:           "123abc",
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	u := new(api.User)
+	u.SetID(1)
+	u.SetName("foob")
+	u.SetToken("bar")
+	u.SetAdmin(true)
+
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+
+	defer func() {
+		_ = db.DeleteUser(_context.TODO(), u)
+		db.Close()
+	}()
+
+	_, _ = db.CreateUser(_context.TODO(), u)
+
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup github mock server - returns member to prove platform admin bypasses the org check
+	engine.GET("/api/v3/orgs/:org/memberships/:username", func(c *gin.Context) {
+		c.String(http.StatusOK, orgMemberMembershipPayload)
+	})
+	engine.GET("/api/v3/user", func(c *gin.Context) {
+		c.String(http.StatusOK, userPayload)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup client
+	client, _ := github.NewTest(s.URL)
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(MustOrgAdmin())
+	engine.GET("/test/:org", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustOrgAdmin returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustOrgAdmin_NotAdmin(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKeyHMAC:           "123abc",
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	u := new(api.User)
+	u.SetID(1)
+	u.SetName("foob")
+	u.SetToken("bar")
+	u.SetAdmin(false)
+
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+
+	defer func() {
+		_ = db.DeleteUser(_context.TODO(), u)
+		db.Close()
+	}()
+
+	_, _ = db.CreateUser(_context.TODO(), u)
+
+	context.Request, _ = http.NewRequestWithContext(t.Context(), http.MethodGet, "/test/foo", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup github mock server
+	engine.GET("/api/v3/orgs/:org/memberships/:username", func(c *gin.Context) {
+		c.String(http.StatusOK, orgMemberMembershipPayload)
+	})
+	engine.GET("/api/v3/user", func(c *gin.Context) {
+		c.String(http.StatusOK, userPayload)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup client
+	client, _ := github.NewTest(s.URL)
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("logger", logrus.NewEntry(logrus.StandardLogger())) })
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(MustOrgAdmin())
+	engine.GET("/test/:org", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusUnauthorized {
+		t.Errorf("MustOrgAdmin returned %v, want %v", resp.Code, http.StatusUnauthorized)
+	}
+}
+
 func TestPerm_MustAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
@@ -2943,6 +3198,20 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 		t.Errorf("MustRead returned %v, want %v", resp.Code, http.StatusUnauthorized)
 	}
 }
+
+const orgAdminMembershipPayload = `
+{
+  "state": "active",
+  "role": "admin"
+}
+`
+
+const orgMemberMembershipPayload = `
+{
+  "state": "active",
+  "role": "member"
+}
+`
 
 const permAdminPayload = `
 {

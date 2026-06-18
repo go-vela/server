@@ -151,6 +151,12 @@ var Flags = []cli.Flag{
 		Sources: cli.EnvVars("VELA_ENABLE_SHARED_SECRETS"),
 		Value:   true,
 	},
+	&cli.BoolFlag{
+		Name:    "vela-enable-org-build-limit",
+		Usage:   "determines whether or not org level build limits are enabled",
+		Sources: cli.EnvVars("VELA_ENABLE_ORG_BUILD_LIMIT"),
+		Value:   false,
+	},
 	&cli.Int32Flag{
 		Name:    "default-build-limit",
 		Usage:   "override default build limit",
@@ -176,6 +182,36 @@ var Flags = []cli.Flag{
 
 			if cmd.Int32("default-build-limit") > v {
 				return fmt.Errorf("max-build-limit (VELA_MAX_BUILD_LIMIT) must be greater than default-build-limit (VELA_DEFAULT_BUILD_LIMIT)")
+			}
+
+			return nil
+		},
+	},
+	&cli.Int32Flag{
+		Name:    "default-org-build-limit",
+		Usage:   "override default org build limit",
+		Sources: cli.EnvVars("VELA_DEFAULT_ORG_BUILD_LIMIT"),
+		Value:   constants.OrgBuildLimitDefault,
+		Action: func(_ context.Context, _ *cli.Command, v int32) error {
+			if v <= 0 {
+				return fmt.Errorf("default-org-build-limit (VELA_DEFAULT_ORG_BUILD_LIMIT) flag must be greater than 0")
+			}
+
+			return nil
+		},
+	},
+	&cli.Int32Flag{
+		Name:    "max-org-build-limit",
+		Usage:   "override max org build limit",
+		Sources: cli.EnvVars("VELA_MAX_ORG_BUILD_LIMIT"),
+		Value:   constants.OrgBuildLimitMax,
+		Action: func(_ context.Context, cmd *cli.Command, v int32) error {
+			if v <= 0 {
+				return fmt.Errorf("max-org-build-limit (VELA_MAX_ORG_BUILD_LIMIT) flag must be greater than 0")
+			}
+
+			if cmd.Int32("default-org-build-limit") > v {
+				return fmt.Errorf("max-org-build-limit (VELA_MAX_ORG_BUILD_LIMIT) must be greater than default-org-build-limit (VELA_DEFAULT_ORG_BUILD_LIMIT)")
 			}
 
 			return nil
