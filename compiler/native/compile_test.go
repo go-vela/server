@@ -103,6 +103,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 						Name:        "init",
 						Number:      1,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -118,6 +119,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 						Name:        "clone",
 						Number:      2,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -135,6 +137,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 						Name:        "install",
 						Number:      3,
 						Pull:        "always",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -152,6 +155,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 						Name:        "test",
 						Number:      4,
 						Pull:        "always",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -169,6 +173,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 						Name:        "build",
 						Number:      5,
 						Pull:        "always",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -195,6 +200,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 								Target: "REGISTRY_PASSWORD",
 							},
 						},
+						Artifacts: pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -501,6 +507,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -510,6 +517,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -520,6 +528,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Name:        "install",
 				Number:      3,
 				Pull:        "always",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -530,6 +539,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Name:        "test",
 				Number:      4,
 				Pull:        "always",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -548,6 +558,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 						Matcher:  "filepath",
 					},
 				},
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -567,6 +578,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 						Target: "REGISTRY_PASSWORD",
 					},
 				},
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 		},
 		Secrets: pipeline.SecretSlice{
@@ -714,6 +726,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Name:        "init",
 						Number:      1,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -729,6 +742,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Name:        "clone",
 						Number:      2,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -746,6 +760,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Name:        "sample_install",
 						Number:      3,
 						Pull:        "always",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					&pipeline.Container{
 						ID:          "",
@@ -756,6 +771,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Name:        "sample_test",
 						Number:      4,
 						Pull:        "always",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					&pipeline.Container{
 						ID:          "",
@@ -766,6 +782,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						Name:        "sample_build",
 						Number:      5,
 						Pull:        "always",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -792,6 +809,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 								Target: "REGISTRY_PASSWORD",
 							},
 						},
+						Artifacts: pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -960,6 +978,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -969,6 +988,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -979,6 +999,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Name:        "sample_install",
 				Number:      3,
 				Pull:        "always",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -989,6 +1010,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Name:        "sample_test",
 				Number:      4,
 				Pull:        "always",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -999,6 +1021,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Name:        "sample_build",
 				Number:      5,
 				Pull:        "always",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1018,6 +1041,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 						Target: "REGISTRY_PASSWORD",
 					},
 				},
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 		},
 		Secrets: pipeline.SecretSlice{
@@ -1145,6 +1169,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1154,6 +1179,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1164,6 +1190,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 				Name:        "sample_hello",
 				Number:      3,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -1254,6 +1281,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1263,6 +1291,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1273,6 +1302,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 				Name:        "inline_templatename_hello",
 				Number:      3,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -1413,6 +1443,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1422,6 +1453,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				Name:        "foo",
 				Number:      2,
 				Pull:        "always",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -1444,6 +1476,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1453,6 +1486,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1462,6 +1496,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				Name:        "foo",
 				Number:      3,
 				Pull:        "always",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -1484,6 +1519,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1493,6 +1529,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				Name:        "clone",
 				Number:      2,
 				Pull:        "always",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1502,6 +1539,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				Name:        "foo",
 				Number:      3,
 				Pull:        "always",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -1597,6 +1635,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1606,6 +1645,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1615,6 +1655,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Name:        "foo",
 				Number:      3,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -1643,6 +1684,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1652,6 +1694,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1661,6 +1704,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Name:        "foo",
 				Number:      3,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -1689,6 +1733,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1698,6 +1743,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -1707,6 +1753,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				Name:        "foo",
 				Number:      3,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -1870,6 +1917,7 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 						Name:        "init",
 						Number:      1,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -1885,6 +1933,7 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 						Name:        "clone",
 						Number:      2,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -1902,6 +1951,7 @@ func TestNative_Compile_StageNameCollisionPurged(t *testing.T) {
 						Name:        "word_key_build",
 						Number:      3,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -2047,6 +2097,7 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 				Name:        "init",
 				Number:      1,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -2056,6 +2107,7 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -2066,6 +2118,7 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 				Name:        "build",
 				Number:      3,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				ID:          "",
@@ -2076,6 +2129,7 @@ func TestNative_Compile_StepNameCollisionPurged(t *testing.T) {
 				Name:        "test",
 				Number:      4,
 				Pull:        "not_present",
+				Artifacts:   pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -2536,6 +2590,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "init",
 								Number:      1,
 								Pull:        "not_present",
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2551,6 +2606,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "clone",
 								Number:      2,
 								Pull:        "not_present",
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2568,6 +2624,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "test",
 								Pull:        "not_present",
 								Number:      3,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2585,6 +2642,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "starlark_build_foo",
 								Pull:        "not_present",
 								Number:      4,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2602,6 +2660,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "starlark_build_bar",
 								Pull:        "not_present",
 								Number:      5,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2635,6 +2694,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "init",
 								Number:      1,
 								Pull:        "not_present",
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2650,6 +2710,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "clone",
 								Number:      2,
 								Pull:        "not_present",
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2667,6 +2728,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "test",
 								Pull:        "not_present",
 								Number:      3,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2684,6 +2746,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "nested_test",
 								Pull:        "not_present",
 								Number:      4,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2701,6 +2764,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "nested_starlark_build_foo",
 								Pull:        "not_present",
 								Number:      5,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2718,6 +2782,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "nested_starlark_build_bar",
 								Pull:        "not_present",
 								Number:      6,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -2747,6 +2812,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "#init",
 						Number:      1,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2756,6 +2822,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       defaultCloneImage,
 						Number:      2,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2766,6 +2833,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "alpine",
 						Number:      3,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2776,6 +2844,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "alpine",
 						Number:      4,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2786,6 +2855,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "alpine",
 						Number:      5,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2796,6 +2866,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "alpine",
 						Number:      6,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2806,6 +2877,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "alpine",
 						Number:      7,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2816,6 +2888,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "alpine",
 						Number:      8,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -2858,6 +2931,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "#init",
 						Number:      1,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2867,6 +2941,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       defaultCloneImage,
 						Number:      2,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2877,6 +2952,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "alpine",
 						Number:      3,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 				Secrets: pipeline.SecretSlice{
@@ -2962,6 +3038,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "#init",
 						Number:      1,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2971,6 +3048,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       defaultCloneImage,
 						Number:      2,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -2981,6 +3059,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "alpine",
 						Number:      3,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 				Services: []*pipeline.Container{
@@ -3037,6 +3116,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "#init",
 						Number:      1,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -3046,6 +3126,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       defaultCloneImage,
 						Number:      2,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 					{
 						ID:          "",
@@ -3055,6 +3136,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Image:       "alpine",
 						Number:      3,
 						Pull:        "not_present",
+						Artifacts:   pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -3086,6 +3168,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "init",
 								Number:      1,
 								Pull:        "not_present",
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -3101,6 +3184,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "clone",
 								Number:      2,
 								Pull:        "not_present",
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -3118,6 +3202,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "foo",
 								Pull:        "not_present",
 								Number:      3,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -3135,6 +3220,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "bar",
 								Pull:        "not_present",
 								Number:      4,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -3152,6 +3238,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "star",
 								Pull:        "not_present",
 								Number:      5,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -3169,6 +3256,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "starlark_build_foo",
 								Pull:        "not_present",
 								Number:      6,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -3186,6 +3274,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Name:        "starlark_build_bar",
 								Pull:        "not_present",
 								Number:      7,
+								Artifacts:   pipeline.Artifacts{Secured: true},
 							},
 						},
 					},

@@ -85,4 +85,12 @@ var Flags = []cli.Flag{
 		Value:   false,
 		Sources: cli.EnvVars("VELA_STORAGE_USE_SSL"),
 	},
+	&cli.BoolFlag{
+		Name:  "storage.public.policy",
+		Usage: "automatically configure a bucket policy allowing anonymous GET on the public/* prefix, enabling unauthenticated artifact downloads when secured: false is set",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_STORAGE_PUBLIC_POLICY"),
+			cli.File("vela/storage/public_policy"),
+		),
+	},
 }

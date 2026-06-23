@@ -15,4 +15,5 @@ type Storage interface {
 	ListBuildObjectNames(context.Context, string, string, string) (map[string]string, error)
 	PresignedGetObject(context.Context, *api.Object) (string, error)
 	PresignedPutObject(context.Context, string, time.Duration) (string, error)
+	DirectObjectURL(objectKey string) string
 }
