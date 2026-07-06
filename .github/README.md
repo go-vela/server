@@ -5,9 +5,9 @@
 [![Go Report Card](https://goreportcard.com/badge/go-vela/server)](https://goreportcard.com/report/go-vela/server)
 [![codecov](https://codecov.io/gh/go-vela/server/branch/main/graph/badge.svg)](https://codecov.io/gh/go-vela/server)
 
-> Vela is in active development and is a pre-release product
+> Vela is in active development and is a pre-release product.
 >
-> Feel free to send us feedback at https://github.com/go-vela/community/issues/new
+> Feel free to send us feedback at https://github.com/go-vela/community/issues/new.
 
 Vela is a Pipeline Automation (CI/CD) framework built on [Linux container](https://linuxcontainers.org/) technology written in [Golang](https://golang.org/).
 
