@@ -185,3 +185,61 @@ func TestWithBucket(t *testing.T) {
 		}
 	}
 }
+
+func TestWithUseIAM(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		name      string
+		useIAM    bool
+		accessKey string
+		secretKey string
+		failure   bool
+	}{
+		{
+			name:      "iam enabled tolerates empty static keys",
+			useIAM:    true,
+			accessKey: "",
+			secretKey: "",
+			failure:   false,
+		},
+		{
+			name:      "static mode requires keys",
+			useIAM:    false,
+			accessKey: "",
+			secretKey: "",
+			failure:   true,
+		},
+		{
+			name:      "iam enabled with keys still succeeds",
+			useIAM:    true,
+			accessKey: "minioaccess",
+			secretKey: "miniosecret",
+			failure:   false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		client, err := New("https://minio.example.com",
+			WithOptions(true, false, test.useIAM,
+				"https://minio.example.com", test.accessKey, test.secretKey, "foo", "", "minio"))
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("%s: WithOptions should have returned err", test.name)
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("%s: WithOptions returned err: %v", test.name, err)
+
+			continue
+		}
+
+		if client.config.UseIAM != test.useIAM {
+			t.Errorf("%s: UseIAM is %v, want %v", test.name, client.config.UseIAM, test.useIAM)
+		}
+	}
+}
