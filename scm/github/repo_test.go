@@ -13,7 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v89/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
