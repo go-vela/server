@@ -34,6 +34,18 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 
 	want, _ := native.FromCLICommand(context.Background(), c)
 	want.SetCloneImage(wantCloneImage)
+	want.SetBlockedImages([]settings.ImageRestriction{
+		{
+			Image:  new("docker.io/blocked/image:latest"),
+			Reason: new("this image is blocked"),
+		},
+	})
+	want.SetWarnImages([]settings.ImageRestriction{
+		{
+			Image:  new("docker.io/deprecated/image:latest"),
+			Reason: new("this image is deprecated"),
+		},
+	})
 
 	var got compiler.Engine
 
@@ -48,9 +60,24 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 	engine.Use(func() gin.HandlerFunc {
 		return func(c *gin.Context) {
 			s := settings.Platform{
-				Compiler: &settings.Compiler{},
+				Compiler: &settings.Compiler{
+					BlockedImages: &[]settings.ImageRestriction{
+						{
+							Image:  new("docker.io/blocked/image:latest"),
+							Reason: new("this image is blocked"),
+						},
+					},
+					WarnImages: &[]settings.ImageRestriction{
+						{
+							Image:  new("docker.io/deprecated/image:latest"),
+							Reason: new("this image is deprecated"),
+						},
+					},
+				},
 			}
 			s.SetCloneImage(wantCloneImage)
+			s.SetBlockedImages(*want.BlockedImages)
+			s.SetWarnImages(*want.WarnImages)
 
 			sMiddleware.ToContext(c, &s)
 

@@ -178,6 +178,38 @@ func UpdateSettings(c *gin.Context) {
 
 			l.Infof("platform admin: updating starlark exec limit to %d", *input.StarlarkExecLimit)
 		}
+
+		if input.BlockedImages != nil {
+			for _, restriction := range input.GetBlockedImages() {
+				if restriction.GetImage() == "" {
+					retErr := fmt.Errorf("blocked image entry missing image pattern")
+
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+			}
+
+			_s.SetBlockedImages(input.GetBlockedImages())
+
+			l.Infof("platform admin: updating blocked images to: %v", input.GetBlockedImages())
+		}
+
+		if input.WarnImages != nil {
+			for _, restriction := range input.GetWarnImages() {
+				if restriction.GetImage() == "" {
+					retErr := fmt.Errorf("warn image entry missing image pattern")
+
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+			}
+
+			_s.SetWarnImages(input.GetWarnImages())
+
+			l.Infof("platform admin: updating warn images to: %v", input.GetWarnImages())
+		}
 	}
 
 	if input.Queue != nil {
