@@ -423,6 +423,16 @@ func (c *Client) compileSteps(ctx context.Context, p *yaml.Build, _pipeline *api
 		return nil, _pipeline, err
 	}
 
+	// check image restrictions (blocked → error, warned → warning)
+	imageWarnings, err := c.checkImageRestrictions(build)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
+	if len(imageWarnings) > 0 {
+		_pipeline.SetWarnings(append(_pipeline.GetWarnings(), imageWarnings...))
+	}
+
 	return build, _pipeline, nil
 }
 
@@ -523,6 +533,16 @@ func (c *Client) compileStages(ctx context.Context, p *yaml.Build, _pipeline *ap
 	err = c.ValidatePipeline(build)
 	if err != nil {
 		return nil, _pipeline, err
+	}
+
+	// check image restrictions (blocked → error, warned → warning)
+	imageWarnings, err := c.checkImageRestrictions(build)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
+	if len(imageWarnings) > 0 {
+		_pipeline.SetWarnings(append(_pipeline.GetWarnings(), imageWarnings...))
 	}
 
 	return build, _pipeline, nil

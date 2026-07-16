@@ -8,6 +8,46 @@ import (
 	"testing"
 )
 
+func TestTypes_ImageRestriction_String(t *testing.T) {
+	// setup types
+	blocked := ImageRestriction{
+		Image:  new("docker.io/blocked/image:latest"),
+		Reason: new("this image is blocked"),
+	}
+
+	warning := ImageRestriction{
+		Image:  new("docker.io/deprecated/image:latest"),
+		Reason: new("this image is deprecated"),
+	}
+
+	wantBlocked := fmt.Sprintf(`{
+  Image: %s,
+  Reason: %s,
+}`,
+		blocked.GetImage(),
+		blocked.GetReason(),
+	)
+
+	wantWarning := fmt.Sprintf(`{
+  Image: %s,
+  Reason: %s,
+}`,
+		warning.GetImage(),
+		warning.GetReason(),
+	)
+
+	// run test
+	gotBlocked := blocked.String()
+	if !reflect.DeepEqual(gotBlocked, wantBlocked) {
+		t.Errorf("String is %v, want %v", gotBlocked, wantBlocked)
+	}
+
+	gotWarning := warning.String()
+	if !reflect.DeepEqual(gotWarning, wantWarning) {
+		t.Errorf("String is %v, want %v", gotWarning, wantWarning)
+	}
+}
+
 func TestTypes_Compiler_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {
@@ -36,6 +76,14 @@ func TestTypes_Compiler_Getters(t *testing.T) {
 
 		if !reflect.DeepEqual(test.compiler.GetStarlarkExecLimit(), test.want.GetStarlarkExecLimit()) {
 			t.Errorf("GetStarlarkExecLimit is %v, want %v", test.compiler.GetStarlarkExecLimit(), test.want.GetStarlarkExecLimit())
+		}
+
+		if !reflect.DeepEqual(test.compiler.GetBlockedImages(), test.want.GetBlockedImages()) {
+			t.Errorf("GetBlockedImages is %v, want %v", test.compiler.GetBlockedImages(), test.want.GetBlockedImages())
+		}
+
+		if !reflect.DeepEqual(test.compiler.GetWarnImages(), test.want.GetWarnImages()) {
+			t.Errorf("GetWarnImages is %v, want %v", test.compiler.GetWarnImages(), test.want.GetWarnImages())
 		}
 	}
 }
@@ -78,6 +126,18 @@ func TestTypes_Compiler_Setters(t *testing.T) {
 		if !reflect.DeepEqual(test.compiler.GetStarlarkExecLimit(), test.want.GetStarlarkExecLimit()) {
 			t.Errorf("SetStarlarkExecLimit is %v, want %v", test.compiler.GetStarlarkExecLimit(), test.want.GetStarlarkExecLimit())
 		}
+
+		test.compiler.SetBlockedImages(test.want.GetBlockedImages())
+
+		if !reflect.DeepEqual(test.compiler.GetBlockedImages(), test.want.GetBlockedImages()) {
+			t.Errorf("SetBlockedImages is %v, want %v", test.compiler.GetBlockedImages(), test.want.GetBlockedImages())
+		}
+
+		test.compiler.SetWarnImages(test.want.GetWarnImages())
+
+		if !reflect.DeepEqual(test.compiler.GetWarnImages(), test.want.GetWarnImages()) {
+			t.Errorf("SetWarnImages is %v, want %v", test.compiler.GetWarnImages(), test.want.GetWarnImages())
+		}
 	}
 }
 
@@ -89,10 +149,14 @@ func TestTypes_Compiler_String(t *testing.T) {
   CloneImage: %s,
   TemplateDepth: %d,
   StarlarkExecLimit: %d,
+  BlockedImages: %v,
+  WarnImages: %v,
 }`,
 		cs.GetCloneImage(),
 		cs.GetTemplateDepth(),
 		cs.GetStarlarkExecLimit(),
+		cs.GetBlockedImages(),
+		cs.GetWarnImages(),
 	)
 
 	// run test
@@ -111,6 +175,12 @@ func testCompilerSettings() *Compiler {
 	cs.SetCloneImage("target/vela-git-slim:latest")
 	cs.SetTemplateDepth(1)
 	cs.SetStarlarkExecLimit(100)
+	cs.SetBlockedImages([]ImageRestriction{
+		{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is blocked")},
+	})
+	cs.SetWarnImages([]ImageRestriction{
+		{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
+	})
 
 	return cs
 }
