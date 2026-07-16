@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v89/github"
 	"golang.org/x/oauth2"
 )
 
