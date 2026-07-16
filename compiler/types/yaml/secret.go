@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/invopop/jsonschema"
+	orderedmap "github.com/pb33f/ordered-map/v2"
 
 	"github.com/go-vela/server/compiler/types/pipeline"
 	"github.com/go-vela/server/compiler/types/raw"
@@ -276,43 +277,43 @@ func (s *StepSecretSlice) UnmarshalYAML(unmarshal func(any) error) error {
 // JSONSchemaExtend handles some overrides that need to be in place
 // for the Secret type.
 //
-// Handles conditional requirement where 'name' is required only if
-// 'origin' is not defined. this allows either:
-// 1. a secret without 'origin' (name required).
-// 2. a secret with 'origin' (name not required).
+// Uses if/then/else to branch validation based on the presence of 'origin':
+//   - if 'origin' is present: validate as an external secret (only 'origin' required)
+//   - else: validate as a native secret ('name' required, 'origin' not allowed)
 func (Secret) JSONSchemaExtend(schema *jsonschema.Schema) {
-	originalProperties := schema.Properties
-	originalAdditionalProperties := schema.AdditionalProperties
+	additionalProperties := schema.AdditionalProperties
 
-	secretWithoutOrigin := &jsonschema.Schema{
-		Type:                 "object",
-		Properties:           originalProperties,
-		AdditionalProperties: originalAdditionalProperties,
-		Required:             []string{"name"},
-		Not: &jsonschema.Schema{
-			Properties: originalProperties,
-			Required:   []string{"origin"},
-		},
+	originProperty, _ := schema.Properties.Get("origin")
+	originProperties := orderedmap.New[string, *jsonschema.Schema]()
+	originProperties.Set("origin", originProperty)
+
+	schema.Properties.Delete("origin")
+	nativeProperties := schema.Properties
+
+	schema.If = &jsonschema.Schema{
+		Required: []string{"origin"},
 	}
 
-	secretWithOrigin := &jsonschema.Schema{
+	schema.Then = &jsonschema.Schema{
 		Type:                 "object",
-		Properties:           originalProperties,
-		AdditionalProperties: originalAdditionalProperties,
+		Properties:           originProperties,
+		AdditionalProperties: additionalProperties,
 		Required:             []string{"origin"},
 	}
 
-	// use anyOf to allow either pattern
-	schema.AnyOf = []*jsonschema.Schema{
-		secretWithoutOrigin,
-		secretWithOrigin,
+	schema.Else = &jsonschema.Schema{
+		Type:                 "object",
+		Properties:           nativeProperties,
+		AdditionalProperties: additionalProperties,
+		Required:             []string{"name"},
 	}
 
-	// clear top-level constraints since they're now in anyOf
+	// clear top-level constraints — branching is handled by if/then/else
 	schema.Properties = nil
 	schema.Required = nil
 	schema.Type = ""
 	schema.AdditionalProperties = nil
+	schema.AnyOf = nil
 }
 
 // JSONSchemaExtend handles some overrides that need to be in place
