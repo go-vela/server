@@ -109,6 +109,9 @@ func FromCLICommand(ctx context.Context, cmd *cli.Command) (*Client, error) {
 		c.UsePrivateGithub = true
 	}
 
+	c.SetBlockedImages(nil)
+	c.SetWarnImages(nil)
+
 	c.TemplateCache = make(map[string][]byte)
 
 	return c, nil
@@ -140,6 +143,8 @@ func (c *Client) Duplicate() compiler.Engine {
 	cc.CloneImage = c.CloneImage
 	cc.TemplateDepth = c.TemplateDepth
 	cc.StarlarkExecLimit = c.StarlarkExecLimit
+	cc.BlockedImages = c.BlockedImages
+	cc.WarnImages = c.WarnImages
 	cc.TemplateCache = make(map[string][]byte)
 
 	return cc
