@@ -85,4 +85,10 @@ var Flags = []cli.Flag{
 		Value:   false,
 		Sources: cli.EnvVars("VELA_STORAGE_USE_SSL"),
 	},
+	&cli.BoolFlag{
+		Name:    "storage.use.iam",
+		Usage:   "AWS IAM role credentials for storage",
+		Value:   false,
+		Sources: cli.EnvVars("VELA_STORAGE_USE_IAM"),
+	},
 }
