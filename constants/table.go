@@ -16,6 +16,9 @@ const (
 	// TableDeployment defines the table type for the database deployments table.
 	TableDeployment = "deployments"
 
+	// TableFavorite defines the table type for the database favorites table.
+	TableFavorite = "favorites"
+
 	// TableHook defines the table type for the database hooks table.
 	TableHook = "hooks"
 
