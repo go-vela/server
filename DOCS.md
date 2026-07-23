@@ -37,7 +37,7 @@ cd $HOME/go-vela/server
 * If using GitHub Enterprise (default: `https://github.com`), add the Web URL to a local `.env` file:
 
 ```bash
-# add Github Enterprise Web URL to local `.env` file for `docker-compose`
+# add GitHub Enterprise Web URL to local `.env` file for `docker-compose`
 echo "VELA_SCM_ADDR=<GitHub Enterprise Web URL>" >> .env
 ```
 
@@ -49,10 +49,10 @@ echo "VELA_SCM_ADDR=<GitHub Enterprise Web URL>" >> .env
 * Add OAuth client secrets to a local `.env` file:
 
 ```bash
-# add Github Client ID to local `.env` file for `docker-compose`
+# add GitHub Client ID to local `.env` file for `docker-compose`
 echo "VELA_SCM_CLIENT=<Github OAuth Client ID>" >> .env
 
-# add Github Client Secret to local `.env` file for `docker-compose`
+# add GitHub Client Secret to local `.env` file for `docker-compose`
 echo "VELA_SCM_SECRET=<Github OAuth Client Secret>" >> .env
 ```
 
