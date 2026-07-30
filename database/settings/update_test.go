@@ -9,6 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/database/testutils"
 )
 
@@ -19,6 +20,12 @@ func TestSettings_Engine_UpdateSettings(t *testing.T) {
 	_settings.SetCloneImage("target/vela-git-slim:latest")
 	_settings.SetTemplateDepth(10)
 	_settings.SetStarlarkExecLimit(100)
+	_settings.SetBlockedImages([]settings.ImageRestriction{
+		{Image: new("docker.io/blocked/image:latest"), Reason: new("this image is blocked")},
+	})
+	_settings.SetWarnImages([]settings.ImageRestriction{
+		{Image: new("docker.io/deprecated/image:latest"), Reason: new("this image is deprecated")},
+	})
 	_settings.SetRoutes([]string{"vela", "large"})
 	_settings.SetRepoRoleMap(map[string]string{"admin": "admin", "triage": "read"})
 	_settings.SetOrgRoleMap(map[string]string{"admin": "admin", "member": "read"})
@@ -40,7 +47,7 @@ func TestSettings_Engine_UpdateSettings(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "settings" SET "compiler"=$1,"queue"=$2,"scm"=$3,"repo_allowlist"=$4,"schedule_allowlist"=$5,"max_dashboard_repos"=$6,"queue_restart_limit"=$7,"enable_repo_secrets"=$8,"enable_org_secrets"=$9,"enable_shared_secrets"=$10,"created_at"=$11,"updated_at"=$12,"updated_by"=$13 WHERE "id" = $14`).
-		WithArgs(`{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true}}`,
+		WithArgs(`{"clone_image":{"String":"target/vela-git-slim:latest","Valid":true},"template_depth":{"Int64":10,"Valid":true},"starlark_exec_limit":{"Int64":100,"Valid":true},"blocked_images":[{"image":"docker.io/blocked/image:latest","reason":"this image is blocked"}],"warn_images":[{"image":"docker.io/deprecated/image:latest","reason":"this image is deprecated"}]}`,
 			`{"routes":["vela","large"]}`, `{"repo_role_map":{"admin":"admin","triage":"read"},"org_role_map":{"admin":"admin","member":"read"},"team_role_map":{"admin":"admin"}}`, `{"octocat/hello-world"}`, `{"*"}`, 10, 30, true, true, true, 1, testutils.AnyArgument{}, "octocat", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 

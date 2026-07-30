@@ -17,7 +17,7 @@ settings (
 	id                    SERIAL PRIMARY KEY,
 	compiler              JSON DEFAULT NULL,
 	queue                 JSON DEFAULT NULL,
-	scm 			      JSON DEFAULT NULL,
+	scm                   JSON DEFAULT NULL,
 	repo_allowlist        VARCHAR(1000),
 	schedule_allowlist    VARCHAR(1000),
 	max_dashboard_repos   INTEGER,

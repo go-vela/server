@@ -44,9 +44,11 @@ type (
 
 	// Compiler is the database representation of compiler settings.
 	Compiler struct {
-		CloneImage        sql.NullString `json:"clone_image"         sql:"clone_image"`
-		TemplateDepth     sql.NullInt64  `json:"template_depth"      sql:"template_depth"`
-		StarlarkExecLimit sql.NullInt64  `json:"starlark_exec_limit" sql:"starlark_exec_limit"`
+		CloneImage        sql.NullString       `json:"clone_image"         sql:"clone_image"`
+		TemplateDepth     sql.NullInt64        `json:"template_depth"      sql:"template_depth"`
+		StarlarkExecLimit sql.NullInt64        `json:"starlark_exec_limit" sql:"starlark_exec_limit"`
+		BlockedImages     ImageRestrictionJSON `json:"blocked_images"      sql:"blocked_images"`
+		WarnImages        ImageRestrictionJSON `json:"warn_images"         sql:"warn_images"`
 	}
 
 	// Queue is the database representation of queue settings.
@@ -60,7 +62,27 @@ type (
 		OrgRoleMap  map[string]string `json:"org_role_map"  sql:"org_role_map"`
 		TeamRoleMap map[string]string `json:"team_role_map" sql:"team_role_map"`
 	}
+
+	ImageRestrictionJSON []settings.ImageRestriction
 )
+
+// Value - Implementation of valuer for database/sql for ImageRestrictionJSON.
+func (i ImageRestrictionJSON) Value() (driver.Value, error) {
+	valueString, err := json.Marshal(i)
+	return string(valueString), err
+}
+
+// Scan - Implement the database/sql scanner interface for ImageRestrictionJSON.
+func (i *ImageRestrictionJSON) Scan(value any) error {
+	switch v := value.(type) {
+	case []byte:
+		return json.Unmarshal(v, &i)
+	case string:
+		return json.Unmarshal([]byte(v), &i)
+	default:
+		return fmt.Errorf("wrong type for repos: %T", v)
+	}
+}
 
 // Value - Implementation of valuer for database/sql for Compiler.
 func (r Compiler) Value() (driver.Value, error) {
@@ -178,6 +200,8 @@ func (ps *Platform) ToAPI() *settings.Platform {
 	psAPI.SetCloneImage(ps.CloneImage.String)
 	psAPI.SetTemplateDepth(int(ps.TemplateDepth.Int64))
 	psAPI.SetStarlarkExecLimit(ps.StarlarkExecLimit.Int64)
+	psAPI.SetBlockedImages(ps.BlockedImages)
+	psAPI.SetWarnImages(ps.WarnImages)
 
 	psAPI.Queue = new(settings.Queue)
 	psAPI.SetRoutes(ps.Routes)
@@ -262,6 +286,8 @@ func SettingsFromAPI(s *settings.Platform) *Platform {
 			CloneImage:        sql.NullString{String: s.GetCloneImage(), Valid: true},
 			TemplateDepth:     sql.NullInt64{Int64: int64(s.GetTemplateDepth()), Valid: true},
 			StarlarkExecLimit: sql.NullInt64{Int64: s.GetStarlarkExecLimit(), Valid: true},
+			BlockedImages:     s.GetBlockedImages(),
+			WarnImages:        s.GetWarnImages(),
 		},
 		Queue: Queue{
 			Routes: pq.StringArray(s.GetRoutes()),
