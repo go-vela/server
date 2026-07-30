@@ -10,16 +10,18 @@ import (
 type ClientOpt func(client *Client) error
 
 // WithOptions sets multiple options in the MinIO client.
-func WithOptions(enable, secure bool, endpoint, accessKey, secretKey, bucket, token, driver string) ClientOpt {
+func WithOptions(enable, secure, useIAM bool, endpoint, accessKey, secretKey, bucket, token, driver string) ClientOpt {
 	return func(c *Client) error {
 		c.Logger.Trace("configuring multiple options in minio client")
 
-		if len(accessKey) == 0 {
-			return fmt.Errorf("no MinIO access key provided")
-		}
-		// check if the secret key provided is empty
-		if len(secretKey) == 0 {
-			return fmt.Errorf("no MinIO secret key provided")
+		if !useIAM {
+			if len(accessKey) == 0 {
+				return fmt.Errorf("no MinIO access key provided")
+			}
+			// check if the secret key provided is empty
+			if len(secretKey) == 0 {
+				return fmt.Errorf("no MinIO secret key provided")
+			}
 		}
 		// check if the bucket name provided is empty
 		if len(bucket) == 0 {
@@ -35,6 +37,8 @@ func WithOptions(enable, secure bool, endpoint, accessKey, secretKey, bucket, to
 		c.config.AccessKey = accessKey
 		// set the secure connection mode in the minio client
 		c.config.Secure = secure
+		// set whether to use IAM role credentials in the minio client
+		c.config.UseIAM = useIAM
 		// set the bucket name in the minio client
 		c.config.Bucket = bucket
 		// set the token in the minio client
