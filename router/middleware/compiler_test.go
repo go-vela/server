@@ -32,7 +32,7 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 		},
 	}
 
-	want, _ := native.FromCLICommand(context.Background(), c)
+	want, _ := native.FromCLICommand(context.Background(), c, nil)
 	want.SetCloneImage(wantCloneImage)
 	want.SetBlockedImages([]settings.ImageRestriction{
 		{
@@ -49,7 +49,7 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 
 	var got compiler.Engine
 
-	got, _ = native.FromCLICommand(context.Background(), c)
+	got, _ = native.FromCLICommand(context.Background(), c, nil)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

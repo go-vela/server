@@ -299,7 +299,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 		},
 	}
 
-	comp, err := native.FromCLICommand(context.Background(), cmd)
+	comp, err := native.FromCLICommand(context.Background(), cmd, nil)
 	if err != nil {
 		t.Errorf("unable to create compiler: %v", err)
 	}

@@ -22,6 +22,8 @@ type config struct {
 	Cluster bool
 
 	InstallTokenKey string
+
+	TemplateTTL time.Duration
 }
 
 type Client struct {

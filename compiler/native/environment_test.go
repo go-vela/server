@@ -56,7 +56,7 @@ func TestNative_EnvironmentStages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -195,7 +195,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 	}
 
 	// run test non-local
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -364,7 +364,7 @@ func TestNative_EnvironmentServices(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -516,7 +516,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	compiler, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}

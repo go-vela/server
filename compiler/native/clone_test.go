@@ -88,7 +88,7 @@ func TestNative_CloneStage(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := FromCLICommand(context.Background(), cmd)
+		compiler, err := FromCLICommand(context.Background(), cmd, nil)
 		if err != nil {
 			t.Errorf("unable to create new compiler: %v", err)
 		}
@@ -175,7 +175,7 @@ func TestNative_CloneStep(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := FromCLICommand(context.Background(), cmd)
+		compiler, err := FromCLICommand(context.Background(), cmd, nil)
 		if err != nil {
 			t.Errorf("Unable to create new compiler: %v", err)
 		}

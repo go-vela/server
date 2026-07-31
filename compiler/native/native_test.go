@@ -25,7 +25,7 @@ func TestNative_New(t *testing.T) {
 	want.SetTemplateDepth(5)
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -52,7 +52,7 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 	want.SetTemplateDepth(5)
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"), nil)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -84,7 +84,7 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 	want.SetTemplateDepth(5)
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"), nil)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -110,10 +110,10 @@ func TestNative_DuplicateStripBuild(t *testing.T) {
 	id := int64(1)
 	b := &api.Build{ID: &id}
 
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -132,11 +132,11 @@ func TestNative_WithBuild(t *testing.T) {
 	id := int64(1)
 	b := &api.Build{ID: &id}
 
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	want.build = b
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -152,11 +152,11 @@ func TestNative_WithFiles(t *testing.T) {
 	// setup types
 	f := []string{"foo"}
 
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	want.files = f
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -171,11 +171,11 @@ func TestNative_WithFiles(t *testing.T) {
 func TestNative_WithComment(t *testing.T) {
 	// setup types
 	comment := "ok to test"
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	want.comment = comment
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -190,11 +190,11 @@ func TestNative_WithComment(t *testing.T) {
 func TestNative_WithLocal(t *testing.T) {
 	// setup types
 	local := true
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	want.local = true
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -209,11 +209,11 @@ func TestNative_WithLocal(t *testing.T) {
 func TestNative_WithLocalTemplates(t *testing.T) {
 	// setup types
 	localTemplates := []string{"example:tmpl.yml", "exmpl:template.yml"}
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	want.localTemplates = []string{"example:tmpl.yml", "exmpl:template.yml"}
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -246,11 +246,11 @@ func TestNative_WithMetadata(t *testing.T) {
 		},
 	}
 
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	want.metadata = m
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -264,13 +264,13 @@ func TestNative_WithMetadata(t *testing.T) {
 
 func TestNative_WithPrivateGitHub(t *testing.T) {
 	// setup types
-	private, _ := github.New(context.Background(), "http://foo.example.com", "someToken")
+	private, _ := github.New(context.Background(), "http://foo.example.com", "someToken", nil)
 
-	want, _ := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"), nil)
 	want.PrivateGithub = private
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"))
+	got, err := FromCLICommand(context.Background(), testCommand(t, "http://foo.example.com"), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -290,11 +290,11 @@ func TestNative_WithRepo(t *testing.T) {
 	id := int64(1)
 	r := &api.Repo{ID: &id}
 
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	want.repo = r
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -311,11 +311,11 @@ func TestNative_WithUser(t *testing.T) {
 	id := int64(1)
 	u := &api.User{ID: &id}
 
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	want.user = u
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -330,11 +330,11 @@ func TestNative_WithUser(t *testing.T) {
 func TestNative_WithLabels(t *testing.T) {
 	// setup types
 	labels := []string{"documentation", "enhancement"}
-	want, _ := FromCLICommand(context.Background(), testCommand(t, ""))
+	want, _ := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	want.labels = []string{"documentation", "enhancement"}
 
 	// run test
-	got, err := FromCLICommand(context.Background(), testCommand(t, ""))
+	got, err := FromCLICommand(context.Background(), testCommand(t, ""), nil)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}

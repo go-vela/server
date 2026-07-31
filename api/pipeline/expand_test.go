@@ -149,7 +149,7 @@ func newTestCompiler(t *testing.T) compiler.Engine {
 		},
 	}
 
-	engine, err := native.FromCLICommand(context.Background(), cmd)
+	engine, err := native.FromCLICommand(context.Background(), cmd, nil)
 	if err != nil {
 		t.Fatalf("unable to create compiler: %v", err)
 	}

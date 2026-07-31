@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/urfave/cli/v3"
 )
@@ -67,5 +68,15 @@ var Flags = []cli.Flag{
 			cli.File("/vela/cache/install_token_key"),
 		),
 		Required: true,
+	},
+	&cli.DurationFlag{
+		Name:  "cache.template-ttl",
+		Usage: "duration for how long a cached template should be considered valid before it is refreshed",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("VELA_CACHE_TEMPLATE_TTL"),
+			cli.EnvVar("CACHE_TEMPLATE_TTL"),
+			cli.File("/vela/cache/template_ttl"),
+		),
+		Value: 48 * time.Hour, // 48 hours
 	},
 }

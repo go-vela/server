@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"time"
 )
 
 // ClientOpt represents a configuration option to initialize the queue client for Redis.
@@ -57,6 +58,18 @@ func WithInstallTokenKey(key string) ClientOpt {
 
 		// set the install token key in the redis cache client
 		c.config.InstallTokenKey = string(keyBytes)
+
+		return nil
+	}
+}
+
+// WithTemplateTTL sets the template TTL in the cache client for Redis.
+func WithTemplateTTL(ttl time.Duration) ClientOpt {
+	return func(c *Client) error {
+		c.Logger.Trace("configuring template TTL in redis cache client")
+
+		// set the template TTL in the redis cache client
+		c.config.TemplateTTL = ttl
 
 		return nil
 	}

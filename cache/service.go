@@ -9,12 +9,12 @@ import (
 )
 
 // Service represents the interface for Vela integrating
-// with the different supported Queue backends.
+// with the different supported Cache backends.
 type Service interface {
 	// Service Interface Functions
 
 	// Driver defines a function that outputs
-	// the configured queue driver.
+	// the configured cache driver.
 	Driver() string
 
 	StoreInstallToken(ctx context.Context, token *models.InstallToken, build int64, timeout int32) error
@@ -28,4 +28,8 @@ type Service interface {
 
 	StorePermissionToken(ctx context.Context, installID int64, token string) error
 	GetPermissionToken(ctx context.Context, installID int64) (string, error)
+
+	StoreTemplateContents(ctx context.Context, key string, entry *models.TemplateEntry) error
+	GetTemplateContents(ctx context.Context, key string) (*models.TemplateEntry, error)
+	ExtendTemplateExpiry(ctx context.Context, key string) error
 }
