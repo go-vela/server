@@ -11,6 +11,7 @@ import (
 func TestPipeline_Ruleset_Match(t *testing.T) {
 	// setup types
 	tests := []struct {
+		name    string `default0:"unnamed"`
 		ruleset *Ruleset
 		data    *RuleData
 		envs    raw.StringSliceMap
@@ -197,6 +198,98 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 			data: &RuleData{Branch: "main", Comment: "rerun", Event: "tag", Repo: "octocat/hello-world", Status: "pending", Tag: "refs/heads/main", Target: ""},
 			want: false,
 		},
+		// SCENARIOS
+		//
+		// Scenario 1:
+		//
+		// a common mistake w.r.t. mixing events…
+		//
+		// In this scenario, a repo's release process normally requires that
+		// a release tag references a commit on main,
+		// but then someone tries to tag a commit on a hotfix branch and it fails
+		// because this ruleset only triggers when the tagged commit is on main
+		{
+			ruleset: &Ruleset{
+				If: Rules{
+					Branch:   []string{"main"},
+					Event:    []string{"push", "tag"},
+					Operator: "and",
+				},
+			},
+			data: &RuleData{
+				Branch:  "hotfix",
+				Comment: "happy birthday mom",
+				Event:   "tag",
+				Path:    []string{},
+				Status:  "pending",
+				Tag:     "2026.5.19.0",
+				Target:  "",
+			},
+			want: false,
+		},
+		// …and they should NOT use an operator:or instead
+		{
+			name: "branch:hotfix event:tag |> OR event:[push,tag] branch:main",
+			ruleset: &Ruleset{
+				If: Rules{
+					Branch:   []string{"main"},
+					Event:    []string{"push", "tag"},
+					Operator: "or",
+				},
+			},
+			data: &RuleData{
+				Branch:  "hotfix",
+				Comment: "happy birthday mom",
+				Event:   "tag",
+				Path:    []string{},
+				Status:  "pending",
+				Tag:     "2026.5.19.0",
+				Target:  "",
+			},
+			want: true,
+		},
+		// because then any branch push will run :-(
+		{
+			name: "branch:hotfix event:push |> OR event:[push,tag] branch:main",
+			ruleset: &Ruleset{
+				If: Rules{
+					Branch:   []string{"main"},
+					Event:    []string{"push", "tag"},
+					Operator: "or",
+				},
+			},
+			data: &RuleData{
+				Branch:  "hotfix",
+				Comment: "fix: the thing",
+				Event:   "push",
+				Path:    []string{},
+				Status:  "pending",
+				Tag:     "",
+				Target:  "",
+			},
+			want: true,
+		},
+		// but if we use an eval instead, then we can circumvent the AND'ing
+		// and get what we really want
+		//
+		// End Scenario 1
+		{
+			ruleset: &Ruleset{
+				If: Rules{
+					Eval: "(VELA_BUILD_EVENT == \"push\" && VELA_BUILD_BRANCH == \"main\") || VELA_BUILD_EVENT == \"tag\"",
+				},
+			},
+			data: &RuleData{
+				Branch:  "hotfix",
+				Comment: "fix: the thing",
+				Event:   "tag",
+				Path:    []string{},
+				Status:  "pending",
+				Tag:     "2026.5.19.0",
+				Target:  "",
+			},
+			want: true,
+		},
 		// Eval
 		{
 			ruleset: &Ruleset{
@@ -298,7 +391,7 @@ func TestPipeline_Ruleset_Match(t *testing.T) {
 		}
 
 		if got != test.want {
-			t.Errorf("Ruleset Match test #%d for %s operator is %v, want %v", i, test.ruleset.Operator, got, test.want)
+			t.Errorf("Ruleset Match test #%d [%s] for %s operator is %v, want %v", i, test.name, test.ruleset.Operator, got, test.want)
 		}
 	}
 }
