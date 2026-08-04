@@ -35,7 +35,7 @@ func TestMinio_New(t *testing.T) {
 	for _, test := range tests {
 		_, err := New(
 			test.endpoint,
-			WithOptions(true, _useSSL,
+			WithOptions(true, _useSSL, false,
 				test.endpoint, _accessKey, _secretKey, _bucket, "", constants.DriverMinio),
 		)
 
