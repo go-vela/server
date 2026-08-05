@@ -16,15 +16,16 @@ import (
 // creating a Vela service capable of integrating
 // with a configured S3 environment.
 type Setup struct {
-	Enable    bool
-	Driver    string
-	Endpoint  string
-	AccessKey string
-	SecretKey string
-	Bucket    string
-	Region    string
-	Secure    bool
-	Token     string
+	Enable       bool
+	Driver       string
+	Endpoint     string
+	AccessKey    string
+	SecretKey    string
+	Bucket       string
+	Region       string
+	Secure       bool
+	Token        string
+	PublicPolicy bool
 }
 
 // Minio creates and returns a Vela service capable
@@ -40,7 +41,8 @@ func (s *Setup) Minio() (Storage, error) {
 			s.SecretKey,
 			s.Bucket,
 			s.Token,
-			s.Driver),
+			s.Driver,
+			s.PublicPolicy),
 	)
 }
 

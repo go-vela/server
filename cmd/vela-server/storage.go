@@ -21,13 +21,14 @@ func setupStorage(_ context.Context, c *cli.Command) (storage.Storage, error) {
 	}
 	// storage configuration
 	_setup := &storage.Setup{
-		Enable:    c.Bool("storage.enable"),
-		Driver:    c.String("storage.driver"),
-		Endpoint:  c.String("storage.addr"),
-		AccessKey: c.String("storage.access.key"),
-		SecretKey: c.String("storage.secret.key"),
-		Bucket:    c.String("storage.bucket.name"),
-		Secure:    c.Bool("storage.use.ssl"),
+		Enable:       c.Bool("storage.enable"),
+		Driver:       c.String("storage.driver"),
+		Endpoint:     c.String("storage.addr"),
+		AccessKey:    c.String("storage.access.key"),
+		SecretKey:    c.String("storage.secret.key"),
+		Bucket:       c.String("storage.bucket.name"),
+		Secure:       c.Bool("storage.use.ssl"),
+		PublicPolicy: c.Bool("storage.public.policy"),
 	}
 	// setup the storage
 	//

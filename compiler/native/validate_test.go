@@ -133,6 +133,7 @@ func TestNative_ValidatePipeline_Services(t *testing.T) {
 				Image: "postgres",
 				Name:  str,
 				Ports: raw.StringSlice{"8080:8080"},
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 		},
 		Steps: pipeline.ContainerSlice{
@@ -141,6 +142,7 @@ func TestNative_ValidatePipeline_Services(t *testing.T) {
 				Image:    "alpine",
 				Name:     str,
 				Pull:     "always",
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -309,6 +311,7 @@ func TestNative_Validate_Stages(t *testing.T) {
 						Image:    "alpine",
 						Name:     str,
 						Pull:     "always",
+						Artifacts: pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -343,6 +346,7 @@ func TestNative_Validate_StagesSameName(t *testing.T) {
 						Image:    "alpine",
 						Name:     strFoo,
 						Pull:     "always",
+						Artifacts: pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -354,6 +358,7 @@ func TestNative_Validate_StagesSameName(t *testing.T) {
 						Image:    "alpine",
 						Name:     strBar,
 						Pull:     "always",
+						Artifacts: pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -510,6 +515,7 @@ func TestNative_Validate_Stages_StepNameConflict(t *testing.T) {
 						Image:    "alpine",
 						Name:     str,
 						Pull:     "always",
+						Artifacts: pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -521,6 +527,7 @@ func TestNative_Validate_Stages_StepNameConflict(t *testing.T) {
 						Image:    "alpine",
 						Name:     str,
 						Pull:     "always",
+						Artifacts: pipeline.Artifacts{Secured: true},
 					},
 				},
 			},
@@ -583,6 +590,7 @@ func TestNative_Validate_Steps(t *testing.T) {
 				Image:    "alpine",
 				Name:     str,
 				Pull:     "always",
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -637,6 +645,7 @@ func TestNative_Validate_Services_NameCollision(t *testing.T) {
 				Image: "postgres",
 				Name:  str,
 				Pull:  "always",
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				Environment: raw.StringSliceMap{
@@ -645,6 +654,7 @@ func TestNative_Validate_Services_NameCollision(t *testing.T) {
 				Image: "kafka",
 				Name:  str,
 				Pull:  "always",
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -726,6 +736,7 @@ func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
 			Name:     fmt.Sprintf("%s-%d", str, i),
 			Pull:     "always",
 			ReportAs: fmt.Sprintf("step-%d", i),
+			Artifacts: pipeline.Artifacts{Secured: true},
 		}
 		reportSteps = append(reportSteps, reportStep)
 	}
@@ -759,6 +770,7 @@ func TestNative_Validate_MultiReportAs(t *testing.T) {
 				Name:     str,
 				Pull:     "always",
 				ReportAs: "bar",
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				Commands: raw.StringSlice{"echo hello"},
@@ -766,6 +778,7 @@ func TestNative_Validate_MultiReportAs(t *testing.T) {
 				Name:     str + "-2",
 				Pull:     "always",
 				ReportAs: "bar",
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -793,12 +806,14 @@ func TestNative_Validate_Steps_StepNameConflict(t *testing.T) {
 				Image:    "alpine",
 				Name:     str,
 				Pull:     "always",
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 			&pipeline.Container{
 				Commands: raw.StringSlice{"echo goodbye"},
 				Image:    "alpine",
 				Name:     str,
 				Pull:     "always",
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 		},
 	}
@@ -868,6 +883,7 @@ func TestNative_Validate_Secrets_SecretOriginNameConflict(t *testing.T) {
 				Image:    "alpine",
 				Name:     str,
 				Pull:     "always",
+				Artifacts: pipeline.Artifacts{Secured: true},
 			},
 		},
 	}

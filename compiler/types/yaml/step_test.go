@@ -152,7 +152,8 @@ func TestYaml_StepSlice_ToPipeline(t *testing.T) {
 						},
 					},
 					Artifacts: pipeline.Artifacts{
-						Paths: []string{"test-results/*.xml", "screenshots/**/*.png", " video/*.mp4"},
+						Paths:   []string{"test-results/*.xml", "screenshots/**/*.png", " video/*.mp4"},
+						Secured: true,
 					},
 				},
 			},

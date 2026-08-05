@@ -142,6 +142,9 @@ func TestYaml_StageSlice_ToPipeline(t *testing.T) {
 									AccessMode:  "ro",
 								},
 							},
+							Artifacts: pipeline.Artifacts{
+								Secured: true,
+							},
 						},
 					},
 				},
