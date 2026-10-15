@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v92/github"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
@@ -319,7 +319,7 @@ func NewTestAppClient(baseURL string) *github.Client {
 	pk, _ := rsa.GenerateKey(rand.Reader, 2048)
 
 	client, err := github.NewClient(
-		&http.Client{
+		github.WithHTTPClient(&http.Client{
 			Transport: &AppsTransport{
 				BaseURL: baseURL,
 				Client:  &http.Client{Transport: http.DefaultTransport},
@@ -330,8 +330,9 @@ func NewTestAppClient(baseURL string) *github.Client {
 				},
 				appID: 1,
 			},
-		}).
-		WithEnterpriseURLs(baseURL, baseURL)
+		}),
+		github.WithEnterpriseURLs(baseURL, baseURL),
+	)
 	if err != nil {
 		return nil
 	}

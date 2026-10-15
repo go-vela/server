@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v92/github"
 	"golang.org/x/oauth2"
 )
 
@@ -65,20 +65,29 @@ func TestGithub_newClientToken(t *testing.T) {
 		&oauth2.Token{AccessToken: "foobar"},
 	)
 	tc := oauth2.NewClient(context.Background(), ts)
-	want := github.NewClient(tc)
-	want.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
+
+	baseURL, _ := url.Parse(s.URL + "/api/v3/")
+	baseURLStr := baseURL.String()
+
+	want, err := github.NewClient(github.WithHTTPClient(tc), github.WithURLs(&baseURLStr, nil))
+	if err != nil {
+		t.Fatalf("github.NewClient returned err: %v", err)
+	}
 
 	// setup client
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got := client.newOAuthTokenClient(context.Background(), "foobar")
+	got, err := client.newOAuthTokenClient(context.Background(), "foobar")
+	if err != nil {
+		t.Fatalf("newOAuthTokenClient returned err: %v", err)
+	}
 
 	if got == nil {
 		t.Errorf("newClientToken is nil, want %v", want)
 	}
 
-	if !reflect.DeepEqual(got.BaseURL, want.BaseURL) {
-		t.Errorf("newClientToken BaseURL is %v, want %v", got.BaseURL, want.BaseURL)
+	if !reflect.DeepEqual(got.BaseURL(), want.BaseURL()) {
+		t.Errorf("newClientToken BaseURL is %s, want %s", got.BaseURL(), want.BaseURL())
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v92/github"
 	"golang.org/x/oauth2"
 )
 
@@ -46,10 +46,14 @@ func New(ctx context.Context, address, token string) (*Client, error) {
 		}
 	}
 
+	baseURL, _ := url.Parse(c.API)
+	baseURLStr := baseURL.String()
+
 	// create the GitHub client
-	gitClient := github.NewClient(nil)
-	// ensure the proper URL is set
-	gitClient.BaseURL, _ = url.Parse(c.API)
+	gitClient, err := github.NewClient(github.WithURLs(&baseURLStr, nil))
+	if err != nil {
+		return nil, err
+	}
 
 	if len(token) > 0 {
 		// create GitHub OAuth client with user's token
@@ -72,11 +76,11 @@ func (c *Client) newOAuthTokenClient(ctx context.Context, token string) *github.
 	// create the OAuth client
 	tc := oauth2.NewClient(ctx, ts)
 
-	// create the GitHub client from the OAuth client
-	github := github.NewClient(tc)
+	baseURL, _ := url.Parse(c.API)
+	baseURLStr := baseURL.String()
 
-	// ensure the proper URL is set
-	github.BaseURL, _ = url.Parse(c.API)
+	// create the GitHub client from the OAuth client
+	github, _ := github.NewClient(github.WithHTTPClient(tc), github.WithURLs(&baseURLStr, nil))
 
 	return github
 }

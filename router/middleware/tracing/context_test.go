@@ -14,9 +14,7 @@ func TestTracing_FromContext(t *testing.T) {
 	// setup types
 	serviceName := "vela-test"
 	want := &tracing.Client{
-		Config: tracing.Config{
-			ServiceName: serviceName,
-		},
+		ServiceName: serviceName,
 	}
 
 	// setup context
@@ -81,9 +79,7 @@ func TestTracing_ToContext(t *testing.T) {
 	// setup types
 	serviceName := "vela-test"
 	want := &tracing.Client{
-		Config: tracing.Config{
-			ServiceName: serviceName,
-		},
+		ServiceName: serviceName,
 	}
 
 	// setup context

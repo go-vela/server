@@ -14,7 +14,7 @@ import (
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/lestrrat-go/jwx/v3/jwk"
+	"github.com/lestrrat-go/jwx/v4/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
@@ -116,7 +116,7 @@ func TestDatabase_Integration(t *testing.T) {
 				WithDriver(test.config.Driver),
 				WithEncryptionKey(test.config.EncryptionKey),
 				WithSkipCreation(test.config.SkipCreation),
-				WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
+				WithTracing(&tracing.Client{EnableTracing: false}),
 			)
 			if err != nil {
 				t.Errorf("unable to create new database engine for %s: %v", test.name, err)
