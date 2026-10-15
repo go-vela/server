@@ -17,6 +17,8 @@ func TestToken_Retrieve_Refresh(t *testing.T) {
 	want := "fresh"
 
 	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", nil)
+
+	//nolint:gosec // ignore for testing
 	request.AddCookie(&http.Cookie{
 		Name:  constants.RefreshTokenName,
 		Value: want,

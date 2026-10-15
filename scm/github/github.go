@@ -173,15 +173,18 @@ func New(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 			return nil, fmt.Errorf("failed to parse GitHub App RSA private key: %w", err)
 		}
 
-		appHttpClient := &http.Client{
+		appHTTPClient := &http.Client{
 			Transport: c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey),
 		}
 
 		// create a github client based off the existing GitHub App configuration
-		c.AppClient, err = github.NewClient(github.WithHTTPClient(appHttpClient))
+		c.AppClient, err = github.NewClient(github.WithHTTPClient(appHTTPClient))
+		if err != nil {
+			return nil, err
+		}
 
 		if c.config.API != defaultAPI {
-			c.AppClient, err = github.NewClient(github.WithHTTPClient(appHttpClient), github.WithEnterpriseURLs(c.config.API, c.config.API))
+			c.AppClient, err = github.NewClient(github.WithHTTPClient(appHTTPClient), github.WithEnterpriseURLs(c.config.API, c.config.API))
 			if err != nil {
 				return nil, err
 			}

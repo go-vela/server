@@ -82,7 +82,7 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 				Account: &github.User{
 					Login: new("github"),
 				},
-				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
+				RepositorySelection: new(constants.AppInstallRepositoriesSelectionSelected),
 			},
 			want:    true,
 			wantErr: false,
@@ -96,7 +96,7 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 				Account: &github.User{
 					Login: new("github"),
 				},
-				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionAll),
+				RepositorySelection: new(constants.AppInstallRepositoriesSelectionAll),
 			},
 			want:    true,
 			wantErr: false,
@@ -110,7 +110,7 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 				Account: &github.User{
 					Login: new("github"),
 				},
-				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
+				RepositorySelection: new(constants.AppInstallRepositoriesSelectionSelected),
 			},
 			want:    false,
 			wantErr: false,
