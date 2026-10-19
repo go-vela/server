@@ -4,6 +4,7 @@ package internal
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	yaml "go.yaml.in/yaml/v3"
@@ -123,9 +124,7 @@ func collapseMergeAnchors(node *yaml.Node, warnings []string, warningPrefix stri
 			node.Content[firstIndex] = &yaml.Node{Kind: yaml.ScalarNode, Value: "<<"}
 			node.Content[firstIndex+1] = seqNode
 
-			for i := len(keysToRemove) - 1; i >= 0; i-- {
-				index := keysToRemove[i]
-
+			for _, index := range slices.Backward(keysToRemove) {
 				warnings = append(warnings, fmt.Sprintf("%s%d:duplicate << keys in single YAML map", warningPrefix, node.Content[index].Line))
 				node.Content = append(node.Content[:index], node.Content[index+2:]...)
 			}

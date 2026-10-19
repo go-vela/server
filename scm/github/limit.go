@@ -16,7 +16,10 @@ func (c *Client) InstallRateLimit(ctx context.Context, token string, installID i
 	}).Tracef("capturing SCM app rate limit for installation %d", installID)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client, err := c.newOAuthTokenClient(ctx, token)
+	if err != nil {
+		return 0, 0, 0, err
+	}
 
 	rateLimits, _, err := client.RateLimit.Get(ctx)
 	if err != nil {

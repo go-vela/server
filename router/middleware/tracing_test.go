@@ -21,9 +21,7 @@ func TestMiddleware_TracingClient(t *testing.T) {
 	var got *tracing.Client
 
 	want := &tracing.Client{
-		Config: tracing.Config{
-			EnableTracing: true,
-		},
+		EnableTracing: true,
 	}
 
 	// setup context
@@ -57,10 +55,8 @@ func TestMiddleware_TracingInstrumentation(t *testing.T) {
 	}{
 		{
 			tc: &tracing.Client{
-				Config: tracing.Config{
-					EnableTracing: false,
-					ServiceName:   "vela-test",
-				},
+				EnableTracing:  false,
+				ServiceName:    "vela-test",
 				TracerProvider: sdktrace.NewTracerProvider(),
 			},
 			assert: func(got trace.SpanContext) error {
@@ -73,10 +69,8 @@ func TestMiddleware_TracingInstrumentation(t *testing.T) {
 		},
 		{
 			tc: &tracing.Client{
-				Config: tracing.Config{
-					EnableTracing: true,
-					ServiceName:   "vela-test",
-				},
+				EnableTracing:  true,
+				ServiceName:    "vela-test",
 				TracerProvider: sdktrace.NewTracerProvider(),
 			},
 			assert: func(got trace.SpanContext) error {

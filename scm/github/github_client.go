@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v92/github"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
@@ -18,7 +18,7 @@ import (
 )
 
 // newOAuthTokenClient returns the GitHub OAuth client.
-func (c *Client) newOAuthTokenClient(ctx context.Context, token string) *github.Client {
+func (c *Client) newOAuthTokenClient(ctx context.Context, token string) (*github.Client, error) {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -36,13 +36,20 @@ func (c *Client) newOAuthTokenClient(ctx context.Context, token string) *github.
 		)
 	}
 
+	baseURL, err := url.Parse(c.config.API)
+	if err != nil {
+		return nil, err
+	}
+
+	baseURLString := baseURL.String()
+
 	// create the GitHub client from the OAuth client
-	github := github.NewClient(tc)
+	github, err := github.NewClient(github.WithHTTPClient(tc), github.WithURLs(&baseURLString, nil))
+	if err != nil {
+		return nil, err
+	}
 
-	// ensure the proper URL is set in the GitHub client
-	github.BaseURL, _ = url.Parse(c.config.API)
-
-	return github
+	return github, nil
 }
 
 // NewAppInstallationToken returns the GitHub App installation token for a particular repo with granular permissions.
@@ -92,7 +99,10 @@ func (c *Client) installationCanReadRepo(ctx context.Context, org, repo string, 
 			return false, err
 		}
 
-		client := c.newOAuthTokenClient(ctx, t.GetToken())
+		client, err := c.newOAuthTokenClient(ctx, t.GetToken())
+		if err != nil {
+			return false, err
+		}
 
 		_, _, err = client.Repositories.Get(ctx, org, repo)
 		if err == nil {

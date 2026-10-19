@@ -50,11 +50,9 @@ func TestTokenManager_ParseToken(t *testing.T) {
 				IsActive:  u.GetActive(),
 				IsAdmin:   u.GetAdmin(),
 				TokenType: constants.UserAccessTokenType,
-				RegisteredClaims: jwt.RegisteredClaims{
-					Subject:   u.GetName(),
-					IssuedAt:  jwt.NewNumericDate(now),
-					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 5)),
-				},
+				Subject:   u.GetName(),
+				IssuedAt:  jwt.NewNumericDate(now),
+				ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 5)),
 			},
 		},
 		{
@@ -68,11 +66,9 @@ func TestTokenManager_ParseToken(t *testing.T) {
 				IsActive:  u.GetActive(),
 				IsAdmin:   u.GetAdmin(),
 				TokenType: constants.UserRefreshTokenType,
-				RegisteredClaims: jwt.RegisteredClaims{
-					Subject:   u.GetName(),
-					IssuedAt:  jwt.NewNumericDate(now),
-					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 30)),
-				},
+				Subject:   u.GetName(),
+				IssuedAt:  jwt.NewNumericDate(now),
+				ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 30)),
 			},
 		},
 		{
@@ -88,11 +84,9 @@ func TestTokenManager_ParseToken(t *testing.T) {
 				BuildID:   1,
 				Repo:      "foo/bar",
 				TokenType: constants.WorkerBuildTokenType,
-				RegisteredClaims: jwt.RegisteredClaims{
-					Subject:   "worker",
-					IssuedAt:  jwt.NewNumericDate(now),
-					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 90)),
-				},
+				Subject:   "worker",
+				IssuedAt:  jwt.NewNumericDate(now),
+				ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 90)),
 			},
 		},
 	}
@@ -190,9 +184,7 @@ func TestTokenManager_ParseToken_NoSubject(t *testing.T) {
 		IsActive:  u.GetActive(),
 		IsAdmin:   u.GetAdmin(),
 		TokenType: constants.UserRefreshTokenType,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now()),
-		},
+		ExpiresAt: jwt.NewNumericDate(time.Now()),
 	}
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -229,10 +221,8 @@ func TestTokenManager_ParseToken_Error_InvalidSignature(t *testing.T) {
 		IsActive:  u.GetActive(),
 		IsAdmin:   u.GetAdmin(),
 		TokenType: constants.UserAccessTokenType,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   u.GetName(),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 1)),
-		},
+		Subject:   u.GetName(),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 1)),
 	}
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 
@@ -267,9 +257,7 @@ func TestToken_Parse_AccessToken_NoExpiration(t *testing.T) {
 
 	claims := &Claims{
 		TokenType: constants.UserAccessTokenType,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject: "user",
-		},
+		Subject:   "user",
 	}
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 

@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v92/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -25,7 +25,11 @@ func (c *Client) Changeset(ctx context.Context, token string, r *api.Repo, sha s
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client, err := c.newOAuthTokenClient(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+
 	s := []string{}
 
 	// set the max per page for the options to capture the commit
@@ -58,7 +62,11 @@ func (c *Client) ChangesetPR(ctx context.Context, token string, r *api.Repo, num
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client, err := c.newOAuthTokenClient(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+
 	s := []string{}
 	f := []*github.CommitFile{}
 

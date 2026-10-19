@@ -30,7 +30,6 @@ linters:
     - errcheck # checks for unchecked errors
     - errorlint # find misuses of errors
     - funlen # detects long functions
-    - goconst # finds repeated strings that could be replaced by a constant
     - gocyclo # computes and checks the cyclomatic complexity of functions
     - godot # checks if comments end in a period
     - goheader # checks is file header matches to pattern
@@ -58,6 +57,7 @@ linters:
   # static list of linters we know golangci can run but we've
   # chosen to leave disabled for now
   # - asciicheck          - non-critical
+  # - goconst             - too many false positives
   # - cyclop              - unused complexity metric
   # - dogsled             - blanks allowed
   # - durationcheck       - unused

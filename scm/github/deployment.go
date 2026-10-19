@@ -6,7 +6,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v92/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -22,7 +22,10 @@ func (c *Client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id
 	}).Tracef("capturing deployment %d for repo %s", id, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, u.GetToken())
+	if err != nil {
+		return nil, err
+	}
 
 	// send API call to capture the deployment
 	deployment, _, err := client.Repositories.GetDeployment(ctx, r.GetOrg(), r.GetName(), id)
@@ -63,7 +66,10 @@ func (c *Client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Rep
 	}).Tracef("counting deployments for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, u.GetToken())
+	if err != nil {
+		return 0, err
+	}
 	// create variable to track the deployments
 	deployments := []*github.Deployment{}
 
@@ -105,14 +111,15 @@ func (c *Client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo
 	}).Tracef("listing deployments for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, u.GetToken())
+	if err != nil {
+		return nil, err
+	}
 
 	// set pagination options for listing deployments
 	opts := &github.DeploymentsListOptions{
-		ListOptions: github.ListOptions{
-			Page:    page,
-			PerPage: perPage,
-		},
+		Page:    page,
+		PerPage: perPage,
 	}
 
 	// send API call to capture the list of deployments
@@ -164,7 +171,10 @@ func (c *Client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	}).Tracef("creating deployment for repo %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, u.GetToken())
+	if err != nil {
+		return err
+	}
 
 	var payload any
 	if d.Payload == nil {
@@ -174,11 +184,11 @@ func (c *Client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo,
 	}
 
 	// create the hook object to make the API call
-	deployment := &github.DeploymentRequest{
-		Ref:              d.Ref,
+	deployment := github.DeploymentRequest{
+		Ref:              d.GetRef(),
 		Task:             d.Task,
 		AutoMerge:        new(false),
-		RequiredContexts: &[]string{},
+		RequiredContexts: []string{},
 		Payload:          payload,
 		Environment:      d.Target,
 		Description:      d.Description,

@@ -13,7 +13,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v92/github"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 
@@ -173,14 +173,18 @@ func New(ctx context.Context, opts ...ClientOpt) (*Client, error) {
 			return nil, fmt.Errorf("failed to parse GitHub App RSA private key: %w", err)
 		}
 
+		appHTTPClient := &http.Client{
+			Transport: c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey),
+		}
+
 		// create a github client based off the existing GitHub App configuration
-		c.AppClient = github.NewClient(
-			&http.Client{
-				Transport: c.newGitHubAppTransport(c.config.AppID, c.config.API, parsedPrivateKey),
-			})
+		c.AppClient, err = github.NewClient(github.WithHTTPClient(appHTTPClient))
+		if err != nil {
+			return nil, err
+		}
 
 		if c.config.API != defaultAPI {
-			c.AppClient, err = c.AppClient.WithEnterpriseURLs(c.config.API, c.config.API)
+			c.AppClient, err = github.NewClient(github.WithHTTPClient(appHTTPClient), github.WithEnterpriseURLs(c.config.API, c.config.API))
 			if err != nil {
 				return nil, err
 			}
@@ -289,7 +293,7 @@ func NewTest(urls ...string) (*Client, error) {
 		WithServerWebhookAddress(""),
 		WithStatusContext("continuous-integration/vela"),
 		WithWebUIAddress(address),
-		WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
+		WithTracing(&tracing.Client{EnableTracing: false}),
 	)
 	if err != nil {
 		return nil, err

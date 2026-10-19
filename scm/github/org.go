@@ -19,7 +19,10 @@ func (c *Client) GetOrgName(ctx context.Context, u *api.User, o string) (string,
 	}).Tracef("retrieving org information for %s", o)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, u.GetToken())
+	if err != nil {
+		return "", err
+	}
 
 	// send an API call to get the org info
 	orgInfo, resp, err := client.Organizations.Get(ctx, o)
