@@ -229,13 +229,11 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 // type with all fields set to a fake value.
 func testPlatform() *Platform {
 	return &Platform{
-		ID: sql.NullInt32{Int32: 1, Valid: true},
-		Compiler: Compiler{
-			CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
-			TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
-			StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
-		},
-		Routes: []string{"vela"},
+		ID:                sql.NullInt32{Int32: 1, Valid: true},
+		CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
+		TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
+		StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
+		Routes:            []string{"vela"},
 		RepoRoleMap: map[string]string{
 			"admin":  "admin",
 			"triage": "read",
