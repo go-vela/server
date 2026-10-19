@@ -79,6 +79,8 @@ func TestUser_Establish(t *testing.T) {
 	at, _ := tm.MintToken(mto)
 
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", at))
+
+	//nolint:gosec // ignore for testing
 	context.Request.AddCookie(&http.Cookie{
 		Name:  constants.RefreshTokenName,
 		Value: "fresh",
@@ -309,6 +311,8 @@ func TestUser_Establish_NoUser(t *testing.T) {
 	at, _ := tm.MintToken(mto)
 
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", at))
+
+	//nolint:gosec // ignore for testing
 	context.Request.AddCookie(&http.Cookie{
 		Name:  constants.RefreshTokenName,
 		Value: "fresh",

@@ -1779,7 +1779,10 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
-	ghClient := client.newOAuthTokenClient(context.Background(), u.GetToken())
+	ghClient, err := client.newOAuthTokenClient(context.Background(), u.GetToken())
+	if err != nil {
+		t.Fatalf("newOAuthTokenClient returned err: %v", err)
+	}
 
 	// run test
 	got, err := client.getDeliveryID(context.TODO(), ghClient, _hook)

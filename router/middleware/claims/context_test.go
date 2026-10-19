@@ -19,11 +19,9 @@ func TestClaims_FromContext(t *testing.T) {
 		TokenType: constants.UserAccessTokenType,
 		IsAdmin:   false,
 		IsActive:  true,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   "octocat",
-			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 1)),
-		},
+		Subject:   "octocat",
+		IssuedAt:  jwt.NewNumericDate(now),
+		ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 1)),
 	}
 
 	// setup context
@@ -91,11 +89,9 @@ func TestClaims_ToContext(t *testing.T) {
 		TokenType: constants.UserAccessTokenType,
 		IsAdmin:   false,
 		IsActive:  true,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   "octocat",
-			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 1)),
-		},
+		Subject:   "octocat",
+		IssuedAt:  jwt.NewNumericDate(now),
+		ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 1)),
 	}
 
 	// setup context

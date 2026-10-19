@@ -253,6 +253,6 @@ func NewTest() (Interface, error) {
 		WithLogShowSQL(false),
 		WithLogSkipNotFound(true),
 		WithLogSlowThreshold(200*time.Millisecond),
-		WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
+		WithTracing(&tracing.Client{EnableTracing: false}),
 	)
 }

@@ -106,10 +106,8 @@ func TestTypes_Platform_Validate(t *testing.T) {
 			settings: &Platform{
 				ID:                sql.NullInt32{Int32: 1, Valid: true},
 				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
-				Compiler: Compiler{
-					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
-					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
-				},
+				TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
+				StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
 			},
 		},
 		{ // no TemplateDepth set for settings
@@ -117,10 +115,8 @@ func TestTypes_Platform_Validate(t *testing.T) {
 			settings: &Platform{
 				ID:                sql.NullInt32{Int32: 1, Valid: true},
 				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
-				Compiler: Compiler{
-					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
-					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
-				},
+				CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
+				StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
 			},
 		},
 		{ // no StarlarkExecLimit set for settings
@@ -128,21 +124,17 @@ func TestTypes_Platform_Validate(t *testing.T) {
 			settings: &Platform{
 				ID:                sql.NullInt32{Int32: 1, Valid: true},
 				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
-				Compiler: Compiler{
-					CloneImage:    sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
-					TemplateDepth: sql.NullInt64{Int64: 10, Valid: true},
-				},
+				CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
+				TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
 			},
 		},
 		{ // no MaxDashboardRepos set for settings
 			failure: true,
 			settings: &Platform{
-				ID: sql.NullInt32{Int32: 1, Valid: true},
-				Compiler: Compiler{
-					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
-					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
-					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
-				},
+				ID:                sql.NullInt32{Int32: 1, Valid: true},
+				CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
+				TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
+				StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
 			},
 		},
 		{ // negative QueueRestartLimit set for settings
@@ -151,11 +143,9 @@ func TestTypes_Platform_Validate(t *testing.T) {
 				ID:                sql.NullInt32{Int32: 1, Valid: true},
 				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
 				QueueRestartLimit: sql.NullInt32{Int32: -1, Valid: true},
-				Compiler: Compiler{
-					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
-					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
-					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
-				},
+				CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
+				TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
+				StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
 			},
 		},
 		{ // no queue fields set for settings
@@ -163,12 +153,10 @@ func TestTypes_Platform_Validate(t *testing.T) {
 			settings: &Platform{
 				ID:                sql.NullInt32{Int32: 1, Valid: true},
 				MaxDashboardRepos: sql.NullInt32{Int32: 10, Valid: true},
-				Compiler: Compiler{
-					CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
-					TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
-					StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
-				},
-				Queue: Queue{},
+				CloneImage:        sql.NullString{String: "target/vela-git-slim:latest", Valid: true},
+				TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
+				StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
+				Queue:             Queue{},
 			},
 		},
 	}
@@ -247,21 +235,17 @@ func testPlatform() *Platform {
 			TemplateDepth:     sql.NullInt64{Int64: 10, Valid: true},
 			StarlarkExecLimit: sql.NullInt64{Int64: 100, Valid: true},
 		},
-		Queue: Queue{
-			Routes: []string{"vela"},
+		Routes: []string{"vela"},
+		RepoRoleMap: map[string]string{
+			"admin":  "admin",
+			"triage": "read",
 		},
-		SCM: SCM{
-			RepoRoleMap: map[string]string{
-				"admin":  "admin",
-				"triage": "read",
-			},
-			OrgRoleMap: map[string]string{
-				"admin":  "admin",
-				"member": "read",
-			},
-			TeamRoleMap: map[string]string{
-				"admin": "admin",
-			},
+		OrgRoleMap: map[string]string{
+			"admin":  "admin",
+			"member": "read",
+		},
+		TeamRoleMap: map[string]string{
+			"admin": "admin",
 		},
 		RepoAllowlist:       []string{"github/octocat"},
 		ScheduleAllowlist:   []string{"*"},

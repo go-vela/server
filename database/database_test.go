@@ -112,7 +112,7 @@ func TestDatabase_New(t *testing.T) {
 				WithLogSlowThreshold(test.config.LogSlowThreshold),
 				WithEncryptionKey(test.config.EncryptionKey),
 				WithSkipCreation(test.config.SkipCreation),
-				WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
+				WithTracing(&tracing.Client{EnableTracing: false}),
 			)
 
 			if test.failure {
@@ -307,7 +307,7 @@ func TestDatabase_Engine_PartitionConfiguration(t *testing.T) {
 				WithLogShowSQL(false),
 				WithLogSkipNotFound(true),
 				WithLogSlowThreshold(200*time.Millisecond),
-				WithTracing(&tracing.Client{Config: tracing.Config{EnableTracing: false}}),
+				WithTracing(&tracing.Client{EnableTracing: false}),
 				WithLogPartitioned(test.partitioned),
 				WithLogPartitionPattern(test.pattern),
 				WithLogPartitionSchema(test.schema),

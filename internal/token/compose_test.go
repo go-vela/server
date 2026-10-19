@@ -37,11 +37,9 @@ func TestToken_Compose(t *testing.T) {
 		IsActive:  u.GetActive(),
 		IsAdmin:   u.GetAdmin(),
 		TokenType: constants.UserAccessTokenType,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   u.GetName(),
-			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(exp),
-		},
+		Subject:   u.GetName(),
+		IssuedAt:  jwt.NewNumericDate(now),
+		ExpiresAt: jwt.NewNumericDate(exp),
 	}
 
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
