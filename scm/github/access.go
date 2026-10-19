@@ -6,7 +6,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v93/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -31,7 +31,10 @@ func (c *Client) OrgAccess(ctx context.Context, u *api.User, org string) (string
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, u.GetToken())
+	if err != nil {
+		return constants.PermissionNone, err
+	}
 
 	// send API call to capture org access level for user
 	membership, _, err := client.Organizations.GetOrgMembership(ctx, *u.Name, org)
@@ -73,7 +76,10 @@ func (c *Client) RepoAccess(ctx context.Context, name, token, org, repo string) 
 	}
 
 	// create github oauth client with the given token
-	client := c.newOAuthTokenClient(ctx, token)
+	client, err := c.newOAuthTokenClient(ctx, token)
+	if err != nil {
+		return constants.PermissionNone, err
+	}
 
 	// send API call to capture repo access level for user
 	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, name)
@@ -110,7 +116,10 @@ func (c *Client) TeamAccess(ctx context.Context, u *api.User, org, team string) 
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, u.GetToken())
+	if err != nil {
+		return constants.PermissionNone, err
+	}
 
 	membership, _, err := client.Teams.GetTeamMembershipBySlug(ctx, org, team, u.GetName())
 	if err != nil {
@@ -134,7 +143,11 @@ func (c *Client) ListUsersTeamsForOrg(ctx context.Context, u *api.User, org stri
 	}).Tracef("capturing %s team membership for org %s", u.GetName(), org)
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, u.GetToken())
+	if err != nil {
+		return []string{""}, err
+	}
+
 	teams := []*github.Team{}
 
 	// set the max per page for the options to capture the list of repos
@@ -179,7 +192,10 @@ func (c *Client) RepoContributor(ctx context.Context, owner *api.User, sender, o
 	}).Tracef("capturing %s contributor status for repo %s/%s", sender, org, repo)
 
 	// create GitHub OAuth client with repo owner's token
-	client := c.newOAuthTokenClient(ctx, owner.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, owner.GetToken())
+	if err != nil {
+		return false, err
+	}
 
 	// set the max per page for the options to capture the list of repos
 	opts := github.ListContributorsOptions{

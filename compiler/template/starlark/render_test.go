@@ -205,7 +205,7 @@ func TestNative_RenderBuild(t *testing.T) {
 			},
 			wantFile:  "",
 			wantErr:   true,
-			execLimit: 5000,
+			execLimit: 2000,
 		},
 	}
 

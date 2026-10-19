@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v93/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/random"
@@ -21,7 +21,10 @@ func (c *Client) Authorize(ctx context.Context, token string) (string, error) {
 	c.Logger.Trace("authorizing user with token")
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client, err := c.newOAuthTokenClient(ctx, token)
+	if err != nil {
+		return "", err
+	}
 
 	// send API call to capture the current user making the call
 	u, _, err := client.Users.Get(ctx, "")
@@ -137,7 +140,10 @@ func (c *Client) ValidateOAuthToken(ctx context.Context, token string) (bool, er
 		Password: c.config.ClientSecret,
 	}
 	// create client to connect to GitHub API
-	client := github.NewClient(transport.Client())
+	client, err := github.NewClient(github.WithHTTPClient(transport.Client()))
+	if err != nil {
+		return false, err
+	}
 	// check if github url was set
 	if c.config.Address != "" && c.config.Address != "https://github.com" {
 		// check if address has trailing slash
@@ -150,15 +156,16 @@ func (c *Client) ValidateOAuthToken(ctx context.Context, token string) (bool, er
 		if err != nil {
 			return false, err
 		}
-		// set the base and upload url
-		client.BaseURL = enterpriseURL
-		client.UploadURL = enterpriseURL
+
+		client, err = github.NewClient(github.WithHTTPClient(transport.Client()), github.WithEnterpriseURLs(enterpriseURL.String(), enterpriseURL.String()))
+		if err != nil {
+			return false, err
+		}
 	}
 	// check if the provided token was created by Vela
 	_, resp, err := client.Authorizations.Check(ctx, c.config.ClientID, token)
 	// check if the error is of type ErrorResponse
-	var gerr *github.ErrorResponse
-	if errors.As(err, &gerr) {
+	if gerr, ok := errors.AsType[*github.ErrorResponse](err); ok {
 		// check the status code
 		switch gerr.Response.StatusCode {
 		// 404 is expected when non vela token is used

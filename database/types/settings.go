@@ -257,20 +257,14 @@ func (ps *Platform) Validate() error {
 // to a database Settings type.
 func SettingsFromAPI(s *settings.Platform) *Platform {
 	settings := &Platform{
-		ID: sql.NullInt32{Int32: s.GetID(), Valid: true},
-		Compiler: Compiler{
-			CloneImage:        sql.NullString{String: s.GetCloneImage(), Valid: true},
-			TemplateDepth:     sql.NullInt64{Int64: int64(s.GetTemplateDepth()), Valid: true},
-			StarlarkExecLimit: sql.NullInt64{Int64: s.GetStarlarkExecLimit(), Valid: true},
-		},
-		Queue: Queue{
-			Routes: pq.StringArray(s.GetRoutes()),
-		},
-		SCM: SCM{
-			RepoRoleMap: s.GetRepoRoleMap(),
-			OrgRoleMap:  s.GetOrgRoleMap(),
-			TeamRoleMap: s.GetTeamRoleMap(),
-		},
+		ID:                  sql.NullInt32{Int32: s.GetID(), Valid: true},
+		CloneImage:          sql.NullString{String: s.GetCloneImage(), Valid: true},
+		TemplateDepth:       sql.NullInt64{Int64: int64(s.GetTemplateDepth()), Valid: true},
+		StarlarkExecLimit:   sql.NullInt64{Int64: s.GetStarlarkExecLimit(), Valid: true},
+		Routes:              pq.StringArray(s.GetRoutes()),
+		RepoRoleMap:         s.GetRepoRoleMap(),
+		OrgRoleMap:          s.GetOrgRoleMap(),
+		TeamRoleMap:         s.GetTeamRoleMap(),
 		RepoAllowlist:       pq.StringArray(s.GetRepoAllowlist()),
 		ScheduleAllowlist:   pq.StringArray(s.GetScheduleAllowlist()),
 		MaxDashboardRepos:   sql.NullInt32{Int32: s.GetMaxDashboardRepos(), Valid: true},

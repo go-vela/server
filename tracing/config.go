@@ -60,10 +60,8 @@ func FromCLICommand(ctx context.Context, c *cli.Command) (*Client, error) {
 		ResourceAttributes:   c.StringMap("tracing.resource.attributes"),
 		TraceStateAttributes: c.StringMap("tracing.tracestate.attributes"),
 		SpanAttributes:       c.StringMap("tracing.span.attributes"),
-		Sampler: Sampler{
-			PerSecond: c.Float("tracing.sampler.persecond"),
-			Tasks:     Tasks{},
-		},
+		PerSecond:            c.Float("tracing.sampler.persecond"),
+		Tasks:                Tasks{},
 	}
 
 	// read per-task configurations from file

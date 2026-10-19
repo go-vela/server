@@ -31,11 +31,9 @@ func TestClaims_Retrieve(t *testing.T) {
 		TokenType: constants.UserAccessTokenType,
 		IsAdmin:   false,
 		IsActive:  true,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   "octocat",
-			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 1)),
-		},
+		Subject:   "octocat",
+		IssuedAt:  jwt.NewNumericDate(now),
+		ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 1)),
 	}
 
 	// setup context
@@ -91,11 +89,9 @@ func TestClaims_Establish(t *testing.T) {
 				TokenType: constants.UserAccessTokenType,
 				IsAdmin:   false,
 				IsActive:  true,
-				RegisteredClaims: jwt.RegisteredClaims{
-					Subject:   "foo",
-					IssuedAt:  jwt.NewNumericDate(now),
-					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 5)),
-				},
+				Subject:   "foo",
+				IssuedAt:  jwt.NewNumericDate(now),
+				ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 5)),
 			},
 			Mto: &token.MintTokenOpts{
 				User:          user,
@@ -111,11 +107,9 @@ func TestClaims_Establish(t *testing.T) {
 				TokenType: constants.WorkerBuildTokenType,
 				BuildID:   1,
 				Repo:      "foo/bar",
-				RegisteredClaims: jwt.RegisteredClaims{
-					Subject:   "host",
-					IssuedAt:  jwt.NewNumericDate(now),
-					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 35)),
-				},
+				Subject:   "host",
+				IssuedAt:  jwt.NewNumericDate(now),
+				ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 35)),
 			},
 			Mto: &token.MintTokenOpts{
 				Hostname:      "host",
@@ -131,11 +125,9 @@ func TestClaims_Establish(t *testing.T) {
 			TokenType: constants.WorkerAuthTokenType,
 			WantClaims: &token.Claims{
 				TokenType: constants.WorkerAuthTokenType,
-				RegisteredClaims: jwt.RegisteredClaims{
-					Subject:   "host",
-					IssuedAt:  jwt.NewNumericDate(now),
-					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerAuthTokenDuration)),
-				},
+				Subject:   "host",
+				IssuedAt:  jwt.NewNumericDate(now),
+				ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerAuthTokenDuration)),
 			},
 			Mto: &token.MintTokenOpts{
 				Hostname:      "host",
@@ -149,11 +141,9 @@ func TestClaims_Establish(t *testing.T) {
 			TokenType: constants.WorkerRegisterTokenType,
 			WantClaims: &token.Claims{
 				TokenType: constants.WorkerRegisterTokenType,
-				RegisteredClaims: jwt.RegisteredClaims{
-					Subject:   "host",
-					IssuedAt:  jwt.NewNumericDate(now),
-					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerRegisterTokenDuration)),
-				},
+				Subject:   "host",
+				IssuedAt:  jwt.NewNumericDate(now),
+				ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerRegisterTokenDuration)),
 			},
 			Mto: &token.MintTokenOpts{
 				Hostname:      "host",
@@ -167,9 +157,7 @@ func TestClaims_Establish(t *testing.T) {
 			TokenType: constants.ServerWorkerTokenType,
 			WantClaims: &token.Claims{
 				TokenType: constants.ServerWorkerTokenType,
-				RegisteredClaims: jwt.RegisteredClaims{
-					Subject: "vela-worker",
-				},
+				Subject:   "vela-worker",
 			},
 			CtxRequest: "/repos/foo/bar/builds/1",
 			Endpoint:   "repos/:org/:repo/builds/:build",

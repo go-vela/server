@@ -9,8 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v93/github"
 	"golang.org/x/oauth2"
 )
 
@@ -19,9 +18,13 @@ func TestGithub_New(t *testing.T) {
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
 
-	gitClient := github.NewClient(nil)
+	baseURL, _ := url.Parse(s.URL + "/api/v3/")
+	baseURLStr := baseURL.String()
 
-	gitClient.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
+	gitClient, err := github.NewClient(github.WithURLs(&baseURLStr, nil))
+	if err != nil {
+		t.Fatalf("github.NewClient returned err: %v", err)
+	}
 
 	want := &Client{
 		githubClient: gitClient,
@@ -35,7 +38,7 @@ func TestGithub_New(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	if !cmp.Equal(got, want) {
+	if !got.Equal(want) {
 		t.Errorf("New is %v, want %v", got, want)
 	}
 }
@@ -50,8 +53,14 @@ func TestGithub_NewToken(t *testing.T) {
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(context.Background(), ts)
-	gitClient := github.NewClient(tc)
-	gitClient.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
+
+	baseURL, _ := url.Parse(s.URL + "/api/v3/")
+	baseURLStr := baseURL.String()
+
+	gitClient, err := github.NewClient(github.WithHTTPClient(tc), github.WithURLs(&baseURLStr, nil))
+	if err != nil {
+		t.Fatalf("github.NewClient returned err: %v", err)
+	}
 
 	want := &Client{
 		githubClient: gitClient,
@@ -65,7 +74,7 @@ func TestGithub_NewToken(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	if !cmp.Equal(got, want) {
+	if !got.Equal(want) {
 		t.Errorf("New is %v, want %v", got, want)
 	}
 }

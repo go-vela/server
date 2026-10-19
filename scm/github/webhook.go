@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v93/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -104,7 +104,10 @@ func (c *Client) VerifyWebhook(_ context.Context, request *http.Request, secret 
 // RedeliverWebhook redelivers webhooks from GitHub.
 func (c *Client) RedeliverWebhook(ctx context.Context, u *api.User, h *api.Hook) error {
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, u.GetToken())
+	client, err := c.newOAuthTokenClient(ctx, u.GetToken())
+	if err != nil {
+		return err
+	}
 
 	// capture the delivery ID of the hook using GitHub API
 	deliveryID, err := c.getDeliveryID(ctx, client, h)
@@ -120,10 +123,9 @@ func (c *Client) RedeliverWebhook(ctx context.Context, u *api.User, h *api.Hook)
 		h.GetWebhookID(), deliveryID,
 	)
 	if err != nil {
-		var acceptedError *github.AcceptedError
 		// Persist if the status received is a 202 Accepted. This
 		// means the job was added to the queue for GitHub.
-		if errors.As(err, &acceptedError) {
+		if _, ok := errors.AsType[*github.AcceptedError](err); ok {
 			return nil
 		}
 

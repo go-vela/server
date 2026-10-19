@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v93/github"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
@@ -82,7 +82,7 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 				Account: &github.User{
 					Login: new("github"),
 				},
-				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
+				RepositorySelection: new(constants.AppInstallRepositoriesSelectionSelected),
 			},
 			want:    true,
 			wantErr: false,
@@ -96,7 +96,7 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 				Account: &github.User{
 					Login: new("github"),
 				},
-				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionAll),
+				RepositorySelection: new(constants.AppInstallRepositoriesSelectionAll),
 			},
 			want:    true,
 			wantErr: false,
@@ -110,7 +110,7 @@ func TestClient_installationCanReadRepo(t *testing.T) {
 				Account: &github.User{
 					Login: new("github"),
 				},
-				RepositorySelection: github.Ptr(constants.AppInstallRepositoriesSelectionSelected),
+				RepositorySelection: new(constants.AppInstallRepositoriesSelectionSelected),
 			},
 			want:    false,
 			wantErr: false,

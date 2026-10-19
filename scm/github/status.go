@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v93/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -67,9 +67,12 @@ func (c *Client) Status(ctx context.Context, b *api.Build, token string) error {
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client, err := c.newOAuthTokenClient(ctx, token)
+	if err != nil {
+		return err
+	}
 
-	err := commitStatus(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b)
+	err = commitStatus(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b)
 	if err != nil {
 		return err
 	}
@@ -102,10 +105,10 @@ func commitStatus(ctx context.Context, ghClient *github.Client, addr, statusCtx 
 		}
 
 		// create the status object to make the API call
-		status := &github.DeploymentStatusRequest{
+		status := github.DeploymentStatusRequest{
 			Description: new(description),
 			Environment: new(b.GetDeploy()),
-			State:       new(state),
+			State:       state,
 		}
 
 		// provide "Details" link in GitHub UI if server was configured with it
@@ -167,9 +170,12 @@ func (c *Client) StepStatus(ctx context.Context, b *api.Build, s *api.Step, toke
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newOAuthTokenClient(ctx, token)
+	client, err := c.newOAuthTokenClient(ctx, token)
+	if err != nil {
+		return err
+	}
 
-	err := stepCommitStatus(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b, s)
+	err = stepCommitStatus(ctx, client, c.config.WebUIAddress, c.config.StatusContext, b, s)
 	if err != nil {
 		return err
 	}

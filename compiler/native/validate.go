@@ -262,11 +262,11 @@ func validatePipelineContainers(s pipeline.ContainerSlice, reportCount, gitToken
 	}
 
 	if *reportCount > constants.ReportStepStatusLimit {
-		return fmt.Errorf("report_as is limited to %d steps, counted %d", constants.ReportStepStatusLimit, reportCount)
+		return fmt.Errorf("report_as is limited to %d steps, counted %d", constants.ReportStepStatusLimit, *reportCount)
 	}
 
 	if *gitTokenCount > constants.GitTokenRequestLimit {
-		return fmt.Errorf("git token requests are limited to %d steps, counted %d", constants.GitTokenRequestLimit, gitTokenCount)
+		return fmt.Errorf("git token requests are limited to %d steps, counted %d", constants.GitTokenRequestLimit, *gitTokenCount)
 	}
 
 	return nil
