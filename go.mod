@@ -9,9 +9,9 @@ require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/adhocore/gronx v1.20.5
 	github.com/alicebob/miniredis/v2 v2.40.0
-	github.com/aws/aws-sdk-go-v2 v1.47.3
-	github.com/aws/aws-sdk-go-v2/config v1.33.9
-	github.com/aws/aws-sdk-go-v2/service/sts v1.51.4
+	github.com/aws/aws-sdk-go-v2 v1.47.5
+	github.com/aws/aws-sdk-go-v2/config v1.33.13
+	github.com/aws/aws-sdk-go-v2/service/sts v1.51.6
 	github.com/distribution/reference v0.6.0
 	github.com/drone/envsubst v1.0.3
 	github.com/expr-lang/expr v1.17.8
@@ -29,7 +29,7 @@ require (
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/invopop/jsonschema v0.14.0
 	github.com/joho/godotenv v1.5.1
-	github.com/lestrrat-go/jwx/v4 v4.5.0
+	github.com/lestrrat-go/jwx/v4 v4.6.0
 	github.com/lib/pq v1.12.3
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/minio/minio-go/v7 v7.4.1
@@ -57,24 +57,24 @@ require (
 	gorm.io/driver/postgres v1.6.3
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
-	k8s.io/apimachinery v0.37.1
+	k8s.io/apimachinery v0.37.2
 )
 
 require (
 	dario.cat/mergo v1.0.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/PuerkitoBio/purell v1.2.1 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.20.9 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.3 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.6 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.6 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.6 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.21 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.6 // indirect
-	github.com/aws/aws-sdk-go-v2/service/signin v1.10.4 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.38.4 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.43.4 // indirect
-	github.com/aws/smithy-go v1.28.5 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.20.13 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.5 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.8 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.8 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.8 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.23 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.8 // indirect
+	github.com/aws/aws-sdk-go-v2/service/signin v1.12.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.39.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.44.1 // indirect
+	github.com/aws/smithy-go v1.28.7 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -150,7 +150,6 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.2 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.4.0 // indirect
-	github.com/valyala/fastjson v1.6.10 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
