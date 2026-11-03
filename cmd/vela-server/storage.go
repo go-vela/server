@@ -28,6 +28,7 @@ func setupStorage(_ context.Context, c *cli.Command) (storage.Storage, error) {
 		SecretKey: c.String("storage.secret.key"),
 		Bucket:    c.String("storage.bucket.name"),
 		Secure:    c.Bool("storage.use.ssl"),
+		UseIAM:    c.Bool("storage.use.iam"),
 	}
 	// setup the storage
 	//

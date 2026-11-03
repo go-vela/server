@@ -24,6 +24,7 @@ type config struct {
 	Secure    bool
 	Token     string
 	Driver    string
+	UseIAM    bool
 }
 
 // Client implements the Storage interface using MinIO.
@@ -56,7 +57,14 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 		}
 	}
 
-	c.Options.Creds = credentials.NewStaticV4(c.config.AccessKey, c.config.SecretKey, c.config.Token)
+	// resolve credentials either from an AWS IAM role (EC2/ECS/EKS instance
+	// metadata or a web identity token) or from static access/secret keys.
+	if c.config.UseIAM {
+		c.Options.Creds = credentials.NewIAM("")
+	} else {
+		c.Options.Creds = credentials.NewStaticV4(c.config.AccessKey, c.config.SecretKey, c.config.Token)
+	}
+
 	c.Options.Secure = c.config.Secure
 
 	urlEndpoint, err := url.Parse(endpoint)
@@ -81,6 +89,6 @@ func New(endpoint string, opts ...ClientOpt) (*Client, error) {
 // This function is intended for running tests only.
 func NewTest(endpoint, accessKey, secretKey, bucket string, secure bool) (*Client, error) {
 	return New(endpoint,
-		WithOptions(true, secure,
+		WithOptions(true, secure, false,
 			endpoint, accessKey, secretKey, bucket, "", constants.DriverMinio))
 }

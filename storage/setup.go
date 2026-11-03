@@ -25,6 +25,7 @@ type Setup struct {
 	Region    string
 	Secure    bool
 	Token     string
+	UseIAM    bool
 }
 
 // Minio creates and returns a Vela service capable
@@ -35,6 +36,7 @@ func (s *Setup) Minio() (Storage, error) {
 		minio.WithOptions(
 			s.Enable,
 			s.Secure,
+			s.UseIAM,
 			s.Endpoint,
 			s.AccessKey,
 			s.SecretKey,
@@ -64,7 +66,7 @@ func (s *Setup) Validate() error {
 			return fmt.Errorf("storage is enabled but no endpoint provided")
 		}
 
-		if s.AccessKey == "" || s.SecretKey == "" {
+		if !s.UseIAM && (s.AccessKey == "" || s.SecretKey == "") {
 			return fmt.Errorf("storage is enabled but no access key or secret key provided")
 		}
 
