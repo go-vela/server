@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v3"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"

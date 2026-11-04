@@ -5,7 +5,7 @@ package native
 import (
 	"strings"
 
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 
 	"github.com/go-vela/server/compiler/types/raw"
 )

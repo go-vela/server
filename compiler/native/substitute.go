@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/drone/envsubst"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 
 	types "github.com/go-vela/server/compiler/types/yaml"
 )

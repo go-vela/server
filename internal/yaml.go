@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	yaml "go.yaml.in/yaml/v3"
+	yaml "go.yaml.in/yaml/v4"
 
 	types "github.com/go-vela/server/compiler/types/yaml"
 )
