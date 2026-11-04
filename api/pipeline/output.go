@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	yml "go.yaml.in/yaml/v3"
+	yml "go.yaml.in/yaml/v4"
 
 	"github.com/go-vela/server/util"
 )
