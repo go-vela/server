@@ -23,7 +23,10 @@ import (
 // GET    /api/v1/user/source/repos
 // POST   /api/v1/user/token
 // DELETE /api/v1/user/token
-// GET    /api/v1/user/dashboards .
+// GET    /api/v1/user/dashboards
+// POST   /api/v1/user/favorites
+// DELETE /api/v1/user/favorites/:org/:repo
+// PUT    /api/v1/user/favorites/shuffle .
 func UserHandlers(base *gin.RouterGroup) {
 	// Users endpoints
 	_users := base.Group("/users")
@@ -44,5 +47,7 @@ func UserHandlers(base *gin.RouterGroup) {
 		_user.POST("/token", user.CreateToken)
 		_user.DELETE("/token", user.DeleteToken)
 		_user.GET("/dashboards", dashboard.ListUserDashboards)
+
+		FavoriteHandlers(_user)
 	} // end of user endpoints
 }
