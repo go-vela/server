@@ -136,6 +136,7 @@ func TestNative_TransformStages(t *testing.T) {
 								Name:        "install",
 								Number:      1,
 								Pull:        "always",
+								Artifacts: pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -192,6 +193,7 @@ func TestNative_TransformStages(t *testing.T) {
 								Name:        "install",
 								Number:      1,
 								Pull:        "always",
+								Artifacts: pipeline.Artifacts{Secured: true},
 							},
 						},
 					},
@@ -358,6 +360,7 @@ func TestNative_TransformSteps(t *testing.T) {
 						Name:        "install deps",
 						Number:      1,
 						Pull:        "always",
+						Artifacts: pipeline.Artifacts{Secured: true},
 					},
 				},
 				Secrets: pipeline.SecretSlice{
@@ -409,6 +412,7 @@ func TestNative_TransformSteps(t *testing.T) {
 						Name:        "install deps",
 						Number:      1,
 						Pull:        "always",
+						Artifacts: pipeline.Artifacts{Secured: true},
 					},
 				},
 				Secrets: pipeline.SecretSlice{
